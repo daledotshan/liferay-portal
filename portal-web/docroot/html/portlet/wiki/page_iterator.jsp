@@ -189,6 +189,10 @@ else if (type.equals("categorized_pages") || type.equals("tagged_pages")) {
 	for (AssetEntry assetEntry : assetEntries) {
 		WikiPageResource pageResource = WikiPageResourceLocalServiceUtil.getPageResource(assetEntry.getClassPK());
 
+		if (pageResource.getNodeId() != node.getNodeId()) {
+			continue;
+		}
+
 		WikiPage assetPage = WikiPageLocalServiceUtil.getPage(pageResource.getNodeId(), pageResource.getTitle());
 
 		results.add(assetPage);
