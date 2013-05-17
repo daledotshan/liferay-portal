@@ -34,7 +34,7 @@
 	<td></td>
 </tr>
 <tr>
-	<td>DATA_DEFINITION_SELECT</td>
+	<td>DATA_DEFINITION_SELECT_LINK</td>
 	<td>//span[@class='taglib-text' and contains(.,'Select')]</td>
 	<td></td>
 </tr>

@@ -159,7 +159,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 
 		layoutLocalServiceHelper.validate(
 			groupId, privateLayout, layoutId, parentLayoutId, name, type,
-			hidden, friendlyURL);
+			hidden, friendlyURLMap);
 
 		Date now = new Date();
 
@@ -276,7 +276,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 
 		// Layout friendly URLs
 
-		layoutFriendlyURLLocalService.addLayoutFriendlyURLs(
+		layoutFriendlyURLLocalService.updateLayoutFriendlyURLs(
 			user.getCompanyId(), groupId, plid, privateLayout, friendlyURLMap,
 			serviceContext);
 
@@ -511,6 +511,11 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		for (Layout childLayout : childLayouts) {
 			deleteLayout(childLayout, updateLayoutSet, serviceContext);
 		}
+
+		// Layout friendly URLs
+
+		layoutFriendlyURLLocalService.deleteLayoutFriendlyURLs(
+			layout.getPlid());
 
 		// Portlet preferences
 
@@ -1736,7 +1741,8 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	 *         not be found
 	 * @throws SystemException if a system exception occurred
 	 */
-	public Layout updateFriendlyURL(long plid, String friendlyURL)
+	public Layout updateFriendlyURL(
+			long plid, String friendlyURL, String languageId)
 		throws PortalException, SystemException {
 
 		Date now = new Date();
@@ -1751,8 +1757,19 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
 			friendlyURL);
 
+		layoutFriendlyURLLocalService.updateLayoutFriendlyURL(
+			layout.getCompanyId(), layout.getGroupId(), layout.getPlid(),
+			layout.isPrivateLayout(), friendlyURL, languageId,
+			new ServiceContext());
+
 		layout.setModifiedDate(now);
-		layout.setFriendlyURL(friendlyURL);
+
+		String defaultLanguageId = LocaleUtil.toLanguageId(
+			LocaleUtil.getDefault());
+
+		if (languageId.equals(defaultLanguageId)) {
+			layout.setFriendlyURL(friendlyURL);
+		}
 
 		layoutPersistence.update(layout);
 
@@ -1775,13 +1792,13 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			groupId, privateLayout, parentLayoutId);
 		String name = nameMap.get(LocaleUtil.getDefault());
 		friendlyURLMap = layoutLocalServiceHelper.getFriendlyURLMap(
-			groupId, privateLayout, layoutId, StringPool.BLANK, friendlyURLMap);
+			groupId, privateLayout, layoutId, name, friendlyURLMap);
 
 		String friendlyURL = friendlyURLMap.get(LocaleUtil.getDefault());
 
 		layoutLocalServiceHelper.validate(
 			groupId, privateLayout, layoutId, parentLayoutId, name, type,
-			hidden, friendlyURL);
+			hidden, friendlyURLMap);
 
 		layoutLocalServiceHelper.validateParentLayoutId(
 			groupId, privateLayout, layoutId, parentLayoutId);

@@ -1433,7 +1433,12 @@ public class PortalImpl implements Portal {
 			companyId);
 
 		for (Portlet portlet : portletsList) {
-			if (category.equals(portlet.getControlPanelEntryCategory())) {
+			String portletCategory = portlet.getControlPanelEntryCategory();
+
+			if (category.equals(portletCategory) ||
+				(category.endsWith(StringPool.PERIOD) &&
+				 Validator.startsWith(portletCategory, category))) {
+
 				portletsSet.add(portlet);
 			}
 		}
@@ -2161,6 +2166,25 @@ public class PortalImpl implements Portal {
 		}
 
 		return sb.toString();
+	}
+
+	public Portlet getFirstSiteAdministrationPortlet(ThemeDisplay themeDisplay)
+		throws SystemException {
+
+		Portlet siteAdministrationPortlet = null;
+
+		for (String category : PortletCategoryKeys.SITE_ADMINISTRATION_ALL) {
+			List<Portlet> portlets = PortalUtil.getControlPanelPortlets(
+				category, themeDisplay);
+
+			if (portlets.isEmpty()) {
+				continue;
+			}
+
+			return portlets.get(0);
+		}
+
+		return siteAdministrationPortlet;
 	}
 
 	public String getFullName(
@@ -4060,6 +4084,31 @@ public class PortalImpl implements Portal {
 			getHttpServletRequest(portletRequest), checkPermission);
 	}
 
+	public PortletURL getSiteAdministrationURL(
+			PortletResponse portletResponse, ThemeDisplay themeDisplay)
+		throws SystemException {
+
+		LiferayPortletResponse liferayPortletResponse =
+			(LiferayPortletResponse)portletResponse;
+
+		Portlet portlet = getFirstSiteAdministrationPortlet(themeDisplay);
+
+		if (portlet == null) {
+			return null;
+		}
+
+		LiferayPortletURL siteAdministrationURL =
+			liferayPortletResponse.createRenderURL(portlet.getPortletName());
+
+		siteAdministrationURL.setControlPanelCategory(
+			PortletCategoryKeys.SITES);
+		siteAdministrationURL.setDoAsGroupId(themeDisplay.getScopeGroupId());
+		siteAdministrationURL.setParameter(
+			"redirect", themeDisplay.getURLCurrent());
+
+		return siteAdministrationURL;
+	}
+
 	public long[] getSiteAndCompanyGroupIds(long groupId)
 		throws PortalException, SystemException {
 
@@ -5200,7 +5249,7 @@ public class PortalImpl implements Portal {
 			themeDisplay.setScopeGroupId(companyGroup.getGroupId());
 
 			List<Portlet> controlPanelPortlets = getControlPanelPortlets(
-				PortletCategoryKeys.CONTENT, themeDisplay);
+				PortletCategoryKeys.SITE_ADMINISTRATION, themeDisplay);
 
 			if (!controlPanelPortlets.isEmpty()) {
 				return true;
@@ -6215,7 +6264,7 @@ public class PortalImpl implements Portal {
 		long doAsGroupId = 0;
 
 		Collection<Portlet> portlets = getControlPanelPortlets(
-			companyId, PortletCategoryKeys.CONTENT);
+			companyId, PortletCategoryKeys.SITE_ADMINISTRATION);
 
 		List<Group> groups = GroupServiceUtil.getManageableSites(portlets, 1);
 
@@ -6376,9 +6425,8 @@ public class PortalImpl implements Portal {
 				}
 			}
 			else {
-				Layout curLayout = themeDisplay.getLayout();
-
-				LayoutSet curLayoutSet = curLayout.getLayoutSet();
+				LayoutSet curLayoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
+					themeDisplay.getSiteGroupId(), privateLayoutSet);
 
 				if (canonicalURL ||
 					((layoutSet.getLayoutSetId() !=

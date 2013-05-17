@@ -294,7 +294,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		validateFriendlyURL(
 			user.getCompanyId(), groupId, classNameId, classPK, friendlyURL);
 
-		validateParentGroup(groupId, parentGroupId);
+		validateParentGroup(groupId, parentGroupId, type);
 
 		Group group = groupPersistence.create(groupId);
 
@@ -3054,7 +3054,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			group.getCompanyId(), group.getGroupId(), group.getClassNameId(),
 			group.getClassPK(), friendlyURL);
 
-		validateParentGroup(group.getGroupId(), parentGroupId);
+		validateParentGroup(group.getGroupId(), parentGroupId, type);
 
 		group.setParentGroupId(parentGroupId);
 		group.setTreePath(group.buildTreePath());
@@ -3487,7 +3487,8 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				portlet.getControlPanelEntryCategory());
 
 			if (actions.contains(ActionKeys.ACCESS_IN_CONTROL_PANEL) &&
-				controlPanelEntryCategory.equals(PortletCategoryKeys.CONTENT)) {
+				controlPanelEntryCategory.startsWith(
+					PortletCategoryKeys.SITE_ADMINISTRATION)) {
 
 				setRolePermissions(
 					group, role, portlet.getPortletId(),
@@ -3735,8 +3736,15 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		}
 	}
 
-	protected void validateParentGroup(long groupId, long parentGroupId)
+	protected void validateParentGroup(
+			long groupId, long parentGroupId, int type)
 		throws PortalException, SystemException {
+
+		if ((type == GroupConstants.TYPE_SITE_LIMITED_TO_PARENT_SITE_MEMBERS) &&
+			(parentGroupId == GroupConstants.DEFAULT_PARENT_GROUP_ID)) {
+
+			throw new GroupParentException(GroupParentException.MISSING_PARENT);
+		}
 
 		if (parentGroupId == GroupConstants.DEFAULT_PARENT_GROUP_ID) {
 			return;

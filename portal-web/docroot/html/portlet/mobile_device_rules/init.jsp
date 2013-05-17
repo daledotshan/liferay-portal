@@ -24,6 +24,7 @@ page import="com.liferay.portal.kernel.mobile.device.rulegroup.action.ActionHand
 page import="com.liferay.portal.kernel.mobile.device.rulegroup.rule.UnknownRuleHandlerException" %><%@
 page import="com.liferay.portal.kernel.plugin.PluginPackage" %><%@
 page import="com.liferay.portal.plugin.PluginUtil" %><%@
+page import="com.liferay.portlet.mobiledevicerules.ActionTypeException" %><%@
 page import="com.liferay.portlet.mobiledevicerules.NoSuchActionException" %><%@
 page import="com.liferay.portlet.mobiledevicerules.NoSuchRuleException" %><%@
 page import="com.liferay.portlet.mobiledevicerules.NoSuchRuleGroupException" %><%@
@@ -50,7 +51,7 @@ long groupId = ParamUtil.getLong(request, "groupId");
 
 String category = PortalUtil.getControlPanelCategory(portletDisplay.getId(), themeDisplay);
 
-if ((groupId == 0) && !category.equals(PortletCategoryKeys.CONTENT)) {
+if ((groupId == 0) && !category.startsWith(PortletCategoryKeys.SITE_ADMINISTRATION)) {
 	groupId = themeDisplay.getCompanyGroupId();
 }
 

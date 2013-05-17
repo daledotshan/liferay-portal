@@ -30,18 +30,18 @@ public class ConfigurePortletShowMetadataViewCountTest extends BaseTestCase {
 			RuntimeVariables.replace("Asset Publisher Test Page"));
 		selenium.waitForPageToLoad("30000");
 		selenium.waitForElementPresent(
-			"//nav[@class='site-breadcrumbs aui-hide lfr-hudcrumbs']");
-		Thread.sleep(5000);
+			"//nav[@class='site-breadcrumbs hide lfr-hudcrumbs']");
+		Thread.sleep(1000);
 		assertEquals(RuntimeVariables.replace("Options"),
 			selenium.getText("//span[@title='Options']/ul/li/strong/a"));
 		selenium.clickAt("//span[@title='Options']/ul/li/strong/a",
 			RuntimeVariables.replace("Options"));
 		selenium.waitForVisible(
-			"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]");
+			"//div[@class='lfr-menu-list unstyled']/ul/li/a[contains(.,'Configuration')]");
 		assertEquals(RuntimeVariables.replace("Configuration"),
 			selenium.getText(
-				"//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]"));
-		selenium.clickAt("//div[@class='lfr-component lfr-menu-list']/ul/li/a[contains(.,'Configuration')]",
+				"//div[@class='lfr-menu-list unstyled']/ul/li/a[contains(.,'Configuration')]"));
+		selenium.clickAt("//div[@class='lfr-menu-list unstyled']/ul/li/a[contains(.,'Configuration')]",
 			RuntimeVariables.replace("Configuration"));
 		selenium.waitForElementPresent(
 			"//iframe[contains(@id,'configurationIframeDialog')]");
@@ -49,17 +49,21 @@ public class ConfigurePortletShowMetadataViewCountTest extends BaseTestCase {
 			"//iframe[contains(@id,'configurationIframeDialog')]");
 		selenium.waitForElementPresent(
 			"//script[contains(@src,'/liferay/navigation_interaction.js')]");
+		selenium.waitForVisible("link=Display Settings");
+		selenium.clickAt("link=Display Settings",
+			RuntimeVariables.replace("Display Settings"));
 		selenium.waitForVisible("//select[@id='_86_availableMetadataFields']");
 		selenium.addSelection("//select[@id='_86_availableMetadataFields']",
 			RuntimeVariables.replace("View Count"));
 		selenium.waitForVisible(
-			"//div[5]/div[2]/fieldset[2]/div/div/div/div/div/div/div/div[2]/div/span/span/button[2]");
-		selenium.clickAt("//div[5]/div[2]/fieldset[2]/div/div/div/div/div/div/div/div[2]/div/span/span/button[2]",
+			"//button[@title='Move selected items from Available to Current.']/span");
+		selenium.clickAt("//button[@title='Move selected items from Available to Current.']/span",
 			RuntimeVariables.replace("Left Arrow"));
 		selenium.waitForPartialText("//select[@id='_86_currentMetadataFields']",
 			"View Count");
 		assertTrue(selenium.isPartialText(
 				"//select[@id='_86_currentMetadataFields']", "View Count"));
+		Thread.sleep(1000);
 		selenium.clickAt("//input[@value='Save']",
 			RuntimeVariables.replace("Save"));
 		selenium.waitForPageToLoad("30000");

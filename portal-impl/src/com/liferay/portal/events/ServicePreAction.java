@@ -71,6 +71,7 @@ import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
@@ -379,12 +380,21 @@ public class ServicePreAction extends Action {
 			}
 
 			if (Validator.isNull(controlPanelCategory) &&
-				Validator.isNotNull(ppid) &&
-				(LiferayWindowState.isPopUp(request) ||
-				 LiferayWindowState.isExclusive(request))) {
+				Validator.isNotNull(ppid)) {
 
-				controlPanelCategory =
-					_CONTROL_PANEL_CATEGORY_PORTLET_PREFIX + ppid;
+				if (LiferayWindowState.isPopUp(request) ||
+					LiferayWindowState.isExclusive(request)) {
+
+					controlPanelCategory =
+						_CONTROL_PANEL_CATEGORY_PORTLET_PREFIX + ppid;
+				}
+				else {
+					Portlet portlet = PortletLocalServiceUtil.getPortletById(
+						companyId, ppid);
+
+					controlPanelCategory =
+						portlet.getControlPanelEntryCategory();
+				}
 			}
 
 			boolean viewableGroup = LayoutPermissionUtil.contains(
@@ -777,23 +787,24 @@ public class ServicePreAction extends Action {
 		themeDisplay.setShowSignInIcon(!signedIn);
 		themeDisplay.setShowSignOutIcon(signedIn);
 
-		boolean showManageSiteIcon = false;
+		boolean showSiteAdministrationIcon = false;
 
 		long controlPanelPlid = 0;
 
 		if (signedIn && PropsValues.DOCKBAR_SHOW_SITE_CONTENT_ICON) {
 			controlPanelPlid = PortalUtil.getControlPanelPlid(companyId);
 
-			List<Portlet> siteContentPortlets =
+			List<Portlet> siteAdministrationPortlets =
 				PortalUtil.getControlPanelPortlets(
-					PortletCategoryKeys.CONTENT, themeDisplay);
+					PortletCategoryKeys.SITE_ADMINISTRATION, themeDisplay);
 
-			showManageSiteIcon =
+			showSiteAdministrationIcon =
 				PortletPermissionUtil.hasControlPanelAccessPermission(
-					permissionChecker, scopeGroupId, siteContentPortlets);
+					permissionChecker, scopeGroupId,
+					siteAdministrationPortlets);
 		}
 
-		themeDisplay.setShowManageSiteIcon(showManageSiteIcon);
+		themeDisplay.setShowSiteAdministrationIcon(showSiteAdministrationIcon);
 
 		themeDisplay.setShowStagingIcon(false);
 
@@ -814,11 +825,6 @@ public class ServicePreAction extends Action {
 		if (Validator.isNotNull(doAsUserId)) {
 			urlControlPanel = HttpUtil.addParameter(
 				urlControlPanel, "doAsUserId", doAsUserId);
-		}
-
-		if (scopeGroupId > 0) {
-			urlControlPanel = HttpUtil.addParameter(
-				urlControlPanel, "doAsGroupId", scopeGroupId);
 		}
 
 		if (refererGroupId > 0) {
@@ -862,12 +868,15 @@ public class ServicePreAction extends Action {
 
 		themeDisplay.setURLHome(urlHome);
 
-		String manageSiteURL = urlControlPanel;
+		String siteAdministrationURL = urlControlPanel;
 
-		manageSiteURL = HttpUtil.addParameter(
-			manageSiteURL, "controlPanelCategory", PortletCategoryKeys.CONTENT);
+		siteAdministrationURL = HttpUtil.addParameter(
+			siteAdministrationURL, "controlPanelCategory",
+			PortletCategoryKeys.CURRENT_SITE);
+		siteAdministrationURL = HttpUtil.addParameter(
+			siteAdministrationURL, "doAsGroupId", siteGroupId);
 
-		themeDisplay.setURLManageSite(manageSiteURL);
+		themeDisplay.setURLSiteAdministration(siteAdministrationURL);
 
 		if (layout != null) {
 			if (layout.isTypePortlet()) {
@@ -1187,7 +1196,6 @@ public class ServicePreAction extends Action {
 		if (group.isLayoutPrototype()) {
 			themeDisplay.setShowControlPanelIcon(false);
 			themeDisplay.setShowHomeIcon(false);
-			themeDisplay.setShowManageSiteIcon(false);
 			themeDisplay.setShowManageSiteMembershipsIcon(false);
 			themeDisplay.setShowMyAccountIcon(false);
 			themeDisplay.setShowPageCustomizationIcon(false);
@@ -1195,6 +1203,7 @@ public class ServicePreAction extends Action {
 			themeDisplay.setShowPortalIcon(false);
 			themeDisplay.setShowSignInIcon(false);
 			themeDisplay.setShowSignOutIcon(false);
+			themeDisplay.setShowSiteAdministrationIcon(false);
 			themeDisplay.setShowSiteSettingsIcon(false);
 			themeDisplay.setShowStagingIcon(false);
 		}
@@ -1206,9 +1215,9 @@ public class ServicePreAction extends Action {
 
 		if (group.hasStagingGroup() && !group.isStagingGroup()) {
 			themeDisplay.setShowLayoutTemplatesIcon(false);
-			themeDisplay.setShowManageSiteIcon(false);
 			themeDisplay.setShowPageCustomizationIcon(false);
 			themeDisplay.setShowPageSettingsIcon(false);
+			themeDisplay.setShowSiteAdministrationIcon(false);
 			themeDisplay.setShowSiteMapSettingsIcon(false);
 			themeDisplay.setShowSiteSettingsIcon(false);
 		}
@@ -1974,12 +1983,20 @@ public class ServicePreAction extends Action {
 
 		boolean addDefaultUserPrivateLayouts = false;
 
-		if (PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED &&
-			PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_AUTO_CREATE) {
+		long companyId = user.getCompanyId();
+
+		if (PrefsPropsUtil.getBoolean(
+				companyId, PropsKeys.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED) &&
+			PrefsPropsUtil.getBoolean(
+				companyId, PropsKeys.LAYOUT_USER_PRIVATE_LAYOUTS_AUTO_CREATE)) {
 
 			addDefaultUserPrivateLayouts = true;
 
-			if (PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED) {
+			if (PrefsPropsUtil.getBoolean(
+					companyId,
+					PropsKeys.
+						LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED)) {
+
 				if (hasPowerUserRole == null) {
 					hasPowerUserRole = hasPowerUserRole(user);
 				}
@@ -2003,10 +2020,16 @@ public class ServicePreAction extends Action {
 
 		boolean deleteDefaultUserPrivateLayouts = false;
 
-		if (!PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED) {
+		if (!PrefsPropsUtil.getBoolean(
+				companyId, PropsKeys.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED)) {
+
 			deleteDefaultUserPrivateLayouts = true;
 		}
-		else if (PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED) {
+		else if (PrefsPropsUtil.getBoolean(
+					companyId,
+					PropsKeys.
+						LAYOUT_USER_PRIVATE_LAYOUTS_POWER_USER_REQUIRED)) {
+
 			if (hasPowerUserRole == null) {
 				hasPowerUserRole = hasPowerUserRole(user);
 			}
@@ -2031,12 +2054,17 @@ public class ServicePreAction extends Action {
 
 		boolean addDefaultUserPublicLayouts = false;
 
-		if (PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED &&
-			PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_AUTO_CREATE) {
+		if (PrefsPropsUtil.getBoolean(
+				companyId, PropsKeys.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) &&
+			PrefsPropsUtil.getBoolean(
+				companyId, PropsKeys.LAYOUT_USER_PUBLIC_LAYOUTS_AUTO_CREATE)) {
 
 			addDefaultUserPublicLayouts = true;
 
-			if (PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED) {
+			if (PrefsPropsUtil.getBoolean(
+					companyId,
+					PropsKeys.LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED)) {
+
 				if (hasPowerUserRole == null) {
 					hasPowerUserRole = hasPowerUserRole(user);
 				}
@@ -2060,10 +2088,15 @@ public class ServicePreAction extends Action {
 
 		boolean deleteDefaultUserPublicLayouts = false;
 
-		if (!PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) {
+		if (!PrefsPropsUtil.getBoolean(
+				companyId, PropsKeys.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED)) {
+
 			deleteDefaultUserPublicLayouts = true;
 		}
-		else if (PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED) {
+		else if (PrefsPropsUtil.getBoolean(
+					companyId,
+					PropsKeys.LAYOUT_USER_PUBLIC_LAYOUTS_POWER_USER_REQUIRED)) {
+
 			if (hasPowerUserRole == null) {
 				hasPowerUserRole = hasPowerUserRole(user);
 			}

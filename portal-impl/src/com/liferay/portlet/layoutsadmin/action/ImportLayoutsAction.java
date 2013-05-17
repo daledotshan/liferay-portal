@@ -23,6 +23,7 @@ import com.liferay.portal.LocaleException;
 import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -166,7 +167,7 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		}
 
 		return mapping.findForward(
-			getForward(renderRequest, "portlet.layouts_admin.export_layouts"));
+			getForward(renderRequest, "portlet.layouts_admin.import_layouts"));
 	}
 
 	@Override
@@ -179,7 +180,7 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 
 		PortletRequestDispatcher portletRequestDispatcher =
 			portletContext.getRequestDispatcher(
-				"/html/portlet/layouts_admin/export_import_resources.jsp");
+				"/html/portlet/layouts_admin/import_layouts_resources.jsp");
 
 		portletRequestDispatcher.include(resourceRequest, resourceResponse);
 	}
@@ -306,8 +307,9 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		response.setContentType(ContentTypes.TEXT_HTML);
 		response.setStatus(HttpServletResponse.SC_OK);
 
-		int errorType = 0;
 		String errorMessage = StringPool.BLANK;
+		JSONArray errorMessageJSONArray = null;
+		int errorType = 0;
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -379,51 +381,45 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 			else if (e instanceof LayoutPrototypeException) {
 				LayoutPrototypeException lpe = (LayoutPrototypeException)e;
 
+				StringBundler sb = new StringBundler(4);
+
+				sb.append("the-lar-file-could-not-be-imported-because-it-");
+				sb.append("requires-page-templates-or-site-templates-that-");
+				sb.append("could-not-be-found.-please-import-the-following-");
+				sb.append("templates-manually");
+
+				errorMessage = themeDisplay.translate(sb.toString());
+
+				errorMessageJSONArray = JSONFactoryUtil.createJSONArray();
+
 				List<Tuple> missingLayoutPrototypes =
 					lpe.getMissingLayoutPrototypes();
 
-				StringBundler sb = new StringBundler(
-					3 + (11 * missingLayoutPrototypes.size()));
-
-				StringBundler languageKeySB = new StringBundler(5);
-
-				languageKeySB.append("the-lar-file-could-not-be-imported-");
-				languageKeySB.append("because-it-requires-page-templates-or-");
-				languageKeySB.append("site-templates-that-could-not-be-");
-				languageKeySB.append("found.-please-import-the-following-");
-				languageKeySB.append("templates-manually");
-
-				sb.append(themeDisplay.translate(languageKeySB.toString()));
-
-				sb.append("<ul>");
-
 				for (Tuple missingLayoutPrototype : missingLayoutPrototypes) {
-					String layoutPrototypeClassName =
-						(String)missingLayoutPrototype.getObject(0);
+					JSONObject errorMessageJSONObject =
+						JSONFactoryUtil.createJSONObject();
+
 					String layoutPrototypeUuid =
 						(String)missingLayoutPrototype.getObject(1);
+
+					errorMessageJSONObject.put("info", layoutPrototypeUuid);
+
 					String layoutPrototypeName =
 						(String)missingLayoutPrototype.getObject(2);
 
-					sb.append("<li>");
-					sb.append(
+					errorMessageJSONObject.put("name", layoutPrototypeName);
+
+					String layoutPrototypeClassName =
+						(String)missingLayoutPrototype.getObject(0);
+
+					errorMessageJSONObject.put(
+						"type",
 						ResourceActionsUtil.getModelResource(
 							themeDisplay.getLocale(),
 							layoutPrototypeClassName));
-					sb.append(StringPool.COLON);
-					sb.append(StringPool.SPACE);
-					sb.append("<strong>");
-					sb.append(layoutPrototypeName);
-					sb.append("</strong>");
-					sb.append(StringPool.OPEN_PARENTHESIS);
-					sb.append(layoutPrototypeUuid);
-					sb.append(StringPool.CLOSE_PARENTHESIS);
-					sb.append("</li>");
+
+					errorMessageJSONArray.put(errorMessageJSONObject);
 				}
-
-				sb.append("</ul>");
-
-				errorMessage = sb.toString();
 
 				errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
 			}
@@ -453,6 +449,13 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 		jsonObject.put("message", errorMessage);
+
+		if ((errorMessageJSONArray != null) &&
+			(errorMessageJSONArray.length() > 0)) {
+
+			jsonObject.put("messageListItems", errorMessageJSONArray);
+		}
+
 		jsonObject.put("status", errorType);
 
 		writeJSON(actionRequest, actionResponse, jsonObject);
@@ -504,6 +507,8 @@ public class ImportLayoutsAction extends EditFileEntryAction {
 			LayoutServiceUtil.importLayouts(
 				groupId, privateLayout, actionRequest.getParameterMap(),
 				newFile);
+
+			deleteTempFileEntry(groupId);
 
 			addSuccessMessage(actionRequest, actionResponse);
 		}
