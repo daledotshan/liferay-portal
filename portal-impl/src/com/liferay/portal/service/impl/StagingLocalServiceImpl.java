@@ -17,6 +17,7 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
+import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.lar.MissingReferences;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -31,7 +32,7 @@ import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.StagingLocalServiceBaseImpl;
 import com.liferay.portal.util.PortletKeys;
-import com.liferay.portlet.documentlibrary.NoSuchFileException;
+import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.NoSuchFolderException;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 
@@ -88,15 +89,22 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			Map<String, String[]> parameterMap)
 		throws PortalException, SystemException {
 
-		Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-			stagingRequestId);
+		try {
+			ExportImportThreadLocal.setLayoutImportInProcess(true);
 
-		FileEntry stagingRequestFileEntry = getStagingRequestFileEntry(
-			userId, stagingRequestId, folder);
+			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
+				stagingRequestId);
 
-		layoutLocalService.importLayouts(
-			userId, folder.getGroupId(), privateLayout, parameterMap,
-			stagingRequestFileEntry.getContentStream());
+			FileEntry stagingRequestFileEntry = getStagingRequestFileEntry(
+				userId, stagingRequestId, folder);
+
+			layoutLocalService.importLayouts(
+				userId, folder.getGroupId(), privateLayout, parameterMap,
+				stagingRequestFileEntry.getContentStream());
+		}
+		finally {
+			ExportImportThreadLocal.setLayoutImportInProcess(false);
+		}
 	}
 
 	@Override
@@ -123,15 +131,22 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			Map<String, String[]> parameterMap)
 		throws PortalException, SystemException {
 
-		Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-			stagingRequestId);
+		try {
+			ExportImportThreadLocal.setLayoutValidationInProcess(true);
 
-		FileEntry fileEntry = getStagingRequestFileEntry(
-			userId, stagingRequestId, folder);
+			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
+				stagingRequestId);
 
-		return layoutLocalService.validateImportLayoutsFile(
-			userId, folder.getGroupId(), privateLayout, parameterMap,
-			fileEntry.getContentStream());
+			FileEntry fileEntry = getStagingRequestFileEntry(
+				userId, stagingRequestId, folder);
+
+			return layoutLocalService.validateImportLayoutsFile(
+				userId, folder.getGroupId(), privateLayout, parameterMap,
+				fileEntry.getContentStream());
+		}
+		finally {
+			ExportImportThreadLocal.setLayoutValidationInProcess(false);
+		}
 	}
 
 	protected FileEntry fetchStagingRequestFileEntry(
@@ -141,11 +156,16 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		try {
 			return PortletFileRepositoryUtil.getPortletFileEntry(
 				folder.getGroupId(), folder.getFolderId(),
-				_ASSEMBLED_LAR_PREFIX + String.valueOf(stagingRequestId));
+				getAssembledFileName(stagingRequestId));
 		}
-		catch (NoSuchFileException nsfe) {
+		catch (NoSuchFileEntryException nsfe) {
 			return null;
 		}
+	}
+
+	protected String getAssembledFileName(long stagingRequestId) {
+		return _ASSEMBLED_LAR_PREFIX + String.valueOf(stagingRequestId) +
+			".lar";
 	}
 
 	protected FileEntry getStagingRequestFileEntry(
@@ -196,8 +216,7 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 				folder.getGroupId(), userId, Group.class.getName(),
 				folder.getGroupId(), PortletKeys.SITES_ADMIN,
 				folder.getFolderId(), tempFile,
-				_ASSEMBLED_LAR_PREFIX + String.valueOf(stagingRequestId) +
-					".lar",
+				getAssembledFileName(stagingRequestId),
 				ContentTypes.APPLICATION_ZIP, false);
 
 			stagingRequestFileEntry = fetchStagingRequestFileEntry(

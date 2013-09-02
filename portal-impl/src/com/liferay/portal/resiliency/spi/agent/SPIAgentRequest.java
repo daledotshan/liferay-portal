@@ -19,17 +19,22 @@ import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.PersistentHttpServletRequestWrapper;
 import com.liferay.portal.kernel.upload.FileItem;
 import com.liferay.portal.kernel.upload.UploadServletRequest;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.CookieUtil;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.upload.UploadServletRequestImpl;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.util.WebKeys;
 
 import java.io.Serializable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +76,17 @@ public class SPIAgentRequest extends SPIAgentSerializable {
 			if (!regularParameterMap.isEmpty()) {
 				this.regularParameterMap = regularParameterMap;
 			}
+		}
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		if ((themeDisplay != null) && themeDisplay.isAjax()) {
+			parameterMap = new HashMap<String, String[]>(parameterMap);
+
+			parameterMap.put(
+				"portalResiliencyPortletShowFooter",
+				new String[] {StringPool.FALSE});
 		}
 
 		HttpSession session = request.getSession();
@@ -215,7 +231,7 @@ public class SPIAgentRequest extends SPIAgentSerializable {
 		public String getParameter(String name) {
 			String[] values = parameterMap.get(name);
 
-			if ((values != null) && (values.length > 0)) {
+			if (ArrayUtil.isNotEmpty(values)) {
 				return values[0];
 			}
 			else {

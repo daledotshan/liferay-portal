@@ -1,4 +1,5 @@
 @import "compass";
+@import "mixins";
 
 @mixin keyframes($name) {
 	@-webkit-keyframes #{$name} {
@@ -72,14 +73,50 @@
 	}
 }
 
-.dockbar .menu-button-active .menu-button {
-	@include box-shadow(inset 0 1px 5px rgba(0, 0, 0, 0.7));
+.dockbar {
+	.menu-button-active .menu-button {
+		@include box-shadow(inset 0 1px 5px rgba(0, 0, 0, 0.7));
+	}
+
+	.impersonating-user .alert-info {
+		@include border-radius(0);
+	}
+}
+
+.dockbar-split .dockbar {
+	.navbar-inner {
+		.nav > li > a {
+			@include text-shadow(none);
+		}
+
+		.nav-add-controls {
+			> li {
+				a {
+					@include border-radius(4px);
+
+					.nav-item-label {
+						@include border-radius(30px);
+					}
+				}
+
+				&.open a {
+					@include border-radius(4px 4px 0 0);
+				}
+			}
+		}
+	}
+}
+
+@include respond-to(phone) {
+	.navbar .navbar-search .search-query {
+		@include border-radius(14px);
+	}
 }
 
 .portlet-document-library, .portlet-dynamic-data-mapping {
 	.lfr-ddm-small-image-preview {
 		@include box-shadow(0 1px 3px #ccc);
-    }
+	}
 }
 
 .portlet-asset-category-admin {
@@ -372,4 +409,8 @@ body:first-of-type {
 
 .upload-drop-intent .lfr-upload-container .upload-target {
 	@include experimental(animation, lfr-drop-active 1s ease 0.2s infinite);
+}
+
+.user-status-tooltip .user-status-avatar-image {
+	@include border-radius(50%);
 }

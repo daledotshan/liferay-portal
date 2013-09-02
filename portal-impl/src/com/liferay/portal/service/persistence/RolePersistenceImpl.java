@@ -17,11 +17,6 @@ package com.liferay.portal.service.persistence;
 import com.liferay.portal.NoSuchRoleException;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
-import com.liferay.portal.kernel.dao.jdbc.MappingSqlQuery;
-import com.liferay.portal.kernel.dao.jdbc.MappingSqlQueryFactoryUtil;
-import com.liferay.portal.kernel.dao.jdbc.RowMapper;
-import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
-import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -50,6 +45,8 @@ import com.liferay.portal.model.impl.RoleImpl;
 import com.liferay.portal.model.impl.RoleModelImpl;
 import com.liferay.portal.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.service.persistence.impl.TableMapper;
+import com.liferay.portal.service.persistence.impl.TableMapperFactory;
 
 import java.io.Serializable;
 
@@ -361,6 +358,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public Role fetchByUuid_Last(String uuid,
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByUuid(uuid);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<Role> list = findByUuid(uuid, count - 1, count, orderByComparator);
 
@@ -1312,6 +1313,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public Role fetchByUuid_C_Last(String uuid, long companyId,
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByUuid_C(uuid, companyId);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<Role> list = findByUuid_C(uuid, companyId, count - 1, count,
 				orderByComparator);
@@ -2266,6 +2271,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByCompanyId(companyId);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<Role> list = findByCompanyId(companyId, count - 1, count,
 				orderByComparator);
 
@@ -3117,6 +3126,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public Role fetchByName_Last(String name,
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByName(name);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<Role> list = findByName(name, count - 1, count, orderByComparator);
 
@@ -4024,6 +4037,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		throws SystemException {
 		int count = countByType(type);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<Role> list = findByType(type, count - 1, count, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -4875,6 +4892,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	public Role fetchBySubtype_Last(String subtype,
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countBySubtype(subtype);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<Role> list = findBySubtype(subtype, count - 1, count,
 				orderByComparator);
@@ -6089,6 +6110,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByT_S(type, subtype);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<Role> list = findByT_S(type, subtype, count - 1, count,
 				orderByComparator);
 
@@ -7032,6 +7057,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	private static final String _FINDER_COLUMN_C_C_C_CLASSNAMEID_2 = "role.classNameId = ? AND ";
 	private static final String _FINDER_COLUMN_C_C_C_CLASSPK_2 = "role.classPK = ?";
 
+	public RolePersistenceImpl() {
+		setModelClass(Role.class);
+	}
+
 	/**
 	 * Caches the role in the entity cache if it is enabled.
 	 *
@@ -7281,25 +7310,9 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	protected Role removeImpl(Role role) throws SystemException {
 		role = toUnwrappedModel(role);
 
-		try {
-			clearGroups.clear(role.getPrimaryKey());
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
-		}
+		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(role.getPrimaryKey());
 
-		try {
-			clearUsers.clear(role.getPrimaryKey());
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
-		}
+		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(role.getPrimaryKey());
 
 		Session session = null;
 
@@ -7830,19 +7843,6 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		return getGroups(pk, start, end, null);
 	}
 
-	public static final FinderPath FINDER_PATH_GET_GROUPS = new FinderPath(com.liferay.portal.model.impl.GroupModelImpl.ENTITY_CACHE_ENABLED,
-			RoleModelImpl.FINDER_CACHE_ENABLED_GROUPS_ROLES,
-			com.liferay.portal.model.impl.GroupImpl.class,
-			RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME, "getGroups",
-			new String[] {
-				Long.class.getName(), Integer.class.getName(),
-				Integer.class.getName(), OrderByComparator.class.getName()
-			});
-
-	static {
-		FINDER_PATH_GET_GROUPS.setCacheKeyGeneratorCacheName(null);
-	}
-
 	/**
 	 * Returns an ordered range of all the groups associated with the role.
 	 *
@@ -7860,88 +7860,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public List<com.liferay.portal.model.Group> getGroups(long pk, int start,
 		int end, OrderByComparator orderByComparator) throws SystemException {
-		boolean pagination = true;
-		Object[] finderArgs = null;
-
-		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
-				(orderByComparator == null)) {
-			pagination = false;
-			finderArgs = new Object[] { pk };
-		}
-		else {
-			finderArgs = new Object[] { pk, start, end, orderByComparator };
-		}
-
-		List<com.liferay.portal.model.Group> list = (List<com.liferay.portal.model.Group>)FinderCacheUtil.getResult(FINDER_PATH_GET_GROUPS,
-				finderArgs, this);
-
-		if (list == null) {
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				String sql = null;
-
-				if (orderByComparator != null) {
-					sql = _SQL_GETGROUPS.concat(ORDER_BY_CLAUSE)
-										.concat(orderByComparator.getOrderBy());
-				}
-				else {
-					sql = _SQL_GETGROUPS;
-
-					if (pagination) {
-						sql = sql.concat(com.liferay.portal.model.impl.GroupModelImpl.ORDER_BY_SQL);
-					}
-				}
-
-				SQLQuery q = session.createSQLQuery(sql);
-
-				q.addEntity("Group_",
-					com.liferay.portal.model.impl.GroupImpl.class);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(pk);
-
-				if (!pagination) {
-					list = (List<com.liferay.portal.model.Group>)QueryUtil.list(q,
-							getDialect(), start, end, false);
-
-					Collections.sort(list);
-
-					list = new UnmodifiableList<com.liferay.portal.model.Group>(list);
-				}
-				else {
-					list = (List<com.liferay.portal.model.Group>)QueryUtil.list(q,
-							getDialect(), start, end);
-				}
-
-				groupPersistence.cacheResult(list);
-
-				FinderCacheUtil.putResult(FINDER_PATH_GET_GROUPS, finderArgs,
-					list);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_GET_GROUPS, finderArgs);
-
-				throw processException(e);
-			}
-			finally {
-				closeSession(session);
-			}
-		}
-
-		return list;
-	}
-
-	public static final FinderPath FINDER_PATH_GET_GROUPS_SIZE = new FinderPath(com.liferay.portal.model.impl.GroupModelImpl.ENTITY_CACHE_ENABLED,
-			RoleModelImpl.FINDER_CACHE_ENABLED_GROUPS_ROLES, Long.class,
-			RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME, "getGroupsSize",
-			new String[] { Long.class.getName() });
-
-	static {
-		FINDER_PATH_GET_GROUPS_SIZE.setCacheKeyGeneratorCacheName(null);
+		return roleToGroupTableMapper.getRightBaseModels(pk, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -7953,49 +7873,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int getGroupsSize(long pk) throws SystemException {
-		Object[] finderArgs = new Object[] { pk };
+		long[] pks = roleToGroupTableMapper.getRightPrimaryKeys(pk);
 
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_GET_GROUPS_SIZE,
-				finderArgs, this);
-
-		if (count == null) {
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				SQLQuery q = session.createSQLQuery(_SQL_GETGROUPSSIZE);
-
-				q.addScalar(COUNT_COLUMN_NAME,
-					com.liferay.portal.kernel.dao.orm.Type.LONG);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(pk);
-
-				count = (Long)q.uniqueResult();
-
-				FinderCacheUtil.putResult(FINDER_PATH_GET_GROUPS_SIZE,
-					finderArgs, count);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_GET_GROUPS_SIZE,
-					finderArgs);
-
-				throw processException(e);
-			}
-			finally {
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
+		return pks.length;
 	}
-
-	public static final FinderPath FINDER_PATH_CONTAINS_GROUP = new FinderPath(com.liferay.portal.model.impl.GroupModelImpl.ENTITY_CACHE_ENABLED,
-			RoleModelImpl.FINDER_CACHE_ENABLED_GROUPS_ROLES, Boolean.class,
-			RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME, "containsGroup",
-			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
 	 * Returns <code>true</code> if the group is associated with the role.
@@ -8008,27 +7889,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public boolean containsGroup(long pk, long groupPK)
 		throws SystemException {
-		Object[] finderArgs = new Object[] { pk, groupPK };
-
-		Boolean value = (Boolean)FinderCacheUtil.getResult(FINDER_PATH_CONTAINS_GROUP,
-				finderArgs, this);
-
-		if (value == null) {
-			try {
-				value = Boolean.valueOf(containsGroup.contains(pk, groupPK));
-
-				FinderCacheUtil.putResult(FINDER_PATH_CONTAINS_GROUP,
-					finderArgs, value);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_CONTAINS_GROUP,
-					finderArgs);
-
-				throw processException(e);
-			}
-		}
-
-		return value.booleanValue();
+		return roleToGroupTableMapper.containsTableMapping(pk, groupPK);
 	}
 
 	/**
@@ -8057,15 +7918,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addGroup(long pk, long groupPK) throws SystemException {
-		try {
-			addGroup.add(pk, groupPK);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
-		}
+		roleToGroupTableMapper.addTableMapping(pk, groupPK);
 	}
 
 	/**
@@ -8078,15 +7931,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void addGroup(long pk, com.liferay.portal.model.Group group)
 		throws SystemException {
-		try {
-			addGroup.add(pk, group.getPrimaryKey());
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
-		}
+		roleToGroupTableMapper.addTableMapping(pk, group.getPrimaryKey());
 	}
 
 	/**
@@ -8098,16 +7943,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addGroups(long pk, long[] groupPKs) throws SystemException {
-		try {
-			for (long groupPK : groupPKs) {
-				addGroup.add(pk, groupPK);
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
+		for (long groupPK : groupPKs) {
+			roleToGroupTableMapper.addTableMapping(pk, groupPK);
 		}
 	}
 
@@ -8121,16 +7958,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void addGroups(long pk, List<com.liferay.portal.model.Group> groups)
 		throws SystemException {
-		try {
-			for (com.liferay.portal.model.Group group : groups) {
-				addGroup.add(pk, group.getPrimaryKey());
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
+		for (com.liferay.portal.model.Group group : groups) {
+			roleToGroupTableMapper.addTableMapping(pk, group.getPrimaryKey());
 		}
 	}
 
@@ -8142,15 +7971,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void clearGroups(long pk) throws SystemException {
-		try {
-			clearGroups.clear(pk);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
-		}
+		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -8162,15 +7983,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void removeGroup(long pk, long groupPK) throws SystemException {
-		try {
-			removeGroup.remove(pk, groupPK);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
-		}
+		roleToGroupTableMapper.deleteTableMapping(pk, groupPK);
 	}
 
 	/**
@@ -8183,15 +7996,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void removeGroup(long pk, com.liferay.portal.model.Group group)
 		throws SystemException {
-		try {
-			removeGroup.remove(pk, group.getPrimaryKey());
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
-		}
+		roleToGroupTableMapper.deleteTableMapping(pk, group.getPrimaryKey());
 	}
 
 	/**
@@ -8204,16 +8009,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void removeGroups(long pk, long[] groupPKs)
 		throws SystemException {
-		try {
-			for (long groupPK : groupPKs) {
-				removeGroup.remove(pk, groupPK);
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
+		for (long groupPK : groupPKs) {
+			roleToGroupTableMapper.deleteTableMapping(pk, groupPK);
 		}
 	}
 
@@ -8227,16 +8024,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void removeGroups(long pk,
 		List<com.liferay.portal.model.Group> groups) throws SystemException {
-		try {
-			for (com.liferay.portal.model.Group group : groups) {
-				removeGroup.remove(pk, group.getPrimaryKey());
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
+		for (com.liferay.portal.model.Group group : groups) {
+			roleToGroupTableMapper.deleteTableMapping(pk, group.getPrimaryKey());
 		}
 	}
 
@@ -8249,26 +8038,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void setGroups(long pk, long[] groupPKs) throws SystemException {
-		try {
-			Set<Long> groupPKSet = SetUtil.fromArray(groupPKs);
+		roleToGroupTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 
-			List<com.liferay.portal.model.Group> groups = getGroups(pk);
-
-			for (com.liferay.portal.model.Group group : groups) {
-				if (!groupPKSet.remove(group.getPrimaryKey())) {
-					removeGroup.remove(pk, group.getPrimaryKey());
-				}
-			}
-
-			for (Long groupPK : groupPKSet) {
-				addGroup.add(pk, groupPK);
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_GROUPS_ROLES_NAME);
+		for (Long groupPK : groupPKs) {
+			roleToGroupTableMapper.addTableMapping(pk, groupPK);
 		}
 	}
 
@@ -8333,19 +8106,6 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 		return getUsers(pk, start, end, null);
 	}
 
-	public static final FinderPath FINDER_PATH_GET_USERS = new FinderPath(com.liferay.portal.model.impl.UserModelImpl.ENTITY_CACHE_ENABLED,
-			RoleModelImpl.FINDER_CACHE_ENABLED_USERS_ROLES,
-			com.liferay.portal.model.impl.UserImpl.class,
-			RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME, "getUsers",
-			new String[] {
-				Long.class.getName(), Integer.class.getName(),
-				Integer.class.getName(), OrderByComparator.class.getName()
-			});
-
-	static {
-		FINDER_PATH_GET_USERS.setCacheKeyGeneratorCacheName(null);
-	}
-
 	/**
 	 * Returns an ordered range of all the users associated with the role.
 	 *
@@ -8363,88 +8123,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public List<com.liferay.portal.model.User> getUsers(long pk, int start,
 		int end, OrderByComparator orderByComparator) throws SystemException {
-		boolean pagination = true;
-		Object[] finderArgs = null;
-
-		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
-				(orderByComparator == null)) {
-			pagination = false;
-			finderArgs = new Object[] { pk };
-		}
-		else {
-			finderArgs = new Object[] { pk, start, end, orderByComparator };
-		}
-
-		List<com.liferay.portal.model.User> list = (List<com.liferay.portal.model.User>)FinderCacheUtil.getResult(FINDER_PATH_GET_USERS,
-				finderArgs, this);
-
-		if (list == null) {
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				String sql = null;
-
-				if (orderByComparator != null) {
-					sql = _SQL_GETUSERS.concat(ORDER_BY_CLAUSE)
-									   .concat(orderByComparator.getOrderBy());
-				}
-				else {
-					sql = _SQL_GETUSERS;
-
-					if (pagination) {
-						sql = sql.concat(com.liferay.portal.model.impl.UserModelImpl.ORDER_BY_SQL);
-					}
-				}
-
-				SQLQuery q = session.createSQLQuery(sql);
-
-				q.addEntity("User_",
-					com.liferay.portal.model.impl.UserImpl.class);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(pk);
-
-				if (!pagination) {
-					list = (List<com.liferay.portal.model.User>)QueryUtil.list(q,
-							getDialect(), start, end, false);
-
-					Collections.sort(list);
-
-					list = new UnmodifiableList<com.liferay.portal.model.User>(list);
-				}
-				else {
-					list = (List<com.liferay.portal.model.User>)QueryUtil.list(q,
-							getDialect(), start, end);
-				}
-
-				userPersistence.cacheResult(list);
-
-				FinderCacheUtil.putResult(FINDER_PATH_GET_USERS, finderArgs,
-					list);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_GET_USERS, finderArgs);
-
-				throw processException(e);
-			}
-			finally {
-				closeSession(session);
-			}
-		}
-
-		return list;
-	}
-
-	public static final FinderPath FINDER_PATH_GET_USERS_SIZE = new FinderPath(com.liferay.portal.model.impl.UserModelImpl.ENTITY_CACHE_ENABLED,
-			RoleModelImpl.FINDER_CACHE_ENABLED_USERS_ROLES, Long.class,
-			RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME, "getUsersSize",
-			new String[] { Long.class.getName() });
-
-	static {
-		FINDER_PATH_GET_USERS_SIZE.setCacheKeyGeneratorCacheName(null);
+		return roleToUserTableMapper.getRightBaseModels(pk, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -8456,49 +8136,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public int getUsersSize(long pk) throws SystemException {
-		Object[] finderArgs = new Object[] { pk };
+		long[] pks = roleToUserTableMapper.getRightPrimaryKeys(pk);
 
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_GET_USERS_SIZE,
-				finderArgs, this);
-
-		if (count == null) {
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				SQLQuery q = session.createSQLQuery(_SQL_GETUSERSSIZE);
-
-				q.addScalar(COUNT_COLUMN_NAME,
-					com.liferay.portal.kernel.dao.orm.Type.LONG);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(pk);
-
-				count = (Long)q.uniqueResult();
-
-				FinderCacheUtil.putResult(FINDER_PATH_GET_USERS_SIZE,
-					finderArgs, count);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_GET_USERS_SIZE,
-					finderArgs);
-
-				throw processException(e);
-			}
-			finally {
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
+		return pks.length;
 	}
-
-	public static final FinderPath FINDER_PATH_CONTAINS_USER = new FinderPath(com.liferay.portal.model.impl.UserModelImpl.ENTITY_CACHE_ENABLED,
-			RoleModelImpl.FINDER_CACHE_ENABLED_USERS_ROLES, Boolean.class,
-			RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME, "containsUser",
-			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
 	 * Returns <code>true</code> if the user is associated with the role.
@@ -8510,27 +8151,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public boolean containsUser(long pk, long userPK) throws SystemException {
-		Object[] finderArgs = new Object[] { pk, userPK };
-
-		Boolean value = (Boolean)FinderCacheUtil.getResult(FINDER_PATH_CONTAINS_USER,
-				finderArgs, this);
-
-		if (value == null) {
-			try {
-				value = Boolean.valueOf(containsUser.contains(pk, userPK));
-
-				FinderCacheUtil.putResult(FINDER_PATH_CONTAINS_USER,
-					finderArgs, value);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_CONTAINS_USER,
-					finderArgs);
-
-				throw processException(e);
-			}
-		}
-
-		return value.booleanValue();
+		return roleToUserTableMapper.containsTableMapping(pk, userPK);
 	}
 
 	/**
@@ -8559,15 +8180,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addUser(long pk, long userPK) throws SystemException {
-		try {
-			addUser.add(pk, userPK);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
-		}
+		roleToUserTableMapper.addTableMapping(pk, userPK);
 	}
 
 	/**
@@ -8580,15 +8193,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void addUser(long pk, com.liferay.portal.model.User user)
 		throws SystemException {
-		try {
-			addUser.add(pk, user.getPrimaryKey());
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
-		}
+		roleToUserTableMapper.addTableMapping(pk, user.getPrimaryKey());
 	}
 
 	/**
@@ -8600,16 +8205,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void addUsers(long pk, long[] userPKs) throws SystemException {
-		try {
-			for (long userPK : userPKs) {
-				addUser.add(pk, userPK);
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
+		for (long userPK : userPKs) {
+			roleToUserTableMapper.addTableMapping(pk, userPK);
 		}
 	}
 
@@ -8623,16 +8220,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void addUsers(long pk, List<com.liferay.portal.model.User> users)
 		throws SystemException {
-		try {
-			for (com.liferay.portal.model.User user : users) {
-				addUser.add(pk, user.getPrimaryKey());
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
+		for (com.liferay.portal.model.User user : users) {
+			roleToUserTableMapper.addTableMapping(pk, user.getPrimaryKey());
 		}
 	}
 
@@ -8644,15 +8233,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void clearUsers(long pk) throws SystemException {
-		try {
-			clearUsers.clear(pk);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
-		}
+		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 	}
 
 	/**
@@ -8664,15 +8245,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void removeUser(long pk, long userPK) throws SystemException {
-		try {
-			removeUser.remove(pk, userPK);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
-		}
+		roleToUserTableMapper.deleteTableMapping(pk, userPK);
 	}
 
 	/**
@@ -8685,15 +8258,7 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void removeUser(long pk, com.liferay.portal.model.User user)
 		throws SystemException {
-		try {
-			removeUser.remove(pk, user.getPrimaryKey());
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
-		}
+		roleToUserTableMapper.deleteTableMapping(pk, user.getPrimaryKey());
 	}
 
 	/**
@@ -8705,16 +8270,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void removeUsers(long pk, long[] userPKs) throws SystemException {
-		try {
-			for (long userPK : userPKs) {
-				removeUser.remove(pk, userPK);
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
+		for (long userPK : userPKs) {
+			roleToUserTableMapper.deleteTableMapping(pk, userPK);
 		}
 	}
 
@@ -8728,16 +8285,8 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	@Override
 	public void removeUsers(long pk, List<com.liferay.portal.model.User> users)
 		throws SystemException {
-		try {
-			for (com.liferay.portal.model.User user : users) {
-				removeUser.remove(pk, user.getPrimaryKey());
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
+		for (com.liferay.portal.model.User user : users) {
+			roleToUserTableMapper.deleteTableMapping(pk, user.getPrimaryKey());
 		}
 	}
 
@@ -8750,26 +8299,10 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 	 */
 	@Override
 	public void setUsers(long pk, long[] userPKs) throws SystemException {
-		try {
-			Set<Long> userPKSet = SetUtil.fromArray(userPKs);
+		roleToUserTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
 
-			List<com.liferay.portal.model.User> users = getUsers(pk);
-
-			for (com.liferay.portal.model.User user : users) {
-				if (!userPKSet.remove(user.getPrimaryKey())) {
-					removeUser.remove(pk, user.getPrimaryKey());
-				}
-			}
-
-			for (Long userPK : userPKSet) {
-				addUser.add(pk, userPK);
-			}
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			FinderCacheUtil.clearCache(RoleModelImpl.MAPPING_TABLE_USERS_ROLES_NAME);
+		for (Long userPK : userPKs) {
+			roleToUserTableMapper.addTableMapping(pk, userPK);
 		}
 	}
 
@@ -8831,17 +8364,11 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 			}
 		}
 
-		containsGroup = new ContainsGroup();
+		roleToGroupTableMapper = TableMapperFactory.getTableMapper("Groups_Roles",
+				"roleId", "groupId", this, groupPersistence);
 
-		addGroup = new AddGroup();
-		clearGroups = new ClearGroups();
-		removeGroup = new RemoveGroup();
-
-		containsUser = new ContainsUser();
-
-		addUser = new AddUser();
-		clearUsers = new ClearUsers();
-		removeUser = new RemoveUser();
+		roleToUserTableMapper = TableMapperFactory.getTableMapper("Users_Roles",
+				"roleId", "userId", this, userPersistence);
 	}
 
 	public void destroy() {
@@ -8853,333 +8380,14 @@ public class RolePersistenceImpl extends BasePersistenceImpl<Role>
 
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
-	protected ContainsGroup containsGroup;
-	protected AddGroup addGroup;
-	protected ClearGroups clearGroups;
-	protected RemoveGroup removeGroup;
+	protected TableMapper<Role, com.liferay.portal.model.Group> roleToGroupTableMapper;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
-	protected ContainsUser containsUser;
-	protected AddUser addUser;
-	protected ClearUsers clearUsers;
-	protected RemoveUser removeUser;
-
-	protected class ContainsGroup {
-		protected ContainsGroup() {
-			_mappingSqlQuery = MappingSqlQueryFactoryUtil.getMappingSqlQuery(getDataSource(),
-					"SELECT 1 FROM Groups_Roles WHERE roleId = ? AND groupId = ?",
-					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT },
-					RowMapper.COUNT);
-		}
-
-		protected boolean contains(long roleId, long groupId) {
-			List<Integer> results = _mappingSqlQuery.execute(new Object[] {
-						new Long(roleId), new Long(groupId)
-					});
-
-			if (results.isEmpty()) {
-				return false;
-			}
-
-			return true;
-		}
-
-		private MappingSqlQuery<Integer> _mappingSqlQuery;
-	}
-
-	protected class AddGroup {
-		protected AddGroup() {
-			_sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(getDataSource(),
-					"INSERT INTO Groups_Roles (roleId, groupId) VALUES (?, ?)",
-					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT });
-		}
-
-		protected void add(long roleId, long groupId) throws SystemException {
-			if (!containsGroup.contains(roleId, groupId)) {
-				ModelListener<com.liferay.portal.model.Group>[] groupListeners = groupPersistence.getListeners();
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onBeforeAddAssociation(roleId,
-						com.liferay.portal.model.Group.class.getName(), groupId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.Group> listener : groupListeners) {
-					listener.onBeforeAddAssociation(groupId,
-						Role.class.getName(), roleId);
-				}
-
-				_sqlUpdate.update(new Object[] {
-						new Long(roleId), new Long(groupId)
-					});
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onAfterAddAssociation(roleId,
-						com.liferay.portal.model.Group.class.getName(), groupId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.Group> listener : groupListeners) {
-					listener.onAfterAddAssociation(groupId,
-						Role.class.getName(), roleId);
-				}
-			}
-		}
-
-		private SqlUpdate _sqlUpdate;
-	}
-
-	protected class ClearGroups {
-		protected ClearGroups() {
-			_sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(getDataSource(),
-					"DELETE FROM Groups_Roles WHERE roleId = ?",
-					new int[] { java.sql.Types.BIGINT });
-		}
-
-		protected void clear(long roleId) throws SystemException {
-			ModelListener<com.liferay.portal.model.Group>[] groupListeners = groupPersistence.getListeners();
-
-			List<com.liferay.portal.model.Group> groups = null;
-
-			if ((listeners.length > 0) || (groupListeners.length > 0)) {
-				groups = getGroups(roleId);
-
-				for (com.liferay.portal.model.Group group : groups) {
-					for (ModelListener<Role> listener : listeners) {
-						listener.onBeforeRemoveAssociation(roleId,
-							com.liferay.portal.model.Group.class.getName(),
-							group.getPrimaryKey());
-					}
-
-					for (ModelListener<com.liferay.portal.model.Group> listener : groupListeners) {
-						listener.onBeforeRemoveAssociation(group.getPrimaryKey(),
-							Role.class.getName(), roleId);
-					}
-				}
-			}
-
-			_sqlUpdate.update(new Object[] { new Long(roleId) });
-
-			if ((listeners.length > 0) || (groupListeners.length > 0)) {
-				for (com.liferay.portal.model.Group group : groups) {
-					for (ModelListener<Role> listener : listeners) {
-						listener.onAfterRemoveAssociation(roleId,
-							com.liferay.portal.model.Group.class.getName(),
-							group.getPrimaryKey());
-					}
-
-					for (ModelListener<com.liferay.portal.model.Group> listener : groupListeners) {
-						listener.onAfterRemoveAssociation(group.getPrimaryKey(),
-							Role.class.getName(), roleId);
-					}
-				}
-			}
-		}
-
-		private SqlUpdate _sqlUpdate;
-	}
-
-	protected class RemoveGroup {
-		protected RemoveGroup() {
-			_sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(getDataSource(),
-					"DELETE FROM Groups_Roles WHERE roleId = ? AND groupId = ?",
-					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT });
-		}
-
-		protected void remove(long roleId, long groupId)
-			throws SystemException {
-			if (containsGroup.contains(roleId, groupId)) {
-				ModelListener<com.liferay.portal.model.Group>[] groupListeners = groupPersistence.getListeners();
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onBeforeRemoveAssociation(roleId,
-						com.liferay.portal.model.Group.class.getName(), groupId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.Group> listener : groupListeners) {
-					listener.onBeforeRemoveAssociation(groupId,
-						Role.class.getName(), roleId);
-				}
-
-				_sqlUpdate.update(new Object[] {
-						new Long(roleId), new Long(groupId)
-					});
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onAfterRemoveAssociation(roleId,
-						com.liferay.portal.model.Group.class.getName(), groupId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.Group> listener : groupListeners) {
-					listener.onAfterRemoveAssociation(groupId,
-						Role.class.getName(), roleId);
-				}
-			}
-		}
-
-		private SqlUpdate _sqlUpdate;
-	}
-
-	protected class ContainsUser {
-		protected ContainsUser() {
-			_mappingSqlQuery = MappingSqlQueryFactoryUtil.getMappingSqlQuery(getDataSource(),
-					"SELECT 1 FROM Users_Roles WHERE roleId = ? AND userId = ?",
-					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT },
-					RowMapper.COUNT);
-		}
-
-		protected boolean contains(long roleId, long userId) {
-			List<Integer> results = _mappingSqlQuery.execute(new Object[] {
-						new Long(roleId), new Long(userId)
-					});
-
-			if (results.isEmpty()) {
-				return false;
-			}
-
-			return true;
-		}
-
-		private MappingSqlQuery<Integer> _mappingSqlQuery;
-	}
-
-	protected class AddUser {
-		protected AddUser() {
-			_sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(getDataSource(),
-					"INSERT INTO Users_Roles (roleId, userId) VALUES (?, ?)",
-					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT });
-		}
-
-		protected void add(long roleId, long userId) throws SystemException {
-			if (!containsUser.contains(roleId, userId)) {
-				ModelListener<com.liferay.portal.model.User>[] userListeners = userPersistence.getListeners();
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onBeforeAddAssociation(roleId,
-						com.liferay.portal.model.User.class.getName(), userId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.User> listener : userListeners) {
-					listener.onBeforeAddAssociation(userId,
-						Role.class.getName(), roleId);
-				}
-
-				_sqlUpdate.update(new Object[] {
-						new Long(roleId), new Long(userId)
-					});
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onAfterAddAssociation(roleId,
-						com.liferay.portal.model.User.class.getName(), userId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.User> listener : userListeners) {
-					listener.onAfterAddAssociation(userId,
-						Role.class.getName(), roleId);
-				}
-			}
-		}
-
-		private SqlUpdate _sqlUpdate;
-	}
-
-	protected class ClearUsers {
-		protected ClearUsers() {
-			_sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(getDataSource(),
-					"DELETE FROM Users_Roles WHERE roleId = ?",
-					new int[] { java.sql.Types.BIGINT });
-		}
-
-		protected void clear(long roleId) throws SystemException {
-			ModelListener<com.liferay.portal.model.User>[] userListeners = userPersistence.getListeners();
-
-			List<com.liferay.portal.model.User> users = null;
-
-			if ((listeners.length > 0) || (userListeners.length > 0)) {
-				users = getUsers(roleId);
-
-				for (com.liferay.portal.model.User user : users) {
-					for (ModelListener<Role> listener : listeners) {
-						listener.onBeforeRemoveAssociation(roleId,
-							com.liferay.portal.model.User.class.getName(),
-							user.getPrimaryKey());
-					}
-
-					for (ModelListener<com.liferay.portal.model.User> listener : userListeners) {
-						listener.onBeforeRemoveAssociation(user.getPrimaryKey(),
-							Role.class.getName(), roleId);
-					}
-				}
-			}
-
-			_sqlUpdate.update(new Object[] { new Long(roleId) });
-
-			if ((listeners.length > 0) || (userListeners.length > 0)) {
-				for (com.liferay.portal.model.User user : users) {
-					for (ModelListener<Role> listener : listeners) {
-						listener.onAfterRemoveAssociation(roleId,
-							com.liferay.portal.model.User.class.getName(),
-							user.getPrimaryKey());
-					}
-
-					for (ModelListener<com.liferay.portal.model.User> listener : userListeners) {
-						listener.onAfterRemoveAssociation(user.getPrimaryKey(),
-							Role.class.getName(), roleId);
-					}
-				}
-			}
-		}
-
-		private SqlUpdate _sqlUpdate;
-	}
-
-	protected class RemoveUser {
-		protected RemoveUser() {
-			_sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(getDataSource(),
-					"DELETE FROM Users_Roles WHERE roleId = ? AND userId = ?",
-					new int[] { java.sql.Types.BIGINT, java.sql.Types.BIGINT });
-		}
-
-		protected void remove(long roleId, long userId)
-			throws SystemException {
-			if (containsUser.contains(roleId, userId)) {
-				ModelListener<com.liferay.portal.model.User>[] userListeners = userPersistence.getListeners();
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onBeforeRemoveAssociation(roleId,
-						com.liferay.portal.model.User.class.getName(), userId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.User> listener : userListeners) {
-					listener.onBeforeRemoveAssociation(userId,
-						Role.class.getName(), roleId);
-				}
-
-				_sqlUpdate.update(new Object[] {
-						new Long(roleId), new Long(userId)
-					});
-
-				for (ModelListener<Role> listener : listeners) {
-					listener.onAfterRemoveAssociation(roleId,
-						com.liferay.portal.model.User.class.getName(), userId);
-				}
-
-				for (ModelListener<com.liferay.portal.model.User> listener : userListeners) {
-					listener.onAfterRemoveAssociation(userId,
-						Role.class.getName(), roleId);
-				}
-			}
-		}
-
-		private SqlUpdate _sqlUpdate;
-	}
-
+	protected TableMapper<Role, com.liferay.portal.model.User> roleToUserTableMapper;
 	private static final String _SQL_SELECT_ROLE = "SELECT role FROM Role role";
 	private static final String _SQL_SELECT_ROLE_WHERE = "SELECT role FROM Role role WHERE ";
 	private static final String _SQL_COUNT_ROLE = "SELECT COUNT(role) FROM Role role";
 	private static final String _SQL_COUNT_ROLE_WHERE = "SELECT COUNT(role) FROM Role role WHERE ";
-	private static final String _SQL_GETGROUPS = "SELECT {Group_.*} FROM Group_ INNER JOIN Groups_Roles ON (Groups_Roles.groupId = Group_.groupId) WHERE (Groups_Roles.roleId = ?)";
-	private static final String _SQL_GETGROUPSSIZE = "SELECT COUNT(*) AS COUNT_VALUE FROM Groups_Roles WHERE roleId = ?";
-	private static final String _SQL_GETUSERS = "SELECT {User_.*} FROM User_ INNER JOIN Users_Roles ON (Users_Roles.userId = User_.userId) WHERE (Users_Roles.roleId = ?)";
-	private static final String _SQL_GETUSERSSIZE = "SELECT COUNT(*) AS COUNT_VALUE FROM Users_Roles WHERE roleId = ?";
 	private static final String _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN = "role.roleId";
 	private static final String _FILTER_SQL_SELECT_ROLE_WHERE = "SELECT DISTINCT {role.*} FROM Role_ role WHERE ";
 	private static final String _FILTER_SQL_SELECT_ROLE_NO_INLINE_DISTINCT_WHERE_1 =

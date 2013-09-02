@@ -601,7 +601,7 @@ boolean hasUnlinkLayoutSetPrototypePermission = PortalPermissionUtil.contains(pe
 							width: 600
 						},
 						id: '<portlet:namespace />selectGroup',
-						title: '<%= UnicodeLanguageUtil.format(pageContext, "select-x", "site") %>',
+						title: '<liferay-ui:message arguments="site" key="select-x" />',
 						uri: '<%= groupSelectorURL.toString() %>'
 					},
 					function(event) {
@@ -611,7 +611,7 @@ boolean hasUnlinkLayoutSetPrototypePermission = PortalPermissionUtil.contains(pe
 
 						var href = "<portlet:renderURL><portlet:param name="struts_action" value="/sites_admin/edit_site" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>&<portlet:namespace />groupId=" + event.groupid;
 
-						rowColumns.push(createURL(href, A.Escape.html(event.groupname)));
+						rowColumns.push(createURL(href, A.Escape.html(event.groupdescriptivename)));
 						rowColumns.push(event.grouptype);
 						rowColumns.push('<a class="modify-link" data-rowId="' + event.groupid + '" href="javascript:;"><%= UnicodeFormatter.toString(removeGroupIcon) %></a>');
 

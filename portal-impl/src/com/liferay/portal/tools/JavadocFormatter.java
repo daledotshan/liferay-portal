@@ -179,7 +179,13 @@ public class JavadocFormatter {
 		for (String fileName : fileNames) {
 			fileName = StringUtil.replace(fileName, "\\", "/");
 
-			_format(fileName);
+			try {
+				_format(fileName);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(
+					"Unable to format file " + fileName, e);
+			}
 		}
 
 		for (Map.Entry<String, Tuple> entry : _javadocxXmlTuples.entrySet()) {
@@ -1880,7 +1886,8 @@ public class JavadocFormatter {
 			}
 
 			if (line.startsWith(linePrefix)) {
-				sb.append(linePrefix + value);
+				sb.append(linePrefix);
+				sb.append(value);
 			}
 			else {
 				sb.append(line);

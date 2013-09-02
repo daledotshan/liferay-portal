@@ -222,7 +222,7 @@ public abstract class BaseIndexer implements Indexer {
 				entryClassNames = ArrayUtil.append(
 					entryClassNames, MBMessage.class.getName());
 
-				searchContext.setAttribute("discussion", true);
+				searchContext.setAttribute("discussion", Boolean.TRUE);
 			}
 
 			searchContext.setEntryClassNames(entryClassNames);
@@ -601,12 +601,12 @@ public abstract class BaseIndexer implements Indexer {
 			BooleanQuery contextQuery, SearchContext searchContext)
 		throws Exception {
 
+		searchContext.setAttribute("relatedClassName", Boolean.TRUE);
+
 		String[] relatedEntryClassNames = (String[])searchContext.getAttribute(
 			"relatedEntryClassNames");
 
-		if ((relatedEntryClassNames == null) ||
-			(relatedEntryClassNames.length == 0)) {
-
+		if (ArrayUtil.isEmpty(relatedEntryClassNames)) {
 			return;
 		}
 
@@ -634,6 +634,8 @@ public abstract class BaseIndexer implements Indexer {
 		}
 
 		contextQuery.add(relatedQueries, BooleanClauseOccur.MUST);
+
+		searchContext.setAttribute("relatedClassName", Boolean.FALSE);
 	}
 
 	protected void addSearchArrayQuery(
@@ -844,11 +846,24 @@ public abstract class BaseIndexer implements Indexer {
 		Set<String> fieldNames = ddmStructure.getFieldNames();
 
 		for (String fieldName : fieldNames) {
+			String indexType = ddmStructure.getFieldProperty(
+				fieldName, "indexType");
+
+			if (Validator.isNull(indexType)) {
+				continue;
+			}
+
 			String name = DDMIndexerUtil.encodeName(
 				ddmStructure.getStructureId(), fieldName,
 				searchContext.getLocale());
 
-			addSearchTerm(searchQuery, searchContext, name, false);
+			boolean like = false;
+
+			if (indexType.equals("text")) {
+				like = true;
+			}
+
+			addSearchTerm(searchQuery, searchContext, name, like);
 		}
 	}
 
@@ -946,21 +961,6 @@ public abstract class BaseIndexer implements Indexer {
 		multiValueFacet.setStatic(true);
 
 		searchContext.addFacet(multiValueFacet);
-	}
-
-	protected void addSearchLocalizedDDMStructure(
-			BooleanQuery searchQuery, SearchContext searchContext,
-			DDMStructure ddmStructure)
-		throws Exception {
-
-		Set<String> fieldNames = ddmStructure.getFieldNames();
-
-		for (String fieldName : fieldNames) {
-			String name = DDMIndexerUtil.encodeName(
-				ddmStructure.getStructureId(), fieldName);
-
-			addSearchLocalizedTerm(searchQuery, searchContext, name, false);
-		}
 	}
 
 	protected void addSearchLocalizedTerm(

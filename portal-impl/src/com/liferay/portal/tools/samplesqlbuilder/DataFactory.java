@@ -17,13 +17,13 @@ package com.liferay.portal.tools.samplesqlbuilder;
 import com.liferay.counter.model.Counter;
 import com.liferay.counter.model.CounterModel;
 import com.liferay.counter.model.impl.CounterModelImpl;
+import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.IntegerWrapper;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -79,7 +79,8 @@ import com.liferay.portal.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portlet.PortletPreferencesFactory;
+import com.liferay.portlet.PortletPreferencesFactoryImpl;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetCategoryConstants;
 import com.liferay.portlet.asset.model.AssetCategoryModel;
@@ -181,11 +182,11 @@ import com.liferay.portlet.wiki.model.impl.WikiNodeModelImpl;
 import com.liferay.portlet.wiki.model.impl.WikiPageModelImpl;
 import com.liferay.portlet.wiki.model.impl.WikiPageResourceModelImpl;
 import com.liferay.portlet.wiki.social.WikiActivityKeys;
-import com.liferay.util.PwdGenerator;
 import com.liferay.util.SimpleCounter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import java.text.Format;
 
@@ -920,10 +921,29 @@ public class DataFactory {
 	}
 
 	public void initUserNames() throws IOException {
-		_firstNames = ListUtil.fromString(
-			StringUtil.read(getResourceInputStream("first_names.txt")));
-		_lastNames = ListUtil.fromString(
-			StringUtil.read(getResourceInputStream("last_names.txt")));
+		_firstNames = new ArrayList<String>();
+
+		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
+			new InputStreamReader(getResourceInputStream("first_names.txt")));
+
+		String line = null;
+
+		while ((line = unsyncBufferedReader.readLine()) != null) {
+			_firstNames.add(line);
+		}
+
+		unsyncBufferedReader.close();
+
+		_lastNames = new ArrayList<String>();
+
+		unsyncBufferedReader = new UnsyncBufferedReader(
+			new InputStreamReader(getResourceInputStream("last_names.txt")));
+
+		while ((line = unsyncBufferedReader.readLine()) != null) {
+			_lastNames.add(line);
+		}
+
+		unsyncBufferedReader.close();
 	}
 
 	public void initVirtualHostModel() {
@@ -1261,7 +1281,7 @@ public class DataFactory {
 		for (int i = 0; i < _maxDDLCustomFieldCount; i++) {
 			sb.append(nextDDLCustomFieldName(ddlRecordModel.getGroupId(), i));
 			sb.append(DDMImpl.INSTANCE_SEPARATOR);
-			sb.append(PwdGenerator.getPassword(4));
+			sb.append(StringUtil.randomId());
 			sb.append(StringPool.COMMA);
 		}
 
@@ -1802,7 +1822,7 @@ public class DataFactory {
 
 		return newPortletPreferencesModel(
 			plid, portletId,
-			PortletPreferencesFactoryUtil.toXML(jxPortletPreferences));
+			_portletPreferencesFactory.toXML(jxPortletPreferences));
 	}
 
 	public PortletPreferencesModel newPortletPreferencesModel(
@@ -1819,7 +1839,7 @@ public class DataFactory {
 
 		return newPortletPreferencesModel(
 			plid, portletId,
-			PortletPreferencesFactoryUtil.toXML(jxPortletPreferences));
+			_portletPreferencesFactory.toXML(jxPortletPreferences));
 	}
 
 	public PortletPreferencesModel newPortletPreferencesModel(
@@ -1845,7 +1865,7 @@ public class DataFactory {
 
 		return newPortletPreferencesModel(
 			plid, portletId,
-			PortletPreferencesFactoryUtil.toXML(jxPortletPreferences));
+			_portletPreferencesFactory.toXML(jxPortletPreferences));
 	}
 
 	public List<PortletPreferencesModel> newPortletPreferencesModels(
@@ -2784,13 +2804,16 @@ public class DataFactory {
 
 	private static final long _CURRENT_TIME = System.currentTimeMillis();
 
-	private static final String _DEPENDENCIES_DIR=
+	private static final String _DEPENDENCIES_DIR =
 		"com/liferay/portal/tools/samplesqlbuilder/dependencies/";
 
 	private static final long _FUTURE_TIME =
 		System.currentTimeMillis() + Time.YEAR;
 
 	private static final String _SAMPLE_USER_NAME = "Sample";
+
+	private static PortletPreferencesFactory _portletPreferencesFactory =
+		new PortletPreferencesFactoryImpl();
 
 	private long _accountId;
 	private AccountModel _accountModel;

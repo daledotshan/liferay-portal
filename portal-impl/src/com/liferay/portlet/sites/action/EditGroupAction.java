@@ -192,10 +192,6 @@ public class EditGroupAction extends PortletAction {
 					 e instanceof SystemException) {
 
 				SessionErrors.add(actionRequest, e.getClass(), e);
-
-				sendRedirect(
-					portletConfig, actionRequest, actionResponse, redirect,
-					closeRedirect);
 			}
 			else {
 				throw e;
@@ -296,7 +292,7 @@ public class EditGroupAction extends PortletAction {
 
 		List<Team> teams = new UniqueList<Team>();
 
-		long[] teamsTeamIds= StringUtil.split(
+		long[] teamsTeamIds = StringUtil.split(
 			ParamUtil.getString(portletRequest, "teamsTeamIds"), 0L);
 
 		for (long teamsTeamId : teamsTeamIds) {

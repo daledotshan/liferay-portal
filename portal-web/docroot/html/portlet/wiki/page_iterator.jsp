@@ -188,9 +188,8 @@ else if (type.equals("categorized_pages") || type.equals("tagged_pages")) {
 
 	searchContainer.setTotal(total);
 
-	if (searchContainer.isRecalculateCur()) {
-		assetEntryQuery = new AssetEntryQuery(WikiPage.class.getName(), searchContainer);
-	}
+	assetEntryQuery.setEnd(searchContainer.getEnd());
+	assetEntryQuery.setStart(searchContainer.getStart());
 
 	List<AssetEntry> assetEntries = AssetEntryServiceUtil.getEntries(assetEntryQuery);
 
@@ -279,11 +278,11 @@ for (int i = 0; i < results.size(); i++) {
 	PortletURL rowURL = renderResponse.createRenderURL();
 
 	if (!curWikiPage.isNew() && !type.equals("draft_pages") && !type.equals("pending_pages")) {
-		if (portletName.equals(PortletKeys.WIKI)) {
-			rowURL.setParameter("struts_action", "/wiki/view");
+		if (portletName.equals(PortletKeys.WIKI_DISPLAY)) {
+			rowURL.setParameter("struts_action", "/wiki/view_page");
 		}
 		else {
-			rowURL.setParameter("struts_action", "/wiki/view_page_activities");
+			rowURL.setParameter("struts_action", "/wiki/view");
 		}
 
 		rowURL.setParameter("redirect", currentURL);
@@ -307,7 +306,7 @@ for (int i = 0; i < results.size(); i++) {
 
 	// Status
 
-	row.addText(LanguageUtil.get(pageContext, WorkflowConstants.getStatusLabel(curWikiPage.getStatus())), rowURL);
+	row.addStatus(curWikiPage.getStatus(), curWikiPage.getStatusByUserId(), curWikiPage.getStatusDate(), rowURL);
 
 	// Revision
 

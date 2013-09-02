@@ -26,6 +26,15 @@ body.portlet {
 	cursor: pointer;
 }
 
+.portlet-title-text {
+	display: inline-block;
+	max-width: 95%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: top;
+	white-space: nowrap;
+}
+
 .panel-page-content, .panel-page-body {
 	.portlet-title-text {
 		cursor: auto;

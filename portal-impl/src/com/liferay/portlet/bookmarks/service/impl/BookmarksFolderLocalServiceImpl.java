@@ -119,9 +119,8 @@ public class BookmarksFolderLocalServiceImpl
 			BookmarksFolder folder, boolean includeTrashedEntries)
 		throws PortalException, SystemException {
 
-		List<BookmarksFolder> folders = bookmarksFolderPersistence.findByG_P_S(
-			folder.getGroupId(), folder.getFolderId(),
-			WorkflowConstants.STATUS_ANY);
+		List<BookmarksFolder> folders = bookmarksFolderPersistence.findByG_P(
+			folder.getGroupId(), folder.getFolderId());
 
 		for (BookmarksFolder curFolder : folders) {
 			if (includeTrashedEntries || !curFolder.isInTrash()) {
@@ -194,8 +193,8 @@ public class BookmarksFolderLocalServiceImpl
 	public void deleteFolders(long groupId)
 		throws PortalException, SystemException {
 
-		List<BookmarksFolder> folders = bookmarksFolderPersistence.findByG_P(
-			groupId, BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+		List<BookmarksFolder> folders =
+			bookmarksFolderPersistence.findByGroupId(groupId);
 
 		for (BookmarksFolder folder : folders) {
 			bookmarksFolderLocalService.deleteFolder(folder);
@@ -370,7 +369,7 @@ public class BookmarksFolderLocalServiceImpl
 
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public void moveFolderToTrash(long userId, long folderId)
+	public BookmarksFolder moveFolderToTrash(long userId, long folderId)
 		throws PortalException, SystemException {
 
 		// Folder
@@ -382,9 +381,6 @@ public class BookmarksFolderLocalServiceImpl
 
 		// Social
 
-		socialActivityCounterLocalService.enableActivityCounters(
-			BookmarksFolder.class.getName(), folder.getFolderId());
-
 		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
 
 		extraDataJSONObject.put("title", folder.getName());
@@ -393,6 +389,8 @@ public class BookmarksFolderLocalServiceImpl
 			userId, folder.getGroupId(), BookmarksFolder.class.getName(),
 			folder.getFolderId(), SocialActivityConstants.TYPE_MOVE_TO_TRASH,
 			extraDataJSONObject.toString(), 0);
+
+		return folder;
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -411,9 +409,6 @@ public class BookmarksFolderLocalServiceImpl
 		updateStatus(userId, folder, trashEntry.getStatus());
 
 		// Social
-
-		socialActivityCounterLocalService.enableActivityCounters(
-			BookmarksFolder.class.getName(), folder.getFolderId());
 
 		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
 
@@ -544,11 +539,6 @@ public class BookmarksFolderLocalServiceImpl
 
 			assetEntryLocalService.updateVisible(
 				BookmarksFolder.class.getName(), folder.getFolderId(), true);
-
-			// Social
-
-			socialActivityCounterLocalService.enableActivityCounters(
-				BookmarksFolder.class.getName(), folder.getFolderId());
 		}
 		else if (status == WorkflowConstants.STATUS_IN_TRASH) {
 
@@ -556,11 +546,6 @@ public class BookmarksFolderLocalServiceImpl
 
 			assetEntryLocalService.updateVisible(
 				BookmarksFolder.class.getName(), folder.getFolderId(), false);
-
-			// Social
-
-			socialActivityCounterLocalService.disableActivityCounters(
-				BookmarksFolder.class.getName(), folder.getFolderId());
 		}
 
 		// Trash
@@ -684,11 +669,6 @@ public class BookmarksFolderLocalServiceImpl
 						BookmarksEntry.class.getName(), entry.getEntryId(),
 						false);
 
-					// Social
-
-					socialActivityCounterLocalService.disableActivityCounters(
-						BookmarksEntry.class.getName(), entry.getEntryId());
-
 					if (entry.getStatus() == WorkflowConstants.STATUS_PENDING) {
 						entry.setStatus(WorkflowConstants.STATUS_DRAFT);
 
@@ -706,11 +686,6 @@ public class BookmarksFolderLocalServiceImpl
 							BookmarksEntry.class.getName(), entry.getEntryId(),
 							true);
 					}
-
-					// Social
-
-					socialActivityCounterLocalService.enableActivityCounters(
-						BookmarksEntry.class.getName(), entry.getEntryId());
 				}
 
 				// Indexer
@@ -741,11 +716,6 @@ public class BookmarksFolderLocalServiceImpl
 					assetEntryLocalService.updateVisible(
 						BookmarksFolder.class.getName(), folder.getFolderId(),
 						false);
-
-					// Social
-
-					socialActivityCounterLocalService.disableActivityCounters(
-						BookmarksFolder.class.getName(), folder.getFolderId());
 				}
 				else {
 
@@ -754,11 +724,6 @@ public class BookmarksFolderLocalServiceImpl
 					assetEntryLocalService.updateVisible(
 						BookmarksFolder.class.getName(), folder.getFolderId(),
 						true);
-
-					// Social
-
-					socialActivityCounterLocalService.enableActivityCounters(
-						BookmarksFolder.class.getName(), folder.getFolderId());
 				}
 
 				// Index

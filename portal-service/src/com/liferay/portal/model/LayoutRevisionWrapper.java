@@ -1759,6 +1759,22 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	}
 
 	@Override
+	public java.lang.String[] getAvailableLanguageIds() {
+		return _layoutRevision.getAvailableLanguageIds();
+	}
+
+	@Override
+	public java.lang.String getDefaultLanguageId() {
+		return _layoutRevision.getDefaultLanguageId();
+	}
+
+	@Override
+	public void prepareLocalizedFieldsForImport()
+		throws com.liferay.portal.LocaleException {
+		_layoutRevision.prepareLocalizedFieldsForImport();
+	}
+
+	@Override
 	public void prepareLocalizedFieldsForImport(
 		java.util.Locale defaultImportLocale)
 		throws com.liferay.portal.LocaleException {
@@ -1863,6 +1879,12 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	}
 
 	@Override
+	public java.lang.String getThemeSetting(java.lang.String key,
+		java.lang.String device) {
+		return _layoutRevision.getThemeSetting(key, device);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.util.UnicodeProperties getTypeSettingsProperties() {
 		return _layoutRevision.getTypeSettingsProperties();
 	}
@@ -1885,6 +1907,11 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	public boolean hasChildren()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _layoutRevision.hasChildren();
+	}
+
+	@Override
+	public boolean hasDefaultAssetPublisherPortletId() {
+		return _layoutRevision.hasDefaultAssetPublisherPortletId();
 	}
 
 	@Override

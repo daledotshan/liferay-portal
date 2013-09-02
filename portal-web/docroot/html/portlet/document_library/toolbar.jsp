@@ -82,13 +82,13 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 				String taglibURL = "javascript:" + renderResponse.getNamespace() + "openFileEntryTypeView()";
 				%>
 
-				<aui:nav-item href="<%= taglibURL %>" label="document-types" />
+				<aui:nav-item href="<%= taglibURL %>" iconClass="icon-file" label="document-types" />
 
 				<%
 				taglibURL = "javascript:" + renderResponse.getNamespace() + "openDDMStructureView()";
 				%>
 
-				<aui:nav-item href="<%= taglibURL %>" label="metadata-sets" />
+				<aui:nav-item href="<%= taglibURL %>" iconClass="icon-file-text" label="metadata-sets" />
 			</aui:nav-item>
 		</c:if>
 	</aui:nav>
@@ -116,11 +116,7 @@ Group scopeGroup = themeDisplay.getScopeGroup();
 					<aui:input name="breadcrumbsFolderId" type="hidden" value="<%= folderId %>" />
 					<aui:input name="searchFolderIds" type="hidden" value="<%= folderId %>" />
 
-					<div class="input-append">
-						<input class="search-query span9" id="<portlet:namespace/>keywords" placeholder="<liferay-ui:message key="keywords" />" type="text" />
-
-						<aui:button primary="<%= false %>" type="submit" value="search" />
-					</div>
+					<liferay-ui:input-search />
 				</aui:form>
 			</div>
 		</div>

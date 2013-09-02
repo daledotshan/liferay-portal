@@ -14,6 +14,13 @@
 
 package com.liferay.portlet.journal.util;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Hits;
+import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.search.QueryConfig;
+import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -472,8 +479,45 @@ public class JournalTestUtil {
 		return document.asXML();
 	}
 
+	public static void expireArticle(long groupId, JournalArticle article)
+		throws PortalException, SystemException {
+
+		JournalArticleLocalServiceUtil.expireArticle(
+			article.getUserId(), article.getGroupId(), article.getArticleId(),
+			null, ServiceTestUtil.getServiceContext(groupId));
+	}
+
+	public static JournalArticle expireArticle(
+			long groupId, JournalArticle article, double version)
+		throws PortalException, SystemException {
+
+		return JournalArticleLocalServiceUtil.expireArticle(
+			article.getUserId(), article.getGroupId(), article.getArticleId(),
+			version, null, ServiceTestUtil.getServiceContext(groupId));
+	}
+
 	public static String getSampleTemplateXSL() {
 		return "$name.getData()";
+	}
+
+	public static int getSearchArticlesCount(long companyId, long groupId)
+		throws Exception {
+
+		Indexer indexer = IndexerRegistryUtil.getIndexer(JournalArticle.class);
+
+		SearchContext searchContext = new SearchContext();
+
+		searchContext.setCompanyId(companyId);
+		searchContext.setGroupIds(new long[] {groupId});
+		searchContext.setKeywords(StringPool.BLANK);
+
+		QueryConfig queryConfig = new QueryConfig();
+
+		searchContext.setQueryConfig(queryConfig);
+
+		Hits results = indexer.search(searchContext);
+
+		return results.getLength();
 	}
 
 	public static Map<String, Map<String, String>> getXsdMap(String xsd)
@@ -503,6 +547,15 @@ public class JournalTestUtil {
 		}
 
 		return map;
+	}
+
+	public static JournalArticle updateArticle(
+			JournalArticle article, String title)
+		throws Exception {
+
+		return updateArticle(
+			article, title, article.getContent(),
+			ServiceTestUtil.getServiceContext());
 	}
 
 	public static JournalArticle updateArticle(
@@ -591,7 +644,7 @@ public class JournalTestUtil {
 	}
 
 	private static Locale[] _locales = {
-		new Locale("en", "US"), new Locale("de", "DE"), new Locale("es", "ES")
+		LocaleUtil.US, LocaleUtil.GERMANY, LocaleUtil.SPAIN
 	};
 
 }

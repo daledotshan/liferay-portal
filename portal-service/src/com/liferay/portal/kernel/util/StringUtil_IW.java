@@ -299,8 +299,20 @@ public class StringUtil_IW {
 		return StringUtil.quote(s, quote);
 	}
 
+	public java.lang.String randomId() {
+		return StringUtil.randomId();
+	}
+
 	public java.lang.String randomize(java.lang.String s) {
 		return StringUtil.randomize(s);
+	}
+
+	public java.lang.String randomString() {
+		return StringUtil.randomString();
+	}
+
+	public java.lang.String randomString(int length) {
+		return StringUtil.randomString(length);
 	}
 
 	public java.lang.String read(java.lang.ClassLoader classLoader,
@@ -382,6 +394,11 @@ public class StringUtil_IW {
 	public java.lang.String replaceFirst(java.lang.String s,
 		java.lang.String oldSub, java.lang.String newSub) {
 		return StringUtil.replaceFirst(s, oldSub, newSub);
+	}
+
+	public java.lang.String replaceFirst(java.lang.String s,
+		java.lang.String oldSub, java.lang.String newSub, int fromIndex) {
+		return StringUtil.replaceFirst(s, oldSub, newSub, fromIndex);
 	}
 
 	public java.lang.String replaceFirst(java.lang.String s,

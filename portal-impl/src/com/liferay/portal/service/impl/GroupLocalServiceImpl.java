@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -59,6 +60,8 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowHandler;
+import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.model.Account;
 import com.liferay.portal.model.BackgroundTask;
@@ -81,6 +84,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.UserGroupRole;
 import com.liferay.portal.model.UserPersonalSite;
+import com.liferay.portal.model.WorkflowDefinitionLink;
 import com.liferay.portal.model.impl.LayoutImpl;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -259,7 +263,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		long groupClassNameId = PortalUtil.getClassNameId(Group.class);
 
-		if ((classNameId <= 0) || className.equals(Group.class.getName())) {
+		if (((classNameId <= 0) || className.equals(Group.class.getName())) ||
+			(className.equals(Company.class.getName()) && staging)) {
+
 			className = Group.class.getName();
 			classNameId = groupClassNameId;
 			classPK = groupId;
@@ -707,7 +713,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		try {
 			GroupThreadLocal.setDeleteInProcess(true);
 
-			if ((group.isCompany() ||
+			if (((group.isCompany() && !group.isCompanyStagingGroup()) ||
 				 PortalUtil.isSystemGroup(group.getName())) &&
 				!CompanyThreadLocal.isDeleteInProcess()) {
 
@@ -887,6 +893,33 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				resourceLocalService.deleteResource(
 					group.getCompanyId(), Group.class.getName(),
 					ResourceConstants.SCOPE_INDIVIDUAL, group.getGroupId());
+			}
+
+			// Workflow
+
+			List<WorkflowHandler> scopeableWorkflowHandlers =
+				WorkflowHandlerRegistryUtil.getScopeableWorkflowHandlers();
+
+			for (WorkflowHandler scopeableWorkflowHandler :
+					scopeableWorkflowHandlers) {
+
+				if (!scopeableWorkflowHandler.isVisible()) {
+					continue;
+				}
+
+				WorkflowDefinitionLink workflowDefinitionLink =
+					workflowDefinitionLinkLocalService.
+						fetchWorkflowDefinitionLink(
+							group.getCompanyId(), group.getGroupId(),
+							scopeableWorkflowHandler.getClassName(), 0, 0,
+							true);
+
+				if (workflowDefinitionLink == null) {
+					continue;
+				}
+
+				workflowDefinitionLinkLocalService.deleteWorkflowDefinitionLink(
+					workflowDefinitionLink);
 			}
 
 			// Group
@@ -1161,7 +1194,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		String name = group.getName();
 
-		if (group.isCompany()) {
+		if (group.isCompany() && !group.isCompanyStagingGroup()) {
 			name = LanguageUtil.get(locale, "global");
 		}
 		else if (group.isControlPanel()) {
@@ -3411,8 +3444,11 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			String oldLanguageIds = oldTypeSettingsProperties.getProperty(
 				PropsKeys.LOCALES, StringPool.BLANK);
 
+			String defaultLanguageId = typeSettingsProperties.getProperty(
+				"languageId", LocaleUtil.toLanguageId(LocaleUtil.getDefault()));
+
 			if (!Validator.equals(oldLanguageIds, newLanguageIds)) {
-				validateLanguageIds(newLanguageIds);
+				validateLanguageIds(defaultLanguageId, newLanguageIds);
 
 				LanguageUtil.resetAvailableGroupLocales(groupId);
 			}
@@ -3473,6 +3509,16 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 	protected void addDefaultGuestPublicLayoutByProperties(Group group)
 		throws PortalException, SystemException {
+
+		List<Portlet> portlets = portletLocalService.getPortlets(
+			group.getCompanyId());
+
+		if (portlets.isEmpty()) {
+
+			// LPS-38457
+
+			return;
+		}
 
 		long defaultUserId = userLocalService.getDefaultUserId(
 			group.getCompanyId());
@@ -4105,7 +4151,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	}
 
 	protected boolean isUseComplexSQL(long[] classNameIds) {
-		if ((classNameIds == null) || (classNameIds.length == 0)) {
+		if (ArrayUtil.isEmpty(classNameIds)) {
 			return true;
 		}
 
@@ -4331,13 +4377,39 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		}
 	}
 
-	protected void validateLanguageIds(String languageIds)
+	protected void validateLanguageIds(
+			String defaultLanguageId, String languageIds)
 		throws PortalException {
 
-		for (String languageId : StringUtil.split(languageIds)) {
-			if (!ArrayUtil.contains(PropsValues.LOCALES, languageId)) {
-				throw new LocaleException();
+		Locale[] availableLocales = LanguageUtil.getAvailableLocales();
+
+		String[] availableLanguageIds = LocaleUtil.toLanguageIds(
+			availableLocales);
+
+		String[] languageIdsArray = StringUtil.split(languageIds);
+
+		for (String languageId : languageIdsArray) {
+			if (!ArrayUtil.contains(availableLanguageIds, languageId)) {
+				LocaleException le = new LocaleException(
+					LocaleException.TYPE_DISPLAY_SETTINGS);
+
+				le.setSourceAvailableLocales(availableLocales);
+				le.setTargetAvailableLocales(
+					LocaleUtil.fromLanguageIds(languageIdsArray));
+
+				throw le;
 			}
+		}
+
+		if (!ArrayUtil.contains(languageIdsArray, defaultLanguageId)) {
+			LocaleException le = new LocaleException(
+				LocaleException.TYPE_DEFAULT);
+
+			le.setSourceAvailableLocales(availableLocales);
+			le.setTargetAvailableLocales(
+				LocaleUtil.fromLanguageIds(languageIdsArray));
+
+			throw le;
 		}
 	}
 

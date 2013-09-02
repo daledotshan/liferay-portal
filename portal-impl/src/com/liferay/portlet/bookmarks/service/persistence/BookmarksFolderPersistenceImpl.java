@@ -360,6 +360,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByResourceBlockId(resourceBlockId);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<BookmarksFolder> list = findByResourceBlockId(resourceBlockId,
 				count - 1, count, orderByComparator);
 
@@ -864,6 +868,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 	public BookmarksFolder fetchByUuid_Last(String uuid,
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByUuid(uuid);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<BookmarksFolder> list = findByUuid(uuid, count - 1, count,
 				orderByComparator);
@@ -1688,6 +1696,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByUuid_C(uuid, companyId);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<BookmarksFolder> list = findByUuid_C(uuid, companyId, count - 1,
 				count, orderByComparator);
 
@@ -2221,6 +2233,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 	public BookmarksFolder fetchByGroupId_Last(long groupId,
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByGroupId(groupId);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<BookmarksFolder> list = findByGroupId(groupId, count - 1, count,
 				orderByComparator);
@@ -3018,6 +3034,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByCompanyId(companyId);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<BookmarksFolder> list = findByCompanyId(companyId, count - 1,
 				count, orderByComparator);
 
@@ -3530,6 +3550,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 	public BookmarksFolder fetchByG_P_Last(long groupId, long parentFolderId,
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByG_P(groupId, parentFolderId);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<BookmarksFolder> list = findByG_P(groupId, parentFolderId,
 				count - 1, count, orderByComparator);
@@ -4409,6 +4433,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 		int status, OrderByComparator orderByComparator)
 		throws SystemException {
 		int count = countByG_P_S(groupId, parentFolderId, status);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<BookmarksFolder> list = findByG_P_S(groupId, parentFolderId,
 				status, count - 1, count, orderByComparator);
@@ -5305,6 +5333,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 		throws SystemException {
 		int count = countByG_P_NotS(groupId, parentFolderId, status);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<BookmarksFolder> list = findByG_P_NotS(groupId, parentFolderId,
 				status, count - 1, count, orderByComparator);
 
@@ -5903,6 +5935,10 @@ public class BookmarksFolderPersistenceImpl extends BasePersistenceImpl<Bookmark
 	private static final String _FINDER_COLUMN_G_P_NOTS_GROUPID_2 = "bookmarksFolder.groupId = ? AND ";
 	private static final String _FINDER_COLUMN_G_P_NOTS_PARENTFOLDERID_2 = "bookmarksFolder.parentFolderId = ? AND ";
 	private static final String _FINDER_COLUMN_G_P_NOTS_STATUS_2 = "bookmarksFolder.status != ?";
+
+	public BookmarksFolderPersistenceImpl() {
+		setModelClass(BookmarksFolder.class);
+	}
 
 	/**
 	 * Caches the bookmarks folder in the entity cache if it is enabled.

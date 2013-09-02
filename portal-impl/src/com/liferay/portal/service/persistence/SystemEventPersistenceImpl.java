@@ -342,6 +342,10 @@ public class SystemEventPersistenceImpl extends BasePersistenceImpl<SystemEvent>
 		OrderByComparator orderByComparator) throws SystemException {
 		int count = countByGroupId(groupId);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<SystemEvent> list = findByGroupId(groupId, count - 1, count,
 				orderByComparator);
 
@@ -877,6 +881,10 @@ public class SystemEventPersistenceImpl extends BasePersistenceImpl<SystemEvent>
 		long classPK, OrderByComparator orderByComparator)
 		throws SystemException {
 		int count = countByG_C_C(groupId, classNameId, classPK);
+
+		if (count == 0) {
+			return null;
+		}
 
 		List<SystemEvent> list = findByG_C_C(groupId, classNameId, classPK,
 				count - 1, count, orderByComparator);
@@ -1465,6 +1473,10 @@ public class SystemEventPersistenceImpl extends BasePersistenceImpl<SystemEvent>
 		throws SystemException {
 		int count = countByG_C_C_T(groupId, classNameId, classPK, type);
 
+		if (count == 0) {
+			return null;
+		}
+
 		List<SystemEvent> list = findByG_C_C_T(groupId, classNameId, classPK,
 				type, count - 1, count, orderByComparator);
 
@@ -1728,6 +1740,10 @@ public class SystemEventPersistenceImpl extends BasePersistenceImpl<SystemEvent>
 	private static final String _FINDER_COLUMN_G_C_C_T_CLASSNAMEID_2 = "systemEvent.classNameId = ? AND ";
 	private static final String _FINDER_COLUMN_G_C_C_T_CLASSPK_2 = "systemEvent.classPK = ? AND ";
 	private static final String _FINDER_COLUMN_G_C_C_T_TYPE_2 = "systemEvent.type = ?";
+
+	public SystemEventPersistenceImpl() {
+		setModelClass(SystemEvent.class);
+	}
 
 	/**
 	 * Caches the system event in the entity cache if it is enabled.

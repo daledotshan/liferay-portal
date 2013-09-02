@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -624,7 +625,7 @@ public class StringUtil {
 	public static String highlight(
 		String s, String[] queryTerms, String highlight1, String highlight2) {
 
-		if (Validator.isNull(s) || Validator.isNull(queryTerms)) {
+		if (Validator.isNull(s) || ArrayUtil.isEmpty(queryTerms)) {
 			return s;
 		}
 
@@ -773,7 +774,7 @@ public class StringUtil {
 			return -1;
 		}
 
-		if ((chars == null) || (chars.length == 0)) {
+		if (ArrayUtil.isEmpty(chars)) {
 			return -1;
 		}
 
@@ -943,7 +944,7 @@ public class StringUtil {
 			return -1;
 		}
 
-		if ((texts == null) || (texts.length == 0)) {
+		if (ArrayUtil.isEmpty(texts)) {
 			return -1;
 		}
 
@@ -1133,7 +1134,7 @@ public class StringUtil {
 			return -1;
 		}
 
-		if ((chars == null) || (chars.length == 0)) {
+		if (ArrayUtil.isEmpty(chars)) {
 			return -1;
 		}
 
@@ -1302,7 +1303,7 @@ public class StringUtil {
 			return -1;
 		}
 
-		if ((texts == null) || (texts.length == 0)) {
+		if (ArrayUtil.isEmpty(texts)) {
 			return -1;
 		}
 
@@ -1868,6 +1869,18 @@ public class StringUtil {
 		return quote.concat(s).concat(quote);
 	}
 
+	public static String randomId() {
+		Random random = new Random();
+
+		char[] chars = new char[4];
+
+		for (int i = 0; i < 4; i++) {
+			chars[i] = (char)(CharPool.LOWER_CASE_A + random.nextInt(26));
+		}
+
+		return new String(chars);
+	}
+
 	/**
 	 * Pseudorandomly permutes the characters of the string.
 	 *
@@ -1877,7 +1890,27 @@ public class StringUtil {
 	 *         string
 	 */
 	public static String randomize(String s) {
-		return Randomizer.getInstance().randomize(s);
+		Randomizer randomizer = Randomizer.getInstance();
+
+		return randomizer.randomize(s);
+	}
+
+	public static String randomString() {
+		return randomString(8);
+	}
+
+	public static String randomString(int length) {
+		Random random = new Random();
+
+		char[] chars = new char[length];
+
+		for (int i = 0; i < length; i++) {
+			int index = random.nextInt(_RANDOM_STRING_CHAR_TABLE.length);
+
+			chars[i] = _RANDOM_STRING_CHAR_TABLE[index];
+		}
+
+		return new String(chars);
 	}
 
 	public static String read(ClassLoader classLoader, String name)
@@ -2361,6 +2394,12 @@ public class StringUtil {
 	 *         string <code>newSub</code>
 	 */
 	public static String replaceFirst(String s, String oldSub, String newSub) {
+		return replaceFirst(s, oldSub, newSub, 0);
+	}
+
+	public static String replaceFirst(
+		String s, String oldSub, String newSub, int fromIndex) {
+
 		if ((s == null) || (oldSub == null) || (newSub == null)) {
 			return null;
 		}
@@ -2369,7 +2408,7 @@ public class StringUtil {
 			return s;
 		}
 
-		int y = s.indexOf(oldSub);
+		int y = s.indexOf(oldSub, fromIndex);
 
 		if (y >= 0) {
 			return s.substring(0, y).concat(newSub).concat(
@@ -3668,7 +3707,7 @@ public class StringUtil {
 			return s;
 		}
 
-		if ((exceptions == null) || (exceptions.length == 0)) {
+		if (ArrayUtil.isEmpty(exceptions)) {
 			return trim(s);
 		}
 
@@ -3782,7 +3821,7 @@ public class StringUtil {
 			return s;
 		}
 
-		if ((exceptions == null) || (exceptions.length == 0)) {
+		if (ArrayUtil.isEmpty(exceptions)) {
 			return trimLeading(s);
 		}
 
@@ -3883,7 +3922,7 @@ public class StringUtil {
 			return s;
 		}
 
-		if ((exceptions == null) || (exceptions.length == 0)) {
+		if (ArrayUtil.isEmpty(exceptions)) {
 			return trimTrailing(s);
 		}
 
@@ -4258,6 +4297,14 @@ public class StringUtil {
 	private static final char[] _HEX_DIGITS = {
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
 		'e', 'f'
+	};
+
+	private static final char[] _RANDOM_STRING_CHAR_TABLE = {
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+		'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+		'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+		'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+		'u', 'v', 'w', 'x', 'y', 'z'
 	};
 
 	private static Log _log = LogFactoryUtil.getLog(StringUtil.class);

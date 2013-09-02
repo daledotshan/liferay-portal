@@ -97,16 +97,7 @@ iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
 						<liferay-util:buffer var="attachmentTitle">
 							<c:choose>
 								<c:when test="<%= fileVersion != null %>">
-									<portlet:resourceURL var="getPateAttachmentURL">
-										<portlet:param name="struts_action" value="/wiki/get_page_attachment" />
-										<portlet:param name="redirect" value="<%= currentURL %>" />
-										<portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" />
-										<portlet:param name="title" value="<%= wikiPage.getTitle() %>" />
-										<portlet:param name="fileName" value="<%= fileEntry.getTitle() %>" />
-										<portlet:param name="status" value="<%= String.valueOf(fileVersion.getStatus()) %>" />
-									</portlet:resourceURL>
-
-									<aui:a href="<%= getPateAttachmentURL %>"><%= title %></aui:a>
+									<aui:a href="<%= PortletFileRepositoryUtil.getPortletFileEntryURL(themeDisplay, fileEntry, StringPool.BLANK) %>"><%= title %></aui:a>
 								</c:when>
 								<c:otherwise>
 									<%= title %>
@@ -296,7 +287,7 @@ compareVersionsURL.setParameter("struts_action", "/wiki/compare_versions");
 					},
 					eventName: '<portlet:namespace />selectVersion',
 					id: '<portlet:namespace />selectVersion' + event.currentTarget.attr('id'),
-					title: '<%= UnicodeLanguageUtil.get(pageContext, "select-version") %>',
+					title: '<liferay-ui:message key="select-version" />',
 					uri: event.currentTarget.attr('data-uri')
 				},
 				function(event) {

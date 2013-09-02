@@ -382,7 +382,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 						PHPPortlet.class.getName())) {
 
 					phpPortlet = true;
-
 				}
 
 				if (ClassUtil.isSubclass(
@@ -557,7 +556,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			else {
 				_log.info(
 					portlets.size() + " portlets for " + servletContextName +
-						" was unregistered");
+						" were unregistered");
 			}
 		}
 	}

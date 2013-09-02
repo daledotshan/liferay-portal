@@ -49,6 +49,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>UNSUBSCRIBE_LINK</td>
+	<td>//div[@class='subscribe']/span/a[contains(.,'Unsubscribe')]/span</td>
+	<td></td>
+</tr>
+<tr>
 	<td>RSS_LINK</td>
 	<td>//div[@class='subscribe']/span/a[contains(.,'RSS')]/span</td>
 	<td></td>
@@ -143,6 +148,11 @@
 <tr>
 	<td>ENTRY_EDIT_1</td>
 	<td>xpath=(//div[contains(@class,'edit-actions')]//span/a/span[.='Edit'])[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ENTRY_PERMISSIONS</td>
+	<td>//div[@class='entry approved' and contains(.,'${key_entryTitle}')]//span/a/span[.='Permissions']</td>
 	<td></td>
 </tr>
 <tr>

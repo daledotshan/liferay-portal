@@ -375,8 +375,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				return ifClause;
 			}
 
-			line = stripQuotes(line, StringPool.QUOTE);
-			line = stripQuotes(line, StringPool.APOSTROPHE);
+			line = stripQuotes(line, CharPool.QUOTE);
+			line = stripQuotes(line, CharPool.APOSTROPHE);
 
 			closeParenthesesCount += StringUtil.count(
 				line, StringPool.CLOSE_PARENTHESIS);
@@ -588,6 +588,52 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		return StringUtil.replace(ifClause, line, newLine);
 	}
 
+	protected String fixIncorrectEmptyLineBeforeCloseCurlyBrace(
+		String content) {
+
+		Pattern pattern = Pattern.compile("\n\n(\t+)}\n");
+
+		Matcher matcher = pattern.matcher(content);
+
+		int x = 0;
+
+		while (matcher.find(x)) {
+			String tabs = matcher.group(1);
+			int tabCount = tabs.length();
+
+			int y = matcher.start();
+
+			while (true) {
+				y = content.lastIndexOf("\n" + tabs, y - 1);
+
+				if (content.charAt(y + tabCount + 1) == CharPool.TAB) {
+					continue;
+				}
+
+				String codeBlock = content.substring(y + tabCount + 1);
+
+				String firstLine = codeBlock.substring(
+					0, codeBlock.indexOf("\n"));
+
+				if (firstLine.contains(" class ") ||
+					firstLine.contains(" enum ") ||
+					firstLine.contains(" interface ") ||
+					firstLine.startsWith("new ") ||
+					firstLine.contains(" new ")) {
+
+					break;
+				}
+
+				return StringUtil.replaceFirst(
+					content, "\n\n" + tabs + "}\n", "\n" + tabs + "}\n", y);
+			}
+
+			x = matcher.end();
+		}
+
+		return content;
+	}
+
 	protected String fixJavaTermsDividers(
 		String fileName, String content, Set<JavaTerm> javaTerms) {
 
@@ -687,8 +733,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			if (requiresEmptyLine) {
 				if (!content.contains("\n\n" + javaTermContent)) {
 					return StringUtil.replace(
-						content,
-						"\n" + javaTermContent, "\n\n" + javaTermContent);
+						content, "\n" + javaTermContent,
+						"\n\n" + javaTermContent);
 				}
 			}
 			else if (content.contains("\n\n" + javaTermContent)) {
@@ -777,6 +823,10 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		String newContent = content;
 
+		if (!fileName.endsWith("AnnotationLocatorTest.java")) {
+			newContent = fixIncorrectEmptyLineBeforeCloseCurlyBrace(newContent);
+		}
+
 		if (newContent.contains("$\n */")) {
 			processErrorMessage(fileName, "*: " + fileName);
 
@@ -817,7 +867,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				"private static Log _log"
 			});
 
-		newContent = fixCompatClassImports(fileName, newContent);
+		newContent = fixCompatClassImports(file, newContent);
 
 		newContent = stripJavaImports(newContent, packagePath, className);
 
@@ -835,7 +885,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		Pattern pattern = Pattern.compile(
 			"\t(catch |else |finally |for |if |try |while ).*\\{\n\n\t+\\w");
 
-		for (;;) {
+		while (true) {
 			Matcher matcher = pattern.matcher(newContent);
 
 			if (!matcher.find()) {
@@ -962,15 +1012,31 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		checkLanguageKeys(fileName, newContent, languageKeyPattern);
 
+		newContent = StringUtil.replace(
+			newContent, StringPool.TAB + "for (;;) {",
+			StringPool.TAB + "while (true) {");
+
 		// LPS-36174
 
 		if (_checkUnprocessedExceptions && !fileName.contains("/test/")) {
 			checkUnprocessedExceptions(newContent, file, packagePath, fileName);
 		}
 
+		// LPS-39508
+
+		if (!fileName.contains("SecureRandomUtil") &&
+			content.contains("java.security.SecureRandom") &&
+			!content.contains("javax.crypto.KeyGenerator")) {
+
+			processErrorMessage(
+				fileName,
+				"Use SecureRandomUtil instead of java.security.SecureRandom: " +
+					fileName);
+		}
+
 		String oldContent = newContent;
 
-		for (;;) {
+		while (true) {
 			newContent = formatJava(fileName, oldContent);
 
 			newContent = StringUtil.replace(newContent, "\n\n\n", "\n\n");
@@ -982,7 +1048,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			oldContent = newContent;
 		}
 
-		if (isAutoFix() && (newContent != null) && !content.equals(newContent)) {
+		if (isAutoFix() && (newContent != null) &&
+			!content.equals(newContent)) {
+
 			fileUtil.write(file, newContent);
 
 			sourceFormatterHelper.printError(fileName, file);
@@ -1007,7 +1075,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				checkTestAnnotations(javaTerm, fileName);
 			}
 
-			for (;;) {
+			while (true) {
 				String javaTermContent = javaTerm.getContent();
 
 				javaTerm.sortAnnotations();
@@ -1098,6 +1166,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 			String trimmedLine = StringUtil.trimLeading(line);
 
+			checkStringBundler(trimmedLine, fileName, lineCount);
+
 			if (trimmedLine.startsWith("* @deprecated") &&
 				mainReleaseVersion.equals(MAIN_RELEASE_VERSION_6_2_0)) {
 
@@ -1173,8 +1243,11 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			String excluded = null;
 
 			if (line.startsWith(StringPool.TAB + "private ") ||
+				line.equals(StringPool.TAB + "private") ||
 				line.startsWith(StringPool.TAB + "protected ") ||
-				line.startsWith(StringPool.TAB + "public ")) {
+				line.equals(StringPool.TAB + "protected") ||
+				line.startsWith(StringPool.TAB + "public ") ||
+				line.equals(StringPool.TAB + "public")) {
 
 				Tuple tuple = getJavaTermTuple(line, content, index, 1, 3);
 
@@ -1240,6 +1313,37 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			if (!trimmedLine.contains(StringPool.DOUBLE_SLASH) &&
 				!trimmedLine.startsWith(StringPool.STAR)) {
 
+				String strippedQuotesLine = stripQuotes(
+					trimmedLine, CharPool.QUOTE);
+
+				for (int x = -1;;) {
+					x = strippedQuotesLine.indexOf(StringPool.EQUAL, x + 1);
+
+					if (x == -1) {
+						break;
+					}
+
+					char c = strippedQuotesLine.charAt(x - 1);
+
+					if (Character.isLetterOrDigit(c)) {
+						line = StringUtil.replace(line, c + "=", c + " =");
+
+						break;
+					}
+
+					if (x == (strippedQuotesLine.length() - 1)) {
+						break;
+					}
+
+					c = strippedQuotesLine.charAt(x + 1);
+
+					if (Character.isLetterOrDigit(c)) {
+						line = StringUtil.replace(line, "=" + c, "= " + c);
+
+						break;
+					}
+				}
+
 				while (trimmedLine.contains(StringPool.TAB)) {
 					line = StringUtil.replaceLast(
 						line, StringPool.TAB, StringPool.SPACE);
@@ -1252,6 +1356,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					!previousLine.endsWith("&&") &&
 					!previousLine.endsWith("||") &&
 					!previousLine.contains(StringPool.TAB + "((") &&
+					!previousLine.contains(
+						StringPool.TAB + StringPool.LESS_THAN) &&
 					!previousLine.contains(StringPool.TAB + StringPool.SPACE) &&
 					!previousLine.contains(StringPool.TAB + "implements ") &&
 					!previousLine.contains(StringPool.TAB + "throws ")) {
@@ -1292,6 +1398,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					if ((trimmedLine.startsWith("private ") ||
 						 trimmedLine.startsWith("protected ") ||
 						 trimmedLine.startsWith("public ")) &&
+						!line.contains(StringPool.EQUAL) &&
 						line.contains(" (")) {
 
 						line = StringUtil.replace(line, " (", "(");
@@ -1349,9 +1456,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 				if (trimmedLine.endsWith(StringPool.PLUS) &&
 					!trimmedLine.startsWith(StringPool.OPEN_PARENTHESIS)) {
-
-					String strippedQuotesLine = stripQuotes(
-						trimmedLine, StringPool.QUOTE);
 
 					int closeParenthesisCount = StringUtil.count(
 						strippedQuotesLine, StringPool.CLOSE_PARENTHESIS);
@@ -1739,7 +1843,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					pos = linePart.length();
 				}
 
-				if (previousLineLength + pos < 80) {
+				if ((previousLineLength + pos) < 80) {
 					if (linePart.contains(StringPool.SPACE)) {
 						return new Tuple(
 							previousLine + StringPool.SPACE,
@@ -2320,7 +2424,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			"**\\service\\persistence\\BatchSession*.java",
 			"**\\service\\persistence\\*FinderImpl.java",
 			"**\\service\\persistence\\*Query.java",
-			"**\\service\\persistence\\impl\\BasePersistenceImpl.java",
+			"**\\service\\persistence\\impl\\*.java",
 			"**\\portal-impl\\test\\**\\*.java",
 			"**\\portal-service\\**\\liferay\\documentlibrary\\**.java",
 			"**\\portal-service\\**\\liferay\\lock\\**.java",
@@ -2393,7 +2497,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			return false;
 		}
 
-		javaParameter = stripQuotes(javaParameter, StringPool.QUOTE);
+		javaParameter = stripQuotes(javaParameter, CharPool.QUOTE);
 
 		int openParenthesisCount = StringUtil.count(
 			javaParameter, StringPool.OPEN_PARENTHESIS);

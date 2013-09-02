@@ -28,6 +28,8 @@ import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -164,14 +166,16 @@ public class LayoutExporter {
 				PortletDataHandler portletDataHandler =
 					portlet.getPortletDataHandlerInstance();
 
+				if (portletDataHandler == null) {
+					continue;
+				}
+
 				PortletDataHandlerControl[] portletDataHandlerControls =
 					portletDataHandler.getExportConfigurationControls(
 						layout.getCompanyId(), layout.getGroupId(), portlet,
-						layout.getPrivateLayout());
+						layout.getPlid(), layout.getPrivateLayout());
 
-				if ((portletDataHandlerControls != null) &&
-					(portletDataHandlerControls.length > 0)) {
-
+				if (ArrayUtil.isNotEmpty(portletDataHandlerControls)) {
 					rootPortletIds.add(portlet.getRootPortletId());
 
 					portlets.add(portlet);
@@ -427,15 +431,8 @@ public class LayoutExporter {
 		Map<String, Object[]> portletIds =
 			new LinkedHashMap<String, Object[]>();
 
-		List<Layout> layouts = null;
-
-		if ((layoutIds == null) || (layoutIds.length == 0)) {
-			layouts = LayoutLocalServiceUtil.getLayouts(groupId, privateLayout);
-		}
-		else {
-			layouts = LayoutLocalServiceUtil.getLayouts(
-				groupId, privateLayout, layoutIds);
-		}
+		List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
+			groupId, privateLayout);
 
 		List<Portlet> portlets = getDataSiteLevelPortlets(companyId);
 
@@ -500,8 +497,7 @@ public class LayoutExporter {
 
 		for (Layout layout : layouts) {
 			exportLayout(
-				portletDataContext, portlets, portletIds, layout,
-				layoutsElement);
+				portletDataContext, portlets, layoutIds, portletIds, layout);
 		}
 
 		long previousScopeGroupId = portletDataContext.getScopeGroupId();
@@ -671,9 +667,19 @@ public class LayoutExporter {
 
 	protected void exportLayout(
 			PortletDataContext portletDataContext, List<Portlet> portlets,
-			Map<String, Object[]> portletIds, Layout layout,
-			Element layoutsElement)
+			long[] layoutIds, Map<String, Object[]> portletIds, Layout layout)
 		throws Exception {
+
+		if (!ArrayUtil.contains(layoutIds, layout.getLayoutId()) &&
+			(layoutIds != null) && (layoutIds.length > 0)) {
+
+			Element layoutElement = portletDataContext.getExportDataElement(
+				layout);
+
+			layoutElement.addAttribute("action", Constants.SKIP);
+
+			return;
+		}
 
 		StagedModelDataHandlerUtil.exportStagedModel(
 			portletDataContext, layout);

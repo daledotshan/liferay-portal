@@ -220,28 +220,36 @@ public class PortletImporter {
 			Map<String, String[]> parameterMap, File file)
 		throws Exception {
 
-		Layout layout = LayoutLocalServiceUtil.getLayout(plid);
+		try {
+			ExportImportThreadLocal.setPortletValidationInProcess(true);
 
-		ZipReader zipReader = ZipReaderFactoryUtil.getZipReader(file);
+			Layout layout = LayoutLocalServiceUtil.getLayout(plid);
 
-		PortletDataContext portletDataContext =
-			PortletDataContextFactoryUtil.createImportPortletDataContext(
-				layout.getCompanyId(), groupId, parameterMap, null, zipReader);
+			ZipReader zipReader = ZipReaderFactoryUtil.getZipReader(file);
 
-		validateFile(portletDataContext, portletId);
+			PortletDataContext portletDataContext =
+				PortletDataContextFactoryUtil.createImportPortletDataContext(
+					layout.getCompanyId(), groupId, parameterMap, null,
+					zipReader);
 
-		MissingReferences missingReferences =
-			ExportImportHelperUtil.validateMissingReferences(
-				userId, groupId, parameterMap, file);
+			validateFile(portletDataContext, portletId);
 
-		Map<String, MissingReference> dependencyMissingReferences =
-			missingReferences.getDependencyMissingReferences();
+			MissingReferences missingReferences =
+				ExportImportHelperUtil.validateMissingReferences(
+					userId, groupId, parameterMap, file);
 
-		if (!dependencyMissingReferences.isEmpty()) {
-			throw new MissingReferenceException(missingReferences);
+			Map<String, MissingReference> dependencyMissingReferences =
+				missingReferences.getDependencyMissingReferences();
+
+			if (!dependencyMissingReferences.isEmpty()) {
+				throw new MissingReferenceException(missingReferences);
+			}
+
+			return missingReferences;
 		}
-
-		return missingReferences;
+		finally {
+			ExportImportThreadLocal.setPortletValidationInProcess(false);
+		}
 	}
 
 	protected void deletePortletData(
@@ -625,7 +633,7 @@ public class PortletImporter {
 	}
 
 	protected Map<Locale, String> getAssetCategoryTitleMap(
-			AssetCategory assetCategory, String name)
+			long groupId, AssetCategory assetCategory, String name)
 		throws PortalException, SystemException {
 
 		Map<Locale, String> titleMap = assetCategory.getTitleMap();
@@ -634,8 +642,7 @@ public class PortletImporter {
 			titleMap = new HashMap<Locale, String>();
 		}
 
-		titleMap.put(
-			PortalUtil.getSiteDefaultLocale(assetCategory.getGroupId()), name);
+		titleMap.put(PortalUtil.getSiteDefaultLocale(groupId), name);
 
 		return titleMap;
 	}
@@ -777,15 +784,15 @@ public class PortletImporter {
 
 		if (existingAssetCategory == null) {
 			String name = getAssetCategoryName(
-				null, portletDataContext.getGroupId(), parentAssetCategoryId,
-				assetCategory.getName(), assetCategory.getVocabularyId(), 2);
+				null, groupId, parentAssetCategoryId, assetCategory.getName(),
+				assetCategory.getVocabularyId(), 2);
 
 			serviceContext.setUuid(assetCategory.getUuid());
 
 			importedAssetCategory =
 				AssetCategoryLocalServiceUtil.addCategory(
 					userId, parentAssetCategoryId,
-					getAssetCategoryTitleMap(assetCategory, name),
+					getAssetCategoryTitleMap(groupId, assetCategory, name),
 					assetCategory.getDescriptionMap(), assetVocabularyId,
 					properties, serviceContext);
 		}
@@ -796,15 +803,14 @@ public class PortletImporter {
 		}
 		else {
 			String name = getAssetCategoryName(
-				assetCategory.getUuid(), assetCategory.getGroupId(),
-				parentAssetCategoryId, assetCategory.getName(),
-				assetCategory.getVocabularyId(), 2);
+				assetCategory.getUuid(), groupId, parentAssetCategoryId,
+				assetCategory.getName(), assetCategory.getVocabularyId(), 2);
 
 			importedAssetCategory =
 				AssetCategoryLocalServiceUtil.updateCategory(
 					userId, existingAssetCategory.getCategoryId(),
 					parentAssetCategoryId,
-					getAssetCategoryTitleMap(assetCategory, name),
+					getAssetCategoryTitleMap(groupId, assetCategory, name),
 					assetCategory.getDescriptionMap(), assetVocabularyId,
 					properties, serviceContext);
 		}
@@ -1874,6 +1880,7 @@ public class PortletImporter {
 						targetAvailableLocales, sourceAvailableLocale)) {
 
 					LocaleException le = new LocaleException(
+						LocaleException.TYPE_EXPORT_IMPORT,
 						"Locale " + sourceAvailableLocale + " is not " +
 							"available in company " +
 								portletDataContext.getCompanyId());
