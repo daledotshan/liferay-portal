@@ -12,25 +12,26 @@
  * details.
  */
 
-package com.liferay.portlet;
+package com.liferay.portal.model;
 
-import com.liferay.portal.kernel.util.InitialThreadLocal;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.trash.TrashHandler;
+import com.liferay.portlet.trash.model.TrashEntry;
 
 /**
- * @author Brian Wing Shun Chan
+ * @author Zsolt Berentey
  */
-public class PortletPreferencesThreadLocal {
+public interface TrashedModel {
 
-	public static boolean isStrict() {
-		return _strict.get();
-	}
+	public int getStatus();
 
-	public static void setStrict(boolean strict) {
-		_strict.set(strict);
-	}
+	public TrashEntry getTrashEntry() throws PortalException, SystemException;
 
-	private static ThreadLocal<Boolean> _strict =
-		new InitialThreadLocal<Boolean>(
-			PortletPreferencesThreadLocal.class + "._strict", false);
+	public TrashHandler getTrashHandler();
+
+	public boolean isInTrash();
+
+	public boolean isInTrashContainer();
 
 }
