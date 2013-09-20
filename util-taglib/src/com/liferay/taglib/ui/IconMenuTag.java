@@ -95,6 +95,7 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 				_localizeMessage = true;
 				_maxDisplayItems = _DEFAULT_MAX_DISPLAY_ITEMS;
 				_message = "actions";
+				_select = false;
 				_showArrow = true;
 				_showExpanded = false;
 				_showWhenSingleIcon = false;
@@ -201,6 +202,10 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 		}
 	}
 
+	public void setSelect(boolean select) {
+		_select = select;
+	}
+
 	public void setShowArrow(boolean showArrow) {
 		_showArrow = showArrow;
 	}
@@ -272,7 +277,7 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 					jspWriter.write("\">");
 				}
 				else {
-					jspWriter.write("<div class=\"btn-group");
+					jspWriter.write("<div class=\"btn-group lfr-icon-menu");
 
 					if (Validator.isNotNull(_cssClass)) {
 						jspWriter.write(StringPool.SPACE);
@@ -296,6 +301,10 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 						jspWriter.write(" btn");
 					}
 
+					if (_select) {
+						jspWriter.write(" select");
+					}
+
 					String message = _message;
 
 					if (_localizeMessage) {
@@ -309,7 +318,7 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 					jspWriter.write("\">");
 
 					if (_showArrow && _direction.equals("left")) {
-						jspWriter.write("<i class=\"caret\"></i>&nbsp;");
+						jspWriter.write("<i class=\"caret\"></i> ");
 					}
 
 					boolean auiImage = false;
@@ -318,7 +327,7 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 						auiImage = _icon.startsWith(_AUI_PATH);
 
 						if (auiImage) {
-							jspWriter.write("&nbsp;<i class=\"icon-");
+							jspWriter.write(" <i class=\"icon-");
 							jspWriter.write(
 								_icon.substring(_AUI_PATH.length()));
 							jspWriter.write("\"></i>");
@@ -326,14 +335,18 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 						else {
 							jspWriter.write("<img alt=\"\" src=\"");
 							jspWriter.write(_icon);
-							jspWriter.write("\" />&nbsp;");
+							jspWriter.write("\" /> ");
 						}
 					}
 
-					jspWriter.write(message);
+					if (Validator.isNotNull(message)) {
+						jspWriter.write("<span class=\"lfr-icon-menu-text\">");
+						jspWriter.write(message);
+						jspWriter.write("</span>");
+					}
 
 					if (_showArrow && !_direction.equals("left")) {
-						jspWriter.write("&nbsp;<i class=\"caret\"></i>");
+						jspWriter.write(" <i class=\"caret\"></i>");
 					}
 
 					jspWriter.write("</a>");
@@ -404,6 +417,7 @@ public class IconMenuTag extends BaseBodyTagSupport implements BodyTag {
 	private boolean _localizeMessage = true;
 	private int _maxDisplayItems = _DEFAULT_MAX_DISPLAY_ITEMS;
 	private String _message = "actions";
+	private boolean _select;
 	private boolean _showArrow = true;
 	private boolean _showExpanded;
 	private boolean _showWhenSingleIcon;

@@ -767,10 +767,14 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	public void rebuildTree(long companyId)
 		throws PortalException, SystemException {
 
-		List<DLFolder> dlFolders = dlFolderPersistence.findByCompanyId(
-			companyId);
+		List<DLFolder> dlFolders = dlFolderPersistence.findByC_NotS(
+			companyId, WorkflowConstants.STATUS_IN_TRASH);
 
 		for (DLFolder dlFolder : dlFolders) {
+			if (dlFolder.isInTrashContainer()) {
+				continue;
+			}
+
 			dlFolder.setTreePath(dlFolder.buildTreePath());
 
 			dlFolderPersistence.update(dlFolder);
@@ -867,12 +871,19 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			}
 
 			for (long fileEntryTypeId : fileEntryTypeIds) {
-				String workflowDefinition = ParamUtil.getString(
-					serviceContext, "workflowDefinition" + fileEntryTypeId);
+				if (overrideFileEntryTypes) {
+					String workflowDefinition = ParamUtil.getString(
+						serviceContext, "workflowDefinition" + fileEntryTypeId);
 
-				workflowDefinitionOVPs.add(
-					new ObjectValuePair<Long, String>(
-						fileEntryTypeId, workflowDefinition));
+					workflowDefinitionOVPs.add(
+						new ObjectValuePair<Long, String>(
+							fileEntryTypeId, workflowDefinition));
+				}
+				else {
+					workflowDefinitionOVPs.add(
+						new ObjectValuePair<Long, String>(
+							fileEntryTypeId, StringPool.BLANK));
+				}
 			}
 
 			workflowDefinitionLinkLocalService.updateWorkflowDefinitionLinks(
@@ -1045,7 +1056,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 
 			trashEntryLocalService.addTrashEntry(
 				userId, dlFolder.getGroupId(), DLFolderConstants.getClassName(),
-				dlFolder.getFolderId(), WorkflowConstants.STATUS_APPROVED, null,
+				dlFolder.getFolderId(), dlFolder.getUuid(), null,
+				WorkflowConstants.STATUS_APPROVED, null,
 				typeSettingsProperties);
 		}
 		else {

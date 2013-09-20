@@ -14,6 +14,9 @@
 
 package com.liferay.portal.resiliency.spi.agent;
 
+import com.liferay.portal.cache.MultiVMPoolImpl;
+import com.liferay.portal.cache.memory.MemoryPortalCacheManager;
+import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.upload.FileItem;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -25,6 +28,8 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.ThreadLocalDistributor;
+import com.liferay.portal.model.Portlet;
+import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.resiliency.spi.agent.SPIAgentRequest.AgentHttpServletRequestWrapper;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.upload.UploadServletRequestImpl;
@@ -92,6 +97,20 @@ public class SPIAgentRequestTest {
 			}
 		);
 
+		MemoryPortalCacheManager<Serializable, Serializable>
+			memoryPortalCacheManager =
+				new MemoryPortalCacheManager<Serializable, Serializable>();
+
+		memoryPortalCacheManager.afterPropertiesSet();
+
+		MultiVMPoolImpl multiVMPoolImpl = new MultiVMPoolImpl();
+
+		multiVMPoolImpl.setPortalCacheManager(memoryPortalCacheManager);
+
+		MultiVMPoolUtil multiVMPoolUtil = new MultiVMPoolUtil();
+
+		multiVMPoolUtil.setMultiVMPool(multiVMPoolImpl);
+
 		PortalUtil portalUtil = new PortalUtil();
 
 		portalUtil.setPortal(new PortalImpl());
@@ -156,6 +175,18 @@ public class SPIAgentRequestTest {
 		_mockHttpServletRequest.setCookies(_cookie1, _cookie2);
 		_mockHttpServletRequest.setServerName(_SERVER_NAME);
 		_mockHttpServletRequest.setServerPort(_SERVER_PORT);
+
+		Portlet portlet = new PortletImpl() {
+
+			@Override
+			public String getContextName() {
+				return "SERVLET_CONTEXT_NAME";
+			}
+
+		};
+
+		_mockHttpServletRequest.setAttribute(
+			WebKeys.SPI_AGENT_PORTLET, portlet);
 
 		RequestAttributes.setRequestAttributes(_mockHttpServletRequest);
 

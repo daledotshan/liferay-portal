@@ -50,6 +50,8 @@ public class CookieKeys {
 
 	public static final String REMEMBER_ME = "REMEMBER_ME";
 
+	public static final String REMOTE_PREFERENCE_PREFIX = "REMOTE_PREFERENCE_";
+
 	public static final String SCREEN_NAME = "SCREEN_NAME";
 
 	public static final String USER_UUID = "USER_UUID";

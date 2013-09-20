@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.deploy.hot.BaseHotDeployListener;
 import com.liferay.portal.kernel.deploy.hot.HotDeployEvent;
 import com.liferay.portal.kernel.deploy.hot.HotDeployException;
 import com.liferay.portal.kernel.javadoc.JavadocManagerUtil;
-import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lar.StagedModelDataHandler;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistryUtil;
@@ -126,7 +125,10 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		}
 		catch (Throwable t) {
 			throwHotDeployException(
-				hotDeployEvent, "Error registering portlets for ", t);
+				hotDeployEvent,
+				"Error registering portlets for " +
+					hotDeployEvent.getServletContextName(),
+				t);
 		}
 	}
 
@@ -139,7 +141,10 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		}
 		catch (Throwable t) {
 			throwHotDeployException(
-				hotDeployEvent, "Error unregistering portlets for ", t);
+				hotDeployEvent,
+				"Error unregistering portlets for " +
+					hotDeployEvent.getServletContextName(),
+				t);
 		}
 	}
 
@@ -474,8 +479,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 		JavadocManagerUtil.load(servletContextName, classLoader);
 
-		JSONWebServiceActionsManagerUtil.registerServletContext(servletContext);
-
 		DirectServletRegistryUtil.clearServlets();
 
 		_portlets.put(servletContextName, portlets);
@@ -547,9 +550,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		unregisterClpMessageListeners(servletContext);
 
 		JavadocManagerUtil.unload(servletContextName);
-
-		JSONWebServiceActionsManagerUtil.unregisterServletContext(
-			servletContext);
 
 		DirectServletRegistryUtil.clearServlets();
 
