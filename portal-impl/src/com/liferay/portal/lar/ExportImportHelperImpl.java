@@ -933,6 +933,13 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 				continue;
 			}
 
+			long previousScopeGroupId = portletDataContext.getScopeGroupId();
+
+			long groupId = GetterUtil.getLong(
+				referenceDataElement.attributeValue("group-id"));
+
+			portletDataContext.setSourceGroupId(groupId);
+
 			FileEntry fileEntry =
 				(FileEntry)portletDataContext.getZipEntryAsObject(path);
 
@@ -967,6 +974,8 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 			content = StringUtil.replace(
 				content, "[$dl-reference=" + path + "$]", url);
+
+			portletDataContext.setScopeGroupId(previousScopeGroupId);
 		}
 
 		return content;

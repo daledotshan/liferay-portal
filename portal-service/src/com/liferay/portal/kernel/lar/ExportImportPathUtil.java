@@ -84,9 +84,14 @@ public class ExportImportPathUtil {
 		PortletDataContext portletDataContext, String className, long classPK,
 		String dependentFileName) {
 
+		long groupId = portletDataContext.getSourceGroupId();
+
+		if (groupId != portletDataContext.getScopeGroupId()) {
+			groupId = portletDataContext.getScopeGroupId();
+		}
+
 		return getModelPath(
-			PATH_PREFIX_GROUP, portletDataContext.getSourceGroupId(), className,
-			classPK, dependentFileName);
+			PATH_PREFIX_GROUP, groupId, className, classPK, dependentFileName);
 	}
 
 	public static String getModelPath(StagedModel stagedModel) {
