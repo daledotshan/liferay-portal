@@ -102,6 +102,19 @@ public abstract class BaseWebDriverImpl
 
 	@Override
 	public void assertJavaScriptErrors() throws Exception {
+		if (!TestPropsValues.TEST_ASSSERT_JAVASCRIPT_ERRORS) {
+			return;
+		}
+
+		String pageSource = getPageSource();
+
+		if (pageSource.contains(
+				"html id=\"feedHandler\" xmlns=" +
+					"\"http://www.w3.org/1999/xhtml\"")) {
+
+			return;
+		}
+
 		WebElement webElement = getWebElement("//body");
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
@@ -113,10 +126,28 @@ public abstract class BaseWebDriverImpl
 
 		if (!javaScriptErrors.isEmpty()) {
 			for (JavaScriptError javaScriptError : javaScriptErrors) {
-				System.out.println("JS_ERROR:" + javaScriptError.toString());
-			}
+				String javaScriptErrorValue = javaScriptError.toString();
 
-			throw new Exception(javaScriptErrors.toString());
+				System.out.println("JS_ERROR: " + javaScriptErrorValue);
+
+				// LPS-41634
+
+				if (javaScriptErrorValue.contains(
+						"TypeError: d.config.doc.defaultView is null")) {
+
+					continue;
+				}
+
+				// LPS-41634
+
+				if (javaScriptErrorValue.contains(
+						"NS_ERROR_NOT_INITIALIZED:")) {
+
+					continue;
+				}
+
+				throw new Exception(javaScriptErrorValue);
+			}
 		}
 	}
 

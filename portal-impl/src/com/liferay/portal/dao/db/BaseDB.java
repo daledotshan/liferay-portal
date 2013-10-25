@@ -114,8 +114,7 @@ public abstract class BaseDB implements DB {
 		throws IOException {
 
 		buildCreateFile(sqlDir, databaseName, BARE);
-		buildCreateFile(sqlDir, databaseName, MINIMAL);
-		buildCreateFile(sqlDir, databaseName, POPULATED);
+		buildCreateFile(sqlDir, databaseName, DEFAULT);
 		buildCreateFile(sqlDir, databaseName, SHARDED);
 	}
 
@@ -140,21 +139,21 @@ public abstract class BaseDB implements DB {
 		}
 		else {
 			String content = buildCreateFileContent(
-				sqlDir, databaseName, MINIMAL);
+				sqlDir, databaseName, DEFAULT);
 
 			if (content != null) {
 				FileUtil.write(file, content);
 			}
 
 			content = buildCreateFileContent(
-				sqlDir, databaseName + "1", MINIMAL);
+				sqlDir, databaseName + "1", DEFAULT);
 
 			if (content != null) {
 				FileUtil.write(file, content, false, true);
 			}
 
 			content = buildCreateFileContent(
-				sqlDir, databaseName + "2", MINIMAL);
+				sqlDir, databaseName + "2", DEFAULT);
 
 			if (content != null) {
 				FileUtil.write(file, content, false, true);
@@ -583,7 +582,7 @@ public abstract class BaseDB implements DB {
 
 		String template = readFile(sqlDir + "/" + fileName + ".sql");
 
-		if (fileName.equals("portal") || fileName.equals("portal-minimal") ||
+		if (fileName.equals("portal") ||
 			fileName.equals("update-5.0.1-5.1.0")) {
 
 			UnsyncBufferedReader unsyncBufferedReader =
@@ -808,9 +807,6 @@ public abstract class BaseDB implements DB {
 	protected String getSuffix(int type) {
 		if (type == BARE) {
 			return "-bare";
-		}
-		else if (type == MINIMAL) {
-			return "-minimal";
 		}
 		else if (type == SHARDED) {
 			return "-sharded";
