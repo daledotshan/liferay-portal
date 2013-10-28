@@ -310,6 +310,17 @@ public abstract class BaseIndexer implements Indexer {
 	}
 
 	@Override
+	public String getSortField(String orderByCol, int sortType) {
+		if ((sortType == Sort.DOUBLE_TYPE) || (sortType == Sort.FLOAT_TYPE) ||
+			(sortType == Sort.INT_TYPE) || (sortType == Sort.LONG_TYPE)) {
+
+			return DocumentImpl.getSortableFieldName(orderByCol);
+		}
+
+		return getSortField(orderByCol);
+	}
+
+	@Override
 	public Summary getSummary(
 			Document document, Locale locale, String snippet,
 			PortletURL portletURL)
@@ -782,7 +793,7 @@ public abstract class BaseIndexer implements Indexer {
 					assetCategoryTitles.put(locale, titles);
 				}
 
-				titles.add(title);
+				titles.add(StringUtil.toLowerCase(title));
 			}
 		}
 

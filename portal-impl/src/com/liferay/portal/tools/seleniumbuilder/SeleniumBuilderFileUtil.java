@@ -151,9 +151,6 @@ public class SeleniumBuilderFileUtil {
 		if (classSuffix.equals("Testcase")) {
 			classSuffix = "TestCase";
 		}
-		else if (classSuffix.equals("Testsuite")) {
-			classSuffix = "TestSuite";
-		}
 
 		return classSuffix;
 	}
@@ -538,9 +535,6 @@ public class SeleniumBuilderFileUtil {
 		else if (fileName.endsWith(".testcase")) {
 			validateTestCaseDocument(fileName, rootElement);
 		}
-		else if (fileName.endsWith(".testsuite")) {
-			validateTestSuiteDocument(fileName, rootElement);
-		}
 	}
 
 	protected void validateActionCommandElement(
@@ -718,7 +712,7 @@ public class SeleniumBuilderFileUtil {
 					fileName, element, allowedExecuteAttributeNames, ".+",
 					allowedExecuteChildElementNames);
 			}
-			else if (elementName.equals("if")) {
+			else if (elementName.equals("if") || elementName.equals("while")) {
 				validateIfElement(
 					fileName, element, allowedBlockChildElementNames,
 					allowedExecuteAttributeNames,
@@ -727,13 +721,6 @@ public class SeleniumBuilderFileUtil {
 			}
 			else if (elementName.equals("var")) {
 				validateVarElement(fileName, element);
-			}
-			else if (elementName.equals("while")) {
-				validateWhileElement(
-					fileName, element, allowedBlockChildElementNames,
-					allowedExecuteAttributeNames,
-					allowedExecuteChildElementNames,
-					allowedIfConditionElementNames);
 			}
 			else {
 				throwValidationException(1002, fileName, element, elementName);
@@ -776,7 +763,6 @@ public class SeleniumBuilderFileUtil {
 		String testCaseCommand = executeElement.attributeValue(
 			"test-case-command");
 		String testClass = executeElement.attributeValue("test-class");
-		String testSuite = executeElement.attributeValue("test-suite");
 
 		if (action != null) {
 			if (Validator.isNull(action) ||
@@ -952,25 +938,6 @@ public class SeleniumBuilderFileUtil {
 				}
 			}
 		}
-		else if (testSuite != null) {
-			if (Validator.isNull(testSuite) ||
-				!testSuite.matches(allowedExecuteAttributeValuesRegex)) {
-
-				throwValidationException(
-					1006, fileName, executeElement, "test-suite");
-			}
-
-			for (Attribute attribute : attributes) {
-				String attributeName = attribute.getName();
-
-				if (!attributeName.equals("line-number") &&
-					!attributeName.equals("test-suite")) {
-
-					throwValidationException(
-						1005, fileName, executeElement, attributeName);
-				}
-			}
-		}
 		else {
 			throwValidationException(0, fileName);
 		}
@@ -1070,7 +1037,18 @@ public class SeleniumBuilderFileUtil {
 				hasAllowedIfConditionElementNames = true;
 			}
 
-			if (elementName.equals("condition")) {
+			String ifElementName = ifElement.getName();
+
+			if (elementName.equals("and") || elementName.equals("not") ||
+				elementName.equals("or")) {
+
+				validateIfElement(
+					fileName, element, allowedBlockChildElementNames,
+					allowedExecuteAttributeNames,
+					allowedExecuteChildElementNames,
+					allowedIfConditionElementNames);
+			}
+			else if (elementName.equals("condition")) {
 				validateExecuteElement(
 					fileName, element, allowedExecuteAttributeNames,
 					".*(is|Is).+", allowedExecuteChildElementNames);
@@ -1079,7 +1057,12 @@ public class SeleniumBuilderFileUtil {
 				validateSimpleElement(
 					fileName, element, new String[] {"string", "substring"});
 			}
-			else if (elementName.equals("else") || elementName.equals("then")) {
+			else if (elementName.equals("else")) {
+				if (ifElementName.equals("while")) {
+					throwValidationException(
+						1002, fileName, element, elementName);
+				}
+
 				validateBlockElement(
 					fileName, element, allowedBlockChildElementNames,
 					allowedExecuteAttributeNames,
@@ -1087,6 +1070,11 @@ public class SeleniumBuilderFileUtil {
 					allowedIfConditionElementNames);
 			}
 			else if (elementName.equals("elseif")) {
+				if (ifElementName.equals("while")) {
+					throwValidationException(
+						1002, fileName, element, elementName);
+				}
+
 				validateIfElement(
 					fileName, element, allowedBlockChildElementNames,
 					allowedExecuteAttributeNames,
@@ -1100,10 +1088,8 @@ public class SeleniumBuilderFileUtil {
 			else if (elementName.equals("isset")) {
 				validateSimpleElement(fileName, element, new String[] {"var"});
 			}
-			else if (elementName.equals("and") || elementName.equals("not") ||
-					 elementName.equals("or")) {
-
-				validateIfElement(
+			else if (elementName.equals("then")) {
+				validateBlockElement(
 					fileName, element, allowedBlockChildElementNames,
 					allowedExecuteAttributeNames,
 					allowedExecuteChildElementNames,
@@ -1160,7 +1146,7 @@ public class SeleniumBuilderFileUtil {
 				validateBlockElement(
 					fileName, element,
 					new String[] {
-						"echo", "execute", "fail", "if", "var","while"
+						"echo", "execute", "fail", "if", "var", "while"
 					},
 					new String[] {"action", "macro"}, new String[] {"var"},
 					new String[] {
@@ -1331,6 +1317,22 @@ public class SeleniumBuilderFileUtil {
 					throwValidationException(1006, fileName, element, "name");
 				}
 
+				String priorityValue = element.attributeValue("priority");
+
+				if (priorityValue == null) {
+					throwValidationException(
+						1003, fileName, element, "priority");
+				}
+				else if (!(priorityValue.equals("1") ||
+						   priorityValue.equals("2") ||
+						   priorityValue.equals("3") ||
+						   priorityValue.equals("4") ||
+						   priorityValue.equals("5"))) {
+
+					throwValidationException(
+						1006, fileName, element, "priority");
+				}
+
 				validateBlockElement(
 					fileName, element, new String[] {"execute", "var"},
 					new String[] {"action", "macro"}, new String[] {"var"},
@@ -1357,38 +1359,6 @@ public class SeleniumBuilderFileUtil {
 			}
 			else if (elementName.equals("var")) {
 				validateVarElement(fileName, element);
-			}
-			else {
-				throwValidationException(1002, fileName, element, elementName);
-			}
-		}
-	}
-
-	protected void validateTestSuiteDocument(
-		String fileName, Element rootElement) {
-
-		if (!Validator.equals(rootElement.getName(), "definition")) {
-			throwValidationException(1000, fileName, rootElement);
-		}
-
-		List<Element> elements = rootElement.elements();
-
-		if (elements.isEmpty()) {
-			throwValidationException(
-				1001, fileName, rootElement, new String[] {"execute"});
-		}
-
-		for (Element element : elements) {
-			String elementName = element.getName();
-
-			if (elementName.equals("execute")) {
-				validateExecuteElement(
-					fileName, element,
-					new String[] {
-						"test-case", "test-case-command", "test-class",
-						"test-suite"
-					},
-					".+", new String[0]);
 			}
 			else {
 				throwValidationException(1002, fileName, element, elementName);
@@ -1511,48 +1481,6 @@ public class SeleniumBuilderFileUtil {
 
 			throwValidationException(
 				1002, fileName, childElement, childElementName);
-		}
-	}
-
-	protected void validateWhileElement(
-		String fileName, Element whileElement,
-		String[] allowedBlockChildElementNames,
-		String[] allowedExecuteAttributeNames,
-		String[] allowedExecuteChildElementNames,
-		String[] allowedIfConditionElementNames) {
-
-		List<Element> elements = whileElement.elements();
-
-		Set<String> elementNames = new HashSet<String>();
-
-		for (Element element : elements) {
-			String elementName = element.getName();
-
-			elementNames.add(elementName);
-
-			if (elementName.equals("condition")) {
-				validateExecuteElement(
-					fileName, element, allowedExecuteAttributeNames,
-					".*(is|Is).+", allowedExecuteChildElementNames);
-			}
-			else if (elementName.equals("then")) {
-				validateBlockElement(
-					fileName, element, allowedBlockChildElementNames,
-					allowedExecuteAttributeNames,
-					allowedExecuteChildElementNames,
-					allowedIfConditionElementNames);
-			}
-			else {
-				throwValidationException(1002, fileName, element, elementName);
-			}
-		}
-
-		if (!elementNames.contains("condition") ||
-			!elementNames.contains("then")) {
-
-			throwValidationException(
-				1001, fileName, whileElement,
-				new String[] {"condition", "then"});
 		}
 	}
 

@@ -1366,8 +1366,9 @@ public class JournalArticleLocalServiceImpl
 		OrderByComparator orderByComparator = new ArticleVersionComparator();
 
 		if (status == WorkflowConstants.STATUS_ANY) {
-			return journalArticlePersistence.fetchByG_A_First(
-				groupId, articleId, orderByComparator);
+			return journalArticlePersistence.fetchByG_A_NotST_First(
+				groupId, articleId, WorkflowConstants.STATUS_IN_TRASH,
+				orderByComparator);
 		}
 
 		return journalArticlePersistence.fetchByG_A_ST_First(
@@ -2635,6 +2636,14 @@ public class JournalArticleLocalServiceImpl
 		return articles.get(0);
 	}
 
+	@Override
+	public List<JournalArticle> getIndexableArticlesByResourcePrimKey(
+			long resourcePrimKey)
+		throws SystemException {
+
+		return journalArticlePersistence.findByR_I(resourcePrimKey, true);
+	}
+
 	/**
 	 * Returns the latest web content article matching the resource primary key,
 	 * preferring articles with approved workflow status.
@@ -2772,8 +2781,9 @@ public class JournalArticleLocalServiceImpl
 		OrderByComparator orderByComparator = new ArticleVersionComparator();
 
 		if (status == WorkflowConstants.STATUS_ANY) {
-			articles = journalArticlePersistence.findByG_A(
-				groupId, articleId, 0, 1, orderByComparator);
+			articles = journalArticlePersistence.findByG_A_NotST(
+				groupId, articleId, WorkflowConstants.STATUS_IN_TRASH, 0, 1,
+				orderByComparator);
 		}
 		else {
 			articles = journalArticlePersistence.findByG_A_ST(
@@ -3617,6 +3627,30 @@ public class JournalArticleLocalServiceImpl
 		return article;
 	}
 
+	@Override
+	public List<JournalArticle> search(
+			long groupId, List<Long> folderIds, int status, int start, int end)
+		throws SystemException {
+
+		QueryDefinition queryDefinition = new QueryDefinition(
+			status, start, end, null);
+
+		return journalArticleFinder.findByG_F(
+			groupId, folderIds, queryDefinition);
+	}
+
+	@Override
+	public List<JournalArticle> search(
+			long groupId, long folderId, int status, int start, int end)
+		throws SystemException {
+
+		List<Long> folderIds = new ArrayList<Long>();
+
+		folderIds.add(folderId);
+
+		return search(groupId, folderIds, status, start, end);
+	}
+
 	/**
 	 * Returns an ordered range of all the web content articles matching the
 	 * parameters without using the indexer, including a keywords parameter for
@@ -4113,6 +4147,27 @@ public class JournalArticleLocalServiceImpl
 		searchContext.setUserId(userId);
 
 		return indexer.search(searchContext);
+	}
+
+	@Override
+	public int searchCount(long groupId, List<Long> folderIds, int status)
+		throws SystemException {
+
+		QueryDefinition queryDefinition = new QueryDefinition(status);
+
+		return journalArticleFinder.countByG_F(
+			groupId, folderIds, queryDefinition);
+	}
+
+	@Override
+	public int searchCount(long groupId, long folderId, int status)
+		throws SystemException {
+
+		List<Long> folderIds = new ArrayList<Long>();
+
+		folderIds.add(folderId);
+
+		return searchCount(groupId, folderIds, status);
 	}
 
 	/**

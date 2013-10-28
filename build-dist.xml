@@ -1949,7 +1949,7 @@ closeTemplate()
 
 							set "MW_HOME=${app.server.weblogic.dir.windows}"
 
-							set "JAVA_OPTIONS=%JAVA_OPTIONS% @java.security.manager.option@ -da:org.apache.lucene... -da:org.aspectj..."
+							set "JAVA_OPTIONS=%JAVA_OPTIONS% -Dfile.encoding=UTF-8 @java.security.manager.option@ -da:org.apache.lucene... -da:org.aspectj..."
 						]]>
 					</replacevalue>
 					<replacefilter token="@app.server.weblogic.instance.dir@" value="${app.server.weblogic.instance.dir}" />
@@ -2394,6 +2394,10 @@ plugins.includes=</echo>
 					<available file="${patching.tool.zip}" />
 					<then>
 						<unzip dest="${zip.executable.dir}/.." src="${patching.tool.zip}" />
+
+						<chmod dir="${zip.executable.dir}/../patching-tool" perm="u+x">
+							<include name="**/*.sh" />
+						</chmod>
 
 						<if>
 							<contains string="${zip.executable.dir}" substring="glassfish" />

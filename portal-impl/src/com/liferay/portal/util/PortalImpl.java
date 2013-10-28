@@ -470,6 +470,7 @@ public class PortalImpl implements Portal {
 
 		_reservedParams.add("saveLastPath");
 		_reservedParams.add("scroll");
+		_reservedParams.add("switchGroup");
 
 		_servletContextName =
 			PortalContextLoaderListener.getPortalServlerContextName();
@@ -534,7 +535,7 @@ public class PortalImpl implements Portal {
 		ListMergeable<String> titleListMergeable =
 			(ListMergeable<String>)request.getAttribute(WebKeys.PAGE_TITLE);
 
-		if (titleListMergeable != null) {
+		if (titleListMergeable == null) {
 			titleListMergeable = new ListMergeable<String>();
 
 			request.setAttribute(WebKeys.PAGE_TITLE, titleListMergeable);
@@ -860,7 +861,15 @@ public class PortalImpl implements Portal {
 			return StringUtil.randomId();
 		}
 		else {
-			return DeterminateKeyGenerator.generate(input);
+			StringBundler sb = new StringBundler(5);
+
+			sb.append(DeterminateKeyGenerator.generate(input));
+			sb.append(StringPool.UNDERLINE);
+			sb.append(request.getAttribute(WebKeys.RENDER_PORTLET_COLUMN_ID));
+			sb.append(StringPool.UNDERLINE);
+			sb.append(request.getAttribute(WebKeys.RENDER_PORTLET_COLUMN_POS));
+
+			return JS.getSafeName(sb.toString());
 		}
 	}
 
@@ -6970,7 +6979,9 @@ public class PortalImpl implements Portal {
 		if (portletActions) {
 			Group layoutGroup = layout.getGroup();
 
-			if (layout.isPrivateLayout() && !layoutGroup.isLayoutPrototype()) {
+			if (layout.isPrivateLayout() && !layoutGroup.isLayoutPrototype() &&
+				!layoutGroup.isLayoutSetPrototype()) {
+
 				addGuestPermissions = false;
 			}
 		}

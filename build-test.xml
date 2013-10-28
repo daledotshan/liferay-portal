@@ -44,15 +44,6 @@
 
 	<target name="build-sql-file">
 		<if>
-			<equals arg1="${test.database.minimal}" arg2="true" />
-			<then>
-				<var name="database.create.suffix" unset="true" />
-
-				<var name="database.create.suffix" value="-minimal" />
-			</then>
-		</if>
-
-		<if>
 			<isset property="sql.legacy.url" />
 			<then>
 				<delete dir="sql/legacy" failonerror="false" />
@@ -213,16 +204,6 @@
 			</then>
 			<else>
 				<property name="test.ant.script.file.database.collate" value=" " />
-			</else>
-		</if>
-
-		<if>
-			<isset property="test.ant.script.database.minimal" />
-			<then>
-				<property name="test.ant.script.file.database.minimal" value="&lt;property name=&quot;test.database.minimal&quot; value=&quot;true&quot; /&gt;" />
-			</then>
-			<else>
-				<property name="test.ant.script.file.database.minimal" value=" " />
 			</else>
 		</if>
 
@@ -1895,6 +1876,17 @@ svn --username ${svn.username} --password ${svn.password} update -r ${svn.info.r
 		</if>
 
 		<if>
+			<equals arg1="${test.assert.javascript.errors}" arg2="false" />
+			<then>
+				<replace
+					file="portal-web/test/test-portal-web.properties"
+					token="test.assert.javascript.errors=true"
+					value="test.assert.javascript.errors=false"
+				/>
+			</then>
+		</if>
+
+		<if>
 			<isset property="test.browser" />
 			<then>
 				<replace
@@ -1985,21 +1977,6 @@ svn --username ${svn.username} --password ${svn.password} update -r ${svn.info.r
 		</if>
 
 		<if>
-			<or>
-				<equals arg1="${database.create.suffix}" arg2="-bare" />
-				<equals arg1="${database.create.suffix}" arg2="-minimal" />
-				<isset property="test.database.minimal" />
-			</or>
-			<then>
-				<replace
-					file="portal-web/test/test-portal-web.properties"
-					token="test.database.minimal=false"
-					value="test.database.minimal=true"
-				/>
-			</then>
-		</if>
-
-		<if>
 			<equals arg1="${test.save.screenshot}" arg2="true" />
 			<then>
 				<replace
@@ -2025,11 +2002,47 @@ svn --username ${svn.username} --password ${svn.password} update -r ${svn.info.r
 	<target name="prepare-test-build">
 		<antcall target="record-git-commit-portal" inheritAll="false" />
 
-		<ant antfile="build-dist.xml" target="unzip-tomcat" inheritAll="false" />
-
 		<antcall target="start" inheritAll="false" />
 
-		<antcall target="deploy" inheritAll="false" />
+		<if>
+			<matches pattern="http" string="${test.build.bundle.zip.url}" />
+			<then>
+				<mkdir dir="${app.server.parent.dir}" />
+
+				<tstamp>
+					<format property="tstamp.value" pattern="yyyyMMddkkmmssSSS" />
+				</tstamp>
+
+				<get dest="${tstamp.value}.zip" src="${test.build.bundle.zip.url}" />
+
+				<unzip
+					dest="${app.server.parent.dir}"
+					src="${tstamp.value}.zip"
+				>
+					<patternset
+						includes="liferay-portal-*/tomcat-*/**"
+					/>
+					<mapper
+						from="[^/]+/(.*)"
+						to="\1"
+						type="regexp"
+					/>
+				</unzip>
+
+				<chmod perm="a+x">
+					<fileset dir="${app.server.tomcat.bin.dir}">
+						<include name="*.sh" />
+					</fileset>
+				</chmod>
+
+				<delete file="${tstamp.value}.zip" />
+			</then>
+			<else>
+				<ant antfile="build-dist.xml" target="unzip-tomcat" inheritAll="false" />
+
+				<antcall target="deploy" inheritAll="false" />
+			</else>
+		</if>
 
 		<ant dir="portal-impl" target="build-selenium-new" inheritAll="false" />
 
@@ -2338,7 +2351,7 @@ custom.sql.function.isnotnull=CONVERT(VARCHAR,?) IS NOT NULL</echo>
 							<socket server="${database.host}" port="5000" />
 						</waitfor>
 
-						<sleep seconds="10" />
+						<sleep seconds="5" />
 					</sequential>
 				</parallel>
 			</then>
@@ -2365,19 +2378,8 @@ custom.sql.function.isnotnull=CONVERT(VARCHAR,?) IS NOT NULL</echo>
 					<then>
 						<delete dir="${liferay.home}/data" includeemptydirs="true" />
 
-						<if>
-							<not>
-								<or>
-									<equals arg1="${test.database.minimal}" arg2="true" />
-									<equals arg1="${database.create.suffix}" arg2="-bare" />
-									<equals arg1="${database.create.suffix}" arg2="-minimal" />
-								</or>
-							</not>
-							<then>
-								<copy file="sql/${database.name}.properties" tofile="${liferay.home}/data/hsql/${database.name}.properties" />
-								<copy file="sql/${database.name}.script" tofile="${liferay.home}/data/hsql/${database.name}.script" />
-							</then>
-						</if>
+						<copy file="sql/${database.name}.properties" tofile="${liferay.home}/data/hsql/${database.name}.properties" />
+						<copy file="sql/${database.name}.script" tofile="${liferay.home}/data/hsql/${database.name}.script" />
 					</then>
 					<elseif>
 						<equals arg1="${database.family}" arg2="mysql" />
@@ -2949,7 +2951,7 @@ custom.sql.function.isnotnull=CONVERT(VARCHAR,?) IS NOT NULL</echo>
 
 				<antcall target="run-selenium-test" />
 
-				<sleep seconds="5" />
+				<sleep seconds="10" />
 
 				<exec dir="${simple.server.bin.dir}" executable="${simple.server.stop.executable}" resolveexecutable="true">
 					<arg line="${simple.server.stop.executable.arg.line}" />
@@ -3123,15 +3125,13 @@ Please set "ie.driver.zip" in test.properties to point to "IEDriverServer_x64_2.
 			<param name="database" value="mysql" />
 		</antcall>
 
-		<antcall target="rebuild-database" inheritAll="false">
-			<param name="test.database.minimal" value="true" />
-		</antcall>
+		<antcall target="rebuild-database" />
 
 		<antcall target="revert-test-properties" />
 
-		<antcall target="test-integration" inheritAll="false" />
+		<antcall target="test-integration" />
 
-		<antcall target="test-unit" inheritAll="false" />
+		<antcall target="test-unit" />
 
 		<ant dir="sql" target="test-sample-sql" inheritAll="false" />
 

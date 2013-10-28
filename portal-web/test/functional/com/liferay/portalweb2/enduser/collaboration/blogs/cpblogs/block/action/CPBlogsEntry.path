@@ -30,7 +30,7 @@
 </tr>
 <tr>
 	<td>ENTRY_DRAFT_STATUS</td>
-	<td>//div[@class='entry draft']/div/h3</td>
+	<td>//div[contains(@class,'entry') and contains(@class,'draft')]/div/h3</td>
 	<td></td>
 </tr>
 <tr>
@@ -213,17 +213,17 @@
 </tr>
 <tr>
 	<td>COMMENTS_NO_COMMENTS_YET</td>
-	<td>//fieldset[@class='fieldset add-comment']/div</td>
+	<td>//fieldset[contains(@class,'fieldset') and contains(@class,'add-comment')]/div</td>
 	<td></td>
 </tr>
 <tr>
 	<td>COMMENTS_BE_THE_FIRST</td>
-	<td>//fieldset[@class='fieldset add-comment']/div/a[contains(.,'Be the first')]</td>
+	<td>//fieldset[contains(@class,'fieldset') and contains(@class,'add-comment')]/div/a[contains(.,'Be the first')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>COMMENTS_ADD_COMMENT</td>
-	<td>//fieldset[@class='fieldset add-comment']/div/span/a[contains(.,'Add Comment')]</td>
+	<td>//fieldset[contains(@class,'fieldset') and contains(@class,'add-comment')]/div/span/a[contains(.,'Add Comment')]</td>
 	<td></td>
 </tr>
 <tr>

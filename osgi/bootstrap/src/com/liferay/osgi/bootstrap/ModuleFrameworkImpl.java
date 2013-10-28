@@ -51,6 +51,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -733,7 +734,22 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 		ClassLoader classLoader = ClassLoaderUtil.getPortalClassLoader();
 
+		PrintStream err = System.err;
+
 		try {
+			System.setErr(
+				new PrintStream(err) {
+
+					@Override
+					public void println(String string) {
+						if (_log.isDebugEnabled()) {
+							_log.debug(string);
+						}
+					}
+
+				}
+			);
+
 			Enumeration<URL> enu = classLoader.getResources(
 				"META-INF/MANIFEST.MF");
 
@@ -748,6 +764,9 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		}
 		catch (IOException ioe) {
 			_log.error(ioe, ioe);
+		}
+		finally {
+			System.setErr(err);
 		}
 
 		_extraPackageMap = Collections.unmodifiableMap(_extraPackageMap);
