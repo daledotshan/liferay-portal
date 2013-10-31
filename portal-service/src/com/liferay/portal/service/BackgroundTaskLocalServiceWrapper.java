@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Provides a wrapper for {@link BackgroundTaskLocalService}.
  *
@@ -21,6 +23,7 @@ package com.liferay.portal.service;
  * @see BackgroundTaskLocalService
  * @generated
  */
+@ProviderType
 public class BackgroundTaskLocalServiceWrapper
 	implements BackgroundTaskLocalService,
 		ServiceWrapper<BackgroundTaskLocalService> {
@@ -357,6 +360,16 @@ public class BackgroundTaskLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_backgroundTaskLocalService.deleteGroupBackgroundTasks(groupId);
+	}
+
+	@Override
+	public com.liferay.portal.model.BackgroundTask fetchFirstBackgroundTask(
+		long groupId, java.lang.String taskExecutorClassName,
+		boolean completed,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _backgroundTaskLocalService.fetchFirstBackgroundTask(groupId,
+			taskExecutorClassName, completed, orderByComparator);
 	}
 
 	@Override

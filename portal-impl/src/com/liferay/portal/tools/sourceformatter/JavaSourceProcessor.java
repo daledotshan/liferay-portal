@@ -832,7 +832,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 	@Override
 	protected String format(String fileName) throws Exception {
-		if (fileName.endsWith("SourceProcessor.java")) {
+		if (fileName.contains("SourceProcessor")) {
 			return null;
 		}
 
@@ -851,7 +851,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		String className = file.getName();
 
-		className = className.substring(0, className.length() - 5);
+		int pos = className.lastIndexOf(StringPool.PERIOD);
+
+		className = className.substring(0, pos);
 
 		String packagePath = fileName;
 
@@ -1810,6 +1812,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 									 StringPool.CLOSE_PARENTHESIS) &&
 								 !trimmedLine.startsWith(
 									 StringPool.DOUBLE_SLASH) &&
+								 !trimmedLine.equals("*/") &&
 								 !trimmedLine.startsWith("catch ") &&
 								 !trimmedLine.startsWith("else ") &&
 								 !trimmedLine.startsWith("finally ") &&

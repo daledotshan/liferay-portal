@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.service.ServiceWrapper;
 
 /**
@@ -23,6 +25,7 @@ import com.liferay.portal.service.ServiceWrapper;
  * @see JournalArticleLocalService
  * @generated
  */
+@ProviderType
 public class JournalArticleLocalServiceWrapper
 	implements JournalArticleLocalService,
 		ServiceWrapper<JournalArticleLocalService> {
@@ -1836,6 +1839,13 @@ public class JournalArticleLocalServiceWrapper
 			urlTitle);
 	}
 
+	@Override
+	public java.util.List<com.liferay.portlet.journal.model.JournalArticle> getIndexableArticlesByResourcePrimKey(
+		long resourcePrimKey)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getIndexableArticlesByResourcePrimKey(resourcePrimKey);
+	}
+
 	/**
 	* Returns the latest web content article matching the resource primary key,
 	* preferring articles with approved workflow status.
@@ -2430,6 +2440,23 @@ public class JournalArticleLocalServiceWrapper
 			article);
 	}
 
+	@Override
+	public java.util.List<com.liferay.portlet.journal.model.JournalArticle> search(
+		long groupId, java.util.List<java.lang.Long> folderIds, int status,
+		int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.search(groupId, folderIds, status,
+			start, end);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portlet.journal.model.JournalArticle> search(
+		long groupId, long folderId, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.search(groupId, folderId, status,
+			start, end);
+	}
+
 	/**
 	* Returns an ordered range of all the web content articles matching the
 	* parameters without using the indexer, including a keywords parameter for
@@ -2822,6 +2849,20 @@ public class JournalArticleLocalServiceWrapper
 			com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticleLocalService.search(groupId, userId,
 			creatorUserId, status, start, end);
+	}
+
+	@Override
+	public int searchCount(long groupId,
+		java.util.List<java.lang.Long> folderIds, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.searchCount(groupId, folderIds,
+			status);
+	}
+
+	@Override
+	public int searchCount(long groupId, long folderId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.searchCount(groupId, folderId, status);
 	}
 
 	/**

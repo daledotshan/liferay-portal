@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
@@ -31,6 +33,7 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  * @see com.liferay.portlet.journal.service.impl.JournalArticleLocalServiceImpl
  * @generated
  */
+@ProviderType
 public class JournalArticleLocalServiceUtil {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -1761,6 +1764,13 @@ public class JournalArticleLocalServiceUtil {
 		return getService().getDisplayArticleByUrlTitle(groupId, urlTitle);
 	}
 
+	public static java.util.List<com.liferay.portlet.journal.model.JournalArticle> getIndexableArticlesByResourcePrimKey(
+		long resourcePrimKey)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getIndexableArticlesByResourcePrimKey(resourcePrimKey);
+	}
+
 	/**
 	* Returns the latest web content article matching the resource primary key,
 	* preferring articles with approved workflow status.
@@ -2314,6 +2324,19 @@ public class JournalArticleLocalServiceUtil {
 		return getService().restoreArticleFromTrash(userId, article);
 	}
 
+	public static java.util.List<com.liferay.portlet.journal.model.JournalArticle> search(
+		long groupId, java.util.List<java.lang.Long> folderIds, int status,
+		int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().search(groupId, folderIds, status, start, end);
+	}
+
+	public static java.util.List<com.liferay.portlet.journal.model.JournalArticle> search(
+		long groupId, long folderId, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().search(groupId, folderId, status, start, end);
+	}
+
 	/**
 	* Returns an ordered range of all the web content articles matching the
 	* parameters without using the indexer, including a keywords parameter for
@@ -2702,6 +2725,17 @@ public class JournalArticleLocalServiceUtil {
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService()
 				   .search(groupId, userId, creatorUserId, status, start, end);
+	}
+
+	public static int searchCount(long groupId,
+		java.util.List<java.lang.Long> folderIds, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().searchCount(groupId, folderIds, status);
+	}
+
+	public static int searchCount(long groupId, long folderId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().searchCount(groupId, folderId, status);
 	}
 
 	/**

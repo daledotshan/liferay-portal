@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.wiki.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -62,6 +64,7 @@ import java.rmi.RemoteException;
  * @see com.liferay.portlet.wiki.service.WikiPageServiceUtil
  * @generated
  */
+@ProviderType
 public class WikiPageServiceSoap {
 	public static com.liferay.portlet.wiki.model.WikiPageSoap addPage(
 		long nodeId, java.lang.String title, java.lang.String content,
@@ -227,6 +230,22 @@ public class WikiPageServiceSoap {
 		double version) throws RemoteException {
 		try {
 			WikiPageServiceUtil.discardDraft(nodeId, title, version);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.wiki.model.WikiPageSoap fetchPage(
+		long nodeId, java.lang.String title, double version)
+		throws RemoteException {
+		try {
+			com.liferay.portlet.wiki.model.WikiPage returnValue = WikiPageServiceUtil.fetchPage(nodeId,
+					title, version);
+
+			return com.liferay.portlet.wiki.model.WikiPageSoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.trash.model;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -25,10 +27,20 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.trash.model.impl.TrashVersionModelImpl
  * @generated
  */
+@ProviderType
 public interface TrashVersion extends TrashVersionModel, PersistedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.trash.model.impl.TrashVersionImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public com.liferay.portal.kernel.util.UnicodeProperties getTypeSettingsProperties();
+
+	public java.lang.String getTypeSettingsProperty(java.lang.String key);
+
+	public java.lang.String getTypeSettingsProperty(java.lang.String key,
+		java.lang.String defaultValue);
+
+	public void setTypeSettingsProperties(
+		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties);
 }

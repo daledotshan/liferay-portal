@@ -460,9 +460,9 @@ public class PortletDataContextImpl implements PortletDataContext {
 		for (Role role : roles) {
 			String roleName = role.getName();
 
-			int type = role.getType();
+			int roleType = role.getType();
 
-			if ((type == RoleConstants.TYPE_PROVIDER) && role.isTeam()) {
+			if ((roleType == RoleConstants.TYPE_PROVIDER) && role.isTeam()) {
 				Team team = TeamLocalServiceUtil.getTeam(role.getClassPK());
 
 				roleName = PermissionExporter.ROLE_TEAM_PREFIX + team.getName();
@@ -977,6 +977,15 @@ public class PortletDataContextImpl implements PortletDataContext {
 	@Override
 	public long getGroupId() {
 		return _groupId;
+	}
+
+	@Override
+	public Element getImportDataElement(StagedModel stagedModel) {
+		StagedModelType stagedModelType = stagedModel.getStagedModelType();
+
+		return getImportDataElement(
+			stagedModelType.getClassSimpleName(), "uuid",
+			stagedModel.getUuid());
 	}
 
 	@Override
@@ -2192,6 +2201,17 @@ public class PortletDataContextImpl implements PortletDataContext {
 			referenceElement.addAttribute("uuid", stagedModel.getUuid());
 			referenceElement.addAttribute(
 				"company-id", String.valueOf(stagedModel.getCompanyId()));
+
+			Map<String, String> referenceAttributes =
+				StagedModelDataHandlerUtil.getReferenceAttributes(
+					this, stagedModel);
+
+			for (Map.Entry<String, String> referenceAttribute :
+					referenceAttributes.entrySet()) {
+
+				referenceElement.addAttribute(
+					referenceAttribute.getKey(), referenceAttribute.getValue());
+			}
 		}
 
 		return referenceElement;

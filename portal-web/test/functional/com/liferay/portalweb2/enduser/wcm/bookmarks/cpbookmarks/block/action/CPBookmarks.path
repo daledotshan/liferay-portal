@@ -36,12 +36,12 @@
 </tr>
 <tr>
 	<td>SUCCESS_MESSAGE_RECYCLE_BIN</td>
-	<td>//div[@class='alert alert-success taglib-trash-undo']</td>
+	<td>//div[contains(@class,'alert') and contains(@class,'alert-success') and contains(@class,'taglib-trash-undo')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>INFO_MESSAGE</td>
-	<td>//div[@class='alert alert-info']</td>
+	<td>//div[contains(@class,'alert') and contains(@class,'alert-info')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -213,22 +213,22 @@
 <!--FOLDER_MENU-->
 <tr>
 	<td>FOLDER_MENU_PERMISSIONS</td>
-	<td>//ul[@id='_28_kldx_menu']/li/a[contains(.,'Permissions')]</td>
+	<td>//ul[contains(@id,'_menu')]/li/a[contains(.,'Permissions')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FOLDER_MENU_SUBSCRIBE</td>
-	<td>//ul[@id='_28_kldx_menu']/li/a[contains(.,'Subscribe')]</td>
+	<td>//ul[contains(@id,'_menu')]/li/a[contains(.,'Subscribe')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FOLDER_MENU_ADD_FOLDER</td>
-	<td>//ul[@id='_28_kldx_menu']/li/a[contains(.,'Add Folder')]</td>
+	<td>//ul[contains(@id,'_menu')]/li/a[contains(.,'Add Folder')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FOLDER_MENU_ADD_BOOKMARK</td>
-	<td>//ul[@id='_28_kldx_menu']/li/a[contains(.,'Add Bookmark')]</td>
+	<td>//ul[contains(@id,'_menu')]/li/a[contains(.,'Add Bookmark')]</td>
 	<td></td>
 </tr>
 </tbody>

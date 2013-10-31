@@ -1,4 +1,4 @@
-Export-Package: com.liferay.*
-Import-Package: *;resolution:=optional
+Bundle-Version: 6.2.0
+Import-Package: *
 Include-Resource: classes
-Private-Package: *
+Private-Package: com.liferay.portal.security.pacl.*

@@ -14,6 +14,9 @@
 
 package com.liferay.portlet.trash.model;
 
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.model.AttachedModel;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
@@ -36,6 +39,7 @@ import java.io.Serializable;
  * @see com.liferay.portlet.trash.model.impl.TrashVersionModelImpl
  * @generated
  */
+@ProviderType
 public interface TrashVersionModel extends AttachedModel, BaseModel<TrashVersion> {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -126,6 +130,21 @@ public interface TrashVersionModel extends AttachedModel, BaseModel<TrashVersion
 	 */
 	@Override
 	public void setClassPK(long classPK);
+
+	/**
+	 * Returns the type settings of this trash version.
+	 *
+	 * @return the type settings of this trash version
+	 */
+	@AutoEscape
+	public String getTypeSettings();
+
+	/**
+	 * Sets the type settings of this trash version.
+	 *
+	 * @param typeSettings the type settings of this trash version
+	 */
+	public void setTypeSettings(String typeSettings);
 
 	/**
 	 * Returns the status of this trash version.

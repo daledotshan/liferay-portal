@@ -377,7 +377,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 														String taglibEditURL = "javascript:" + randomNamespace + "showForm('" + randomNamespace + "editForm" + i + "', '" + namespace + randomNamespace + "editReplyBody" + i + "');" + randomNamespace + "hideForm('" + randomNamespace + "postReplyForm" + i + "', '" + namespace + randomNamespace + "postReplyBody" + i + "', '')";
 														%>
 
-														<li class="lfr-discussion-delete-reply">
+														<li class="lfr-discussion-edit">
 															<liferay-ui:icon
 																image="edit"
 																label="<%= true %>"
@@ -603,6 +603,10 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 
 					Liferay.Util.openWindow(
 						{
+							dialog: {
+								height: 460,
+								width: 770
+							},
 							id: '<%= namespace %>signInDialog',
 							title: '<%= UnicodeLanguageUtil.get(pageContext, "sign-in") %>',
 							uri: '<%= loginURL.toString() %>'

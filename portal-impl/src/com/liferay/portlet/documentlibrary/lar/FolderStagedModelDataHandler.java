@@ -62,12 +62,10 @@ public class FolderStagedModelDataHandler
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException, SystemException {
 
-		DLFolder dlFolder =
-			DLFolderLocalServiceUtil.fetchDLFolderByUuidAndGroupId(
-				uuid, groupId);
+		Folder folder = FolderUtil.fetchByUUID_R(uuid, groupId);
 
-		if (dlFolder != null) {
-			DLFolderLocalServiceUtil.deleteFolder(dlFolder);
+		if (folder != null) {
+			DLAppLocalServiceUtil.deleteFolder(folder.getFolderId());
 		}
 	}
 
@@ -128,12 +126,6 @@ public class FolderStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(folder.getUserUuid());
 
-		String path = ExportImportPathUtil.getModelPath(
-			portletDataContext, Folder.class.getName(), folder.getFolderId());
-
-		Element folderElement = portletDataContext.getImportDataElement(
-			Folder.class.getSimpleName(), "path", path);
-
 		if (folder.getParentFolderId() !=
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 
@@ -191,6 +183,8 @@ public class FolderStagedModelDataHandler
 				userId, portletDataContext.getScopeGroupId(), parentFolderId,
 				name, folder.getDescription(), serviceContext);
 		}
+
+		Element folderElement = portletDataContext.getImportDataElement(folder);
 
 		importFolderFileEntryTypes(
 			portletDataContext, folderElement, folder, serviceContext);
@@ -381,6 +375,17 @@ public class FolderStagedModelDataHandler
 	protected void validateExport(
 			PortletDataContext portletDataContext, Folder folder)
 		throws PortletDataException {
+
+		if ((folder.getGroupId() != portletDataContext.getGroupId()) &&
+			(folder.getGroupId() != portletDataContext.getScopeGroupId())) {
+
+			PortletDataException pde = new PortletDataException(
+				PortletDataException.INVALID_GROUP);
+
+			pde.setStagedModel(folder);
+
+			throw pde;
+		}
 
 		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
 			DLFolder.class.getName());

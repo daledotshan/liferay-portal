@@ -14,9 +14,12 @@
 
 package com.liferay.portal.service.persistence;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * @author Brian Wing Shun Chan
  */
+@ProviderType
 public interface GroupFinder {
 	public int countByLayouts(long companyId, long parentGroupId, boolean site)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -55,14 +58,14 @@ public interface GroupFinder {
 		int start, int end, com.liferay.portal.kernel.util.OrderByComparator obc)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	public java.util.List<java.lang.Long> findByC_P(long companyId,
+		long parentGroupId, long previousGroupId, int size)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	public com.liferay.portal.model.Group findByC_N(long companyId,
 		java.lang.String name)
 		throws com.liferay.portal.NoSuchGroupException,
 			com.liferay.portal.kernel.exception.SystemException;
-
-	public java.util.List<java.lang.Long> findByC_P(long companyId,
-		long parentGroupId, long previousGroupId, int size)
-		throws com.liferay.portal.kernel.exception.SystemException;
 
 	public java.util.List<com.liferay.portal.model.Group> findByC_C_PG_N_D(
 		long companyId, long[] classNameIds, long parentGroupId,

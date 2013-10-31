@@ -1844,6 +1844,25 @@ release was successful.</echo>
 
 	<target name="unzip-weblogic-original">
 		<if>
+			<matches pattern="http://mirrors" string="${app.server.weblogic.zip.url}" />
+			<then>
+				<if>
+					<not>
+						<available file="${app.server.parent.dir}/${app.server.weblogic.zip.name}" />
+					</not>
+					<then>
+						<mkdir dir="${app.server.parent.dir}" />
+
+						<get
+							dest="${app.server.parent.dir}"
+							src="${app.server.weblogic.zip.url}"
+						/>
+					</then>
+				</if>
+			</then>
+		</if>
+
+		<if>
 			<not>
 				<available file="${app.server.parent.dir}/${app.server.weblogic.zip.name}" />
 			</not>
@@ -1949,7 +1968,7 @@ closeTemplate()
 
 							set "MW_HOME=${app.server.weblogic.dir.windows}"
 
-							set "JAVA_OPTIONS=%JAVA_OPTIONS% @java.security.manager.option@ -da:org.apache.lucene... -da:org.aspectj..."
+							set "JAVA_OPTIONS=%JAVA_OPTIONS% -Dfile.encoding=UTF-8 @java.security.manager.option@ -da:org.apache.lucene... -da:org.aspectj..."
 						]]>
 					</replacevalue>
 					<replacefilter token="@app.server.weblogic.instance.dir@" value="${app.server.weblogic.instance.dir}" />
@@ -2394,6 +2413,10 @@ plugins.includes=</echo>
 					<available file="${patching.tool.zip}" />
 					<then>
 						<unzip dest="${zip.executable.dir}/.." src="${patching.tool.zip}" />
+
+						<chmod dir="${zip.executable.dir}/../patching-tool" perm="u+x">
+							<include name="**/*.sh" />
+						</chmod>
 
 						<if>
 							<contains string="${zip.executable.dir}" substring="glassfish" />

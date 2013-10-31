@@ -50,13 +50,13 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			PortletDataContext portletDataContext, T stagedModel)
 		throws PortletDataException {
 
+		validateExport(portletDataContext, stagedModel);
+
 		String path = ExportImportPathUtil.getModelPath(stagedModel);
 
 		if (portletDataContext.isPathExportedInScope(path)) {
 			return;
 		}
-
-		validateExport(portletDataContext, stagedModel);
 
 		try {
 			ManifestSummary manifestSummary =
@@ -187,33 +187,26 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 	@Override
 	public boolean validateReference(
-		PortletDataContext portletDataContext, Element rootElement,
-		Element referenceElement) {
+		PortletDataContext portletDataContext, Element referenceElement) {
 
-		String elementName = referenceElement.getName();
+		String uuid = referenceElement.attributeValue("uuid");
 
-		if (elementName.equals("missing-reference")) {
-			String uuid = referenceElement.attributeValue("uuid");
+		try {
+			boolean valid = validateMissingReference(
+				uuid, portletDataContext.getCompanyId(),
+				portletDataContext.getScopeGroupId());
 
-			try {
-				boolean valid = validateMissingReference(
+			if (!valid) {
+				valid = validateMissingReference(
 					uuid, portletDataContext.getCompanyId(),
-					portletDataContext.getScopeGroupId());
-
-				if (!valid) {
-					valid = validateMissingReference(
-						uuid, portletDataContext.getCompanyId(),
-						portletDataContext.getCompanyGroupId());
-				}
-
-				return valid;
+					portletDataContext.getCompanyGroupId());
 			}
-			catch (Exception e) {
-				return false;
-			}
+
+			return valid;
 		}
-
-		return true;
+		catch (Exception e) {
+			return false;
+		}
 	}
 
 	protected boolean countStagedModel(
@@ -254,8 +247,12 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			if (!ArrayUtil.contains(
 					getExportableStatuses(), workflowedModel.getStatus())) {
 
-				throw new PortletDataException(
+				PortletDataException pde = new PortletDataException(
 					PortletDataException.STATUS_UNAVAILABLE);
+
+				pde.setStagedModel(stagedModel);
+
+				throw pde;
 			}
 		}
 
@@ -269,8 +266,12 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 				long classPK = (Long)stagedModel.getPrimaryKeyObj();
 
 				if (trashHandler.isInTrash(classPK)) {
-					throw new PortletDataException(
+					PortletDataException pde = new PortletDataException(
 						PortletDataException.STATUS_IN_TRASH);
+
+					pde.setStagedModel(stagedModel);
+
+					throw pde;
 				}
 			}
 			catch (PortletDataException pde) {

@@ -279,6 +279,11 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>containerSrc</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<name>containerType</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1477,6 +1482,11 @@
 		</attribute>
 		<attribute>
 			<name>showWhenSingleIcon</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>triggerCssClass</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>

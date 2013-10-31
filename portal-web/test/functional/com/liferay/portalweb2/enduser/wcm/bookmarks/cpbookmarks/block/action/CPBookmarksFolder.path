@@ -41,17 +41,17 @@
 </tr>
 <tr>
 	<td>SUCCESS_MESSAGE</td>
-	<td>//div[@class='alert alert-success']</td>
+	<td>//div[contains(@class,'alert') and contains(@class,'alert-success')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SUCCESS_MESSAGE_RECYCLE_BIN</td>
-	<td>//div[@class='alert alert-success taglib-trash-undo']</td>
+	<td>//div[contains(@class,'alert') and contains(@class,'alert-success') and contains(@class,'taglib-trash-undo')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>INFO_MESSAGE</td>
-	<td>//div[@class='alert alert-info']</td>
+	<td>//div[contains(@class,'alert') and contains(@class,'alert-info')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -77,17 +77,17 @@
 <!--FOLDER_MENU-->
 <tr>
 	<td>FOLDER_MENU_EDIT</td>
-	<td>//ul[@id='_28_kldx_menu']/li/a[contains(.,'Edit')]</td>
+	<td>//ul[contains(@id,'_menu')]/li/a[contains(.,'Edit')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FOLDER_MENU_MOVE_TO_THE_RECYCLE_BIN</td>
-	<td>//ul[@id='_28_kldx_menu']/li/a[contains(.,'Move to the Recycle Bin')]</td>
+	<td>//ul[contains(@id,'_menu')]/li/a[contains(.,'Move to the Recycle Bin')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FOLDER_MENU_ADD_SUBFOLDER</td>
-	<td>//ul[@id='_28_kldx_menu']/li/a[contains(.,'Add Subfolder')]</td>
+	<td>//ul[contains(@id,'_menu')]/li/a[contains(.,'Add Subfolder')]</td>
 	<td></td>
 </tr>
 </tbody>

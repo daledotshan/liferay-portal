@@ -19,7 +19,6 @@ import com.liferay.portal.LARTypeException;
 import com.liferay.portal.LayoutImportException;
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.MissingReferenceException;
-import com.liferay.portal.NoSuchLayoutException;
 import com.liferay.portal.PortletIdException;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -59,7 +58,6 @@ import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.kernel.zip.ZipReader;
 import com.liferay.portal.kernel.zip.ZipReaderFactoryUtil;
 import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.Lock;
@@ -90,6 +88,7 @@ import com.liferay.portlet.asset.model.AssetCategoryConstants;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLink;
 import com.liferay.portlet.asset.model.AssetTag;
+import com.liferay.portlet.asset.model.AssetTagConstants;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
@@ -543,8 +542,6 @@ public class PortletImporter {
 			throw new SystemException(de);
 		}
 
-		setPortletScope(portletDataContext, portletElement);
-
 		Element portletDataElement = portletElement.element("portlet-data");
 
 		boolean importData = importPortletData && (portletDataElement != null);
@@ -787,7 +784,9 @@ public class PortletImporter {
 			String key = propertyElement.attributeValue("key");
 			String value = propertyElement.attributeValue("value");
 
-			properties[i] = key.concat(StringPool.COLON).concat(value);
+			properties[i] = key.concat(
+				AssetCategoryConstants.PROPERTY_KEY_VALUE_SEPARATOR).concat(
+					value);
 		}
 
 		AssetCategory existingAssetCategory = AssetCategoryUtil.fetchByUUID_G(
@@ -871,7 +870,8 @@ public class PortletImporter {
 			String key = propertyElement.attributeValue("key");
 			String value = propertyElement.attributeValue("value");
 
-			properties[i] = key.concat(StringPool.COLON).concat(value);
+			properties[i] = key.concat(
+				AssetTagConstants.PROPERTY_KEY_VALUE_SEPARATOR).concat(value);
 		}
 
 		AssetTag existingAssetTag = null;
@@ -1027,11 +1027,7 @@ public class PortletImporter {
 			portletId = parentElement.attributeValue("portlet-id");
 		}
 
-		String languageId = LocaleUtil.toLanguageId(
-			LocaleUtil.getMostRelevantLocale());
-
 		long plid = LayoutConstants.DEFAULT_PLID;
-		String portletSetupTitle = StringPool.BLANK;
 		String scopeType = StringPool.BLANK;
 		String scopeLayoutUuid = StringPool.BLANK;
 
@@ -1042,11 +1038,6 @@ public class PortletImporter {
 				javax.portlet.PortletPreferences jxPortletPreferences =
 					PortletPreferencesFactoryUtil.getLayoutPortletSetup(
 						layout, portletId);
-
-				portletSetupTitle = GetterUtil.getString(
-					jxPortletPreferences.getValue(
-						"portletSetupTitle_" + languageId,
-						PortalUtil.getPortletTitle(portletId, languageId)));
 
 				scopeType = GetterUtil.getString(
 					jxPortletPreferences.getValue("lfrScopeType", null));
@@ -1192,8 +1183,6 @@ public class PortletImporter {
 					layout, portletId);
 
 			try {
-				jxPortletPreferences.setValue(
-					"portletSetupTitle_" + languageId, portletSetupTitle);
 				jxPortletPreferences.setValue("lfrScopeType", scopeType);
 				jxPortletPreferences.setValue(
 					"lfrScopeLayoutUuid", scopeLayoutUuid);
@@ -1672,91 +1661,6 @@ public class PortletImporter {
 		portletDataContext.setScopeGroupId(groupId);
 		portletDataContext.setScopeLayoutUuid(StringPool.BLANK);
 		portletDataContext.setScopeType(StringPool.BLANK);
-	}
-
-	protected void setPortletScope(
-		PortletDataContext portletDataContext, Element portletElement) {
-
-		if (ExportImportThreadLocal.isPortletImportInProcess()) {
-			return;
-		}
-
-		// Portlet data scope
-
-		String scopeLayoutUuid = GetterUtil.getString(
-			portletElement.attributeValue("scope-layout-uuid"));
-		String scopeLayoutType = GetterUtil.getString(
-			portletElement.attributeValue("scope-layout-type"));
-
-		portletDataContext.setScopeLayoutUuid(scopeLayoutUuid);
-		portletDataContext.setScopeType(scopeLayoutType);
-
-		// Layout scope
-
-		try {
-			Group scopeGroup = null;
-
-			if (scopeLayoutType.equals("company")) {
-				scopeGroup = GroupLocalServiceUtil.getCompanyGroup(
-					portletDataContext.getCompanyId());
-			}
-			else if (Validator.isNotNull(scopeLayoutUuid)) {
-				boolean privateLayout = GetterUtil.getBoolean(
-					portletElement.attributeValue("private-layout"));
-
-				Layout scopeLayout =
-					LayoutLocalServiceUtil.getLayoutByUuidAndGroupId(
-						scopeLayoutUuid, portletDataContext.getGroupId(),
-						privateLayout);
-
-				if (scopeLayout.hasScopeGroup()) {
-					scopeGroup = scopeLayout.getScopeGroup();
-				}
-				else {
-					String name = String.valueOf(scopeLayout.getPlid());
-
-					scopeGroup = GroupLocalServiceUtil.addGroup(
-						portletDataContext.getUserId(null),
-						GroupConstants.DEFAULT_PARENT_GROUP_ID,
-						Layout.class.getName(), scopeLayout.getPlid(),
-						GroupConstants.DEFAULT_LIVE_GROUP_ID, name, null, 0,
-						true, GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION,
-						null, false, true, null);
-				}
-
-				Group group = scopeLayout.getGroup();
-
-				if (group.isStaged() && !group.isStagedRemotely()) {
-					try {
-						Layout oldLayout =
-							LayoutLocalServiceUtil.getLayoutByUuidAndGroupId(
-								scopeLayoutUuid,
-								portletDataContext.getSourceGroupId(),
-								privateLayout);
-
-						Group oldScopeGroup = oldLayout.getScopeGroup();
-
-						oldScopeGroup.setLiveGroupId(scopeGroup.getGroupId());
-
-						GroupLocalServiceUtil.updateGroup(oldScopeGroup);
-					}
-					catch (NoSuchLayoutException nsle) {
-						if (_log.isWarnEnabled()) {
-							_log.warn(nsle);
-						}
-					}
-				}
-			}
-
-			if (scopeGroup != null) {
-				portletDataContext.setScopeGroupId(scopeGroup.getGroupId());
-			}
-		}
-		catch (PortalException pe) {
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
 	}
 
 	protected void updatePortletPreferences(

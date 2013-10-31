@@ -113,7 +113,7 @@ $editLayoutPanelWidth: 460px;
 					display: block;
 					padding: 3px 5px 3px 40px;
 
-					&:hover {
+					&:focus, &:hover {
 						background: #0DB5E7;
 						color: #FFF;
 						text-decoration: none;
@@ -188,7 +188,6 @@ $editLayoutPanelWidth: 460px;
 			.info-items {
 				left: auto;
 				position: static;
-				width: auto;
 			}
 
 			.navbar-inner {
@@ -552,6 +551,10 @@ $editLayoutPanelWidth: 460px;
 
 	/* ---------- Menus ---------- */
 
+	.dropdown-menu > li > a:focus > [class^="icon-"] {
+		background-image: none;
+	}
+
 	.my-sites-menu {
 		.site-type {
 			color: #FFF;
@@ -689,6 +692,20 @@ $editLayoutPanelWidth: 460px;
 			text-align: center;
 			vertical-align: middle;
 			width: 25%;
+
+			a {
+				color: #FFF;
+
+				&:focus, &:hover {
+					color: #FFF;
+					text-decoration: none;
+				}
+			}
+
+			span {
+				display: block;
+				line-height: 20px;
+			}
 		}
 
 		.page-customization-bar-text {

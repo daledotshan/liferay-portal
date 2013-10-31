@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.bookmarks.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
@@ -31,6 +33,7 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  * @see com.liferay.portlet.bookmarks.service.impl.BookmarksEntryLocalServiceImpl
  * @generated
  */
+@ProviderType
 public class BookmarksEntryLocalServiceUtil {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -374,6 +377,12 @@ public class BookmarksEntryLocalServiceUtil {
 	}
 
 	public static java.util.List<com.liferay.portlet.bookmarks.model.BookmarksEntry> getEntries(
+		long groupId, long folderId, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getEntries(groupId, folderId, status, start, end);
+	}
+
+	public static java.util.List<com.liferay.portlet.bookmarks.model.BookmarksEntry> getEntries(
 		long groupId, long folderId, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -384,6 +393,11 @@ public class BookmarksEntryLocalServiceUtil {
 	public static int getEntriesCount(long groupId, long folderId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().getEntriesCount(groupId, folderId);
+	}
+
+	public static int getEntriesCount(long groupId, long folderId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getEntriesCount(groupId, folderId, status);
 	}
 
 	public static com.liferay.portlet.bookmarks.model.BookmarksEntry getEntry(

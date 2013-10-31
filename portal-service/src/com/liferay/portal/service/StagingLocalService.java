@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.transaction.Isolation;
@@ -31,6 +33,7 @@ import com.liferay.portal.kernel.transaction.Transactional;
  * @see com.liferay.portal.service.impl.StagingLocalServiceImpl
  * @generated
  */
+@ProviderType
 @Transactional(isolation = Isolation.PORTAL, rollbackFor =  {
 	PortalException.class, SystemException.class})
 public interface StagingLocalService extends BaseLocalService {
@@ -60,6 +63,33 @@ public interface StagingLocalService extends BaseLocalService {
 
 	public long createStagingRequest(long userId, long groupId,
 		java.lang.String checksum)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void disableStaging(com.liferay.portal.model.Group liveGroup,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void disableStaging(javax.portlet.PortletRequest portletRequest,
+		com.liferay.portal.model.Group liveGroup,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void enableLocalStaging(long userId,
+		com.liferay.portal.model.Group liveGroup, boolean branchingPublic,
+		boolean branchingPrivate,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void enableRemoteStaging(long userId,
+		com.liferay.portal.model.Group liveGroup, boolean branchingPublic,
+		boolean branchingPrivate, java.lang.String remoteAddress,
+		int remotePort, java.lang.String remotePathContext,
+		boolean secureConnection, long remoteGroupId,
+		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 

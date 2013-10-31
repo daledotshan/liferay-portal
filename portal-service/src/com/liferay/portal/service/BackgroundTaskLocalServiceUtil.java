@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
@@ -31,6 +33,7 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  * @see com.liferay.portal.service.impl.BackgroundTaskLocalServiceImpl
  * @generated
  */
+@ProviderType
 public class BackgroundTaskLocalServiceUtil {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -344,6 +347,16 @@ public class BackgroundTaskLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		getService().deleteGroupBackgroundTasks(groupId);
+	}
+
+	public static com.liferay.portal.model.BackgroundTask fetchFirstBackgroundTask(
+		long groupId, java.lang.String taskExecutorClassName,
+		boolean completed,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .fetchFirstBackgroundTask(groupId, taskExecutorClassName,
+			completed, orderByComparator);
 	}
 
 	public static com.liferay.portal.model.BackgroundTask fetchFirstBackgroundTask(

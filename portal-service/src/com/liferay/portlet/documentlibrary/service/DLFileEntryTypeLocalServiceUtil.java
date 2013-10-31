@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
@@ -31,6 +33,7 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
  * @see com.liferay.portlet.documentlibrary.service.impl.DLFileEntryTypeLocalServiceImpl
  * @generated
  */
+@ProviderType
 public class DLFileEntryTypeLocalServiceUtil {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -680,6 +683,12 @@ public class DLFileEntryTypeLocalServiceUtil {
 		long fileEntryTypeId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchFileEntryType(fileEntryTypeId);
+	}
+
+	public static com.liferay.portlet.documentlibrary.model.DLFileEntryType fetchFileEntryType(
+		long groupId, java.lang.String fileEntryTypeKey)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().fetchFileEntryType(groupId, fileEntryTypeKey);
 	}
 
 	public static long getDefaultFileEntryTypeId(long folderId)

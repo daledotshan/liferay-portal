@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.HashMap;
@@ -28,6 +30,7 @@ import java.util.Map;
  * @see Group
  * @generated
  */
+@ProviderType
 public class GroupWrapper implements Group, ModelWrapper<Group> {
 	public GroupWrapper(Group group) {
 		_group = group;
@@ -765,6 +768,11 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _group.buildTreePath();
+	}
+
+	@Override
+	public void clearStagingGroup() {
+		_group.clearStagingGroup();
 	}
 
 	@Override

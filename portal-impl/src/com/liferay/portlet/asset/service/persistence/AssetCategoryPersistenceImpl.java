@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -56,6 +57,7 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -7518,7 +7520,9 @@ public class AssetCategoryPersistenceImpl extends BasePersistenceImpl<AssetCateg
 		if ((list != null) && !list.isEmpty()) {
 			for (AssetCategory assetCategory : list) {
 				if ((groupId != assetCategory.getGroupId()) ||
-						!Validator.equals(name, assetCategory.getName()) ||
+						!StringUtil.wildcardMatches(assetCategory.getName(),
+							name, CharPool.UNDERLINE, CharPool.PERCENT,
+							CharPool.BACK_SLASH, false) ||
 						(vocabularyId != assetCategory.getVocabularyId())) {
 					list = null;
 
@@ -11644,11 +11648,24 @@ public class AssetCategoryPersistenceImpl extends BasePersistenceImpl<AssetCateg
 	@Override
 	public void setAssetEntries(long pk, long[] assetEntryPKs)
 		throws SystemException {
-		assetCategoryToAssetEntryTableMapper.deleteLeftPrimaryKeyTableMappings(pk);
+		Set<Long> newAssetEntryPKsSet = SetUtil.fromArray(assetEntryPKs);
+		Set<Long> oldAssetEntryPKsSet = SetUtil.fromArray(assetCategoryToAssetEntryTableMapper.getRightPrimaryKeys(
+					pk));
 
-		for (Long assetEntryPK : assetEntryPKs) {
+		Set<Long> removeAssetEntryPKsSet = new HashSet<Long>(oldAssetEntryPKsSet);
+
+		removeAssetEntryPKsSet.removeAll(newAssetEntryPKsSet);
+
+		for (long removeAssetEntryPK : removeAssetEntryPKsSet) {
+			assetCategoryToAssetEntryTableMapper.deleteTableMapping(pk,
+				removeAssetEntryPK);
+		}
+
+		newAssetEntryPKsSet.removeAll(oldAssetEntryPKsSet);
+
+		for (long newAssetEntryPK : newAssetEntryPKsSet) {
 			assetCategoryToAssetEntryTableMapper.addTableMapping(pk,
-				assetEntryPK);
+				newAssetEntryPK);
 		}
 	}
 

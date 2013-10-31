@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.service.ServiceWrapper;
 
 /**
@@ -23,6 +25,7 @@ import com.liferay.portal.service.ServiceWrapper;
  * @see DLFileEntryTypeLocalService
  * @generated
  */
+@ProviderType
 public class DLFileEntryTypeLocalServiceWrapper
 	implements DLFileEntryTypeLocalService,
 		ServiceWrapper<DLFileEntryTypeLocalService> {
@@ -748,6 +751,14 @@ public class DLFileEntryTypeLocalServiceWrapper
 		long fileEntryTypeId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntryTypeLocalService.fetchFileEntryType(fileEntryTypeId);
+	}
+
+	@Override
+	public com.liferay.portlet.documentlibrary.model.DLFileEntryType fetchFileEntryType(
+		long groupId, java.lang.String fileEntryTypeKey)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryTypeLocalService.fetchFileEntryType(groupId,
+			fileEntryTypeKey);
 	}
 
 	@Override
