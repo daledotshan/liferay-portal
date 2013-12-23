@@ -240,6 +240,9 @@ public class BookmarksEntryModelImpl extends BaseModelImpl<BookmarksEntry>
 		attributes.put("statusByUserName", getStatusByUserName());
 		attributes.put("statusDate", getStatusDate());
 
+		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
+		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
+
 		return attributes;
 	}
 
@@ -840,6 +843,7 @@ public class BookmarksEntryModelImpl extends BaseModelImpl<BookmarksEntry>
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #isApproved}
 	 */
+	@Deprecated
 	@Override
 	public boolean getApproved() {
 		return isApproved();
@@ -1034,6 +1038,16 @@ public class BookmarksEntryModelImpl extends BaseModelImpl<BookmarksEntry>
 	@Override
 	public int hashCode() {
 		return (int)getPrimaryKey();
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return ENTITY_CACHE_ENABLED;
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return FINDER_CACHE_ENABLED;
 	}
 
 	@Override

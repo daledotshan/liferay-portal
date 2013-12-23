@@ -108,6 +108,7 @@ public interface LayoutService extends BaseService {
 	long, Map, Map, Map, Map, Map, String, String, boolean, Map,
 	ServiceContext)}
 	*/
+	@Deprecated
 	public com.liferay.portal.model.Layout addLayout(long groupId,
 		boolean privateLayout, long parentLayoutId,
 		java.util.Map<java.util.Locale, java.lang.String> localeNamesMap,
@@ -909,7 +910,7 @@ public interface LayoutService extends BaseService {
 		java.util.Map<java.util.Locale, java.lang.String> robotsMap,
 		java.lang.String type, boolean hidden,
 		java.util.Map<java.util.Locale, java.lang.String> friendlyURLMap,
-		java.lang.Boolean iconImage, byte[] iconBytes,
+		boolean iconImage, byte[] iconBytes,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
@@ -953,6 +954,7 @@ public interface LayoutService extends BaseService {
 	long, long, Map, Map, Map, Map, Map, String, boolean, Map,
 	Boolean, byte[], ServiceContext)}
 	*/
+	@Deprecated
 	public com.liferay.portal.model.Layout updateLayout(long groupId,
 		boolean privateLayout, long layoutId, long parentLayoutId,
 		java.util.Map<java.util.Locale, java.lang.String> localeNamesMap,

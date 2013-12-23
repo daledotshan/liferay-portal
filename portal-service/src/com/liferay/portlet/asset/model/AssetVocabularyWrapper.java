@@ -852,6 +852,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public AssetVocabulary getWrappedAssetVocabulary() {
 		return _assetVocabulary;
 	}
@@ -859,6 +860,16 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	@Override
 	public AssetVocabulary getWrappedModel() {
 		return _assetVocabulary;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _assetVocabulary.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _assetVocabulary.isFinderCacheEnabled();
 	}
 
 	@Override

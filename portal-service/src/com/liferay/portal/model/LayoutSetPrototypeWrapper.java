@@ -722,6 +722,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public LayoutSetPrototype getWrappedLayoutSetPrototype() {
 		return _layoutSetPrototype;
 	}
@@ -729,6 +730,16 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	@Override
 	public LayoutSetPrototype getWrappedModel() {
 		return _layoutSetPrototype;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _layoutSetPrototype.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _layoutSetPrototype.isFinderCacheEnabled();
 	}
 
 	@Override

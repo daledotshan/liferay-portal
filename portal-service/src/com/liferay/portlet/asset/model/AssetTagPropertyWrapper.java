@@ -473,6 +473,7 @@ public class AssetTagPropertyWrapper implements AssetTagProperty,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public AssetTagProperty getWrappedAssetTagProperty() {
 		return _assetTagProperty;
 	}
@@ -480,6 +481,16 @@ public class AssetTagPropertyWrapper implements AssetTagProperty,
 	@Override
 	public AssetTagProperty getWrappedModel() {
 		return _assetTagProperty;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _assetTagProperty.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _assetTagProperty.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -467,6 +467,7 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Ticket getWrappedTicket() {
 		return _ticket;
 	}
@@ -474,6 +475,16 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	@Override
 	public Ticket getWrappedModel() {
 		return _ticket;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _ticket.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _ticket.isFinderCacheEnabled();
 	}
 
 	@Override

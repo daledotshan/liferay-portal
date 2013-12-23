@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.lar.PortletDataException;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.systemevent.SystemEventHierarchyEntry;
 import com.liferay.portal.kernel.systemevent.SystemEventHierarchyEntryThreadLocal;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -122,7 +121,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	 * @return the object counter's name
 	 */
 	public static String getCounterName(long groupId, boolean privateLayout) {
-		StringBundler sb = new StringBundler();
+		StringBundler sb = new StringBundler(5);
 
 		sb.append(Layout.class.getName());
 		sb.append(StringPool.POUND);
@@ -193,6 +192,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	 *             boolean, long, Map, Map, Map, Map, Map, String, String,
 	 *             boolean, Map, ServiceContext)}
 	 */
+	@Deprecated
 	@Override
 	public Layout addLayout(
 			long userId, long groupId, boolean privateLayout,
@@ -2236,16 +2236,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			return null;
 		}
 
-		long iconImageId = layout.getIconImageId();
-
-		if (iconImageId <= 0) {
-			iconImageId = counterLocalService.increment();
-		}
-
-		imageLocalService.updateImage(iconImageId, bytes);
-
-		layout.setIconImage(true);
-		layout.setIconImageId(iconImageId);
+		PortalUtil.updateImageId(layout, true, bytes, "iconImageId", 0, 0, 0);
 
 		layoutPersistence.update(layout);
 
@@ -2301,7 +2292,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
 			Map<Locale, String> keywordsMap, Map<Locale, String> robotsMap,
 			String type, boolean hidden, Map<Locale, String> friendlyURLMap,
-			Boolean iconImage, byte[] iconBytes, ServiceContext serviceContext)
+			boolean iconImage, byte[] iconBytes, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		// Layout
@@ -2345,19 +2336,8 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		layout.setHidden(hidden);
 		layout.setFriendlyURL(friendlyURL);
 
-		if (iconImage != null) {
-			layout.setIconImage(iconImage.booleanValue());
-
-			if (iconImage.booleanValue()) {
-				long iconImageId = layout.getIconImageId();
-
-				if (iconImageId <= 0) {
-					iconImageId = counterLocalService.increment();
-
-					layout.setIconImageId(iconImageId);
-				}
-			}
-		}
+		PortalUtil.updateImageId(
+			layout, iconImage, iconBytes, "iconImageId", 0, 0, 0);
 
 		boolean layoutUpdateable = ParamUtil.getBoolean(
 			serviceContext, Sites.LAYOUT_UPDATEABLE, true);
@@ -2383,18 +2363,6 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		layout.setExpandoBridgeAttributes(serviceContext);
 
 		layoutPersistence.update(layout);
-
-		// Icon
-
-		if (iconImage != null) {
-			if (!iconImage.booleanValue()) {
-				imageLocalService.deleteImage(layout.getIconImageId());
-			}
-			else if (ArrayUtil.isNotEmpty(iconBytes)) {
-				imageLocalService.updateImage(
-					layout.getIconImageId(), iconBytes);
-			}
-		}
 
 		// Layout friendly URLs
 
@@ -2460,6 +2428,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	 *             long, long, Map, Map, Map, Map, Map, String, boolean, Map,
 	 *             Boolean, byte[], ServiceContext)}
 	 */
+	@Deprecated
 	@Override
 	public Layout updateLayout(
 			long groupId, boolean privateLayout, long layoutId,
@@ -2584,6 +2553,20 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		layout.setName(name, LocaleUtil.fromLanguageId(languageId));
 
 		layoutPersistence.update(layout);
+
+		Group group = layout.getGroup();
+
+		if (group.isLayoutPrototype()) {
+			LayoutPrototype layoutPrototype =
+				layoutPrototypeLocalService.getLayoutPrototype(
+					group.getClassPK());
+
+			layoutPrototype.setModifiedDate(now);
+			layoutPrototype.setName(
+				name, LocaleUtil.fromLanguageId(languageId));
+
+			layoutPrototypePersistence.update(layoutPrototype);
+		}
 
 		return layout;
 	}
@@ -2935,6 +2918,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	/**
 	 * @deprecated As of 6.2.0, with no direct replacement
 	 */
+	@Deprecated
 	@Override
 	@SuppressWarnings("unused")
 	public void updateScopedPortletNames(
@@ -2957,6 +2941,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	 * @see        com.liferay.portlet.portletconfiguration.action.EditScopeAction
 	 * @deprecated As of 6.2.0, with no direct replacement
 	 */
+	@Deprecated
 	@Override
 	public void updateScopedPortletNames(
 			long groupId, boolean privateLayout, long layoutId, String name,

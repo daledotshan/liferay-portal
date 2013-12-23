@@ -505,6 +505,7 @@ public class ShoppingCategoryWrapper implements ShoppingCategory,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ShoppingCategory getWrappedShoppingCategory() {
 		return _shoppingCategory;
 	}
@@ -512,6 +513,16 @@ public class ShoppingCategoryWrapper implements ShoppingCategory,
 	@Override
 	public ShoppingCategory getWrappedModel() {
 		return _shoppingCategory;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _shoppingCategory.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _shoppingCategory.isFinderCacheEnabled();
 	}
 
 	@Override

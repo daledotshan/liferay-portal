@@ -1152,6 +1152,7 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Contact getWrappedContact() {
 		return _contact;
 	}
@@ -1159,6 +1160,16 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	@Override
 	public Contact getWrappedModel() {
 		return _contact;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _contact.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _contact.isFinderCacheEnabled();
 	}
 
 	@Override

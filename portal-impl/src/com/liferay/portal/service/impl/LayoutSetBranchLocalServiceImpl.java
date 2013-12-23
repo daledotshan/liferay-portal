@@ -122,7 +122,6 @@ public class LayoutSetBranchLocalServiceImpl
 		layoutSetBranch.setName(name);
 		layoutSetBranch.setDescription(description);
 		layoutSetBranch.setMaster(master);
-		layoutSetBranch.setLogo(logo);
 		layoutSetBranch.setLogoId(logoId);
 
 		if (logo) {
@@ -369,6 +368,7 @@ public class LayoutSetBranchLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #getUserLayoutSetBranch(long,
 	 *             long, boolean, long, long)}
 	 */
+	@Deprecated
 	@Override
 	public LayoutSetBranch getUserLayoutSetBranch(
 			long userId, long groupId, boolean privateLayout,

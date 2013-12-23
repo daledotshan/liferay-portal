@@ -341,6 +341,7 @@ public class ExpandoRowWrapper implements ExpandoRow, ModelWrapper<ExpandoRow> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ExpandoRow getWrappedExpandoRow() {
 		return _expandoRow;
 	}
@@ -348,6 +349,16 @@ public class ExpandoRowWrapper implements ExpandoRow, ModelWrapper<ExpandoRow> {
 	@Override
 	public ExpandoRow getWrappedModel() {
 		return _expandoRow;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _expandoRow.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _expandoRow.isFinderCacheEnabled();
 	}
 
 	@Override

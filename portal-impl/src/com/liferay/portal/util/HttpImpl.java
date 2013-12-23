@@ -441,6 +441,7 @@ public class HttpImpl implements Http {
 	 * @deprecated As of 6.1.0, replaced by {@link
 	 *             #getHostConfiguration(String)}
 	 */
+	@Deprecated
 	public HostConfiguration getHostConfig(String location) throws IOException {
 		return getHostConfiguration(location);
 	}
@@ -1353,9 +1354,9 @@ public class HttpImpl implements Http {
 				 method.equals(Http.Method.PUT)) &&
 				((body != null) ||
 				 ((fileParts != null) && !fileParts.isEmpty()) ||
-				 ((parts != null) && !parts.isEmpty()))) {
-			}
-			else if (!hasRequestHeader(httpMethod, HttpHeaders.CONTENT_TYPE)) {
+				 ((parts != null) && !parts.isEmpty())) &&
+				!hasRequestHeader(httpMethod, HttpHeaders.CONTENT_TYPE)) {
+
 				httpMethod.addRequestHeader(
 					HttpHeaders.CONTENT_TYPE,
 					ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED_UTF8);

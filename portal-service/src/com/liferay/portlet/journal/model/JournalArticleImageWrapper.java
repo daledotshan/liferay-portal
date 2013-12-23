@@ -433,6 +433,7 @@ public class JournalArticleImageWrapper implements JournalArticleImage,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public JournalArticleImage getWrappedJournalArticleImage() {
 		return _journalArticleImage;
 	}
@@ -440,6 +441,16 @@ public class JournalArticleImageWrapper implements JournalArticleImage,
 	@Override
 	public JournalArticleImage getWrappedModel() {
 		return _journalArticleImage;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _journalArticleImage.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _journalArticleImage.isFinderCacheEnabled();
 	}
 
 	@Override

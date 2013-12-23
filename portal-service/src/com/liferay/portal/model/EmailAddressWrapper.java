@@ -589,6 +589,7 @@ public class EmailAddressWrapper implements EmailAddress,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public EmailAddress getWrappedEmailAddress() {
 		return _emailAddress;
 	}
@@ -596,6 +597,16 @@ public class EmailAddressWrapper implements EmailAddress,
 	@Override
 	public EmailAddress getWrappedModel() {
 		return _emailAddress;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _emailAddress.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _emailAddress.isFinderCacheEnabled();
 	}
 
 	@Override

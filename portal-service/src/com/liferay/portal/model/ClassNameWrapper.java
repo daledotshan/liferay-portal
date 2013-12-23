@@ -272,6 +272,7 @@ public class ClassNameWrapper implements ClassName, ModelWrapper<ClassName> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ClassName getWrappedClassName() {
 		return _className;
 	}
@@ -279,6 +280,16 @@ public class ClassNameWrapper implements ClassName, ModelWrapper<ClassName> {
 	@Override
 	public ClassName getWrappedModel() {
 		return _className;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _className.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _className.isFinderCacheEnabled();
 	}
 
 	@Override

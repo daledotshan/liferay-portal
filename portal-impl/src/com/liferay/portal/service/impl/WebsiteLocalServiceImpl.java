@@ -25,7 +25,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.Website;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.WebsiteLocalServiceBaseImpl;
-import com.liferay.portal.util.PortalUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -39,6 +38,7 @@ public class WebsiteLocalServiceImpl extends WebsiteLocalServiceBaseImpl {
 	 * @deprecated As of 6.2.0, replaced by {@link #addWebsite(long, String,
 	 *             long, String, int, boolean, ServiceContext)}
 	 */
+	@Deprecated
 	@Override
 	public Website addWebsite(
 			long userId, String className, long classPK, String url, int typeId,
@@ -57,7 +57,7 @@ public class WebsiteLocalServiceImpl extends WebsiteLocalServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 		Date now = new Date();
 
 		validate(
@@ -108,7 +108,7 @@ public class WebsiteLocalServiceImpl extends WebsiteLocalServiceBaseImpl {
 	public void deleteWebsites(long companyId, String className, long classPK)
 		throws SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		List<Website> websites = websitePersistence.findByC_C_C(
 			companyId, classNameId, classPK);
@@ -128,7 +128,7 @@ public class WebsiteLocalServiceImpl extends WebsiteLocalServiceBaseImpl {
 			long companyId, String className, long classPK)
 		throws SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return websitePersistence.findByC_C_C(companyId, classNameId, classPK);
 	}

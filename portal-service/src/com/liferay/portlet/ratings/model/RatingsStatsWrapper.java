@@ -383,6 +383,7 @@ public class RatingsStatsWrapper implements RatingsStats,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public RatingsStats getWrappedRatingsStats() {
 		return _ratingsStats;
 	}
@@ -390,6 +391,16 @@ public class RatingsStatsWrapper implements RatingsStats,
 	@Override
 	public RatingsStats getWrappedModel() {
 		return _ratingsStats;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _ratingsStats.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _ratingsStats.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -547,6 +547,7 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public MBDiscussion getWrappedMBDiscussion() {
 		return _mbDiscussion;
 	}
@@ -554,6 +555,16 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	@Override
 	public MBDiscussion getWrappedModel() {
 		return _mbDiscussion;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _mbDiscussion.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _mbDiscussion.isFinderCacheEnabled();
 	}
 
 	@Override

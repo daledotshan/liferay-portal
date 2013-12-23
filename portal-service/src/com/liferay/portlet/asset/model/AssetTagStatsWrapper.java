@@ -329,6 +329,7 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public AssetTagStats getWrappedAssetTagStats() {
 		return _assetTagStats;
 	}
@@ -336,6 +337,16 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	@Override
 	public AssetTagStats getWrappedModel() {
 		return _assetTagStats;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _assetTagStats.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _assetTagStats.isFinderCacheEnabled();
 	}
 
 	@Override

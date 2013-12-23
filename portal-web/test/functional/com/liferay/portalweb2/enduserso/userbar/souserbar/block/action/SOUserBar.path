@@ -79,6 +79,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>NOTIFICATION</td>
+	<td>//li[contains(@class,'user-notifications')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>TOGGLE_DOCKBAR</td>
 	<td>//a[contains(@id,'toggleDockbar')]</td>
 	<td></td>
@@ -110,6 +115,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>NOTIFICATION_MENU_ENTRY</td>
+	<td>//div[contains(@class,'user-notification')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>NOTIFICATION_MENU_ENTRY_SENDER</td>
 	<td>//div[contains(@class,'user-notification')]//div[@class='title']//a</td>
 	<td></td>
@@ -121,7 +131,7 @@
 </tr>
 <tr>
 	<td>NOTIFICATION_MENU_ENTRY_SUBCONTENT</td>
-	<td>//div[contains(@class,'user-notification')]//div[@class='body']</td>
+	<td>//div[contains(@class,'user-notification')]//div[@class='body']/div[@class='body']</td>
 	<td></td>
 </tr>
 <tr>

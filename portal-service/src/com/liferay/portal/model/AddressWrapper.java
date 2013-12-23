@@ -795,6 +795,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Address getWrappedAddress() {
 		return _address;
 	}
@@ -802,6 +803,16 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	@Override
 	public Address getWrappedModel() {
 		return _address;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _address.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _address.isFinderCacheEnabled();
 	}
 
 	@Override

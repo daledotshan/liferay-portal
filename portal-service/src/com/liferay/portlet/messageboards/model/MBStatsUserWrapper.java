@@ -386,6 +386,7 @@ public class MBStatsUserWrapper implements MBStatsUser,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public MBStatsUser getWrappedMBStatsUser() {
 		return _mbStatsUser;
 	}
@@ -393,6 +394,16 @@ public class MBStatsUserWrapper implements MBStatsUser,
 	@Override
 	public MBStatsUser getWrappedModel() {
 		return _mbStatsUser;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _mbStatsUser.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _mbStatsUser.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -405,6 +405,7 @@ public class TrashVersionWrapper implements TrashVersion,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public TrashVersion getWrappedTrashVersion() {
 		return _trashVersion;
 	}
@@ -412,6 +413,16 @@ public class TrashVersionWrapper implements TrashVersion,
 	@Override
 	public TrashVersion getWrappedModel() {
 		return _trashVersion;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _trashVersion.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _trashVersion.isFinderCacheEnabled();
 	}
 
 	@Override

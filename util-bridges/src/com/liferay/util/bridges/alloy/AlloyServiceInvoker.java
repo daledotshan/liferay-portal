@@ -92,7 +92,7 @@ public class AlloyServiceInvoker {
 
 			Property property = PropertyFactoryUtil.forName(propertyName);
 
-			Object propertyValue = (properties[i + 1]);
+			Object propertyValue = properties[i + 1];
 
 			dynamicQuery.add(property.eq(propertyValue));
 		}
@@ -104,6 +104,7 @@ public class AlloyServiceInvoker {
 	 * @deprecated As of 6.2.0, replaced by {@link
 	 *             #executeDynamicQuery(DynamicQuery)}
 	 */
+	@Deprecated
 	@SuppressWarnings("rawtypes")
 	public List dynamicQuery(DynamicQuery dynamicQuery) throws Exception {
 		return executeDynamicQuery(dynamicQuery);
@@ -113,6 +114,7 @@ public class AlloyServiceInvoker {
 	 * @deprecated As of 6.2.0, replaced by {@link
 	 *             #executeDynamicQueryCount(DynamicQuery)}
 	 */
+	@Deprecated
 	public long dynamicQueryCount(DynamicQuery dynamicQuery) throws Exception {
 		return executeDynamicQueryCount(dynamicQuery);
 	}

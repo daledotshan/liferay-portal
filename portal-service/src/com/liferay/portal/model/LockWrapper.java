@@ -548,6 +548,7 @@ public class LockWrapper implements Lock, ModelWrapper<Lock> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Lock getWrappedLock() {
 		return _lock;
 	}
@@ -555,6 +556,16 @@ public class LockWrapper implements Lock, ModelWrapper<Lock> {
 	@Override
 	public Lock getWrappedModel() {
 		return _lock;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _lock.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _lock.isFinderCacheEnabled();
 	}
 
 	@Override

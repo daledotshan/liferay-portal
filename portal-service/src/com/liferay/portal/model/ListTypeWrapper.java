@@ -278,6 +278,7 @@ public class ListTypeWrapper implements ListType, ModelWrapper<ListType> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ListType getWrappedListType() {
 		return _listType;
 	}
@@ -285,6 +286,16 @@ public class ListTypeWrapper implements ListType, ModelWrapper<ListType> {
 	@Override
 	public ListType getWrappedModel() {
 		return _listType;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _listType.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _listType.isFinderCacheEnabled();
 	}
 
 	@Override

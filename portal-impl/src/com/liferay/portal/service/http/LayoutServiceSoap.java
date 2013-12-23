@@ -115,6 +115,7 @@ public class LayoutServiceSoap {
 	long, Map, Map, Map, Map, Map, String, String, boolean, Map,
 	ServiceContext)}
 	*/
+	@Deprecated
 	public static com.liferay.portal.model.LayoutSoap addLayout(long groupId,
 		boolean privateLayout, long parentLayoutId,
 		java.lang.String[] localeNamesMapLanguageIds,
@@ -731,7 +732,7 @@ public class LayoutServiceSoap {
 		java.lang.String[] robotsMapLanguageIds,
 		java.lang.String[] robotsMapValues, java.lang.String type,
 		boolean hidden, java.lang.String[] friendlyURLMapLanguageIds,
-		java.lang.String[] friendlyURLMapValues, java.lang.Boolean iconImage,
+		java.lang.String[] friendlyURLMapValues, boolean iconImage,
 		byte[] iconBytes,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws RemoteException {
@@ -803,6 +804,7 @@ public class LayoutServiceSoap {
 	long, long, Map, Map, Map, Map, Map, String, boolean, Map,
 	Boolean, byte[], ServiceContext)}
 	*/
+	@Deprecated
 	public static com.liferay.portal.model.LayoutSoap updateLayout(
 		long groupId, boolean privateLayout, long layoutId,
 		long parentLayoutId, java.lang.String[] localeNamesMapLanguageIds,

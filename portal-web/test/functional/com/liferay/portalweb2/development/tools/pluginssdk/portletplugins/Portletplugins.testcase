@@ -247,7 +247,6 @@
 		</execute>
 	</command>
 
-
 	<command name="KnowledgeBasePortletSmoke" priority="5">
 		<property name="portlet.plugins.includes" value="knowledge-base-portlet" />
 
@@ -537,7 +536,7 @@
 	</command>
 
 	<command name="PluginsSecurityManagerPortletSmoke" priority="5">
-		<property name="portlet.plugins.includes" value="plugin-security-manager-portlet" />
+		<property name="portlet.plugins.includes" value="plugins-security-manager-portlet" />
 
 		<var name="appName" value="Plugins Security Manager" />
 
@@ -557,7 +556,6 @@
 			<var name="appName" value="${appName}" />
 		</execute>
 	</command>
-
 
 	<command name="SocialNetworkingPortletSmoke" priority="5">
 		<property name="portlet.plugins.includes" value="social-networking-portlet" />

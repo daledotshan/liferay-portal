@@ -1,4 +1,4 @@
-2<definition>
+<definition>
 	<set-up>
 		<execute macro="User#firstLoginPG" />
 	</set-up>
@@ -525,11 +525,9 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="BlogsEntry#addPGViaAP">
-		</execute>
+		<execute macro="BlogsEntry#addPGViaAP" />
 
-		<execute macro="Page#openURL" >
-		</execute>
+		<execute macro="Page#openURL" />
 
 		<execute macro="Page#addPG">
 			<var name="pageName" value="${pageName}" />

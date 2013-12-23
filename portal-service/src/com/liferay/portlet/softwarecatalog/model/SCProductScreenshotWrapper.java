@@ -396,6 +396,7 @@ public class SCProductScreenshotWrapper implements SCProductScreenshot,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public SCProductScreenshot getWrappedSCProductScreenshot() {
 		return _scProductScreenshot;
 	}
@@ -403,6 +404,16 @@ public class SCProductScreenshotWrapper implements SCProductScreenshot,
 	@Override
 	public SCProductScreenshot getWrappedModel() {
 		return _scProductScreenshot;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _scProductScreenshot.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _scProductScreenshot.isFinderCacheEnabled();
 	}
 
 	@Override

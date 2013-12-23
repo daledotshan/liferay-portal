@@ -728,6 +728,7 @@ public class BookmarksEntryWrapper implements BookmarksEntry,
 	/**
 	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
 	*/
+	@Deprecated
 	@Override
 	public boolean getApproved() {
 		return _bookmarksEntry.getApproved();
@@ -966,6 +967,7 @@ public class BookmarksEntryWrapper implements BookmarksEntry,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public BookmarksEntry getWrappedBookmarksEntry() {
 		return _bookmarksEntry;
 	}
@@ -973,6 +975,16 @@ public class BookmarksEntryWrapper implements BookmarksEntry,
 	@Override
 	public BookmarksEntry getWrappedModel() {
 		return _bookmarksEntry;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _bookmarksEntry.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _bookmarksEntry.isFinderCacheEnabled();
 	}
 
 	@Override

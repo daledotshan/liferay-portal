@@ -50,6 +50,7 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.util.xml.XMLFormatter;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
+import com.thoughtworks.qdox.model.AbstractBaseJavaEntity;
 import com.thoughtworks.qdox.model.Annotation;
 import com.thoughtworks.qdox.model.ClassLibrary;
 import com.thoughtworks.qdox.model.DocletTag;
@@ -189,6 +190,28 @@ public class ServiceBuilder {
 		}
 
 		return document.asXML();
+	}
+
+	public static boolean hasAnnotation(
+		AbstractBaseJavaEntity abstractBaseJavaEntity, String annotationName) {
+
+		Annotation[] annotations = abstractBaseJavaEntity.getAnnotations();
+
+		if (annotations == null) {
+			return false;
+		}
+
+		for (int i = 0; i < annotations.length; i++) {
+			Type type = annotations[i].getType();
+
+			JavaClass javaClass = type.getJavaClass();
+
+			if (annotationName.equals(javaClass.getName())) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static void main(String[] args) {
@@ -4340,6 +4363,8 @@ public class ServiceBuilder {
 		String txManager = entityElement.attributeValue("tx-manager");
 		boolean cacheEnabled = GetterUtil.getBoolean(
 			entityElement.attributeValue("cache-enabled"), true);
+		boolean dynamicUpdateEnabled = GetterUtil.getBoolean(
+			entityElement.attributeValue("dynamic-update-enabled"));
 		boolean jsonEnabled = GetterUtil.getBoolean(
 			entityElement.attributeValue("json-enabled"), remoteService);
 		boolean trashEnabled = GetterUtil.getBoolean(
@@ -4697,6 +4722,7 @@ public class ServiceBuilder {
 			}
 
 			if (!_packagePath.equals("com.liferay.portal")) {
+				referenceSet.add("com.liferay.portal.ClassName");
 				referenceSet.add("com.liferay.portal.Resource");
 				referenceSet.add("com.liferay.portal.User");
 			}
@@ -4722,10 +4748,10 @@ public class ServiceBuilder {
 				_packagePath, _portletName, _portletShortName, ejbName,
 				humanName, table, alias, uuid, uuidAccessor, localService,
 				remoteService, persistenceClass, finderClass, dataSource,
-				sessionFactory, txManager, cacheEnabled, jsonEnabled,
-				trashEnabled, deprecated, pkList, regularColList, blobList,
-				collectionList, columnList, order, finderList, referenceList,
-				txRequiredList));
+				sessionFactory, txManager, cacheEnabled, dynamicUpdateEnabled,
+				jsonEnabled, trashEnabled, deprecated, pkList, regularColList,
+				blobList, collectionList, columnList, order, finderList,
+				referenceList, txRequiredList));
 	}
 
 	private String _processTemplate(String name, Map<String, Object> context)

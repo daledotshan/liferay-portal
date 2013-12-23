@@ -1388,6 +1388,7 @@ public class JournalArticleWrapper implements JournalArticle,
 	/**
 	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
 	*/
+	@Deprecated
 	@Override
 	public boolean getApproved() {
 		return _journalArticle.getApproved();
@@ -1615,6 +1616,14 @@ public class JournalArticleWrapper implements JournalArticle,
 	}
 
 	@Override
+	public long getArticleImageId(java.lang.String elInstanceId,
+		java.lang.String elName, java.lang.String languageId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticle.getArticleImageId(elInstanceId, elName,
+			languageId);
+	}
+
+	@Override
 	public java.lang.String getArticleImageURL(
 		com.liferay.portal.theme.ThemeDisplay themeDisplay) {
 		return _journalArticle.getArticleImageURL(themeDisplay);
@@ -1637,6 +1646,7 @@ public class JournalArticleWrapper implements JournalArticle,
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #getAvailableLanguageIds}
 	*/
+	@Deprecated
 	@Override
 	public java.lang.String[] getAvailableLocales() {
 		return _journalArticle.getAvailableLocales();
@@ -1650,6 +1660,7 @@ public class JournalArticleWrapper implements JournalArticle,
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #getDefaultLanguageId}
 	*/
+	@Deprecated
 	@Override
 	public java.lang.String getDefaultLocale() {
 		return _journalArticle.getDefaultLocale();
@@ -1713,6 +1724,7 @@ public class JournalArticleWrapper implements JournalArticle,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public JournalArticle getWrappedJournalArticle() {
 		return _journalArticle;
 	}
@@ -1720,6 +1732,16 @@ public class JournalArticleWrapper implements JournalArticle,
 	@Override
 	public JournalArticle getWrappedModel() {
 		return _journalArticle;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _journalArticle.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _journalArticle.isFinderCacheEnabled();
 	}
 
 	@Override

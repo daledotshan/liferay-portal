@@ -407,6 +407,7 @@ public class JournalContentSearchWrapper implements JournalContentSearch,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public JournalContentSearch getWrappedJournalContentSearch() {
 		return _journalContentSearch;
 	}
@@ -414,6 +415,16 @@ public class JournalContentSearchWrapper implements JournalContentSearch,
 	@Override
 	public JournalContentSearch getWrappedModel() {
 		return _journalContentSearch;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _journalContentSearch.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _journalContentSearch.isFinderCacheEnabled();
 	}
 
 	@Override

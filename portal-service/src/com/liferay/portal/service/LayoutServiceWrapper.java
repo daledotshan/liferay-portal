@@ -97,6 +97,7 @@ public class LayoutServiceWrapper implements LayoutService,
 	long, Map, Map, Map, Map, Map, String, String, boolean, Map,
 	ServiceContext)}
 	*/
+	@Deprecated
 	@Override
 	public com.liferay.portal.model.Layout addLayout(long groupId,
 		boolean privateLayout, long parentLayoutId,
@@ -1067,7 +1068,7 @@ public class LayoutServiceWrapper implements LayoutService,
 		java.util.Map<java.util.Locale, java.lang.String> robotsMap,
 		java.lang.String type, boolean hidden,
 		java.util.Map<java.util.Locale, java.lang.String> friendlyURLMap,
-		java.lang.Boolean iconImage, byte[] iconBytes,
+		boolean iconImage, byte[] iconBytes,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -1116,6 +1117,7 @@ public class LayoutServiceWrapper implements LayoutService,
 	long, long, Map, Map, Map, Map, Map, String, boolean, Map,
 	Boolean, byte[], ServiceContext)}
 	*/
+	@Deprecated
 	@Override
 	public com.liferay.portal.model.Layout updateLayout(long groupId,
 		boolean privateLayout, long layoutId, long parentLayoutId,
@@ -1390,6 +1392,7 @@ public class LayoutServiceWrapper implements LayoutService,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
+	@Deprecated
 	public LayoutService getWrappedLayoutService() {
 		return _layoutService;
 	}
@@ -1397,6 +1400,7 @@ public class LayoutServiceWrapper implements LayoutService,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
+	@Deprecated
 	public void setWrappedLayoutService(LayoutService layoutService) {
 		_layoutService = layoutService;
 	}

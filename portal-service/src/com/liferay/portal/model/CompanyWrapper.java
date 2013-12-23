@@ -652,6 +652,7 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Company getWrappedCompany() {
 		return _company;
 	}
@@ -659,6 +660,16 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 	@Override
 	public Company getWrappedModel() {
 		return _company;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _company.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _company.isFinderCacheEnabled();
 	}
 
 	@Override

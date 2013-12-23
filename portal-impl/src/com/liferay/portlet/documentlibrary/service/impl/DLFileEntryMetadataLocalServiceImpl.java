@@ -17,7 +17,6 @@ package com.liferay.portlet.documentlibrary.service.impl;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.service.base.DLFileEntryMetadataLocalServiceBaseImpl;
@@ -97,6 +96,7 @@ public class DLFileEntryMetadataLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link
 	 *             #getFileVersionFileEntryMetadatasCount(long)}
 	 */
+	@Deprecated
 	@Override
 	public long getFileEntryMetadataCount(long fileEntryId, long fileVersionId)
 		throws SystemException {
@@ -212,7 +212,7 @@ public class DLFileEntryMetadataLocalServiceImpl
 
 			// Dynamic data mapping structure link
 
-			long classNameId = PortalUtil.getClassNameId(
+			long classNameId = classNameLocalService.getClassNameId(
 				DLFileEntryMetadata.class);
 
 			ddmStructureLinkLocalService.addStructureLink(

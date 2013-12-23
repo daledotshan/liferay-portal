@@ -503,6 +503,7 @@ public class SocialActivityLimitWrapper implements SocialActivityLimit,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public SocialActivityLimit getWrappedSocialActivityLimit() {
 		return _socialActivityLimit;
 	}
@@ -510,6 +511,16 @@ public class SocialActivityLimitWrapper implements SocialActivityLimit,
 	@Override
 	public SocialActivityLimit getWrappedModel() {
 		return _socialActivityLimit;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _socialActivityLimit.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _socialActivityLimit.isFinderCacheEnabled();
 	}
 
 	@Override

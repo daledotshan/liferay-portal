@@ -129,13 +129,14 @@ if (organization != null) {
 			%>
 
 			<portlet:renderURL var="headerBackURL">
-				<portlet:param name="struts_action" value="/organization/view" />
+				<portlet:param name="struts_action" value="/users_admin/view" />
+				<portlet:param name="toolbarItem" value="<%= toolbarItem %>" />
 				<portlet:param name="organizationId" value="<%= String.valueOf(parentOrganizationId) %>" />
 			</portlet:renderURL>
 
 			<liferay-ui:header
 				backLabel="<%= parentOrganizationName %>"
-				backURL="<%= headerBackURL.toString() %>"
+				backURL="<%= Validator.isNotNull(backURL) ? backURL : headerBackURL.toString() %>"
 				localizeTitle="<%= false %>"
 				title="<%= organization.getName() %>"
 			/>
@@ -145,26 +146,7 @@ if (organization != null) {
 			<aui:col cssClass="lfr-asset-column lfr-asset-column-details" width="<%= (organization != null) ? 75 : 100 %>">
 				<liferay-ui:panel-container extended="<%= false %>" id="usersAdminOrganizationPanelContainer" persistState="<%= true %>">
 					<c:if test="<%= organization != null %>">
-
-						<%
-						int teamsCount = TeamLocalServiceUtil.searchCount(organizationGroupId, null, null, null);
-						%>
-
 						<aui:input name="organizationId" type="hidden" value="<%= organizationId %>" />
-
-						<c:if test="<%= teamsCount > 0 %>">
-							<div class="lfr-asset-metadata">
-								<div class="lfr-asset-icon lfr-asset-teams">
-									<portlet:renderURL var="manageTeamsURL">
-										<portlet:param name="struts_action" value="/users_admin/view_teams" />
-										<portlet:param name="redirect" value="<%= currentURL %>" />
-										<portlet:param name="groupId" value="<%= String.valueOf(organizationGroupId) %>" />
-									</portlet:renderURL>
-
-									<aui:a href="<%= manageTeamsURL %>"> <%= teamsCount %> <liferay-ui:message key='<%= (teamsCount == 1) ? "team" : "teams" %>' /></aui:a>
-								</div>
-							</div>
-						</c:if>
 
 						<span class="entry-categories">
 							<liferay-ui:asset-categories-summary
@@ -258,6 +240,7 @@ if (organization != null) {
 
 					<aui:input disabled="<%= true %>" name="organizationsRedirect" type="hidden" value="<%= portletURL.toString() %>" />
 					<aui:input name="deleteOrganizationIds" type="hidden" />
+					<aui:input name="status" type="hidden" value="<%= status %>" />
 
 					<c:if test="<%= showOrganizations %>">
 						<liferay-util:buffer var="organizationsPanelTitle">
@@ -372,6 +355,7 @@ if (organization != null) {
 								>
 									<liferay-portlet:renderURL varImpl="rowURL">
 										<portlet:param name="struts_action" value="/users_admin/view" />
+										<portlet:param name="toolbarItem" value="<%= toolbarItem %>" />
 										<portlet:param name="organizationId" value="<%= String.valueOf(curOrganization.getOrganizationId()) %>" />
 										<portlet:param name="usersListView" value="<%= UserConstants.LIST_VIEW_TREE %>" />
 									</liferay-portlet:renderURL>

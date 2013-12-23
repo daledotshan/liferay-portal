@@ -630,6 +630,7 @@ public class SystemEventWrapper implements SystemEvent,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public SystemEvent getWrappedSystemEvent() {
 		return _systemEvent;
 	}
@@ -637,6 +638,16 @@ public class SystemEventWrapper implements SystemEvent,
 	@Override
 	public SystemEvent getWrappedModel() {
 		return _systemEvent;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _systemEvent.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _systemEvent.isFinderCacheEnabled();
 	}
 
 	@Override

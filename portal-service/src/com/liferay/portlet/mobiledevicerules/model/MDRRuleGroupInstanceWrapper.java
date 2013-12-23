@@ -589,6 +589,7 @@ public class MDRRuleGroupInstanceWrapper implements MDRRuleGroupInstance,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public MDRRuleGroupInstance getWrappedMDRRuleGroupInstance() {
 		return _mdrRuleGroupInstance;
 	}
@@ -596,6 +597,16 @@ public class MDRRuleGroupInstanceWrapper implements MDRRuleGroupInstance,
 	@Override
 	public MDRRuleGroupInstance getWrappedModel() {
 		return _mdrRuleGroupInstance;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _mdrRuleGroupInstance.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _mdrRuleGroupInstance.isFinderCacheEnabled();
 	}
 
 	@Override

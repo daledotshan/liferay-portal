@@ -45,7 +45,6 @@ import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureException;
 import com.liferay.portlet.dynamicdatamapping.RequiredStructureException;
@@ -407,7 +406,8 @@ public class DDMStructureLocalServiceImpl
 					RequiredStructureException.REFERENCED_STRUCTURE);
 			}
 
-			long classNameId = PortalUtil.getClassNameId(DDMStructure.class);
+			long classNameId = classNameLocalService.getClassNameId(
+				DDMStructure.class);
 
 			if (ddmTemplatePersistence.countByG_C_C(
 					structure.getGroupId(), classNameId,
@@ -591,6 +591,7 @@ public class DDMStructureLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
 	 *             long)}
 	 */
+	@Deprecated
 	@Override
 	public List<DDMStructure> getClassStructures(long classNameId)
 		throws SystemException {
@@ -602,6 +603,7 @@ public class DDMStructureLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
 	 *             long, int, int)}
 	 */
+	@Deprecated
 	@Override
 	public List<DDMStructure> getClassStructures(
 			long classNameId, int start, int end)
@@ -686,6 +688,7 @@ public class DDMStructureLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #getClassStructures(long,
 	 *             long, OrderByComparator)}
 	 */
+	@Deprecated
 	@Override
 	public List<DDMStructure> getClassStructures(
 			long classNameId, OrderByComparator orderByComparator)
@@ -820,6 +823,7 @@ public class DDMStructureLocalServiceImpl
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #getStructures}
 	 */
+	@Deprecated
 	@Override
 	public List<DDMStructure> getStructureEntries() throws SystemException {
 		return getStructures();
@@ -828,6 +832,7 @@ public class DDMStructureLocalServiceImpl
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #getStructures(long)}
 	 */
+	@Deprecated
 	@Override
 	public List<DDMStructure> getStructureEntries(long groupId)
 		throws SystemException {
@@ -839,6 +844,7 @@ public class DDMStructureLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #getStructures(long, int,
 	 *             int)}
 	 */
+	@Deprecated
 	@Override
 	public List<DDMStructure> getStructureEntries(
 			long groupId, int start, int end)
@@ -1532,7 +1538,8 @@ public class DDMStructureLocalServiceImpl
 	protected void syncStructureTemplatesFields(DDMStructure structure)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(DDMStructure.class);
+		long classNameId = classNameLocalService.getClassNameId(
+			DDMStructure.class);
 
 		List<DDMTemplate> templates = ddmTemplateLocalService.getTemplates(
 			structure.getGroupId(), classNameId, structure.getStructureId(),
