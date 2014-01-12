@@ -933,7 +933,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE,
 			new String[] {PortletDataHandlerKeys.
-				LAYOUTS_IMPORT_MODE_CREATED_FROM_PROTOTYPE});
+				LAYOUTS_IMPORT_MODE_ADD_AS_NEW});
 		parameterMap.put(
 			PortletDataHandlerKeys.LOGO,
 			new String[] {Boolean.FALSE.toString()});
