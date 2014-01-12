@@ -40,9 +40,7 @@ int mdrRuleGroupInstancesCount = MDRRuleGroupInstanceServiceUtil.getRuleGroupIns
 			<%= HtmlUtil.escape(rootNodeName) %>
 		</c:when>
 		<c:otherwise>
-			<aui:a href='<%= redirectURL.toString() + "#tab=mobileDeviceRules" %>'>
-				<%= HtmlUtil.escape(rootNodeName) %>
-			</aui:a>
+			<aui:a href='<%= redirectURL.toString() + "#tab=mobileDeviceRules" %>'><%= HtmlUtil.escape(rootNodeName) %></aui:a>
 		</c:otherwise>
 	</c:choose>
 </liferay-util:buffer>
@@ -58,9 +56,11 @@ int mdrRuleGroupInstancesCount = MDRRuleGroupInstanceServiceUtil.getRuleGroupIns
 </div>
 
 <div class="<%= (mdrRuleGroupInstancesCount > 0) ? StringPool.BLANK : "hide" %>" id="<portlet:namespace />uniqueRuleGroupInstancesContainer">
-	<%@ include file="/html/portlet/layouts_admin/layout/mobile_device_rules_toolbar.jspf" %>
-
-	<%@ include file="/html/portlet/layouts_admin/layout/mobile_device_rules_rule_group_instances.jspf" %>
+	<liferay-util:include page="/html/portlet/layouts_admin/layout/mobile_device_rules_rule_group_instances.jsp">
+		<liferay-util:param name="groupId" value="<%= String.valueOf(groupId) %>" />
+		<liferay-util:param name="className" value="<%= className %>" />
+		<liferay-util:param name="classPK" value="<%= String.valueOf(classPK) %>" />
+	</liferay-util:include>
 </div>
 
 <aui:script>

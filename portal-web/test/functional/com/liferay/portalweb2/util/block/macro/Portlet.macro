@@ -1,27 +1,66 @@
 <definition>
 	<command name="addDuplicatePG">
-		<execute action="Dockbar#click" locator-key1="ADD" value1="Add" />
-		<execute action="Dockbar#assertClick" locator-key1="ADD_APPLICATION_LINK" value1="Applications" />
-		<execute action="Dockbar#type" locator-key1="ADD_APPLICATION_SEARCH_FIELD" value1="${portletName}" />
-
-		<var name="portletLocator" value="//span[@data-title='${portletName}' and contains(@class,'add-content-item')]" />
-
 		<if>
-			<or>
-				<equals arg1="${portletName}" arg2="Asset Publisher" />
-				<equals arg1="${portletName}" arg2="Documents and Media Display" />
-				<equals arg1="${portletName}" arg2="Navigation" />
-				<equals arg1="${portletName}" arg2="Web Content Display" />
-			</or>
+			<not>
+				<isset var="portletCount" />
+			</not>
 			<then>
-				<var name="portletLocator" value="xpath=(${portletLocator})[2]" />
+				<var name="portletCount" value="1" />
 			</then>
 		</if>
 
-		<execute action="Dockbar#assertElementNotPresent" locator1="${portletLocator}" value1="Add" />
+		<var name="i" value="0" />
+
+		<while>
+			<not>
+				<equals arg1="${i}" arg2="${portletCount}" />
+			</not>
+			<then>
+				<var name="i" value="${i?increment()}" />
+
+				<execute action="Home#refresh" />
+
+				<execute action="Dockbar#pause" locator1="1000" />
+
+				<execute action="Dockbar#click" locator-key1="ADD" value1="Add" />
+				<execute action="Dockbar#assertClick" locator-key1="ADD_APPLICATION_LINK" value1="Applications" />
+				<execute action="Dockbar#type" locator-key1="ADD_APPLICATION_SEARCH_FIELD" value1="${portletName}" />
+
+				<var name="portletLocator" value="//span[@data-title='${portletName}' and contains(@class,'add-content-item')]" />
+
+				<if>
+					<or>
+						<equals arg1="${portletName}" arg2="Asset Publisher" />
+						<equals arg1="${portletName}" arg2="Documents and Media Display" />
+						<equals arg1="${portletName}" arg2="Navigation" />
+						<equals arg1="${portletName}" arg2="Web Content Display" />
+					</or>
+					<then>
+						<var name="portletLocator" value="xpath=(${portletLocator})[2]" />
+					</then>
+				</if>
+
+				<execute action="Dockbar#assertClick" locator1="${portletLocator}" value1="Add" />
+			</then>
+		</while>
 	</command>
 
 	<command name="addPG">
+		<var name="portletTypeKey" value="PORTLET" />
+
+		<if>
+			<equals arg1="${portletName}" arg2="Map" />
+			<then>
+				<var name="portletName" value="Where are the Liferay members?" />
+			</then>
+			<elseif>
+				<equals arg1="${portletName}" arg2="Requests" />
+				<then>
+					<var name="portletTypeKey" value="PORTLET_BORDERLESS" />
+				</then>
+			</elseif>
+		</if>
+
 		<var name="i" value="1" />
 
 		<while>
@@ -37,7 +76,9 @@
 				<execute action="Dockbar#pause" locator1="1000" />
 
 				<if>
-					<condition action="Home#isElementNotPresent" locator-key1="PORTLET" />
+					<and>
+						<condition action="Home#isElementNotPresent" locator-key1="${portletTypeKey}" />
+					</and>
 					<then>
 						<execute macro="Portlet#addPGCmd">
 							<var name="portletName" value="${portletName}" />
@@ -50,15 +91,22 @@
 			</then>
 		</while>
 
-		<execute action="Home#assertElementPresent" locator-key1="PORTLET" />
+		<execute action="Home#assertElementPresent" locator-key1="${portletTypeKey}" />
 	</command>
 
 	<command name="addPGCmd">
+		<if>
+			<equals arg1="${portletName}" arg2="Where are the Liferay members?" />
+			<then>
+				<var name="portletName" value="Map" />
+			</then>
+		</if>
+
 		<execute action="Dockbar#click" locator-key1="ADD" value1="Add" />
 		<execute action="Dockbar#assertClick" locator-key1="ADD_APPLICATION_LINK" value1="Applications" />
 		<execute action="Dockbar#type" locator-key1="ADD_APPLICATION_SEARCH_FIELD" value1="${portletName}" />
 
-		<var name="portletLocator" value="//span[@data-title='${portletName}' and contains(@class,'add-content-item')]" />
+		<var name="portletLocator" value="//span[@data-title=&quot;${portletName}&quot; and contains(@class,'add-content-item')]" />
 
 		<if>
 			<or>
@@ -71,15 +119,6 @@
 			<then>
 				<var name="portletLocator" value="xpath=(${portletLocator})[2]" />
 			</then>
-			<elseif>
-				<or>
-					<equals arg1="${portletName}" arg2="Friends' Activities" />
-					<equals arg1="${portletName}" arg2="Members' Activities" />
-				</or>
-				<then>
-					<var name="portletLocator" value="//span[@data-title=&quot;${portletName}&quot; and contains(@class,'add-content-item')]" />
-				</then>
-			</elseif>
 		</if>
 
 		<execute action="Dockbar#assertClick" locator1="${portletLocator}" value1="Add" />
@@ -117,5 +156,20 @@
 				<fail message="Invalid var portletOption. Must be (Look and Feel|Configuration|Export / Import)." />
 			</else>
 		</if>
+	</command>
+
+	<command name="viewDuplicatePG">
+		<var name="i" value="0" />
+
+		<while>
+			<not>
+				<equals arg1="${i}" arg2="${totalPortletCount}" />
+			</not>
+			<then>
+				<var name="i" value="${i?increment()}" />
+
+				<execute action="Home#assertElementPresent" locator1="xpath=(//section[header/h1[contains(.,'${portletName}')]])[${i}]" />
+			</then>
+		</while>
 	</command>
 </definition>

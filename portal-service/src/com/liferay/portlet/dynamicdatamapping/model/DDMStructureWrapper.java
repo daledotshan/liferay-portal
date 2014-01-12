@@ -1165,6 +1165,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public DDMStructure getWrappedDDMStructure() {
 		return _ddmStructure;
 	}
@@ -1172,6 +1173,16 @@ public class DDMStructureWrapper implements DDMStructure,
 	@Override
 	public DDMStructure getWrappedModel() {
 		return _ddmStructure;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _ddmStructure.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _ddmStructure.isFinderCacheEnabled();
 	}
 
 	@Override

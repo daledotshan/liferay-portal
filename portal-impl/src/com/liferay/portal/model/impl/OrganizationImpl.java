@@ -29,12 +29,10 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.model.Address;
 import com.liferay.portal.model.Group;
-import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.OrganizationConstants;
 import com.liferay.portal.service.AddressLocalServiceUtil;
 import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.PortalPreferencesLocalServiceUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -175,33 +173,6 @@ public class OrganizationImpl extends OrganizationBaseImpl {
 		Group group = getGroup();
 
 		return group.getGroupId();
-	}
-
-	@Override
-	public long getLogoId() {
-		long logoId = 0;
-
-		try {
-			Group group = getGroup();
-
-			LayoutSet publicLayoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
-				group.getGroupId(), false);
-
-			logoId = publicLayoutSet.getLogoId();
-
-			if (logoId == 0) {
-				LayoutSet privateLayoutSet =
-					LayoutSetLocalServiceUtil.getLayoutSet(
-						group.getGroupId(), true);
-
-				logoId = privateLayoutSet.getLogoId();
-			}
-		}
-		catch (Exception e) {
-			_log.error(e);
-		}
-
-		return logoId;
 	}
 
 	@Override

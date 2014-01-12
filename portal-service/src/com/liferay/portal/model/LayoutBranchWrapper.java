@@ -506,6 +506,7 @@ public class LayoutBranchWrapper implements LayoutBranch,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public LayoutBranch getWrappedLayoutBranch() {
 		return _layoutBranch;
 	}
@@ -513,6 +514,16 @@ public class LayoutBranchWrapper implements LayoutBranch,
 	@Override
 	public LayoutBranch getWrappedModel() {
 		return _layoutBranch;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _layoutBranch.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _layoutBranch.isFinderCacheEnabled();
 	}
 
 	@Override

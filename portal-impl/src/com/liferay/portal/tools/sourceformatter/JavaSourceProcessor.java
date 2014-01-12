@@ -976,7 +976,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			processErrorMessage(fileName, "}: " + fileName);
 		}
 
-		if (portalSource && !className.equals("BaseServiceImpl") &&
+		if (portalSource &&
+			mainReleaseVersion.equals(MAIN_RELEASE_LATEST_VERSION) &&
+			!className.equals("BaseServiceImpl") &&
 			className.endsWith("ServiceImpl") &&
 			newContent.contains("ServiceUtil.")) {
 
@@ -1228,6 +1230,24 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				line = StringUtil.replace(line, ":" , " :");
 			}
 
+			// LPS-42924
+
+			if (line.contains("PortalUtil.getClassNameId(") &&
+				fileName.endsWith("ServiceImpl.java")) {
+
+				processErrorMessage(
+					fileName,
+					"Use classNameLocalService.getClassNameId: " + fileName +
+						" " + lineCount);
+			}
+
+			// LPS-42599
+
+			if (line.contains("= session.createSQLQuery(")) {
+				line = StringUtil.replace(
+					line, "createSQLQuery", "createSynchronizedSQLQuery");
+			}
+
 			line = replacePrimitiveWrapperInstantiation(
 				fileName, line, lineCount);
 
@@ -1236,12 +1256,12 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			checkStringBundler(trimmedLine, fileName, lineCount);
 
 			if (trimmedLine.startsWith("* @deprecated") &&
-				mainReleaseVersion.equals(MAIN_RELEASE_VERSION_7_0_0)) {
+				mainReleaseVersion.equals(MAIN_RELEASE_LATEST_VERSION)) {
 
 				if (!trimmedLine.startsWith("* @deprecated As of ")) {
 					line = StringUtil.replace(
 						line, "* @deprecated",
-						"* @deprecated As of " + MAIN_RELEASE_VERSION_7_0_0);
+						"* @deprecated As of " + MAIN_RELEASE_LATEST_VERSION);
 				}
 				else {
 					String version = trimmedLine.substring(20);
@@ -1668,6 +1688,16 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 							processErrorMessage(
 								fileName,
 								"line break: " + fileName + " " + lineCount);
+						}
+
+						if ((lineLeadingTabCount ==
+								previousLineLeadingTabCount) &&
+							(previousLine.endsWith(StringPool.EQUAL) ||
+							 previousLine.endsWith(
+								 StringPool.OPEN_PARENTHESIS))) {
+
+							processErrorMessage(
+								fileName, "tab: " + fileName + " " + lineCount);
 						}
 
 						if (Validator.isNotNull(trimmedLine)) {

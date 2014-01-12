@@ -441,6 +441,7 @@ public class HttpImpl implements Http {
 	 * @deprecated As of 6.1.0, replaced by {@link
 	 *             #getHostConfiguration(String)}
 	 */
+	@Deprecated
 	public HostConfiguration getHostConfig(String location) throws IOException {
 		return getHostConfiguration(location);
 	}
@@ -830,6 +831,10 @@ public class HttpImpl implements Http {
 				protocol = Http.HTTPS;
 			}
 
+			if (port == -1) {
+				port = urlObj.getPort();
+			}
+
 			urlObj = new URL(
 				protocol, urlObj.getHost(), port, urlObj.getFile());
 
@@ -935,6 +940,39 @@ public class HttpImpl implements Http {
 		}
 
 		return url + anchor;
+	}
+
+	@Override
+	public String removePathParameters(String uri) {
+		if (Validator.isNull(uri)) {
+			return uri;
+		}
+
+		int pos = uri.indexOf(StringPool.SEMICOLON);
+
+		if (pos == -1) {
+			return uri;
+		}
+
+		String[] uriParts = StringUtil.split(
+			uri.substring(1), StringPool.SLASH);
+
+		StringBundler sb = new StringBundler(uriParts.length * 2);
+
+		for (String uriPart : uriParts) {
+			pos = uriPart.indexOf(StringPool.SEMICOLON);
+
+			if (pos == -1) {
+				sb.append(StringPool.SLASH);
+				sb.append(uriPart);
+			}
+			else {
+				sb.append(StringPool.SLASH);
+				sb.append(uriPart.substring(0, pos));
+			}
+		}
+
+		return sb.toString();
 	}
 
 	@Override
@@ -1353,9 +1391,9 @@ public class HttpImpl implements Http {
 				 method.equals(Http.Method.PUT)) &&
 				((body != null) ||
 				 ((fileParts != null) && !fileParts.isEmpty()) ||
-				 ((parts != null) && !parts.isEmpty()))) {
-			}
-			else if (!hasRequestHeader(httpMethod, HttpHeaders.CONTENT_TYPE)) {
+				 ((parts != null) && !parts.isEmpty())) &&
+				!hasRequestHeader(httpMethod, HttpHeaders.CONTENT_TYPE)) {
+
 				httpMethod.addRequestHeader(
 					HttpHeaders.CONTENT_TYPE,
 					ContentTypes.APPLICATION_X_WWW_FORM_URLENCODED_UTF8);
@@ -1448,7 +1486,7 @@ public class HttpImpl implements Http {
 
 					try {
 						progressInputStream.readAll(
-						unsyncByteArrayOutputStream);
+							unsyncByteArrayOutputStream);
 					}
 					finally {
 						progressInputStream.clearProgress();

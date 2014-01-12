@@ -516,6 +516,7 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public WorkflowInstanceLink getWrappedWorkflowInstanceLink() {
 		return _workflowInstanceLink;
 	}
@@ -523,6 +524,16 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	@Override
 	public WorkflowInstanceLink getWrappedModel() {
 		return _workflowInstanceLink;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _workflowInstanceLink.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _workflowInstanceLink.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -337,6 +337,7 @@ public class PasswordTrackerWrapper implements PasswordTracker,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public PasswordTracker getWrappedPasswordTracker() {
 		return _passwordTracker;
 	}
@@ -344,6 +345,16 @@ public class PasswordTrackerWrapper implements PasswordTracker,
 	@Override
 	public PasswordTracker getWrappedModel() {
 		return _passwordTracker;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _passwordTracker.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _passwordTracker.isFinderCacheEnabled();
 	}
 
 	@Override

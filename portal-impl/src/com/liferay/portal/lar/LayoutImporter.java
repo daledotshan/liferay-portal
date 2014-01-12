@@ -258,11 +258,11 @@ public class LayoutImporter {
 		UserIdStrategy strategy = _portletImporter.getUserIdStrategy(
 			user, userIdStrategy);
 
-		if (BackgroundTaskThreadLocal.hasBackgroundTask()) {
-			ManifestSummary manifestSummary =
-				ExportImportHelperUtil.getManifestSummary(
-					userId, groupId, parameterMap, file);
+		ManifestSummary manifestSummary =
+			ExportImportHelperUtil.getManifestSummary(
+				userId, groupId, parameterMap, file);
 
+		if (BackgroundTaskThreadLocal.hasBackgroundTask()) {
 			PortletDataHandlerStatusMessageSenderUtil.sendStatusMessage(
 				"layout", manifestSummary);
 		}
@@ -273,6 +273,7 @@ public class LayoutImporter {
 			PortletDataContextFactoryUtil.createImportPortletDataContext(
 				companyId, groupId, parameterMap, strategy, zipReader);
 
+		portletDataContext.setManifestSummary(manifestSummary);
 		portletDataContext.setPortetDataContextListener(
 			new PortletDataContextListenerImpl(portletDataContext));
 
@@ -382,10 +383,22 @@ public class LayoutImporter {
 			}
 
 			if (existingLayoutSetPrototype == null) {
+				List<LayoutSet> layoutSets =
+					LayoutSetLocalServiceUtil.
+						getLayoutSetsByLayoutSetPrototypeUuid(
+							layoutSetPrototype.getUuid());
+
 				layoutSetPrototype.setUuid(importedLayoutSetPrototypeUuid);
 
 				LayoutSetPrototypeLocalServiceUtil.updateLayoutSetPrototype(
 					layoutSetPrototype);
+
+				for (LayoutSet curLayoutSet : layoutSets) {
+					curLayoutSet.setLayoutSetPrototypeUuid(
+						importedLayoutSetPrototypeUuid);
+
+					LayoutSetLocalServiceUtil.updateLayoutSet(curLayoutSet);
+				}
 			}
 		}
 		else if (larType.equals("layout-set-prototype")) {
@@ -598,7 +611,8 @@ public class LayoutImporter {
 
 			boolean[] importPortletControls =
 				ExportImportHelperUtil.getImportPortletControls(
-					companyId, portletId, parameterMap, portletDataElement);
+					companyId, portletId, parameterMap, portletDataElement,
+					manifestSummary);
 
 			try {
 				if (layout != null) {

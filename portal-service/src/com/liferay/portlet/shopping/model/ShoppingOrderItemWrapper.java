@@ -478,6 +478,7 @@ public class ShoppingOrderItemWrapper implements ShoppingOrderItem,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ShoppingOrderItem getWrappedShoppingOrderItem() {
 		return _shoppingOrderItem;
 	}
@@ -485,6 +486,16 @@ public class ShoppingOrderItemWrapper implements ShoppingOrderItem,
 	@Override
 	public ShoppingOrderItem getWrappedModel() {
 		return _shoppingOrderItem;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _shoppingOrderItem.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _shoppingOrderItem.isFinderCacheEnabled();
 	}
 
 	@Override

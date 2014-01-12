@@ -361,6 +361,7 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public UserIdMapper getWrappedUserIdMapper() {
 		return _userIdMapper;
 	}
@@ -368,6 +369,16 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	@Override
 	public UserIdMapper getWrappedModel() {
 		return _userIdMapper;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _userIdMapper.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _userIdMapper.isFinderCacheEnabled();
 	}
 
 	@Override

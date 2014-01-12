@@ -1243,6 +1243,7 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public PasswordPolicy getWrappedPasswordPolicy() {
 		return _passwordPolicy;
 	}
@@ -1250,6 +1251,16 @@ public class PasswordPolicyWrapper implements PasswordPolicy,
 	@Override
 	public PasswordPolicy getWrappedModel() {
 		return _passwordPolicy;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _passwordPolicy.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _passwordPolicy.isFinderCacheEnabled();
 	}
 
 	@Override

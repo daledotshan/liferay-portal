@@ -1,4 +1,4 @@
-<definition>
+<definition component-name="portal-administration">
 	<set-up>
 		<execute macro="User#firstLoginPG" />
 	</set-up>
@@ -14,8 +14,7 @@
 	</tear-down>
 
 	<command name="UserGroupPrivatePageInheritance" priority="5">
-		<property name="custom.properties" value="layout.user.private.layouts.auto.create=false" />
-		<property name="custom.properties" value="user.groups.copy.layouts.to.user.personal.site=true" />
+		<property name="custom.properties" value="layout.user.private.layouts.auto.create=false$${line.separator}user.groups.copy.layouts.to.user.personal.site=true" />
 
 		<var name="sitePageName" value="Test User Group Page 1" />
 		<var name="userEmailAddress" value="userea@liferay.com" />
@@ -38,7 +37,7 @@
 
 		<execute macro="UserGroup#addPageCP">
 			<var name="sitePageName" value="${sitePageName}" />
-			<var name="sitePageType" value="Private" />
+			<var name="sitePagePrivacy" value="Private" />
 			<var name="userGroupName" value="${userGroupName}" />
 		</execute>
 

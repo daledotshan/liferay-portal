@@ -525,6 +525,18 @@ public abstract class BaseIndexer implements Indexer {
 	}
 
 	@Override
+	public Hits search(
+			SearchContext searchContext, String... selectedFieldNames)
+		throws SearchException {
+
+		QueryConfig queryConfig = searchContext.getQueryConfig();
+
+		queryConfig.setSelectedFieldNames(selectedFieldNames);
+
+		return search(searchContext);
+	}
+
+	@Override
 	public void unregisterIndexerPostProcessor(
 		IndexerPostProcessor indexerPostProcessor) {
 
@@ -599,6 +611,7 @@ public abstract class BaseIndexer implements Indexer {
 	 *             #addSearchLocalizedTerm(BooleanQuery, SearchContext, String,
 	 *             boolean)}
 	 */
+	@Deprecated
 	protected void addLocalizedSearchTerm(
 			BooleanQuery searchQuery, SearchContext searchContext, String field,
 			boolean like)
@@ -1552,6 +1565,7 @@ public abstract class BaseIndexer implements Indexer {
 	/**
 	 * @deprecated As of 6.2.0 renamed to {@link #getSiteGroupId(long)}
 	 */
+	@Deprecated
 	protected long getParentGroupId(long groupId) {
 		return getSiteGroupId(groupId);
 	}

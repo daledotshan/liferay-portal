@@ -123,7 +123,7 @@ public class StringUtil {
 		}
 
 		if (allowDuplicates || !contains(s, add, delimiter)) {
-			StringBundler sb = new StringBundler();
+			StringBundler sb = new StringBundler(4);
 
 			sb.append(s);
 
@@ -642,6 +642,7 @@ public class StringUtil {
 	/**
 	 * @deprecated As of 6.1.0
 	 */
+	@Deprecated
 	public static String highlight(String s, String keywords) {
 		return highlight(s, keywords, "<span class=\"highlight\">", "</span>");
 	}
@@ -649,6 +650,7 @@ public class StringUtil {
 	/**
 	 * @deprecated As of 6.1.0
 	 */
+	@Deprecated
 	public static String highlight(
 		String s, String keywords, String highlight1, String highlight2) {
 
@@ -1445,12 +1447,7 @@ public class StringUtil {
 	 * @see    String#toLowerCase()
 	 */
 	public static String lowerCase(String s) {
-		if (s == null) {
-			return null;
-		}
-		else {
-			return toLowerCase(s);
-		}
+		return toLowerCase(s);
 	}
 
 	public static void lowerCase(String... array) {
@@ -2108,6 +2105,7 @@ public class StringUtil {
 	 * @deprecated As of 7.0.0, replaced by {@link #removeFromList(String,
 	 *             String)}
 	 */
+	@Deprecated
 	public static String remove(String s, String element) {
 		return removeFromList(s, element, StringPool.COMMA);
 	}
@@ -2116,6 +2114,7 @@ public class StringUtil {
 	 * @deprecated As of 7.0.0, replaced by {@link #removeFromList(String,
 	 *             String, String)}
 	 */
+	@Deprecated
 	public static String remove(String s, String element, String delimiter) {
 		return removeFromList(s, element, delimiter);
 	}
@@ -3765,6 +3764,10 @@ public class StringUtil {
 	}
 
 	public static String toLowerCase(String s, Locale locale) {
+		if (s == null) {
+			return null;
+		}
+
 		StringBuilder sb = null;
 
 		for (int i = 0; i < s.length(); i++) {
@@ -3802,6 +3805,10 @@ public class StringUtil {
 	}
 
 	public static String toUpperCase(String s, Locale locale) {
+		if (s == null) {
+			return null;
+		}
+
 		StringBuilder sb = null;
 
 		for (int i = 0; i < s.length(); i++) {
@@ -4214,12 +4221,7 @@ public class StringUtil {
 	 * @see    String#toUpperCase()
 	 */
 	public static String upperCase(String s) {
-		if (s == null) {
-			return null;
-		}
-		else {
-			return toUpperCase(s);
-		}
+		return toUpperCase(s);
 	}
 
 	/**

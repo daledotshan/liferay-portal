@@ -292,6 +292,7 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public OrgGroupRole getWrappedOrgGroupRole() {
 		return _orgGroupRole;
 	}
@@ -299,6 +300,16 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 	@Override
 	public OrgGroupRole getWrappedModel() {
 		return _orgGroupRole;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _orgGroupRole.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _orgGroupRole.isFinderCacheEnabled();
 	}
 
 	@Override

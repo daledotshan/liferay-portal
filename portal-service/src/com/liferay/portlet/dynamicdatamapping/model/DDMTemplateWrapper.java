@@ -1130,6 +1130,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public DDMTemplate getWrappedDDMTemplate() {
 		return _ddmTemplate;
 	}
@@ -1137,6 +1138,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public DDMTemplate getWrappedModel() {
 		return _ddmTemplate;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _ddmTemplate.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _ddmTemplate.isFinderCacheEnabled();
 	}
 
 	@Override

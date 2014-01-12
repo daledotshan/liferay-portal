@@ -582,6 +582,7 @@ public class TrashEntryWrapper implements TrashEntry, ModelWrapper<TrashEntry> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public TrashEntry getWrappedTrashEntry() {
 		return _trashEntry;
 	}
@@ -589,6 +590,16 @@ public class TrashEntryWrapper implements TrashEntry, ModelWrapper<TrashEntry> {
 	@Override
 	public TrashEntry getWrappedModel() {
 		return _trashEntry;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _trashEntry.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _trashEntry.isFinderCacheEnabled();
 	}
 
 	@Override

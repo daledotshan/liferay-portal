@@ -380,6 +380,7 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ResourceTypePermission getWrappedResourceTypePermission() {
 		return _resourceTypePermission;
 	}
@@ -387,6 +388,16 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	@Override
 	public ResourceTypePermission getWrappedModel() {
 		return _resourceTypePermission;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _resourceTypePermission.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _resourceTypePermission.isFinderCacheEnabled();
 	}
 
 	@Override

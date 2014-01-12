@@ -470,6 +470,7 @@ public class AssetLinkWrapper implements AssetLink, ModelWrapper<AssetLink> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public AssetLink getWrappedAssetLink() {
 		return _assetLink;
 	}
@@ -477,6 +478,16 @@ public class AssetLinkWrapper implements AssetLink, ModelWrapper<AssetLink> {
 	@Override
 	public AssetLink getWrappedModel() {
 		return _assetLink;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _assetLink.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _assetLink.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -476,6 +476,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Team getWrappedTeam() {
 		return _team;
 	}
@@ -483,6 +484,16 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	@Override
 	public Team getWrappedModel() {
 		return _team;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _team.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _team.isFinderCacheEnabled();
 	}
 
 	@Override

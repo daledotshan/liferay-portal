@@ -906,6 +906,7 @@ public class DDLRecordSetWrapper implements DDLRecordSet,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public DDLRecordSet getWrappedDDLRecordSet() {
 		return _ddlRecordSet;
 	}
@@ -913,6 +914,16 @@ public class DDLRecordSetWrapper implements DDLRecordSet,
 	@Override
 	public DDLRecordSet getWrappedModel() {
 		return _ddlRecordSet;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _ddlRecordSet.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _ddlRecordSet.isFinderCacheEnabled();
 	}
 
 	@Override

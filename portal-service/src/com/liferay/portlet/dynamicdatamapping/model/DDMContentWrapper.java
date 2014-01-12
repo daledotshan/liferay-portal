@@ -674,6 +674,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public DDMContent getWrappedDDMContent() {
 		return _ddmContent;
 	}
@@ -681,6 +682,16 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	@Override
 	public DDMContent getWrappedModel() {
 		return _ddmContent;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _ddmContent.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _ddmContent.isFinderCacheEnabled();
 	}
 
 	@Override

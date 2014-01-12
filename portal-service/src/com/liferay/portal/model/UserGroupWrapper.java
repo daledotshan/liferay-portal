@@ -581,6 +581,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public UserGroup getWrappedUserGroup() {
 		return _userGroup;
 	}
@@ -588,6 +589,16 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	@Override
 	public UserGroup getWrappedModel() {
 		return _userGroup;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _userGroup.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _userGroup.isFinderCacheEnabled();
 	}
 
 	@Override

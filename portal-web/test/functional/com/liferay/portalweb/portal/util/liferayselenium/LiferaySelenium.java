@@ -16,6 +16,8 @@ package com.liferay.portalweb.portal.util.liferayselenium;
 
 import com.thoughtworks.selenium.Selenium;
 
+import java.util.Map;
+
 /**
  * @author Brian Wing Shun Chan
  */
@@ -38,6 +40,8 @@ public interface LiferaySelenium extends Selenium {
 		throws Exception;
 
 	public void assertJavaScriptErrors() throws Exception;
+
+	public void assertLiferayErrors() throws Exception;
 
 	public void assertLocation(String pattern);
 
@@ -174,6 +178,9 @@ public interface LiferaySelenium extends Selenium {
 	public void sendKeys(String locator, String value);
 
 	public void sendLogger(String id, String status);
+
+	public void sendLogger(
+		String id, String status, Map<String, String> context);
 
 	public void setDefaultTimeout();
 

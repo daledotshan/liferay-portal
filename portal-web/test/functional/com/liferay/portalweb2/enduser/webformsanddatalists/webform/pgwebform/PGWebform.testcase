@@ -1,4 +1,4 @@
-<definition>
+<definition component-name="portal-web-forms-and-data-lists">
 	<property name="portlet.plugins.includes" value="web-form-portlet" />
 
 	<var name="pageName" value="Web Form Test Page" />
@@ -35,7 +35,6 @@
 		<var name="formTextTitleEdit" value="Your Name" />
 		<var name="formTextboxTitleDefault" value="Comments" />
 		<var name="formTextboxTitleEdit" value="Additional Comments" />
-
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="${pageName}" />

@@ -636,6 +636,7 @@ public class RepositoryWrapper implements Repository, ModelWrapper<Repository> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Repository getWrappedRepository() {
 		return _repository;
 	}
@@ -643,6 +644,16 @@ public class RepositoryWrapper implements Repository, ModelWrapper<Repository> {
 	@Override
 	public Repository getWrappedModel() {
 		return _repository;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _repository.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _repository.isFinderCacheEnabled();
 	}
 
 	@Override

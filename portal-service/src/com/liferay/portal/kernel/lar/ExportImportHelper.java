@@ -108,6 +108,12 @@ public interface ExportImportHelper {
 			Map<String, String[]> parameterMap, Element portletDataElement)
 		throws Exception;
 
+	public boolean[] getImportPortletControls(
+			long companyId, String portletId,
+			Map<String, String[]> parameterMap, Element portletDataElement,
+			ManifestSummary manifestSummary)
+		throws Exception;
+
 	public Map<Long, Boolean> getLayoutIdMap(PortletRequest portletRequest)
 		throws Exception;
 
@@ -160,6 +166,7 @@ public interface ExportImportHelper {
 	 *             #replaceImportContentReferences(PortletDataContext,
 	 *             StagedModel, Element, String, boolean)}
 	 */
+	@Deprecated
 	public String replaceImportContentReferences(
 			PortletDataContext portletDataContext, Element entityElement,
 			String content, boolean importReferencedContent)
@@ -176,6 +183,7 @@ public interface ExportImportHelper {
 	 *             #replaceImportDLReferences(PortletDataContext, StagedModel,
 	 *             String, boolean)}
 	 */
+	@Deprecated
 	public String replaceImportDLReferences(
 			PortletDataContext portletDataContext, Element entityElement,
 			String content, boolean importReferencedContent)

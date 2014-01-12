@@ -31,6 +31,7 @@ public interface AssetRendererFactoryRegistry {
 	 * @deprecated As of 6.2.0, replaced by {@link #getAssetRendererFactories(
 	 *             long)}
 	 */
+	@Deprecated
 	public List<AssetRendererFactory> getAssetRendererFactories();
 
 	public List<AssetRendererFactory> getAssetRendererFactories(long companyId);
@@ -43,9 +44,12 @@ public interface AssetRendererFactoryRegistry {
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #getClassNameIds( long)}
 	 */
+	@Deprecated
 	public long[] getClassNameIds();
 
 	public long[] getClassNameIds(long companyId);
+
+	public long[] getClassNameIds(long companyId, boolean filterSelectable);
 
 	public void register(AssetRendererFactory assetRendererFactory);
 

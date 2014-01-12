@@ -71,7 +71,12 @@ if (layout != null) {
 	String ppid = ParamUtil.getString(request, "p_p_id");
 
 	if (ppid.equals(PortletKeys.PORTLET_CONFIGURATION)) {
-		portlets = new ArrayList<Portlet>();
+		if (themeDisplay.isStatePopUp()) {
+			portlets = new ArrayList<Portlet>();
+		}
+		else {
+			portlets = layoutTypePortlet.getAllPortlets();
+		}
 
 		portlets.add(PortletLocalServiceUtil.getPortletById(company.getCompanyId(), PortletKeys.PORTLET_CONFIGURATION));
 
@@ -80,7 +85,7 @@ if (layout != null) {
 		if (Validator.isNotNull(ppid)) {
 			Portlet portlet = PortletLocalServiceUtil.getPortletById(company.getCompanyId(), ppid);
 
-			if (portlet != null) {
+			if ((portlet != null) && !portlets.contains(portlet)) {
 				portlets.add(portlet);
 			}
 		}
@@ -159,7 +164,7 @@ StringBundler pageTopSB = OutputTag.getData(request, WebKeys.PAGE_TOP);
 
 <c:if test="<%= (layout != null) && Validator.isNotNull(layout.getCssText()) %>">
 	<style type="text/css">
-		<%= layout.getCssText() %>
+		<%= _escapeCssBlock(layout.getCssText()) %>
 	</style>
 </c:if>
 
@@ -202,5 +207,13 @@ StringBundler pageTopSB = OutputTag.getData(request, WebKeys.PAGE_TOP);
 </c:if>
 
 <%!
+private String _escapeCssBlock(String css) {
+	return StringUtil.replace(
+		css,
+		new String[] {"<", "expression("},
+		new String[] {"\\3c", ""}
+	);
+}
+
 private static Log _log = LogFactoryUtil.getLog("portal-web.docroot.html.common.themes.top_head_jsp");
 %>

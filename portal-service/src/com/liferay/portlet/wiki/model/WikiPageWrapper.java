@@ -833,6 +833,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	/**
 	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
 	*/
+	@Deprecated
 	@Override
 	public boolean getApproved() {
 		return _wikiPage.getApproved();
@@ -1151,6 +1152,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public WikiPage getWrappedWikiPage() {
 		return _wikiPage;
 	}
@@ -1158,6 +1160,16 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	@Override
 	public WikiPage getWrappedModel() {
 		return _wikiPage;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _wikiPage.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _wikiPage.isFinderCacheEnabled();
 	}
 
 	@Override

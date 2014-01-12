@@ -861,6 +861,7 @@ public class MDRRuleWrapper implements MDRRule, ModelWrapper<MDRRule> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public MDRRule getWrappedMDRRule() {
 		return _mdrRule;
 	}
@@ -868,6 +869,16 @@ public class MDRRuleWrapper implements MDRRule, ModelWrapper<MDRRule> {
 	@Override
 	public MDRRule getWrappedModel() {
 		return _mdrRule;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _mdrRule.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _mdrRule.isFinderCacheEnabled();
 	}
 
 	@Override

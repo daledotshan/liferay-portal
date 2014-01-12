@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.assetpublisher.util;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Group;
@@ -35,6 +37,7 @@ import javax.portlet.PortletRequest;
 /**
  * @author Eudaldo Alonso
  */
+@ProviderType
 public interface AssetPublisher {
 
 	public static final String SCOPE_ID_CHILD_GROUP_PREFIX = "ChildGroup_";
@@ -73,6 +76,9 @@ public interface AssetPublisher {
 
 	public void checkAssetEntries() throws Exception;
 
+	public long[] getAssetCategoryIds(PortletPreferences portletPreferences)
+		throws Exception;
+
 	public List<AssetEntry> getAssetEntries(
 			PortletPreferences portletPreferences, Layout layout,
 			long scopeGroupId, int max, boolean checkPermission)
@@ -82,11 +88,40 @@ public interface AssetPublisher {
 			PortletRequest portletRequest,
 			PortletPreferences portletPreferences,
 			PermissionChecker permissionChecker, long[] groupIds,
+			boolean deleteMissingAssetEntries, boolean checkPermission)
+		throws Exception;
+
+	public List<AssetEntry> getAssetEntries(
+			PortletRequest portletRequest,
+			PortletPreferences portletPreferences,
+			PermissionChecker permissionChecker, long[] groupIds,
+			long[] allCategoryIds, String[] allTagNames,
+			boolean deleteMissingAssetEntries, boolean checkPermission)
+		throws Exception;
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             AssetPublisher#getAssetEntries( PortletRequest,
+	 *             PortletPreferences, PermissionChecker, long[], long[],
+	 *             String[], boolean , boolean)}
+	 */
+	@Deprecated
+	public List<AssetEntry> getAssetEntries(
+			PortletRequest portletRequest,
+			PortletPreferences portletPreferences,
+			PermissionChecker permissionChecker, long[] groupIds,
 			long[] assetCategoryIds, String[] assetEntryXmls,
 			String[] assetTagNames, boolean deleteMissingAssetEntries,
 			boolean checkPermission)
 		throws Exception;
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             AssetPublisher#getAssetEntries( PortletRequest,
+	 *             PortletPreferences, PermissionChecker, long[], boolean,
+	 *             boolean)}
+	 */
+	@Deprecated
 	public List<AssetEntry> getAssetEntries(
 			PortletRequest portletRequest,
 			PortletPreferences portletPreferences,

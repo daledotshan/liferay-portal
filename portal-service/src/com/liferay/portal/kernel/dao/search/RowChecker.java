@@ -82,6 +82,7 @@ public class RowChecker {
 	 *             #getRowCheckBox(HttpServletRequest, boolean, boolean,
 	 *             String)}
 	 */
+	@Deprecated
 	public String getRowCheckBox(
 		boolean checked, boolean disabled, String primaryKey) {
 
@@ -182,7 +183,7 @@ public class RowChecker {
 		String checkBoxRowIds, String checkBoxAllRowIds,
 		String checkBoxPostOnClick) {
 
-		StringBundler sb = new StringBundler();
+		StringBundler sb = new StringBundler(20);
 
 		sb.append("<input ");
 

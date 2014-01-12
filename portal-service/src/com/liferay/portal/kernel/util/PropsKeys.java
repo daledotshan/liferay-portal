@@ -1977,6 +1977,8 @@ public interface PropsKeys {
 
 	public static final String PORTAL_INSTANCE_HTTP_PORT = "portal.instance.http.port";
 
+	public static final String PORTAL_INSTANCE_HTTPS_PORT = "portal.instance.https.port";
+
 	public static final String PORTAL_JAAS_AUTH_TYPE = "portal.jaas.auth.type";
 
 	public static final String PORTAL_JAAS_ENABLE = "portal.jaas.enable";
@@ -2510,6 +2512,8 @@ public interface PropsKeys {
 	public static final String USERS_FULL_NAME_GENERATOR = "users.full.name.generator";
 
 	public static final String USERS_FULL_NAME_VALIDATOR = "users.full.name.validator";
+
+	public static final String USERS_IMAGE_CHECK_TOKEN = "users.image.check.token";
 
 	public static final String USERS_IMAGE_MAX_HEIGHT = "users.image.max.height";
 

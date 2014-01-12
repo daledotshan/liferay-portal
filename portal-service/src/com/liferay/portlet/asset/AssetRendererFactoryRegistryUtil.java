@@ -32,6 +32,7 @@ public class AssetRendererFactoryRegistryUtil {
 	 * @deprecated As of 6.2.0, replaced by {@link #getAssetRendererFactories(
 	 *             long)}
 	 */
+	@Deprecated
 	public static List<AssetRendererFactory> getAssetRendererFactories() {
 		return getAssetRendererFactoryRegistry().getAssetRendererFactories();
 	}
@@ -69,12 +70,20 @@ public class AssetRendererFactoryRegistryUtil {
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #getClassNameIds( long)}
 	 */
+	@Deprecated
 	public static long[] getClassNameIds() {
 		return getAssetRendererFactoryRegistry().getClassNameIds();
 	}
 
 	public static long[] getClassNameIds(long companyId) {
 		return getAssetRendererFactoryRegistry().getClassNameIds(companyId);
+	}
+
+	public static long[] getClassNameIds(
+		long companyId, boolean filterSelectable) {
+
+		return getAssetRendererFactoryRegistry().getClassNameIds(
+			companyId, filterSelectable);
 	}
 
 	public static void register(AssetRendererFactory assetRendererFactory) {

@@ -45,6 +45,9 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 /**
@@ -177,6 +180,10 @@ public class SeleniumBuilderFileUtil {
 		}
 
 		return classSuffix;
+	}
+
+	public List<String> getComponentNames() {
+		return _componentNames;
 	}
 
 	public String getHTMLFileName(String fileName) {
@@ -521,6 +528,10 @@ public class SeleniumBuilderFileUtil {
 		else if (errorCode == 2002) {
 			throw new IllegalArgumentException(
 				prefix + "Missing matching " + string1 + ".path for " + suffix);
+		}
+		else if (errorCode == 2003) {
+			throw new IllegalArgumentException(
+				prefix + "Illegal XPath " + string1 + " in " + suffix);
 		}
 		else {
 			throw new IllegalArgumentException(prefix + suffix);
@@ -1353,6 +1364,31 @@ public class SeleniumBuilderFileUtil {
 
 			throwValidationException(1002, fileName, element, elementName);
 		}
+
+		Element element = elements.get(1);
+
+		String text = element.getText();
+
+		text = text.replace("${","");
+		text = text.replace("}","");
+		text = text.replace("/-/","/");
+
+		if (text.endsWith("/")) {
+			text = text.substring(0, text.length() - 1);
+		}
+
+		if (!text.equals("") && !text.startsWith("link=")) {
+			try {
+				XPathFactory xPathFactory = XPathFactory.newInstance();
+
+				XPath xPath = xPathFactory.newXPath();
+
+				xPath.compile(text);
+			}
+			catch (Exception e) {
+				throwValidationException(2003, fileName, text);
+			}
+		}
 	}
 
 	protected void validatePropertyElement(
@@ -1444,6 +1480,20 @@ public class SeleniumBuilderFileUtil {
 				throwValidationException(
 					1006, fileName, rootElement, "extends");
 			}
+		}
+
+		String componentName = rootElement.attributeValue("component-name");
+
+		if (componentName == null) {
+			throwValidationException(
+				1003, fileName, rootElement, "component-name");
+		}
+
+		if ((componentName != null) &&
+			!_componentNames.contains(componentName)) {
+
+			throwValidationException(
+				1006, fileName, rootElement, "component-name");
 		}
 
 		List<Element> elements = rootElement.elements();
@@ -1682,9 +1732,29 @@ public class SeleniumBuilderFileUtil {
 			"attribute", "line-number", "locator", "locator-key", "name",
 			"path", "value"
 		});
+	private static List<String> _componentNames = ListUtil.fromArray(
+		new String[] {
+			"marketplace", "portal-administration", "portal-apis",
+			"portal-application-standards", "portal-authentication",
+			"portal-business-productivity", "portal-calendar",
+			"portal-collaboration", "portal-configuration", "portal-deployment",
+			"portal-document-management", "portal-frameworks",
+			"portal-infrastructure", "portal-integrations", "portal-legacy",
+			"portal-opensocial", "portal-operations",
+			"portal-personalization-and-customization",
+			"portal-sample-portlet-plugins", "portal-search", "portal-security",
+			"portal-social-networking", "portal-theme-development",
+			"portal-tools", "portal-upgrades", "portal-user-interface",
+			"portal-util-misc", "portal-wcm", "portal-web-forms-and-data-lists",
+			"portal-workflow", "social-office-administration",
+			"social-office-dashboard", "social-office-environment",
+			"social-office-profile", "social-office-site",
+			"social-office-user-bar"
+		});
 	private static List<String> _methodNames = ListUtil.fromArray(
 		new String[] {
-			"getFirstNumber", "increment", "length", "lowercase", "replace"
+			"getFirstNumber", "increment", "length", "lowercase", "replace",
+			"uppercase"
 		});
 	private static List<String> _reservedTags = ListUtil.fromArray(
 		new String[] {

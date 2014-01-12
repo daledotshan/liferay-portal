@@ -362,9 +362,20 @@ public class AssetCategoryPropertyLocalServiceWrapper
 			key, value);
 	}
 
+	@Override
+	public com.liferay.portlet.asset.model.AssetCategoryProperty updateCategoryProperty(
+		long userId, long categoryPropertyId, java.lang.String key,
+		java.lang.String value)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _assetCategoryPropertyLocalService.updateCategoryProperty(userId,
+			categoryPropertyId, key, value);
+	}
+
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
+	@Deprecated
 	public AssetCategoryPropertyLocalService getWrappedAssetCategoryPropertyLocalService() {
 		return _assetCategoryPropertyLocalService;
 	}
@@ -372,6 +383,7 @@ public class AssetCategoryPropertyLocalServiceWrapper
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
+	@Deprecated
 	public void setWrappedAssetCategoryPropertyLocalService(
 		AssetCategoryPropertyLocalService assetCategoryPropertyLocalService) {
 		_assetCategoryPropertyLocalService = assetCategoryPropertyLocalService;

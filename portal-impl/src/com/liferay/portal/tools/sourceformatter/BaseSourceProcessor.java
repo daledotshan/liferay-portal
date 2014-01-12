@@ -116,7 +116,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		importPackages = ListUtil.sort(importPackages);
 
-		StringBundler sb = new StringBundler();
+		StringBundler sb = new StringBundler(3 * importPackages.size());
 
 		String temp = null;
 
@@ -1070,6 +1070,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected static final String BASEDIR = "./";
+
+	protected static final String MAIN_RELEASE_LATEST_VERSION =
+		BaseSourceProcessor.MAIN_RELEASE_VERSION_7_0_0;
 
 	protected static final String MAIN_RELEASE_VERSION_6_1_0 = "6.1.0";
 

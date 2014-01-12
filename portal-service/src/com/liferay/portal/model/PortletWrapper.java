@@ -3414,6 +3414,7 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Portlet getWrappedPortlet() {
 		return _portlet;
 	}
@@ -3421,6 +3422,16 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	@Override
 	public Portlet getWrappedModel() {
 		return _portlet;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _portlet.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _portlet.isFinderCacheEnabled();
 	}
 
 	@Override

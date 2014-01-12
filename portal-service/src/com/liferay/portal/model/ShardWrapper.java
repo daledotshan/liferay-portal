@@ -326,6 +326,7 @@ public class ShardWrapper implements Shard, ModelWrapper<Shard> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Shard getWrappedShard() {
 		return _shard;
 	}
@@ -333,6 +334,16 @@ public class ShardWrapper implements Shard, ModelWrapper<Shard> {
 	@Override
 	public Shard getWrappedModel() {
 		return _shard;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _shard.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _shard.isFinderCacheEnabled();
 	}
 
 	@Override

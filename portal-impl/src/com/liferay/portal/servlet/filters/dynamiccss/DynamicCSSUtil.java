@@ -20,9 +20,11 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContextPathUtil;
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.SessionParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -66,7 +68,10 @@ public class DynamicCSSUtil {
 		try {
 			_rubyScript = StringUtil.read(
 				ClassLoaderUtil.getPortalClassLoader(),
-				"com/liferay/portal/servlet/filters/dynamiccss/main.rb");
+				"com/liferay/portal/servlet/filters/dynamiccss" +
+					"/dependencies/main.rb");
+
+			RTLCSSUtil.init();
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -111,6 +116,10 @@ public class DynamicCSSUtil {
 					_log.warn("No theme found for " + currentURL);
 				}
 
+				if (PortalUtil.isRightToLeft(request)) {
+					content = RTLCSSUtil.getRtlCss(resourcePath, content);
+				}
+
 				return content;
 			}
 		}
@@ -129,7 +138,8 @@ public class DynamicCSSUtil {
 
 		URLConnection cacheResourceURLConnection = null;
 
-		URL cacheResourceURL = _getCacheResource(servletContext, resourcePath);
+		URL cacheResourceURL = _getCacheResourceURL(
+			servletContext, request, resourcePath);
 
 		if (cacheResourceURL != null) {
 			cacheResourceURLConnection = cacheResourceURL.openConnection();
@@ -161,6 +171,30 @@ public class DynamicCSSUtil {
 			parsedContent = _parseSass(
 				servletContext, request, themeDisplay, theme, resourcePath,
 				content);
+
+			if (PortalUtil.isRightToLeft(request)) {
+				parsedContent = RTLCSSUtil.getRtlCss(
+					resourcePath, parsedContent);
+
+				// Append custom CSS for RTL
+
+				URL rtlCustomResourceURL = _getRtlCustomResourceURL(
+					servletContext, resourcePath);
+
+				if (rtlCustomResourceURL != null) {
+					URLConnection rtlCustomResourceURLConnection =
+						rtlCustomResourceURL.openConnection();
+
+					String rtlCustomContent = StringUtil.read(
+						rtlCustomResourceURLConnection.getInputStream());
+
+					String parsedRtlCustomContent = _parseSass(
+						servletContext, request, themeDisplay, theme,
+						resourcePath, rtlCustomContent);
+
+					parsedContent += parsedRtlCustomContent;
+				}
+			}
 
 			if (_log.isDebugEnabled()) {
 				_log.debug(
@@ -201,17 +235,19 @@ public class DynamicCSSUtil {
 		return parsedContent;
 	}
 
-	private static URL _getCacheResource(
-			ServletContext servletContext, String resourcePath)
+	private static URL _getCacheResourceURL(
+			ServletContext servletContext, HttpServletRequest request,
+			String resourcePath)
 		throws Exception {
 
-		int pos = resourcePath.lastIndexOf(StringPool.SLASH);
+		String suffix = StringPool.BLANK;
 
-		String cacheFileName =
-			resourcePath.substring(0, pos + 1) + ".sass-cache/" +
-				resourcePath.substring(pos + 1);
+		if (PortalUtil.isRightToLeft(request)) {
+			suffix = "_rtl";
+		}
 
-		return servletContext.getResource(cacheFileName);
+		return servletContext.getResource(
+			SassToCssBuilder.getCacheFileName(resourcePath, suffix));
 	}
 
 	private static String _getCssThemePath(
@@ -233,6 +269,14 @@ public class DynamicCSSUtil {
 		}
 
 		return servletContext.getRealPath(theme.getCssPath());
+	}
+
+	private static URL _getRtlCustomResourceURL(
+			ServletContext servletContext, String resourcePath)
+		throws Exception {
+
+		return servletContext.getResource(
+			SassToCssBuilder.getRtlCustomFileName(resourcePath));
 	}
 
 	private static File _getSassTempDir(ServletContext servletContext) {
@@ -367,14 +411,29 @@ public class DynamicCSSUtil {
 
 		String portalWebDir = PortalUtil.getPortalWebDir();
 
-		inputObjects.put(
-			"commonSassPath", portalWebDir.concat(_SASS_COMMON_DIR));
+		String commonSassPath = portalWebDir.concat(_SASS_COMMON_DIR);
+		String cssThemePath = _getCssThemePath(
+			servletContext, request, themeDisplay, theme);
 
+		if (ServerDetector.isWebLogic() && !FileUtil.exists(commonSassPath)) {
+			int pos = cssThemePath.indexOf("autodeploy/");
+
+			if (pos == -1) {
+				if (_log.isWarnEnabled()) {
+					_log.warn("Dynamic CSS compilation may not work");
+				}
+			}
+			else {
+				commonSassPath =
+					cssThemePath.substring(0, pos + 11) + "ROOT/" +
+						_SASS_COMMON_DIR;
+			}
+		}
+
+		inputObjects.put("commonSassPath", commonSassPath);
 		inputObjects.put("content", content);
 		inputObjects.put("cssRealPath", resourcePath);
-		inputObjects.put(
-			"cssThemePath",
-			_getCssThemePath(servletContext, request, themeDisplay, theme));
+		inputObjects.put("cssThemePath",cssThemePath);
 
 		File sassTempDir = _getSassTempDir(servletContext);
 

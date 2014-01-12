@@ -59,7 +59,7 @@ public class OrganizationFinderImpl
 		OrganizationFinder.class.getName() + ".countByC_PO_N_L_S_C_Z_R_C";
 
 	public static final String FIND_BY_NO_ASSETS =
-	OrganizationFinder.class.getName() + ".findByNoAssets";
+		OrganizationFinder.class.getName() + ".findByNoAssets";
 
 	public static final String FIND_BY_GROUP_ID =
 		OrganizationFinder.class.getName() + ".findByGroupId";
@@ -184,7 +184,7 @@ public class OrganizationFinderImpl
 		try {
 			session = openSession();
 
-			StringBundler sb = new StringBundler();
+			StringBundler sb = new StringBundler(5);
 
 			boolean doUnion = false;
 
@@ -246,7 +246,7 @@ public class OrganizationFinderImpl
 				StringPool.EQUAL : StringPool.NOT_EQUAL);
 			sql = CustomSQLUtil.replaceAndOperator(sql, andOperator);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar(COUNT_COLUMN_NAME, Type.LONG);
 
@@ -338,7 +338,7 @@ public class OrganizationFinderImpl
 
 			String sql = CustomSQLUtil.get(FIND_BY_NO_ASSETS);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Organization_", OrganizationImpl.class);
 
@@ -370,7 +370,7 @@ public class OrganizationFinderImpl
 					sql, "(organizationId > ?) AND", StringPool.BLANK);
 			}
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar("organizationId", Type.LONG);
 
@@ -431,7 +431,7 @@ public class OrganizationFinderImpl
 			params = new LinkedHashMap<String, Object>();
 		}
 
-		StringBundler sb = new StringBundler();
+		StringBundler sb = new StringBundler(4);
 
 		sb.append(StringPool.OPEN_PARENTHESIS);
 
@@ -489,7 +489,7 @@ public class OrganizationFinderImpl
 		try {
 			session = openSession();
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar("orgId", Type.LONG);
 
@@ -553,7 +553,7 @@ public class OrganizationFinderImpl
 		sql = StringUtil.replace(sql, "[$JOIN$]", getJoin(params));
 		sql = StringUtil.replace(sql, "[$WHERE$]", getWhere(params));
 
-		SQLQuery q = session.createSQLQuery(sql);
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 		q.addScalar(COUNT_COLUMN_NAME, Type.LONG);
 

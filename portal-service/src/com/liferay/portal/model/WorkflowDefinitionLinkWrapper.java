@@ -574,6 +574,7 @@ public class WorkflowDefinitionLinkWrapper implements WorkflowDefinitionLink,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public WorkflowDefinitionLink getWrappedWorkflowDefinitionLink() {
 		return _workflowDefinitionLink;
 	}
@@ -581,6 +582,16 @@ public class WorkflowDefinitionLinkWrapper implements WorkflowDefinitionLink,
 	@Override
 	public WorkflowDefinitionLink getWrappedModel() {
 		return _workflowDefinitionLink;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _workflowDefinitionLink.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _workflowDefinitionLink.isFinderCacheEnabled();
 	}
 
 	@Override

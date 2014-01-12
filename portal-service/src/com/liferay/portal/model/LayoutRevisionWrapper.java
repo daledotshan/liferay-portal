@@ -72,7 +72,6 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 		attributes.put("keywords", getKeywords());
 		attributes.put("robots", getRobots());
 		attributes.put("typeSettings", getTypeSettings());
-		attributes.put("iconImage", getIconImage());
 		attributes.put("iconImageId", getIconImageId());
 		attributes.put("themeId", getThemeId());
 		attributes.put("colorSchemeId", getColorSchemeId());
@@ -208,12 +207,6 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 
 		if (typeSettings != null) {
 			setTypeSettings(typeSettings);
-		}
-
-		Boolean iconImage = (Boolean)attributes.get("iconImage");
-
-		if (iconImage != null) {
-			setIconImage(iconImage);
 		}
 
 		Long iconImageId = (Long)attributes.get("iconImageId");
@@ -1354,36 +1347,6 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	}
 
 	/**
-	* Returns the icon image of this layout revision.
-	*
-	* @return the icon image of this layout revision
-	*/
-	@Override
-	public boolean getIconImage() {
-		return _layoutRevision.getIconImage();
-	}
-
-	/**
-	* Returns <code>true</code> if this layout revision is icon image.
-	*
-	* @return <code>true</code> if this layout revision is icon image; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isIconImage() {
-		return _layoutRevision.isIconImage();
-	}
-
-	/**
-	* Sets whether this layout revision is icon image.
-	*
-	* @param iconImage the icon image of this layout revision
-	*/
-	@Override
-	public void setIconImage(boolean iconImage) {
-		_layoutRevision.setIconImage(iconImage);
-	}
-
-	/**
 	* Returns the icon image ID of this layout revision.
 	*
 	* @return the icon image ID of this layout revision
@@ -1608,6 +1571,7 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	/**
 	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
 	*/
+	@Deprecated
 	@Override
 	public boolean getApproved() {
 		return _layoutRevision.getApproved();
@@ -1851,6 +1815,11 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	}
 
 	@Override
+	public boolean getIconImage() {
+		return _layoutRevision.getIconImage();
+	}
+
+	@Override
 	public com.liferay.portal.model.LayoutBranch getLayoutBranch()
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -1916,6 +1885,11 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	}
 
 	@Override
+	public boolean isIconImage() {
+		return _layoutRevision.isIconImage();
+	}
+
+	@Override
 	public boolean isInheritLookAndFeel() {
 		return _layoutRevision.isInheritLookAndFeel();
 	}
@@ -1954,6 +1928,7 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public LayoutRevision getWrappedLayoutRevision() {
 		return _layoutRevision;
 	}
@@ -1961,6 +1936,16 @@ public class LayoutRevisionWrapper implements LayoutRevision,
 	@Override
 	public LayoutRevision getWrappedModel() {
 		return _layoutRevision;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _layoutRevision.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _layoutRevision.isFinderCacheEnabled();
 	}
 
 	@Override

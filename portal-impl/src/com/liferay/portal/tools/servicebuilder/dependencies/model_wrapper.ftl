@@ -91,6 +91,11 @@ public class ${entity.name}Wrapper implements ${entity.name}, ModelWrapper<${ent
 			<#assign parameters = method.parameters>
 
 			${serviceBuilder.getJavadocComment(method)}
+
+			<#if serviceBuilder.hasAnnotation(method, "Deprecated")>
+				@Deprecated
+			</#if>
+
 			@Override
 			public ${serviceBuilder.getTypeGenericsName(method.returns)} ${method.name} (
 
@@ -171,6 +176,7 @@ public class ${entity.name}Wrapper implements ${entity.name}, ModelWrapper<${ent
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ${entity.name} getWrapped${entity.name}() {
 		return _${entity.varName};
 	}
@@ -178,6 +184,16 @@ public class ${entity.name}Wrapper implements ${entity.name}, ModelWrapper<${ent
 	@Override
 	public ${entity.name} getWrappedModel() {
 		return _${entity.varName};
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _${entity.varName}.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _${entity.varName}.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -74,7 +74,6 @@
 			</then>
 		</if>
 
-
 		<if>
 			<not>
 				<contains string="${portletName}" substring="{portletName}" />
@@ -136,13 +135,20 @@
 		<execute action="Myaccount#assertClick" locator1="//ul[@class='nav control-panel-bar-secondary nav-pills']//a[contains(.,'${portletName}')]" value1="${portletName}" />
 	</command>
 
+	<command name="gotoMyProfile">
+		<execute macro="Page#openURL" />
+
+		<execute action="Dockbar#click" locator-key1="USER_NAME" />
+		<execute action="Dockbar#assertClick" locator-key1="USER_MY_PROFILE" value1="My Profile" />
+	</command>
+
 	<command name="gotoPagesCP">
 		<execute macro="Page#gotoCmdCP">
 			<var name="portletCategoryKey" value="ADMIN_SITE_ADMINISTRATION_PAGES" />
 			<var name="portletCategoryName" value="Pages" />
 			<var name="portletName" value="${portletName}" />
 		</execute>
-     </command>
+	</command>
 
 	<command name="gotoPG">
 		<execute macro="Page#openURL" />
@@ -205,7 +211,17 @@
 			</else>
 		</if>
 
-		<execute action="Home#open" locator1="${pageAccessURL}${siteNameURL}${pageStagingURL}" />
+		<if>
+			<isset var="virtualHostsURL" />
+    		<then>
+     			<var name="siteNameURL" value="${virtualHostsURL}" />
+
+     			<execute action="Home#open" locator1="${siteNameURL}" />
+    		</then>
+    		<else>
+				<execute action="Home#open" locator1="${pageAccessURL}${siteNameURL}${pageStagingURL}" />
+			</else>
+		</if>
 	</command>
 
 	<command name="tearDownPG">

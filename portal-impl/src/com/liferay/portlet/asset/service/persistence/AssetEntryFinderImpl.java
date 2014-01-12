@@ -219,7 +219,7 @@ public class AssetEntryFinderImpl
 			AssetEntryQuery entryQuery, boolean count, Session session)
 		throws SystemException {
 
-		StringBundler sb = new StringBundler();
+		StringBundler sb = new StringBundler(64);
 
 		if (count) {
 			sb.append(
@@ -400,7 +400,7 @@ public class AssetEntryFinderImpl
 
 		String sql = sb.toString();
 
-		SQLQuery q = session.createSQLQuery(sql);
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 		if (count) {
 			q.addScalar(COUNT_COLUMN_NAME, Type.LONG);

@@ -31,7 +31,6 @@ import com.liferay.portal.model.ModelHintsUtil;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.asset.AssetCategoryNameException;
 import com.liferay.portlet.asset.DuplicateCategoryException;
 import com.liferay.portlet.asset.model.AssetCategory;
@@ -263,7 +262,7 @@ public class AssetCategoryLocalServiceImpl
 	public List<AssetCategory> getCategories(String className, long classPK)
 		throws SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return getCategories(classNameId, classPK);
 	}
@@ -557,13 +556,14 @@ public class AssetCategoryLocalServiceImpl
 				while (iterator.hasNext()) {
 					oldCategoryProperty = iterator.next();
 
-					if ((userId == oldCategoryProperty.getUserId()) &&
-						(categoryId == oldCategoryProperty.getCategoryId()) &&
+					if ((categoryId == oldCategoryProperty.getCategoryId()) &&
 						key.equals(oldCategoryProperty.getKey())) {
 
 						addCategoryProperty = false;
 
-						if (!value.equals(oldCategoryProperty.getValue())) {
+						if ((userId != oldCategoryProperty.getUserId()) ||
+							!value.equals(oldCategoryProperty.getValue())) {
+
 							updateCategoryProperty = true;
 						}
 
@@ -579,8 +579,8 @@ public class AssetCategoryLocalServiceImpl
 				}
 				else if (updateCategoryProperty) {
 					assetCategoryPropertyLocalService.updateCategoryProperty(
-						oldCategoryProperty.getCategoryPropertyId(), key,
-						value);
+						userId, oldCategoryProperty.getCategoryPropertyId(),
+						key, value);
 				}
 			}
 		}
