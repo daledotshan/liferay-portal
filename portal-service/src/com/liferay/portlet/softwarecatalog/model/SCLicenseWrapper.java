@@ -397,6 +397,7 @@ public class SCLicenseWrapper implements SCLicense, ModelWrapper<SCLicense> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public SCLicense getWrappedSCLicense() {
 		return _scLicense;
 	}
@@ -404,6 +405,16 @@ public class SCLicenseWrapper implements SCLicense, ModelWrapper<SCLicense> {
 	@Override
 	public SCLicense getWrappedModel() {
 		return _scLicense;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _scLicense.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _scLicense.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -18,7 +18,9 @@
 
 <liferay-ui:error-marker key="errorSection" value="displaySettings" />
 
-<h3><liferay-ui:message key="language-and-time-zone" /></h3>
+<h3><liferay-ui:message key="display-settings" /><h3>
+
+<h4><liferay-ui:message key="language-and-time-zone" /></h4>
 
 <aui:fieldset>
 	<liferay-ui:error exception="<%= LocaleException.class %>">
@@ -105,25 +107,21 @@
 	<aui:input label="time-zone" name="timeZoneId" type="timeZone" value="<%= timeZoneId %>" />
 </aui:fieldset>
 
-<h3><liferay-ui:message key="logo" /></h3>
+<h4><liferay-ui:message key="logo" /></h4>
 
 <aui:fieldset>
 	<aui:input label="allow-site-administrators-to-use-their-own-logo" name='<%= "settings--" + PropsKeys.COMPANY_SECURITY_SITE_LOGO + "--" %>' type="checkbox" value="<%= company.isSiteLogo() %>" />
 
-	<portlet:renderURL var="editCompanyLogoURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-		<portlet:param name="struts_action" value="/portal_settings/edit_company_logo" />
-		<portlet:param name="redirect" value="<%= currentURL %>" />
-	</portlet:renderURL>
-
 	<liferay-ui:logo-selector
+		currentLogoURL='<%= themeDisplay.getPathImage() + "/company_logo?img_id=" + company.getLogoId() + "&t=" + WebServerServletTokenUtil.getToken(company.getLogoId()) %>'
+		defaultLogo="<%= company.getLogoId() == 0 %>"
 		defaultLogoURL='<%= themeDisplay.getPathImage() + "/company_logo?img_id=0" %>'
-		editLogoURL="<%= editCompanyLogoURL %>"
-		imageId="<%= company.getLogoId() %>"
 		logoDisplaySelector=".company-logo"
+		tempImageFileName="<%= String.valueOf(themeDisplay.getCompanyId()) %>"
 	/>
 </aui:fieldset>
 
-<h3><liferay-ui:message key="look-and-feel" /></h3>
+<h4><liferay-ui:message key="look-and-feel" /></h4>
 
 <aui:fieldset>
 	<aui:select label='<%= PropsValues.MOBILE_DEVICE_STYLING_WAP_ENABLED? "default-regular-theme" : "default-theme" %>' name='<%= "settings--" + PropsKeys.DEFAULT_REGULAR_THEME_ID + "--" %>'>

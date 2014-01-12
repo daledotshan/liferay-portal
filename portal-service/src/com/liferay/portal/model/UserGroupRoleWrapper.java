@@ -329,6 +329,7 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public UserGroupRole getWrappedUserGroupRole() {
 		return _userGroupRole;
 	}
@@ -336,6 +337,16 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 	@Override
 	public UserGroupRole getWrappedModel() {
 		return _userGroupRole;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _userGroupRole.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _userGroupRole.isFinderCacheEnabled();
 	}
 
 	@Override

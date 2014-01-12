@@ -472,6 +472,7 @@ public class UserNotificationDeliveryWrapper implements UserNotificationDelivery
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public UserNotificationDelivery getWrappedUserNotificationDelivery() {
 		return _userNotificationDelivery;
 	}
@@ -479,6 +480,16 @@ public class UserNotificationDeliveryWrapper implements UserNotificationDelivery
 	@Override
 	public UserNotificationDelivery getWrappedModel() {
 		return _userNotificationDelivery;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _userNotificationDelivery.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _userNotificationDelivery.isFinderCacheEnabled();
 	}
 
 	@Override

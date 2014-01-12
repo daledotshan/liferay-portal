@@ -468,6 +468,7 @@ public class UserTrackerWrapper implements UserTracker,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public UserTracker getWrappedUserTracker() {
 		return _userTracker;
 	}
@@ -475,6 +476,16 @@ public class UserTrackerWrapper implements UserTracker,
 	@Override
 	public UserTracker getWrappedModel() {
 		return _userTracker;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _userTracker.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _userTracker.isFinderCacheEnabled();
 	}
 
 	@Override

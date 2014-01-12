@@ -366,6 +366,7 @@ public class ResourceBlockWrapper implements ResourceBlock,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ResourceBlock getWrappedResourceBlock() {
 		return _resourceBlock;
 	}
@@ -373,6 +374,16 @@ public class ResourceBlockWrapper implements ResourceBlock,
 	@Override
 	public ResourceBlock getWrappedModel() {
 		return _resourceBlock;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _resourceBlock.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _resourceBlock.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -692,6 +692,7 @@ public class BackgroundTaskWrapper implements BackgroundTask,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public BackgroundTask getWrappedBackgroundTask() {
 		return _backgroundTask;
 	}
@@ -699,6 +700,16 @@ public class BackgroundTaskWrapper implements BackgroundTask,
 	@Override
 	public BackgroundTask getWrappedModel() {
 		return _backgroundTask;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _backgroundTask.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _backgroundTask.isFinderCacheEnabled();
 	}
 
 	@Override

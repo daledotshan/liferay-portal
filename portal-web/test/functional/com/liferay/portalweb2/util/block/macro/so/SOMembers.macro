@@ -5,7 +5,7 @@
 		<execute action="SOMembersInvite#type" locator-key1="FIND_MEMBERS_SEARCH_FIELD" value1="${userName}" />
 		<execute action="SOMembersInvite#assertTextEquals" locator-key1="FIND_MEMBERS_USER" value1="${userName}" />
 		<execute action="SOMembersInvite#click" locator-key1="FIND_MEMBERS_USER" />
-		<execute action="SOMembersInvite#assertTextEquals" locator-key1="MEMBERS_INVITE_LIST" value1="${userName} ${userEmailAddress}" />
+		<execute action="SOMembersInvite#assertTextEquals" locator-key1="MEMBERS_INVITE_LIST" value1="${userName}${userEmailAddress}" />
 
 		<if>
 			<isset var="siteRoleInvite" />
@@ -20,27 +20,29 @@
 
 	<command name="confirmMemberInvite">
 		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="1"/>
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="1" />
 		<execute action="SOUserBar#click" locator-key1="NOTIFICATION_MENU_COUNT" />
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_SENDER" value1="${senderName}"/>
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_CONTENT" value1="invited you to join ${siteName}"/>
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_SENDER" value1="${senderName}" />
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_CONTENT" value1="invited you to join ${siteName}" />
 		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_CONFIRM" value1="Confirm" />
 		<execute action="SOUserBar#click" locator-key1="NOTIFICATION_MENU_CONFIRM" />
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="0"/>
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="0" />
 	</command>
 
 	<command name="ignoreMemberInvite">
 		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="1"/>
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="1" />
 		<execute action="SOUserBar#click" locator-key1="NOTIFICATION_MENU_COUNT" />
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_SENDER" value1="${senderName}"/>
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_CONTENT" value1="invited you to join ${siteName}"/>
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_SENDER" value1="${senderName}" />
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_ENTRY_CONTENT" value1="invited you to join ${siteName}" />
 		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_IGNORE" value1="Ignore" />
 		<execute action="SOUserBar#click" locator-key1="NOTIFICATION_MENU_IGNORE" />
-		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="0"/>
+		<execute action="SOUserBar#assertTextEquals" locator-key1="NOTIFICATION_MENU_COUNT" value1="0" />
 	</command>
 
 	<command name="viewConfirmMemberInvite">
+		<var name="key_siteName" value="${siteName}" />
+
 		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#select" locator-key1="GO_TO_SITE_CATEGORY_SELECT" value1="My Sites" />		
@@ -110,14 +112,13 @@
 				<execute action="SOMembers#assertTextEquals" locator-key1="USER_DETAILS_NAME" value1="${userName}" />
 				<execute action="SOMembers#assertTextEquals" locator-key1="USER_DETAILS_EMAIL" value1="${userEmailAddress}" />
 
-				<execute macro="Page#gotoCP">
-					<var name="portletName" value="Sites" />
+				<execute macro="Page#openURL">
+					<var name="siteName" value="${siteName}" />
+					<var name="siteURL" value="true" />
 				</execute>
 
-				<execute macro="Page#gotoUsersCP">
-					<var name="siteScopeName" value="${siteName}" />
-					<var name="portletName" value="Site Memberships" />
-				</execute>
+				<execute action="Dockbar#assertClick" locator-key1="ADMIN" value1="Admin" />
+				<execute action="Dockbar#assertClick" locator-key1="ADMIN_SITE_ADMINISTRATION_USERS" value1="Users" />
 
 				<var name="key_userScreenName" value="${userScreenName}" />
 
@@ -136,6 +137,8 @@
 	</command>
 
 	<command name="viewIgnoreMemberInvite">
+		<var name="key_siteName" value="${siteName}" />
+
 		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#select" locator-key1="GO_TO_SITE_CATEGORY_SELECT" value1="My Sites" />		

@@ -25,12 +25,6 @@ $dockbarOpenGradientStart: #0EA6F9;
 		font-weight: normal;
 	}
 
-	legend {
-		color: #8D8D8D;
-		font-size: 18px;
-		font-weight: 200;
-	}
-
 	#banner {
 		display: none;
 	}
@@ -197,7 +191,7 @@ $dockbarOpenGradientStart: #0EA6F9;
 
 		.nav > li > a {
 			margin: 3px 0;
-			padding: 2px 15px;
+			padding: 3px 15px;
 		}
 
 		.navbar-inner {
@@ -213,6 +207,16 @@ $dockbarOpenGradientStart: #0EA6F9;
 					color: #FFF;
 					font-weight: 100;
 					text-shadow: none;
+
+					@include respond-to(phone, tablet) {
+						letter-spacing: 0;
+					}
+				}
+
+				@include respond-to(phone, tablet) {
+					h1 {
+						position: relative;
+					}
 				}
 
 				.control-panel-site-selector {
@@ -220,15 +224,37 @@ $dockbarOpenGradientStart: #0EA6F9;
 					margin-bottom: 0;
 					margin-top: 0;
 					vertical-align: baseline;
+					position: static;
 
-					@include respond-to(phone) {
-						display: none;
+					@include respond-to(phone, tablet) {
+						font-weight: 200;
+						position: static;
 					}
 
 					a {
 						text-decoration: none;
 
+						@include respond-to(phone) {
+							.lfr-icon-menu-arrow {
+								display: none;
+							}
+						}
+
+						.lfr-icon-menu-icon {
+							display: none;
+
+							@include respond-to(phone) {
+								display: inline-block;
+								position: absolute;
+							}
+						}
+
 						.lfr-icon-menu-text {
+							@include respond-to(phone, tablet) {
+								font-weight: 200;
+								line-height: 22px;
+							}
+
 							&:hover, &:focus {
 								text-decoration: underline;
 							}
@@ -244,6 +270,10 @@ $dockbarOpenGradientStart: #0EA6F9;
 				.control-panel-back-link {
 					margin: 0 15px;
 
+					@include respond-to(phone, tablet) {
+						margin: 0 8px;
+					}
+
 					&:hover, &:focus {
 						text-decoration: none;
 					}
@@ -257,17 +287,23 @@ $dockbarOpenGradientStart: #0EA6F9;
 					> li.open > .dropdown-toggle {
 						background-color: $dockbarOpenGradientEnd;
 						margin: 0;
-						padding: 5px 15px;
+						padding: 6px 15px;
 
 						@include respond-to(phone, tablet) {
-							margin: 5px 0 5px 10px;
-							padding: 12px 15px;
+							margin: 5px 0 3px 5px;
+							padding: 12px;
 						}
 					}
 				}
 
-				.nav-collapse > .nav li.dropdown ul.dropdown-menu {
-					margin-top: 0;
+				.nav-collapse {
+					@include respond-to(phone, tablet) {
+						float: right;
+					}
+
+					> .nav li.dropdown ul.dropdown-menu {
+						margin-top: 0;
+					}
 				}
 
 				.nav-navigation {
@@ -531,6 +567,12 @@ $dockbarOpenGradientStart: #0EA6F9;
 			padding: 0 10px 13px;
 			position: relative;
 
+			.icon-search {
+				left: 18px;
+				position: absolute;
+				top: 8px;
+			}
+
 			.cancel-search {
 				color: #f88;
 				display: none;
@@ -571,7 +613,7 @@ $dockbarOpenGradientStart: #0EA6F9;
 				}
 
 				input {
-					padding-left: 40px;
+					padding-left: 28px;
 				}
 			}
 		}
@@ -590,11 +632,12 @@ $dockbarOpenGradientStart: #0EA6F9;
 					.toggler-content {
 						border: 1px solid #DDD;
 						left: 49px;
+						margin-top: 0 !important;
 
 						&:before {
 							content: '';
 							height: 44px;
-							margin-left: 0px;
+							margin-left: 0;
 							position: absolute;
 							width: 50px;
 						}
@@ -617,7 +660,7 @@ $dockbarOpenGradientStart: #0EA6F9;
 
 			.control-panel-tools {
 				cursor: pointer;
-				padding-top: 16px;
+				padding: 12px 0;
 
 				&:hover {
 					background-color: #DDD;
@@ -690,10 +733,12 @@ $dockbarOpenGradientStart: #0EA6F9;
 			}
 
 			.search-panels {
-				background: url(../images/custom/search_navigation_min_icon.png) no-repeat right;
-				padding: 14px 10px 14px;
-				right: 10px;
-				top: -7px;
+				padding: 0;
+				text-align: center;
+
+				.icon-search {
+					position: static;
+				}
 			}
 
 			.search-panels-bar {
@@ -1083,7 +1128,7 @@ $dockbarOpenGradientStart: #0EA6F9;
 					float: left;
 					margin-top: 20px;
 					width: 100%;
-					z-index: 400;
+					z-index: 399;
 
 					&:after {
 						background-image: none;

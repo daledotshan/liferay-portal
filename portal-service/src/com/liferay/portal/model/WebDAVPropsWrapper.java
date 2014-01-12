@@ -445,6 +445,7 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public WebDAVProps getWrappedWebDAVProps() {
 		return _webDAVProps;
 	}
@@ -452,6 +453,16 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	@Override
 	public WebDAVProps getWrappedModel() {
 		return _webDAVProps;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _webDAVProps.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _webDAVProps.isFinderCacheEnabled();
 	}
 
 	@Override

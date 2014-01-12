@@ -487,6 +487,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public RatingsEntry getWrappedRatingsEntry() {
 		return _ratingsEntry;
 	}
@@ -494,6 +495,16 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	@Override
 	public RatingsEntry getWrappedModel() {
 		return _ratingsEntry;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _ratingsEntry.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _ratingsEntry.isFinderCacheEnabled();
 	}
 
 	@Override

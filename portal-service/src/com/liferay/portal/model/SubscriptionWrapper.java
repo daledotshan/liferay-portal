@@ -485,6 +485,7 @@ public class SubscriptionWrapper implements Subscription,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Subscription getWrappedSubscription() {
 		return _subscription;
 	}
@@ -492,6 +493,16 @@ public class SubscriptionWrapper implements Subscription,
 	@Override
 	public Subscription getWrappedModel() {
 		return _subscription;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _subscription.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _subscription.isFinderCacheEnabled();
 	}
 
 	@Override

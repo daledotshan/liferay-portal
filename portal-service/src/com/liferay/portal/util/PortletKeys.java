@@ -95,6 +95,8 @@ public class PortletKeys {
 
 	public static final String IFRAME = "48";
 
+	public static final String IMAGE_UPLOADER = "195";
+
 	public static final String INVITATION = "100";
 
 	public static final String JOURNAL = "15";
@@ -222,6 +224,8 @@ public class PortletKeys {
 
 	public static final String SITE_SETTINGS = "165";
 
+	public static final String SITE_TEAMS_ADMIN = "191";
+
 	public static final String SITE_TEMPLATE_SETTINGS = "192";
 
 	public static final String SITES_ADMIN = "134";
@@ -241,6 +245,7 @@ public class PortletKeys {
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #ASSET_CATEGORIES_NAVIGATION}
 	 */
+	@Deprecated
 	public static final String TAGS_CATEGORIES_NAVIGATION =
 		ASSET_CATEGORIES_NAVIGATION;
 
@@ -251,6 +256,7 @@ public class PortletKeys {
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #ASSET_TAGS_NAVIGATION}
 	 */
+	@Deprecated
 	public static final String TAGS_ENTRIES_NAVIGATION = ASSET_TAGS_NAVIGATION;
 
 	public static final String TRANSLATOR = "26";

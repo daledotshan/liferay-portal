@@ -478,6 +478,7 @@ public class MBThreadFlagWrapper implements MBThreadFlag,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public MBThreadFlag getWrappedMBThreadFlag() {
 		return _mbThreadFlag;
 	}
@@ -485,6 +486,16 @@ public class MBThreadFlagWrapper implements MBThreadFlag,
 	@Override
 	public MBThreadFlag getWrappedModel() {
 		return _mbThreadFlag;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _mbThreadFlag.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _mbThreadFlag.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -861,6 +861,7 @@ public class PollsQuestionWrapper implements PollsQuestion,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public PollsQuestion getWrappedPollsQuestion() {
 		return _pollsQuestion;
 	}
@@ -868,6 +869,16 @@ public class PollsQuestionWrapper implements PollsQuestion,
 	@Override
 	public PollsQuestion getWrappedModel() {
 		return _pollsQuestion;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _pollsQuestion.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _pollsQuestion.isFinderCacheEnabled();
 	}
 
 	@Override

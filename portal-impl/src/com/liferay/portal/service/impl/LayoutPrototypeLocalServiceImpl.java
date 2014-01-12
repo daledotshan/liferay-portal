@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
+import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutPrototype;
 import com.liferay.portal.model.ResourceConstants;
@@ -49,6 +50,7 @@ public class LayoutPrototypeLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #addLayoutPrototype(long,
 	 *             long, Map, String, boolean, ServiceContext)}
 	 */
+	@Deprecated
 	@Override
 	public LayoutPrototype addLayoutPrototype(
 			long userId, long companyId, Map<Locale, String> nameMap,
@@ -191,6 +193,7 @@ public class LayoutPrototypeLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link
 	 *             #getLayoutPrototypeByUuidAndCompanyId(String, long)}
 	 */
+	@Deprecated
 	@Override
 	public LayoutPrototype getLayoutPrototypeByUuid(String uuid)
 		throws PortalException, SystemException {
@@ -239,6 +242,7 @@ public class LayoutPrototypeLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #updateLayoutPrototype(long,
 	 *             Map, String, boolean, ServiceContext)}
 	 */
+	@Deprecated
 	@Override
 	public LayoutPrototype updateLayoutPrototype(
 			long layoutPrototypeId, Map<Locale, String> nameMap,
@@ -276,6 +280,15 @@ public class LayoutPrototypeLocalServiceImpl
 		group.setName(layoutPrototype.getName(LocaleUtil.getDefault()));
 
 		groupPersistence.update(group);
+
+		// Layout
+
+		Layout layout = layoutPrototype.getLayout();
+
+		layout.setModifiedDate(layoutPrototype.getModifiedDate());
+		layout.setNameMap(nameMap);
+
+		layoutPersistence.update(layout);
 
 		return layoutPrototype;
 	}

@@ -785,6 +785,7 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public ExpandoValue getWrappedExpandoValue() {
 		return _expandoValue;
 	}
@@ -792,6 +793,16 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	@Override
 	public ExpandoValue getWrappedModel() {
 		return _expandoValue;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _expandoValue.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _expandoValue.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -152,7 +152,7 @@ public class GroupFinderImpl
 
 			String sql = CustomSQLUtil.get(COUNT_BY_LAYOUTS);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Group_", GroupImpl.class);
 
@@ -334,7 +334,7 @@ public class GroupFinderImpl
 
 			String sql = CustomSQLUtil.get(FIND_BY_LAYOUTS);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Group_", GroupImpl.class);
 
@@ -363,7 +363,7 @@ public class GroupFinderImpl
 
 			String sql = CustomSQLUtil.get(FIND_BY_LIVE_GROUPS);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Group_", GroupImpl.class);
 
@@ -389,7 +389,7 @@ public class GroupFinderImpl
 
 			String sql = CustomSQLUtil.get(FIND_BY_NO_LAYOUTS);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Group_", GroupImpl.class);
 
@@ -417,7 +417,7 @@ public class GroupFinderImpl
 
 			String sql = CustomSQLUtil.get(FIND_BY_NULL_FRIENDLY_URL);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Group_", GroupImpl.class);
 
@@ -440,7 +440,7 @@ public class GroupFinderImpl
 
 			String sql = CustomSQLUtil.get(FIND_BY_SYSTEM);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Group_", GroupImpl.class);
 
@@ -522,7 +522,7 @@ public class GroupFinderImpl
 						" OR Group_.classNameId = ")));
 			findByC_C_SQL = replaceOrderBy(findByC_C_SQL, obc);
 
-			StringBundler sb = new StringBundler();
+			StringBundler sb = new StringBundler(12);
 
 			sb.append(StringPool.OPEN_PARENTHESIS);
 			sb.append(replaceJoinAndWhere(findByC_C_SQL, params1));
@@ -553,7 +553,7 @@ public class GroupFinderImpl
 		try {
 			session = openSession();
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar("groupId", Type.LONG);
 
@@ -615,7 +615,7 @@ public class GroupFinderImpl
 					sql, "(groupId > ?) AND", StringPool.BLANK);
 			}
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar("groupId", Type.LONG);
 
@@ -651,7 +651,7 @@ public class GroupFinderImpl
 
 			String sql = CustomSQLUtil.get(FIND_BY_C_N);
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Group_", GroupImpl.class);
 
@@ -766,7 +766,7 @@ public class GroupFinderImpl
 
 			findByC_PG_N_D_SQL = replaceOrderBy(findByC_PG_N_D_SQL, obc);
 
-			StringBundler sb = new StringBundler();
+			StringBundler sb = new StringBundler(12);
 
 			sb.append(StringPool.OPEN_PARENTHESIS);
 			sb.append(replaceJoinAndWhere(findByC_PG_N_D_SQL, params1));
@@ -813,7 +813,7 @@ public class GroupFinderImpl
 		try {
 			session = openSession();
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar("groupId", Type.LONG);
 
@@ -878,7 +878,7 @@ public class GroupFinderImpl
 
 		sql = replaceJoinAndWhere(sql, params);
 
-		SQLQuery q = session.createSQLQuery(sql);
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 		q.addScalar(COUNT_COLUMN_NAME, Type.LONG);
 
@@ -935,7 +935,7 @@ public class GroupFinderImpl
 		sql = replaceJoinAndWhere(sql, params);
 		sql = CustomSQLUtil.replaceAndOperator(sql, andOperator);
 
-		SQLQuery q = session.createSQLQuery(sql);
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 		q.addScalar("groupId", Type.LONG);
 

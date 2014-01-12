@@ -18,7 +18,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.expando.DuplicateTableNameException;
 import com.liferay.portlet.expando.TableNameException;
 import com.liferay.portlet.expando.model.ExpandoTable;
@@ -73,6 +72,7 @@ public class ExpandoTableLocalServiceImpl
 	 * @deprecated As of 6.1.0, replaced by {@link #addTable(long, long,
 	 *             String)}
 	 */
+	@Deprecated
 	@Override
 	public ExpandoTable addTable(long classNameId, String name)
 		throws PortalException, SystemException {
@@ -86,7 +86,7 @@ public class ExpandoTableLocalServiceImpl
 	public ExpandoTable addTable(long companyId, String className, String name)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return addTable(companyId, classNameId, name);
 	}
@@ -95,6 +95,7 @@ public class ExpandoTableLocalServiceImpl
 	 * @deprecated As of 6.1.0, replaced by {@link #addTable(long, String,
 	 *             String)}
 	 */
+	@Deprecated
 	@Override
 	public ExpandoTable addTable(String className, String name)
 		throws PortalException, SystemException {
@@ -155,7 +156,7 @@ public class ExpandoTableLocalServiceImpl
 	public void deleteTable(long companyId, String className, String name)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		deleteTable(companyId, classNameId, name);
 	}
@@ -176,7 +177,7 @@ public class ExpandoTableLocalServiceImpl
 	public void deleteTables(long companyId, String className)
 		throws SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		deleteTables(companyId, classNameId);
 	}
@@ -193,7 +194,7 @@ public class ExpandoTableLocalServiceImpl
 	public ExpandoTable fetchDefaultTable(long companyId, String className)
 		throws SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return fetchTable(
 			companyId, classNameId, ExpandoTableConstants.DEFAULT_TABLE_NAME);
@@ -220,7 +221,7 @@ public class ExpandoTableLocalServiceImpl
 	public ExpandoTable getDefaultTable(long companyId, String className)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return getTable(
 			companyId, classNameId, ExpandoTableConstants.DEFAULT_TABLE_NAME);
@@ -245,6 +246,7 @@ public class ExpandoTableLocalServiceImpl
 	 * @deprecated As of 6.1.0, replaced by {@link #getTable(long, long,
 	 *             String)}
 	 */
+	@Deprecated
 	@Override
 	public ExpandoTable getTable(long classNameId, String name)
 		throws PortalException, SystemException {
@@ -258,7 +260,7 @@ public class ExpandoTableLocalServiceImpl
 	public ExpandoTable getTable(long companyId, String className, String name)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return getTable(companyId, classNameId, name);
 	}
@@ -267,6 +269,7 @@ public class ExpandoTableLocalServiceImpl
 	 * @deprecated As of 6.1.0, replaced by {@link #getTable(long, String,
 	 *             String)}
 	 */
+	@Deprecated
 	@Override
 	public ExpandoTable getTable(String className, String name)
 		throws PortalException, SystemException {
@@ -287,7 +290,7 @@ public class ExpandoTableLocalServiceImpl
 	public List<ExpandoTable> getTables(long companyId, String className)
 		throws SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return getTables(companyId, classNameId);
 	}

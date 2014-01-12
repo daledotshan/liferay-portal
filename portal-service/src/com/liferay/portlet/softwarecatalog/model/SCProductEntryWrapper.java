@@ -680,6 +680,7 @@ public class SCProductEntryWrapper implements SCProductEntry,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public SCProductEntry getWrappedSCProductEntry() {
 		return _scProductEntry;
 	}
@@ -687,6 +688,16 @@ public class SCProductEntryWrapper implements SCProductEntry,
 	@Override
 	public SCProductEntry getWrappedModel() {
 		return _scProductEntry;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _scProductEntry.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _scProductEntry.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -76,6 +76,8 @@ AUI.add(
 
 		var LINE_HEIGHT = 'lineHeight';
 
+		var NORMAL = 'normal';
+
 		var OK = 'ok';
 
 		var OPACITY = 'opacity';
@@ -113,18 +115,17 @@ AUI.add(
 
 				if (obj) {
 					instance._portletId = portletId;
-					instance._curPortlet = obj.one('.portlet');
 
-					instance._portletBoundary = obj;
-
-					if (!instance._curPortlet) {
+					if (!obj.hasClass('portlet-borderless')) {
+						instance._curPortlet = obj.one('.portlet');
+						instance._curPortletWrapperId = instance._curPortlet.attr(ID);
+					}
+					else {
 						instance._curPortlet = obj;
 						instance._curPortletWrapperId = curPortletBoundaryId;
 					}
-					else {
-						instance._curPortletWrapperId = instance._curPortlet.attr(ID);
-					}
 
+					instance._portletBoundary = obj;
 					instance._portletBoundaryId = curPortletBoundaryId;
 					instance._newPanel = A.one('#portlet-set-properties');
 					instance._currentLanguage = themeDisplay.getLanguageId();
@@ -937,7 +938,8 @@ AUI.add(
 
 				var defaultData = {
 					advancedData: {
-						customCSS: EMPTY
+						customCSS: EMPTY,
+						customCSSClassName: EMPTY
 					},
 
 					bgData: {
@@ -1227,6 +1229,7 @@ AUI.add(
 							}
 
 							instance._objData = defaultData;
+							instance._objData.portletData.titles = {};
 							instance._setDefaults();
 						}
 					);
@@ -1283,7 +1286,14 @@ AUI.add(
 					CLICK,
 					function(event) {
 						var title;
-						var portletTitleText = instance._curPortlet.one('.portlet-title-text');
+
+						var portletTitleSelector = '.portlet-title-default';
+
+						if (showBorders.val() != 'false') {
+							portletTitleSelector = '.portlet-title-text';
+						}
+
+						var portletTitleText = instance._curPortlet.one(portletTitleSelector);
 
 						var checked = event.currentTarget.get(CHECKED);
 
@@ -1454,11 +1464,11 @@ AUI.add(
 				var fontStyle = false;
 				var fontWeight = false;
 
-				if (textData.fontStyle && textData.fontStyle != 'normal') {
+				if (textData.fontStyle && textData.fontStyle != NORMAL) {
 					fontStyle = true;
 				}
 
-				if (textData.fontWeight && textData.fontWeight != 'normal') {
+				if (textData.fontWeight && textData.fontWeight != NORMAL) {
 					fontWeight = true;
 				}
 
@@ -1857,7 +1867,7 @@ AUI.add(
 				fontBold.on(
 					CLICK,
 					function(event) {
-						var style = 'normal';
+						var style = NORMAL;
 
 						if (event.currentTarget.get(CHECKED)) {
 							style = BOLD;

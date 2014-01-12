@@ -402,6 +402,7 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 	boolean, long, Map, Map, Map, Map, Map, String, String,
 	boolean, Map, ServiceContext)}
 	*/
+	@Deprecated
 	@Override
 	public com.liferay.portal.model.Layout addLayout(long userId, long groupId,
 		boolean privateLayout, long parentLayoutId,
@@ -1608,7 +1609,7 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 		java.util.Map<java.util.Locale, java.lang.String> robotsMap,
 		java.lang.String type, boolean hidden,
 		java.util.Map<java.util.Locale, java.lang.String> friendlyURLMap,
-		java.lang.Boolean iconImage, byte[] iconBytes,
+		boolean iconImage, byte[] iconBytes,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
@@ -1672,6 +1673,7 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 	long, long, Map, Map, Map, Map, Map, String, boolean, Map,
 	Boolean, byte[], ServiceContext)}
 	*/
+	@Deprecated
 	@Override
 	public com.liferay.portal.model.Layout updateLayout(long groupId,
 		boolean privateLayout, long layoutId, long parentLayoutId,
@@ -1946,6 +1948,7 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 	/**
 	* @deprecated As of 6.2.0, with no direct replacement
 	*/
+	@Deprecated
 	@Override
 	public void updateScopedPortletNames(long groupId, boolean privateLayout,
 		long layoutId,
@@ -1971,6 +1974,7 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 	* @see com.liferay.portlet.portletconfiguration.action.EditScopeAction
 	* @deprecated As of 6.2.0, with no direct replacement
 	*/
+	@Deprecated
 	@Override
 	public void updateScopedPortletNames(long groupId, boolean privateLayout,
 		long layoutId, java.lang.String name, java.lang.String languageId)
@@ -2027,6 +2031,7 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
 	 */
+	@Deprecated
 	public LayoutLocalService getWrappedLayoutLocalService() {
 		return _layoutLocalService;
 	}
@@ -2034,6 +2039,7 @@ public class LayoutLocalServiceWrapper implements LayoutLocalService,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
 	 */
+	@Deprecated
 	public void setWrappedLayoutLocalService(
 		LayoutLocalService layoutLocalService) {
 		_layoutLocalService = layoutLocalService;

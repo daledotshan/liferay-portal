@@ -315,6 +315,7 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public UserTrackerPath getWrappedUserTrackerPath() {
 		return _userTrackerPath;
 	}
@@ -322,6 +323,16 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 	@Override
 	public UserTrackerPath getWrappedModel() {
 		return _userTrackerPath;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _userTrackerPath.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _userTrackerPath.isFinderCacheEnabled();
 	}
 
 	@Override

@@ -541,6 +541,7 @@ public class SocialActivitySetWrapper implements SocialActivitySet,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public SocialActivitySet getWrappedSocialActivitySet() {
 		return _socialActivitySet;
 	}
@@ -548,6 +549,16 @@ public class SocialActivitySetWrapper implements SocialActivitySet,
 	@Override
 	public SocialActivitySet getWrappedModel() {
 		return _socialActivitySet;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _socialActivitySet.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _socialActivitySet.isFinderCacheEnabled();
 	}
 
 	@Override

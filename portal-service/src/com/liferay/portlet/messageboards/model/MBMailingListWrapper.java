@@ -987,6 +987,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public MBMailingList getWrappedMBMailingList() {
 		return _mbMailingList;
 	}
@@ -994,6 +995,16 @@ public class MBMailingListWrapper implements MBMailingList,
 	@Override
 	public MBMailingList getWrappedModel() {
 		return _mbMailingList;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _mbMailingList.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _mbMailingList.isFinderCacheEnabled();
 	}
 
 	@Override

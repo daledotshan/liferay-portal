@@ -543,6 +543,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public RepositoryEntry getWrappedRepositoryEntry() {
 		return _repositoryEntry;
 	}
@@ -550,6 +551,16 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	@Override
 	public RepositoryEntry getWrappedModel() {
 		return _repositoryEntry;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _repositoryEntry.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _repositoryEntry.isFinderCacheEnabled();
 	}
 
 	@Override

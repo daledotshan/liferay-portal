@@ -303,9 +303,23 @@ public class DLAppHelperLocalServiceImpl
 		// Trash
 
 		if (fileEntry.getModel() instanceof DLFileEntry) {
-			trashEntryLocalService.deleteEntry(
-				DLFileEntryConstants.getClassName(),
-				fileEntry.getFileEntryId());
+			DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
+
+			if (dlFileEntry.isInTrashExplicitly()) {
+				trashEntryLocalService.deleteEntry(
+					DLFileEntryConstants.getClassName(),
+					fileEntry.getFileEntryId());
+			}
+			else {
+				List<DLFileVersion> dlFileVersions =
+					dlFileEntry.getFileVersions(WorkflowConstants.STATUS_ANY);
+
+				for (DLFileVersion dlFileVersion : dlFileVersions) {
+					trashVersionLocalService.deleteTrashVersion(
+						DLFileVersion.class.getName(),
+						dlFileVersion.getFileVersionId());
+				}
+			}
 		}
 	}
 
@@ -329,8 +343,16 @@ public class DLAppHelperLocalServiceImpl
 		// Trash
 
 		if (folder.getModel() instanceof DLFolder) {
-			trashEntryLocalService.deleteEntry(
-				DLFolderConstants.getClassName(), folder.getFolderId());
+			DLFolder dlFolder = (DLFolder)folder.getModel();
+
+			if (dlFolder.isInTrashExplicitly()) {
+				trashEntryLocalService.deleteEntry(
+					DLFolderConstants.getClassName(), dlFolder.getFolderId());
+			}
+			else {
+				trashVersionLocalService.deleteTrashVersion(
+					DLFolderConstants.getClassName(), dlFolder.getFolderId());
+			}
 		}
 	}
 
@@ -381,6 +403,7 @@ public class DLAppHelperLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #getFileShortcuts(long, long,
 	 *             boolean, int)}
 	 */
+	@Deprecated
 	@Override
 	public List<DLFileShortcut> getFileShortcuts(
 			long groupId, long folderId, int status)
@@ -402,6 +425,7 @@ public class DLAppHelperLocalServiceImpl
 	 * @deprecated As of 6.2.0, replaced by {@link #getFileShortcutsCount(long,
 	 *             long, boolean, int)}
 	 */
+	@Deprecated
 	@Override
 	public int getFileShortcutsCount(long groupId, long folderId, int status)
 		throws SystemException {

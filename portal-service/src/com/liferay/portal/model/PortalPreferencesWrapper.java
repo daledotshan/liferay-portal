@@ -314,6 +314,7 @@ public class PortalPreferencesWrapper implements PortalPreferences,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public PortalPreferences getWrappedPortalPreferences() {
 		return _portalPreferences;
 	}
@@ -321,6 +322,16 @@ public class PortalPreferencesWrapper implements PortalPreferences,
 	@Override
 	public PortalPreferences getWrappedModel() {
 		return _portalPreferences;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _portalPreferences.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _portalPreferences.isFinderCacheEnabled();
 	}
 
 	@Override

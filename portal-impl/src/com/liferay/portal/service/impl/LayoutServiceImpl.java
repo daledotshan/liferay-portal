@@ -116,6 +116,7 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 	 *             long, Map, Map, Map, Map, Map, String, String, boolean, Map,
 	 *             ServiceContext)}
 	 */
+	@Deprecated
 	@Override
 	public Layout addLayout(
 			long groupId, boolean privateLayout, long parentLayoutId,
@@ -1399,7 +1400,7 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 			Map<Locale, String> localeTitlesMap,
 			Map<Locale, String> descriptionMap, Map<Locale, String> keywordsMap,
 			Map<Locale, String> robotsMap, String type, boolean hidden,
-			Map<Locale, String> friendlyURLMap, Boolean iconImage,
+			Map<Locale, String> friendlyURLMap, boolean iconImage,
 			byte[] iconBytes, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
@@ -1452,6 +1453,7 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 	 *             long, long, Map, Map, Map, Map, Map, String, boolean, Map,
 	 *             Boolean, byte[], ServiceContext)}
 	 */
+	@Deprecated
 	@Override
 	public Layout updateLayout(
 			long groupId, boolean privateLayout, long layoutId,

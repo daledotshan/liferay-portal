@@ -122,7 +122,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	public void deleteEntry(String className, long classPK)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		AssetEntry entry = assetEntryPersistence.fetchByC_C(
 			classNameId, classPK);
@@ -148,7 +148,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	public AssetEntry fetchEntry(String className, long classPK)
 		throws SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return assetEntryPersistence.fetchByC_C(classNameId, classPK);
 	}
@@ -233,7 +233,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	public AssetEntry getEntry(String className, long classPK)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		return assetEntryPersistence.findByC_C(classNameId, classPK);
 	}
@@ -335,7 +335,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		long[] classNameIds = new long[className.length];
 
 		for (int i = 0; i < className.length; i++) {
-			classNameIds[i] = PortalUtil.getClassNameId(className[i]);
+			classNameIds[i] = classNameLocalService.getClassNameId(
+				className[i]);
 		}
 
 		AssetEntryQuery entryQuery = new AssetEntryQuery();
@@ -382,7 +383,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			return null;
 		}
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		AssetEntry entry = assetEntryPersistence.fetchByC_C(
 			classNameId, classPK);
@@ -413,6 +414,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	 * @deprecated As of 6.2.0, replaced by {@link #search(long, long[], long,
 	 *             String, String, int, int, int)}
 	 */
+	@Deprecated
 	@Override
 	public Hits search(
 			long companyId, long[] groupIds, long userId, String className,
@@ -478,6 +480,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	 *             String, String, String, String, String, String, int, boolean,
 	 *             int, int)}
 	 */
+	@Deprecated
 	@Override
 	public Hits search(
 			long companyId, long[] groupIds, long userId, String className,
@@ -553,6 +556,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	 * @deprecated As of 6.2.0, replaced by {@link #search(long, long[], long,
 	 *             String, String, int, int, int)}
 	 */
+	@Deprecated
 	@Override
 	public Hits search(
 			long companyId, long[] groupIds, String className, String keywords,
@@ -578,7 +582,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		// Entry
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		validate(groupId, className, categoryIds, tagNames);
 
@@ -773,7 +777,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long[] categoryIds, String[] tagNames)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		AssetEntry entry = assetEntryPersistence.fetchByC_C(
 			classNameId, classPK);
@@ -803,6 +807,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	 *             Date, Date, String, String, String, String, String, String,
 	 *             int, int, Integer, boolean)}
 	 */
+	@Deprecated
 	@Override
 	public AssetEntry updateEntry(
 			long userId, long groupId, String className, long classPK,
@@ -827,6 +832,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	 *             boolean, Date, Date, Date, String, String, String, String,
 	 *             String, String, int, int, Integer, boolean)}
 	 */
+	@Deprecated
 	@Override
 	public AssetEntry updateEntry(
 			long userId, long groupId, String className, long classPK,
@@ -849,7 +855,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			String className, long classPK, Date publishDate, boolean visible)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		AssetEntry entry = assetEntryPersistence.findByC_C(
 			classNameId, classPK);
@@ -865,7 +871,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			Date expirationDate, boolean visible)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		AssetEntry entry = assetEntryPersistence.findByC_C(
 			classNameId, classPK);
@@ -881,7 +887,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			String className, long classPK, boolean visible)
 		throws PortalException, SystemException {
 
-		long classNameId = PortalUtil.getClassNameId(className);
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		AssetEntry entry = assetEntryPersistence.findByC_C(
 			classNameId, classPK);
@@ -934,7 +940,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long entryId = GetterUtil.getLong(
 				document.get(Field.ENTRY_CLASS_PK));
 
-			long classNameId = PortalUtil.getClassNameId(
+			long classNameId = classNameLocalService.getClassNameId(
 				BlogsEntry.class.getName());
 			long classPK = entryId;
 
@@ -944,7 +950,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long entryId = GetterUtil.getLong(
 				document.get(Field.ENTRY_CLASS_PK));
 
-			long classNameId = PortalUtil.getClassNameId(
+			long classNameId = classNameLocalService.getClassNameId(
 				BookmarksEntry.class.getName());
 			long classPK = entryId;
 
@@ -954,7 +960,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long fileEntryId = GetterUtil.getLong(
 				document.get(Field.ENTRY_CLASS_PK));
 
-			long classNameId = PortalUtil.getClassNameId(
+			long classNameId = classNameLocalService.getClassNameId(
 				DLFileEntry.class.getName());
 			long classPK = fileEntryId;
 
@@ -969,7 +975,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 				journalArticleResourceLocalService.getArticleResourcePrimKey(
 					groupId, articleId);
 
-			long classNameId = PortalUtil.getClassNameId(
+			long classNameId = classNameLocalService.getClassNameId(
 				JournalArticle.class.getName());
 			long classPK = articleResourcePrimKey;
 
@@ -979,7 +985,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long messageId = GetterUtil.getLong(
 				document.get(Field.ENTRY_CLASS_PK));
 
-			long classNameId = PortalUtil.getClassNameId(
+			long classNameId = classNameLocalService.getClassNameId(
 				MBMessage.class.getName());
 			long classPK = messageId;
 
@@ -994,7 +1000,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 				wikiPageResourceLocalService.getPageResourcePrimKey(
 					nodeId, title);
 
-			long classNameId = PortalUtil.getClassNameId(
+			long classNameId = classNameLocalService.getClassNameId(
 				WikiPage.class.getName());
 			long classPK = pageResourcePrimKey;
 

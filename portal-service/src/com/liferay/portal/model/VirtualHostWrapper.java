@@ -312,6 +312,7 @@ public class VirtualHostWrapper implements VirtualHost,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public VirtualHost getWrappedVirtualHost() {
 		return _virtualHost;
 	}
@@ -319,6 +320,16 @@ public class VirtualHostWrapper implements VirtualHost,
 	@Override
 	public VirtualHost getWrappedModel() {
 		return _virtualHost;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _virtualHost.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _virtualHost.isFinderCacheEnabled();
 	}
 
 	@Override

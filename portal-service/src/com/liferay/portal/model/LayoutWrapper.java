@@ -72,7 +72,6 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 		attributes.put("typeSettings", getTypeSettings());
 		attributes.put("hidden", getHidden());
 		attributes.put("friendlyURL", getFriendlyURL());
-		attributes.put("iconImage", getIconImage());
 		attributes.put("iconImageId", getIconImageId());
 		attributes.put("themeId", getThemeId());
 		attributes.put("colorSchemeId", getColorSchemeId());
@@ -209,12 +208,6 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 
 		if (friendlyURL != null) {
 			setFriendlyURL(friendlyURL);
-		}
-
-		Boolean iconImage = (Boolean)attributes.get("iconImage");
-
-		if (iconImage != null) {
-			setIconImage(iconImage);
 		}
 
 		Long iconImageId = (Long)attributes.get("iconImageId");
@@ -1348,36 +1341,6 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 	}
 
 	/**
-	* Returns the icon image of this layout.
-	*
-	* @return the icon image of this layout
-	*/
-	@Override
-	public boolean getIconImage() {
-		return _layout.getIconImage();
-	}
-
-	/**
-	* Returns <code>true</code> if this layout is icon image.
-	*
-	* @return <code>true</code> if this layout is icon image; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isIconImage() {
-		return _layout.isIconImage();
-	}
-
-	/**
-	* Sets whether this layout is icon image.
-	*
-	* @param iconImage the icon image of this layout
-	*/
-	@Override
-	public void setIconImage(boolean iconImage) {
-		_layout.setIconImage(iconImage);
-	}
-
-	/**
 	* Returns the icon image ID of this layout.
 	*
 	* @return the icon image ID of this layout
@@ -1772,6 +1735,12 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 	}
 
 	@Override
+	public java.lang.String getDefaultThemeSetting(java.lang.String key,
+		java.lang.String device, boolean inheritLookAndFeel) {
+		return _layout.getDefaultThemeSetting(key, device, inheritLookAndFeel);
+	}
+
+	@Override
 	public java.lang.String getFriendlyURL(java.util.Locale locale) {
 		return _layout.getFriendlyURL(locale);
 	}
@@ -1803,6 +1772,11 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 	@Override
 	public java.lang.String getHTMLTitle(java.lang.String localeLanguageId) {
 		return _layout.getHTMLTitle(localeLanguageId);
+	}
+
+	@Override
+	public boolean getIconImage() {
+		return _layout.getIconImage();
 	}
 
 	@Override
@@ -1871,6 +1845,12 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 	public java.lang.String getThemeSetting(java.lang.String key,
 		java.lang.String device) {
 		return _layout.getThemeSetting(key, device);
+	}
+
+	@Override
+	public java.lang.String getThemeSetting(java.lang.String key,
+		java.lang.String device, boolean inheritLookAndFeel) {
+		return _layout.getThemeSetting(key, device, inheritLookAndFeel);
 	}
 
 	@Override
@@ -1944,6 +1924,11 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 	@Override
 	public boolean isFirstParent() {
 		return _layout.isFirstParent();
+	}
+
+	@Override
+	public boolean isIconImage() {
+		return _layout.isIconImage();
 	}
 
 	@Override
@@ -2055,6 +2040,7 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Layout getWrappedLayout() {
 		return _layout;
 	}
@@ -2062,6 +2048,16 @@ public class LayoutWrapper implements Layout, ModelWrapper<Layout> {
 	@Override
 	public Layout getWrappedModel() {
 		return _layout;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _layout.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _layout.isFinderCacheEnabled();
 	}
 
 	@Override

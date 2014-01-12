@@ -287,9 +287,17 @@ public class PortletAction extends Action {
 		return getStrictPortletSetup(themeDisplay.getLayout(), portletResource);
 	}
 
+	protected void hideDefaultErrorMessage(PortletRequest portletRequest) {
+		SessionMessages.add(
+			portletRequest,
+			PortalUtil.getPortletId(portletRequest) +
+				SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_ERROR_MESSAGE);
+	}
+
 	/**
 	 * @deprecated As of 6.2.0 {@link #hideDefaultSuccessMessage(PortletRequest)
 	 */
+	@Deprecated
 	protected void hideDefaultSuccessMessage(
 		PortletConfig portletConfig, PortletRequest portletRequest) {
 

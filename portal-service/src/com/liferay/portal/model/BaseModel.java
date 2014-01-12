@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
@@ -28,6 +30,7 @@ import java.util.Map;
  * @author Brian Wing Shun Chan
  * @see    com.liferay.portal.model.impl.BaseModelImpl
  */
+@ProviderType
 public interface BaseModel<T>
 	extends ClassedModel, Cloneable, Comparable<T>, Serializable {
 
@@ -67,12 +70,28 @@ public interface BaseModel<T>
 	public boolean isCachedModel();
 
 	/**
+	 * Returns <code>true</code> if this model's entity cache is enabled.
+	 *
+	 * @return <code>true</code> if this model's entity cache is enabled;
+	 *         <code>false</code> otherwise
+	 */
+	public boolean isEntityCacheEnabled();
+
+	/**
 	 * Returns <code>true</code> if this model instance is escaped.
 	 *
 	 * @return <code>true</code> if this model instance is escaped;
 	 *         <code>false</code> otherwise
 	 */
 	public boolean isEscapedModel();
+
+	/**
+	 * Returns <code>true</code> if this model's finder cache is enabled.
+	 *
+	 * @return <code>true</code> if this model's finder cache is enabled;
+	 *         <code>false</code> otherwise
+	 */
+	public boolean isFinderCacheEnabled();
 
 	/**
 	 * Returns <code>true</code> if this model instance does not yet exist in

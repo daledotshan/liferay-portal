@@ -396,6 +396,7 @@ public class SocialRelationWrapper implements SocialRelation,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public SocialRelation getWrappedSocialRelation() {
 		return _socialRelation;
 	}
@@ -403,6 +404,16 @@ public class SocialRelationWrapper implements SocialRelation,
 	@Override
 	public SocialRelation getWrappedModel() {
 		return _socialRelation;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _socialRelation.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _socialRelation.isFinderCacheEnabled();
 	}
 
 	@Override

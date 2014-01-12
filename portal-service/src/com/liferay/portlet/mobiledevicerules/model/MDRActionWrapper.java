@@ -930,6 +930,7 @@ public class MDRActionWrapper implements MDRAction, ModelWrapper<MDRAction> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public MDRAction getWrappedMDRAction() {
 		return _mdrAction;
 	}
@@ -937,6 +938,16 @@ public class MDRActionWrapper implements MDRAction, ModelWrapper<MDRAction> {
 	@Override
 	public MDRAction getWrappedModel() {
 		return _mdrAction;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _mdrAction.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _mdrAction.isFinderCacheEnabled();
 	}
 
 	@Override

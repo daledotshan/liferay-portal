@@ -168,7 +168,7 @@ public class AssetTagFinderImpl
 			session = openSession();
 
 			String sql = CustomSQLUtil.get(FIND_BY_G_N_S_E);
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			QueryPos qPos = QueryPos.getInstance(q);
 
@@ -222,14 +222,17 @@ public class AssetTagFinderImpl
 					PortalUtil.getSiteGroupId(groupId));
 			}
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar(COUNT_COLUMN_NAME, Type.LONG);
 
 			QueryPos qPos = QueryPos.getInstance(q);
 
 			qPos.add(groupId);
-			qPos.add(name);
+
+			String lowerCaseName = StringUtil.toLowerCase(name);
+
+			qPos.add(lowerCaseName);
 
 			Iterator<Long> itr = q.iterate();
 
@@ -277,8 +280,11 @@ public class AssetTagFinderImpl
 
 			qPos.add(groupId);
 			qPos.add(classNameId);
-			qPos.add(name);
-			qPos.add(name);
+
+			String lowerCaseName = StringUtil.toLowerCase(name);
+
+			qPos.add(lowerCaseName);
+			qPos.add(lowerCaseName);
 
 			Iterator<Long> itr = q.iterate();
 
@@ -319,7 +325,7 @@ public class AssetTagFinderImpl
 					sql, AssetTag.class.getName(), "AssetTag.tagId", groupId);
 			}
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addScalar(COUNT_COLUMN_NAME, Type.LONG);
 
@@ -328,8 +334,11 @@ public class AssetTagFinderImpl
 			setJoin(qPos, tagProperties);
 
 			qPos.add(groupId);
-			qPos.add(name);
-			qPos.add(name);
+
+			String lowerCaseName = StringUtil.toLowerCase(name);
+
+			qPos.add(lowerCaseName);
+			qPos.add(lowerCaseName);
 
 			Iterator<Long> itr = q.iterate();
 
@@ -369,14 +378,17 @@ public class AssetTagFinderImpl
 					sql, AssetTag.class.getName(), "AssetTag.tagId", groupId);
 			}
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("AssetTag", AssetTagImpl.class);
 
 			QueryPos qPos = QueryPos.getInstance(q);
 
 			qPos.add(groupId);
-			qPos.add(name);
+
+			String lowerCaseName = StringUtil.toLowerCase(name);
+
+			qPos.add(lowerCaseName);
 
 			List<AssetTag> tags = q.list();
 
@@ -423,7 +435,7 @@ public class AssetTagFinderImpl
 					PortalUtil.getSiteGroupId(groupId));
 			}
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("AssetTag", AssetTagImpl.class);
 
@@ -431,8 +443,11 @@ public class AssetTagFinderImpl
 
 			qPos.add(groupId);
 			qPos.add(classNameId);
-			qPos.add(name);
-			qPos.add(name);
+
+			String lowerCaseName = StringUtil.toLowerCase(name);
+
+			qPos.add(lowerCaseName);
+			qPos.add(lowerCaseName);
 
 			return (List<AssetTag>)QueryUtil.list(q, getDialect(), start, end);
 		}
@@ -466,7 +481,7 @@ public class AssetTagFinderImpl
 					sql, AssetTag.class.getName(), "AssetTag.tagId", groupIds);
 			}
 
-			SQLQuery q = session.createSQLQuery(sql);
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("AssetTag", AssetTagImpl.class);
 
@@ -475,8 +490,11 @@ public class AssetTagFinderImpl
 			setJoin(qPos, tagProperties);
 
 			qPos.add(groupIds);
-			qPos.add(name);
-			qPos.add(name);
+
+			String lowerCaseName = StringUtil.toLowerCase(name);
+
+			qPos.add(lowerCaseName);
+			qPos.add(lowerCaseName);
 
 			return (List<AssetTag>)QueryUtil.list(q, getDialect(), start, end);
 		}

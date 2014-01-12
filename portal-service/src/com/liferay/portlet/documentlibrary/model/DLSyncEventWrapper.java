@@ -341,6 +341,7 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public DLSyncEvent getWrappedDLSyncEvent() {
 		return _dlSyncEvent;
 	}
@@ -348,6 +349,16 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	@Override
 	public DLSyncEvent getWrappedModel() {
 		return _dlSyncEvent;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _dlSyncEvent.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _dlSyncEvent.isFinderCacheEnabled();
 	}
 
 	@Override

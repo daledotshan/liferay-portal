@@ -520,6 +520,7 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public UserNotificationEvent getWrappedUserNotificationEvent() {
 		return _userNotificationEvent;
 	}
@@ -527,6 +528,16 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 	@Override
 	public UserNotificationEvent getWrappedModel() {
 		return _userNotificationEvent;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _userNotificationEvent.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _userNotificationEvent.isFinderCacheEnabled();
 	}
 
 	@Override

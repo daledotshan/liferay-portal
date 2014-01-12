@@ -84,7 +84,7 @@ public class DocumentImpl implements Document {
 			return;
 		}
 
-		addKeyword(name, _dateFormat.format(value));
+		addDate(name, new Date[] {value});
 	}
 
 	@Override
@@ -94,10 +94,21 @@ public class DocumentImpl implements Document {
 		}
 
 		String[] dates = new String[values.length];
+		String[] datesTime = new String[values.length];
 
 		for (int i = 0; i < values.length; i++) {
 			dates[i] = _dateFormat.format(values[i]);
+			datesTime[i] = String.valueOf(values[i].getTime());
 		}
+
+		String sortableFieldName = getSortableFieldName(name);
+
+		Field field = new Field(sortableFieldName, datesTime);
+
+		field.setNumeric(true);
+		field.setNumericClass(Long.class);
+
+		_fields.put(sortableFieldName, field);
 
 		addKeyword(name, dates);
 	}
@@ -372,6 +383,7 @@ public class DocumentImpl implements Document {
 	/**
 	 * @deprecated As of 6.1.0
 	 */
+	@Deprecated
 	@Override
 	public void addModifiedDate() {
 		addModifiedDate(new Date());
@@ -380,6 +392,7 @@ public class DocumentImpl implements Document {
 	/**
 	 * @deprecated As of 6.1.0
 	 */
+	@Deprecated
 	@Override
 	public void addModifiedDate(Date modifiedDate) {
 		addDate(Field.MODIFIED, modifiedDate);
@@ -754,7 +767,7 @@ public class DocumentImpl implements Document {
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler();
+		StringBundler sb = new StringBundler(5 * _fields.size());
 
 		sb.append(StringPool.OPEN_CURLY_BRACE);
 

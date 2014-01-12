@@ -495,6 +495,13 @@ public class Creole10Parser]]></replacevalue>
 		<copy file="${liferay.doclet.dir}/liferay-doclet.jar" todir="${project.dir}/lib/development" />
 	</target>
 
+	<target name="build-r2-js">
+		<get
+			dest="${project.dir}/portal-impl/src/com/liferay/portal/servlet/filters/dynamiccss/dependencies/r2.js"
+			src="https://raw.github.com/ded/R2/1.3.1/r2.js"
+		/>
+	</target>
+
 	<target name="build-releaseinfo" if="release.info">
 		<java
 			classname="com.liferay.portal.tools.ReleaseInfoBuilder"
@@ -1472,14 +1479,23 @@ public class Creole10Parser]]></replacevalue>
 	</target>
 
 	<target name="format-source">
-		<copy todir="classes" overwrite="true" preservelastmodified="true">
-			<fileset dir="src" includes="com/liferay/portal/tools/dependencies/*.properties" />
+		<copy todir="${project.dir}/portal-impl/classes" overwrite="true" preservelastmodified="true">
+			<fileset dir="${project.dir}/portal-impl/src" includes="com/liferay/portal/tools/dependencies/*.properties" />
 		</copy>
+
+		<if>
+			<not>
+				<isset property="source.formatter.dir" />
+			</not>
+			<then>
+				<property name="source.formatter.dir" value="${project.dir}" />
+			</then>
+		</if>
 
 		<java
 			classname="com.liferay.portal.tools.sourceformatter.SourceFormatter"
 			classpathref="project.classpath"
-			dir="${project.dir}"
+			dir="${source.formatter.dir}"
 			fork="true"
 			newenvironment="true"
 		>

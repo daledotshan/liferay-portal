@@ -592,6 +592,7 @@ public class WikiNodeWrapper implements WikiNode, ModelWrapper<WikiNode> {
 	/**
 	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
 	*/
+	@Deprecated
 	@Override
 	public boolean getApproved() {
 		return _wikiNode.getApproved();
@@ -877,6 +878,7 @@ public class WikiNodeWrapper implements WikiNode, ModelWrapper<WikiNode> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public WikiNode getWrappedWikiNode() {
 		return _wikiNode;
 	}
@@ -884,6 +886,16 @@ public class WikiNodeWrapper implements WikiNode, ModelWrapper<WikiNode> {
 	@Override
 	public WikiNode getWrappedModel() {
 		return _wikiNode;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _wikiNode.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _wikiNode.isFinderCacheEnabled();
 	}
 
 	@Override

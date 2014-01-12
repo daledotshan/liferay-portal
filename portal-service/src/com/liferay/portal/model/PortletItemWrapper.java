@@ -512,6 +512,7 @@ public class PortletItemWrapper implements PortletItem,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public PortletItem getWrappedPortletItem() {
 		return _portletItem;
 	}
@@ -519,6 +520,16 @@ public class PortletItemWrapper implements PortletItem,
 	@Override
 	public PortletItem getWrappedModel() {
 		return _portletItem;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _portletItem.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _portletItem.isFinderCacheEnabled();
 	}
 
 	@Override

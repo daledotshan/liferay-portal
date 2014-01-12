@@ -453,6 +453,7 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public Country getWrappedCountry() {
 		return _country;
 	}
@@ -460,6 +461,16 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 	@Override
 	public Country getWrappedModel() {
 		return _country;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _country.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _country.isFinderCacheEnabled();
 	}
 
 	@Override

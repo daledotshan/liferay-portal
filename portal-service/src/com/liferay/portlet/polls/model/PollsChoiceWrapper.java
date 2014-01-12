@@ -683,6 +683,7 @@ public class PollsChoiceWrapper implements PollsChoice,
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public PollsChoice getWrappedPollsChoice() {
 		return _pollsChoice;
 	}
@@ -690,6 +691,16 @@ public class PollsChoiceWrapper implements PollsChoice,
 	@Override
 	public PollsChoice getWrappedModel() {
 		return _pollsChoice;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _pollsChoice.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _pollsChoice.isFinderCacheEnabled();
 	}
 
 	@Override

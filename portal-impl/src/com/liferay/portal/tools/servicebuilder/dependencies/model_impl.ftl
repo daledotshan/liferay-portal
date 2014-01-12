@@ -387,6 +387,9 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			attributes.put("${column.name}", get${column.methodName}());
 		</#list>
 
+		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
+		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
+
 		return attributes;
 	}
 
@@ -849,6 +852,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		/**
 		 * @deprecated As of 6.1.0, replaced by {@link #isApproved}
 		 */
+		@Deprecated
 		@Override
 		public boolean getApproved() {
 			return isApproved();
@@ -1164,6 +1168,16 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		<#else>
 			return getPrimaryKey().hashCode();
 		</#if>
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return ENTITY_CACHE_ENABLED;
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return FINDER_CACHE_ENABLED;
 	}
 
 	@Override

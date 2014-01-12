@@ -895,6 +895,7 @@ public class CalEventWrapper implements CalEvent, ModelWrapper<CalEvent> {
 	/**
 	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
 	 */
+	@Deprecated
 	public CalEvent getWrappedCalEvent() {
 		return _calEvent;
 	}
@@ -902,6 +903,16 @@ public class CalEventWrapper implements CalEvent, ModelWrapper<CalEvent> {
 	@Override
 	public CalEvent getWrappedModel() {
 		return _calEvent;
+	}
+
+	@Override
+	public boolean isEntityCacheEnabled() {
+		return _calEvent.isEntityCacheEnabled();
+	}
+
+	@Override
+	public boolean isFinderCacheEnabled() {
+		return _calEvent.isFinderCacheEnabled();
 	}
 
 	@Override

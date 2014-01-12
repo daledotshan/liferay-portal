@@ -35,7 +35,7 @@ ${seleniumBuilderFileUtil.getVariableName(action?substring(0, x))}Action.${actio
 		<#if actionElement.attributeValue("value${i}")??>
 			<#assign actionValue = actionElement.attributeValue("value${i}")>
 
-			RuntimeVariables.evaluateVariable("${actionValue}", commandScopeVariables)
+			RuntimeVariables.evaluateVariable("${seleniumBuilderFileUtil.escapeJava(actionValue)}", commandScopeVariables)
 		<#else>
 			""
 		</#if>
@@ -51,13 +51,15 @@ ${seleniumBuilderFileUtil.getVariableName(action?substring(0, x))}Action.${actio
 
 	<#if
 		(actionNextElement??) &&
-		(actionElement != actionNextElement) &&
-		(actionElement.getName() == "execute") &&
-		(actionNextElement.attributeValue("action")??)
+		(!action?contains("#is"))
 	>
-		<#assign actionNext = actionNextElement.attributeValue("action")>
+		<#if actionNextElement.attributeValue("action")??>
+			<#assign actionNext = actionNextElement.attributeValue("action")>
+		</#if>
 
-		<#if !actionNext?ends_with("#confirm")>
+		<#if (!actionNext??) ||
+			 ((actionNext??) && (!actionNext?ends_with("#confirm")))>
+
 			<#if testCaseName??>
 				selenium
 			<#else>
@@ -65,6 +67,14 @@ ${seleniumBuilderFileUtil.getVariableName(action?substring(0, x))}Action.${actio
 			</#if>
 
 			.assertJavaScriptErrors();
+
+			<#if testCaseName??>
+				selenium
+			<#else>
+				liferaySelenium
+			</#if>
+
+			.assertLiferayErrors();
 		</#if>
 	</#if>
 </#if>
