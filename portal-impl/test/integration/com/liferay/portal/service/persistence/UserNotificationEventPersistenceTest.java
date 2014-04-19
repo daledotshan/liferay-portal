@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.UserNotificationEvent;
 import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
@@ -38,6 +39,7 @@ import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -55,6 +57,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class UserNotificationEventPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<UserNotificationEvent> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -76,6 +87,10 @@ public class UserNotificationEventPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<UserNotificationEvent> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
@@ -123,6 +138,8 @@ public class UserNotificationEventPersistenceTest {
 
 		newUserNotificationEvent.setTimestamp(ServiceTestUtil.nextLong());
 
+		newUserNotificationEvent.setDeliveryType(ServiceTestUtil.nextInt());
+
 		newUserNotificationEvent.setDeliverBy(ServiceTestUtil.nextLong());
 
 		newUserNotificationEvent.setDelivered(ServiceTestUtil.randomBoolean());
@@ -149,6 +166,8 @@ public class UserNotificationEventPersistenceTest {
 			newUserNotificationEvent.getType());
 		Assert.assertEquals(existingUserNotificationEvent.getTimestamp(),
 			newUserNotificationEvent.getTimestamp());
+		Assert.assertEquals(existingUserNotificationEvent.getDeliveryType(),
+			newUserNotificationEvent.getDeliveryType());
 		Assert.assertEquals(existingUserNotificationEvent.getDeliverBy(),
 			newUserNotificationEvent.getDeliverBy());
 		Assert.assertEquals(existingUserNotificationEvent.getDelivered(),
@@ -265,8 +284,8 @@ public class UserNotificationEventPersistenceTest {
 		return OrderByComparatorFactoryUtil.create("UserNotificationEvent",
 			"mvccVersion", true, "uuid", true, "userNotificationEventId", true,
 			"companyId", true, "userId", true, "type", true, "timestamp", true,
-			"deliverBy", true, "delivered", true, "payload", true, "archived",
-			true);
+			"deliveryType", true, "deliverBy", true, "delivered", true,
+			"payload", true, "archived", true);
 	}
 
 	@Test
@@ -402,6 +421,8 @@ public class UserNotificationEventPersistenceTest {
 
 		userNotificationEvent.setTimestamp(ServiceTestUtil.nextLong());
 
+		userNotificationEvent.setDeliveryType(ServiceTestUtil.nextInt());
+
 		userNotificationEvent.setDeliverBy(ServiceTestUtil.nextLong());
 
 		userNotificationEvent.setDelivered(ServiceTestUtil.randomBoolean());
@@ -416,6 +437,7 @@ public class UserNotificationEventPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(UserNotificationEventPersistenceTest.class);
+	private ModelListener<UserNotificationEvent>[] _modelListeners;
 	private UserNotificationEventPersistence _persistence = (UserNotificationEventPersistence)PortalBeanLocatorUtil.locate(UserNotificationEventPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

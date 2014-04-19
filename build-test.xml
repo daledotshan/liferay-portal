@@ -435,7 +435,10 @@ create database lportal2 character set utf8;</echo>
 				<properties>
 					<property name="testray.component.names" value="${testray.component.names}" />
 					<property name="testray.main.component.name" value="${testray.main.component.name}" />
+					<property name="testray.testcase.description" value="${testray.testcase.description}" />
+					<property name="testray.testcase.name" value="${testray.testcase.name}" />
 					<property name="testray.testcase.priority" value="${testray.testcase.priority}" />
+					<property name="testray.testcase.product.edition" value="${testray.testcase.product.edition}" />
 				</properties>
 			]]>
 		</property>
@@ -2511,6 +2514,33 @@ custom.sql.function.isnotnull=CONVERT(VARCHAR,?) IS NOT NULL</echo>
 						<copy
 							file="portal-web/test-results/functional/report.html"
 							tofile="report.html"
+						/>
+					</then>
+				</if>
+
+				<antcall target="build-test-results-xml" />
+
+				<first id="first">
+					<fileset dir="portal-web/test-results/functional/" includes="TEST-com.liferay.portalweb2.*.xml" />
+				</first>
+
+				<property name="jenkins.results.xml.file" value="${toString:first}" />
+
+				<if>
+					<available file="${jenkins.results.xml.file}" />
+					<then>
+						<if>
+							<not>
+								<isset property="test.class" />
+							</not>
+							<then>
+								<property name="test.class" value="${test.simple.class.name}#${test.method.name}" />
+							</then>
+						</if>
+
+						<copy
+							file="${jenkins.results.xml.file}"
+							tofile="test-results/TEST-${env.BUILD_FLOW_JOB_NAME}_${env.BUILD_FLOW_JOB_BUILD_NUMBER}_${test.class}.xml"
 						/>
 					</then>
 				</if>

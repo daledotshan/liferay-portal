@@ -15,17 +15,36 @@
 package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.portal.kernel.upgrade.MockPortletPreferences;
+import com.liferay.portal.kernel.util.Props;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 import javax.portlet.PortletPreferences;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
+import org.powermock.api.mockito.PowerMockito;
 
 /**
  * @author Iván Zaera
  */
-public class UpgradeMessageBoardsTest {
+public class UpgradeMessageBoardsTest extends PowerMockito {
+
+	@Before
+	public void setUp() {
+		Props props = mock(Props.class);
+
+		when(
+			props.get(PropsKeys.MESSAGE_BOARDS_EMAIL_HTML_FORMAT)
+		).thenReturn(
+			String.valueOf(false)
+		);
+
+		PropsUtil.setProps(props);
+	}
 
 	@Test
 	public void testUpgradeEmailSignatureWithHtmlFormat() throws Exception {

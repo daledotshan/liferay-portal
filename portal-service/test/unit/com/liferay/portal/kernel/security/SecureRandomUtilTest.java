@@ -93,6 +93,11 @@ public class SecureRandomUtilTest {
 	}
 
 	@Test
+	public void testConstructor() {
+		new SecureRandomUtil();
+	}
+
+	@Test
 	public void testInitialization() throws Exception {
 		System.setProperty(_KEY_BUFFER_SIZE, "10");
 

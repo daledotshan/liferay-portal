@@ -229,6 +229,8 @@ public class TableMapperTest {
 
 	@Test
 	public void testConstructor() {
+		new TableMapperFactory();
+
 		Assert.assertTrue(
 			_tableMapperImpl.addTableMappingSqlUpdate
 				instanceof MockAddMappingSqlUpdate);

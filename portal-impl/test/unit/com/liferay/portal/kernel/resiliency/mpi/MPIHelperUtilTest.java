@@ -198,6 +198,11 @@ public class MPIHelperUtilTest {
 			datagramReceiveHandlers[SystemDataType.RPC.getValue()].getClass());
 	}
 
+	@Test
+	public void testConstructor() {
+		new MPIHelperUtil();
+	}
+
 	@AdviseWith(adviceClasses = {PropsUtilAdvice.class})
 	@Test
 	public void testShutdownFail() throws Exception {

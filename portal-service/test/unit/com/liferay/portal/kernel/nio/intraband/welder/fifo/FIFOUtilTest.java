@@ -57,6 +57,11 @@ public class FIFOUtilTest {
 		};
 
 	@Test
+	public void testConstructor() {
+		new FIFOUtil();
+	}
+
+	@Test
 	public void testCreateFIFOWithBrokenFile() throws Exception {
 		if (!_shouldTest()) {
 			return;
