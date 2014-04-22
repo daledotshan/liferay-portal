@@ -242,6 +242,19 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getActionableDynamicQuery();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -381,9 +394,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param layoutUuid the unique string identifying the web content
 	article's display page
 	* @param displayDateMonth the month the web content article is set to
@@ -483,9 +494,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param serviceContext the service context to be applied. Can set the
 	UUID, creation date, modification date, expando bridge
 	attributes, guest permissions, group permissions, asset category
@@ -696,6 +705,7 @@ public class JournalArticleLocalServiceWrapper
 	* Deletes the web content article and its resources.
 	*
 	* @param article the web content article
+	* @return the deleted web content article
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
@@ -718,6 +728,7 @@ public class JournalArticleLocalServiceWrapper
 	<code>null</code>). Can set the portlet preferences that include
 	email information to notify recipients of the unapproved web
 	content's denial.
+	* @return the deleted web content article
 	* @throws PortalException if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
@@ -744,6 +755,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param serviceContext the service context to be applied. Can set the
 	portlet preferences that include email information to notify
 	recipients of the unapproved web content article's denial.
+	* @return the deleted web content article
 	* @throws PortalException if a matching web content article could not be
 	found or if a portal exception occurred
 	* @throws SystemException if a system exception occurred
@@ -1051,22 +1063,55 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	/**
-	* Returns the web content associated with the web content article and DDM
-	* template.
+	* Returns the web content from the web content article associated with the
+	* portlet request model and the DDM template.
 	*
 	* @param article the web content article
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param viewMode the mode in which the web content is being viewed
 	* @param languageId the primary key of the language translation to get
+	* @param portletRequestModel the portlet request model
 	* @param themeDisplay the theme display
-	* @return the web content associated with the DDM template
-	* @throws PortalException if a matching DDM template could not be found or
+	* @return the web content from the web content article associated with the
+	portlet request model and the DDM template
+	* @throws PortalException if a matching DDM template could not be found, or
 	if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
+	@Override
+	public java.lang.String getArticleContent(
+		com.liferay.portlet.journal.model.JournalArticle article,
+		java.lang.String ddmTemplateKey, java.lang.String viewMode,
+		java.lang.String languageId,
+		com.liferay.portal.kernel.portlet.PortletRequestModel portletRequestModel,
+		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getArticleContent(article,
+			ddmTemplateKey, viewMode, languageId, portletRequestModel,
+			themeDisplay);
+	}
+
+	/**
+	* Returns the web content from the web content article associated with the
+	* DDM template.
+	*
+	* @param article the web content article
+	* @param ddmTemplateKey the primary key of the web content article's
+	DDM template
+	* @param viewMode the mode in which the web content is being viewed
+	* @param languageId the primary key of the language translation to get
+	* @param themeDisplay the theme display
+	* @return the web content from the matching web content article
+	* @throws PortalException if a matching DDM template could not be
+	found, or if a portal exception occurred
+	* @throws SystemException if a system exception occurred
+	* @deprecated As of 7.0.0, replaced by {@link
+	#getArticleContent(JournalArticle, String, String, String,
+	PortletRequestModel,ThemeDisplay)}
+	*/
+	@Deprecated
 	@Override
 	public java.lang.String getArticleContent(
 		com.liferay.portlet.journal.model.JournalArticle article,
@@ -1080,24 +1125,61 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	/**
-	* Returns the web content matching the group, article ID, and version, and
-	* associated with the DDM template.
+	* Returns the web content from the web content article matching the group,
+	* article ID, and version, and associated with the portlet request model
+	* and the DDM template.
 	*
 	* @param groupId the primary key of the web content article's group
 	* @param articleId the primary key of the web content article
 	* @param version the web content article's version
 	* @param viewMode the mode in which the web content is being viewed
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param languageId the primary key of the language translation to get
+	* @param portletRequestModel the portlet request model
 	* @param themeDisplay the theme display
-	* @return the matching web content
+	* @return the web content from the matching web content article
 	* @throws PortalException if a matching web content article or DDM template
 	could not be found, or if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
+	@Override
+	public java.lang.String getArticleContent(long groupId,
+		java.lang.String articleId, double version, java.lang.String viewMode,
+		java.lang.String ddmTemplateKey, java.lang.String languageId,
+		com.liferay.portal.kernel.portlet.PortletRequestModel portletRequestModel,
+		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getArticleContent(groupId,
+			articleId, version, viewMode, ddmTemplateKey, languageId,
+			portletRequestModel, themeDisplay);
+	}
+
+	/**
+	* Returns the web content from the web content article matching the group,
+	* article ID, and version, and associated with the DDM template.
+	*
+	* @param groupId the primary key of the web content article's group
+	* @param articleId the primary key of the web content article
+	* @param version the web content article's version
+	* @param viewMode the mode in which the web content is being viewed
+	* @param ddmTemplateKey the primary key of the web content article's
+	DDM template (optionally <code>null</code>). If the article
+	is related to a DDM structure, the template's structure must
+	match it.
+	* @param languageId the primary key of the language translation to get
+	* @param themeDisplay the theme display
+	* @return the web content from the matching web content article
+	* @throws PortalException if a matching web content article or DDM
+	template could not be found, or if a portal exception
+	occurred
+	* @throws SystemException if a system exception occurred
+	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	String, double, String, String, String, PortletRequestModel,
+	ThemeDisplay)}
+	*/
+	@Deprecated
 	@Override
 	public java.lang.String getArticleContent(long groupId,
 		java.lang.String articleId, double version, java.lang.String viewMode,
@@ -1111,7 +1193,8 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	/**
-	* Returns the web content matching the group, article ID, and version.
+	* Returns the web content from the web content article matching the group,
+	* article ID, and version.
 	*
 	* @param groupId the primary key of the web content article's group
 	* @param articleId the primary key of the web content article
@@ -1119,11 +1202,16 @@ public class JournalArticleLocalServiceWrapper
 	* @param viewMode the mode in which the web content is being viewed
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
-	* @return the matching web content
-	* @throws PortalException if a matching web content article or DDM template
-	could not be found, or if a portal exception occurred
+	* @return the web content from the matching web content article
+	* @throws PortalException if a matching web content article or DDM
+	template could not be found, or if a portal exception
+	occurred
 	* @throws SystemException if a system exception occurred
+	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	String, double, String, String, String, PortletRequestModel,
+	ThemeDisplay)}
 	*/
+	@Deprecated
 	@Override
 	public java.lang.String getArticleContent(long groupId,
 		java.lang.String articleId, double version, java.lang.String viewMode,
@@ -1136,23 +1224,57 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	/**
-	* Returns the latest web content matching the group and article ID, and
-	* associated with DDM template key.
+	* Returns the latest web content from the web content article matching the
+	* group and article ID, and associated with the portlet request model and
+	* the DDM template.
 	*
 	* @param groupId the primary key of the web content article's group
 	* @param articleId the primary key of the web content article
 	* @param viewMode the mode in which the web content is being viewed
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param languageId the primary key of the language translation to get
+	* @param portletRequestModel the portlet request model
 	* @param themeDisplay the theme display
-	* @return the matching web content
+	* @return the latest web content from the matching web content article
 	* @throws PortalException if a matching web content article or DDM template
 	could not be found, or if a portal exception occurred
 	* @throws SystemException if a system exception occurred
 	*/
+	@Override
+	public java.lang.String getArticleContent(long groupId,
+		java.lang.String articleId, java.lang.String viewMode,
+		java.lang.String ddmTemplateKey, java.lang.String languageId,
+		com.liferay.portal.kernel.portlet.PortletRequestModel portletRequestModel,
+		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getArticleContent(groupId,
+			articleId, viewMode, ddmTemplateKey, languageId,
+			portletRequestModel, themeDisplay);
+	}
+
+	/**
+	* Returns the latest web content from the web content article matching the
+	* group and article ID, and associated with the DDM template.
+	*
+	* @param groupId the primary key of the web content article's group
+	* @param articleId the primary key of the web content article
+	* @param viewMode the mode in which the web content is being viewed
+	* @param ddmTemplateKey the primary key of the web content article's
+	DDM template
+	* @param languageId the primary key of the language translation to get
+	* @param themeDisplay the theme display
+	* @return the latest web content from the matching web content article
+	* @throws PortalException if a matching web content article or DDM
+	template could not be found, or if a portal exception
+	occurred
+	* @throws SystemException if a system exception occurred
+	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	String, String, String, String, PortletRequestModel,
+	ThemeDisplay)}
+	*/
+	@Deprecated
 	@Override
 	public java.lang.String getArticleContent(long groupId,
 		java.lang.String articleId, java.lang.String viewMode,
@@ -1165,18 +1287,24 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	/**
-	* Returns the latest web content matching the group and article ID.
+	* Returns the latest web content from the web content article matching the
+	* group and article ID.
 	*
 	* @param groupId the primary key of the web content article's group
 	* @param articleId the primary key of the web content article
 	* @param viewMode the mode in which the web content is being viewed
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
-	* @return the matching web content
-	* @throws PortalException if a matching web content article or DDM template
-	could not be found, or if a portal exception occurred
+	* @return the latest web content from the matching web content article
+	* @throws PortalException if a matching web content article or DDM
+	template could not be found, or if a portal exception
+	occurred
 	* @throws SystemException if a system exception occurred
+	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	String, String, String, String, PortletRequestModel,
+	ThemeDisplay)}
 	*/
+	@Deprecated
 	@Override
 	public java.lang.String getArticleContent(long groupId,
 		java.lang.String articleId, java.lang.String viewMode,
@@ -1227,9 +1355,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param articleId the primary key of the web content article
 	* @param version the web content article's version
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param viewMode the mode in which the web content is being viewed
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
@@ -1290,9 +1416,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param groupId the primary key of the web content article's group
 	* @param articleId the primary key of the web content article
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param viewMode the mode in which the web content is being viewed
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
@@ -1972,6 +2096,23 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portlet.journal.model.JournalArticle getOldestArticle(
+		long groupId, java.lang.String articleId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getOldestArticle(groupId, articleId);
+	}
+
+	@Override
+	public com.liferay.portlet.journal.model.JournalArticle getOldestArticle(
+		long groupId, java.lang.String articleId, int status)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _journalArticleLocalService.getOldestArticle(groupId, articleId,
+			status);
+	}
+
+	@Override
 	public com.liferay.portlet.journal.model.JournalArticle getPreviousApprovedArticle(
 		com.liferay.portlet.journal.model.JournalArticle article)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -2060,9 +2201,7 @@ public class JournalArticleLocalServiceWrapper
 	*
 	* @param groupId the primary key of the web content article's group
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @return the matching web content articles
 	* @throws SystemException if a system exception occurred
 	*/
@@ -2089,9 +2228,7 @@ public class JournalArticleLocalServiceWrapper
 	*
 	* @param groupId the primary key of the web content article's group
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param start the lower bound of the range of web content articles to
 	return
 	* @param end the upper bound of the range of web content articles to
@@ -2116,9 +2253,7 @@ public class JournalArticleLocalServiceWrapper
 	*
 	* @param groupId the primary key of the web content article's group
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @return the number of matching web content articles
 	* @throws SystemException if a system exception occurred
 	*/
@@ -2337,6 +2472,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param userId the primary key of the user restoring the web content
 	article
 	* @param article the web content article
+	* @return the restored web content article from the Recycle Bin
 	* @throws PortalException if the web content article with the primary key
 	could not be found in the Recycle Bin, if the user did not have
 	permission to restore the article, or if a portal exception
@@ -2408,9 +2544,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -2489,9 +2623,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -2645,9 +2777,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param keywords the keywords (space separated), which may occur in the
 	web content article ID, title, description, or content
 	(optionally <code>null</code>). If the keywords value is not
@@ -2719,9 +2849,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param params the finder parameters (optionally <code>null</code>). Can
 	set parameter <code>"includeDiscussions"</code> to
 	<code>true</code> to search for the keywords in the web content
@@ -2804,9 +2932,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -2864,9 +2990,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -3098,9 +3222,7 @@ public class JournalArticleLocalServiceWrapper
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param layoutUuid the unique string identifying the web content
 	article's display page
 	* @param displayDateMonth the month the web content article is set to
@@ -3366,12 +3488,12 @@ public class JournalArticleLocalServiceWrapper
 	public com.liferay.portlet.journal.model.JournalArticle updateStatus(
 		long userId, com.liferay.portlet.journal.model.JournalArticle article,
 		int status, java.lang.String articleURL,
-		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		com.liferay.portal.service.ServiceContext serviceContext,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _journalArticleLocalService.updateStatus(userId, article,
-			status, articleURL, workflowContext, serviceContext);
+			status, articleURL, serviceContext, workflowContext);
 	}
 
 	/**

@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.dao.orm;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.transaction.TransactionAttribute;
 import com.liferay.portal.service.BaseLocalService;
 
 /**
@@ -23,9 +24,15 @@ import com.liferay.portal.service.BaseLocalService;
  */
 public interface ActionableDynamicQuery {
 
+	public AddCriteriaMethod getAddCriteriaMethod();
+
+	public PerformActionMethod getPerformActionMethod();
+
 	public void performActions() throws PortalException, SystemException;
 
 	public long performCount() throws PortalException, SystemException;
+
+	public void setAddCriteriaMethod(AddCriteriaMethod addCriteriaMethod);
 
 	public void setBaseLocalService(BaseLocalService baseLocalService)
 		throws SystemException;
@@ -42,8 +49,26 @@ public interface ActionableDynamicQuery {
 
 	public void setInterval(int interval);
 
+	public void setPerformActionMethod(PerformActionMethod performActionMethod);
+
 	public void setPrimaryKeyPropertyName(String primaryKeyPropertyName);
 
 	public void setSearchEngineId(String searchEngineId);
+
+	public void setTransactionAttribute(
+		TransactionAttribute transactionAttribute);
+
+	public interface AddCriteriaMethod {
+
+		public void addCriteria(DynamicQuery dynamicQuery);
+
+	}
+
+	public interface PerformActionMethod {
+
+		public void performAction(Object object)
+			throws PortalException, SystemException;
+
+	}
 
 }

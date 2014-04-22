@@ -32,7 +32,9 @@ catch (NoSuchFolderException nsfe) {
 }
 %>
 
-<liferay-portlet:actionURL portletConfiguration="true" var="configurationActionURL" />
+<liferay-portlet:actionURL portletConfiguration="true" var="configurationActionURL">
+	<liferay-portlet:param name="settingsScope" value="portletInstance" />
+</liferay-portlet:actionURL>
 
 <liferay-portlet:renderURL portletConfiguration="true" var="configurationRenderURL" />
 
@@ -63,7 +65,7 @@ catch (NoSuchFolderException nsfe) {
 
 					List leftList = new ArrayList();
 
-					String[] mediaGalleryMimeTypes = DLUtil.getMediaGalleryMimeTypes(portletPreferences, renderRequest);
+					String[] mediaGalleryMimeTypes = dlSettings.getMediaGalleryMimeTypes();
 
 					for (String mimeType : mediaGalleryMimeTypes) {
 						leftList.add(new KeyValuePair(mimeType, LanguageUtil.get(pageContext, mimeType)));

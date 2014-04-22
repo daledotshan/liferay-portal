@@ -42,6 +42,11 @@ public class WelderFactoryUtilTest {
 		new CodeCoverageAssertor();
 
 	@Test
+	public void testConstructor() {
+		new WelderFactoryUtil();
+	}
+
+	@Test
 	public void testCreateWelder() {
 		System.setProperty(
 			PropsKeys.INTRABAND_WELDER_IMPL, MockWelder.class.getName());

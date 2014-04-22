@@ -30,6 +30,11 @@ public class ThreadLocalDistributorRegistryTest {
 		new CodeCoverageAssertor();
 
 	@Test
+	public void testConstructor() {
+		new ThreadLocalDistributorRegistry();
+	}
+
+	@Test
 	public void testThreadLocalDistributorRegistry() {
 		ThreadLocalDistributor[] threadLocalDistributors =
 			ThreadLocalDistributorRegistry.getThreadLocalDistributors();

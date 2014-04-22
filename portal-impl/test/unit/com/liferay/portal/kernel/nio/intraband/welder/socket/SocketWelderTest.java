@@ -86,6 +86,8 @@ public class SocketWelderTest {
 	public void testConstructor() throws Exception {
 		SocketWelder socketWelder = new SocketWelder();
 
+		new SocketWelder.Configuration();
+
 		int serverPort = socketWelder.serverPort;
 
 		Assert.assertTrue(

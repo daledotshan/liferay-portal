@@ -116,6 +116,7 @@ import com.liferay.portlet.journal.ArticleTitleException;
 import com.liferay.portlet.journal.ArticleTypeException;
 import com.liferay.portlet.journal.ArticleVersionException;
 import com.liferay.portlet.journal.DuplicateArticleIdException;
+import com.liferay.portlet.journal.InvalidDDMStructureException;
 import com.liferay.portlet.journal.NoSuchArticleException;
 import com.liferay.portlet.journal.StructureXsdException;
 import com.liferay.portlet.journal.model.JournalArticle;
@@ -217,9 +218,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  layoutUuid the unique string identifying the web content
 	 *         article's display page
 	 * @param  displayDateMonth the month the web content article is set to
@@ -328,6 +327,8 @@ public class JournalArticleLocalServiceImpl
 		}
 
 		Date now = new Date();
+
+		validateDDMStructureId(groupId, folderId, ddmStructureKey);
 
 		validate(
 			user.getCompanyId(), groupId, classNameId, articleId, autoArticleId,
@@ -471,15 +472,12 @@ public class JournalArticleLocalServiceImpl
 		// Workflow
 
 		if (classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT) {
-			WorkflowHandlerRegistryUtil.startWorkflowInstance(
-				user.getCompanyId(), groupId, userId,
-				JournalArticle.class.getName(), article.getId(), article,
-				serviceContext);
+			startWorkflowInstance(userId, article, serviceContext);
 		}
 		else {
 			updateStatus(
 				userId, article, WorkflowConstants.STATUS_APPROVED, null,
-				new HashMap<String, Serializable>(), serviceContext);
+				serviceContext, new HashMap<String, Serializable>());
 		}
 
 		return journalArticlePersistence.findByPrimaryKey(article.getId());
@@ -501,9 +499,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         UUID, creation date, modification date, expando bridge
 	 *         attributes, guest permissions, group permissions, asset category
@@ -522,7 +518,9 @@ public class JournalArticleLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		Calendar calendar = CalendarFactoryUtil.getCalendar();
+		User user = userPersistence.findByPrimaryKey(userId);
+
+		Calendar calendar = CalendarFactoryUtil.getCalendar(user.getTimeZone());
 
 		int displayDateMonth = calendar.get(Calendar.MONTH);
 		int displayDateDay = calendar.get(Calendar.DAY_OF_MONTH);
@@ -892,6 +890,7 @@ public class JournalArticleLocalServiceImpl
 	 * Deletes the web content article and its resources.
 	 *
 	 * @param  article the web content article
+	 * @return the deleted web content article
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -916,6 +915,7 @@ public class JournalArticleLocalServiceImpl
 	 *         <code>null</code>). Can set the portlet preferences that include
 	 *         email information to notify recipients of the unapproved web
 	 *         content's denial.
+	 * @return the deleted web content article
 	 * @throws PortalException if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -1075,6 +1075,7 @@ public class JournalArticleLocalServiceImpl
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         portlet preferences that include email information to notify
 	 *         recipients of the unapproved web content article's denial.
+	 * @return the deleted web content article
 	 * @throws PortalException if a matching web content article could not be
 	 *         found or if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
@@ -1580,31 +1581,32 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	/**
-	 * Returns the web content associated with the web content article and DDM
-	 * template.
+	 * Returns the web content from the web content article associated with the
+	 * portlet request model and the DDM template.
 	 *
 	 * @param  article the web content article
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  viewMode the mode in which the web content is being viewed
 	 * @param  languageId the primary key of the language translation to get
+	 * @param  portletRequestModel the portlet request model
 	 * @param  themeDisplay the theme display
-	 * @return the web content associated with the DDM template
-	 * @throws PortalException if a matching DDM template could not be found or
+	 * @return the web content from the web content article associated with the
+	 *         portlet request model and the DDM template
+	 * @throws PortalException if a matching DDM template could not be found, or
 	 *         if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public String getArticleContent(
 			JournalArticle article, String ddmTemplateKey, String viewMode,
-			String languageId, ThemeDisplay themeDisplay)
+			String languageId, PortletRequestModel portletRequestModel,
+			ThemeDisplay themeDisplay)
 		throws PortalException, SystemException {
 
 		JournalArticleDisplay articleDisplay = getArticleDisplay(
 			article, ddmTemplateKey, viewMode, languageId, 1,
-			(PortletRequestModel)null, themeDisplay);
+			portletRequestModel, themeDisplay);
 
 		if (articleDisplay == null) {
 			return StringPool.BLANK;
@@ -1615,20 +1617,49 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	/**
-	 * Returns the web content matching the group, article ID, and version, and
-	 * associated with the DDM template.
+	 * Returns the web content from the web content article associated with the
+	 * DDM template.
+	 *
+	 * @param      article the web content article
+	 * @param      ddmTemplateKey the primary key of the web content article's
+	 *             DDM template
+	 * @param      viewMode the mode in which the web content is being viewed
+	 * @param      languageId the primary key of the language translation to get
+	 * @param      themeDisplay the theme display
+	 * @return     the web content from the matching web content article
+	 * @throws     PortalException if a matching DDM template could not be
+	 *             found, or if a portal exception occurred
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getArticleContent(JournalArticle, String, String, String,
+	 *             PortletRequestModel,ThemeDisplay)}
+	 */
+	@Deprecated
+	@Override
+	public String getArticleContent(
+			JournalArticle article, String ddmTemplateKey, String viewMode,
+			String languageId, ThemeDisplay themeDisplay)
+		throws PortalException, SystemException {
+
+		return getArticleContent(
+			article, ddmTemplateKey, viewMode, languageId, null, themeDisplay);
+	}
+
+	/**
+	 * Returns the web content from the web content article matching the group,
+	 * article ID, and version, and associated with the portlet request model
+	 * and the DDM template.
 	 *
 	 * @param  groupId the primary key of the web content article's group
 	 * @param  articleId the primary key of the web content article
 	 * @param  version the web content article's version
 	 * @param  viewMode the mode in which the web content is being viewed
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  languageId the primary key of the language translation to get
+	 * @param  portletRequestModel the portlet request model
 	 * @param  themeDisplay the theme display
-	 * @return the matching web content
+	 * @return the web content from the matching web content article
 	 * @throws PortalException if a matching web content article or DDM template
 	 *         could not be found, or if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
@@ -1636,12 +1667,13 @@ public class JournalArticleLocalServiceImpl
 	@Override
 	public String getArticleContent(
 			long groupId, String articleId, double version, String viewMode,
-			String ddmTemplateKey, String languageId, ThemeDisplay themeDisplay)
+			String ddmTemplateKey, String languageId,
+			PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay)
 		throws PortalException, SystemException {
 
 		JournalArticleDisplay articleDisplay = getArticleDisplay(
 			groupId, articleId, version, ddmTemplateKey, viewMode, languageId,
-			themeDisplay);
+			1, portletRequestModel, themeDisplay);
 
 		if (articleDisplay == null) {
 			return StringPool.BLANK;
@@ -1652,19 +1684,60 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	/**
-	 * Returns the web content matching the group, article ID, and version.
+	 * Returns the web content from the web content article matching the group,
+	 * article ID, and version, and associated with the DDM template.
 	 *
-	 * @param  groupId the primary key of the web content article's group
-	 * @param  articleId the primary key of the web content article
-	 * @param  version the web content article's version
-	 * @param  viewMode the mode in which the web content is being viewed
-	 * @param  languageId the primary key of the language translation to get
-	 * @param  themeDisplay the theme display
-	 * @return the matching web content
-	 * @throws PortalException if a matching web content article or DDM template
-	 *         could not be found, or if a portal exception occurred
-	 * @throws SystemException if a system exception occurred
+	 * @param      groupId the primary key of the web content article's group
+	 * @param      articleId the primary key of the web content article
+	 * @param      version the web content article's version
+	 * @param      viewMode the mode in which the web content is being viewed
+	 * @param      ddmTemplateKey the primary key of the web content article's
+	 *             DDM template (optionally <code>null</code>). If the article
+	 *             is related to a DDM structure, the template's structure must
+	 *             match it.
+	 * @param      languageId the primary key of the language translation to get
+	 * @param      themeDisplay the theme display
+	 * @return     the web content from the matching web content article
+	 * @throws     PortalException if a matching web content article or DDM
+	 *             template could not be found, or if a portal exception
+	 *             occurred
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	 *             String, double, String, String, String, PortletRequestModel,
+	 *             ThemeDisplay)}
 	 */
+	@Deprecated
+	@Override
+	public String getArticleContent(
+			long groupId, String articleId, double version, String viewMode,
+			String ddmTemplateKey, String languageId, ThemeDisplay themeDisplay)
+		throws PortalException, SystemException {
+
+		return getArticleContent(
+			groupId, articleId, version, viewMode, ddmTemplateKey, languageId,
+			null, themeDisplay);
+	}
+
+	/**
+	 * Returns the web content from the web content article matching the group,
+	 * article ID, and version.
+	 *
+	 * @param      groupId the primary key of the web content article's group
+	 * @param      articleId the primary key of the web content article
+	 * @param      version the web content article's version
+	 * @param      viewMode the mode in which the web content is being viewed
+	 * @param      languageId the primary key of the language translation to get
+	 * @param      themeDisplay the theme display
+	 * @return     the web content from the matching web content article
+	 * @throws     PortalException if a matching web content article or DDM
+	 *             template could not be found, or if a portal exception
+	 *             occurred
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	 *             String, double, String, String, String, PortletRequestModel,
+	 *             ThemeDisplay)}
+	 */
+	@Deprecated
 	@Override
 	public String getArticleContent(
 			long groupId, String articleId, double version, String viewMode,
@@ -1672,24 +1745,24 @@ public class JournalArticleLocalServiceImpl
 		throws PortalException, SystemException {
 
 		return getArticleContent(
-			groupId, articleId, version, viewMode, null, languageId,
+			groupId, articleId, version, viewMode, null, languageId, null,
 			themeDisplay);
 	}
 
 	/**
-	 * Returns the latest web content matching the group and article ID, and
-	 * associated with DDM template key.
+	 * Returns the latest web content from the web content article matching the
+	 * group and article ID, and associated with the portlet request model and
+	 * the DDM template.
 	 *
 	 * @param  groupId the primary key of the web content article's group
 	 * @param  articleId the primary key of the web content article
 	 * @param  viewMode the mode in which the web content is being viewed
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  languageId the primary key of the language translation to get
+	 * @param  portletRequestModel the portlet request model
 	 * @param  themeDisplay the theme display
-	 * @return the matching web content
+	 * @return the latest web content from the matching web content article
 	 * @throws PortalException if a matching web content article or DDM template
 	 *         could not be found, or if a portal exception occurred
 	 * @throws SystemException if a system exception occurred
@@ -1697,29 +1770,68 @@ public class JournalArticleLocalServiceImpl
 	@Override
 	public String getArticleContent(
 			long groupId, String articleId, String viewMode,
-			String ddmTemplateKey, String languageId, ThemeDisplay themeDisplay)
+			String ddmTemplateKey, String languageId,
+			PortletRequestModel portletRequestModel, ThemeDisplay themeDisplay)
 		throws PortalException, SystemException {
 
 		JournalArticleDisplay articleDisplay = getArticleDisplay(
-			groupId, articleId, ddmTemplateKey, viewMode, languageId,
-			themeDisplay);
+			groupId, articleId, ddmTemplateKey, viewMode, languageId, 1,
+			portletRequestModel, themeDisplay);
 
 		return articleDisplay.getContent();
 	}
 
 	/**
-	 * Returns the latest web content matching the group and article ID.
+	 * Returns the latest web content from the web content article matching the
+	 * group and article ID, and associated with the DDM template.
 	 *
-	 * @param  groupId the primary key of the web content article's group
-	 * @param  articleId the primary key of the web content article
-	 * @param  viewMode the mode in which the web content is being viewed
-	 * @param  languageId the primary key of the language translation to get
-	 * @param  themeDisplay the theme display
-	 * @return the matching web content
-	 * @throws PortalException if a matching web content article or DDM template
-	 *         could not be found, or if a portal exception occurred
-	 * @throws SystemException if a system exception occurred
+	 * @param      groupId the primary key of the web content article's group
+	 * @param      articleId the primary key of the web content article
+	 * @param      viewMode the mode in which the web content is being viewed
+	 * @param      ddmTemplateKey the primary key of the web content article's
+	 *             DDM template
+	 * @param      languageId the primary key of the language translation to get
+	 * @param      themeDisplay the theme display
+	 * @return     the latest web content from the matching web content article
+	 * @throws     PortalException if a matching web content article or DDM
+	 *             template could not be found, or if a portal exception
+	 *             occurred
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	 *             String, String, String, String, PortletRequestModel,
+	 *             ThemeDisplay)}
 	 */
+	@Deprecated
+	@Override
+	public String getArticleContent(
+			long groupId, String articleId, String viewMode,
+			String ddmTemplateKey, String languageId, ThemeDisplay themeDisplay)
+		throws PortalException, SystemException {
+
+		return getArticleContent(
+			groupId, articleId, viewMode, ddmTemplateKey, languageId, null,
+			themeDisplay);
+	}
+
+	/**
+	 * Returns the latest web content from the web content article matching the
+	 * group and article ID.
+	 *
+	 * @param      groupId the primary key of the web content article's group
+	 * @param      articleId the primary key of the web content article
+	 * @param      viewMode the mode in which the web content is being viewed
+	 * @param      languageId the primary key of the language translation to get
+	 * @param      themeDisplay the theme display
+	 * @return     the latest web content from the matching web content article
+	 * @throws     PortalException if a matching web content article or DDM
+	 *             template could not be found, or if a portal exception
+	 *             occurred
+	 * @throws     SystemException if a system exception occurred
+	 * @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	 *             String, String, String, String, PortletRequestModel,
+	 *             ThemeDisplay)}
+	 */
+	@Deprecated
 	@Override
 	public String getArticleContent(
 			long groupId, String articleId, String viewMode, String languageId,
@@ -1727,7 +1839,7 @@ public class JournalArticleLocalServiceImpl
 		throws PortalException, SystemException {
 
 		return getArticleContent(
-			groupId, articleId, viewMode, null, languageId, themeDisplay);
+			groupId, articleId, viewMode, null, languageId, null, themeDisplay);
 	}
 
 	@Override
@@ -1965,9 +2077,7 @@ public class JournalArticleLocalServiceImpl
 	 * @param  articleId the primary key of the web content article
 	 * @param  version the web content article's version
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  viewMode the mode in which the web content is being viewed
 	 * @param  languageId the primary key of the language translation to get
 	 * @param  themeDisplay the theme display
@@ -1987,7 +2097,7 @@ public class JournalArticleLocalServiceImpl
 
 		return getArticleDisplay(
 			groupId, articleId, version, ddmTemplateKey, viewMode, languageId,
-			1, (PortletRequestModel)null, themeDisplay);
+			1, null, themeDisplay);
 	}
 
 	@Override
@@ -2026,9 +2136,7 @@ public class JournalArticleLocalServiceImpl
 	 * @param  groupId the primary key of the web content article's group
 	 * @param  articleId the primary key of the web content article
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  viewMode the mode in which the web content is being viewed
 	 * @param  languageId the primary key of the language translation to get
 	 * @param  themeDisplay the theme display
@@ -2701,27 +2809,8 @@ public class JournalArticleLocalServiceImpl
 			long groupId, String articleId, int status)
 		throws PortalException, SystemException {
 
-		List<JournalArticle> articles = null;
-
-		OrderByComparator orderByComparator = new ArticleVersionComparator();
-
-		if (status == WorkflowConstants.STATUS_ANY) {
-			articles = journalArticlePersistence.findByG_A_NotST(
-				groupId, articleId, WorkflowConstants.STATUS_IN_TRASH, 0, 1,
-				orderByComparator);
-		}
-		else {
-			articles = journalArticlePersistence.findByG_A_ST(
-				groupId, articleId, status, 0, 1, orderByComparator);
-		}
-
-		if (articles.isEmpty()) {
-			throw new NoSuchArticleException(
-				"No JournalArticle exists with the key {groupId=" + groupId +
-					", articleId=" + articleId + ", status=" + status + "}");
-		}
-
-		return articles.get(0);
+		return getFirstArticle(
+			groupId, articleId, status, new ArticleVersionComparator());
 	}
 
 	/**
@@ -2870,6 +2959,23 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	@Override
+	public JournalArticle getOldestArticle(long groupId, String articleId)
+		throws PortalException, SystemException {
+
+		return getOldestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_ANY);
+	}
+
+	@Override
+	public JournalArticle getOldestArticle(
+			long groupId, String articleId, int status)
+		throws PortalException, SystemException {
+
+		return getFirstArticle(
+			groupId, articleId, status, new ArticleVersionComparator(false));
+	}
+
+	@Override
 	public JournalArticle getPreviousApprovedArticle(JournalArticle article)
 		throws SystemException {
 
@@ -2976,9 +3082,7 @@ public class JournalArticleLocalServiceImpl
 	 *
 	 * @param  groupId the primary key of the web content article's group
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @return the matching web content articles
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -3005,9 +3109,7 @@ public class JournalArticleLocalServiceImpl
 	 *
 	 * @param  groupId the primary key of the web content article's group
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  start the lower bound of the range of web content articles to
 	 *         return
 	 * @param  end the upper bound of the range of web content articles to
@@ -3033,9 +3135,7 @@ public class JournalArticleLocalServiceImpl
 	 *
 	 * @param  groupId the primary key of the web content article's group
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @return the number of matching web content articles
 	 * @throws SystemException if a system exception occurred
 	 */
@@ -3177,6 +3277,11 @@ public class JournalArticleLocalServiceImpl
 			long groupId, String articleId, long newFolderId)
 		throws PortalException, SystemException {
 
+		JournalArticle latestArticle = getLatestArticle(groupId, articleId);
+
+		validateDDMStructureId(
+			groupId, newFolderId, latestArticle.getStructureId());
+
 		List<JournalArticle> articles = journalArticlePersistence.findByG_A(
 			groupId, articleId);
 
@@ -3241,8 +3346,8 @@ public class JournalArticleLocalServiceImpl
 			}
 
 			updateStatus(
-				userId, article, status, null,
-				new HashMap<String, Serializable>(), serviceContext);
+				userId, article, status, null, serviceContext,
+				new HashMap<String, Serializable>());
 
 			// Trash
 
@@ -3477,6 +3582,7 @@ public class JournalArticleLocalServiceImpl
 	 * @param  userId the primary key of the user restoring the web content
 	 *         article
 	 * @param  article the web content article
+	 * @return the restored web content article from the Recycle Bin
 	 * @throws PortalException if the web content article with the primary key
 	 *         could not be found in the Recycle Bin, if the user did not have
 	 *         permission to restore the article, or if a portal exception
@@ -3524,8 +3630,8 @@ public class JournalArticleLocalServiceImpl
 		serviceContext.setScopeGroupId(article.getGroupId());
 
 		updateStatus(
-			userId, article, trashEntry.getStatus(), null,
-			new HashMap<String, Serializable>(), serviceContext);
+			userId, article, trashEntry.getStatus(), null, serviceContext,
+			new HashMap<String, Serializable>());
 
 		// Trash
 
@@ -3632,9 +3738,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  displayDateGT the date after which a matching web content
 	 *         article's display date must be after (optionally
 	 *         <code>null</code>)
@@ -3713,9 +3817,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  displayDateGT the date after which a matching web content
 	 *         article's display date must be after (optionally
 	 *         <code>null</code>)
@@ -3874,9 +3976,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  keywords the keywords (space separated), which may occur in the
 	 *         web content article ID, title, description, or content
 	 *         (optionally <code>null</code>). If the keywords value is not
@@ -3971,9 +4071,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  params the finder parameters (optionally <code>null</code>). Can
 	 *         set parameter <code>"includeDiscussions"</code> to
 	 *         <code>true</code> to search for the keywords in the web content
@@ -4078,9 +4176,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  displayDateGT the date after which a matching web content
 	 *         article's display date must be after (optionally
 	 *         <code>null</code>)
@@ -4139,9 +4235,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  displayDateGT the date after which a matching web content
 	 *         article's display date must be after (optionally
 	 *         <code>null</code>)
@@ -4488,9 +4582,7 @@ public class JournalArticleLocalServiceImpl
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
 	 * @param  ddmTemplateKey the primary key of the web content article's DDM
-	 *         template (optionally <code>null</code>). If the article is
-	 *         related to a DDM structure, the template's structure must match
-	 *         it.
+	 *         template
 	 * @param  layoutUuid the unique string identifying the web content
 	 *         article's display page
 	 * @param  displayDateMonth the month the web content article is set to
@@ -4785,7 +4877,7 @@ public class JournalArticleLocalServiceImpl
 		if (expired && imported) {
 			updateStatus(
 				userId, article, article.getStatus(), articleURL,
-				new HashMap<String, Serializable>(), serviceContext);
+				serviceContext, new HashMap<String, Serializable>());
 		}
 
 		if (serviceContext.getWorkflowAction() ==
@@ -4799,10 +4891,7 @@ public class JournalArticleLocalServiceImpl
 			sendEmail(
 				article, articleURL, preferences, "requested", serviceContext);
 
-			WorkflowHandlerRegistryUtil.startWorkflowInstance(
-				user.getCompanyId(), groupId, userId,
-				JournalArticle.class.getName(), article.getId(), article,
-				serviceContext);
+			startWorkflowInstance(userId, article, serviceContext);
 		}
 
 		return journalArticlePersistence.findByPrimaryKey(article.getId());
@@ -5130,8 +5219,8 @@ public class JournalArticleLocalServiceImpl
 	@Override
 	public JournalArticle updateStatus(
 			long userId, JournalArticle article, int status, String articleURL,
-			Map<String, Serializable> workflowContext,
-			ServiceContext serviceContext)
+			ServiceContext serviceContext,
+			Map<String, Serializable> workflowContext)
 		throws PortalException, SystemException {
 
 		// Article
@@ -5340,7 +5429,10 @@ public class JournalArticleLocalServiceImpl
 
 			// Subscriptions
 
-			notifySubscribers(article, serviceContext);
+			notifySubscribers(
+				article,
+				(String)workflowContext.get(WorkflowConstants.CONTEXT_URL),
+				serviceContext);
 		}
 
 		return article;
@@ -5377,7 +5469,7 @@ public class JournalArticleLocalServiceImpl
 		JournalArticle article = getArticle(classPK);
 
 		return journalArticleLocalService.updateStatus(
-			userId, article, status, null, workflowContext, serviceContext);
+			userId, article, status, null, serviceContext, workflowContext);
 	}
 
 	/**
@@ -5414,8 +5506,8 @@ public class JournalArticleLocalServiceImpl
 			groupId, articleId, version);
 
 		return journalArticleLocalService.updateStatus(
-			userId, article, status, articleURL, workflowContext,
-			serviceContext);
+			userId, article, status, articleURL, serviceContext,
+			workflowContext);
 	}
 
 	/**
@@ -5485,13 +5577,13 @@ public class JournalArticleLocalServiceImpl
 		Map<String, Serializable> attributes =
 			new HashMap<String, Serializable>();
 
+		attributes.put(Field.ARTICLE_ID, articleId);
 		attributes.put(Field.CLASS_NAME_ID, classNameId);
 		attributes.put(Field.CONTENT, content);
 		attributes.put(Field.DESCRIPTION, description);
 		attributes.put(Field.STATUS, status);
 		attributes.put(Field.TITLE, title);
 		attributes.put(Field.TYPE, type);
-		attributes.put("articleId", articleId);
 		attributes.put("ddmStructureKey", ddmStructureKey);
 		attributes.put("ddmTemplateKey", ddmTemplateKey);
 		attributes.put("params", params);
@@ -5583,7 +5675,7 @@ public class JournalArticleLocalServiceImpl
 
 			journalArticleLocalService.updateStatus(
 				article.getUserId(), article, WorkflowConstants.STATUS_APPROVED,
-				null, new HashMap<String, Serializable>(), serviceContext);
+				null, serviceContext, new HashMap<String, Serializable>());
 		}
 	}
 
@@ -6187,6 +6279,22 @@ public class JournalArticleLocalServiceImpl
 		return dateInterval;
 	}
 
+	protected JournalArticle getFirstArticle(
+			long groupId, String articleId, int status,
+			OrderByComparator orderByComparator)
+		throws PortalException, SystemException {
+
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return journalArticlePersistence.findByG_A_NotST_First(
+				groupId, articleId, WorkflowConstants.STATUS_IN_TRASH,
+				orderByComparator);
+		}
+		else {
+			return journalArticlePersistence.findByG_A_ST_First(
+				groupId, articleId, status, orderByComparator);
+		}
+	}
+
 	protected String getUniqueUrlTitle(
 			long id, long groupId, String articleId, String title)
 		throws PortalException, SystemException {
@@ -6260,22 +6368,15 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	protected void notifySubscribers(
-			JournalArticle article, ServiceContext serviceContext)
+			JournalArticle article, String articleURL,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		String layoutFullURL = serviceContext.getLayoutFullURL();
-
-		if (!article.isApproved() || Validator.isNull(layoutFullURL)) {
+		if (!article.isApproved() || Validator.isNull(articleURL)) {
 			return;
 		}
 
 		String articleTitle = article.getTitle(serviceContext.getLanguageId());
-		String articleURL = PortalUtil.getControlPanelFullURL(
-			serviceContext.getScopeGroupId(), PortletKeys.JOURNAL, null);
-
-		if (Validator.isNull(articleURL)) {
-			return;
-		}
 
 		articleURL = buildArticleURL(
 			articleURL, article.getGroupId(), article.getFolderId(),
@@ -6359,15 +6460,15 @@ public class JournalArticleLocalServiceImpl
 		subscriptionSender.setClassName(article.getModelClassName());
 		subscriptionSender.setClassPK(article.getId());
 		subscriptionSender.setCompanyId(article.getCompanyId());
-		subscriptionSender.setContextAttributes(
-			"[$ARTICLE_ID$]", article.getArticleId(), "[$ARTICLE_TITLE$]",
-			articleTitle, "[$ARTICLE_URL$]", articleURL, "[$ARTICLE_VERSION$]",
-			article.getVersion());
 		subscriptionSender.setContextAttribute(
 			"[$ARTICLE_CONTENT$]", articleContent, false);
 		subscriptionSender.setContextAttribute(
 			"[$ARTICLE_DIFFS$]", DiffHtmlUtil.replaceStyles(articleDiffs),
 			false);
+		subscriptionSender.setContextAttributes(
+			"[$ARTICLE_ID$]", article.getArticleId(), "[$ARTICLE_TITLE$]",
+			articleTitle, "[$ARTICLE_URL$]", articleURL, "[$ARTICLE_VERSION$]",
+			article.getVersion());
 		subscriptionSender.setContextUserPrefix("ARTICLE");
 		subscriptionSender.setEntryTitle(articleTitle);
 		subscriptionSender.setEntryURL(articleURL);
@@ -6566,6 +6667,24 @@ public class JournalArticleLocalServiceImpl
 		subscriptionSender.addRuntimeSubscribers(toAddress, toName);
 
 		subscriptionSender.flushNotificationsAsync();
+	}
+
+	protected void startWorkflowInstance(
+			long userId, JournalArticle article, ServiceContext serviceContext)
+		throws PortalException, SystemException {
+
+		Map<String, Serializable> workflowContext =
+			new HashMap<String, Serializable>();
+
+		workflowContext.put(
+			WorkflowConstants.CONTEXT_URL,
+			PortalUtil.getControlPanelFullURL(
+				serviceContext.getScopeGroupId(), PortletKeys.JOURNAL, null));
+
+		WorkflowHandlerRegistryUtil.startWorkflowInstance(
+			article.getCompanyId(), article.getGroupId(), userId,
+			JournalArticle.class.getName(), article.getId(), article,
+			serviceContext, workflowContext);
 	}
 
 	protected void updateDDMStructureXSD(
@@ -6841,6 +6960,33 @@ public class JournalArticleLocalServiceImpl
 				throw new StorageFieldRequiredException();
 			}
 		}
+	}
+
+	protected void validateDDMStructureId(
+			long groupId, long folderId, String ddmStructureKey)
+		throws PortalException, SystemException {
+
+		DDMStructure ddmStructure = ddmStructureLocalService.getStructure(
+			PortalUtil.getSiteGroupId(groupId),
+			classNameLocalService.getClassNameId(JournalArticle.class),
+			ddmStructureKey, true);
+
+		List<DDMStructure> folderDDMStructures =
+			ddmStructureLocalService.getJournalFolderStructures(
+				PortalUtil.getCurrentAndAncestorSiteGroupIds(groupId), folderId,
+				true);
+
+		for (DDMStructure folderDDMStructure : folderDDMStructures) {
+			if (folderDDMStructure.getStructureId() ==
+					ddmStructure.getStructureId()) {
+
+				return;
+			}
+		}
+
+		throw new InvalidDDMStructureException(
+			"Invalid structure " + ddmStructure.getStructureId() +
+				" for folder " + folderId);
 	}
 
 	private static final long _JOURNAL_ARTICLE_CHECK_INTERVAL =

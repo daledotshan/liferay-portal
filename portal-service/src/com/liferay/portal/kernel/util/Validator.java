@@ -504,6 +504,26 @@ public class Validator {
 	}
 
 	/**
+	 * Returns <code>true</code> if the string contains content. The only
+	 * requirement is that it contain content that is not whitespace.
+	 *
+	 * @param  s the string to check
+	 * @return <code>true</code> if the string contains content;
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean isContent(String s) {
+		if (isNotNull(
+				StringUtil.replace(
+					s, new String[] {StringPool.NEW_LINE, StringPool.TAB},
+					new String[] {StringPool.BLANK, StringPool.BLANK}))) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns <code>true</code> if the date is valid in the Gregorian calendar.
 	 *
 	 * @param  month the month to check
@@ -1008,8 +1028,8 @@ public class Validator {
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link ArrayUtil#isNotEmpty(
-	 *             Object[])}
+	 * @deprecated As of 6.2.0, replaced by {@link
+	 *             ArrayUtil#isNotEmpty(Object[])}
 	 */
 	@Deprecated
 	public static boolean isNotNull(Object[] array) {

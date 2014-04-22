@@ -41,6 +41,7 @@ import com.liferay.portal.kernel.util.ClearTimerThreadUtil;
 import com.liferay.portal.kernel.util.InstancePool;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.MethodCache;
+import com.liferay.portal.kernel.util.PortalLifecycle;
 import com.liferay.portal.kernel.util.PortalLifecycleUtil;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 import com.liferay.portal.kernel.util.ReflectionUtil;
@@ -188,7 +189,8 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 		InitUtil.init();
 
-		ServletContext servletContext = servletContextEvent.getServletContext();
+		final ServletContext servletContext =
+			servletContextEvent.getServletContext();
 
 		_portalServlerContextName = servletContext.getServletContextName();
 
@@ -249,21 +251,23 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 			_log.error(e, e);
 		}
 
-		FinderCacheUtil.clearCache();
-		FinderCacheUtil.clearLocalCache();
-		EntityCacheUtil.clearCache();
-		EntityCacheUtil.clearLocalCache();
-		PermissionCacheUtil.clearCache();
-		PermissionCacheUtil.clearLocalCache();
-		TemplateResourceLoaderUtil.clearCache();
-		WikiCacheUtil.clearCache(0);
+		if (PropsValues.CACHE_CLEAR_ON_CONTEXT_INITIALIZATION) {
+			FinderCacheUtil.clearCache();
+			FinderCacheUtil.clearLocalCache();
+			EntityCacheUtil.clearCache();
+			EntityCacheUtil.clearLocalCache();
+			PermissionCacheUtil.clearCache();
+			PermissionCacheUtil.clearLocalCache();
+			TemplateResourceLoaderUtil.clearCache();
+			WikiCacheUtil.clearCache(0);
 
-		ServletContextPool.clear();
+			ServletContextPool.clear();
 
-		CacheUtil.clearCache();
-		MultiVMPoolUtil.clear();
-		SingleVMPoolUtil.clear();
-		WebCachePoolUtil.clear();
+			CacheUtil.clearCache();
+			MultiVMPoolUtil.clear();
+			SingleVMPoolUtil.clear();
+			WebCachePoolUtil.clear();
+		}
 
 		ClassLoader portalClassLoader = ClassLoaderUtil.getPortalClassLoader();
 
@@ -290,8 +294,22 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 		clearFilteredPropertyDescriptorsCache(autowireCapableBeanFactory);
 
 		try {
+			PortalLifecycleUtil.register(
+				new PortalLifecycle() {
+
+					@Override
+					public void portalInit() {
+						ModuleFrameworkUtilAdapter.registerContext(
+							servletContext);
+					}
+
+					@Override
+					public void portalDestroy() {
+					}
+
+				});
+
 			ModuleFrameworkUtilAdapter.registerContext(applicationContext);
-			ModuleFrameworkUtilAdapter.registerContext(servletContext);
 
 			ModuleFrameworkUtilAdapter.startRuntime();
 		}

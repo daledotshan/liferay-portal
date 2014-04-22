@@ -19,6 +19,7 @@
 <%@ page import="com.liferay.portal.kernel.repository.RepositoryException" %><%@
 page import="com.liferay.portal.kernel.repository.model.Folder" %><%@
 page import="com.liferay.portal.kernel.search.Document" %><%@
+page import="com.liferay.portlet.documentlibrary.DLPortletInstanceSettings" %><%@
 page import="com.liferay.portlet.documentlibrary.NoSuchFolderException" %><%@
 page import="com.liferay.portlet.documentlibrary.model.DLFileEntryType" %><%@
 page import="com.liferay.portlet.documentlibrary.model.DLFileShortcut" %><%@
@@ -41,7 +42,9 @@ if (layout.isTypeControlPanel()) {
 	portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(themeDisplay.getCompanyId(), scopeGroupId, PortletKeys.PREFS_OWNER_TYPE_GROUP, 0, PortletKeys.DOCUMENT_LIBRARY, null);
 }
 
-long rootFolderId = PrefsParamUtil.getLong(portletPreferences, request, "rootFolderId", DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+DLPortletInstanceSettings dlPortletInstanceSettings = new DLPortletInstanceSettings(portletDisplay.getPortletInstanceSettings());
+
+long rootFolderId = dlPortletInstanceSettings.getRootFolderId();
 String rootFolderName = StringPool.BLANK;
 
 if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
@@ -60,11 +63,11 @@ if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 	}
 }
 
-boolean showFoldersSearch = PrefsParamUtil.getBoolean(portletPreferences, request, "showFoldersSearch", true);
-boolean showSubfolders = PrefsParamUtil.getBoolean(portletPreferences, request, "showSubfolders", true);
-int foldersPerPage = PrefsParamUtil.getInteger(portletPreferences, request, "foldersPerPage", SearchContainer.DEFAULT_DELTA);
+boolean showFoldersSearch = dlPortletInstanceSettings.getShowFoldersSearch();
+boolean showSubfolders = dlPortletInstanceSettings.getShowSubfolders();
+int foldersPerPage = dlPortletInstanceSettings.getFoldersPerPage();
 
-String defaultFolderColumns = "name,num-of-folders,num-of-documents";
+String allFolderColumns = "name,num-of-folders,num-of-documents";
 
 String portletId = portletDisplay.getId();
 
@@ -72,12 +75,12 @@ if (portletId.equals(PortletKeys.PORTLET_CONFIGURATION)) {
 	portletId = portletResource;
 }
 
-boolean showActions = PrefsParamUtil.getBoolean(portletPreferences, request, "showActions");
+boolean showActions = dlPortletInstanceSettings.getShowActions();
 boolean showAddFolderButton = false;
-boolean showFolderMenu = PrefsParamUtil.getBoolean(portletPreferences, request, "showFolderMenu");
-boolean showTabs = PrefsParamUtil.getBoolean(portletPreferences, request, "showTabs");
+boolean showFolderMenu = dlPortletInstanceSettings.getShowFolderMenu();
+boolean showTabs = dlPortletInstanceSettings.getShowTabs();
 
-if (portletId.equals(PortletKeys.DOCUMENT_LIBRARY)) {
+if (portletId.equals(PortletKeys.DOCUMENT_LIBRARY) || portletId.equals(PortletKeys.DOCUMENT_LIBRARY_ADMIN)) {
 	showActions = true;
 	showAddFolderButton = true;
 	showFolderMenu = true;
@@ -85,41 +88,37 @@ if (portletId.equals(PortletKeys.DOCUMENT_LIBRARY)) {
 }
 
 if (showActions) {
-	defaultFolderColumns += ",action";
+	allFolderColumns += ",action";
 }
 
-String allFolderColumns = defaultFolderColumns;
-
-String[] folderColumns = StringUtil.split(PrefsParamUtil.getString(portletPreferences, request, "folderColumns", defaultFolderColumns));
+String[] folderColumns = StringUtil.split(dlPortletInstanceSettings.getFolderColumns());
 
 if (!showActions) {
 	folderColumns = ArrayUtil.remove(folderColumns, "action");
 }
 
-int fileEntriesPerPage = PrefsParamUtil.getInteger(portletPreferences, request, "fileEntriesPerPage", SearchContainer.DEFAULT_DELTA);
+int fileEntriesPerPage = dlPortletInstanceSettings.getFileEntriesPerPage();
 
-String defaultFileEntryColumns = "name,size";
+String allFileEntryColumns = "name,size";
 
 if (PropsValues.DL_FILE_ENTRY_BUFFERED_INCREMENT_ENABLED) {
-	defaultFileEntryColumns += ",downloads";
+	allFileEntryColumns += ",downloads";
 }
 
-defaultFileEntryColumns += ",locked";
+allFileEntryColumns += ",locked";
 
 if (showActions) {
-	defaultFileEntryColumns += ",action";
+	allFileEntryColumns += ",action";
 }
 
-String allFileEntryColumns = defaultFileEntryColumns;
-
-String[] fileEntryColumns = StringUtil.split(PrefsParamUtil.getString(portletPreferences, request, "fileEntryColumns", defaultFileEntryColumns));
+String[] fileEntryColumns = StringUtil.split(dlPortletInstanceSettings.getFileEntryColumns());
 
 if (!showActions) {
 	fileEntryColumns = ArrayUtil.remove(fileEntryColumns, "action");
 }
 
-boolean enableRatings = GetterUtil.getBoolean(portletPreferences.getValue("enableRatings", null), true);
-boolean enableCommentRatings = GetterUtil.getBoolean(portletPreferences.getValue("enableCommentRatings", null), true);
+boolean enableRatings = dlPortletInstanceSettings.getEnableRatings();
+boolean enableCommentRatings = dlPortletInstanceSettings.getEnableCommentRatings();
 
 boolean mergedView = false;
 

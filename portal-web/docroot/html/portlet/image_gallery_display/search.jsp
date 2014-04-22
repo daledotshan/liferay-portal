@@ -43,7 +43,7 @@ else {
 
 String keywords = ParamUtil.getString(request, "keywords");
 
-String[] mediaGalleryMimeTypes = DLUtil.getMediaGalleryMimeTypes(portletPreferences, renderRequest);
+String[] mediaGalleryMimeTypes = dlSettings.getMediaGalleryMimeTypes();
 %>
 
 <liferay-portlet:renderURL varImpl="searchURL">
@@ -119,7 +119,7 @@ String[] mediaGalleryMimeTypes = DLUtil.getMediaGalleryMimeTypes(portletPreferen
 		<%
 		Folder folder = (Folder)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FOLDER);
 
-		long defaultFolderId = GetterUtil.getLong(portletPreferences.getValue("rootFolderId", StringPool.BLANK), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+		long defaultFolderId = dlPortletInstanceSettings.getDefaultFolderId();
 
 		long folderId = BeanParamUtil.getLong(folder, request, "folderId", defaultFolderId);
 

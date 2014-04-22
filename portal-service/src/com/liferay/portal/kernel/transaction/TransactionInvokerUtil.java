@@ -1,4 +1,3 @@
-<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -12,22 +11,27 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
---%>
 
-<%@ include file="/html/taglib/aui/nav/init.jsp" %>
+package com.liferay.portal.kernel.transaction;
 
-</ul>
+import java.util.concurrent.Callable;
 
-<c:if test="<%= collapsible %>">
-	</div>
+/**
+ * @author Shuyang Zhou
+ */
+public class TransactionInvokerUtil {
 
-	<aui:script use="aui-base,event-outside,liferay-menu-toggle">
-		var toggleMenu = new Liferay.MenuToggle(
-			{
-				content: '#<%= id %>NavbarCollapse, #<%= id %>NavbarBtn',
-				toggleTouch: true,
-				trigger: '#<%= id %>NavbarBtn'
-			}
-		);
-	</aui:script>
-</c:if >
+	public static <T> T invoke(
+			TransactionAttribute transactionAttribute, Callable<T> callable)
+		throws Throwable {
+
+		return _transactionInvoker.invoke(transactionAttribute, callable);
+	}
+
+	public void setTransactionInvoker(TransactionInvoker transactionInvoker) {
+		_transactionInvoker = transactionInvoker;
+	}
+
+	private static TransactionInvoker _transactionInvoker;
+
+}
