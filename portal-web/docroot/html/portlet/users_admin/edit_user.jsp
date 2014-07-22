@@ -22,9 +22,31 @@ String backURL = ParamUtil.getString(request, "backURL", redirect);
 
 User selUser = PortalUtil.getSelectedUser(request);
 
+long companyId = 0;
 Contact selContact = null;
 
-if (selUser != null) {
+try {
+	if (Validator.isNull(selUser)) {
+		selUser = PortalUtil.getUser(request);
+		throw new NoSuchUserException();
+	}
+	else {
+	    companyId = selUser.getCompanyId();
+
+		if (PortalUtil.getUser(request).getCompanyId() != companyId) {
+			selUser = PortalUtil.getUser(request);
+			throw new NoSuchUserException();
+		}
+	}
+}
+catch (NoSuchUserException nsue) {
+	SessionErrors.add(renderRequest, NoSuchUserException.class.getName());
+%>
+
+	<liferay-util:include page="/html/portlet/users_admin/error.jsp" />
+
+<%
+} finally {
 	selContact = selUser.getContact();
 }
 
