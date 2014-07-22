@@ -16,7 +16,7 @@ package com.liferay.portal.search.lucene;
 
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.test.AdviseWith;
-import com.liferay.portal.test.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
 
 import java.io.IOException;
 
@@ -256,21 +256,6 @@ public class IndexSearcherManagerTest {
 	@Aspect
 	public static class IndexReaderAdvice {
 
-		@Around(
-			"execution(public boolean org.apache.lucene.index.IndexReader." +
-				"tryIncRef())")
-		public Object tryIncRef(ProceedingJoinPoint proceedingJoinPoint)
-			throws Throwable {
-
-			Semaphore semaphore = _semaphore;
-
-			if (semaphore != null) {
-				semaphore.acquire();
-			}
-
-			return proceedingJoinPoint.proceed();
-		}
-
 		public static void block() {
 			_semaphore = new Semaphore(0);
 		}
@@ -289,6 +274,21 @@ public class IndexSearcherManagerTest {
 			if (semaphore != null) {
 				while (semaphore.getQueueLength() < threadCount);
 			}
+		}
+
+		@Around(
+			"execution(public boolean org.apache.lucene.index.IndexReader." +
+				"tryIncRef())")
+		public Object tryIncRef(ProceedingJoinPoint proceedingJoinPoint)
+			throws Throwable {
+
+			Semaphore semaphore = _semaphore;
+
+			if (semaphore != null) {
+				semaphore.acquire();
+			}
+
+			return proceedingJoinPoint.proceed();
 		}
 
 		private static volatile Semaphore _semaphore;

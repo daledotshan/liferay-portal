@@ -18,15 +18,15 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousMailExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.BaseUserNotificationTestCase;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
 import org.junit.runner.RunWith;
 
@@ -46,8 +46,9 @@ public class DocumentLibraryUserNotificationTest
 
 	@Override
 	protected BaseModel<?> addBaseModel() throws Exception {
-		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
-			group.getGroupId(), group.getGroupId(), _folder.getFolderId());
+		FileEntry fileEntry = DLAppTestUtil.addFileEntryWithWorkflow(
+			group.getGroupId(), group.getGroupId(), _folder.getFolderId(),
+			true);
 
 		return (BaseModel<?>)fileEntry.getModel();
 	}
@@ -73,8 +74,9 @@ public class DocumentLibraryUserNotificationTest
 	protected BaseModel<?> updateBaseModel(BaseModel<?> baseModel)
 		throws Exception {
 
-		FileEntry fileEntry = DLAppTestUtil.updateFileEntry(
-			group.getGroupId(), (Long)baseModel.getPrimaryKeyObj(), false);
+		FileEntry fileEntry = DLAppTestUtil.updateFileEntryWithWorkflow(
+			group.getGroupId(), (Long)baseModel.getPrimaryKeyObj(), false,
+			true);
 
 		return (BaseModel<?>)fileEntry.getModel();
 	}

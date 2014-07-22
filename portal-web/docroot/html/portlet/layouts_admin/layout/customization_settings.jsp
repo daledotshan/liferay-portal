@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/layouts_admin/init.jsp" %>
 
 <%
-Layout selLayout = (Layout)request.getAttribute("edit_pages.jsp-selLayout");
+Layout selLayout = layoutsAdminDisplayContext.getSelLayout();
 
 boolean curFreeformLayout = false;
 boolean prototypeGroup = false;
@@ -100,7 +100,7 @@ if (selLayout != null) {
 
 					<%
 					if (Validator.isNotNull(velocityTemplateId) && Validator.isNotNull(velocityTemplateContent)) {
-						RuntimePageUtil.processCustomizationSettings(pageContext, new StringTemplateResource(velocityTemplateId, velocityTemplateContent));
+						RuntimePageUtil.processCustomizationSettings(request, response, new StringTemplateResource(velocityTemplateId, velocityTemplateContent));
 					}
 					%>
 
