@@ -116,12 +116,7 @@ public class UserPermissionImpl
 	@Override
 	public boolean contains(
 		PermissionChecker permissionChecker, long userId,
-		long[] organizationIds, String actionId) {    // should impl here
-		
-		//test
-		System.out.println("permissionChecker.getCompanyId(): "+permissionChecker.getCompanyId());
-		System.out.println("permissionChecker.getUserId(): "+permissionChecker.getUserId());
-		System.out.println("userId: "+userId);
+		long[] organizationIds, String actionId) {
 
 		if ((actionId.equals(ActionKeys.DELETE) ||
 			 actionId.equals(ActionKeys.IMPERSONATE) ||
@@ -134,15 +129,13 @@ public class UserPermissionImpl
 		}
 
 		try {
-			
-			
 			User user = null;
-			
 
 			if (userId != ResourceConstants.PRIMKEY_DNE ) {
-				if (UserLocalServiceUtil.getUser(userId).getCompanyId() != permissionChecker.getCompanyId()) {
+				if (UserLocalServiceUtil.getUserById(userId).getCompanyId() != permissionChecker.getCompanyId()) {
 					return false;
 				}
+
 				user = UserLocalServiceUtil.getUserById(userId);
 
 				Contact contact = user.getContact();
