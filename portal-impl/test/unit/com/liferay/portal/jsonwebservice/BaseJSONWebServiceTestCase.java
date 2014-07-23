@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceAction;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManagerUtil;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceMappingResolver;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceNaming;
+import com.liferay.portal.kernel.jsonwebservice.NoSuchJSONWebServiceException;
 import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.util.MethodParametersResolverUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -52,6 +53,8 @@ import org.springframework.mock.web.MockServletContext;
 public abstract class BaseJSONWebServiceTestCase extends PowerMockito {
 
 	protected static void initPortalServices() {
+		PropsUtil.setProps(new PropsImpl());
+
 		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
 
 		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
@@ -73,8 +76,6 @@ public abstract class BaseJSONWebServiceTestCase extends PowerMockito {
 
 		methodParametersResolverUtil.setMethodParametersResolver(
 			new MethodParametersResolverImpl());
-
-		PropsUtil.setProps(new PropsImpl());
 	}
 
 	protected static void registerActionClass(Class<?> actionClass) {
@@ -82,7 +83,7 @@ public abstract class BaseJSONWebServiceTestCase extends PowerMockito {
 	}
 
 	protected static void registerActionClass(
-		Class<?> actionClass, String servletContextPath) {
+		Class<?> actionClass, String servletContextName) {
 
 		JSONWebServiceMappingResolver jsonWebServiceMappingResolver =
 			new JSONWebServiceMappingResolver(new JSONWebServiceNaming());
@@ -100,13 +101,14 @@ public abstract class BaseJSONWebServiceTestCase extends PowerMockito {
 				actionMethod);
 
 			JSONWebServiceActionsManagerUtil.registerJSONWebServiceAction(
-				servletContextPath, actionClass, actionMethod, path, method);
+				servletContextName, StringPool.BLANK, actionClass, actionMethod,
+				path, method);
 		}
 	}
 
 	protected MockHttpServletRequest createHttpRequest(String pathInfo) {
 		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
+			new MockHttpServletRequest30();
 
 		mockHttpServletRequest.setMethod(HttpMethods.GET);
 		mockHttpServletRequest.setPathInfo(pathInfo);
@@ -118,7 +120,7 @@ public abstract class BaseJSONWebServiceTestCase extends PowerMockito {
 		String pathInfo, String method) {
 
 		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
+			new MockHttpServletRequest30();
 
 		mockHttpServletRequest.setMethod(method);
 		mockHttpServletRequest.setPathInfo(pathInfo);
@@ -127,20 +129,20 @@ public abstract class BaseJSONWebServiceTestCase extends PowerMockito {
 	}
 
 	protected JSONWebServiceAction lookupJSONWebServiceAction(
-		HttpServletRequest httpServletRequest) {
+			HttpServletRequest httpServletRequest)
+		throws NoSuchJSONWebServiceException {
 
 		return JSONWebServiceActionsManagerUtil.getJSONWebServiceAction(
 			httpServletRequest);
 	}
 
 	protected void setServletContext(
-		MockHttpServletRequest mockHttpServletRequest, String contextPath) {
+		MockHttpServletRequest mockHttpServletRequest, String contextName) {
 
-		mockHttpServletRequest.setContextPath(contextPath);
+		MockServletContext mockServletContext =
+			(MockServletContext)mockHttpServletRequest.getServletContext();
 
-		MockServletContext mockServletContext = new MockServletContext();
-
-		mockServletContext.setContextPath(contextPath);
+		mockServletContext.setServletContextName(contextName);
 
 		MockHttpSession mockHttpServletSession = new MockHttpSession(
 			mockServletContext);
@@ -198,6 +200,24 @@ public abstract class BaseJSONWebServiceTestCase extends PowerMockito {
 		jsonSerializer.include(includes);
 
 		return jsonSerializer.serialize(object);
+	}
+
+	private class MockHttpServletRequest30 extends MockHttpServletRequest {
+
+		public MockHttpServletRequest30() {
+			_mockServletContext = new MockServletContext() {};
+
+			_mockServletContext.setContextPath(StringPool.BLANK);
+			_mockServletContext.setServletContextName(StringPool.BLANK);
+		}
+
+		@Override
+		public MockServletContext getServletContext() {
+			return _mockServletContext;
+		}
+
+		private MockServletContext _mockServletContext;
+
 	}
 
 }
