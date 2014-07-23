@@ -131,7 +131,7 @@ public class UserPermissionImpl
 		try {
 			User user = null;
 
-			if (userId != ResourceConstants.PRIMKEY_DNE ) {
+			if (userId != ResourceConstants.PRIMKEY_DNE) {
 				if (UserLocalServiceUtil.getUserById(userId).getCompanyId() != permissionChecker.getCompanyId()) {
 					return false;
 				}
