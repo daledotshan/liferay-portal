@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.dao.orm;
 
+import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.TableNameOrderByComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -56,7 +57,9 @@ public class QueryDefinition<T> {
 		int status, int start, int end,
 		OrderByComparator<T> orderByComparator) {
 
-		if (status == WorkflowConstants.STATUS_ANY) {
+		if ((status == WorkflowConstants.STATUS_ANY) &&
+			!GroupThreadLocal.isDeleteInProcess()) {
+
 			setStatus(WorkflowConstants.STATUS_IN_TRASH, true);
 		}
 		else {

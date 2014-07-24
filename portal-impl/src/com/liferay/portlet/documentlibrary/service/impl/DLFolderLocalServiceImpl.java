@@ -286,6 +286,13 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			}
 		}
 
+		// Trash
+
+		if (dlFolder.isInTrashExplicitly()) {
+			trashEntryLocalService.deleteEntry(
+				DLFolder.class.getName(), dlFolder.getFolderId());
+		}
+
 		// Workflow
 
 		for (long fileEntryTypeId : fileEntryTypeIds) {
