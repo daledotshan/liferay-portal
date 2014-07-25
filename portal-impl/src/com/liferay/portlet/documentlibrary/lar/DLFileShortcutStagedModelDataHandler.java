@@ -15,7 +15,6 @@
 package com.liferay.portlet.documentlibrary.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -48,11 +47,9 @@ public class DLFileShortcutStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		DLFileShortcut dlFileShortcut =
-			DLFileShortcutLocalServiceUtil.fetchDLFileShortcutByUuidAndGroupId(
-				uuid, groupId);
+		DLFileShortcut dlFileShortcut = fetchExistingStagedModel(uuid, groupId);
 
 		if (dlFileShortcut != null) {
 			DLFileShortcutLocalServiceUtil.deleteFileShortcut(dlFileShortcut);
@@ -98,6 +95,14 @@ public class DLFileShortcutStagedModelDataHandler
 		portletDataContext.addClassedModel(
 			fileShortcutElement,
 			ExportImportPathUtil.getModelPath(fileShortcut), fileShortcut);
+	}
+
+	@Override
+	protected DLFileShortcut doFetchExistingStagedModel(
+		String uuid, long groupId) {
+
+		return DLFileShortcutLocalServiceUtil.
+			fetchDLFileShortcutByUuidAndGroupId(uuid, groupId);
 	}
 
 	@Override
@@ -159,11 +164,8 @@ public class DLFileShortcutStagedModelDataHandler
 		DLFileShortcut importedFileShortcut = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			DLFileShortcut existingFileShortcut =
-				DLFileShortcutLocalServiceUtil.
-					fetchDLFileShortcutByUuidAndGroupId(
-						fileShortcut.getUuid(),
-						portletDataContext.getScopeGroupId());
+			DLFileShortcut existingFileShortcut = fetchExistingStagedModel(
+				fileShortcut.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingFileShortcut == null) {
 				serviceContext.setUuid(fileShortcut.getUuid());
@@ -195,9 +197,8 @@ public class DLFileShortcutStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(fileShortcut.getUserUuid());
 
-		DLFileShortcut existingFileShortcut =
-			DLFileShortcutLocalServiceUtil.fetchDLFileShortcutByUuidAndGroupId(
-				fileShortcut.getUuid(), portletDataContext.getScopeGroupId());
+		DLFileShortcut existingFileShortcut = fetchExistingStagedModel(
+			fileShortcut.getUuid(), portletDataContext.getScopeGroupId());
 
 		if ((existingFileShortcut == null) ||
 			!existingFileShortcut.isInTrash()) {

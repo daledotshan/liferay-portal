@@ -34,13 +34,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANONYMOUS_CHECKBOX</td>
+	<td>//input[@id='_162_anonymous']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SUBMIT_FOR_PUBLICATION_BUTTON</td>
 	<td>//button[@id='_162_publishButton' and contains(.,'Submit for Publication')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ATTACHMENTS_DROPDOWN</td>
-	<td>//div[@id='mbMessageAttachmentsPanel']/div/div[@class='accordion-toggle']</td>
+	<td>//div[@id='mbMessageAttachmentsPanel']/div/div[@class='panel-toggle']</td>
 	<td></td>
 </tr>
 <tr>

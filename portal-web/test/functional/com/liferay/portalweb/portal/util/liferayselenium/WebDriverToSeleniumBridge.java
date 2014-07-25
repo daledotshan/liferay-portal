@@ -27,6 +27,9 @@ import com.liferay.portalweb.portal.util.TestPropsValues;
 
 import com.thoughtworks.selenium.Selenium;
 
+import java.awt.Robot;
+import java.awt.event.InputEvent;
+
 import java.io.StringReader;
 
 import java.util.HashMap;
@@ -49,6 +52,7 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
@@ -205,7 +209,9 @@ public class WebDriverToSeleniumBridge
 				webElement.click();
 			}
 			catch (Exception e) {
-				scrollWebElementIntoView(webElement);
+				if (!webElement.isDisplayed()) {
+					scrollWebElementIntoView(webElement);
+				}
 
 				webElement.click();
 			}
@@ -349,24 +355,35 @@ public class WebDriverToSeleniumBridge
 	public void dragAndDrop(String locator, String coordString) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		try {
+			Point point = webElement.getLocation();
 
-		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
+			int x = point.getX() + 45;
+			int y = point.getY() + 100;
 
-		WebDriver webDriver = wrapsDriver.getWrappedDriver();
+			Robot robot = new Robot();
 
-		Actions actions = new Actions(webDriver);
+			robot.mouseMove(x, y);
 
-		String[] coords = coordString.split(",");
+			robot.delay(1500);
 
-		int x = GetterUtil.getInteger(coords[0]);
-		int y = GetterUtil.getInteger(coords[1]);
+			robot.mousePress(InputEvent.BUTTON1_MASK);
 
-		actions.dragAndDropBy(webElement, x, y);
+			robot.delay(1500);
 
-		Action action = actions.build();
+			String[] coords = coordString.split(",");
 
-		action.perform();
+			x += GetterUtil.getInteger(coords[0]);
+			y += GetterUtil.getInteger(coords[1]);
+
+			robot.mouseMove(x, y);
+
+			robot.delay(1500);
+
+			robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		}
+		catch (Exception e) {
+		}
 	}
 
 	@Override
@@ -1021,7 +1038,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseDown(String locator) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1042,7 +1061,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseDownAt(String locator, String coordString) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1085,7 +1106,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseMove(String locator) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1104,7 +1127,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseMoveAt(String locator, String coordString) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1133,7 +1158,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseOut(String locator) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1153,7 +1180,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseOver(String locator) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1172,7 +1201,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseUp(String locator) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1191,7 +1222,9 @@ public class WebDriverToSeleniumBridge
 	public void mouseUpAt(String locator, String coordString) {
 		WebElement webElement = getWebElement(locator);
 
-		scrollWebElementIntoView(webElement);
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
 
 		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
@@ -1317,8 +1350,6 @@ public class WebDriverToSeleniumBridge
 
 		Select select = new Select(webElement);
 
-		List<WebElement> optionWebElements = select.getOptions();
-
 		String label = optionLocator;
 
 		if (optionLocator.startsWith("index=")) {
@@ -1337,6 +1368,8 @@ public class WebDriverToSeleniumBridge
 				selectByRegexpValue(selectLocator, regexp);
 			}
 			else {
+				List<WebElement> optionWebElements = select.getOptions();
+
 				for (WebElement optionWebElement : optionWebElements) {
 					String optionWebElementValue =
 						optionWebElement.getAttribute("value");
@@ -1348,7 +1381,7 @@ public class WebDriverToSeleniumBridge
 					}
 				}
 
-				selectByLabel(selectLocator, label);
+				select.selectByValue(label);
 			}
 		}
 		else {
@@ -1362,7 +1395,7 @@ public class WebDriverToSeleniumBridge
 				selectByRegexpText(selectLocator, regexp);
 			}
 			else {
-				selectByLabel(selectLocator, label);
+				select.selectByVisibleText(label);
 			}
 		}
 	}
@@ -1887,54 +1920,6 @@ public class WebDriverToSeleniumBridge
 
 		javascriptExecutor.executeScript(
 			"arguments[0].scrollIntoView();", webElement);
-	}
-
-	protected void selectByLabel(String selectLocator, String label) {
-		WebElement webElement = getWebElement(selectLocator);
-
-		keyPress(selectLocator, "\\36");
-
-		if (!label.equals(getSelectedLabel(selectLocator))) {
-			webElement.sendKeys(label);
-
-			keyPress(selectLocator, "\\13");
-		}
-
-		if (!label.equals(getSelectedLabel(selectLocator))) {
-			Select select = new Select(webElement);
-
-			select.selectByVisibleText(label);
-		}
-
-		if (!label.equals(getSelectedLabel(selectLocator))) {
-			webElement.click();
-
-			Select select = new Select(webElement);
-
-			List<WebElement> optionWebElements = select.getOptions();
-
-			for (WebElement optionWebElement : optionWebElements) {
-				String optionWebElementText = optionWebElement.getText();
-
-				if (optionWebElementText.equals(label)) {
-					WrapsDriver wrapsDriver = (WrapsDriver)optionWebElement;
-
-					WebDriver webDriver = wrapsDriver.getWrappedDriver();
-
-					Actions actions = new Actions(webDriver);
-
-					actions.moveToElement(optionWebElement);
-
-					actions.doubleClick(optionWebElement);
-
-					Action action = actions.build();
-
-					action.perform();
-
-					break;
-				}
-			}
-		}
 	}
 
 	protected void selectByRegexpText(String selectLocator, String regexp) {

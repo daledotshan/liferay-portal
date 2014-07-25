@@ -1,17 +1,33 @@
 <definition>
 	<command name="assertClick">
-		<case locator-key1="PUBLISH_BUTTON">
-			<execute function="AssertClick#assertTextClickAtAndWaitCKEditor" />
+		<case locator-key1="PERMISSIONS_MORE_OPTIONS_LINK">
+			<execute function="AssertClick#assertPartialTextClickAt" />
 		</case>
 
-		<case locator-key1="CATEGORIZATION_TAGS_SELECT_BUTTON">
-			<execute function="AssertClick#assertTextClickAtAndWait" />
+		<case locator-key1="PERMISSIONS_HIDE_OPTIONS_LINK">
+			<execute function="AssertClick#assertPartialTextClickAt" />
+		</case>
+
+		<case locator-key1="PUBLISH_BUTTON">
+			<execute function="AssertClick#assertTextClickAtAndWaitCKEditor" />
 		</case>
 	</command>
 
 	<command name="assertTextEquals">
 		<case locator-key1="SAVE_STATUS">
 			<execute function="AssertTextEquals#assertPartialText" />
+		</case>
+	</command>
+
+	<command name="copy">
+		<case locator-key1="CONTENT_FIELD">
+			<execute function="Copy#ckEditorCopy" />
+		</case>
+	</command>
+
+	<command name="paste">
+		<case locator-key1="CONTENT_FIELD">
+			<execute function="Paste#ckEditorPaste" />
 		</case>
 	</command>
 

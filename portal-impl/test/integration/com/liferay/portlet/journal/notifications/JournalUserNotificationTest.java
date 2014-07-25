@@ -16,17 +16,17 @@ package com.liferay.portlet.journal.notifications;
 
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousMailExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.BaseUserNotificationTestCase;
 import com.liferay.portal.util.PortletKeys;
+import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.service.JournalFolderLocalServiceUtil;
-import com.liferay.portlet.journal.util.JournalTestUtil;
+import com.liferay.portlet.journal.util.test.JournalTestUtil;
 
 import org.junit.runner.RunWith;
 
@@ -45,14 +45,14 @@ public class JournalUserNotificationTest extends BaseUserNotificationTestCase {
 
 	@Override
 	protected BaseModel<?> addBaseModel() throws Exception {
-		return JournalTestUtil.addArticle(
-			group.getGroupId(), _folder.getFolderId());
+		return JournalTestUtil.addArticleWithWorkflow(
+			group.getGroupId(), _folder.getFolderId(), true);
 	}
 
 	@Override
 	protected void addContainerModel() throws Exception {
 		_folder = JournalTestUtil.addFolder(
-			group.getGroupId(), ServiceTestUtil.randomString());
+			group.getGroupId(), RandomTestUtil.randomString());
 	}
 
 	@Override
@@ -70,7 +70,8 @@ public class JournalUserNotificationTest extends BaseUserNotificationTestCase {
 	protected BaseModel<?> updateBaseModel(BaseModel<?> baseModel)
 		throws Exception {
 
-		return JournalTestUtil.updateArticle((JournalArticle)baseModel);
+		return JournalTestUtil.updateArticleWithWorkflow(
+			(JournalArticle)baseModel, true);
 	}
 
 	private JournalFolder _folder;

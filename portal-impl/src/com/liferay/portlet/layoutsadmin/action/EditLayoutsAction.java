@@ -381,7 +381,7 @@ public class EditLayoutsAction extends PortletAction {
 	protected void checkPermission(
 			PermissionChecker permissionChecker, Group group, Layout layout,
 			long selPlid)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (selPlid > 0) {
 			LayoutPermissionUtil.check(
@@ -635,7 +635,7 @@ public class EditLayoutsAction extends PortletAction {
 
 	protected void inheritMobileRuleGroups(
 			Layout layout, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<MDRRuleGroupInstance> parentMDRRuleGroupInstances =
 			MDRRuleGroupInstanceLocalServiceUtil.getRuleGroupInstances(
@@ -767,7 +767,7 @@ public class EditLayoutsAction extends PortletAction {
 			UnicodeProperties typeSettingsProperties,
 			Map<String, ThemeSetting> themeSettings, String device,
 			String deviceThemeId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		boolean privateLayout = ParamUtil.getBoolean(
@@ -935,14 +935,11 @@ public class EditLayoutsAction extends PortletAction {
 					LayoutPrototypeServiceUtil.getLayoutPrototype(
 						layoutPrototypeId);
 
-				String layoutPrototypeLinkEnabled = ParamUtil.getString(
+				boolean layoutPrototypeLinkEnabled = ParamUtil.getBoolean(
 					uploadPortletRequest, "layoutPrototypeLinkEnabled");
 
-				if (Validator.isNotNull(layoutPrototypeLinkEnabled)) {
-					serviceContext.setAttribute(
-						"layoutPrototypeLinkEnabled",
-						layoutPrototypeLinkEnabled);
-				}
+				serviceContext.setAttribute(
+					"layoutPrototypeLinkEnabled", layoutPrototypeLinkEnabled);
 
 				serviceContext.setAttribute(
 					"layoutPrototypeUuid", layoutPrototype.getUuid());
@@ -953,6 +950,10 @@ public class EditLayoutsAction extends PortletAction {
 					LayoutConstants.TYPE_PORTLET,
 					typeSettingsProperties.toString(), hidden, friendlyURLMap,
 					serviceContext);
+
+				// Force propagation from page template to page. See LPS-48430.
+
+				SitesUtil.mergeLayoutPrototypeLayout(layout.getGroup(), layout);
 			}
 			else {
 				long copyLayoutId = ParamUtil.getLong(
