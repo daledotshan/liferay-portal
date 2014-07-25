@@ -17,11 +17,13 @@ package com.liferay.taglib.aui;
 import com.liferay.portal.kernel.dao.search.DisplayTerms;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.taglib.aui.base.BaseNavTag;
@@ -30,6 +32,7 @@ import javax.portlet.PortletResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyTag;
 
 /**
  * @author Eduardo Lundgren
@@ -37,7 +40,7 @@ import javax.servlet.jsp.JspException;
  * @author Nathan Cavanaugh
  * @author Julio Camarero
  */
-public class NavTag extends BaseNavTag {
+public class NavTag extends BaseNavTag implements BodyTag {
 
 	@Override
 	public int doStartTag() throws JspException {
@@ -49,19 +52,24 @@ public class NavTag extends BaseNavTag {
 
 			setCollapsible(true);
 
-			ThemeDisplay themeDisplay = (ThemeDisplay)pageContext.getAttribute(
-				"themeDisplay");
+			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+				WebKeys.THEME_DISPLAY);
 
 			StringBundler sb = navBarTag.getResponsiveButtonsSB();
 
-			sb.append("<a class=\"btn btn-navbar");
+			sb.append("<a class=\"btn navbar-btn navbar-toggle");
 
 			String cssClass = getCssClass();
 
 			if (Validator.isNotNull(cssClass)) {
-				sb.append(StringPool.SPACE);
-				sb.append(cssClass);
-				sb.append("-btn");
+				String[] cssClassParts = StringUtil.split(
+					cssClass, CharPool.SPACE);
+
+				for (int i = 0; i < cssClassParts.length; i++) {
+					sb.append(StringPool.SPACE);
+					sb.append(cssClassParts[i]);
+					sb.append("-btn");
+				}
 			}
 
 			if (_hasSearchResults()) {
@@ -87,7 +95,7 @@ public class NavTag extends BaseNavTag {
 					User user = themeDisplay.getUser();
 
 					sb.append("<img alt=\"");
-					sb.append(LanguageUtil.get(pageContext, "my-account"));
+					sb.append(LanguageUtil.get(request, "my-account"));
 					sb.append("\" class=\"user-avatar-image\" ");
 					sb.append("src=\"");
 					sb.append(user.getPortraitURL(themeDisplay));
@@ -122,6 +130,11 @@ public class NavTag extends BaseNavTag {
 
 		_calledCollapsibleSetter = false;
 		_namespacedId = null;
+	}
+
+	@Override
+	protected int processStartTag() throws Exception {
+		return EVAL_BODY_BUFFERED;
 	}
 
 	@Override

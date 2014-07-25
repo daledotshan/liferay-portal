@@ -19,7 +19,7 @@ import com.liferay.portal.kernel.cache.CacheListener;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.test.AdviseWith;
-import com.liferay.portal.test.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -66,6 +66,11 @@ public class TransactionalPortalCacheTest {
 		_recordCacheListener = new RecordCacheListener();
 
 		_portalCache.registerCacheListener(_recordCacheListener);
+	}
+
+	@Test
+	public void testConstructor() {
+		new TransactionalPortalCacheHelper();
 	}
 
 	@AdviseWith(adviceClasses = {DisableTransactionalCacheAdvice.class})
@@ -438,7 +443,7 @@ public class TransactionalPortalCacheTest {
 		}
 		else {
 			Assert.assertEquals(_KEY_2, _recordCacheListener._key);
-			Assert.assertEquals(_VALUE_2, _recordCacheListener._value);
+			Assert.assertEquals(_VALUE_1, _recordCacheListener._value);
 		}
 
 		_recordCacheListener.reset();
@@ -504,6 +509,59 @@ public class TransactionalPortalCacheTest {
 	private static class RecordCacheListener
 		implements CacheListener<String, String> {
 
+		public void assertNothing() {
+			Assert.assertFalse(_put);
+			Assert.assertFalse(_removeAll);
+			Assert.assertFalse(_removed);
+			Assert.assertFalse(_updated);
+			Assert.assertNull(_key);
+			Assert.assertNull(_value);
+		}
+
+		public void assertPut(String key, String value) {
+			Assert.assertTrue(_put);
+			Assert.assertFalse(_removeAll);
+			Assert.assertFalse(_removed);
+			Assert.assertFalse(_updated);
+			Assert.assertEquals(_key, key);
+			Assert.assertEquals(_value, value);
+
+			reset();
+		}
+
+		public void assertRemoveAll() {
+			Assert.assertFalse(_put);
+			Assert.assertTrue(_removeAll);
+			Assert.assertFalse(_removed);
+			Assert.assertFalse(_updated);
+			Assert.assertNull(_key);
+			Assert.assertNull(_value);
+
+			reset();
+		}
+
+		public void assertRemoved(String key, String value) {
+			Assert.assertFalse(_put);
+			Assert.assertFalse(_removeAll);
+			Assert.assertTrue(_removed);
+			Assert.assertFalse(_updated);
+			Assert.assertEquals(_key, key);
+			Assert.assertEquals(_value, value);
+
+			reset();
+		}
+
+		public void assertUpdated(String key, String value) {
+			Assert.assertFalse(_put);
+			Assert.assertFalse(_removeAll);
+			Assert.assertFalse(_removed);
+			Assert.assertTrue(_updated);
+			Assert.assertEquals(_key, key);
+			Assert.assertEquals(_value, value);
+
+			reset();
+		}
+
 		@Override
 		public void notifyEntryEvicted(
 			PortalCache<String, String> portalCache, String key, String value) {
@@ -549,59 +607,6 @@ public class TransactionalPortalCacheTest {
 			_removeAll = true;
 		}
 
-		public void assertNothing() {
-			Assert.assertFalse(_put);
-			Assert.assertFalse(_removeAll);
-			Assert.assertFalse(_removed);
-			Assert.assertFalse(_updated);
-			Assert.assertNull(_key);
-			Assert.assertNull(_value);
-		}
-
-		public void assertPut(String key, String value) {
-			Assert.assertTrue(_put);
-			Assert.assertFalse(_removeAll);
-			Assert.assertFalse(_removed);
-			Assert.assertFalse(_updated);
-			Assert.assertEquals(_key, key);
-			Assert.assertEquals(_value, value);
-
-			reset();
-		}
-
-		public void assertRemoved(String key, String value) {
-			Assert.assertFalse(_put);
-			Assert.assertFalse(_removeAll);
-			Assert.assertTrue(_removed);
-			Assert.assertFalse(_updated);
-			Assert.assertEquals(_key, key);
-			Assert.assertEquals(_value, value);
-
-			reset();
-		}
-
-		public void assertUpdated(String key, String value) {
-			Assert.assertFalse(_put);
-			Assert.assertFalse(_removeAll);
-			Assert.assertFalse(_removed);
-			Assert.assertTrue(_updated);
-			Assert.assertEquals(_key, key);
-			Assert.assertEquals(_value, value);
-
-			reset();
-		}
-
-		public void assertRemoveAll() {
-			Assert.assertFalse(_put);
-			Assert.assertTrue(_removeAll);
-			Assert.assertFalse(_removed);
-			Assert.assertFalse(_updated);
-			Assert.assertNull(_key);
-			Assert.assertNull(_value);
-
-			reset();
-		}
-
 		public void reset() {
 			_put = false;
 			_removeAll = false;
@@ -612,11 +617,11 @@ public class TransactionalPortalCacheTest {
 			_value = null;
 		}
 
+		private String _key;
 		private boolean _put;
 		private boolean _removeAll;
 		private boolean _removed;
 		private boolean _updated;
-		private String _key;
 		private String _value;
 
 	}

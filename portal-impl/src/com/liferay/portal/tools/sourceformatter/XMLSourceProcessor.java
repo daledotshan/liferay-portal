@@ -14,6 +14,8 @@
 
 package com.liferay.portal.tools.sourceformatter;
 
+import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
+import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -108,6 +110,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			}
 		}
 		else {
+			return content;
+		}
+
+		if (content.contains("<project>")) {
 			return content;
 		}
 
@@ -290,9 +296,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	@Override
 	protected void format() throws Exception {
 		String[] excludes = new String[] {
-			"**\\.bnd\\**", "**\\.idea\\**", "portal-impl\\**\\*.action",
-			"portal-impl\\**\\*.function", "portal-impl\\**\\*.macro",
-			"portal-impl\\**\\*.testcase"
+			"**\\.bnd\\**", "**\\.idea\\**", "**\\.ivy\\**",
+			"portal-impl\\**\\*.action", "portal-impl\\**\\*.function",
+			"portal-impl\\**\\*.macro", "portal-impl\\**\\*.testcase",
+			"tools\\sdk\\**"
 		};
 
 		String[] includes = new String[] {
@@ -300,11 +307,12 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			"**\\*.xml"
 		};
 
-		Properties exclusions = getExclusionsProperties(
-			"source_formatter_xml_exclusions.properties");
+		List<String> exclusions = getExclusions("xml.excludes");
 
-		_friendlyUrlRoutesSortExclusions = getExclusionsProperties(
-			"source_formatter_friendly_url_routes_sort_exclusions.properties");
+		_friendlyUrlRoutesSortExclusions = getExclusions(
+			"friendly.url.routes.sort.excludes");
+		_numericalPortletNameElementExclusions = getExclusions(
+			"numerical.portlet.name.element.excludes");
 
 		List<String> fileNames = getFileNames(excludes, includes);
 
@@ -335,11 +343,12 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			else if (fileName.endsWith("routes.xml")) {
 				newContent = formatFriendlyURLRoutesXML(fileName, newContent);
 			}
-			else if ((portalSource &&
+			else if (fileName.endsWith("/liferay-portlet.xml") ||
+					 (portalSource &&
 					  fileName.endsWith("/portlet-custom.xml")) ||
 					 (!portalSource && fileName.endsWith("/portlet.xml"))) {
 
-				newContent = formatPortletXML(newContent);
+				newContent = formatPortletXML(fileName, newContent);
 			}
 			else if (portalSource &&
 					 (fileName.endsWith(".action") ||
@@ -347,7 +356,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 					  fileName.endsWith(".macro") ||
 					  fileName.endsWith(".testcase"))) {
 
-				newContent = formatPoshiXML(newContent);
+				newContent = formatPoshiXML(fileName, newContent);
 			}
 			else if (portalSource && fileName.endsWith("/service.xml")) {
 				formatServiceXML(fileName, newContent);
@@ -358,7 +367,9 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			else if (portalSource && fileName.endsWith("/tiles-defs.xml")) {
 				formatTilesDefsXML(fileName, newContent);
 			}
-			else if ((portalSource && fileName.endsWith("WEB-INF/web.xml")) ||
+			else if ((portalSource &&
+					  fileName.endsWith(
+						  "portal-web/docroot/WEB-INF/web.xml")) ||
 					 (!portalSource && fileName.endsWith("/web.xml"))) {
 
 				newContent = formatWebXML(fileName, newContent);
@@ -572,7 +583,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return sb.toString();
 	}
 
-	protected String formatPortletXML(String content)
+	protected String formatPortletXML(String fileName, String content)
 		throws DocumentException, IOException {
 
 		Document document = saxReaderUtil.read(content);
@@ -581,9 +592,31 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 		rootElement.sortAttributes(true);
 
+		boolean checkNumericalPortletNameElement = !isExcluded(
+			_numericalPortletNameElementExclusions, fileName);
+
 		List<Element> portletElements = rootElement.elements("portlet");
 
 		for (Element portletElement : portletElements) {
+			if (checkNumericalPortletNameElement) {
+				Element portletNameElement = portletElement.element(
+					"portlet-name");
+
+				String portletNameText = portletNameElement.getText();
+
+				if (!Validator.isNumber(portletNameText)) {
+					processErrorMessage(
+						fileName,
+						fileName +
+							" contains a nonstandard portlet-name element " +
+								portletNameText);
+				}
+			}
+
+			if (fileName.endsWith("/liferay-portlet.xml")) {
+				continue;
+			}
+
 			portletElement.sortElementsByChildElement("init-param", "name");
 
 			Element portletPreferencesElement = portletElement.element(
@@ -598,7 +631,11 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return document.formattedString();
 	}
 
-	protected String formatPoshiXML(String content) {
+	protected String formatPoshiXML(String fileName, String content)
+		throws IOException {
+
+		content = sortPoshiAttributes(fileName, content);
+
 		content = sortPoshiCommands(content);
 
 		content = sortPoshiVariables(content);
@@ -834,6 +871,58 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			newContent.substring(y);
 	}
 
+	protected String sortPoshiAttributes(String fileName, String content)
+		throws IOException {
+
+		StringBundler sb = new StringBundler();
+
+		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
+			new UnsyncStringReader(content));
+
+		String line = null;
+
+		int lineCount = 0;
+
+		boolean sortAttributes = true;
+
+		while ((line = unsyncBufferedReader.readLine()) != null) {
+			lineCount++;
+
+			String trimmedLine = StringUtil.trimLeading(line);
+
+			if (sortAttributes) {
+				if (trimmedLine.startsWith(StringPool.LESS_THAN) &&
+					trimmedLine.endsWith(StringPool.GREATER_THAN) &&
+					!trimmedLine.startsWith("<%") &&
+					!trimmedLine.startsWith("<!")) {
+
+					line = sortAttributes(fileName, line, lineCount, false);
+				}
+				else if (trimmedLine.startsWith("<![CDATA[") &&
+						 !trimmedLine.endsWith("]]>")) {
+
+					sortAttributes = false;
+				}
+			}
+			else if (trimmedLine.endsWith("]]>")) {
+				sortAttributes = true;
+			}
+
+			sb.append(line);
+			sb.append("\n");
+		}
+
+		unsyncBufferedReader.close();
+
+		content = sb.toString();
+
+		if (content.endsWith("\n")) {
+			content = content.substring(0, content.length() - 1);
+		}
+
+		return content;
+	}
+
 	protected String sortPoshiCommands(String content) {
 		Matcher matcher = _poshiCommandsPattern.matcher(content);
 
@@ -971,10 +1060,11 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	private static Pattern _commentPattern2 = Pattern.compile(
 		"[\t ]-->\n[\t<]");
 
-	private Properties _friendlyUrlRoutesSortExclusions;
+	private List<String> _friendlyUrlRoutesSortExclusions;
+	private List<String> _numericalPortletNameElementExclusions;
 	private Pattern _poshiClosingTagPattern = Pattern.compile("</[^>/]*>");
 	private Pattern _poshiCommandsPattern = Pattern.compile(
-		"\\<command name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
+		"\\<command.*name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
 			"[\\n|\\t]*?(?:[^(?:/\\>)]*?--\\>)*+");
 	private Pattern _poshiElementWithNoChildPattern = Pattern.compile(
 		"\\\"[\\s]*\\>[\\n\\s\\t]*\\</[a-z\\-]+>");
