@@ -69,7 +69,7 @@ public class EhcachePortalCacheClusterReplicator implements CacheEventListener {
 	public void notifyElementPut(Ehcache ehcache, Element element)
 		throws CacheException {
 
-		if (!_replicatePuts) {
+		if (!_replicatePuts || !ClusterReplicationThreadLocal.isReplicate()) {
 			return;
 		}
 
@@ -92,7 +92,9 @@ public class EhcachePortalCacheClusterReplicator implements CacheEventListener {
 	public void notifyElementRemoved(Ehcache ehcache, Element element)
 		throws CacheException {
 
-		if (!_replicateRemovals) {
+		if (!_replicateRemovals ||
+			!ClusterReplicationThreadLocal.isReplicate()) {
+
 			return;
 		}
 
@@ -110,7 +112,7 @@ public class EhcachePortalCacheClusterReplicator implements CacheEventListener {
 		throws CacheException {
 
 		if (!_replicateUpdates ||
-			!ClusterReplicationThreadLocal.isReplicateUpdate()) {
+			!ClusterReplicationThreadLocal.isReplicate()) {
 
 			return;
 		}
@@ -132,7 +134,9 @@ public class EhcachePortalCacheClusterReplicator implements CacheEventListener {
 
 	@Override
 	public void notifyRemoveAll(Ehcache ehcache) {
-		if (!_replicateRemovals) {
+		if (!_replicateRemovals ||
+			!ClusterReplicationThreadLocal.isReplicate()) {
+
 			return;
 		}
 

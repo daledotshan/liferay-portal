@@ -43,6 +43,11 @@ public class FinalizeManagerTest {
 	}
 
 	@Test
+	public void testConstructor() {
+		new FinalizeManager();
+	}
+
+	@Test
 	public void testRegisterWithoutThread() throws InterruptedException {
 		System.setProperty(_THREAD_ENABLED_KEY, Boolean.FALSE.toString());
 

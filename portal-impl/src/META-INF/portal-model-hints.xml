@@ -535,7 +535,7 @@
 			<hint name="max-length">200</hint>
 		</field>
 		<field name="owner" type="String">
-			<hint name="max-length">255</hint>
+			<hint name="max-length">1024</hint>
 		</field>
 		<field name="inheritable" type="boolean" />
 		<field name="expirationDate" type="Date" />
@@ -1097,11 +1097,13 @@
 		<field name="userId" type="long" />
 		<field name="type" type="String" />
 		<field name="timestamp" type="long" />
+		<field name="deliveryType" type="int" />
 		<field name="deliverBy" type="long" />
 		<field name="delivered" type="boolean" />
 		<field name="payload" type="String">
 			<hint-collection name="CLOB" />
 		</field>
+		<field name="actionRequired" type="boolean" />
 		<field name="archived" type="boolean" />
 	</model>
 	<model name="com.liferay.portal.model.UserTracker">
@@ -1388,6 +1390,9 @@
 			<sanitize content-type="text/plain" modes="ALL" />
 			<validator name="required" />
 		</field>
+		<field name="deckTitle" type="String">
+			<hint-collection name="TEXTAREA" />
+		</field>
 		<field name="urlTitle" type="String">
 			<hint name="max-length">150</hint>
 		</field>
@@ -1499,7 +1504,7 @@
 			<sanitize content-type="text/plain" modes="ALL" />
 		</field>
 		<field name="description" type="String">
-			<hint-collection name="TEXTAREA" />
+			<hint-collection name="CLOB" />
 			<sanitize content-type="text/html" modes="ALL" />
 		</field>
 		<field name="location" type="String">
@@ -1775,7 +1780,7 @@
 		<field name="description" type="String">
 			<hint-collection name="TEXTAREA" />
 		</field>
-		<field name="xml" type="String">
+		<field name="data" type="String">
 			<hint-collection name="CLOB" />
 		</field>
 	</model>
@@ -1807,7 +1812,7 @@
 		<field name="description" type="String" localized="true">
 			<hint-collection name="TEXTAREA" />
 		</field>
-		<field name="xsd" type="String">
+		<field name="definition" type="String">
 			<hint-collection name="CLOB" />
 		</field>
 		<field name="storageType" type="String" />
@@ -1830,7 +1835,10 @@
 		<field name="modifiedDate" type="Date" />
 		<field name="classNameId" type="long" />
 		<field name="classPK" type="long" />
-		<field name="templateKey" type="String" />
+		<field name="templateKey" type="String">
+			<hint name="upper-case">true</hint>
+			<hint name="auto-escape">false</hint>
+		</field>
 		<field name="name" type="String" localized="true">
 			<validator name="required" />
 		</field>
@@ -1886,7 +1894,7 @@
 		<field name="classNameId" type="long" />
 		<field name="classPK" type="long" />
 		<field name="data" type="String">
-			<hint-collection name="TEXTAREA" />
+			<hint-collection name="CLOB" />
 		</field>
 	</model>
 	<model name="com.liferay.portlet.journal.model.JournalArticle">
@@ -2037,6 +2045,7 @@
 		<field name="description" type="String">
 			<hint-collection name="TEXTAREA" />
 		</field>
+		<field name="restrictionType" type="int" />
 		<field name="status" type="int" />
 		<field name="statusByUserId" type="long" />
 		<field name="statusByUserName" type="String" />
@@ -2559,7 +2568,9 @@
 	<model name="com.liferay.portlet.shopping.model.ShoppingOrderItem">
 		<field name="orderItemId" type="long" />
 		<field name="orderId" type="long" />
-		<field name="itemId" type="String" />
+		<field name="itemId" type="String">
+			<hint-collection name="CLOB" />
+		</field>
 		<field name="sku" type="String" />
 		<field name="name" type="String">
 			<hint name="max-length">200</hint>
