@@ -807,13 +807,16 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		user.setEmailAddress(emailAddress);
 		user.setFacebookId(facebookId);
 
-		Long ldapServerId = (Long)serviceContext.getAttribute("ldapServerId");
+		if (serviceContext != null) {
+			Long ldapServerId = (Long)serviceContext.getAttribute(
+				"ldapServerId");
 
-		if (ldapServerId != null) {
-			user.setLdapServerId(ldapServerId);
-		}
-		else {
-			user.setLdapServerId(-1);
+			if (Validator.isNotNull(ldapServerId)) {
+				user.setLdapServerId(ldapServerId);
+			}
+			else {
+				user.setLdapServerId(-1);
+			}
 		}
 
 		user.setOpenId(openId);
@@ -3767,34 +3770,38 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 	@Override
 	public boolean sendPasswordByEmailAddress(
-			long companyId, String emailAddress)
+			long companyId, String emailAddress, ServiceContext serviceContext)
 		throws PortalException {
 
 		User user = userPersistence.findByC_EA(companyId, emailAddress);
 
 		return sendPassword(
 			user.getCompanyId(), user.getEmailAddress(), null, null, null, null,
-			ServiceContextThreadLocal.getServiceContext());
+			serviceContext);
 	}
 
 	@Override
-	public boolean sendPasswordByScreenName(long companyId, String screenName)
+	public boolean sendPasswordByScreenName(
+			long companyId, String screenName, ServiceContext serviceContext)
 		throws PortalException {
 
 		User user = userPersistence.findByC_SN(companyId, screenName);
 
 		return sendPassword(
 			user.getCompanyId(), user.getEmailAddress(), null, null, null, null,
-			ServiceContextThreadLocal.getServiceContext());
+			serviceContext);
 	}
 
 	@Override
-	public boolean sendPasswordByUserId(long userId) throws PortalException {
+	public boolean sendPasswordByUserId(
+			long companyId, long userId, ServiceContext serviceContext)
+		throws PortalException {
+
 		User user = userPersistence.findByPrimaryKey(userId);
 
 		return sendPassword(
 			user.getCompanyId(), user.getEmailAddress(), null, null, null, null,
-			ServiceContextThreadLocal.getServiceContext());
+			serviceContext);
 	}
 
 	/**
@@ -4295,9 +4302,13 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			long userId, long[] newGroupIds, ServiceContext serviceContext)
 		throws PortalException {
 
-		updateGroups(
-			userId, newGroupIds, serviceContext,
-			serviceContext.isIndexingEnabled());
+		boolean indexingEnabled = false;
+
+		if (serviceContext != null) {
+			indexingEnabled = serviceContext.isIndexingEnabled();
+		}
+
+		updateGroups(userId, newGroupIds, serviceContext, indexingEnabled);
 	}
 
 	/**
@@ -5192,10 +5203,13 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		user.setFacebookId(facebookId);
 
-		Long ldapServerId = (Long)serviceContext.getAttribute("ldapServerId");
+		if (serviceContext != null) {
+			Long ldapServerId = (Long)serviceContext.getAttribute(
+				"ldapServerId");
 
-		if (ldapServerId != null) {
-			user.setLdapServerId(ldapServerId);
+			if (Validator.isNotNull(ldapServerId)) {
+				user.setLdapServerId(ldapServerId);
+			}
 		}
 
 		user.setOpenId(openId);
