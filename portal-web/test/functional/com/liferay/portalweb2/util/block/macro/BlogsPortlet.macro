@@ -1,17 +1,45 @@
 <definition>
 	<command name="configureDisplayTemplatePG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletOption" value="Configuration" />
-		</execute>
+		<if>
+			<equals arg1="${soPage}" arg2="true" />
+			<then>
+				<execute macro="SOPortlet#gotoPortletOptions">
+					<var name="portletName" value="Blogs" />
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</then>
+			<else>
+				<execute macro="Portlet#gotoPortletOptions">
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</else>
+		</if>
 
 		<execute action="PGBlogsConfiguration#selectFrame" locator-key1="CONFIGURATION_IFRAME" />
-		<execute action="PGBlogsConfiguration#click" locator-key1="DISPLAY_SETTINGS_DISPLAY_TEMPLATE_MENULIST" />
-
-		<var name="key_displaySelection" value="${displaySelection}" />
-
-		<execute action="PGBlogsConfiguration#doubleClick" locator-key1="DISPLAY_SETTINGS_DISPLAY_TEMPLATE_SELECTION" />
+		<execute action="PGBlogsConfiguration#select" locator-key1="DISPLAY_SETTINGS_DISPLAY_TEMPLATE_MENULIST" value1="${displaySelection}" />
 		<execute action="PGBlogsConfiguration#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
+		<execute action="PGBlogsConfiguration#assertElementPresent" locator-key1="SUCCESS_MESSAGE" value1="You have successfully updated the setup." />
+	</command>
 
+	<command name="configureMaxItemsToDisplayPG">
+		<if>
+			<equals arg1="${soPage}" arg2="true" />
+			<then>
+				<execute macro="SOPortlet#gotoPortletOptions">
+					<var name="portletName" value="Blogs" />
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</then>
+			<else>
+				<execute macro="Portlet#gotoPortletOptions">
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</else>
+		</if>
+
+		<execute action="PGBlogsConfiguration#selectFrame" locator-key1="CONFIGURATION_IFRAME" />
+		<execute action="PGBlogsConfiguration#select" locator-key1="DISPLAY_SETTINGS_MAXIMUM_ITEMS_TO_DISPLAY_SELECT" value1="${maximumItemsToDisplay}" />
+		<execute action="PGBlogsConfiguration#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
 		<execute action="PGBlogsConfiguration#assertElementPresent" locator-key1="SUCCESS_MESSAGE" value1="You have successfully updated the setup." />
 	</command>
 
@@ -28,9 +56,20 @@
 	</command>
 
 	<command name="configureScopePG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletOption" value="Configuration" />
-		</execute>
+		<if>
+			<equals arg1="${soPage}" arg2="true" />
+			<then>
+				<execute macro="SOPortlet#gotoPortletOptions">
+					<var name="portletName" value="Blogs" />
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</then>
+			<else>
+				<execute macro="Portlet#gotoPortletOptions">
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</else>
+		</if>
 
 		<execute action="BasePortletConfiguration#selectFrame" locator-key1="CONFIGURATION_IFRAME" />
 
@@ -43,6 +82,11 @@
 
 		<execute action="PGBlogsConfigurationScope#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="You have successfully updated the setup." />
 		<execute action="PGBlogsConfigurationScope#assertTextEquals" locator-key1="SCOPE_MENULIST" value1="${scopeSelection}" />
+	</command>
+
+	<command name="subscribePG">
+		<execute action="PGBlogs#assertClick" locator-key1="SUBSCRIBE_LINK" value1="Subscribe" />
+		<execute action="PGBlogs#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
 	</command>
 
 	<command name="tearDownConfigurationDisplaySettingsCP">
@@ -69,16 +113,23 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletOption" value="Configuration" />
-		</execute>
+		<if>
+			<equals arg1="${soPage}" arg2="true" />
+			<then>
+				<execute macro="SOPortlet#gotoPortletOptions">
+					<var name="portletName" value="Blogs" />
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</then>
+			<else>
+				<execute macro="Portlet#gotoPortletOptions">
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</else>
+		</if>
 
 		<execute action="PGBlogsConfiguration#selectFrame" locator-key1="CONFIGURATION_IFRAME" />
-		<execute action="PGBlogsConfiguration#click" locator-key1="DISPLAY_SETTINGS_DISPLAY_TEMPLATE_MENULIST" />
-
-		<var name="key_displaySelection" value="Full Content" />
-
-		<execute action="PGBlogsConfiguration#doubleClick" locator-key1="DISPLAY_SETTINGS_DISPLAY_TEMPLATE_SELECTION" />
+		<execute action="PGBlogsConfiguration#select" locator-key1="DISPLAY_SETTINGS_DISPLAY_TEMPLATE_MENULIST" value1="Full Content" />
 		<execute action="PGBlogsConfiguration#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
 
 		<execute action="PGBlogsConfiguration#assertElementPresent" locator-key1="SUCCESS_MESSAGE" value1="You have successfully updated the setup." />
@@ -92,6 +143,15 @@
 		<execute macro="BlogsPortlet#configureScopePG">
 			<var name="scopeSelection" value="Liferay" />
 		</execute>
+	</command>
+
+	<command name="tearDownSubscribePG">
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute action="PGBlogs#assertClick" locator-key1="UNSUBSCRIBE_LINK" value1="Unsubscribe" />
+		<execute action="PGBlogs#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
 	</command>
 
 	<command name="viewAsSiteMemberPG">
@@ -114,6 +174,10 @@
 		<execute action="PGBlogs#assertElementNotPresent" locator-key1="PERMISSIONS_BUTTON" value1="Permissions" />
 		<execute action="PGBlogs#assertElementNotPresent" locator-key1="SUBSCRIBE_LINK" />
 		<execute action="PGBlogs#assertTextEquals" locator-key1="RSS_LINK" value1="RSS" />
+	</command>
+
+	<command name="viewNoSubscribePG">
+		<execute action="PGBlogs#assertElementNotPresent" locator-key1="SUBSCRIBE_LINK" />
 	</command>
 
 	<command name="viewPermissionsPG">
@@ -150,9 +214,20 @@
 	</command>
 
 	<command name="viewScopePG">
-		<execute macro="Portlet#gotoPortletOptions">
-			<var name="portletOption" value="Configuration" />
-		</execute>
+		<if>
+			<equals arg1="${soPage}" arg2="true" />
+			<then>
+				<execute macro="SOPortlet#gotoPortletOptions">
+					<var name="portletName" value="Blogs" />
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</then>
+			<else>
+				<execute macro="Portlet#gotoPortletOptions">
+					<var name="portletOption" value="Configuration" />
+				</execute>
+			</else>
+		</if>
 
 		<execute action="BasePortletConfiguration#selectFrame" locator-key1="CONFIGURATION_IFRAME" />
 

@@ -76,6 +76,8 @@ if (assetRendererFactory != null) {
 		viewFullContentURLString = HttpUtil.setParameter(viewFullContentURLString, "redirect", currentURL);
 
 		viewURL = assetRenderer.getURLViewInContext(liferayPortletRequest, liferayPortletResponse, viewFullContentURLString);
+
+		viewURL = AssetUtil.checkViewURL(assetEntry, viewInContext, viewURL, currentURL, themeDisplay);
 	}
 	else {
 		viewURL = viewFullContentURL.toString();
@@ -100,7 +102,7 @@ Summary summary = null;
 if (indexer != null) {
 	String snippet = document.get(Field.SNIPPET);
 
-	summary = indexer.getSummary(document, locale, snippet, viewFullContentURL, renderRequest, renderResponse);
+	summary = indexer.getSummary(document, snippet, viewFullContentURL, renderRequest, renderResponse);
 }
 else if (assetRenderer != null) {
 	summary = new Summary(locale, assetRenderer.getTitle(locale), assetRenderer.getSearchSummary(locale), viewFullContentURL);
@@ -125,19 +127,24 @@ if (summary != null) {
 	<span class="asset-entry">
 		<span class="asset-entry-type">
 			<%= ResourceActionsUtil.getModelResource(themeDisplay.getLocale(), className) %>
+
+			<c:if test="<%= locale != summary.getLocale() %>">
+				<liferay-ui:icon image='<%= "../language/" + LocaleUtil.toLanguageId(summary.getLocale()) %>' message='<%= LanguageUtil.format(locale, "this-result-comes-from-the-x-version-of-this-web-content", LocaleUtil.getLongDisplayName(summary.getLocale(), new HashSet<String>())) %>' />
+			</c:if>
 		</span>
 
 		<span class="asset-entry-title">
-			<a href="<%= viewURL %>">
-				<c:if test="<%= assetRenderer != null %>">
-					<img alt="" src="<%= assetRenderer.getIconPath(renderRequest) %>" />
-				</c:if>
-
+			<a class="<%= (assetRenderer != null) ? assetRenderer.getIconCssClass() : StringPool.BLANK %>" href="<%= viewURL %>">
 				<%= summary.getHighlightedTitle() %>
 			</a>
 
 			<c:if test="<%= Validator.isNotNull(downloadURL) %>">
-				<liferay-ui:icon image="../arrows/01_down" label="<%= false %>" message='<%= LanguageUtil.format(pageContext, "download-x", HtmlUtil.escape(summary.getTitle()), false) %>' url="<%= downloadURL %>" />
+				<liferay-ui:icon
+					iconCssClass="icon-download-alt"
+					label="<%= false %>"
+					message='<%= LanguageUtil.format(request, "download-x", HtmlUtil.escape(summary.getTitle()), false) %>'
+					url="<%= downloadURL %>"
+				/>
 			</c:if>
 		</span>
 
@@ -187,6 +194,12 @@ if (summary != null) {
 					<div class="asset-entry-categories">
 
 						<%
+						Locale assetCategoryLocale = locale;
+
+						if (locale != summary.getLocale()) {
+							assetCategoryLocale = summary.getLocale();
+						}
+
 						for (int i = 0; i < assetCategoryIds.length; i++) {
 							long assetCategoryId = GetterUtil.getLong(assetCategoryIds[i]);
 
@@ -206,18 +219,16 @@ if (summary != null) {
 
 							PortletURL categoryURL = PortletURLUtil.clone(portletURL, renderResponse);
 
-							categoryURL.setParameter(Field.ASSET_CATEGORY_TITLES, assetCategory.getTitle(LocaleUtil.getDefault()));
+							categoryURL.setParameter(Field.ASSET_CATEGORY_IDS, String.valueOf(assetCategory.getCategoryId()));
 						%>
 
 							<c:if test="<%= i == 0 %>">
 								<div class="taglib-asset-categories-summary">
-									<span class="asset-vocabulary">
-										<%= HtmlUtil.escape(assetVocabulary.getTitle(locale)) %>:
-									</span>
+									<%= HtmlUtil.escape(assetVocabulary.getTitle(assetCategoryLocale)) %>:
 							</c:if>
 
 							<a class="asset-category" href="<%= categoryURL.toString() %>">
-								<%= _buildAssetCategoryPath(assetCategory, locale) %>
+								<%= _buildAssetCategoryPath(assetCategory, assetCategoryLocale) %>
 							</a>
 
 							<c:if test="<%= (i + 1) == assetCategoryIds.length %>">

@@ -15,7 +15,6 @@
 package com.liferay.portlet.journal.asset;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -38,6 +37,7 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portlet.asset.model.BaseAssetRenderer;
+import com.liferay.portlet.asset.model.DDMFieldReader;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleConstants;
 import com.liferay.portlet.journal.model.JournalArticleDisplay;
@@ -105,6 +105,11 @@ public class JournalArticleAssetRenderer
 	@Override
 	public long getClassPK() {
 		return getClassPK(_article);
+	}
+
+	@Override
+	public DDMFieldReader getDDMFieldReader() {
+		return new JournalArticleDDMFieldReader(_article);
 	}
 
 	@Override
@@ -278,11 +283,10 @@ public class JournalArticleAssetRenderer
 			(ThemeDisplay)liferayPortletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		Layout layout = themeDisplay.getLayout();
+		Layout layout = _article.getLayout();
 
-		if (Validator.isNotNull(_article.getLayoutUuid())) {
-			layout = LayoutLocalServiceUtil.getLayoutByUuidAndCompanyId(
-				_article.getLayoutUuid(), _article.getCompanyId());
+		if (layout == null) {
+			layout = themeDisplay.getLayout();
 		}
 
 		String portletId = (String)liferayPortletRequest.getAttribute(
@@ -354,7 +358,7 @@ public class JournalArticleAssetRenderer
 
 	@Override
 	public boolean hasEditPermission(PermissionChecker permissionChecker)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return JournalArticlePermission.contains(
 			permissionChecker, _article, ActionKeys.UPDATE);
@@ -362,7 +366,7 @@ public class JournalArticleAssetRenderer
 
 	@Override
 	public boolean hasViewPermission(PermissionChecker permissionChecker)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return JournalArticlePermission.contains(
 			permissionChecker, _article, ActionKeys.VIEW);
