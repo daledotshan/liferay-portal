@@ -51,7 +51,13 @@ public class WorkflowConstants {
 
 	public static final String CONTEXT_TRANSITION_NAME = "transitionName";
 
+	public static final String CONTEXT_URL = "url";
+
 	public static final String CONTEXT_USER_ID = "userId";
+
+	public static final String CONTEXT_USER_PORTRAIT_URL = "userPortraitURL";
+
+	public static final String CONTEXT_USER_URL = "userURL";
 
 	public static final long DEFAULT_GROUP_ID = 0;
 
@@ -149,7 +155,7 @@ public class WorkflowConstants {
 			return "label-info";
 		}
 		else if (status == STATUS_EXPIRED) {
-			return "label-important";
+			return "label-danger";
 		}
 		else if (status == STATUS_PENDING) {
 			return "label-warning";

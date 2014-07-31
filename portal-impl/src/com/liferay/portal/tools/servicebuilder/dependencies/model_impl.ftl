@@ -30,7 +30,6 @@ import com.liferay.portal.LocaleException;
 import com.liferay.portal.NoSuchModelException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lar.StagedModelType;
@@ -38,6 +37,7 @@ import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -632,7 +632,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 		<#if column.userUuid>
 			@Override
-			public String get${column.methodUserUuidName}() throws SystemException {
+			public String get${column.methodUserUuidName}() {
 				try {
 					User user = UserLocalServiceUtil.getUserById(get${column.methodName}());
 
@@ -661,7 +661,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 	<#list cacheFields as cacheField>
 		<#assign variableName = serviceBuilder.getVariableName(cacheField)>
-		<#assign methodName = textFormatter.format(variableName, 6)>
+		<#assign methodName = serviceBuilder.getCacheFieldMethodName(cacheField)>
 		<#assign typeName = cacheField.getType().getGenericValue()>
 
 		<#if methodName != "DefaultLanguageId">
@@ -717,6 +717,10 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		public String getContainerModelName() {
 			<#if entity.hasColumn("name")>
 				return String.valueOf(getName());
+			<#elseif entity.hasColumn("title")>
+				<#assign titleColumn = entity.getColumn("title")>
+
+				return String.valueOf(getTitle(<#if titleColumn.isLocalized()>LocaleThreadLocal.getThemeDisplayLocale()</#if>));
 			<#else>
 				return String.valueOf(getContainerModelId());
 			</#if>
@@ -732,6 +736,34 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			public void setParentContainerModelId(long parentContainerModelId) {
 			}
 		</#if>
+	</#if>
+
+	<#if entity.isHierarchicalTree()>
+		public long getNestedSetsTreeNodeLeft() {
+			return _left${pkColumn.methodName};
+		}
+
+		public long getNestedSetsTreeNodeRight() {
+			return _right${pkColumn.methodName};
+		}
+
+		public long getNestedSetsTreeNodeScopeId() {
+			<#if entity.hasColumn("groupId")>
+				<#assign scopeColumn = entity.getColumn("groupId")>
+			<#else>
+				<#assign scopeColumn = entity.getColumn("companyId")>
+			</#if>
+
+			return _${scopeColumn.name};
+		}
+
+		public void setNestedSetsTreeNodeLeft(long nestedSetsTreeNodeLeft) {
+			_left${pkColumn.methodName} = nestedSetsTreeNodeLeft;
+		}
+
+		public void setNestedSetsTreeNodeRight(long nestedSetsTreeNodeRight) {
+			_right${pkColumn.methodName} = nestedSetsTreeNodeRight;
+		}
 	</#if>
 
 	<#if entity.isStagedModel()>
@@ -754,7 +786,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#if>
 
 		@Override
-		public TrashEntry getTrashEntry() throws PortalException, SystemException {
+		public TrashEntry getTrashEntry() throws PortalException {
 			if (!isInTrash()) {
 				return null;
 			}
@@ -767,7 +799,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 			TrashHandler trashHandler = getTrashHandler();
 
-			if (!Validator.isNull(trashHandler.getContainerModelClassName())) {
+			if (!Validator.isNull(trashHandler.getContainerModelClassName(getPrimaryKey()))) {
 				ContainerModel containerModel = null;
 
 				try {
@@ -784,7 +816,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 						return trashedModel.getTrashEntry();
 					}
 
-					trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName());
+					trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName(containerModel.getContainerModelId()));
 
 					if (trashHandler == null) {
 						return null;
@@ -821,7 +853,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		public boolean isInTrashContainer() {
 			TrashHandler trashHandler = getTrashHandler();
 
-			if ((trashHandler == null) || Validator.isNull(trashHandler.getContainerModelClassName())) {
+			if ((trashHandler == null) || Validator.isNull(trashHandler.getContainerModelClassName(getPrimaryKey()))) {
 				return false;
 			}
 
@@ -843,7 +875,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		}
 
 		@Override
-		public boolean isInTrashExplicitly() throws SystemException {
+		public boolean isInTrashExplicitly() {
 			if (!isInTrash()) {
 				return false;
 			}
@@ -855,6 +887,21 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 			}
 
 			return false;
+		}
+
+		@Override
+		public boolean isInTrashImplicitly() {
+			if (!isInTrash()) {
+				return false;
+			}
+
+			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+
+			if (trashEntry != null) {
+				return false;
+			}
+
+			return true;
 		}
 	</#if>
 
@@ -977,7 +1024,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		}
 	</#if>
 
-	<#if entity.hasLocalizedColumn()>
+	<#if entity.isLocalizedModel()>
 		@Override
 		public String[] getAvailableLanguageIds() {
 			Set<String> availableLanguageIds = new TreeSet<String>();
@@ -1010,7 +1057,13 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 						return StringPool.BLANK;
 					}
 
-					return LocalizationUtil.getDefaultLanguageId(xml);
+					<#if entity.isGroupedModel()>
+						Locale defaultLocale = LocaleUtil.getSiteDefault();
+					<#else>
+						Locale defaultLocale = LocaleUtil.getDefault();
+					</#if>
+
+					return LocalizationUtil.getDefaultLanguageId(xml, defaultLocale);
 					<#break>
 				</#if>
 			</#list>
@@ -1018,13 +1071,23 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 		@Override
 		public void prepareLocalizedFieldsForImport() throws LocaleException {
-			prepareLocalizedFieldsForImport (null);
+			Locale defaultLocale = LocaleUtil.fromLanguageId(getDefaultLanguageId());
+
+			Locale[] availableLocales = LocaleUtil.fromLanguageIds(getAvailableLanguageIds());
+
+			Locale defaultImportLocale = LocalizationUtil.getDefaultImportLocale(${entity.name}.class.getName(), getPrimaryKey(), defaultLocale, availableLocales);
+
+			prepareLocalizedFieldsForImport(defaultImportLocale);
 		}
 
 		@Override
 		@SuppressWarnings("unused")
 		public void prepareLocalizedFieldsForImport(Locale defaultImportLocale) throws LocaleException {
-			Locale defaultLocale = LocaleUtil.getDefault();
+			<#if entity.isGroupedModel()>
+				Locale defaultLocale = LocaleUtil.getSiteDefault();
+			<#else>
+				Locale defaultLocale = LocaleUtil.getDefault();
+			</#if>
 
 			String modelDefaultLanguageId = getDefaultLanguageId();
 
@@ -1216,7 +1279,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 		<#list cacheFields as cacheField>
 			<#assign variableName = serviceBuilder.getVariableName(cacheField)>
-			<#assign methodName = textFormatter.format(variableName, 6)>
+			<#assign methodName = serviceBuilder.getCacheFieldMethodName(cacheField)>
 
 			set${methodName}(null);
 		</#list>
@@ -1256,7 +1319,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#list>
 
 		<#list cacheFields as cacheField>
-			<#assign methodName = textFormatter.format(serviceBuilder.getVariableName(cacheField), 6)>
+			<#assign methodName = serviceBuilder.getCacheFieldMethodName(cacheField)>
 
 			${entity.varName}CacheModel.${cacheField.name} = get${methodName}();
 		</#list>
