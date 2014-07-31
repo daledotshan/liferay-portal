@@ -21,19 +21,17 @@ String closeRedirect = ParamUtil.getString(request, "closeRedirect");
 
 Group selGroup = (Group)request.getAttribute(WebKeys.GROUP);
 
-Group group = (Group)request.getAttribute("edit_pages.jsp-group");
-Group liveGroup = (Group)request.getAttribute("edit_pages.jsp-liveGroup");
-long groupId = (Long)request.getAttribute("edit_pages.jsp-groupId");
-long liveGroupId = (Long)request.getAttribute("edit_pages.jsp-liveGroupId");
-long stagingGroupId = (Long)request.getAttribute("edit_pages.jsp-stagingGroupId");
-long selPlid = ((Long)request.getAttribute("edit_pages.jsp-selPlid")).longValue();
-boolean privateLayout = ((Boolean)request.getAttribute("edit_pages.jsp-privateLayout")).booleanValue();
-UnicodeProperties liveGroupTypeSettings = (UnicodeProperties)request.getAttribute("edit_pages.jsp-liveGroupTypeSettings");
-LayoutSet selLayoutSet = ((LayoutSet)request.getAttribute("edit_pages.jsp-selLayoutSet"));
+Group group = layoutsAdminDisplayContext.getGroup();
+Group liveGroup = layoutsAdminDisplayContext.getLiveGroup();
+long groupId = layoutsAdminDisplayContext.getGroupId();
+long liveGroupId = layoutsAdminDisplayContext.getLiveGroupId();
+boolean privateLayout = layoutsAdminDisplayContext.isPrivateLayout();
+UnicodeProperties liveGroupTypeSettings = liveGroup.getTypeSettingsProperties();
+LayoutSet selLayoutSet = layoutsAdminDisplayContext.getSelLayoutSet();
 
-String rootNodeName = (String)request.getAttribute("edit_pages.jsp-rootNodeName");
+String rootNodeName = layoutsAdminDisplayContext.getRootNodeName();
 
-PortletURL redirectURL = (PortletURL)request.getAttribute("edit_pages.jsp-redirectURL");
+PortletURL redirectURL = layoutsAdminDisplayContext.getRedirectURL();
 
 int pagesCount = 0;
 
@@ -76,7 +74,7 @@ boolean hasViewPagesPermission = (pagesCount > 0) && (liveGroup.isStaged() || se
 </div>
 
 <aui:nav-bar>
-	<aui:nav id="layoutsNav">
+	<aui:nav cssClass="navbar-nav" id="layoutsNav">
 		<c:if test="<%= hasViewPagesPermission %>">
 			<aui:nav-item data-value="view-pages" iconCssClass="icon-file" label="view-pages" />
 		</c:if>
@@ -110,8 +108,8 @@ boolean hasViewPagesPermission = (pagesCount > 0) && (liveGroup.isStaged() || se
 	<aui:input name="closeRedirect" type="hidden" value="<%= closeRedirect %>" />
 	<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 	<aui:input name="liveGroupId" type="hidden" value="<%= liveGroupId %>" />
-	<aui:input name="stagingGroupId" type="hidden" value="<%= stagingGroupId %>" />
-	<aui:input name="selPlid" type="hidden" value="<%= selPlid %>" />
+	<aui:input name="stagingGroupId" type="hidden" value="<%= layoutsAdminDisplayContext.getStagingGroupId() %>" />
+	<aui:input name="selPlid" type="hidden" value="<%= layoutsAdminDisplayContext.getSelPlid() %>" />
 	<aui:input name="privateLayout" type="hidden" value="<%= privateLayout %>" />
 	<aui:input name="layoutSetId" type="hidden" value="<%= selLayoutSet.getLayoutSetId() %>" />
 	<aui:input name="<%= PortletDataHandlerKeys.SELECTED_LAYOUTS %>" type="hidden" />
@@ -191,13 +189,13 @@ boolean hasViewPagesPermission = (pagesCount > 0) && (liveGroup.isStaged() || se
 			var ok = false;
 
 			if (currentValue == 0) {
-				ok = confirm('<%= UnicodeLanguageUtil.format(pageContext, "are-you-sure-you-want-to-deactivate-staging-for-x", liveGroup.getDescriptiveName(locale), false) %>');
+				ok = confirm('<%= UnicodeLanguageUtil.format(request, "are-you-sure-you-want-to-deactivate-staging-for-x", liveGroup.getDescriptiveName(locale), false) %>');
 			}
 			else if (currentValue == 1) {
-				ok = confirm('<%= UnicodeLanguageUtil.format(pageContext, "are-you-sure-you-want-to-activate-local-staging-for-x", liveGroup.getDescriptiveName(locale), false) %>');
+				ok = confirm('<%= UnicodeLanguageUtil.format(request, "are-you-sure-you-want-to-activate-local-staging-for-x", liveGroup.getDescriptiveName(locale), false) %>');
 			}
 			else if (currentValue == 2) {
-				ok = confirm('<%= UnicodeLanguageUtil.format(pageContext, "are-you-sure-you-want-to-activate-remote-staging-for-x", liveGroup.getDescriptiveName(locale), false) %>');
+				ok = confirm('<%= UnicodeLanguageUtil.format(request, "are-you-sure-you-want-to-activate-remote-staging-for-x", liveGroup.getDescriptiveName(locale), false) %>');
 			}
 
 			if (ok) {
@@ -231,7 +229,7 @@ boolean hasViewPagesPermission = (pagesCount > 0) && (liveGroup.isStaged() || se
 							cssClass: 'lfr-add-dialog',
 							width: 600
 						},
-						title: '<%= UnicodeLanguageUtil.get(pageContext, "add-page") %>'
+						title: '<%= UnicodeLanguageUtil.get(request, "add-page") %>'
 					}
 				);
 			}
@@ -252,7 +250,7 @@ boolean hasViewPagesPermission = (pagesCount > 0) && (liveGroup.isStaged() || se
 			Liferay.Util.focusFormField(content.one('input:text'));
 		}
 		else if (dataValue === 'view-pages') {
-			<liferay-portlet:actionURL plid="<%= selPlid %>" portletName="<%= PortletKeys.SITE_REDIRECTOR %>" var="viewPagesURL">
+			<liferay-portlet:actionURL plid="<%= layoutsAdminDisplayContext.getSelPlid() %>" portletName="<%= PortletKeys.SITE_REDIRECTOR %>" var="viewPagesURL">
 				<portlet:param name="struts_action" value="/my_sites/view" />
 				<portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" />
 				<portlet:param name="privateLayout" value="<%= String.valueOf(privateLayout) %>" />

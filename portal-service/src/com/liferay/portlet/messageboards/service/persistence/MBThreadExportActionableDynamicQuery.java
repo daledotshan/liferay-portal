@@ -18,7 +18,6 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ManifestSummary;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -32,12 +31,14 @@ import com.liferay.portlet.messageboards.model.MBThread;
 
 /**
  * @author Brian Wing Shun Chan
+ * @deprecated As of 7.0.0, replaced by {@link com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil#getExportActionableDynamicQuery()}
  * @generated
  */
+@Deprecated
 public class MBThreadExportActionableDynamicQuery
 	extends MBThreadActionableDynamicQuery {
 	public MBThreadExportActionableDynamicQuery(
-		PortletDataContext portletDataContext) throws SystemException {
+		PortletDataContext portletDataContext) {
 		_portletDataContext = portletDataContext;
 
 		setCompanyId(_portletDataContext.getCompanyId());
@@ -46,7 +47,7 @@ public class MBThreadExportActionableDynamicQuery
 	}
 
 	@Override
-	public long performCount() throws PortalException, SystemException {
+	public long performCount() throws PortalException {
 		ManifestSummary manifestSummary = _portletDataContext.getManifestSummary();
 
 		StagedModelType stagedModelType = getStagedModelType();
@@ -83,9 +84,7 @@ public class MBThreadExportActionableDynamicQuery
 	}
 
 	@Override
-	@SuppressWarnings("unused")
-	protected void performAction(Object object)
-		throws PortalException, SystemException {
+	protected void performAction(Object object) throws PortalException {
 		MBThread stagedModel = (MBThread)object;
 
 		StagedModelDataHandlerUtil.exportStagedModel(_portletDataContext,
