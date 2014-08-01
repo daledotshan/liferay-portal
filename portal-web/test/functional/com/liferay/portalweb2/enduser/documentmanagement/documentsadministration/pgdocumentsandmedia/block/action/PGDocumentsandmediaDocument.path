@@ -19,8 +19,23 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EXTEND_ACTION_PATH</td>
+	<td>PGDocumentsandmedia</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
 	<td>BACK_BUTTON</td>
-	<td>//a[@id='_20_TabsBack']/span[contains(.,'Back')]</td>
+	<td>//a[contains(@id,'TabsBack')]/span[contains(.,'Back')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ERROR_MESSAGE</td>
+	<td>xpath=(//div[contains(@class,'alert-danger')])[2]</td>
 	<td></td>
 </tr>
 <tr>
@@ -29,18 +44,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>SUCCESS_MESSAGE</td>
-	<td>//div[contains(@class,'alert-success')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>CHECKOUT_SUCCESS_MESSAGE</td>
 	<td>//div[contains(@class,'lfr-asset-column-details')]/div[contains(@class,'alert-success')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>BACK_BUTTON</td>
-	<td>//a[@id='_20_TabsBack']/span[contains(.,'Back')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -56,42 +61,42 @@
 <!--TOOLBAR-->
 <tr>
 	<td>TOOLBAR_DOWNLOAD_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Download')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Download')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_EDIT_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Edit')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Edit')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_MOVE_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Move')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Move')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_CHECKOUT_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Checkout')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Checkout')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_CANCEL_CHECKOUT_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Cancel Checkout')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Cancel Checkout')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_PERMISSIONS_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Permissions')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Permissions')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_CHECKIN_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Checkin')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Checkin')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_MOVE_TO_RECYCLE_BIN_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Move to the Recycle Bin')]</td>
+	<td>//div[contains(@id,'fileEntryToolbar')]/div/button[contains(.,'Move to the Recycle Bin')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -121,6 +126,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>DOCUMENT_INFO_RELATED_ASSETS_HEADER</td>
+	<td>//h2[contains(@class,'asset-links-title')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DOCUMENT_INFO_RELATED_ASSETS_TITLE</td>
+	<td>//li[@class='asset-links-list-item']//a/span</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DOCUMENT_INFO_LINKS</td>
 	<td>//div[@class='document-info']//div[@class='links']</td>
 	<td></td>
@@ -146,18 +161,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>DOCUMENT_INFO_WORKFLOW_STATUS</td>
+	<td>//span[@class='workflow-status']/strong</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DOCUMENT_INFO_LAST_UPDATED_BY</td>
-	<td>//div[@class='lfr-asset-icon lfr-asset-author' and contains(.,'Last Updated by Test Test')]</td>
+	<td>//div[contains(@class,'lfr-asset-icon') and contains(.,'Last Updated by Test Test')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>DOCUMENT_INFO_DATE</td>
-	<td>//div[@class='lfr-asset-icon lfr-asset-date']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>DOCUMENT_INFO_WORKFLOW_STATUS</td>
-	<td>//span[@class='workflow-status workflow-status-icon']</td>
+	<td>//div[contains(@class,'lfr-asset-icon') and contains(@class,'icon-calendar')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -180,82 +195,153 @@
 	<td></td>
 	<td></td>
 </tr>
+<!--AVERAGE_RATING-->
+<tr>
+	<td>AVERAGE_RATING</td>
+	<td>xPath=(//div[@class='rating-label'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_ICON_PNG</td>
+	<td>portal/icons/average_rating_star_icon.png</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SOCIAL_OFFICE_AVERAGE_RATING_STAR_ICON_PNG</td>
+	<td>so/icons/average_rating_star_icon.png</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_1</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star'])[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_2</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_3</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star'])[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_4</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star'])[4]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_5</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star'])[5]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_EMPTY_1</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star-empty'])[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_EMPTY_2</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star-empty'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_EMPTY_3</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star-empty'])[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_EMPTY_4</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star-empty'])[4]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AVERAGE_RATING_STAR_EMPTY_5</td>
+	<td>xPath=(//div[contains(@id,'_ratingScore')]//a[@class='rating-element icon-star-empty'])[5]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--METADATA_PANEL-->
-  <tr>
-  	<td>METADATA_PANEL_BOOLEAN</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${booleanValue}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_DATE</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${dateValue}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_DECIMAL</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${decimalValue}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_DOCUMENTS_AND_MEDIA</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Documents and Media') and contains(.,'${dmDocument}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_DOCUMENTS_AND_MEDIA_FILE</td>
-	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Documents and Media')]/a[contains(.,'${dmDocument}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_HTML</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${htmlContent}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_INTERGER</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${integerValue}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_LINK_TO_PAGE</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Link to Page') and contains(.,'${pageName}')]</td>
-  	<td></td>
-  </tr>
-  <tr>
-  	<td>METADATA_PANEL_LINK_TO_PAGE</td>
-  	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Link to Page')]/a[contains(.,'${pageName}')]</td>
-  	<td></td>
-  </tr>
- <tr>
- 	<td>METADATA_PANEL_NUMBER</td>
- 	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${numberValue}')]</td>
- 	<td></td>
- </tr>
- <tr>
- 	<td>METADATA_PANEL_RADIO</td>
- 	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${radioOption}')]</td>
- 	<td></td>
- </tr>
- <tr>
- 	<td>METADATA_PANEL_SELECT</td>
- 	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${selectOption}')]</td>
- 	<td></td>
- </tr>
- <tr>
- 	<td>METADATA_PANEL_TEXT</td>
- 	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${textContent}')]</td>
- 	<td></td>
- </tr>
- <tr>
- 	<td>METADATA_PANEL_TEXT_BOX</td>
- 	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Text Box') and contains(.,'${textBoxContent}')]</td>
- 	<td></td>
- </tr>
- <tr>
- 	<td></td>
- 	<td></td>
- 	<td></td>
- </tr>
+<tr>
+	<td>METADATA_PANEL_BOOLEAN</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_booleanValue}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_DATE</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_dateValue}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_DECIMAL</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_decimalValue}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_DOCUMENTS_AND_MEDIA</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Documents and Media') and contains(.,'${key_dmDocument}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_DOCUMENTS_AND_MEDIA_FILE</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Documents and Media')]/a[contains(.,'${key_dmDocument}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_HTML</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_htmlContent}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_INTERGER</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_integerValue}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_LINK_TO_PAGE</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Link to Page') and contains(.,'${key_pageName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_LINK_TO_PAGE</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Link to Page')]/a[contains(.,'${key_pageName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_NUMBER</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_numberValue}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_RADIO</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_radioOption}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_SELECT</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_selectOption}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_TEXT</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_textContent}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>METADATA_PANEL_TEXT_BOX</td>
+	<td>//div[@class='lfr-ddm-container']/div[contains(.,'Text Box') and contains(.,'${key_textBoxContent}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--COMMENTS-->
 <tr>
 	<td>COMMENTS_BE_THE_FIRST</td>
@@ -278,6 +364,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>COMMENTS_AUTHOR</td>
+	<td>//div[contains(@class,'lfr-discussion') and contains(.,'${key_commentBody}')]//span[@class='user-name']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>COMMENTS_BODY</td>
 	<td>//div[contains(@class,'lfr-discussion') and contains(.,'${key_commentBody}')]//div[@class='lfr-discussion-message']</td>
 	<td></td>
@@ -288,13 +379,48 @@
 	<td></td>
 </tr>
 <tr>
+	<td>COMMENTS_COMMENT_EDIT_FIELD</td>
+	<td>//textarea[contains(@id,'editReplyBody')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMMENTS_DELETE</td>
+	<td>//span[contains(.,'Delete')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMMENTS_DELETE_LINK</td>
+	<td>//span[contains(.,'Delete')]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMMENTS_EDIT</td>
+	<td>//span[contains(.,'Edit')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMMENTS_EDIT_LINK</td>
+	<td>//span[contains(.,'Edit')]/a</td>
+	<td></td>
+</tr>
+<tr>
 	<td>COMMENTS_REPLY_BUTTON</td>
 	<td>//div[@class='taglib-discussion']/form/fieldset/div/div[2]/div[2]/button[contains(.,'Reply')]</td>
 	<td></td>
 </tr>
 <tr>
+	<td>COMMENTS_SUBMIT_BUTTON</td>
+	<td>//div[@class='taglib-discussion']/form/fieldset/div/div[2]/div[2]/button[contains(.,'Submit')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>COMMENTS_CANCEL_BUTTON</td>
 	<td>//div[@class='taglib-discussion']/form/fieldset/div/div[2]/div[2]/button[contains(.,'Cancel')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMMENTS_PUBLISH_BUTTON</td>
+	<td>//div[@class='taglib-discussion']//button[contains(.,'Publish')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -367,17 +493,22 @@
 </tr>
 <tr>
 	<td>DOCUMENT_DETAILS_UPLOADER</td>
-	<td>//div[@class='asset-details-content']//div[@class='lfr-asset-icon lfr-asset-author']</td>
+	<td>//div[@class='asset-details-content']/div[contains(@class,'icon-user') and contains(@class,'lfr-asset-icon')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>DOCUMENT_DETAILS_DATE</td>
-	<td>//div[@class='asset-details-content']//div[@class='lfr-asset-icon lfr-asset-date']</td>
+	<td>//div[@class='asset-details-content']//div[contains(@class,'lfr-asset-icon') and contains(@class,'icon-calendar')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>DOCUMENT_DETAILS_WORKFLOW</td>
 	<td>//div[@class='asset-details-content']//span[contains(@class,'workflow-status')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DOCUMENT_DETAILS_WORKFLOW_PNG</td>
+	<td>portal/icons/document_detail_workflow.png</td>
 	<td></td>
 </tr>
 <tr>
