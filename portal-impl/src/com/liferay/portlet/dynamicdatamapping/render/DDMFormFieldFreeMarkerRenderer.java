@@ -324,6 +324,8 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 
 		StringBundler sb = new StringBundler(fieldRepetition);
 
+		StringBundler childrenHTML = new StringBundler(2);
+
 		while (fieldRepetition > 0) {
 			offset = getFieldOffset(
 				fieldsDisplayValues, name, ddmFieldsCounter.get(name));
@@ -341,8 +343,6 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 			if (fieldDisplayable) {
 				ddmFieldsCounter.incrementKey(name);
 			}
-
-			StringBundler childrenHTML = new StringBundler(2);
 
 			childrenHTML.append(
 				getHTML(
@@ -382,7 +382,11 @@ public class DDMFormFieldFreeMarkerRenderer implements DDMFormFieldRenderer {
 			fieldRepetition--;
 		}
 
-		return sb.toString();
+		if (Validator.isNull(sb.toString().replace("\n", "")))
+			return childrenHTML.toString();
+
+		else
+			return sb.toString();
 	}
 
 	protected String getFieldNamespace(
