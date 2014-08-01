@@ -188,9 +188,9 @@ public class ProcessUtil {
 			return _stdOutFuture.isDone();
 		}
 
+		private final Process _process;
 		private final Future<E> _stdErrFuture;
 		private final Future<O> _stdOutFuture;
-		private final Process _process;
 
 	}
 
@@ -233,8 +233,7 @@ public class ProcessUtil {
 					int exitCode = _process.waitFor();
 
 					if (exitCode != 0) {
-						throw new ProcessException(
-							"Subprocess terminated with exit code " + exitCode);
+						throw new TerminationProcessException(exitCode);
 					}
 				}
 				catch (InterruptedException ie) {
