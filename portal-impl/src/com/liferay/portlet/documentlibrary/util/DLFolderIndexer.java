@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
@@ -41,8 +40,8 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFolderActionableDynamicQuery;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.portlet.PortletRequest;
@@ -61,9 +60,8 @@ public class DLFolderIndexer extends BaseIndexer {
 
 	public DLFolderIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {
-				Field.COMPANY_ID, Field.DESCRIPTION, Field.ENTRY_CLASS_NAME,
-				Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID});
+			Field.COMPANY_ID, Field.DESCRIPTION, Field.ENTRY_CLASS_NAME,
+			Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID);
 		setFilterSearch(true);
 		setPermissionAware(true);
 	}
@@ -171,17 +169,26 @@ public class DLFolderIndexer extends BaseIndexer {
 
 	@Override
 	protected void doReindex(Object obj) throws Exception {
-		DLFolder dlFolder = (DLFolder)obj;
+		if (obj instanceof List<?>) {
+			List<DLFolder> dlFolders = (List<DLFolder>)obj;
 
-		if (!dlFolder.isApproved() && !dlFolder.isInTrash()) {
-			return;
+			for (DLFolder dlFolder : dlFolders) {
+				doReindex(dlFolder);
+			}
 		}
+		else if (obj instanceof DLFolder) {
+			DLFolder dlFolder = (DLFolder)obj;
 
-		Document document = getDocument(dlFolder);
+			if (!dlFolder.isApproved() && !dlFolder.isInTrash()) {
+				return;
+			}
 
-		if (document != null) {
-			SearchEngineUtil.updateDocument(
-				getSearchEngineId(), dlFolder.getCompanyId(), document);
+			Document document = getDocument(dlFolder);
+
+			if (document != null) {
+				SearchEngineUtil.updateDocument(
+					getSearchEngineId(), dlFolder.getCompanyId(), document);
+			}
 		}
 	}
 
@@ -204,33 +211,40 @@ public class DLFolderIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexFolders(final long companyId)
-		throws PortalException, SystemException {
+	protected void reindexFolders(final long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			DLFolderLocalServiceUtil.getActionableDynamicQuery();
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			new DLFolderActionableDynamicQuery() {
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
 
-			@Override
-			protected void addCriteria(DynamicQuery dynamicQuery) {
-				Property property = PropertyFactoryUtil.forName("mountPoint");
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					Property property = PropertyFactoryUtil.forName(
+						"mountPoint");
 
-				dynamicQuery.add(property.eq(false));
-			}
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				DLFolder dlFolder = (DLFolder)object;
-
-				Document document = getDocument(dlFolder);
-
-				if (document != null) {
-					addDocument(document);
+					dynamicQuery.add(property.eq(false));
 				}
-			}
 
-		};
-
+			});
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					DLFolder dlFolder = (DLFolder)object;
+
+					Document document = getDocument(dlFolder);
+
+					if (document != null) {
+						actionableDynamicQuery.addDocument(document);
+					}
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

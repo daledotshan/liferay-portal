@@ -57,6 +57,11 @@ public class SQLQueryTableNamesUtilTest {
 	}
 
 	@Test
+	public void testConstructor() {
+		new SQLQueryTableNamesUtil();
+	}
+
+	@Test
 	public void testGetTableNames() throws Exception {
 		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
 			new InputStreamReader(

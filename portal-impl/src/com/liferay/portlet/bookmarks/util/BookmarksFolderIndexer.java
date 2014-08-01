@@ -16,7 +16,6 @@ package com.liferay.portlet.bookmarks.util;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
@@ -38,8 +37,8 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.bookmarks.model.BookmarksFolder;
 import com.liferay.portlet.bookmarks.service.BookmarksFolderLocalServiceUtil;
 import com.liferay.portlet.bookmarks.service.permission.BookmarksFolderPermission;
-import com.liferay.portlet.bookmarks.service.persistence.BookmarksFolderActionableDynamicQuery;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.portlet.PortletRequest;
@@ -59,9 +58,8 @@ public class BookmarksFolderIndexer extends BaseIndexer {
 
 	public BookmarksFolderIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {
-				Field.COMPANY_ID, Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK,
-				Field.TITLE, Field.UID});
+			Field.COMPANY_ID, Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK,
+			Field.TITLE, Field.UID);
 		setFilterSearch(true);
 		setPermissionAware(true);
 	}
@@ -165,21 +163,30 @@ public class BookmarksFolderIndexer extends BaseIndexer {
 
 	@Override
 	protected void doReindex(Object obj) throws Exception {
-		BookmarksFolder folder = (BookmarksFolder)obj;
+		if (obj instanceof List<?>) {
+			List<BookmarksFolder> bookmarksFolders = (List<BookmarksFolder>)obj;
 
-		Document document = getDocument(folder);
-
-		if (!folder.isApproved() && !folder.isInTrash()) {
-			return;
+			for (BookmarksFolder bookmarksFolder : bookmarksFolders) {
+				doReindex(bookmarksFolder);
+			}
 		}
+		else if (obj instanceof BookmarksFolder) {
+			BookmarksFolder folder = (BookmarksFolder)obj;
 
-		if (document != null) {
+			Document document = getDocument(folder);
+
+			if (!folder.isApproved() && !folder.isInTrash()) {
+				return;
+			}
+
+			if (document != null) {
+				SearchEngineUtil.updateDocument(
+					getSearchEngineId(), folder.getCompanyId(), document);
+			}
+
 			SearchEngineUtil.updateDocument(
 				getSearchEngineId(), folder.getCompanyId(), document);
 		}
-
-		SearchEngineUtil.updateDocument(
-			getSearchEngineId(), folder.getCompanyId(), document);
 	}
 
 	@Override
@@ -202,24 +209,26 @@ public class BookmarksFolderIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexFolders(long companyId)
-		throws PortalException, SystemException {
-
-		ActionableDynamicQuery actionableDynamicQuery =
-			new BookmarksFolderActionableDynamicQuery() {
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				BookmarksFolder folder = (BookmarksFolder)object;
-
-				Document document = getDocument(folder);
-
-				addDocument(document);
-			}
-
-		};
+	protected void reindexFolders(long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			BookmarksFolderLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					BookmarksFolder folder = (BookmarksFolder)object;
+
+					Document document = getDocument(folder);
+
+					actionableDynamicQuery.addDocument(document);
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

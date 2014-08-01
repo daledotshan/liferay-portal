@@ -16,9 +16,8 @@ package com.liferay.portal.security.membershippolicy;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.Role;
-import com.liferay.portal.service.persistence.RoleActionableDynamicQuery;
+import com.liferay.portal.service.RoleLocalServiceUtil;
 
 /**
  * @author Roberto Díaz
@@ -29,7 +28,7 @@ public abstract class BaseRoleMembershipPolicy implements RoleMembershipPolicy {
 	@Override
 	@SuppressWarnings("unused")
 	public boolean isRoleAllowed(long userId, long roleId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		try {
 			checkRoles(new long[] {userId}, new long[] {roleId}, null);
@@ -44,7 +43,7 @@ public abstract class BaseRoleMembershipPolicy implements RoleMembershipPolicy {
 	@Override
 	@SuppressWarnings("unused")
 	public boolean isRoleRequired(long userId, long roleId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		try {
 			checkRoles(new long[] {userId}, null, new long[] {roleId});
@@ -57,28 +56,29 @@ public abstract class BaseRoleMembershipPolicy implements RoleMembershipPolicy {
 	}
 
 	@Override
-	public void verifyPolicy() throws PortalException, SystemException {
+	public void verifyPolicy() throws PortalException {
 		ActionableDynamicQuery actionableDynamicQuery =
-			new RoleActionableDynamicQuery() {
+			RoleLocalServiceUtil.getActionableDynamicQuery();
 
-			@Override
-			protected void performAction(Object object)
-				throws PortalException, SystemException {
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
 
-				Role role = (Role)object;
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
 
-				verifyPolicy(role);
-			}
+					Role role = (Role)object;
 
-		};
+					verifyPolicy(role);
+				}
+
+			});
 
 		actionableDynamicQuery.performActions();
 	}
 
 	@Override
-	public void verifyPolicy(Role role)
-		throws PortalException, SystemException {
-
+	public void verifyPolicy(Role role) throws PortalException {
 		verifyPolicy(role, null, null);
 	}
 

@@ -17,7 +17,6 @@ package com.liferay.portlet.documentlibrary.model.impl;
 import com.liferay.portal.NoSuchModelException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.trash.TrashHandler;
@@ -130,8 +129,9 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 	public static long MIMETYPE_COLUMN_BITMASK = 16L;
 	public static long NAME_COLUMN_BITMASK = 32L;
 	public static long TITLE_COLUMN_BITMASK = 64L;
-	public static long USERID_COLUMN_BITMASK = 128L;
-	public static long UUID_COLUMN_BITMASK = 256L;
+	public static long TREEPATH_COLUMN_BITMASK = 128L;
+	public static long USERID_COLUMN_BITMASK = 256L;
+	public static long UUID_COLUMN_BITMASK = 512L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -546,7 +546,7 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -692,7 +692,17 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 
 	@Override
 	public void setTreePath(String treePath) {
+		_columnBitmask |= TREEPATH_COLUMN_BITMASK;
+
+		if (_originalTreePath == null) {
+			_originalTreePath = _treePath;
+		}
+
 		_treePath = treePath;
+	}
+
+	public String getOriginalTreePath() {
+		return GetterUtil.getString(_originalTreePath);
 	}
 
 	@JSON
@@ -954,7 +964,7 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 	}
 
 	@Override
-	public TrashEntry getTrashEntry() throws PortalException, SystemException {
+	public TrashEntry getTrashEntry() throws PortalException {
 		if (!isInTrash()) {
 			return null;
 		}
@@ -968,7 +978,8 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 
 		TrashHandler trashHandler = getTrashHandler();
 
-		if (!Validator.isNull(trashHandler.getContainerModelClassName())) {
+		if (!Validator.isNull(trashHandler.getContainerModelClassName(
+						getPrimaryKey()))) {
 			ContainerModel containerModel = null;
 
 			try {
@@ -985,7 +996,8 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 					return trashedModel.getTrashEntry();
 				}
 
-				trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName());
+				trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName(
+							containerModel.getContainerModelId()));
 
 				if (trashHandler == null) {
 					return null;
@@ -1023,7 +1035,8 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 		TrashHandler trashHandler = getTrashHandler();
 
 		if ((trashHandler == null) ||
-				Validator.isNull(trashHandler.getContainerModelClassName())) {
+				Validator.isNull(trashHandler.getContainerModelClassName(
+						getPrimaryKey()))) {
 			return false;
 		}
 
@@ -1045,7 +1058,7 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 	}
 
 	@Override
-	public boolean isInTrashExplicitly() throws SystemException {
+	public boolean isInTrashExplicitly() {
 		if (!isInTrash()) {
 			return false;
 		}
@@ -1058,6 +1071,22 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean isInTrashImplicitly() {
+		if (!isInTrash()) {
+			return false;
+		}
+
+		TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(),
+				getTrashEntryClassPK());
+
+		if (trashEntry != null) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public long getColumnBitmask() {
@@ -1210,6 +1239,8 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 		dlFileEntryModelImpl._originalFolderId = dlFileEntryModelImpl._folderId;
 
 		dlFileEntryModelImpl._setOriginalFolderId = false;
+
+		dlFileEntryModelImpl._originalTreePath = dlFileEntryModelImpl._treePath;
 
 		dlFileEntryModelImpl._originalName = dlFileEntryModelImpl._name;
 
@@ -1578,6 +1609,7 @@ public class DLFileEntryModelImpl extends BaseModelImpl<DLFileEntry>
 	private long _originalFolderId;
 	private boolean _setOriginalFolderId;
 	private String _treePath;
+	private String _originalTreePath;
 	private String _name;
 	private String _originalName;
 	private String _extension;
