@@ -14,8 +14,6 @@
 
 package com.liferay.portal.theme;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -23,8 +21,6 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.settings.Settings;
-import com.liferay.portal.settings.SettingsFactoryUtil;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -216,21 +212,12 @@ public class PortletDisplay implements Serializable {
 		return _namespace;
 	}
 
-	public Settings getPortletInstanceSettings()
-		throws PortalException, SystemException {
-
-		String portletId = _id;
-
-		if (Validator.isNotNull(_portletResource)) {
-			portletId = _portletResource;
-		}
-
-		return SettingsFactoryUtil.getPortletInstanceSettings(
-			_themeDisplay.getLayout(), portletId);
-	}
-
 	public String getPortletName() {
 		return _portletName;
+	}
+
+	public String getPortletResource() {
+		return _portletResource;
 	}
 
 	public PortletPreferences getPortletSetup() {
@@ -738,8 +725,6 @@ public class PortletDisplay implements Serializable {
 	}
 
 	public void setTitle(String title) {
-		title = HtmlUtil.escape(title);
-
 		_title = title;
 
 		// LEP-5317

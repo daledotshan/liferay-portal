@@ -15,7 +15,6 @@
 package com.liferay.portlet.dynamicdatalists.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -42,11 +41,9 @@ public class DDLRecordSetStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		DDLRecordSet ddlRecordSet =
-			DDLRecordSetLocalServiceUtil.fetchDDLRecordSetByUuidAndGroupId(
-				uuid, groupId);
+		DDLRecordSet ddlRecordSet = fetchExistingStagedModel(uuid, groupId);
 
 		if (ddlRecordSet != null) {
 			DDLRecordSetLocalServiceUtil.deleteRecordSet(ddlRecordSet);
@@ -91,14 +88,21 @@ public class DDLRecordSetStagedModelDataHandler
 	}
 
 	@Override
+	protected DDLRecordSet doFetchExistingStagedModel(
+		String uuid, long groupId) {
+
+		return DDLRecordSetLocalServiceUtil.fetchDDLRecordSetByUuidAndGroupId(
+			uuid, groupId);
+	}
+
+	@Override
 	protected void doImportMissingReference(
 			PortletDataContext portletDataContext, String uuid, long groupId,
 			long recordSetId)
 		throws Exception {
 
-		DDLRecordSet existingRecordSet =
-			DDLRecordSetLocalServiceUtil.fetchDDLRecordSetByUuidAndGroupId(
-				uuid, groupId);
+		DDLRecordSet existingRecordSet = fetchExistingStagedModel(
+			uuid, groupId);
 
 		Map<Long, Long> recordSetIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -135,9 +139,8 @@ public class DDLRecordSetStagedModelDataHandler
 		DDLRecordSet importedRecordSet = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			DDLRecordSet existingRecordSet =
-				DDLRecordSetLocalServiceUtil.fetchDDLRecordSetByUuidAndGroupId(
-					recordSet.getUuid(), portletDataContext.getScopeGroupId());
+			DDLRecordSet existingRecordSet = fetchExistingStagedModel(
+				recordSet.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingRecordSet == null) {
 				serviceContext.setUuid(recordSet.getUuid());

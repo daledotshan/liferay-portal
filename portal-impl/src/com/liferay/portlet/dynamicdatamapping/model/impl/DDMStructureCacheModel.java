@@ -66,8 +66,8 @@ public class DDMStructureCacheModel implements CacheModel<DDMStructure>,
 		sb.append(name);
 		sb.append(", description=");
 		sb.append(description);
-		sb.append(", xsd=");
-		sb.append(xsd);
+		sb.append(", definition=");
+		sb.append(definition);
 		sb.append(", storageType=");
 		sb.append(storageType);
 		sb.append(", type=");
@@ -138,11 +138,11 @@ public class DDMStructureCacheModel implements CacheModel<DDMStructure>,
 			ddmStructureImpl.setDescription(description);
 		}
 
-		if (xsd == null) {
-			ddmStructureImpl.setXsd(StringPool.BLANK);
+		if (definition == null) {
+			ddmStructureImpl.setDefinition(StringPool.BLANK);
 		}
 		else {
-			ddmStructureImpl.setXsd(xsd);
+			ddmStructureImpl.setDefinition(definition);
 		}
 
 		if (storageType == null) {
@@ -156,13 +156,7 @@ public class DDMStructureCacheModel implements CacheModel<DDMStructure>,
 
 		ddmStructureImpl.resetOriginalValues();
 
-		ddmStructureImpl.setDocument(_document);
-
-		ddmStructureImpl.setLocalizedFieldsMap(_localizedFieldsMap);
-
-		ddmStructureImpl.setLocalizedPersistentFieldsMap(_localizedPersistentFieldsMap);
-
-		ddmStructureImpl.setLocalizedTransientFieldsMap(_localizedTransientFieldsMap);
+		ddmStructureImpl.setDDMForm(_ddmForm);
 
 		return ddmStructureImpl;
 	}
@@ -183,14 +177,11 @@ public class DDMStructureCacheModel implements CacheModel<DDMStructure>,
 		structureKey = objectInput.readUTF();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
-		xsd = objectInput.readUTF();
+		definition = objectInput.readUTF();
 		storageType = objectInput.readUTF();
 		type = objectInput.readInt();
 
-		_document = (com.liferay.portal.kernel.xml.Document)objectInput.readObject();
-		_localizedFieldsMap = (java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>>)objectInput.readObject();
-		_localizedPersistentFieldsMap = (java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>>)objectInput.readObject();
-		_localizedTransientFieldsMap = (java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>>)objectInput.readObject();
+		_ddmForm = (com.liferay.portlet.dynamicdatamapping.model.DDMForm)objectInput.readObject();
 	}
 
 	@Override
@@ -241,11 +232,11 @@ public class DDMStructureCacheModel implements CacheModel<DDMStructure>,
 			objectOutput.writeUTF(description);
 		}
 
-		if (xsd == null) {
+		if (definition == null) {
 			objectOutput.writeUTF(StringPool.BLANK);
 		}
 		else {
-			objectOutput.writeUTF(xsd);
+			objectOutput.writeUTF(definition);
 		}
 
 		if (storageType == null) {
@@ -257,10 +248,7 @@ public class DDMStructureCacheModel implements CacheModel<DDMStructure>,
 
 		objectOutput.writeInt(type);
 
-		objectOutput.writeObject(_document);
-		objectOutput.writeObject(_localizedFieldsMap);
-		objectOutput.writeObject(_localizedPersistentFieldsMap);
-		objectOutput.writeObject(_localizedTransientFieldsMap);
+		objectOutput.writeObject(_ddmForm);
 	}
 
 	public String uuid;
@@ -276,11 +264,8 @@ public class DDMStructureCacheModel implements CacheModel<DDMStructure>,
 	public String structureKey;
 	public String name;
 	public String description;
-	public String xsd;
+	public String definition;
 	public String storageType;
 	public int type;
-	public com.liferay.portal.kernel.xml.Document _document;
-	public java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>> _localizedFieldsMap;
-	public java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>> _localizedPersistentFieldsMap;
-	public java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>> _localizedTransientFieldsMap;
+	public com.liferay.portlet.dynamicdatamapping.model.DDMForm _ddmForm;
 }
