@@ -15,6 +15,11 @@
 package com.liferay.portal.cache.transactional;
 
 import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
+import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
+import com.liferay.portal.kernel.transaction.TransactionAttribute;
+import com.liferay.portal.kernel.transaction.TransactionLifecycleListener;
+import com.liferay.portal.kernel.transaction.TransactionStatus;
 import com.liferay.portal.kernel.util.InitialThreadLocal;
 import com.liferay.portal.util.PropsValues;
 
@@ -29,6 +34,38 @@ import java.util.Map;
  * @author Shuyang Zhou
  */
 public class TransactionalPortalCacheHelper {
+
+	public static final TransactionLifecycleListener
+		TRANSACTION_LIFECYCLE_LISTENER = new TransactionLifecycleListener() {
+
+			@Override
+			public void created(
+				TransactionAttribute transactionAttribute,
+				TransactionStatus transactionStatus) {
+
+				begin();
+			}
+
+			@Override
+			public void committed(
+				TransactionAttribute transactionAttribute,
+				TransactionStatus transactionStatus) {
+
+				commit();
+			}
+
+			@Override
+			public void rollbacked(
+				TransactionAttribute transactionAttribute,
+				TransactionStatus transactionStatus, Throwable throwable) {
+
+				rollback();
+
+				EntityCacheUtil.clearLocalCache();
+				FinderCacheUtil.clearLocalCache();
+			}
+
+		};
 
 	public static void begin() {
 		if (!PropsValues.TRANSACTIONAL_CACHE_ENABLED) {
@@ -115,7 +152,7 @@ public class TransactionalPortalCacheHelper {
 			portalCacheMap.put(portalCache, uncommittedBuffer);
 		}
 
-		uncommittedBuffer.put(key, new ValueEntry(value, quiet, ttl));
+		uncommittedBuffer.put(key, new ValueEntry(value, ttl, quiet));
 	}
 
 	protected static <K extends Serializable, V> void removeAll(
@@ -156,7 +193,8 @@ public class TransactionalPortalCacheHelper {
 	}
 
 	private static ValueEntry _NULL_HOLDER_VALUE_ENTRY = new ValueEntry(
-		TransactionalPortalCache.NULL_HOLDER, false, -1);
+		TransactionalPortalCache.NULL_HOLDER, PortalCache.DEFAULT_TIME_TO_LIVE,
+		false);
 
 	private static ThreadLocal<List<PortalCacheMap>>
 		_portalCacheMapsThreadLocal =
@@ -218,10 +256,10 @@ public class TransactionalPortalCacheHelper {
 
 	private static class ValueEntry {
 
-		public ValueEntry(Object value, boolean quiet, int ttl) {
+		public ValueEntry(Object value, int ttl, boolean quiet) {
 			_value = value;
-			_quiet = quiet;
 			_ttl = ttl;
+			_quiet = quiet;
 		}
 
 		public void commitTo(
@@ -231,20 +269,10 @@ public class TransactionalPortalCacheHelper {
 				portalCache.remove(key);
 			}
 			else if (_quiet) {
-				if (_ttl >= 0) {
-					portalCache.putQuiet(key, _value, _ttl);
-				}
-				else {
-					portalCache.putQuiet(key, _value);
-				}
+				portalCache.putQuiet(key, _value, _ttl);
 			}
 			else {
-				if (_ttl >= 0) {
-					portalCache.put(key, _value, _ttl);
-				}
-				else {
-					portalCache.put(key, _value);
-				}
+				portalCache.put(key, _value, _ttl);
 			}
 		}
 
