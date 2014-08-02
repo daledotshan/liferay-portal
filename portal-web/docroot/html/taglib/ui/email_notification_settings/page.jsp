@@ -60,6 +60,7 @@ boolean showSubject = GetterUtil.getBoolean(request.getAttribute("liferay-ui:ema
 					fieldPrefix="<%= fieldPrefix %>"
 					fieldPrefixSeparator="<%= fieldPrefixSeparator %>"
 					name='<%= emailParam + "Body" %>'
+					toolbarSet="email"
 					type="editor"
 					xml="<%= emailBody %>"
 				/>
@@ -71,7 +72,7 @@ boolean showSubject = GetterUtil.getBoolean(request.getAttribute("liferay-ui:ema
 
 				<aui:script>
 					function <portlet:namespace />init<%= emailParam %>BodyEditor() {
-						return "<%= UnicodeFormatter.toString(emailBody) %>";
+						return '<%= UnicodeFormatter.toString(emailBody) %>';
 					}
 				</aui:script>
 			</c:otherwise>

@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.BaseIndexer;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
@@ -35,7 +34,6 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.wiki.model.WikiNode;
 import com.liferay.portlet.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.portlet.wiki.service.permission.WikiNodePermission;
-import com.liferay.portlet.wiki.service.persistence.WikiNodeActionableDynamicQuery;
 
 import java.util.Locale;
 
@@ -54,9 +52,8 @@ public class WikiNodeIndexer extends BaseIndexer {
 
 	public WikiNodeIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {
-				Field.COMPANY_ID, Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK,
-				Field.UID});
+			Field.COMPANY_ID, Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK,
+			Field.UID);
 		setFilterSearch(false);
 		setPermissionAware(false);
 	}
@@ -156,32 +153,38 @@ public class WikiNodeIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexEntries(long companyId)
-		throws PortalException, SystemException {
+	protected void reindexEntries(long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			WikiNodeLocalServiceUtil.getActionableDynamicQuery();
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			new WikiNodeActionableDynamicQuery() {
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
 
-			@Override
-			protected void addCriteria(DynamicQuery dynamicQuery) {
-				Property property = PropertyFactoryUtil.forName("status");
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					Property property = PropertyFactoryUtil.forName("status");
 
-				dynamicQuery.add(
-					property.eq(WorkflowConstants.STATUS_IN_TRASH));
-			}
+					dynamicQuery.add(
+						property.eq(WorkflowConstants.STATUS_IN_TRASH));
+				}
 
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				WikiNode node = (WikiNode)object;
-
-				Document document = getDocument(node);
-
-				addDocument(document);
-			}
-
-		};
-
+			});
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					WikiNode node = (WikiNode)object;
+
+					Document document = getDocument(node);
+
+					actionableDynamicQuery.addDocument(document);
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

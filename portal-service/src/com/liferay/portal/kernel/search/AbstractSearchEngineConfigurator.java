@@ -104,6 +104,27 @@ public abstract class AbstractSearchEngineConfigurator
 		}
 	}
 
+	protected Destination createSearchReaderDestination(
+		String searchReaderDestinationName) {
+
+		SynchronousDestination synchronousDestination =
+			new SynchronousDestination();
+
+		synchronousDestination.setName(searchReaderDestinationName);
+
+		return synchronousDestination;
+	}
+
+	protected Destination createSearchWriterDestination(
+		String searchWriterDestinationName) {
+
+		ParallelDestination parallelDestination = new ParallelDestination();
+
+		parallelDestination.setName(searchWriterDestinationName);
+
+		return parallelDestination;
+	}
+
 	protected void destroySearchEngine(
 		SearchEngineRegistration searchEngineRegistration) {
 
@@ -174,14 +195,10 @@ public abstract class AbstractSearchEngineConfigurator
 			searchReaderDestinationName);
 
 		if (searchReaderDestination == null) {
-			SynchronousDestination synchronousDestination =
-				new SynchronousDestination();
+			searchReaderDestination = createSearchReaderDestination(
+				searchReaderDestinationName);
 
-			synchronousDestination.setName(searchReaderDestinationName);
-
-			synchronousDestination.open();
-
-			searchReaderDestination = synchronousDestination;
+			searchReaderDestination.open();
 
 			messageBus.addDestination(searchReaderDestination);
 		}
@@ -200,13 +217,10 @@ public abstract class AbstractSearchEngineConfigurator
 			searchWriterDestinationName);
 
 		if (searchWriterDestination == null) {
-			ParallelDestination parallelDestination = new ParallelDestination();
+			searchWriterDestination = createSearchWriterDestination(
+				searchWriterDestinationName);
 
-			parallelDestination.setName(searchWriterDestinationName);
-
-			parallelDestination.open();
-
-			searchWriterDestination = parallelDestination;
+			searchWriterDestination.open();
 
 			messageBus.addDestination(searchWriterDestination);
 		}
@@ -339,10 +353,6 @@ public abstract class AbstractSearchEngineConfigurator
 
 	private class SearchEngineRegistration {
 
-		private SearchEngineRegistration(String searchEngineId) {
-			_searchEngineId = searchEngineId;
-		}
-
 		public void addOriginalSearchReaderMessageListener(
 			InvokerMessageListener messageListener) {
 
@@ -407,6 +417,10 @@ public abstract class AbstractSearchEngineConfigurator
 			String searchWriterDestinationName) {
 
 			_searchWriterDestinationName = searchWriterDestinationName;
+		}
+
+		private SearchEngineRegistration(String searchEngineId) {
+			_searchEngineId = searchEngineId;
 		}
 
 		private SearchEngineProxyWrapper _originalSearchEngineProxyWrapper;
