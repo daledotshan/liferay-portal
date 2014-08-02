@@ -105,7 +105,7 @@ import com.liferay.portal.service.LayoutServiceUtil;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.LockLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextThreadLocal;
+import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.service.StagingLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.WorkflowInstanceLinkLocalServiceUtil;
@@ -1821,8 +1821,8 @@ public class StagingImpl implements Staging {
 		boolean branchingPrivate = getBoolean(
 			portletRequest, liveGroup, "branchingPrivate");
 
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			portletRequest);
 
 		if (stagingType == StagingConstants.TYPE_NOT_STAGED) {
 			if (liveGroup.hasStagingGroup() || liveGroup.isStagedRemotely()) {
