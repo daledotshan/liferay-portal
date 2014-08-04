@@ -23,30 +23,28 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ListType;
 import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.impl.ListTypeImpl;
 import com.liferay.portal.model.impl.ListTypeModelImpl;
 import com.liferay.portal.service.persistence.ListTypePersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -107,10 +105,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 *
 	 * @param type the type
 	 * @return the matching list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ListType> findByType(String type) throws SystemException {
+	public List<ListType> findByType(String type) {
 		return findByType(type, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -125,11 +122,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param start the lower bound of the range of list types
 	 * @param end the upper bound of the range of list types (not inclusive)
 	 * @return the range of matching list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ListType> findByType(String type, int start, int end)
-		throws SystemException {
+	public List<ListType> findByType(String type, int start, int end) {
 		return findByType(type, start, end, null);
 	}
 
@@ -145,11 +140,10 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param end the upper bound of the range of list types (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ListType> findByType(String type, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ListType> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -266,12 +260,11 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching list type
 	 * @throws com.liferay.portal.NoSuchListTypeException if a matching list type could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType findByType_First(String type,
-		OrderByComparator orderByComparator)
-		throws NoSuchListTypeException, SystemException {
+		OrderByComparator<ListType> orderByComparator)
+		throws NoSuchListTypeException {
 		ListType listType = fetchByType_First(type, orderByComparator);
 
 		if (listType != null) {
@@ -296,11 +289,10 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching list type, or <code>null</code> if a matching list type could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType fetchByType_First(String type,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ListType> orderByComparator) {
 		List<ListType> list = findByType(type, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -317,12 +309,11 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching list type
 	 * @throws com.liferay.portal.NoSuchListTypeException if a matching list type could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType findByType_Last(String type,
-		OrderByComparator orderByComparator)
-		throws NoSuchListTypeException, SystemException {
+		OrderByComparator<ListType> orderByComparator)
+		throws NoSuchListTypeException {
 		ListType listType = fetchByType_Last(type, orderByComparator);
 
 		if (listType != null) {
@@ -347,11 +338,10 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching list type, or <code>null</code> if a matching list type could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType fetchByType_Last(String type,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ListType> orderByComparator) {
 		int count = countByType(type);
 
 		if (count == 0) {
@@ -376,12 +366,11 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next list type
 	 * @throws com.liferay.portal.NoSuchListTypeException if a list type with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType[] findByType_PrevAndNext(int listTypeId, String type,
-		OrderByComparator orderByComparator)
-		throws NoSuchListTypeException, SystemException {
+		OrderByComparator<ListType> orderByComparator)
+		throws NoSuchListTypeException {
 		ListType listType = findByPrimaryKey(listTypeId);
 
 		Session session = null;
@@ -410,8 +399,8 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	}
 
 	protected ListType getByType_PrevAndNext(Session session,
-		ListType listType, String type, OrderByComparator orderByComparator,
-		boolean previous) {
+		ListType listType, String type,
+		OrderByComparator<ListType> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -532,10 +521,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * Removes all the list types where type = &#63; from the database.
 	 *
 	 * @param type the type
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByType(String type) throws SystemException {
+	public void removeByType(String type) {
 		for (ListType listType : findByType(type, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(listType);
@@ -547,10 +535,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 *
 	 * @param type the type
 	 * @return the number of matching list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByType(String type) throws SystemException {
+	public int countByType(String type) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_TYPE;
 
 		Object[] finderArgs = new Object[] { type };
@@ -718,11 +705,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param listTypeId the primary key of the list type
 	 * @return the list type that was removed
 	 * @throws com.liferay.portal.NoSuchListTypeException if a list type with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ListType remove(int listTypeId)
-		throws NoSuchListTypeException, SystemException {
+	public ListType remove(int listTypeId) throws NoSuchListTypeException {
 		return remove((Serializable)listTypeId);
 	}
 
@@ -732,11 +717,10 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param primaryKey the primary key of the list type
 	 * @return the list type that was removed
 	 * @throws com.liferay.portal.NoSuchListTypeException if a list type with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType remove(Serializable primaryKey)
-		throws NoSuchListTypeException, SystemException {
+		throws NoSuchListTypeException {
 		Session session = null;
 
 		try {
@@ -768,7 +752,7 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	}
 
 	@Override
-	protected ListType removeImpl(ListType listType) throws SystemException {
+	protected ListType removeImpl(ListType listType) {
 		listType = toUnwrappedModel(listType);
 
 		Session session = null;
@@ -800,8 +784,7 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	}
 
 	@Override
-	public ListType updateImpl(com.liferay.portal.model.ListType listType)
-		throws SystemException {
+	public ListType updateImpl(com.liferay.portal.model.ListType listType) {
 		listType = toUnwrappedModel(listType);
 
 		boolean isNew = listType.isNew();
@@ -884,11 +867,10 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param primaryKey the primary key of the list type
 	 * @return the list type
 	 * @throws com.liferay.portal.NoSuchListTypeException if a list type with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchListTypeException, SystemException {
+		throws NoSuchListTypeException {
 		ListType listType = fetchByPrimaryKey(primaryKey);
 
 		if (listType == null) {
@@ -909,11 +891,10 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param listTypeId the primary key of the list type
 	 * @return the list type
 	 * @throws com.liferay.portal.NoSuchListTypeException if a list type with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ListType findByPrimaryKey(int listTypeId)
-		throws NoSuchListTypeException, SystemException {
+		throws NoSuchListTypeException {
 		return findByPrimaryKey((Serializable)listTypeId);
 	}
 
@@ -922,11 +903,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 *
 	 * @param primaryKey the primary key of the list type
 	 * @return the list type, or <code>null</code> if a list type with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ListType fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public ListType fetchByPrimaryKey(Serializable primaryKey) {
 		ListType listType = (ListType)EntityCacheUtil.getResult(ListTypeModelImpl.ENTITY_CACHE_ENABLED,
 				ListTypeImpl.class, primaryKey);
 
@@ -969,21 +948,111 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 *
 	 * @param listTypeId the primary key of the list type
 	 * @return the list type, or <code>null</code> if a list type with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ListType fetchByPrimaryKey(int listTypeId) throws SystemException {
+	public ListType fetchByPrimaryKey(int listTypeId) {
 		return fetchByPrimaryKey((Serializable)listTypeId);
+	}
+
+	@Override
+	public Map<Serializable, ListType> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, ListType> map = new HashMap<Serializable, ListType>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			ListType listType = fetchByPrimaryKey(primaryKey);
+
+			if (listType != null) {
+				map.put(primaryKey, listType);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			ListType listType = (ListType)EntityCacheUtil.getResult(ListTypeModelImpl.ENTITY_CACHE_ENABLED,
+					ListTypeImpl.class, primaryKey);
+
+			if (listType == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, listType);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_LISTTYPE_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (ListType listType : (List<ListType>)q.list()) {
+				map.put(listType.getPrimaryKeyObj(), listType);
+
+				cacheResult(listType);
+
+				uncachedPrimaryKeys.remove(listType.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(ListTypeModelImpl.ENTITY_CACHE_ENABLED,
+					ListTypeImpl.class, primaryKey, _nullListType);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the list types.
 	 *
 	 * @return the list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ListType> findAll() throws SystemException {
+	public List<ListType> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -997,10 +1066,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param start the lower bound of the range of list types
 	 * @param end the upper bound of the range of list types (not inclusive)
 	 * @return the range of list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ListType> findAll(int start, int end) throws SystemException {
+	public List<ListType> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -1015,11 +1083,10 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * @param end the upper bound of the range of list types (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ListType> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ListType> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1101,10 +1168,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	/**
 	 * Removes all the list types from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (ListType listType : findAll()) {
 			remove(listType);
 		}
@@ -1114,10 +1180,9 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * Returns the number of list types.
 	 *
 	 * @return the number of list types
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -1157,25 +1222,6 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	 * Initializes the list type persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portal.model.ListType")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<ListType>> listenersList = new ArrayList<ModelListener<ListType>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<ListType>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -1186,6 +1232,7 @@ public class ListTypePersistenceImpl extends BasePersistenceImpl<ListType>
 	}
 
 	private static final String _SQL_SELECT_LISTTYPE = "SELECT listType FROM ListType listType";
+	private static final String _SQL_SELECT_LISTTYPE_WHERE_PKS_IN = "SELECT listType FROM ListType listType WHERE listTypeId IN (";
 	private static final String _SQL_SELECT_LISTTYPE_WHERE = "SELECT listType FROM ListType listType WHERE ";
 	private static final String _SQL_COUNT_LISTTYPE = "SELECT COUNT(listType) FROM ListType listType";
 	private static final String _SQL_COUNT_LISTTYPE_WHERE = "SELECT COUNT(listType) FROM ListType listType WHERE ";
