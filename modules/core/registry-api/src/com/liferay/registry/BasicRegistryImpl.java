@@ -14,6 +14,7 @@
 
 package com.liferay.registry;
 
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.registry.util.StringPlus;
 import com.liferay.registry.util.UnmodifiableMapDictionary;
 
@@ -571,7 +572,7 @@ public class BasicRegistryImpl implements Registry {
 				Class<?> clazz = value.getClass();
 
 				if (clazz.isArray()) {
-					array = (Object[])value;
+					array = ArrayUtil.toObjectArray(array);
 				}
 				else if (value instanceof Collection) {
 					Collection<?> collection = (Collection<?>)value;
