@@ -20,6 +20,8 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -74,12 +76,11 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 *
 	 * @param userGroupGroupRole the user group group role
 	 * @return the user group group role that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public UserGroupGroupRole addUserGroupGroupRole(
-		UserGroupGroupRole userGroupGroupRole) throws SystemException {
+		UserGroupGroupRole userGroupGroupRole) {
 		userGroupGroupRole.setNew(true);
 
 		return userGroupGroupRolePersistence.update(userGroupGroupRole);
@@ -103,13 +104,11 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 * @param userGroupGroupRolePK the primary key of the user group group role
 	 * @return the user group group role that was removed
 	 * @throws PortalException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public UserGroupGroupRole deleteUserGroupGroupRole(
-		UserGroupGroupRolePK userGroupGroupRolePK)
-		throws PortalException, SystemException {
+		UserGroupGroupRolePK userGroupGroupRolePK) throws PortalException {
 		return userGroupGroupRolePersistence.remove(userGroupGroupRolePK);
 	}
 
@@ -118,12 +117,11 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 *
 	 * @param userGroupGroupRole the user group group role
 	 * @return the user group group role that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public UserGroupGroupRole deleteUserGroupGroupRole(
-		UserGroupGroupRole userGroupGroupRole) throws SystemException {
+		UserGroupGroupRole userGroupGroupRole) {
 		return userGroupGroupRolePersistence.remove(userGroupGroupRole);
 	}
 
@@ -140,12 +138,9 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return userGroupGroupRolePersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -160,12 +155,10 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return userGroupGroupRolePersistence.findWithDynamicQuery(dynamicQuery,
 			start, end);
 	}
@@ -182,12 +175,10 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return userGroupGroupRolePersistence.findWithDynamicQuery(dynamicQuery,
 			start, end, orderByComparator);
 	}
@@ -197,11 +188,9 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return userGroupGroupRolePersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -211,18 +200,17 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return userGroupGroupRolePersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
 	public UserGroupGroupRole fetchUserGroupGroupRole(
-		UserGroupGroupRolePK userGroupGroupRolePK) throws SystemException {
+		UserGroupGroupRolePK userGroupGroupRolePK) {
 		return userGroupGroupRolePersistence.fetchByPrimaryKey(userGroupGroupRolePK);
 	}
 
@@ -232,18 +220,53 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 * @param userGroupGroupRolePK the primary key of the user group group role
 	 * @return the user group group role
 	 * @throws PortalException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole getUserGroupGroupRole(
-		UserGroupGroupRolePK userGroupGroupRolePK)
-		throws PortalException, SystemException {
+		UserGroupGroupRolePK userGroupGroupRolePK) throws PortalException {
 		return userGroupGroupRolePersistence.findByPrimaryKey(userGroupGroupRolePK);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.UserGroupGroupRoleLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(UserGroupGroupRole.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName(
+			"primaryKey.userGroupId");
+
+		actionableDynamicQuery.setGroupIdPropertyName("primaryKey.groupId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.UserGroupGroupRoleLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(UserGroupGroupRole.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName(
+			"primaryKey.userGroupId");
+
+		actionableDynamicQuery.setGroupIdPropertyName("primaryKey.groupId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return userGroupGroupRoleLocalService.deleteUserGroupGroupRole((UserGroupGroupRole)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return userGroupGroupRolePersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -257,11 +280,9 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 * @param start the lower bound of the range of user group group roles
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @return the range of user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> getUserGroupGroupRoles(int start, int end)
-		throws SystemException {
+	public List<UserGroupGroupRole> getUserGroupGroupRoles(int start, int end) {
 		return userGroupGroupRolePersistence.findAll(start, end);
 	}
 
@@ -269,10 +290,9 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 * Returns the number of user group group roles.
 	 *
 	 * @return the number of user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getUserGroupGroupRolesCount() throws SystemException {
+	public int getUserGroupGroupRolesCount() {
 		return userGroupGroupRolePersistence.countAll();
 	}
 
@@ -281,12 +301,11 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 *
 	 * @param userGroupGroupRole the user group group role
 	 * @return the user group group role that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public UserGroupGroupRole updateUserGroupGroupRole(
-		UserGroupGroupRole userGroupGroupRole) throws SystemException {
+		UserGroupGroupRole userGroupGroupRole) {
 		return userGroupGroupRolePersistence.update(userGroupGroupRole);
 	}
 
@@ -577,7 +596,7 @@ public abstract class UserGroupGroupRoleLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = userGroupGroupRolePersistence.getDataSource();
 
