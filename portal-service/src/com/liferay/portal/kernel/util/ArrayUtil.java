@@ -1784,6 +1784,24 @@ public class ArrayUtil {
 		return newArray;
 	}
 
+	public static Object[] toObjectArray(Object array) {
+		Class<?> ofArray = array.getClass().getComponentType();
+
+		if (ofArray.isPrimitive()) {
+			List<Object> newArray = new ArrayList<Object>();
+			int length = Array.getLength(array);
+
+			for (int i = 0; i < length; i++) {
+				newArray.add(Array.get(array, i));
+			}
+
+			return newArray.toArray();
+		}
+		else {
+			return (Object[])array;
+		}
+	}
+
 	public static short[] toShortArray(Collection<Short> collection) {
 		short[] newArray = new short[collection.size()];
 
