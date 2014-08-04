@@ -15,6 +15,7 @@
 package com.liferay.portlet.dynamicdatamapping.action;
 
 import com.liferay.portal.LocaleException;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Constants;
@@ -33,12 +34,13 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.PortletURLImpl;
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureException;
 import com.liferay.portlet.dynamicdatamapping.RequiredStructureException;
+import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 import com.liferay.portlet.dynamicdatamapping.StructureDuplicateElementException;
 import com.liferay.portlet.dynamicdatamapping.StructureNameException;
-import com.liferay.portlet.dynamicdatamapping.StructureXsdException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.util.DDMXSDUtil;
 
 import java.util.Locale;
 import java.util.Map;
@@ -120,9 +122,9 @@ public class EditStructureAction extends PortletAction {
 			}
 			else if (e instanceof LocaleException ||
 					 e instanceof RequiredStructureException ||
+					 e instanceof StructureDefinitionException ||
 					 e instanceof StructureDuplicateElementException ||
-					 e instanceof StructureNameException ||
-					 e instanceof StructureXsdException) {
+					 e instanceof StructureNameException) {
 
 				SessionErrors.add(actionRequest, e.getClass(), e);
 
@@ -200,6 +202,20 @@ public class EditStructureAction extends PortletAction {
 		}
 	}
 
+	protected String getDefinition(ActionRequest actionRequest)
+		throws PortalException {
+
+		try {
+			String definition = ParamUtil.getString(
+				actionRequest, "definition");
+
+			return DDMXSDUtil.getXSD(definition);
+		}
+		catch (PortalException pe) {
+			throw new StructureDefinitionException(pe);
+		}
+	}
+
 	protected String getSaveAndContinueRedirect(
 			PortletConfig portletConfig, ActionRequest actionRequest,
 			DDMStructure structure, String redirect)
@@ -247,6 +263,8 @@ public class EditStructureAction extends PortletAction {
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		long scopeClassNameId = ParamUtil.getLong(
 			actionRequest, "scopeClassNameId");
+		String structureKey = ParamUtil.getString(
+			actionRequest, "structureKey");
 		long parentStructureId = ParamUtil.getLong(
 			actionRequest, "parentStructureId",
 			DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID);
@@ -254,7 +272,7 @@ public class EditStructureAction extends PortletAction {
 			actionRequest, "name");
 		Map<Locale, String> descriptionMap =
 			LocalizationUtil.getLocalizationMap(actionRequest, "description");
-		String xsd = ParamUtil.getString(actionRequest, "xsd");
+		String definition = getDefinition(actionRequest);
 		String storageType = ParamUtil.getString(actionRequest, "storageType");
 
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
@@ -264,13 +282,13 @@ public class EditStructureAction extends PortletAction {
 
 		if (cmd.equals(Constants.ADD)) {
 			structure = DDMStructureServiceUtil.addStructure(
-				groupId, parentStructureId, scopeClassNameId, null, nameMap,
-				descriptionMap, xsd, storageType,
+				groupId, parentStructureId, scopeClassNameId, structureKey,
+				nameMap, descriptionMap, definition, storageType,
 				DDMStructureConstants.TYPE_DEFAULT, serviceContext);
 		}
 		else if (cmd.equals(Constants.UPDATE)) {
 			structure = DDMStructureServiceUtil.updateStructure(
-				classPK, parentStructureId, nameMap, descriptionMap, xsd,
+				classPK, parentStructureId, nameMap, descriptionMap, definition,
 				serviceContext);
 		}
 

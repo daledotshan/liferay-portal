@@ -16,11 +16,9 @@ package com.liferay.portal.service.impl;
 
 import com.liferay.portal.MembershipRequestCommentsException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.MembershipRequest;
@@ -41,19 +39,22 @@ import com.liferay.portal.util.SubscriptionSender;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Jorge Ferrer
  */
-public class MembershipRequestLocalServiceImpl
+public class
+	MembershipRequestLocalServiceImpl
 	extends MembershipRequestLocalServiceBaseImpl {
 
 	@Override
 	public MembershipRequest addMembershipRequest(
 			long userId, long groupId, String comments,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		Date now = new Date();
@@ -81,7 +82,7 @@ public class MembershipRequestLocalServiceImpl
 	}
 
 	@Override
-	public void deleteMembershipRequests(long groupId) throws SystemException {
+	public void deleteMembershipRequests(long groupId) {
 		List<MembershipRequest> membershipRequests =
 			membershipRequestPersistence.findByGroupId(groupId);
 
@@ -91,9 +92,7 @@ public class MembershipRequestLocalServiceImpl
 	}
 
 	@Override
-	public void deleteMembershipRequests(long groupId, int statusId)
-		throws SystemException {
-
+	public void deleteMembershipRequests(long groupId, int statusId) {
 		List<MembershipRequest> membershipRequests =
 			membershipRequestPersistence.findByG_S(groupId, statusId);
 
@@ -103,9 +102,7 @@ public class MembershipRequestLocalServiceImpl
 	}
 
 	@Override
-	public void deleteMembershipRequestsByUserId(long userId)
-		throws SystemException {
-
+	public void deleteMembershipRequestsByUserId(long userId) {
 		List<MembershipRequest> membershipRequests =
 			membershipRequestPersistence.findByUserId(userId);
 
@@ -116,16 +113,15 @@ public class MembershipRequestLocalServiceImpl
 
 	@Override
 	public List<MembershipRequest> getMembershipRequests(
-			long userId, long groupId, int statusId)
-		throws SystemException {
+		long userId, long groupId, int statusId) {
 
 		return membershipRequestPersistence.findByG_U_S(
 			groupId, userId, statusId);
 	}
 
 	@Override
-	public boolean hasMembershipRequest(long userId, long groupId, int statusId)
-		throws SystemException {
+	public boolean hasMembershipRequest(
+		long userId, long groupId, int statusId) {
 
 		List<MembershipRequest> membershipRequests = getMembershipRequests(
 			userId, groupId, statusId);
@@ -140,15 +136,14 @@ public class MembershipRequestLocalServiceImpl
 
 	@Override
 	public List<MembershipRequest> search(
-			long groupId, int status, int start, int end)
-		throws SystemException {
+		long groupId, int status, int start, int end) {
 
 		return membershipRequestPersistence.findByG_S(
 			groupId, status, start, end);
 	}
 
 	@Override
-	public int searchCount(long groupId, int status) throws SystemException {
+	public int searchCount(long groupId, int status) {
 		return membershipRequestPersistence.countByG_S(groupId, status);
 	}
 
@@ -156,7 +151,7 @@ public class MembershipRequestLocalServiceImpl
 	public void updateStatus(
 			long replierUserId, long membershipRequestId, String replyComments,
 			int statusId, boolean addUserToGroup, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		validate(replyComments);
 
@@ -198,9 +193,9 @@ public class MembershipRequestLocalServiceImpl
 	}
 
 	protected List<Long> getGroupAdministratorUserIds(long groupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		List<Long> userIds = new UniqueList<Long>();
+		Set<Long> userIds = new LinkedHashSet<Long>();
 
 		Group group = groupLocalService.getGroup(groupId);
 		String modelResource = Group.class.getName();
@@ -277,14 +272,14 @@ public class MembershipRequestLocalServiceImpl
 			}
 		}
 
-		return userIds;
+		return new ArrayList<Long>(userIds);
 	}
 
 	protected void notify(
 			long userId, MembershipRequest membershipRequest,
 			String subjectProperty, String bodyProperty,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		User requestUser = userPersistence.findByPrimaryKey(
@@ -351,7 +346,7 @@ public class MembershipRequestLocalServiceImpl
 
 	protected void notifyGroupAdministrators(
 			MembershipRequest membershipRequest, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Long> userIds = getGroupAdministratorUserIds(
 			membershipRequest.getGroupId());
