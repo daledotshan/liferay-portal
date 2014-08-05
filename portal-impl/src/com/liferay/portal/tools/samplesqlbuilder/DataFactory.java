@@ -203,6 +203,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.portlet.PortletPreferences;
 
@@ -272,7 +273,8 @@ public class DataFactory {
 		initRoleModels();
 		initUserNames();
 		initUserModels();
-		initVirtualHostModel();
+		initVirtualHostModel(
+			properties.getProperty("sample.sql.virtual.hostname"));
 	}
 
 	public AccountModel getAccountModel() {
@@ -721,6 +723,20 @@ public class DataFactory {
 	}
 
 	public void initContext(Properties properties) {
+		String timeZoneId = properties.getProperty("sample.sql.db.time.zone");
+
+		if (Validator.isNotNull(timeZoneId)) {
+			TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+
+			if (timeZone != null) {
+				TimeZone.setDefault(timeZone);
+
+				_simpleDateFormat =
+					FastDateFormatFactoryUtil.getSimpleDateFormat(
+						"yyyy-MM-dd HH:mm:ss", timeZone);
+			}
+		}
+
 		_assetPublisherQueryName = GetterUtil.getString(
 			properties.getProperty("sample.sql.asset.publisher.query.name"));
 
@@ -987,12 +1003,12 @@ public class DataFactory {
 		unsyncBufferedReader.close();
 	}
 
-	public void initVirtualHostModel() {
+	public void initVirtualHostModel(String hostname) {
 		_virtualHostModel = new VirtualHostModelImpl();
 
 		_virtualHostModel.setVirtualHostId(_counter.get());
 		_virtualHostModel.setCompanyId(_companyId);
-		_virtualHostModel.setHostname("localhost");
+		_virtualHostModel.setHostname(hostname);
 	}
 
 	public AssetEntryModel newAssetEntryModel(BlogsEntryModel blogsEntryModel) {
@@ -2483,6 +2499,7 @@ public class DataFactory {
 		blogsEntryModel.setCreateDate(new Date());
 		blogsEntryModel.setModifiedDate(new Date());
 		blogsEntryModel.setTitle("Test Blog " + index);
+		blogsEntryModel.setSubtitle("Subtitle of Test Blog " + index);
 		blogsEntryModel.setUrlTitle("testblog" + index);
 		blogsEntryModel.setContent("This is test blog " + index + ".");
 		blogsEntryModel.setDisplayDate(new Date());
@@ -2492,7 +2509,7 @@ public class DataFactory {
 	}
 
 	protected DDMContentModel newDDMContentModel(
-		long contentId, long groupId, String xml) {
+		long contentId, long groupId, String data) {
 
 		DDMContentModel ddmContentModel = new DDMContentModelImpl();
 
@@ -2505,7 +2522,7 @@ public class DataFactory {
 		ddmContentModel.setCreateDate(nextFutureDate());
 		ddmContentModel.setModifiedDate(nextFutureDate());
 		ddmContentModel.setName(DDMStorageLink.class.getName());
-		ddmContentModel.setXml(xml);
+		ddmContentModel.setData(data);
 
 		return ddmContentModel;
 	}
@@ -2526,7 +2543,7 @@ public class DataFactory {
 
 	protected DDMStructureModel newDDMStructureModel(
 		long groupId, long userId, long classNameId, String structureKey,
-		String xsd) {
+		String definition) {
 
 		DDMStructureModel dDMStructureModel = new DDMStructureModelImpl();
 
@@ -2551,7 +2568,7 @@ public class DataFactory {
 
 		dDMStructureModel.setName(sb.toString());
 
-		dDMStructureModel.setXsd(xsd);
+		dDMStructureModel.setDefinition(definition);
 		dDMStructureModel.setStorageType("xml");
 
 		return dDMStructureModel;
