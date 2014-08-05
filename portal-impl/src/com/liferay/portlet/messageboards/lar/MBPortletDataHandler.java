@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.lar.xstream.XStreamAliasRegistryUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.messageboards.model.MBBan;
@@ -27,15 +28,18 @@ import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBCategoryConstants;
 import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.model.MBThreadFlag;
+import com.liferay.portlet.messageboards.model.impl.MBBanImpl;
+import com.liferay.portlet.messageboards.model.impl.MBCategoryImpl;
+import com.liferay.portlet.messageboards.model.impl.MBMessageImpl;
+import com.liferay.portlet.messageboards.model.impl.MBThreadFlagImpl;
 import com.liferay.portlet.messageboards.service.MBBanLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil;
+import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBStatsUserLocalServiceUtil;
+import com.liferay.portlet.messageboards.service.MBThreadFlagLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.permission.MBPermission;
-import com.liferay.portlet.messageboards.service.persistence.MBBanExportActionableDynamicQuery;
-import com.liferay.portlet.messageboards.service.persistence.MBCategoryExportActionableDynamicQuery;
-import com.liferay.portlet.messageboards.service.persistence.MBMessageExportActionableDynamicQuery;
-import com.liferay.portlet.messageboards.service.persistence.MBThreadFlagExportActionableDynamicQuery;
+import com.liferay.portlet.messageboards.util.MBConstants;
 
 import java.util.List;
 
@@ -69,6 +73,17 @@ public class MBPortletDataHandler extends BasePortletDataHandler {
 		setImportControls(getExportControls());
 		setPublishToLiveByDefault(
 			PropsValues.MESSAGE_BOARDS_PUBLISH_TO_LIVE_BY_DEFAULT);
+
+		XStreamAliasRegistryUtil.register(MBBanImpl.class, "MBBan");
+		XStreamAliasRegistryUtil.register(MBCategoryImpl.class, "MBCategory");
+		XStreamAliasRegistryUtil.register(MBMessageImpl.class, "MBMessage");
+		XStreamAliasRegistryUtil.register(
+			MBThreadFlagImpl.class, "MBThreadFlag");
+	}
+
+	@Override
+	public String getServiceName() {
+		return MBConstants.SERVICE_NAME;
 	}
 
 	@Override
@@ -114,19 +129,21 @@ public class MBPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "messages")) {
 			ActionableDynamicQuery categoryActionableDynamicQuery =
-				new MBCategoryExportActionableDynamicQuery(portletDataContext);
+				MBCategoryLocalServiceUtil.getExportActionableDynamicQuery(
+					portletDataContext);
 
 			categoryActionableDynamicQuery.performActions();
 
 			ActionableDynamicQuery messageActionableDynamicQuery =
-				new MBMessageExportActionableDynamicQuery(portletDataContext);
+				MBMessageLocalServiceUtil.getExportActionableDynamicQuery(
+					portletDataContext);
 
 			messageActionableDynamicQuery.performActions();
 		}
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "thread-flags")) {
 			ActionableDynamicQuery threadFlagActionableDynamicQuery =
-				new MBThreadFlagExportActionableDynamicQuery(
+				MBThreadFlagLocalServiceUtil.getExportActionableDynamicQuery(
 					portletDataContext);
 
 			threadFlagActionableDynamicQuery.performActions();
@@ -134,7 +151,8 @@ public class MBPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "user-bans")) {
 			ActionableDynamicQuery banActionableDynamicQuery =
-				new MBBanExportActionableDynamicQuery(portletDataContext);
+				MBBanLocalServiceUtil.getExportActionableDynamicQuery(
+					portletDataContext);
 
 			banActionableDynamicQuery.performActions();
 		}
@@ -207,22 +225,26 @@ public class MBPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery banActionableDynamicQuery =
-			new MBBanExportActionableDynamicQuery(portletDataContext);
+			MBBanLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		banActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery categoryActionableDynamicQuery =
-			new MBCategoryExportActionableDynamicQuery(portletDataContext);
+			MBCategoryLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		categoryActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery messageActionableDynamicQuery =
-			new MBMessageExportActionableDynamicQuery(portletDataContext);
+			MBMessageLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		messageActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery threadFlagActionableDynamicQuery =
-			new MBThreadFlagExportActionableDynamicQuery(portletDataContext);
+			MBThreadFlagLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		threadFlagActionableDynamicQuery.performCount();
 	}

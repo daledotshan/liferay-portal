@@ -59,7 +59,6 @@ import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.service.SubscriptionLocalServiceUtil;
 import com.liferay.portal.service.permission.GroupPermissionUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
-import com.liferay.portal.service.persistence.PortletPreferencesActionableDynamicQuery;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -74,6 +73,7 @@ import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetRenderer;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.model.AssetTag;
+import com.liferay.portlet.asset.model.ClassType;
 import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetEntryServiceUtil;
@@ -87,11 +87,13 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.portlet.PortletException;
@@ -299,29 +301,37 @@ public class AssetPublisherImpl implements AssetPublisher {
 	@Override
 	public void checkAssetEntries() throws Exception {
 		ActionableDynamicQuery actionableDynamicQuery =
-			new PortletPreferencesActionableDynamicQuery() {
+			PortletPreferencesLocalServiceUtil.getActionableDynamicQuery();
 
-			@Override
-			protected void addCriteria(DynamicQuery dynamicQuery) {
-				Property property = PropertyFactoryUtil.forName("portletId");
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
 
-				String portletId =
-					PortletKeys.ASSET_PUBLISHER +
-						PortletConstants.INSTANCE_SEPARATOR +
-							StringPool.PERCENT;
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					Property property = PropertyFactoryUtil.forName(
+						"portletId");
 
-				dynamicQuery.add(property.like(portletId));
-			}
+					String portletId =
+						PortletKeys.ASSET_PUBLISHER +
+							PortletConstants.INSTANCE_SEPARATOR +
+								StringPool.PERCENT;
 
-			@Override
-			protected void performAction(Object object)
-				throws PortalException, SystemException {
+					dynamicQuery.add(property.like(portletId));
+				}
 
-				_checkAssetEntries(
-					(com.liferay.portal.model.PortletPreferences)object);
-			}
+			});
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
 
-		};
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					_checkAssetEntries(
+						(com.liferay.portal.model.PortletPreferences)object);
+				}
+
+			});
 
 		actionableDynamicQuery.performActions();
 	}
@@ -363,7 +373,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	public List<AssetEntry> getAssetEntries(
 			PortletPreferences portletPreferences, Layout layout,
 			long scopeGroupId, int max, boolean checkPermission)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		long[] groupIds = getGroupIds(portletPreferences, scopeGroupId, layout);
 
@@ -604,10 +614,27 @@ public class AssetPublisherImpl implements AssetPublisher {
 			deleteMissingAssetEntries, checkPermission);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             AssetPublisherImpl#getAssetEntryQuery(PortletPreferences,
+	 *             long[], long[], String[])}
+	 */
+	@Deprecated
 	@Override
 	public AssetEntryQuery getAssetEntryQuery(
 			PortletPreferences portletPreferences, long[] scopeGroupIds)
-		throws PortalException, SystemException {
+		throws PortalException {
+
+		return getAssetEntryQuery(
+			portletPreferences, scopeGroupIds, null, null);
+	}
+
+	@Override
+	public AssetEntryQuery getAssetEntryQuery(
+			PortletPreferences portletPreferences, long[] scopeGroupIds,
+			long[] overrideAllAssetCategoryIds,
+			String[] overrideAllAssetTagNames)
+		throws PortalException {
 
 		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
 
@@ -670,11 +697,21 @@ public class AssetPublisherImpl implements AssetPublisher {
 			}
 		}
 
+		if (overrideAllAssetCategoryIds != null) {
+			allAssetCategoryIds = overrideAllAssetCategoryIds;
+		}
+
 		assetEntryQuery.setAllCategoryIds(allAssetCategoryIds);
+
+		if (overrideAllAssetCategoryIds != null) {
+			allAssetTagNames = overrideAllAssetTagNames;
+		}
+
+		long[] siteGroupIds = getSiteGroupIds(scopeGroupIds);
 
 		for (String assetTagName : allAssetTagNames) {
 			long[] allAssetTagIds = AssetTagLocalServiceUtil.getTagIds(
-				scopeGroupIds, assetTagName);
+				siteGroupIds, assetTagName);
 
 			assetEntryQuery.addAllTagIdsArray(allAssetTagIds);
 		}
@@ -682,7 +719,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 		assetEntryQuery.setAnyCategoryIds(anyAssetCategoryIds);
 
 		long[] anyAssetTagIds = AssetTagLocalServiceUtil.getTagIds(
-			scopeGroupIds, anyAssetTagNames);
+			siteGroupIds, anyAssetTagNames);
 
 		assetEntryQuery.setAnyTagIds(anyAssetTagIds);
 
@@ -690,7 +727,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 
 		for (String assetTagName : notAllAssetTagNames) {
 			long[] notAllAssetTagIds = AssetTagLocalServiceUtil.getTagIds(
-				scopeGroupIds, assetTagName);
+				siteGroupIds, assetTagName);
 
 			assetEntryQuery.addNotAllTagIdsArray(notAllAssetTagIds);
 		}
@@ -698,7 +735,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 		assetEntryQuery.setNotAnyCategoryIds(notAnyAssetCategoryIds);
 
 		long[] notAnyAssetTagIds = AssetTagLocalServiceUtil.getTagIds(
-			scopeGroupIds, notAnyAssetTagNames);
+			siteGroupIds, notAnyAssetTagNames);
 
 		assetEntryQuery.setNotAnyTagIds(notAnyAssetTagIds);
 
@@ -706,8 +743,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	}
 
 	@Override
-	public String[] getAssetTagNames(
-			PortletPreferences portletPreferences, long scopeGroupId)
+	public String[] getAssetTagNames(PortletPreferences portletPreferences)
 		throws Exception {
 
 		String[] allAssetTagNames = new String[0];
@@ -737,6 +773,19 @@ public class AssetPublisherImpl implements AssetPublisher {
 		}
 
 		return allAssetTagNames;
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             AssetPublisherImpl#getAssetTagNames(PortletPreferences)}
+	 */
+	@Deprecated
+	@Override
+	public String[] getAssetTagNames(
+			PortletPreferences portletPreferences, long scopeGroupId)
+		throws Exception {
+
+		return getAssetTagNames(portletPreferences);
 	}
 
 	@Override
@@ -780,6 +829,23 @@ public class AssetPublisherImpl implements AssetPublisher {
 		else {
 			return availableClassNameIds;
 		}
+	}
+
+	@Override
+	public Long[] getClassTypeIds(
+		PortletPreferences portletPreferences, String className,
+		List<ClassType> availableClassTypes) {
+
+		Long[] availableClassTypeIds = new Long[availableClassTypes.size()];
+
+		for (int i = 0; i < availableClassTypeIds.length; i++) {
+			ClassType classType = availableClassTypes.get(i);
+
+			availableClassTypeIds[i] = classType.getClassTypeId();
+		}
+
+		return getClassTypeIds(
+			portletPreferences, className, availableClassTypeIds);
 	}
 
 	@Override
@@ -907,8 +973,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 
 	@Override
 	public String getEmailFromAddress(
-			PortletPreferences portletPreferences, long companyId)
-		throws SystemException {
+		PortletPreferences portletPreferences, long companyId) {
 
 		return PortalUtil.getEmailFromAddress(
 			portletPreferences, companyId,
@@ -917,8 +982,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 
 	@Override
 	public String getEmailFromName(
-			PortletPreferences portletPreferences, long companyId)
-		throws SystemException {
+		PortletPreferences portletPreferences, long companyId) {
 
 		return PortalUtil.getEmailFromName(
 			portletPreferences, companyId,
@@ -928,7 +992,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	@Override
 	public long getGroupIdFromScopeId(
 			String scopeId, long siteGroupId, boolean privateLayout)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (scopeId.startsWith(SCOPE_ID_CHILD_GROUP_PREFIX)) {
 			String scopeIdSuffix = scopeId.substring(
@@ -1070,7 +1134,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 
 	@Override
 	public String getScopeId(Group group, long scopeGroupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String key = null;
 
@@ -1106,7 +1170,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 
 	@Override
 	public long getSubscriptionClassPK(long plid, String portletId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		com.liferay.portal.model.PortletPreferences portletPreferencesModel =
 			PortletPreferencesLocalServiceUtil.getPortletPreferences(
@@ -1120,7 +1184,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	public boolean isScopeIdSelectable(
 			PermissionChecker permissionChecker, String scopeId,
 			long companyGroupId, Layout layout)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		long groupId = getGroupIdFromScopeId(
 			scopeId, layout.getGroupId(), layout.isPrivateLayout());
@@ -1167,7 +1231,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	@Override
 	public boolean isSubscribed(
 			long companyId, long userId, long plid, String portletId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return SubscriptionLocalServiceUtil.isSubscribed(
 			companyId, userId,
@@ -1179,7 +1243,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	public void notifySubscribers(
 			PortletPreferences portletPreferences, long plid, String portletId,
 			List<AssetEntry> assetEntries)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!getEmailAssetEntryAddedEnabled(portletPreferences) ||
 			assetEntries.isEmpty()) {
@@ -1299,7 +1363,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	public void subscribe(
 			PermissionChecker permissionChecker, long groupId, long plid,
 			String portletId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		PortletPermissionUtil.check(
 			permissionChecker, plid, portletId, ActionKeys.SUBSCRIBE);
@@ -1320,7 +1384,7 @@ public class AssetPublisherImpl implements AssetPublisher {
 	@Override
 	public void unsubscribe(
 			PermissionChecker permissionChecker, long plid, String portletId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		PortletPermissionUtil.check(
 			permissionChecker, plid, portletId, ActionKeys.SUBSCRIBE);
@@ -1331,10 +1395,20 @@ public class AssetPublisherImpl implements AssetPublisher {
 			getSubscriptionClassPK(plid, portletId));
 	}
 
+	protected long[] getSiteGroupIds(long[] groupIds) throws PortalException {
+		Set<Long> siteGroupIds = new HashSet<Long>();
+
+		for (long groupId : groupIds) {
+			siteGroupIds.add(PortalUtil.getSiteGroupId(groupId));
+		}
+
+		return ArrayUtil.toLongArray(siteGroupIds);
+	}
+
 	private void _checkAssetEntries(
 			com.liferay.portal.model.PortletPreferences
-			portletPreferencesModel)
-		throws PortalException, SystemException {
+				portletPreferencesModel)
+		throws PortalException {
 
 		Layout layout = LayoutLocalServiceUtil.getLayout(
 			portletPreferencesModel.getPlid());
@@ -1505,6 +1579,16 @@ public class AssetPublisherImpl implements AssetPublisher {
 			@Override
 			public String get(AssetEntry assetEntry) {
 				return assetEntry.getTitle(LocaleUtil.getSiteDefault());
+			}
+
+			@Override
+			public Class<String> getAttributeClass() {
+				return String.class;
+			}
+
+			@Override
+			public Class<AssetEntry> getTypeClass() {
+				return AssetEntry.class;
 			}
 
 		};
