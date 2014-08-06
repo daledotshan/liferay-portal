@@ -34,6 +34,11 @@ import com.liferay.portalweb2.util.block.macro.UserMacro;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)}
 	<#if extendedTestCase??>
 		extends ${extendedTestCase}TestCase {
@@ -71,6 +76,18 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)}
 		}
 
 		selenium.startLogger();
+
+		<#if rootElement.element("property")??>
+			<#assign propertyElements = rootElement.elements("property")>
+
+			<#list propertyElements as propertyElement>
+				<#assign lineNumber = propertyElement.attributeValue("line-number")>
+
+				selenium.sendLogger(currentTestCaseName + "${lineNumber}", "pending");
+
+				selenium.sendLogger(currentTestCaseName + "${lineNumber}", "pass");
+			</#list>
+		</#if>
 
 		<#if rootElement.element("var")??>
 			<#assign varElements = rootElement.elements("var")>
@@ -160,6 +177,7 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)}
 	<#list commandElements as commandElement>
 		<#assign commandName = commandElement.attributeValue("name")>
 
+		@Test
 		public void test${commandName}() throws Exception {
 			boolean testPassed = false;
 			boolean testSkipped = false;
