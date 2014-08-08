@@ -23,20 +23,15 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.Region;
 import com.liferay.portal.model.impl.RegionImpl;
 import com.liferay.portal.model.impl.RegionModelImpl;
@@ -44,9 +39,12 @@ import com.liferay.portal.service.persistence.RegionPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -109,11 +107,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 *
 	 * @param countryId the country ID
 	 * @return the matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Region> findByCountryId(long countryId)
-		throws SystemException {
+	public List<Region> findByCountryId(long countryId) {
 		return findByCountryId(countryId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -129,11 +125,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param start the lower bound of the range of regions
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @return the range of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Region> findByCountryId(long countryId, int start, int end)
-		throws SystemException {
+	public List<Region> findByCountryId(long countryId, int start, int end) {
 		return findByCountryId(countryId, start, end, null);
 	}
 
@@ -149,11 +143,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Region> findByCountryId(long countryId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -256,12 +249,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching region
 	 * @throws com.liferay.portal.NoSuchRegionException if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByCountryId_First(long countryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = fetchByCountryId_First(countryId, orderByComparator);
 
 		if (region != null) {
@@ -286,11 +278,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param countryId the country ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region fetchByCountryId_First(long countryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		List<Region> list = findByCountryId(countryId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -307,12 +298,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching region
 	 * @throws com.liferay.portal.NoSuchRegionException if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByCountryId_Last(long countryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = fetchByCountryId_Last(countryId, orderByComparator);
 
 		if (region != null) {
@@ -337,11 +327,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param countryId the country ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region fetchByCountryId_Last(long countryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		int count = countByCountryId(countryId);
 
 		if (count == 0) {
@@ -366,12 +355,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next region
 	 * @throws com.liferay.portal.NoSuchRegionException if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region[] findByCountryId_PrevAndNext(long regionId, long countryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = findByPrimaryKey(regionId);
 
 		Session session = null;
@@ -400,7 +388,8 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	}
 
 	protected Region getByCountryId_PrevAndNext(Session session, Region region,
-		long countryId, OrderByComparator orderByComparator, boolean previous) {
+		long countryId, OrderByComparator<Region> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -507,10 +496,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * Removes all the regions where countryId = &#63; from the database.
 	 *
 	 * @param countryId the country ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByCountryId(long countryId) throws SystemException {
+	public void removeByCountryId(long countryId) {
 		for (Region region : findByCountryId(countryId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(region);
@@ -522,10 +510,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 *
 	 * @param countryId the country ID
 	 * @return the number of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByCountryId(long countryId) throws SystemException {
+	public int countByCountryId(long countryId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_COUNTRYID;
 
 		Object[] finderArgs = new Object[] { countryId };
@@ -597,10 +584,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 *
 	 * @param active the active
 	 * @return the matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Region> findByActive(boolean active) throws SystemException {
+	public List<Region> findByActive(boolean active) {
 		return findByActive(active, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -615,11 +601,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param start the lower bound of the range of regions
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @return the range of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Region> findByActive(boolean active, int start, int end)
-		throws SystemException {
+	public List<Region> findByActive(boolean active, int start, int end) {
 		return findByActive(active, start, end, null);
 	}
 
@@ -635,11 +619,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Region> findByActive(boolean active, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -742,12 +725,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching region
 	 * @throws com.liferay.portal.NoSuchRegionException if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByActive_First(boolean active,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = fetchByActive_First(active, orderByComparator);
 
 		if (region != null) {
@@ -772,11 +754,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region fetchByActive_First(boolean active,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		List<Region> list = findByActive(active, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -793,12 +774,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching region
 	 * @throws com.liferay.portal.NoSuchRegionException if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByActive_Last(boolean active,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = fetchByActive_Last(active, orderByComparator);
 
 		if (region != null) {
@@ -823,11 +803,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region fetchByActive_Last(boolean active,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		int count = countByActive(active);
 
 		if (count == 0) {
@@ -852,12 +831,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next region
 	 * @throws com.liferay.portal.NoSuchRegionException if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region[] findByActive_PrevAndNext(long regionId, boolean active,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = findByPrimaryKey(regionId);
 
 		Session session = null;
@@ -886,7 +864,8 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	}
 
 	protected Region getByActive_PrevAndNext(Session session, Region region,
-		boolean active, OrderByComparator orderByComparator, boolean previous) {
+		boolean active, OrderByComparator<Region> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -993,10 +972,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * Removes all the regions where active = &#63; from the database.
 	 *
 	 * @param active the active
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByActive(boolean active) throws SystemException {
+	public void removeByActive(boolean active) {
 		for (Region region : findByActive(active, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(region);
@@ -1008,10 +986,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 *
 	 * @param active the active
 	 * @return the number of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByActive(boolean active) throws SystemException {
+	public int countByActive(boolean active) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_ACTIVE;
 
 		Object[] finderArgs = new Object[] { active };
@@ -1075,11 +1052,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param regionCode the region code
 	 * @return the matching region
 	 * @throws com.liferay.portal.NoSuchRegionException if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByC_R(long countryId, String regionCode)
-		throws NoSuchRegionException, SystemException {
+		throws NoSuchRegionException {
 		Region region = fetchByC_R(countryId, regionCode);
 
 		if (region == null) {
@@ -1111,11 +1087,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param countryId the country ID
 	 * @param regionCode the region code
 	 * @return the matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Region fetchByC_R(long countryId, String regionCode)
-		throws SystemException {
+	public Region fetchByC_R(long countryId, String regionCode) {
 		return fetchByC_R(countryId, regionCode, true);
 	}
 
@@ -1126,11 +1100,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param regionCode the region code
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region fetchByC_R(long countryId, String regionCode,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { countryId, regionCode };
 
 		Object result = null;
@@ -1233,11 +1206,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param countryId the country ID
 	 * @param regionCode the region code
 	 * @return the region that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region removeByC_R(long countryId, String regionCode)
-		throws NoSuchRegionException, SystemException {
+		throws NoSuchRegionException {
 		Region region = findByC_R(countryId, regionCode);
 
 		return remove(region);
@@ -1249,11 +1221,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param countryId the country ID
 	 * @param regionCode the region code
 	 * @return the number of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_R(long countryId, String regionCode)
-		throws SystemException {
+	public int countByC_R(long countryId, String regionCode) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_R;
 
 		Object[] finderArgs = new Object[] { countryId, regionCode };
@@ -1347,11 +1317,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param countryId the country ID
 	 * @param active the active
 	 * @return the matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Region> findByC_A(long countryId, boolean active)
-		throws SystemException {
+	public List<Region> findByC_A(long countryId, boolean active) {
 		return findByC_A(countryId, active, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -1368,11 +1336,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param start the lower bound of the range of regions
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @return the range of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Region> findByC_A(long countryId, boolean active, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByC_A(countryId, active, start, end, null);
 	}
 
@@ -1389,11 +1356,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Region> findByC_A(long countryId, boolean active, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<Region> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1506,12 +1472,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching region
 	 * @throws com.liferay.portal.NoSuchRegionException if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByC_A_First(long countryId, boolean active,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = fetchByC_A_First(countryId, active, orderByComparator);
 
 		if (region != null) {
@@ -1540,11 +1505,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region fetchByC_A_First(long countryId, boolean active,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		List<Region> list = findByC_A(countryId, active, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1562,12 +1526,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching region
 	 * @throws com.liferay.portal.NoSuchRegionException if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByC_A_Last(long countryId, boolean active,
-		OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = fetchByC_A_Last(countryId, active, orderByComparator);
 
 		if (region != null) {
@@ -1596,11 +1559,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching region, or <code>null</code> if a matching region could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region fetchByC_A_Last(long countryId, boolean active,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		int count = countByC_A(countryId, active);
 
 		if (count == 0) {
@@ -1626,12 +1588,11 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next region
 	 * @throws com.liferay.portal.NoSuchRegionException if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region[] findByC_A_PrevAndNext(long regionId, long countryId,
-		boolean active, OrderByComparator orderByComparator)
-		throws NoSuchRegionException, SystemException {
+		boolean active, OrderByComparator<Region> orderByComparator)
+		throws NoSuchRegionException {
 		Region region = findByPrimaryKey(regionId);
 
 		Session session = null;
@@ -1660,8 +1621,8 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	}
 
 	protected Region getByC_A_PrevAndNext(Session session, Region region,
-		long countryId, boolean active, OrderByComparator orderByComparator,
-		boolean previous) {
+		long countryId, boolean active,
+		OrderByComparator<Region> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1773,11 +1734,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 *
 	 * @param countryId the country ID
 	 * @param active the active
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_A(long countryId, boolean active)
-		throws SystemException {
+	public void removeByC_A(long countryId, boolean active) {
 		for (Region region : findByC_A(countryId, active, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(region);
@@ -1790,11 +1749,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param countryId the country ID
 	 * @param active the active
 	 * @return the number of matching regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_A(long countryId, boolean active)
-		throws SystemException {
+	public int countByC_A(long countryId, boolean active) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_A;
 
 		Object[] finderArgs = new Object[] { countryId, active };
@@ -2007,11 +1964,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param regionId the primary key of the region
 	 * @return the region that was removed
 	 * @throws com.liferay.portal.NoSuchRegionException if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Region remove(long regionId)
-		throws NoSuchRegionException, SystemException {
+	public Region remove(long regionId) throws NoSuchRegionException {
 		return remove((Serializable)regionId);
 	}
 
@@ -2021,11 +1976,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param primaryKey the primary key of the region
 	 * @return the region that was removed
 	 * @throws com.liferay.portal.NoSuchRegionException if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Region remove(Serializable primaryKey)
-		throws NoSuchRegionException, SystemException {
+	public Region remove(Serializable primaryKey) throws NoSuchRegionException {
 		Session session = null;
 
 		try {
@@ -2056,7 +2009,7 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	}
 
 	@Override
-	protected Region removeImpl(Region region) throws SystemException {
+	protected Region removeImpl(Region region) {
 		region = toUnwrappedModel(region);
 
 		Session session = null;
@@ -2088,8 +2041,7 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	}
 
 	@Override
-	public Region updateImpl(com.liferay.portal.model.Region region)
-		throws SystemException {
+	public Region updateImpl(com.liferay.portal.model.Region region) {
 		region = toUnwrappedModel(region);
 
 		boolean isNew = region.isNew();
@@ -2217,11 +2169,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param primaryKey the primary key of the region
 	 * @return the region
 	 * @throws com.liferay.portal.NoSuchRegionException if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Region findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchRegionException, SystemException {
+		throws NoSuchRegionException {
 		Region region = fetchByPrimaryKey(primaryKey);
 
 		if (region == null) {
@@ -2242,11 +2193,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param regionId the primary key of the region
 	 * @return the region
 	 * @throws com.liferay.portal.NoSuchRegionException if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Region findByPrimaryKey(long regionId)
-		throws NoSuchRegionException, SystemException {
+	public Region findByPrimaryKey(long regionId) throws NoSuchRegionException {
 		return findByPrimaryKey((Serializable)regionId);
 	}
 
@@ -2255,11 +2204,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 *
 	 * @param primaryKey the primary key of the region
 	 * @return the region, or <code>null</code> if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Region fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public Region fetchByPrimaryKey(Serializable primaryKey) {
 		Region region = (Region)EntityCacheUtil.getResult(RegionModelImpl.ENTITY_CACHE_ENABLED,
 				RegionImpl.class, primaryKey);
 
@@ -2302,21 +2249,111 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 *
 	 * @param regionId the primary key of the region
 	 * @return the region, or <code>null</code> if a region with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Region fetchByPrimaryKey(long regionId) throws SystemException {
+	public Region fetchByPrimaryKey(long regionId) {
 		return fetchByPrimaryKey((Serializable)regionId);
+	}
+
+	@Override
+	public Map<Serializable, Region> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, Region> map = new HashMap<Serializable, Region>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			Region region = fetchByPrimaryKey(primaryKey);
+
+			if (region != null) {
+				map.put(primaryKey, region);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			Region region = (Region)EntityCacheUtil.getResult(RegionModelImpl.ENTITY_CACHE_ENABLED,
+					RegionImpl.class, primaryKey);
+
+			if (region == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, region);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_REGION_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (Region region : (List<Region>)q.list()) {
+				map.put(region.getPrimaryKeyObj(), region);
+
+				cacheResult(region);
+
+				uncachedPrimaryKeys.remove(region.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(RegionModelImpl.ENTITY_CACHE_ENABLED,
+					RegionImpl.class, primaryKey, _nullRegion);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the regions.
 	 *
 	 * @return the regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Region> findAll() throws SystemException {
+	public List<Region> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -2330,10 +2367,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param start the lower bound of the range of regions
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @return the range of regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Region> findAll(int start, int end) throws SystemException {
+	public List<Region> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -2348,11 +2384,10 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * @param end the upper bound of the range of regions (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Region> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Region> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2434,10 +2469,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	/**
 	 * Removes all the regions from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (Region region : findAll()) {
 			remove(region);
 		}
@@ -2447,10 +2481,9 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * Returns the number of regions.
 	 *
 	 * @return the number of regions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -2490,25 +2523,6 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	 * Initializes the region persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portal.model.Region")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<Region>> listenersList = new ArrayList<ModelListener<Region>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<Region>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -2519,6 +2533,7 @@ public class RegionPersistenceImpl extends BasePersistenceImpl<Region>
 	}
 
 	private static final String _SQL_SELECT_REGION = "SELECT region FROM Region region";
+	private static final String _SQL_SELECT_REGION_WHERE_PKS_IN = "SELECT region FROM Region region WHERE regionId IN (";
 	private static final String _SQL_SELECT_REGION_WHERE = "SELECT region FROM Region region WHERE ";
 	private static final String _SQL_COUNT_REGION = "SELECT COUNT(region) FROM Region region";
 	private static final String _SQL_COUNT_REGION_WHERE = "SELECT COUNT(region) FROM Region region WHERE ";
