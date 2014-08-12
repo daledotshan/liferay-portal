@@ -20,6 +20,8 @@
 String redirect = ParamUtil.getString(request, "redirect");
 
 String keywords = ParamUtil.getString(request, "keywords");
+
+System.out.println("commit two");
 %>
 
 <liferay-portlet:renderURL varImpl="searchURL">
