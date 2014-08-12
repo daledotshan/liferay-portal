@@ -40,6 +40,7 @@ public class BlogsEntrySoap implements Serializable {
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
 		soapModel.setTitle(model.getTitle());
+		soapModel.setSubtitle(model.getSubtitle());
 		soapModel.setUrlTitle(model.getUrlTitle());
 		soapModel.setDescription(model.getDescription());
 		soapModel.setContent(model.getContent());
@@ -178,6 +179,14 @@ public class BlogsEntrySoap implements Serializable {
 		_title = title;
 	}
 
+	public String getSubtitle() {
+		return _subtitle;
+	}
+
+	public void setSubtitle(String subtitle) {
+		_subtitle = subtitle;
+	}
+
 	public String getUrlTitle() {
 		return _urlTitle;
 	}
@@ -311,6 +320,7 @@ public class BlogsEntrySoap implements Serializable {
 	private Date _createDate;
 	private Date _modifiedDate;
 	private String _title;
+	private String _subtitle;
 	private String _urlTitle;
 	private String _description;
 	private String _content;

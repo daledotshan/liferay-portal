@@ -37,9 +37,11 @@ public class UserNotificationEventSoap implements Serializable {
 		soapModel.setUserId(model.getUserId());
 		soapModel.setType(model.getType());
 		soapModel.setTimestamp(model.getTimestamp());
+		soapModel.setDeliveryType(model.getDeliveryType());
 		soapModel.setDeliverBy(model.getDeliverBy());
 		soapModel.setDelivered(model.getDelivered());
 		soapModel.setPayload(model.getPayload());
+		soapModel.setActionRequired(model.getActionRequired());
 		soapModel.setArchived(model.getArchived());
 
 		return soapModel;
@@ -152,6 +154,14 @@ public class UserNotificationEventSoap implements Serializable {
 		_timestamp = timestamp;
 	}
 
+	public int getDeliveryType() {
+		return _deliveryType;
+	}
+
+	public void setDeliveryType(int deliveryType) {
+		_deliveryType = deliveryType;
+	}
+
 	public long getDeliverBy() {
 		return _deliverBy;
 	}
@@ -180,6 +190,18 @@ public class UserNotificationEventSoap implements Serializable {
 		_payload = payload;
 	}
 
+	public boolean getActionRequired() {
+		return _actionRequired;
+	}
+
+	public boolean isActionRequired() {
+		return _actionRequired;
+	}
+
+	public void setActionRequired(boolean actionRequired) {
+		_actionRequired = actionRequired;
+	}
+
 	public boolean getArchived() {
 		return _archived;
 	}
@@ -199,8 +221,10 @@ public class UserNotificationEventSoap implements Serializable {
 	private long _userId;
 	private String _type;
 	private long _timestamp;
+	private int _deliveryType;
 	private long _deliverBy;
 	private boolean _delivered;
 	private String _payload;
+	private boolean _actionRequired;
 	private boolean _archived;
 }

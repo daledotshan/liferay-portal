@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -41,7 +40,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
@@ -54,9 +52,12 @@ import com.liferay.portlet.calendar.service.persistence.CalEventPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -118,10 +119,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param uuid the uuid
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByUuid(String uuid) throws SystemException {
+	public List<CalEvent> findByUuid(String uuid) {
 		return findByUuid(uuid, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -136,11 +136,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByUuid(String uuid, int start, int end)
-		throws SystemException {
+	public List<CalEvent> findByUuid(String uuid, int start, int end) {
 		return findByUuid(uuid, start, end, null);
 	}
 
@@ -156,11 +154,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByUuid(String uuid, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -277,12 +274,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByUuid_First(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByUuid_First(uuid, orderByComparator);
 
 		if (calEvent != null) {
@@ -307,11 +303,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByUuid_First(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		List<CalEvent> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -328,12 +323,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByUuid_Last(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByUuid_Last(uuid, orderByComparator);
 
 		if (calEvent != null) {
@@ -358,11 +352,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		int count = countByUuid(uuid);
 
 		if (count == 0) {
@@ -387,12 +380,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] findByUuid_PrevAndNext(long eventId, String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = findByPrimaryKey(eventId);
 
 		Session session = null;
@@ -421,8 +413,8 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	protected CalEvent getByUuid_PrevAndNext(Session session,
-		CalEvent calEvent, String uuid, OrderByComparator orderByComparator,
-		boolean previous) {
+		CalEvent calEvent, String uuid,
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -543,10 +535,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * Removes all the cal events where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid(String uuid) throws SystemException {
+	public void removeByUuid(String uuid) {
 		for (CalEvent calEvent : findByUuid(uuid, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(calEvent);
@@ -558,10 +549,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param uuid the uuid
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid(String uuid) throws SystemException {
+	public int countByUuid(String uuid) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID;
 
 		Object[] finderArgs = new Object[] { uuid };
@@ -641,11 +631,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @return the matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByUUID_G(String uuid, long groupId)
-		throws NoSuchEventException, SystemException {
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByUUID_G(uuid, groupId);
 
 		if (calEvent == null) {
@@ -677,11 +666,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public CalEvent fetchByUUID_G(String uuid, long groupId)
-		throws SystemException {
+	public CalEvent fetchByUUID_G(String uuid, long groupId) {
 		return fetchByUUID_G(uuid, groupId, true);
 	}
 
@@ -692,11 +679,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByUUID_G(String uuid, long groupId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { uuid, groupId };
 
 		Object result = null;
@@ -799,11 +785,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the cal event that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent removeByUUID_G(String uuid, long groupId)
-		throws NoSuchEventException, SystemException {
+		throws NoSuchEventException {
 		CalEvent calEvent = findByUUID_G(uuid, groupId);
 
 		return remove(calEvent);
@@ -815,11 +800,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUUID_G(String uuid, long groupId)
-		throws SystemException {
+	public int countByUUID_G(String uuid, long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_G;
 
 		Object[] finderArgs = new Object[] { uuid, groupId };
@@ -915,11 +898,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public List<CalEvent> findByUuid_C(String uuid, long companyId) {
 		return findByUuid_C(uuid, companyId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -936,11 +917,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByUuid_C(String uuid, long companyId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByUuid_C(uuid, companyId, start, end, null);
 	}
 
@@ -957,11 +937,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByUuid_C(String uuid, long companyId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1088,12 +1067,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByUuid_C_First(uuid, companyId,
 				orderByComparator);
 
@@ -1123,11 +1101,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		List<CalEvent> list = findByUuid_C(uuid, companyId, 0, 1,
 				orderByComparator);
 
@@ -1146,12 +1123,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByUuid_C_Last(uuid, companyId,
 				orderByComparator);
 
@@ -1181,11 +1157,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		int count = countByUuid_C(uuid, companyId);
 
 		if (count == 0) {
@@ -1211,12 +1186,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] findByUuid_C_PrevAndNext(long eventId, String uuid,
-		long companyId, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		long companyId, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = findByPrimaryKey(eventId);
 
 		Session session = null;
@@ -1246,7 +1220,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 
 	protected CalEvent getByUuid_C_PrevAndNext(Session session,
 		CalEvent calEvent, String uuid, long companyId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1372,11 +1346,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public void removeByUuid_C(String uuid, long companyId) {
 		for (CalEvent calEvent : findByUuid_C(uuid, companyId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(calEvent);
@@ -1389,11 +1361,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public int countByUuid_C(String uuid, long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_C;
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
@@ -1460,497 +1430,6 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	private static final String _FINDER_COLUMN_UUID_C_UUID_2 = "calEvent.uuid = ? AND ";
 	private static final String _FINDER_COLUMN_UUID_C_UUID_3 = "(calEvent.uuid IS NULL OR calEvent.uuid = '') AND ";
 	private static final String _FINDER_COLUMN_UUID_C_COMPANYID_2 = "calEvent.companyId = ?";
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_COMPANYID =
-		new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
-			CalEventModelImpl.FINDER_CACHE_ENABLED, CalEventImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCompanyId",
-			new String[] {
-				Long.class.getName(),
-				
-			Integer.class.getName(), Integer.class.getName(),
-				OrderByComparator.class.getName()
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID =
-		new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
-			CalEventModelImpl.FINDER_CACHE_ENABLED, CalEventImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCompanyId",
-			new String[] { Long.class.getName() },
-			CalEventModelImpl.COMPANYID_COLUMN_BITMASK |
-			CalEventModelImpl.STARTDATE_COLUMN_BITMASK |
-			CalEventModelImpl.TITLE_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_COMPANYID = new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
-			CalEventModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
-			new String[] { Long.class.getName() });
-
-	/**
-	 * Returns all the cal events where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public List<CalEvent> findByCompanyId(long companyId)
-		throws SystemException {
-		return findByCompanyId(companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-			null);
-	}
-
-	/**
-	 * Returns a range of all the cal events where companyId = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.calendar.model.impl.CalEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	 * </p>
-	 *
-	 * @param companyId the company ID
-	 * @param start the lower bound of the range of cal events
-	 * @param end the upper bound of the range of cal events (not inclusive)
-	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public List<CalEvent> findByCompanyId(long companyId, int start, int end)
-		throws SystemException {
-		return findByCompanyId(companyId, start, end, null);
-	}
-
-	/**
-	 * Returns an ordered range of all the cal events where companyId = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.calendar.model.impl.CalEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
-	 * </p>
-	 *
-	 * @param companyId the company ID
-	 * @param start the lower bound of the range of cal events
-	 * @param end the upper bound of the range of cal events (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public List<CalEvent> findByCompanyId(long companyId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
-		boolean pagination = true;
-		FinderPath finderPath = null;
-		Object[] finderArgs = null;
-
-		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
-				(orderByComparator == null)) {
-			pagination = false;
-			finderPath = FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID;
-			finderArgs = new Object[] { companyId };
-		}
-		else {
-			finderPath = FINDER_PATH_WITH_PAGINATION_FIND_BY_COMPANYID;
-			finderArgs = new Object[] { companyId, start, end, orderByComparator };
-		}
-
-		List<CalEvent> list = (List<CalEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
-
-		if ((list != null) && !list.isEmpty()) {
-			for (CalEvent calEvent : list) {
-				if ((companyId != calEvent.getCompanyId())) {
-					list = null;
-
-					break;
-				}
-			}
-		}
-
-		if (list == null) {
-			StringBundler query = null;
-
-			if (orderByComparator != null) {
-				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
-			}
-			else {
-				query = new StringBundler(3);
-			}
-
-			query.append(_SQL_SELECT_CALEVENT_WHERE);
-
-			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
-
-			if (orderByComparator != null) {
-				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
-					orderByComparator);
-			}
-			else
-			 if (pagination) {
-				query.append(CalEventModelImpl.ORDER_BY_JPQL);
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				if (!pagination) {
-					list = (List<CalEvent>)QueryUtil.list(q, getDialect(),
-							start, end, false);
-
-					Collections.sort(list);
-
-					list = Collections.unmodifiableList(list);
-				}
-				else {
-					list = (List<CalEvent>)QueryUtil.list(q, getDialect(),
-							start, end);
-				}
-
-				cacheResult(list);
-
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
-				throw processException(e);
-			}
-			finally {
-				closeSession(session);
-			}
-		}
-
-		return list;
-	}
-
-	/**
-	 * Returns the first cal event in the ordered set where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching cal event
-	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public CalEvent findByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
-		CalEvent calEvent = fetchByCompanyId_First(companyId, orderByComparator);
-
-		if (calEvent != null) {
-			return calEvent;
-		}
-
-		StringBundler msg = new StringBundler(4);
-
-		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
-
-		msg.append("companyId=");
-		msg.append(companyId);
-
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
-
-		throw new NoSuchEventException(msg.toString());
-	}
-
-	/**
-	 * Returns the first cal event in the ordered set where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public CalEvent fetchByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
-		List<CalEvent> list = findByCompanyId(companyId, 0, 1, orderByComparator);
-
-		if (!list.isEmpty()) {
-			return list.get(0);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Returns the last cal event in the ordered set where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching cal event
-	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public CalEvent findByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
-		CalEvent calEvent = fetchByCompanyId_Last(companyId, orderByComparator);
-
-		if (calEvent != null) {
-			return calEvent;
-		}
-
-		StringBundler msg = new StringBundler(4);
-
-		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
-
-		msg.append("companyId=");
-		msg.append(companyId);
-
-		msg.append(StringPool.CLOSE_CURLY_BRACE);
-
-		throw new NoSuchEventException(msg.toString());
-	}
-
-	/**
-	 * Returns the last cal event in the ordered set where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public CalEvent fetchByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
-		int count = countByCompanyId(companyId);
-
-		if (count == 0) {
-			return null;
-		}
-
-		List<CalEvent> list = findByCompanyId(companyId, count - 1, count,
-				orderByComparator);
-
-		if (!list.isEmpty()) {
-			return list.get(0);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Returns the cal events before and after the current cal event in the ordered set where companyId = &#63;.
-	 *
-	 * @param eventId the primary key of the current cal event
-	 * @param companyId the company ID
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next cal event
-	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public CalEvent[] findByCompanyId_PrevAndNext(long eventId, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
-		CalEvent calEvent = findByPrimaryKey(eventId);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			CalEvent[] array = new CalEventImpl[3];
-
-			array[0] = getByCompanyId_PrevAndNext(session, calEvent, companyId,
-					orderByComparator, true);
-
-			array[1] = calEvent;
-
-			array[2] = getByCompanyId_PrevAndNext(session, calEvent, companyId,
-					orderByComparator, false);
-
-			return array;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	protected CalEvent getByCompanyId_PrevAndNext(Session session,
-		CalEvent calEvent, long companyId, OrderByComparator orderByComparator,
-		boolean previous) {
-		StringBundler query = null;
-
-		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
-		}
-		else {
-			query = new StringBundler(3);
-		}
-
-		query.append(_SQL_SELECT_CALEVENT_WHERE);
-
-		query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
-
-		if (orderByComparator != null) {
-			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
-
-			if (orderByConditionFields.length > 0) {
-				query.append(WHERE_AND);
-			}
-
-			for (int i = 0; i < orderByConditionFields.length; i++) {
-				query.append(_ORDER_BY_ENTITY_ALIAS);
-				query.append(orderByConditionFields[i]);
-
-				if ((i + 1) < orderByConditionFields.length) {
-					if (orderByComparator.isAscending() ^ previous) {
-						query.append(WHERE_GREATER_THAN_HAS_NEXT);
-					}
-					else {
-						query.append(WHERE_LESSER_THAN_HAS_NEXT);
-					}
-				}
-				else {
-					if (orderByComparator.isAscending() ^ previous) {
-						query.append(WHERE_GREATER_THAN);
-					}
-					else {
-						query.append(WHERE_LESSER_THAN);
-					}
-				}
-			}
-
-			query.append(ORDER_BY_CLAUSE);
-
-			String[] orderByFields = orderByComparator.getOrderByFields();
-
-			for (int i = 0; i < orderByFields.length; i++) {
-				query.append(_ORDER_BY_ENTITY_ALIAS);
-				query.append(orderByFields[i]);
-
-				if ((i + 1) < orderByFields.length) {
-					if (orderByComparator.isAscending() ^ previous) {
-						query.append(ORDER_BY_ASC_HAS_NEXT);
-					}
-					else {
-						query.append(ORDER_BY_DESC_HAS_NEXT);
-					}
-				}
-				else {
-					if (orderByComparator.isAscending() ^ previous) {
-						query.append(ORDER_BY_ASC);
-					}
-					else {
-						query.append(ORDER_BY_DESC);
-					}
-				}
-			}
-		}
-		else {
-			query.append(CalEventModelImpl.ORDER_BY_JPQL);
-		}
-
-		String sql = query.toString();
-
-		Query q = session.createQuery(sql);
-
-		q.setFirstResult(0);
-		q.setMaxResults(2);
-
-		QueryPos qPos = QueryPos.getInstance(q);
-
-		qPos.add(companyId);
-
-		if (orderByComparator != null) {
-			Object[] values = orderByComparator.getOrderByConditionValues(calEvent);
-
-			for (Object value : values) {
-				qPos.add(value);
-			}
-		}
-
-		List<CalEvent> list = q.list();
-
-		if (list.size() == 2) {
-			return list.get(1);
-		}
-		else {
-			return null;
-		}
-	}
-
-	/**
-	 * Removes all the cal events where companyId = &#63; from the database.
-	 *
-	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public void removeByCompanyId(long companyId) throws SystemException {
-		for (CalEvent calEvent : findByCompanyId(companyId, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, null)) {
-			remove(calEvent);
-		}
-	}
-
-	/**
-	 * Returns the number of cal events where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public int countByCompanyId(long companyId) throws SystemException {
-		FinderPath finderPath = FINDER_PATH_COUNT_BY_COMPANYID;
-
-		Object[] finderArgs = new Object[] { companyId };
-
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_CALEVENT_WHERE);
-
-			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				count = (Long)q.uniqueResult();
-
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
-			}
-			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
-
-				throw processException(e);
-			}
-			finally {
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "calEvent.companyId = ?";
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_GROUPID = new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
 			CalEventModelImpl.FINDER_CACHE_ENABLED, CalEventImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByGroupId",
@@ -1978,10 +1457,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param groupId the group ID
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByGroupId(long groupId) throws SystemException {
+	public List<CalEvent> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1996,11 +1474,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<CalEvent> findByGroupId(long groupId, int start, int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -2016,11 +1492,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2123,12 +1598,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByGroupId_First(groupId, orderByComparator);
 
 		if (calEvent != null) {
@@ -2153,11 +1627,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		List<CalEvent> list = findByGroupId(groupId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -2174,12 +1647,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByGroupId_Last(groupId, orderByComparator);
 
 		if (calEvent != null) {
@@ -2204,11 +1676,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -2233,12 +1704,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] findByGroupId_PrevAndNext(long eventId, long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = findByPrimaryKey(eventId);
 
 		Session session = null;
@@ -2267,8 +1737,8 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	protected CalEvent getByGroupId_PrevAndNext(Session session,
-		CalEvent calEvent, long groupId, OrderByComparator orderByComparator,
-		boolean previous) {
+		CalEvent calEvent, long groupId,
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2376,11 +1846,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param groupId the group ID
 	 * @return the matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> filterFindByGroupId(long groupId)
-		throws SystemException {
+	public List<CalEvent> filterFindByGroupId(long groupId) {
 		return filterFindByGroupId(groupId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2396,11 +1864,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> filterFindByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<CalEvent> filterFindByGroupId(long groupId, int start, int end) {
 		return filterFindByGroupId(groupId, start, end, null);
 	}
 
@@ -2416,11 +1882,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
@@ -2507,12 +1972,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] filterFindByGroupId_PrevAndNext(long eventId,
-		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		long groupId, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId_PrevAndNext(eventId, groupId, orderByComparator);
 		}
@@ -2545,8 +2009,8 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	protected CalEvent filterGetByGroupId_PrevAndNext(Session session,
-		CalEvent calEvent, long groupId, OrderByComparator orderByComparator,
-		boolean previous) {
+		CalEvent calEvent, long groupId,
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2688,10 +2152,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * Removes all the cal events where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (CalEvent calEvent : findByGroupId(groupId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(calEvent);
@@ -2703,10 +2166,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -2756,10 +2218,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByGroupId(long groupId) throws SystemException {
+	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
 		}
@@ -2801,6 +2262,485 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	private static final String _FINDER_COLUMN_GROUPID_GROUPID_2 = "calEvent.groupId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_COMPANYID =
+		new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
+			CalEventModelImpl.FINDER_CACHE_ENABLED, CalEventImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCompanyId",
+			new String[] {
+				Long.class.getName(),
+				
+			Integer.class.getName(), Integer.class.getName(),
+				OrderByComparator.class.getName()
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID =
+		new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
+			CalEventModelImpl.FINDER_CACHE_ENABLED, CalEventImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCompanyId",
+			new String[] { Long.class.getName() },
+			CalEventModelImpl.COMPANYID_COLUMN_BITMASK |
+			CalEventModelImpl.STARTDATE_COLUMN_BITMASK |
+			CalEventModelImpl.TITLE_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_COMPANYID = new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
+			CalEventModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
+			new String[] { Long.class.getName() });
+
+	/**
+	 * Returns all the cal events where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @return the matching cal events
+	 */
+	@Override
+	public List<CalEvent> findByCompanyId(long companyId) {
+		return findByCompanyId(companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			null);
+	}
+
+	/**
+	 * Returns a range of all the cal events where companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.calendar.model.impl.CalEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of cal events
+	 * @param end the upper bound of the range of cal events (not inclusive)
+	 * @return the range of matching cal events
+	 */
+	@Override
+	public List<CalEvent> findByCompanyId(long companyId, int start, int end) {
+		return findByCompanyId(companyId, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the cal events where companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.calendar.model.impl.CalEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of cal events
+	 * @param end the upper bound of the range of cal events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching cal events
+	 */
+	@Override
+	public List<CalEvent> findByCompanyId(long companyId, int start, int end,
+		OrderByComparator<CalEvent> orderByComparator) {
+		boolean pagination = true;
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+			pagination = false;
+			finderPath = FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID;
+			finderArgs = new Object[] { companyId };
+		}
+		else {
+			finderPath = FINDER_PATH_WITH_PAGINATION_FIND_BY_COMPANYID;
+			finderArgs = new Object[] { companyId, start, end, orderByComparator };
+		}
+
+		List<CalEvent> list = (List<CalEvent>)FinderCacheUtil.getResult(finderPath,
+				finderArgs, this);
+
+		if ((list != null) && !list.isEmpty()) {
+			for (CalEvent calEvent : list) {
+				if ((companyId != calEvent.getCompanyId())) {
+					list = null;
+
+					break;
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler query = null;
+
+			if (orderByComparator != null) {
+				query = new StringBundler(3 +
+						(orderByComparator.getOrderByFields().length * 3));
+			}
+			else {
+				query = new StringBundler(3);
+			}
+
+			query.append(_SQL_SELECT_CALEVENT_WHERE);
+
+			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator);
+			}
+			else
+			 if (pagination) {
+				query.append(CalEventModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				if (!pagination) {
+					list = (List<CalEvent>)QueryUtil.list(q, getDialect(),
+							start, end, false);
+
+					Collections.sort(list);
+
+					list = Collections.unmodifiableList(list);
+				}
+				else {
+					list = (List<CalEvent>)QueryUtil.list(q, getDialect(),
+							start, end);
+				}
+
+				cacheResult(list);
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+			}
+			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first cal event in the ordered set where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching cal event
+	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
+	 */
+	@Override
+	public CalEvent findByCompanyId_First(long companyId,
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
+		CalEvent calEvent = fetchByCompanyId_First(companyId, orderByComparator);
+
+		if (calEvent != null) {
+			return calEvent;
+		}
+
+		StringBundler msg = new StringBundler(4);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("companyId=");
+		msg.append(companyId);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchEventException(msg.toString());
+	}
+
+	/**
+	 * Returns the first cal event in the ordered set where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
+	 */
+	@Override
+	public CalEvent fetchByCompanyId_First(long companyId,
+		OrderByComparator<CalEvent> orderByComparator) {
+		List<CalEvent> list = findByCompanyId(companyId, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last cal event in the ordered set where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching cal event
+	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
+	 */
+	@Override
+	public CalEvent findByCompanyId_Last(long companyId,
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
+		CalEvent calEvent = fetchByCompanyId_Last(companyId, orderByComparator);
+
+		if (calEvent != null) {
+			return calEvent;
+		}
+
+		StringBundler msg = new StringBundler(4);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("companyId=");
+		msg.append(companyId);
+
+		msg.append(StringPool.CLOSE_CURLY_BRACE);
+
+		throw new NoSuchEventException(msg.toString());
+	}
+
+	/**
+	 * Returns the last cal event in the ordered set where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
+	 */
+	@Override
+	public CalEvent fetchByCompanyId_Last(long companyId,
+		OrderByComparator<CalEvent> orderByComparator) {
+		int count = countByCompanyId(companyId);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<CalEvent> list = findByCompanyId(companyId, count - 1, count,
+				orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the cal events before and after the current cal event in the ordered set where companyId = &#63;.
+	 *
+	 * @param eventId the primary key of the current cal event
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next cal event
+	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
+	 */
+	@Override
+	public CalEvent[] findByCompanyId_PrevAndNext(long eventId, long companyId,
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
+		CalEvent calEvent = findByPrimaryKey(eventId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			CalEvent[] array = new CalEventImpl[3];
+
+			array[0] = getByCompanyId_PrevAndNext(session, calEvent, companyId,
+					orderByComparator, true);
+
+			array[1] = calEvent;
+
+			array[2] = getByCompanyId_PrevAndNext(session, calEvent, companyId,
+					orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected CalEvent getByCompanyId_PrevAndNext(Session session,
+		CalEvent calEvent, long companyId,
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(6 +
+					(orderByComparator.getOrderByFields().length * 6));
+		}
+		else {
+			query = new StringBundler(3);
+		}
+
+		query.append(_SQL_SELECT_CALEVENT_WHERE);
+
+		query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			query.append(CalEventModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = query.toString();
+
+		Query q = session.createQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(companyId);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(calEvent);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<CalEvent> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the cal events where companyId = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 */
+	@Override
+	public void removeByCompanyId(long companyId) {
+		for (CalEvent calEvent : findByCompanyId(companyId, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, null)) {
+			remove(calEvent);
+		}
+	}
+
+	/**
+	 * Returns the number of cal events where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @return the number of matching cal events
+	 */
+	@Override
+	public int countByCompanyId(long companyId) {
+		FinderPath finderPath = FINDER_PATH_COUNT_BY_COMPANYID;
+
+		Object[] finderArgs = new Object[] { companyId };
+
+		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
+				this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_CALEVENT_WHERE);
+
+			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				count = (Long)q.uniqueResult();
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				FinderCacheUtil.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "calEvent.companyId = ?";
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_NOTREMINDBY =
 		new FinderPath(CalEventModelImpl.ENTITY_CACHE_ENABLED,
 			CalEventModelImpl.FINDER_CACHE_ENABLED, CalEventImpl.class,
@@ -2822,11 +2762,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param remindBy the remind by
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByNotRemindBy(int remindBy)
-		throws SystemException {
+	public List<CalEvent> findByNotRemindBy(int remindBy) {
 		return findByNotRemindBy(remindBy, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2842,11 +2780,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByNotRemindBy(int remindBy, int start, int end)
-		throws SystemException {
+	public List<CalEvent> findByNotRemindBy(int remindBy, int start, int end) {
 		return findByNotRemindBy(remindBy, start, end, null);
 	}
 
@@ -2862,11 +2798,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByNotRemindBy(int remindBy, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2961,12 +2896,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByNotRemindBy_First(int remindBy,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByNotRemindBy_First(remindBy, orderByComparator);
 
 		if (calEvent != null) {
@@ -2991,11 +2925,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param remindBy the remind by
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByNotRemindBy_First(int remindBy,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		List<CalEvent> list = findByNotRemindBy(remindBy, 0, 1,
 				orderByComparator);
 
@@ -3013,12 +2946,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByNotRemindBy_Last(int remindBy,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByNotRemindBy_Last(remindBy, orderByComparator);
 
 		if (calEvent != null) {
@@ -3043,11 +2975,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param remindBy the remind by
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByNotRemindBy_Last(int remindBy,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		int count = countByNotRemindBy(remindBy);
 
 		if (count == 0) {
@@ -3072,12 +3003,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] findByNotRemindBy_PrevAndNext(long eventId, int remindBy,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = findByPrimaryKey(eventId);
 
 		Session session = null;
@@ -3106,8 +3036,8 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	protected CalEvent getByNotRemindBy_PrevAndNext(Session session,
-		CalEvent calEvent, int remindBy, OrderByComparator orderByComparator,
-		boolean previous) {
+		CalEvent calEvent, int remindBy,
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -3214,10 +3144,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * Removes all the cal events where remindBy &ne; &#63; from the database.
 	 *
 	 * @param remindBy the remind by
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByNotRemindBy(int remindBy) throws SystemException {
+	public void removeByNotRemindBy(int remindBy) {
 		for (CalEvent calEvent : findByNotRemindBy(remindBy, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(calEvent);
@@ -3229,10 +3158,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param remindBy the remind by
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByNotRemindBy(int remindBy) throws SystemException {
+	public int countByNotRemindBy(int remindBy) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_NOTREMINDBY;
 
 		Object[] finderArgs = new Object[] { remindBy };
@@ -3310,11 +3238,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param type the type
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByG_T(long groupId, String type)
-		throws SystemException {
+	public List<CalEvent> findByG_T(long groupId, String type) {
 		return findByG_T(groupId, type, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -3331,11 +3257,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T(long groupId, String type, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByG_T(groupId, type, start, end, null);
 	}
 
@@ -3352,11 +3277,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T(long groupId, String type, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3483,12 +3407,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByG_T_First(long groupId, String type,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByG_T_First(groupId, type, orderByComparator);
 
 		if (calEvent != null) {
@@ -3517,11 +3440,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByG_T_First(long groupId, String type,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		List<CalEvent> list = findByG_T(groupId, type, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -3539,12 +3461,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByG_T_Last(long groupId, String type,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByG_T_Last(groupId, type, orderByComparator);
 
 		if (calEvent != null) {
@@ -3573,11 +3494,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param type the type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByG_T_Last(long groupId, String type,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		int count = countByG_T(groupId, type);
 
 		if (count == 0) {
@@ -3603,12 +3523,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] findByG_T_PrevAndNext(long eventId, long groupId,
-		String type, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		String type, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = findByPrimaryKey(eventId);
 
 		Session session = null;
@@ -3637,8 +3556,8 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	protected CalEvent getByG_T_PrevAndNext(Session session, CalEvent calEvent,
-		long groupId, String type, OrderByComparator orderByComparator,
-		boolean previous) {
+		long groupId, String type,
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -3765,11 +3684,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param type the type
 	 * @return the matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> filterFindByG_T(long groupId, String type)
-		throws SystemException {
+	public List<CalEvent> filterFindByG_T(long groupId, String type) {
 		return filterFindByG_T(groupId, type, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -3786,11 +3703,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T(long groupId, String type, int start,
-		int end) throws SystemException {
+		int end) {
 		return filterFindByG_T(groupId, type, start, end, null);
 	}
 
@@ -3807,11 +3723,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T(long groupId, String type, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<CalEvent> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_T(groupId, type, start, end, orderByComparator);
 		}
@@ -3917,12 +3832,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] filterFindByG_T_PrevAndNext(long eventId, long groupId,
-		String type, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		String type, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_T_PrevAndNext(eventId, groupId, type,
 				orderByComparator);
@@ -3957,7 +3871,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 
 	protected CalEvent filterGetByG_T_PrevAndNext(Session session,
 		CalEvent calEvent, long groupId, String type,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -4119,11 +4033,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param types the types
 	 * @return the matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> filterFindByG_T(long groupId, String[] types)
-		throws SystemException {
+	public List<CalEvent> filterFindByG_T(long groupId, String[] types) {
 		return filterFindByG_T(groupId, types, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -4140,11 +4052,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T(long groupId, String[] types,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return filterFindByG_T(groupId, types, start, end, null);
 	}
 
@@ -4161,12 +4072,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T(long groupId, String[] types,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator<CalEvent> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_T(groupId, types, start, end, orderByComparator);
 		}
@@ -4287,11 +4196,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param types the types
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByG_T(long groupId, String[] types)
-		throws SystemException {
+	public List<CalEvent> findByG_T(long groupId, String[] types) {
 		return findByG_T(groupId, types, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -4308,11 +4215,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T(long groupId, String[] types, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByG_T(groupId, types, start, end, null);
 	}
 
@@ -4329,11 +4235,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T(long groupId, String[] types, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<CalEvent> orderByComparator) {
 		if (types == null) {
 			types = new String[0];
 		}
@@ -4474,11 +4379,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param groupId the group ID
 	 * @param type the type
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_T(long groupId, String type)
-		throws SystemException {
+	public void removeByG_T(long groupId, String type) {
 		for (CalEvent calEvent : findByG_T(groupId, type, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(calEvent);
@@ -4491,10 +4394,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param type the type
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_T(long groupId, String type) throws SystemException {
+	public int countByG_T(long groupId, String type) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_T;
 
 		Object[] finderArgs = new Object[] { groupId, type };
@@ -4563,11 +4465,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param types the types
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_T(long groupId, String[] types)
-		throws SystemException {
+	public int countByG_T(long groupId, String[] types) {
 		if (types == null) {
 			types = new String[0];
 		}
@@ -4658,11 +4558,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param type the type
 	 * @return the number of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_T(long groupId, String type)
-		throws SystemException {
+	public int filterCountByG_T(long groupId, String type) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T(groupId, type);
 		}
@@ -4727,11 +4625,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param types the types
 	 * @return the number of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_T(long groupId, String[] types)
-		throws SystemException {
+	public int filterCountByG_T(long groupId, String[] types) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T(groupId, types);
 		}
@@ -4847,11 +4743,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param repeating the repeating
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findByG_R(long groupId, boolean repeating)
-		throws SystemException {
+	public List<CalEvent> findByG_R(long groupId, boolean repeating) {
 		return findByG_R(groupId, repeating, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -4868,11 +4762,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_R(long groupId, boolean repeating, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByG_R(groupId, repeating, start, end, null);
 	}
 
@@ -4889,11 +4782,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_R(long groupId, boolean repeating, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5006,12 +4898,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByG_R_First(long groupId, boolean repeating,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByG_R_First(groupId, repeating,
 				orderByComparator);
 
@@ -5041,11 +4932,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param repeating the repeating
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByG_R_First(long groupId, boolean repeating,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		List<CalEvent> list = findByG_R(groupId, repeating, 0, 1,
 				orderByComparator);
 
@@ -5064,12 +4954,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByG_R_Last(long groupId, boolean repeating,
-		OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByG_R_Last(groupId, repeating,
 				orderByComparator);
 
@@ -5099,11 +4988,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param repeating the repeating
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByG_R_Last(long groupId, boolean repeating,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		int count = countByG_R(groupId, repeating);
 
 		if (count == 0) {
@@ -5129,12 +5017,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] findByG_R_PrevAndNext(long eventId, long groupId,
-		boolean repeating, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		boolean repeating, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = findByPrimaryKey(eventId);
 
 		Session session = null;
@@ -5163,8 +5050,8 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	protected CalEvent getByG_R_PrevAndNext(Session session, CalEvent calEvent,
-		long groupId, boolean repeating, OrderByComparator orderByComparator,
-		boolean previous) {
+		long groupId, boolean repeating,
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -5277,11 +5164,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param repeating the repeating
 	 * @return the matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> filterFindByG_R(long groupId, boolean repeating)
-		throws SystemException {
+	public List<CalEvent> filterFindByG_R(long groupId, boolean repeating) {
 		return filterFindByG_R(groupId, repeating, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -5298,11 +5183,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_R(long groupId, boolean repeating,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return filterFindByG_R(groupId, repeating, start, end, null);
 	}
 
@@ -5319,12 +5203,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_R(long groupId, boolean repeating,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator<CalEvent> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_R(groupId, repeating, start, end, orderByComparator);
 		}
@@ -5416,12 +5298,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] filterFindByG_R_PrevAndNext(long eventId, long groupId,
-		boolean repeating, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		boolean repeating, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_R_PrevAndNext(eventId, groupId, repeating,
 				orderByComparator);
@@ -5456,7 +5337,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 
 	protected CalEvent filterGetByG_R_PrevAndNext(Session session,
 		CalEvent calEvent, long groupId, boolean repeating,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -5603,11 +5484,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param groupId the group ID
 	 * @param repeating the repeating
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_R(long groupId, boolean repeating)
-		throws SystemException {
+	public void removeByG_R(long groupId, boolean repeating) {
 		for (CalEvent calEvent : findByG_R(groupId, repeating,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(calEvent);
@@ -5620,11 +5499,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param repeating the repeating
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_R(long groupId, boolean repeating)
-		throws SystemException {
+	public int countByG_R(long groupId, boolean repeating) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_R;
 
 		Object[] finderArgs = new Object[] { groupId, repeating };
@@ -5679,11 +5556,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param repeating the repeating
 	 * @return the number of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_R(long groupId, boolean repeating)
-		throws SystemException {
+	public int filterCountByG_R(long groupId, boolean repeating) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_R(groupId, repeating);
 		}
@@ -5774,11 +5649,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param type the type
 	 * @param repeating the repeating
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T_R(long groupId, String type,
-		boolean repeating) throws SystemException {
+		boolean repeating) {
 		return findByG_T_R(groupId, type, repeating, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -5796,11 +5670,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T_R(long groupId, String type,
-		boolean repeating, int start, int end) throws SystemException {
+		boolean repeating, int start, int end) {
 		return findByG_T_R(groupId, type, repeating, start, end, null);
 	}
 
@@ -5818,12 +5691,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T_R(long groupId, String type,
 		boolean repeating, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5956,12 +5828,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByG_T_R_First(long groupId, String type,
-		boolean repeating, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		boolean repeating, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByG_T_R_First(groupId, type, repeating,
 				orderByComparator);
 
@@ -5995,12 +5866,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param repeating the repeating
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByG_T_R_First(long groupId, String type,
-		boolean repeating, OrderByComparator orderByComparator)
-		throws SystemException {
+		boolean repeating, OrderByComparator<CalEvent> orderByComparator) {
 		List<CalEvent> list = findByG_T_R(groupId, type, repeating, 0, 1,
 				orderByComparator);
 
@@ -6020,12 +5889,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByG_T_R_Last(long groupId, String type,
-		boolean repeating, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		boolean repeating, OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByG_T_R_Last(groupId, type, repeating,
 				orderByComparator);
 
@@ -6059,12 +5927,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param repeating the repeating
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching cal event, or <code>null</code> if a matching cal event could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent fetchByG_T_R_Last(long groupId, String type,
-		boolean repeating, OrderByComparator orderByComparator)
-		throws SystemException {
+		boolean repeating, OrderByComparator<CalEvent> orderByComparator) {
 		int count = countByG_T_R(groupId, type, repeating);
 
 		if (count == 0) {
@@ -6091,12 +5957,12 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] findByG_T_R_PrevAndNext(long eventId, long groupId,
-		String type, boolean repeating, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		String type, boolean repeating,
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		CalEvent calEvent = findByPrimaryKey(eventId);
 
 		Session session = null;
@@ -6126,7 +5992,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 
 	protected CalEvent getByG_T_R_PrevAndNext(Session session,
 		CalEvent calEvent, long groupId, String type, boolean repeating,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -6258,11 +6124,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param type the type
 	 * @param repeating the repeating
 	 * @return the matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T_R(long groupId, String type,
-		boolean repeating) throws SystemException {
+		boolean repeating) {
 		return filterFindByG_T_R(groupId, type, repeating, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -6280,11 +6145,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T_R(long groupId, String type,
-		boolean repeating, int start, int end) throws SystemException {
+		boolean repeating, int start, int end) {
 		return filterFindByG_T_R(groupId, type, repeating, start, end, null);
 	}
 
@@ -6302,12 +6166,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T_R(long groupId, String type,
 		boolean repeating, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_T_R(groupId, type, repeating, start, end,
 				orderByComparator);
@@ -6419,12 +6282,12 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent[] filterFindByG_T_R_PrevAndNext(long eventId, long groupId,
-		String type, boolean repeating, OrderByComparator orderByComparator)
-		throws NoSuchEventException, SystemException {
+		String type, boolean repeating,
+		OrderByComparator<CalEvent> orderByComparator)
+		throws NoSuchEventException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_T_R_PrevAndNext(eventId, groupId, type, repeating,
 				orderByComparator);
@@ -6459,7 +6322,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 
 	protected CalEvent filterGetByG_T_R_PrevAndNext(Session session,
 		CalEvent calEvent, long groupId, String type, boolean repeating,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<CalEvent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -6626,11 +6489,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param types the types
 	 * @param repeating the repeating
 	 * @return the matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T_R(long groupId, String[] types,
-		boolean repeating) throws SystemException {
+		boolean repeating) {
 		return filterFindByG_T_R(groupId, types, repeating, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -6648,11 +6510,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T_R(long groupId, String[] types,
-		boolean repeating, int start, int end) throws SystemException {
+		boolean repeating, int start, int end) {
 		return filterFindByG_T_R(groupId, types, repeating, start, end, null);
 	}
 
@@ -6670,12 +6531,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> filterFindByG_T_R(long groupId, String[] types,
 		boolean repeating, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_T_R(groupId, types, repeating, start, end,
 				orderByComparator);
@@ -6804,11 +6664,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param types the types
 	 * @param repeating the repeating
 	 * @return the matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T_R(long groupId, String[] types,
-		boolean repeating) throws SystemException {
+		boolean repeating) {
 		return findByG_T_R(groupId, types, repeating, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -6826,11 +6685,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T_R(long groupId, String[] types,
-		boolean repeating, int start, int end) throws SystemException {
+		boolean repeating, int start, int end) {
 		return findByG_T_R(groupId, types, repeating, start, end, null);
 	}
 
@@ -6848,12 +6706,11 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findByG_T_R(long groupId, String[] types,
 		boolean repeating, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		if (types == null) {
 			types = new String[0];
 		}
@@ -7005,11 +6862,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param groupId the group ID
 	 * @param type the type
 	 * @param repeating the repeating
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_T_R(long groupId, String type, boolean repeating)
-		throws SystemException {
+	public void removeByG_T_R(long groupId, String type, boolean repeating) {
 		for (CalEvent calEvent : findByG_T_R(groupId, type, repeating,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(calEvent);
@@ -7023,11 +6878,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param type the type
 	 * @param repeating the repeating
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_T_R(long groupId, String type, boolean repeating)
-		throws SystemException {
+	public int countByG_T_R(long groupId, String type, boolean repeating) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_T_R;
 
 		Object[] finderArgs = new Object[] { groupId, type, repeating };
@@ -7101,11 +6954,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param types the types
 	 * @param repeating the repeating
 	 * @return the number of matching cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_T_R(long groupId, String[] types, boolean repeating)
-		throws SystemException {
+	public int countByG_T_R(long groupId, String[] types, boolean repeating) {
 		if (types == null) {
 			types = new String[0];
 		}
@@ -7205,11 +7056,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param type the type
 	 * @param repeating the repeating
 	 * @return the number of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_T_R(long groupId, String type, boolean repeating)
-		throws SystemException {
+	public int filterCountByG_T_R(long groupId, String type, boolean repeating) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T_R(groupId, type, repeating);
 		}
@@ -7279,11 +7128,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param types the types
 	 * @param repeating the repeating
 	 * @return the number of matching cal events that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int filterCountByG_T_R(long groupId, String[] types,
-		boolean repeating) throws SystemException {
+		boolean repeating) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T_R(groupId, types, repeating);
 		}
@@ -7555,11 +7403,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param eventId the primary key of the cal event
 	 * @return the cal event that was removed
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public CalEvent remove(long eventId)
-		throws NoSuchEventException, SystemException {
+	public CalEvent remove(long eventId) throws NoSuchEventException {
 		return remove((Serializable)eventId);
 	}
 
@@ -7569,11 +7415,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param primaryKey the primary key of the cal event
 	 * @return the cal event that was removed
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public CalEvent remove(Serializable primaryKey)
-		throws NoSuchEventException, SystemException {
+	public CalEvent remove(Serializable primaryKey) throws NoSuchEventException {
 		Session session = null;
 
 		try {
@@ -7605,7 +7449,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	@Override
-	protected CalEvent removeImpl(CalEvent calEvent) throws SystemException {
+	protected CalEvent removeImpl(CalEvent calEvent) {
 		calEvent = toUnwrappedModel(calEvent);
 
 		Session session = null;
@@ -7638,8 +7482,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 
 	@Override
 	public CalEvent updateImpl(
-		com.liferay.portlet.calendar.model.CalEvent calEvent)
-		throws SystemException {
+		com.liferay.portlet.calendar.model.CalEvent calEvent) {
 		calEvent = toUnwrappedModel(calEvent);
 
 		boolean isNew = calEvent.isNew();
@@ -7748,6 +7591,23 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 			}
 
 			if ((calEventModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						calEventModelImpl.getOriginalGroupId()
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+					args);
+
+				args = new Object[] { calEventModelImpl.getGroupId() };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+					args);
+			}
+
+			if ((calEventModelImpl.getColumnBitmask() &
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
 						calEventModelImpl.getOriginalCompanyId()
@@ -7763,23 +7623,6 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
 					args);
 				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
-					args);
-			}
-
-			if ((calEventModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						calEventModelImpl.getOriginalGroupId()
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
-					args);
-
-				args = new Object[] { calEventModelImpl.getGroupId() };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
 					args);
 			}
 
@@ -7903,11 +7746,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param primaryKey the primary key of the cal event
 	 * @return the cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public CalEvent findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchEventException, SystemException {
+		throws NoSuchEventException {
 		CalEvent calEvent = fetchByPrimaryKey(primaryKey);
 
 		if (calEvent == null) {
@@ -7928,11 +7770,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param eventId the primary key of the cal event
 	 * @return the cal event
 	 * @throws com.liferay.portlet.calendar.NoSuchEventException if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public CalEvent findByPrimaryKey(long eventId)
-		throws NoSuchEventException, SystemException {
+	public CalEvent findByPrimaryKey(long eventId) throws NoSuchEventException {
 		return findByPrimaryKey((Serializable)eventId);
 	}
 
@@ -7941,11 +7781,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param primaryKey the primary key of the cal event
 	 * @return the cal event, or <code>null</code> if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public CalEvent fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public CalEvent fetchByPrimaryKey(Serializable primaryKey) {
 		CalEvent calEvent = (CalEvent)EntityCacheUtil.getResult(CalEventModelImpl.ENTITY_CACHE_ENABLED,
 				CalEventImpl.class, primaryKey);
 
@@ -7988,21 +7826,111 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 *
 	 * @param eventId the primary key of the cal event
 	 * @return the cal event, or <code>null</code> if a cal event with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public CalEvent fetchByPrimaryKey(long eventId) throws SystemException {
+	public CalEvent fetchByPrimaryKey(long eventId) {
 		return fetchByPrimaryKey((Serializable)eventId);
+	}
+
+	@Override
+	public Map<Serializable, CalEvent> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, CalEvent> map = new HashMap<Serializable, CalEvent>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			CalEvent calEvent = fetchByPrimaryKey(primaryKey);
+
+			if (calEvent != null) {
+				map.put(primaryKey, calEvent);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			CalEvent calEvent = (CalEvent)EntityCacheUtil.getResult(CalEventModelImpl.ENTITY_CACHE_ENABLED,
+					CalEventImpl.class, primaryKey);
+
+			if (calEvent == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, calEvent);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_CALEVENT_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (CalEvent calEvent : (List<CalEvent>)q.list()) {
+				map.put(calEvent.getPrimaryKeyObj(), calEvent);
+
+				cacheResult(calEvent);
+
+				uncachedPrimaryKeys.remove(calEvent.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(CalEventModelImpl.ENTITY_CACHE_ENABLED,
+					CalEventImpl.class, primaryKey, _nullCalEvent);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the cal events.
 	 *
 	 * @return the cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findAll() throws SystemException {
+	public List<CalEvent> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -8016,10 +7944,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param start the lower bound of the range of cal events
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @return the range of cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<CalEvent> findAll(int start, int end) throws SystemException {
+	public List<CalEvent> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -8034,11 +7961,10 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * @param end the upper bound of the range of cal events (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<CalEvent> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<CalEvent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -8120,10 +8046,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	/**
 	 * Removes all the cal events from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (CalEvent calEvent : findAll()) {
 			remove(calEvent);
 		}
@@ -8133,10 +8058,9 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * Returns the number of cal events.
 	 *
 	 * @return the number of cal events
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -8176,25 +8100,6 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	 * Initializes the cal event persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.calendar.model.CalEvent")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<CalEvent>> listenersList = new ArrayList<ModelListener<CalEvent>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<CalEvent>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -8205,6 +8110,7 @@ public class CalEventPersistenceImpl extends BasePersistenceImpl<CalEvent>
 	}
 
 	private static final String _SQL_SELECT_CALEVENT = "SELECT calEvent FROM CalEvent calEvent";
+	private static final String _SQL_SELECT_CALEVENT_WHERE_PKS_IN = "SELECT calEvent FROM CalEvent calEvent WHERE eventId IN (";
 	private static final String _SQL_SELECT_CALEVENT_WHERE = "SELECT calEvent FROM CalEvent calEvent WHERE ";
 	private static final String _SQL_COUNT_CALEVENT = "SELECT COUNT(calEvent) FROM CalEvent calEvent";
 	private static final String _SQL_COUNT_CALEVENT_WHERE = "SELECT COUNT(calEvent) FROM CalEvent calEvent WHERE ";
