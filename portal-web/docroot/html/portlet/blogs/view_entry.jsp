@@ -37,6 +37,8 @@ if (Validator.isNull(redirect) || (strutsAction.equals("/blogs/view_entry") && !
 	redirect = portletURL.toString();
 }
 
+System.out.println("test");
+
 BlogsEntry entry = (BlogsEntry)request.getAttribute(WebKeys.BLOGS_ENTRY);
 
 //entry = entry.toEscapedModel();
