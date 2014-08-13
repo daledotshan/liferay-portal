@@ -18,14 +18,14 @@ import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.search.BaseSearchTestCase;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
-import com.liferay.portlet.blogs.util.BlogsTestUtil;
+import com.liferay.portlet.blogs.util.test.BlogsTestUtil;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,6 +42,12 @@ import org.junit.runner.RunWith;
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 @Sync
 public class BlogsEntrySearchTest extends BaseSearchTestCase {
+
+	@Ignore()
+	@Override
+	@Test
+	public void testLocalizedSearch() throws Exception {
+	}
 
 	@Ignore()
 	@Override
@@ -120,6 +126,11 @@ public class BlogsEntrySearchTest extends BaseSearchTestCase {
 	}
 
 	@Override
+	protected void deleteBaseModel(long primaryKey) throws Exception {
+		BlogsEntryLocalServiceUtil.deleteBlogsEntry(primaryKey);
+	}
+
+	@Override
 	protected Class<?> getBaseModelClass() {
 		return BlogsEntry.class;
 	}
@@ -133,6 +144,19 @@ public class BlogsEntrySearchTest extends BaseSearchTestCase {
 	protected void moveBaseModelToTrash(long primaryKey) throws Exception {
 		BlogsEntryLocalServiceUtil.moveEntryToTrash(
 			TestPropsValues.getUserId(), primaryKey);
+	}
+
+	@Override
+	protected BaseModel<?> updateBaseModel(
+			BaseModel<?> baseModel, String keywords,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		BlogsEntry entry = (BlogsEntry)baseModel;
+
+		entry.setTitle(keywords);
+
+		return BlogsTestUtil.updateEntry(entry, true);
 	}
 
 }

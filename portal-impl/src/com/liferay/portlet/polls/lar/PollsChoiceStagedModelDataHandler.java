@@ -41,7 +41,11 @@ public class PollsChoiceStagedModelDataHandler
 	public void deleteStagedModel(
 		String uuid, long groupId, String className, String extraData) {
 
-		throw new UnsupportedOperationException();
+		PollsChoice pollsChoice = fetchExistingStagedModel(uuid, groupId);
+
+		if (pollsChoice != null) {
+			PollsChoiceLocalServiceUtil.deletePollsChoice(pollsChoice);
+		}
 	}
 
 	@Override
@@ -73,14 +77,20 @@ public class PollsChoiceStagedModelDataHandler
 	}
 
 	@Override
+	protected PollsChoice doFetchExistingStagedModel(
+		String uuid, long groupId) {
+
+		return PollsChoiceLocalServiceUtil.fetchPollsChoiceByUuidAndGroupId(
+			uuid, groupId);
+	}
+
+	@Override
 	protected void doImportMissingReference(
 			PortletDataContext portletDataContext, String uuid, long groupId,
 			long choiceId)
 		throws Exception {
 
-		PollsChoice existingChoice =
-			PollsChoiceLocalServiceUtil.fetchPollsChoiceByUuidAndGroupId(
-				uuid, groupId);
+		PollsChoice existingChoice = fetchExistingStagedModel(uuid, groupId);
 
 		Map<Long, Long> choiceIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -113,9 +123,8 @@ public class PollsChoiceStagedModelDataHandler
 			choice);
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			PollsChoice existingChoice =
-				PollsChoiceLocalServiceUtil.fetchPollsChoiceByUuidAndGroupId(
-					choice.getUuid(), portletDataContext.getScopeGroupId());
+			PollsChoice existingChoice = fetchExistingStagedModel(
+				choice.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingChoice == null) {
 				serviceContext.setUuid(choice.getUuid());
@@ -137,22 +146,6 @@ public class PollsChoiceStagedModelDataHandler
 		}
 
 		portletDataContext.importClassedModel(choice, importedChoice);
-	}
-
-	@Override
-	protected boolean validateMissingReference(
-			String uuid, long companyId, long groupId)
-		throws Exception {
-
-		PollsChoice choice =
-			PollsChoiceLocalServiceUtil.fetchPollsChoiceByUuidAndGroupId(
-				uuid, groupId);
-
-		if (choice == null) {
-			return false;
-		}
-
-		return true;
 	}
 
 }
