@@ -39,9 +39,35 @@ public interface Team extends TeamModel, PersistedModel {
 			public Long get(Team team) {
 				return team.getTeamId();
 			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<Team> getTypeClass() {
+				return Team.class;
+			}
+		};
+
+	public static final Accessor<Team, String> NAME_ACCESSOR = new Accessor<Team, String>() {
+			@Override
+			public String get(Team team) {
+				return team.getName();
+			}
+
+			@Override
+			public Class<String> getAttributeClass() {
+				return String.class;
+			}
+
+			@Override
+			public Class<Team> getTypeClass() {
+				return Team.class;
+			}
 		};
 
 	public com.liferay.portal.model.Role getRole()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
 }

@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.messageboards.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,69 +22,77 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.messageboards.NoSuchDiscussionException;
 import com.liferay.portlet.messageboards.model.MBDiscussion;
 import com.liferay.portlet.messageboards.model.impl.MBDiscussionModelImpl;
+import com.liferay.portlet.messageboards.service.MBDiscussionLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class MBDiscussionPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<MBDiscussion> iterator = _mbDiscussions.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion mbDiscussion = _persistence.create(pk);
 
@@ -112,31 +119,31 @@ public class MBDiscussionPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion newMBDiscussion = _persistence.create(pk);
 
-		newMBDiscussion.setUuid(ServiceTestUtil.randomString());
+		newMBDiscussion.setUuid(RandomTestUtil.randomString());
 
-		newMBDiscussion.setGroupId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setGroupId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setCompanyId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setCompanyId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setUserId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setUserId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setUserName(ServiceTestUtil.randomString());
+		newMBDiscussion.setUserName(RandomTestUtil.randomString());
 
-		newMBDiscussion.setCreateDate(ServiceTestUtil.nextDate());
+		newMBDiscussion.setCreateDate(RandomTestUtil.nextDate());
 
-		newMBDiscussion.setModifiedDate(ServiceTestUtil.nextDate());
+		newMBDiscussion.setModifiedDate(RandomTestUtil.nextDate());
 
-		newMBDiscussion.setClassNameId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setClassNameId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setClassPK(ServiceTestUtil.nextLong());
+		newMBDiscussion.setClassPK(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setThreadId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setThreadId(RandomTestUtil.nextLong());
 
-		_persistence.update(newMBDiscussion);
+		_mbDiscussions.add(_persistence.update(newMBDiscussion));
 
 		MBDiscussion existingMBDiscussion = _persistence.findByPrimaryKey(newMBDiscussion.getPrimaryKey());
 
@@ -184,7 +191,7 @@ public class MBDiscussionPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -199,7 +206,7 @@ public class MBDiscussionPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -213,7 +220,7 @@ public class MBDiscussionPersistenceTest {
 	@Test
 	public void testCountByClassNameId() {
 		try {
-			_persistence.countByClassNameId(ServiceTestUtil.nextLong());
+			_persistence.countByClassNameId(RandomTestUtil.nextLong());
 
 			_persistence.countByClassNameId(0L);
 		}
@@ -225,7 +232,7 @@ public class MBDiscussionPersistenceTest {
 	@Test
 	public void testCountByThreadId() {
 		try {
-			_persistence.countByThreadId(ServiceTestUtil.nextLong());
+			_persistence.countByThreadId(RandomTestUtil.nextLong());
 
 			_persistence.countByThreadId(0L);
 		}
@@ -237,8 +244,8 @@ public class MBDiscussionPersistenceTest {
 	@Test
 	public void testCountByC_C() {
 		try {
-			_persistence.countByC_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByC_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByC_C(0L, 0L);
 		}
@@ -258,7 +265,7 @@ public class MBDiscussionPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -281,7 +288,7 @@ public class MBDiscussionPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<MBDiscussion> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("MBDiscussion", "uuid",
 			true, "discussionId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
@@ -300,7 +307,7 @@ public class MBDiscussionPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion missingMBDiscussion = _persistence.fetchByPrimaryKey(pk);
 
@@ -308,19 +315,103 @@ public class MBDiscussionPersistenceTest {
 	}
 
 	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		MBDiscussion newMBDiscussion1 = addMBDiscussion();
+		MBDiscussion newMBDiscussion2 = addMBDiscussion();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newMBDiscussion1.getPrimaryKey());
+		primaryKeys.add(newMBDiscussion2.getPrimaryKey());
+
+		Map<Serializable, MBDiscussion> mbDiscussions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, mbDiscussions.size());
+		Assert.assertEquals(newMBDiscussion1,
+			mbDiscussions.get(newMBDiscussion1.getPrimaryKey()));
+		Assert.assertEquals(newMBDiscussion2,
+			mbDiscussions.get(newMBDiscussion2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, MBDiscussion> mbDiscussions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(mbDiscussions.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		MBDiscussion newMBDiscussion = addMBDiscussion();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newMBDiscussion.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, MBDiscussion> mbDiscussions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, mbDiscussions.size());
+		Assert.assertEquals(newMBDiscussion,
+			mbDiscussions.get(newMBDiscussion.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, MBDiscussion> mbDiscussions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(mbDiscussions.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		MBDiscussion newMBDiscussion = addMBDiscussion();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newMBDiscussion.getPrimaryKey());
+
+		Map<Serializable, MBDiscussion> mbDiscussions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, mbDiscussions.size());
+		Assert.assertEquals(newMBDiscussion,
+			mbDiscussions.get(newMBDiscussion.getPrimaryKey()));
+	}
+
+	@Test
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new MBDiscussionActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = MBDiscussionLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					MBDiscussion mbDiscussion = (MBDiscussion)object;
 
 					Assert.assertNotNull(mbDiscussion);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -353,7 +444,7 @@ public class MBDiscussionPersistenceTest {
 				MBDiscussion.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("discussionId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<MBDiscussion> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -394,7 +485,7 @@ public class MBDiscussionPersistenceTest {
 				"discussionId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("discussionId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -429,36 +520,36 @@ public class MBDiscussionPersistenceTest {
 	}
 
 	protected MBDiscussion addMBDiscussion() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion mbDiscussion = _persistence.create(pk);
 
-		mbDiscussion.setUuid(ServiceTestUtil.randomString());
+		mbDiscussion.setUuid(RandomTestUtil.randomString());
 
-		mbDiscussion.setGroupId(ServiceTestUtil.nextLong());
+		mbDiscussion.setGroupId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setCompanyId(ServiceTestUtil.nextLong());
+		mbDiscussion.setCompanyId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setUserId(ServiceTestUtil.nextLong());
+		mbDiscussion.setUserId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setUserName(ServiceTestUtil.randomString());
+		mbDiscussion.setUserName(RandomTestUtil.randomString());
 
-		mbDiscussion.setCreateDate(ServiceTestUtil.nextDate());
+		mbDiscussion.setCreateDate(RandomTestUtil.nextDate());
 
-		mbDiscussion.setModifiedDate(ServiceTestUtil.nextDate());
+		mbDiscussion.setModifiedDate(RandomTestUtil.nextDate());
 
-		mbDiscussion.setClassNameId(ServiceTestUtil.nextLong());
+		mbDiscussion.setClassNameId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setClassPK(ServiceTestUtil.nextLong());
+		mbDiscussion.setClassPK(RandomTestUtil.nextLong());
 
-		mbDiscussion.setThreadId(ServiceTestUtil.nextLong());
+		mbDiscussion.setThreadId(RandomTestUtil.nextLong());
 
-		_persistence.update(mbDiscussion);
+		_mbDiscussions.add(_persistence.update(mbDiscussion));
 
 		return mbDiscussion;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(MBDiscussionPersistenceTest.class);
-	private MBDiscussionPersistence _persistence = (MBDiscussionPersistence)PortalBeanLocatorUtil.locate(MBDiscussionPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<MBDiscussion> _mbDiscussions = new ArrayList<MBDiscussion>();
+	private MBDiscussionPersistence _persistence = MBDiscussionUtil.getPersistence();
 }

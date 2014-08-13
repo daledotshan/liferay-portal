@@ -158,6 +158,14 @@ allGroups.addAll(organizationsRelatedGroups);
 allGroups.addAll(GroupLocalServiceUtil.getOrganizationsGroups(organizations));
 allGroups.addAll(GroupLocalServiceUtil.getUserGroupsGroups(userGroups));
 
+List<Group> roleGroups = new ArrayList<Group>();
+
+for (Group group : allGroups) {
+	if (RoleLocalServiceUtil.hasGroupRoles(group.getGroupId())) {
+		roleGroups.add(group);
+	}
+}
+
 String[] mainSections = PropsValues.USERS_FORM_ADD_MAIN;
 String[] identificationSections = PropsValues.USERS_FORM_ADD_IDENTIFICATION;
 String[] miscellaneousSections = PropsValues.USERS_FORM_ADD_MISCELLANEOUS;
@@ -198,14 +206,14 @@ if (selUser != null) {
 	</aui:nav-bar>
 
 	<div id="breadcrumb">
-		<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showCurrentPortlet="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
+		<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
 	</div>
 
 	<liferay-ui:header
 		backURL="<%= backURL %>"
 		escapeXml="<%= false %>"
 		localizeTitle="<%= (selUser == null) %>"
-		title='<%= (selUser == null) ? "add-user" : LanguageUtil.format(pageContext, "edit-user-x", HtmlUtil.escape(selUser.getFullName()), false) %>'
+		title='<%= (selUser == null) ? "add-user" : LanguageUtil.format(request, "edit-user-x", HtmlUtil.escape(selUser.getFullName()), false) %>'
 	/>
 </c:if>
 
@@ -237,6 +245,7 @@ if (selUser != null) {
 	request.setAttribute("user.inheritedSiteRoles", inheritedSiteRoles);
 	request.setAttribute("user.userGroups", userGroups);
 	request.setAttribute("user.allGroups", allGroups);
+	request.setAttribute("user.roleGroups", roleGroups);
 
 	request.setAttribute("addresses.className", Contact.class.getName());
 	request.setAttribute("emailAddresses.className", Contact.class.getName());
@@ -261,7 +270,7 @@ if (selUser != null) {
 		<c:if test="<%= selUser != null %>">
 			<div class="user-info">
 				<div class="float-container">
-					<img alt="<%= HtmlUtil.escape(selUser.getFullName()) %>" class="user-logo" src="<%= selUser.getPortraitURL(themeDisplay) %>" />
+					<img alt="<%= HtmlUtil.escapeAttribute(selUser.getFullName()) %>" class="user-logo" src="<%= selUser.getPortraitURL(themeDisplay) %>" />
 
 					<span class="user-name"><%= HtmlUtil.escape(selUser.getFullName()) %></span>
 				</div>

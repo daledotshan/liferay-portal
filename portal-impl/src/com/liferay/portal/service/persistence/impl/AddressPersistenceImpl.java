@@ -23,31 +23,29 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.model.Address;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.impl.AddressImpl;
 import com.liferay.portal.model.impl.AddressModelImpl;
 import com.liferay.portal.service.persistence.AddressPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -108,10 +106,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param uuid the uuid
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByUuid(String uuid) throws SystemException {
+	public List<Address> findByUuid(String uuid) {
 		return findByUuid(uuid, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -126,11 +123,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByUuid(String uuid, int start, int end)
-		throws SystemException {
+	public List<Address> findByUuid(String uuid, int start, int end) {
 		return findByUuid(uuid, start, end, null);
 	}
 
@@ -146,11 +141,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByUuid(String uuid, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -267,12 +261,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByUuid_First(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByUuid_First(uuid, orderByComparator);
 
 		if (address != null) {
@@ -297,11 +290,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByUuid_First(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -318,12 +310,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByUuid_Last(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByUuid_Last(uuid, orderByComparator);
 
 		if (address != null) {
@@ -348,11 +339,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		int count = countByUuid(uuid);
 
 		if (count == 0) {
@@ -377,12 +367,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByUuid_PrevAndNext(long addressId, String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -411,7 +400,8 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	protected Address getByUuid_PrevAndNext(Session session, Address address,
-		String uuid, OrderByComparator orderByComparator, boolean previous) {
+		String uuid, OrderByComparator<Address> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -532,10 +522,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * Removes all the addresses where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid(String uuid) throws SystemException {
+	public void removeByUuid(String uuid) {
 		for (Address address : findByUuid(uuid, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -547,10 +536,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param uuid the uuid
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid(String uuid) throws SystemException {
+	public int countByUuid(String uuid) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID;
 
 		Object[] finderArgs = new Object[] { uuid };
@@ -640,11 +628,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public List<Address> findByUuid_C(String uuid, long companyId) {
 		return findByUuid_C(uuid, companyId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -661,11 +647,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByUuid_C(String uuid, long companyId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByUuid_C(uuid, companyId, start, end, null);
 	}
 
@@ -682,11 +667,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByUuid_C(String uuid, long companyId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -813,12 +797,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByUuid_C_First(uuid, companyId, orderByComparator);
 
 		if (address != null) {
@@ -847,11 +830,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByUuid_C(uuid, companyId, 0, 1,
 				orderByComparator);
 
@@ -870,12 +852,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByUuid_C_Last(uuid, companyId, orderByComparator);
 
 		if (address != null) {
@@ -904,11 +885,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		int count = countByUuid_C(uuid, companyId);
 
 		if (count == 0) {
@@ -934,12 +914,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByUuid_C_PrevAndNext(long addressId, String uuid,
-		long companyId, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long companyId, OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -968,8 +947,8 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	protected Address getByUuid_C_PrevAndNext(Session session, Address address,
-		String uuid, long companyId, OrderByComparator orderByComparator,
-		boolean previous) {
+		String uuid, long companyId,
+		OrderByComparator<Address> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1095,11 +1074,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public void removeByUuid_C(String uuid, long companyId) {
 		for (Address address : findByUuid_C(uuid, companyId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -1112,11 +1089,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public int countByUuid_C(String uuid, long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_C;
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
@@ -1210,11 +1185,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param companyId the company ID
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByCompanyId(long companyId)
-		throws SystemException {
+	public List<Address> findByCompanyId(long companyId) {
 		return findByCompanyId(companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -1230,11 +1203,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByCompanyId(long companyId, int start, int end)
-		throws SystemException {
+	public List<Address> findByCompanyId(long companyId, int start, int end) {
 		return findByCompanyId(companyId, start, end, null);
 	}
 
@@ -1250,11 +1221,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByCompanyId(long companyId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1357,12 +1327,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByCompanyId_First(companyId, orderByComparator);
 
 		if (address != null) {
@@ -1387,11 +1356,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByCompanyId(companyId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1408,12 +1376,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByCompanyId_Last(companyId, orderByComparator);
 
 		if (address != null) {
@@ -1438,11 +1405,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		int count = countByCompanyId(companyId);
 
 		if (count == 0) {
@@ -1467,12 +1433,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByCompanyId_PrevAndNext(long addressId,
-		long companyId, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long companyId, OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -1501,8 +1466,8 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	protected Address getByCompanyId_PrevAndNext(Session session,
-		Address address, long companyId, OrderByComparator orderByComparator,
-		boolean previous) {
+		Address address, long companyId,
+		OrderByComparator<Address> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1609,10 +1574,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * Removes all the addresses where companyId = &#63; from the database.
 	 *
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByCompanyId(long companyId) throws SystemException {
+	public void removeByCompanyId(long companyId) {
 		for (Address address : findByCompanyId(companyId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -1624,10 +1588,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param companyId the company ID
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByCompanyId(long companyId) throws SystemException {
+	public int countByCompanyId(long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_COMPANYID;
 
 		Object[] finderArgs = new Object[] { companyId };
@@ -1699,10 +1662,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param userId the user ID
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByUserId(long userId) throws SystemException {
+	public List<Address> findByUserId(long userId) {
 		return findByUserId(userId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1717,11 +1679,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByUserId(long userId, int start, int end)
-		throws SystemException {
+	public List<Address> findByUserId(long userId, int start, int end) {
 		return findByUserId(userId, start, end, null);
 	}
 
@@ -1737,11 +1697,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByUserId(long userId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1844,12 +1803,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByUserId_First(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByUserId_First(userId, orderByComparator);
 
 		if (address != null) {
@@ -1874,11 +1832,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByUserId_First(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByUserId(userId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1895,12 +1852,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByUserId_Last(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByUserId_Last(userId, orderByComparator);
 
 		if (address != null) {
@@ -1925,11 +1881,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByUserId_Last(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		int count = countByUserId(userId);
 
 		if (count == 0) {
@@ -1954,12 +1909,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByUserId_PrevAndNext(long addressId, long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -1988,7 +1942,8 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	protected Address getByUserId_PrevAndNext(Session session, Address address,
-		long userId, OrderByComparator orderByComparator, boolean previous) {
+		long userId, OrderByComparator<Address> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2095,10 +2050,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * Removes all the addresses where userId = &#63; from the database.
 	 *
 	 * @param userId the user ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUserId(long userId) throws SystemException {
+	public void removeByUserId(long userId) {
 		for (Address address : findByUserId(userId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -2110,10 +2064,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param userId the user ID
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUserId(long userId) throws SystemException {
+	public int countByUserId(long userId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_USERID;
 
 		Object[] finderArgs = new Object[] { userId };
@@ -2186,11 +2139,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findByC_C(long companyId, long classNameId)
-		throws SystemException {
+	public List<Address> findByC_C(long companyId, long classNameId) {
 		return findByC_C(companyId, classNameId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2207,11 +2158,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C(long companyId, long classNameId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByC_C(companyId, classNameId, start, end, null);
 	}
 
@@ -2228,11 +2178,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C(long companyId, long classNameId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2345,12 +2294,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_First(long companyId, long classNameId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_First(companyId, classNameId,
 				orderByComparator);
 
@@ -2380,11 +2328,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_First(long companyId, long classNameId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByC_C(companyId, classNameId, 0, 1,
 				orderByComparator);
 
@@ -2403,12 +2350,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_Last(long companyId, long classNameId,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_Last(companyId, classNameId,
 				orderByComparator);
 
@@ -2438,11 +2384,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_Last(long companyId, long classNameId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		int count = countByC_C(companyId, classNameId);
 
 		if (count == 0) {
@@ -2468,12 +2413,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByC_C_PrevAndNext(long addressId, long companyId,
-		long classNameId, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classNameId, OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -2502,8 +2446,8 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	protected Address getByC_C_PrevAndNext(Session session, Address address,
-		long companyId, long classNameId, OrderByComparator orderByComparator,
-		boolean previous) {
+		long companyId, long classNameId,
+		OrderByComparator<Address> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2615,11 +2559,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_C(long companyId, long classNameId)
-		throws SystemException {
+	public void removeByC_C(long companyId, long classNameId) {
 		for (Address address : findByC_C(companyId, classNameId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -2632,11 +2574,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_C(long companyId, long classNameId)
-		throws SystemException {
+	public int countByC_C(long companyId, long classNameId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_C;
 
 		Object[] finderArgs = new Object[] { companyId, classNameId };
@@ -2720,11 +2660,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C(long companyId, long classNameId,
-		long classPK) throws SystemException {
+		long classPK) {
 		return findByC_C_C(companyId, classNameId, classPK, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2742,11 +2681,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C(long companyId, long classNameId,
-		long classPK, int start, int end) throws SystemException {
+		long classPK, int start, int end) {
 		return findByC_C_C(companyId, classNameId, classPK, start, end, null);
 	}
 
@@ -2764,12 +2702,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C(long companyId, long classNameId,
-		long classPK, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, int start, int end,
+		OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2888,12 +2825,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_C_First(long companyId, long classNameId,
-		long classPK, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classPK, OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_C_First(companyId, classNameId, classPK,
 				orderByComparator);
 
@@ -2927,12 +2863,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classPK the class p k
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_C_First(long companyId, long classNameId,
-		long classPK, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByC_C_C(companyId, classNameId, classPK, 0, 1,
 				orderByComparator);
 
@@ -2952,12 +2886,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_C_Last(long companyId, long classNameId,
-		long classPK, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classPK, OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_C_Last(companyId, classNameId, classPK,
 				orderByComparator);
 
@@ -2991,12 +2924,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classPK the class p k
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_C_Last(long companyId, long classNameId,
-		long classPK, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, OrderByComparator<Address> orderByComparator) {
 		int count = countByC_C_C(companyId, classNameId, classPK);
 
 		if (count == 0) {
@@ -3023,12 +2954,12 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByC_C_C_PrevAndNext(long addressId, long companyId,
-		long classNameId, long classPK, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classNameId, long classPK,
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -3058,7 +2989,7 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 
 	protected Address getByC_C_C_PrevAndNext(Session session, Address address,
 		long companyId, long classNameId, long classPK,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Address> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -3175,11 +3106,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_C_C(long companyId, long classNameId, long classPK)
-		throws SystemException {
+	public void removeByC_C_C(long companyId, long classNameId, long classPK) {
 		for (Address address : findByC_C_C(companyId, classNameId, classPK,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -3193,11 +3122,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_C_C(long companyId, long classNameId, long classPK)
-		throws SystemException {
+	public int countByC_C_C(long companyId, long classNameId, long classPK) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_C_C;
 
 		Object[] finderArgs = new Object[] { companyId, classNameId, classPK };
@@ -3292,11 +3219,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classPK the class p k
 	 * @param mailing the mailing
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C_M(long companyId, long classNameId,
-		long classPK, boolean mailing) throws SystemException {
+		long classPK, boolean mailing) {
 		return findByC_C_C_M(companyId, classNameId, classPK, mailing,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -3315,12 +3241,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C_M(long companyId, long classNameId,
-		long classPK, boolean mailing, int start, int end)
-		throws SystemException {
+		long classPK, boolean mailing, int start, int end) {
 		return findByC_C_C_M(companyId, classNameId, classPK, mailing, start,
 			end, null);
 	}
@@ -3340,12 +3264,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C_M(long companyId, long classNameId,
 		long classPK, boolean mailing, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3470,12 +3393,12 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_C_M_First(long companyId, long classNameId,
-		long classPK, boolean mailing, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classPK, boolean mailing,
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_C_M_First(companyId, classNameId, classPK,
 				mailing, orderByComparator);
 
@@ -3513,12 +3436,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param mailing the mailing
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_C_M_First(long companyId, long classNameId,
-		long classPK, boolean mailing, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, boolean mailing,
+		OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByC_C_C_M(companyId, classNameId, classPK,
 				mailing, 0, 1, orderByComparator);
 
@@ -3539,12 +3461,12 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_C_M_Last(long companyId, long classNameId,
-		long classPK, boolean mailing, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classPK, boolean mailing,
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_C_M_Last(companyId, classNameId, classPK,
 				mailing, orderByComparator);
 
@@ -3582,12 +3504,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param mailing the mailing
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_C_M_Last(long companyId, long classNameId,
-		long classPK, boolean mailing, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, boolean mailing,
+		OrderByComparator<Address> orderByComparator) {
 		int count = countByC_C_C_M(companyId, classNameId, classPK, mailing);
 
 		if (count == 0) {
@@ -3615,13 +3536,12 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByC_C_C_M_PrevAndNext(long addressId, long companyId,
 		long classNameId, long classPK, boolean mailing,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -3651,7 +3571,8 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 
 	protected Address getByC_C_C_M_PrevAndNext(Session session,
 		Address address, long companyId, long classNameId, long classPK,
-		boolean mailing, OrderByComparator orderByComparator, boolean previous) {
+		boolean mailing, OrderByComparator<Address> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -3773,11 +3694,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
 	 * @param mailing the mailing
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByC_C_C_M(long companyId, long classNameId, long classPK,
-		boolean mailing) throws SystemException {
+		boolean mailing) {
 		for (Address address : findByC_C_C_M(companyId, classNameId, classPK,
 				mailing, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -3792,11 +3712,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classPK the class p k
 	 * @param mailing the mailing
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByC_C_C_M(long companyId, long classNameId, long classPK,
-		boolean mailing) throws SystemException {
+		boolean mailing) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_C_C_M;
 
 		Object[] finderArgs = new Object[] {
@@ -3898,11 +3817,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classPK the class p k
 	 * @param primary the primary
 	 * @return the matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C_P(long companyId, long classNameId,
-		long classPK, boolean primary) throws SystemException {
+		long classPK, boolean primary) {
 		return findByC_C_C_P(companyId, classNameId, classPK, primary,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -3921,12 +3839,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C_P(long companyId, long classNameId,
-		long classPK, boolean primary, int start, int end)
-		throws SystemException {
+		long classPK, boolean primary, int start, int end) {
 		return findByC_C_C_P(companyId, classNameId, classPK, primary, start,
 			end, null);
 	}
@@ -3946,12 +3862,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findByC_C_C_P(long companyId, long classNameId,
 		long classPK, boolean primary, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4076,12 +3991,12 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_C_P_First(long companyId, long classNameId,
-		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classPK, boolean primary,
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_C_P_First(companyId, classNameId, classPK,
 				primary, orderByComparator);
 
@@ -4119,12 +4034,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param primary the primary
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_C_P_First(long companyId, long classNameId,
-		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, boolean primary,
+		OrderByComparator<Address> orderByComparator) {
 		List<Address> list = findByC_C_C_P(companyId, classNameId, classPK,
 				primary, 0, 1, orderByComparator);
 
@@ -4145,12 +4059,12 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address
 	 * @throws com.liferay.portal.NoSuchAddressException if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByC_C_C_P_Last(long companyId, long classNameId,
-		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		long classPK, boolean primary,
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = fetchByC_C_C_P_Last(companyId, classNameId, classPK,
 				primary, orderByComparator);
 
@@ -4188,12 +4102,11 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param primary the primary
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching address, or <code>null</code> if a matching address could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address fetchByC_C_C_P_Last(long companyId, long classNameId,
-		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, boolean primary,
+		OrderByComparator<Address> orderByComparator) {
 		int count = countByC_C_C_P(companyId, classNameId, classPK, primary);
 
 		if (count == 0) {
@@ -4221,13 +4134,12 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address[] findByC_C_C_P_PrevAndNext(long addressId, long companyId,
 		long classNameId, long classPK, boolean primary,
-		OrderByComparator orderByComparator)
-		throws NoSuchAddressException, SystemException {
+		OrderByComparator<Address> orderByComparator)
+		throws NoSuchAddressException {
 		Address address = findByPrimaryKey(addressId);
 
 		Session session = null;
@@ -4257,7 +4169,8 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 
 	protected Address getByC_C_C_P_PrevAndNext(Session session,
 		Address address, long companyId, long classNameId, long classPK,
-		boolean primary, OrderByComparator orderByComparator, boolean previous) {
+		boolean primary, OrderByComparator<Address> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -4379,11 +4292,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
 	 * @param primary the primary
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByC_C_C_P(long companyId, long classNameId, long classPK,
-		boolean primary) throws SystemException {
+		boolean primary) {
 		for (Address address : findByC_C_C_P(companyId, classNameId, classPK,
 				primary, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(address);
@@ -4398,11 +4310,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param classPK the class p k
 	 * @param primary the primary
 	 * @return the number of matching addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByC_C_C_P(long companyId, long classNameId, long classPK,
-		boolean primary) throws SystemException {
+		boolean primary) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_C_C_P;
 
 		Object[] finderArgs = new Object[] {
@@ -4575,11 +4486,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param addressId the primary key of the address
 	 * @return the address that was removed
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Address remove(long addressId)
-		throws NoSuchAddressException, SystemException {
+	public Address remove(long addressId) throws NoSuchAddressException {
 		return remove((Serializable)addressId);
 	}
 
@@ -4589,11 +4498,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param primaryKey the primary key of the address
 	 * @return the address that was removed
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address remove(Serializable primaryKey)
-		throws NoSuchAddressException, SystemException {
+		throws NoSuchAddressException {
 		Session session = null;
 
 		try {
@@ -4624,7 +4532,7 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	@Override
-	protected Address removeImpl(Address address) throws SystemException {
+	protected Address removeImpl(Address address) {
 		address = toUnwrappedModel(address);
 
 		Session session = null;
@@ -4656,8 +4564,7 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	@Override
-	public Address updateImpl(com.liferay.portal.model.Address address)
-		throws SystemException {
+	public Address updateImpl(com.liferay.portal.model.Address address) {
 		address = toUnwrappedModel(address);
 
 		boolean isNew = address.isNew();
@@ -4913,11 +4820,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param primaryKey the primary key of the address
 	 * @return the address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchAddressException, SystemException {
+		throws NoSuchAddressException {
 		Address address = fetchByPrimaryKey(primaryKey);
 
 		if (address == null) {
@@ -4938,11 +4844,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param addressId the primary key of the address
 	 * @return the address
 	 * @throws com.liferay.portal.NoSuchAddressException if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Address findByPrimaryKey(long addressId)
-		throws NoSuchAddressException, SystemException {
+		throws NoSuchAddressException {
 		return findByPrimaryKey((Serializable)addressId);
 	}
 
@@ -4951,11 +4856,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param primaryKey the primary key of the address
 	 * @return the address, or <code>null</code> if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Address fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public Address fetchByPrimaryKey(Serializable primaryKey) {
 		Address address = (Address)EntityCacheUtil.getResult(AddressModelImpl.ENTITY_CACHE_ENABLED,
 				AddressImpl.class, primaryKey);
 
@@ -4998,21 +4901,111 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 *
 	 * @param addressId the primary key of the address
 	 * @return the address, or <code>null</code> if a address with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Address fetchByPrimaryKey(long addressId) throws SystemException {
+	public Address fetchByPrimaryKey(long addressId) {
 		return fetchByPrimaryKey((Serializable)addressId);
+	}
+
+	@Override
+	public Map<Serializable, Address> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, Address> map = new HashMap<Serializable, Address>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			Address address = fetchByPrimaryKey(primaryKey);
+
+			if (address != null) {
+				map.put(primaryKey, address);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			Address address = (Address)EntityCacheUtil.getResult(AddressModelImpl.ENTITY_CACHE_ENABLED,
+					AddressImpl.class, primaryKey);
+
+			if (address == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, address);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_ADDRESS_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (Address address : (List<Address>)q.list()) {
+				map.put(address.getPrimaryKeyObj(), address);
+
+				cacheResult(address);
+
+				uncachedPrimaryKeys.remove(address.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(AddressModelImpl.ENTITY_CACHE_ENABLED,
+					AddressImpl.class, primaryKey, _nullAddress);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the addresses.
 	 *
 	 * @return the addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findAll() throws SystemException {
+	public List<Address> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -5026,10 +5019,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param start the lower bound of the range of addresses
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @return the range of addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Address> findAll(int start, int end) throws SystemException {
+	public List<Address> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -5044,11 +5036,10 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * @param end the upper bound of the range of addresses (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Address> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Address> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5130,10 +5121,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	/**
 	 * Removes all the addresses from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (Address address : findAll()) {
 			remove(address);
 		}
@@ -5143,10 +5133,9 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * Returns the number of addresses.
 	 *
 	 * @return the number of addresses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -5186,25 +5175,6 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	 * Initializes the address persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portal.model.Address")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<Address>> listenersList = new ArrayList<ModelListener<Address>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<Address>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -5215,6 +5185,7 @@ public class AddressPersistenceImpl extends BasePersistenceImpl<Address>
 	}
 
 	private static final String _SQL_SELECT_ADDRESS = "SELECT address FROM Address address";
+	private static final String _SQL_SELECT_ADDRESS_WHERE_PKS_IN = "SELECT address FROM Address address WHERE addressId IN (";
 	private static final String _SQL_SELECT_ADDRESS_WHERE = "SELECT address FROM Address address WHERE ";
 	private static final String _SQL_COUNT_ADDRESS = "SELECT COUNT(address) FROM Address address";
 	private static final String _SQL_COUNT_ADDRESS_WHERE = "SELECT COUNT(address) FROM Address address WHERE ";
