@@ -14,14 +14,18 @@
 
 package com.liferay.portlet.mobiledevicerules.lar;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.mobiledevicerules.model.MDRRuleGroup;
 import com.liferay.portlet.mobiledevicerules.service.MDRRuleGroupLocalServiceUtil;
+
+import java.util.List;
 
 /**
  * @author Mate Thurzo
@@ -33,16 +37,38 @@ public class MDRRuleGroupStagedModelDataHandler
 
 	@Override
 	public void deleteStagedModel(
-			String uuid, long groupId, String className, String extraData)
-		throws SystemException {
+		String uuid, long groupId, String className, String extraData) {
 
-		MDRRuleGroup ruleGroup =
-			MDRRuleGroupLocalServiceUtil.fetchMDRRuleGroupByUuidAndGroupId(
-				uuid, groupId);
+		MDRRuleGroup ruleGroup = fetchStagedModelByUuidAndGroupId(
+			uuid, groupId);
 
 		if (ruleGroup != null) {
 			MDRRuleGroupLocalServiceUtil.deleteRuleGroup(ruleGroup);
 		}
+	}
+
+	@Override
+	public MDRRuleGroup fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<MDRRuleGroup> ruleGroups =
+			MDRRuleGroupLocalServiceUtil.getMDRRuleGroupsByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<MDRRuleGroup>());
+
+		if (ListUtil.isEmpty(ruleGroups)) {
+			return null;
+		}
+
+		return ruleGroups.get(0);
+	}
+
+	@Override
+	public MDRRuleGroup fetchStagedModelByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return MDRRuleGroupLocalServiceUtil.fetchMDRRuleGroupByUuidAndGroupId(
+			uuid, groupId);
 	}
 
 	@Override
@@ -83,9 +109,8 @@ public class MDRRuleGroupStagedModelDataHandler
 		MDRRuleGroup importedRuleGroup = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			MDRRuleGroup existingRuleGroup =
-				MDRRuleGroupLocalServiceUtil.fetchMDRRuleGroupByUuidAndGroupId(
-					ruleGroup.getUuid(), portletDataContext.getScopeGroupId());
+			MDRRuleGroup existingRuleGroup = fetchStagedModelByUuidAndGroupId(
+				ruleGroup.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingRuleGroup == null) {
 				serviceContext.setUuid(ruleGroup.getUuid());
