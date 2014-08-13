@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.BaseIndexer;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
@@ -36,7 +35,6 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 import com.liferay.portlet.blogs.service.permission.BlogsEntryPermission;
-import com.liferay.portlet.blogs.service.persistence.BlogsEntryActionableDynamicQuery;
 
 import java.util.Date;
 import java.util.Locale;
@@ -59,9 +57,8 @@ public class BlogsIndexer extends BaseIndexer {
 
 	public BlogsIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {
-				Field.COMPANY_ID, Field.CONTENT, Field.ENTRY_CLASS_NAME,
-				Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID});
+			Field.COMPANY_ID, Field.CONTENT, Field.ENTRY_CLASS_NAME,
+			Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID);
 		setFilterSearch(true);
 		setPermissionAware(true);
 	}
@@ -116,6 +113,7 @@ public class BlogsIndexer extends BaseIndexer {
 
 		document.addText(
 			Field.CONTENT, HtmlUtil.extractText(entry.getContent()));
+		document.addText(Field.SUBTITLE, entry.getSubtitle());
 		document.addText(Field.DESCRIPTION, entry.getDescription());
 		document.addDate(Field.MODIFIED_DATE, entry.getModifiedDate());
 		document.addText(Field.TITLE, entry.getTitle());
@@ -170,41 +168,48 @@ public class BlogsIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexEntries(long companyId)
-		throws PortalException, SystemException {
+	protected void reindexEntries(long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			BlogsEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			new BlogsEntryActionableDynamicQuery() {
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
 
-			@Override
-			protected void addCriteria(DynamicQuery dynamicQuery) {
-				Property displayDateProperty = PropertyFactoryUtil.forName(
-					"displayDate");
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					Property displayDateProperty = PropertyFactoryUtil.forName(
+						"displayDate");
 
-				dynamicQuery.add(displayDateProperty.lt(new Date()));
+					dynamicQuery.add(displayDateProperty.lt(new Date()));
 
-				Property statusProperty = PropertyFactoryUtil.forName("status");
+					Property statusProperty = PropertyFactoryUtil.forName(
+						"status");
 
-				Integer[] statuses = {
-					WorkflowConstants.STATUS_APPROVED,
-					WorkflowConstants.STATUS_IN_TRASH
-				};
+					Integer[] statuses = {
+						WorkflowConstants.STATUS_APPROVED,
+						WorkflowConstants.STATUS_IN_TRASH
+					};
 
-				dynamicQuery.add(statusProperty.in(statuses));
-			}
+					dynamicQuery.add(statusProperty.in(statuses));
+				}
 
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				BlogsEntry entry = (BlogsEntry)object;
-
-				Document document = getDocument(entry);
-
-				addDocument(document);
-			}
-
-		};
-
+			});
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					BlogsEntry entry = (BlogsEntry)object;
+
+					Document document = getDocument(entry);
+
+					actionableDynamicQuery.addDocument(document);
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

@@ -19,6 +19,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EXPORT_IFRAME</td>
+	<td>//iframe[@id='_156_exportDialog_iframe_']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>NEW_EXPORT_PROCESS_NAVIGATION</td>
 	<td>//ul[contains(@class,'nav-tabs')]/li/a[contains(.,'New Export Process')]</td>
 	<td></td>
@@ -29,18 +34,23 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EXPORT_FILE_NAME</td>
+	<td>//input[@id='_156_exportFileName']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EXPORT_BUTTON</td>
 	<td>//button[contains(.,'Export')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>CANCEL_BUTTON</td>
-	<td>//button[contains(.,'Cancel')]</td>
+	<td>//a[contains(@class,'btn-cancel')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PERMISSIONS_CHECKBOX</td>
-	<td>//input[@id='_156_PERMISSIONSCheckbox']</td>
+	<td>//input[@id='_156_PERMISSIONS']</td>
 	<td></td>
 </tr>
 <tr>
@@ -66,17 +76,17 @@
 </tr>
 <tr>
 	<td>PAGES_SITE_PAGES_SETTINGS_CHECKBOX</td>
-	<td>//input[@id='_156_LAYOUT_SET_SETTINGSCheckbox']</td>
+	<td>//input[@id='_156_LAYOUT_SET_SETTINGS']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGES_THEME_SETTINGS_CHECKBOX</td>
-	<td>//input[@id='_156_THEME_REFERENCECheckbox']</td>
+	<td>//input[@id='_156_THEME_REFERENCE']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>PAGES_LOGO_CHECKBOX</td>
-	<td>//input[@id='_156_LOGOCheckbox']</td>
+	<td>//input[@id='_156_LOGO']</td>
 	<td></td>
 </tr>
 <tr>
@@ -139,6 +149,58 @@
 <tr>
 	<td>CONTENT_CHOOSE_CONTENT_CONTENT_CHECKBOX</td>
 	<td>//ul[@class='portlet-list']/li/label[contains(.,'${key_contentName}')]/input[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--CURRENT_AND_PREVIOUS-->
+<tr>
+	<td>CURRENT_AND_PREVIOUS_INFO_MESSAGE</td>
+	<td>//div[@class='incomplete-process-message']/div</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CURRENT_AND_PREVIOUS_STATUS</td>
+	<td>//tr/td[2]/strong</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CURRENT_AND_PREVIOUS_CREATE_DATE</td>
+	<td>//tr/td[3]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CURRENT_AND_PREVIOUS_COMPLETION_DATE</td>
+	<td>//tr/td[4]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CURRENT_AND_PREVIOUS_DOWNLOAD</td>
+	<td>//tr/td[5]/span/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CURRENT_AND_PREVIOUS_ACTIONS</td>
+	<td>//tr/td[6]/div/a[@title='Actions']</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--CURRENT_AND_PREVIOUS_ACTIONS_MENULIST-->
+<tr>
+	<td>CURRENT_AND_PREVIOUS_ACTIONS_MENULIST_CLEAR</td>
+	<td>//ul[contains(@class,'dropdown-menu')]/li/a[contains(.,'Clear')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CURRENT_AND_PREVIOUS_ACTIONS_MENULIST_RELAUNCH</td>
+	<td>//ul[contains(@class,'dropdown-menu')]/li/a[contains(.,'Relaunch')]</td>
 	<td></td>
 </tr>
 </tbody>
