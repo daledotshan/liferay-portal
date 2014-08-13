@@ -16,15 +16,15 @@ package com.liferay.portlet.blogs.notifications;
 
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousMailExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.BaseUserNotificationTestCase;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
-import com.liferay.portlet.blogs.util.BlogsTestUtil;
+import com.liferay.portlet.blogs.util.test.BlogsTestUtil;
 
 import org.junit.runner.RunWith;
 
@@ -61,7 +61,7 @@ public class BlogsUserNotificationTest extends BaseUserNotificationTestCase {
 	protected BaseModel<?> updateBaseModel(BaseModel<?> baseModel)
 		throws Exception {
 
-		return BlogsTestUtil.updateEntry((BlogsEntry)baseModel);
+		return BlogsTestUtil.updateEntry((BlogsEntry)baseModel, true);
 	}
 
 }

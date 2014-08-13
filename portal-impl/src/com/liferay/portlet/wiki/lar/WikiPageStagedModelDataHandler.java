@@ -15,7 +15,6 @@
 package com.liferay.portlet.wiki.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
@@ -33,6 +32,7 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.NoSuchFileException;
 import com.liferay.portlet.documentlibrary.lar.FileEntryUtil;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.wiki.model.WikiNode;
 import com.liferay.portlet.wiki.model.WikiPage;
 import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
@@ -53,11 +53,9 @@ public class WikiPageStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		WikiPage wikiPage =
-			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-				uuid, groupId);
+		WikiPage wikiPage = fetchExistingStagedModel(uuid, groupId);
 
 		if (wikiPage != null) {
 			WikiPageLocalServiceUtil.deletePage(wikiPage);
@@ -74,14 +72,12 @@ public class WikiPageStagedModelDataHandler
 			PortletDataContext portletDataContext, WikiPage page)
 		throws Exception {
 
-		Element pageElement = portletDataContext.getExportDataElement(page);
-
 		StagedModelDataHandlerUtil.exportReferenceStagedModel(
 			portletDataContext, page, page.getNode(),
 			PortletDataContext.REFERENCE_TYPE_PARENT);
 
 		String content = ExportImportHelperUtil.replaceExportContentReferences(
-			portletDataContext, page, pageElement, page.getContent(),
+			portletDataContext, page, page.getContent(),
 			portletDataContext.getBooleanParameter(
 				WikiPortletDataHandler.NAMESPACE, "referenced-content"));
 
@@ -95,8 +91,16 @@ public class WikiPageStagedModelDataHandler
 			}
 		}
 
+		Element pageElement = portletDataContext.getExportDataElement(page);
+
 		portletDataContext.addClassedModel(
 			pageElement, ExportImportPathUtil.getModelPath(page), page);
+	}
+
+	@Override
+	protected WikiPage doFetchExistingStagedModel(String uuid, long groupId) {
+		return WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
+			uuid, groupId);
 	}
 
 	@Override
@@ -105,9 +109,7 @@ public class WikiPageStagedModelDataHandler
 			long pageId)
 		throws Exception {
 
-		WikiPage existingPage =
-			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-				uuid, groupId);
+		WikiPage existingPage = fetchExistingStagedModel(uuid, groupId);
 
 		Map<Long, Long> pageIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -130,9 +132,7 @@ public class WikiPageStagedModelDataHandler
 			portletDataContext.getImportDataStagedModelElement(page);
 
 		String content = ExportImportHelperUtil.replaceImportContentReferences(
-			portletDataContext, page, pageElement, page.getContent(),
-			portletDataContext.getBooleanParameter(
-				WikiPortletDataHandler.NAMESPACE, "referenced-content"));
+			portletDataContext, page, page.getContent());
 
 		page.setContent(content);
 
@@ -161,9 +161,8 @@ public class WikiPageStagedModelDataHandler
 				page.getRedirectTitle(), serviceContext);
 		}
 		else {
-			existingPage =
-				WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-					page.getUuid(), portletDataContext.getScopeGroupId());
+			existingPage = fetchExistingStagedModel(
+				page.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingPage == null) {
 				existingPage = WikiPageLocalServiceUtil.fetchPage(
@@ -185,7 +184,7 @@ public class WikiPageStagedModelDataHandler
 		if (page.isHead()) {
 			List<Element> attachmentElements =
 				portletDataContext.getReferenceDataElements(
-					pageElement, FileEntry.class,
+					pageElement, DLFileEntry.class,
 					PortletDataContext.REFERENCE_TYPE_WEAK);
 
 			for (Element attachmentElement : attachmentElements) {
@@ -257,9 +256,8 @@ public class WikiPageStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(page.getUserUuid());
 
-		WikiPage existingPage =
-			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-				page.getUuid(), portletDataContext.getScopeGroupId());
+		WikiPage existingPage = fetchExistingStagedModel(
+			page.getUuid(), portletDataContext.getScopeGroupId());
 
 		if ((existingPage == null) || !existingPage.isInTrash()) {
 			return;
