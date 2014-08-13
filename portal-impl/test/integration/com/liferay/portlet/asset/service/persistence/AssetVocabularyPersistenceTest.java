@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.asset.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,69 +22,77 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.asset.NoSuchVocabularyException;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.model.impl.AssetVocabularyModelImpl;
+import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class AssetVocabularyPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<AssetVocabulary> iterator = _assetVocabularies.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary assetVocabulary = _persistence.create(pk);
 
@@ -112,33 +119,33 @@ public class AssetVocabularyPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary newAssetVocabulary = _persistence.create(pk);
 
-		newAssetVocabulary.setUuid(ServiceTestUtil.randomString());
+		newAssetVocabulary.setUuid(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setGroupId(ServiceTestUtil.nextLong());
+		newAssetVocabulary.setGroupId(RandomTestUtil.nextLong());
 
-		newAssetVocabulary.setCompanyId(ServiceTestUtil.nextLong());
+		newAssetVocabulary.setCompanyId(RandomTestUtil.nextLong());
 
-		newAssetVocabulary.setUserId(ServiceTestUtil.nextLong());
+		newAssetVocabulary.setUserId(RandomTestUtil.nextLong());
 
-		newAssetVocabulary.setUserName(ServiceTestUtil.randomString());
+		newAssetVocabulary.setUserName(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setCreateDate(ServiceTestUtil.nextDate());
+		newAssetVocabulary.setCreateDate(RandomTestUtil.nextDate());
 
-		newAssetVocabulary.setModifiedDate(ServiceTestUtil.nextDate());
+		newAssetVocabulary.setModifiedDate(RandomTestUtil.nextDate());
 
-		newAssetVocabulary.setName(ServiceTestUtil.randomString());
+		newAssetVocabulary.setName(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setTitle(ServiceTestUtil.randomString());
+		newAssetVocabulary.setTitle(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setDescription(ServiceTestUtil.randomString());
+		newAssetVocabulary.setDescription(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setSettings(ServiceTestUtil.randomString());
+		newAssetVocabulary.setSettings(RandomTestUtil.randomString());
 
-		_persistence.update(newAssetVocabulary);
+		_assetVocabularies.add(_persistence.update(newAssetVocabulary));
 
 		AssetVocabulary existingAssetVocabulary = _persistence.findByPrimaryKey(newAssetVocabulary.getPrimaryKey());
 
@@ -188,7 +195,7 @@ public class AssetVocabularyPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -203,7 +210,7 @@ public class AssetVocabularyPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -217,7 +224,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -229,9 +236,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByGroupIdArrayable() {
 		try {
-			_persistence.countByGroupId(new long[] {
-					ServiceTestUtil.nextLong(), 0L
-				});
+			_persistence.countByGroupId(new long[] { RandomTestUtil.nextLong(), 0L });
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -241,7 +246,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -253,7 +258,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByG_N() {
 		try {
-			_persistence.countByG_N(ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByG_N(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByG_N(0L, StringPool.NULL);
 
@@ -267,7 +272,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByG_LikeN() {
 		try {
-			_persistence.countByG_LikeN(ServiceTestUtil.nextLong(),
+			_persistence.countByG_LikeN(RandomTestUtil.nextLong(),
 				StringPool.BLANK);
 
 			_persistence.countByG_LikeN(0L, StringPool.NULL);
@@ -290,7 +295,7 @@ public class AssetVocabularyPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -324,7 +329,7 @@ public class AssetVocabularyPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<AssetVocabulary> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("AssetVocabulary", "uuid",
 			true, "vocabularyId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
@@ -343,7 +348,7 @@ public class AssetVocabularyPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary missingAssetVocabulary = _persistence.fetchByPrimaryKey(pk);
 
@@ -351,19 +356,103 @@ public class AssetVocabularyPersistenceTest {
 	}
 
 	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		AssetVocabulary newAssetVocabulary1 = addAssetVocabulary();
+		AssetVocabulary newAssetVocabulary2 = addAssetVocabulary();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newAssetVocabulary1.getPrimaryKey());
+		primaryKeys.add(newAssetVocabulary2.getPrimaryKey());
+
+		Map<Serializable, AssetVocabulary> assetVocabularies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, assetVocabularies.size());
+		Assert.assertEquals(newAssetVocabulary1,
+			assetVocabularies.get(newAssetVocabulary1.getPrimaryKey()));
+		Assert.assertEquals(newAssetVocabulary2,
+			assetVocabularies.get(newAssetVocabulary2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, AssetVocabulary> assetVocabularies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(assetVocabularies.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		AssetVocabulary newAssetVocabulary = addAssetVocabulary();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newAssetVocabulary.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, AssetVocabulary> assetVocabularies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, assetVocabularies.size());
+		Assert.assertEquals(newAssetVocabulary,
+			assetVocabularies.get(newAssetVocabulary.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, AssetVocabulary> assetVocabularies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(assetVocabularies.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		AssetVocabulary newAssetVocabulary = addAssetVocabulary();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newAssetVocabulary.getPrimaryKey());
+
+		Map<Serializable, AssetVocabulary> assetVocabularies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, assetVocabularies.size());
+		Assert.assertEquals(newAssetVocabulary,
+			assetVocabularies.get(newAssetVocabulary.getPrimaryKey()));
+	}
+
+	@Test
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new AssetVocabularyActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = AssetVocabularyLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					AssetVocabulary assetVocabulary = (AssetVocabulary)object;
 
 					Assert.assertNotNull(assetVocabulary);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -396,7 +485,7 @@ public class AssetVocabularyPersistenceTest {
 				AssetVocabulary.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("vocabularyId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<AssetVocabulary> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -437,7 +526,7 @@ public class AssetVocabularyPersistenceTest {
 				"vocabularyId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("vocabularyId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -470,38 +559,38 @@ public class AssetVocabularyPersistenceTest {
 	}
 
 	protected AssetVocabulary addAssetVocabulary() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary assetVocabulary = _persistence.create(pk);
 
-		assetVocabulary.setUuid(ServiceTestUtil.randomString());
+		assetVocabulary.setUuid(RandomTestUtil.randomString());
 
-		assetVocabulary.setGroupId(ServiceTestUtil.nextLong());
+		assetVocabulary.setGroupId(RandomTestUtil.nextLong());
 
-		assetVocabulary.setCompanyId(ServiceTestUtil.nextLong());
+		assetVocabulary.setCompanyId(RandomTestUtil.nextLong());
 
-		assetVocabulary.setUserId(ServiceTestUtil.nextLong());
+		assetVocabulary.setUserId(RandomTestUtil.nextLong());
 
-		assetVocabulary.setUserName(ServiceTestUtil.randomString());
+		assetVocabulary.setUserName(RandomTestUtil.randomString());
 
-		assetVocabulary.setCreateDate(ServiceTestUtil.nextDate());
+		assetVocabulary.setCreateDate(RandomTestUtil.nextDate());
 
-		assetVocabulary.setModifiedDate(ServiceTestUtil.nextDate());
+		assetVocabulary.setModifiedDate(RandomTestUtil.nextDate());
 
-		assetVocabulary.setName(ServiceTestUtil.randomString());
+		assetVocabulary.setName(RandomTestUtil.randomString());
 
-		assetVocabulary.setTitle(ServiceTestUtil.randomString());
+		assetVocabulary.setTitle(RandomTestUtil.randomString());
 
-		assetVocabulary.setDescription(ServiceTestUtil.randomString());
+		assetVocabulary.setDescription(RandomTestUtil.randomString());
 
-		assetVocabulary.setSettings(ServiceTestUtil.randomString());
+		assetVocabulary.setSettings(RandomTestUtil.randomString());
 
-		_persistence.update(assetVocabulary);
+		_assetVocabularies.add(_persistence.update(assetVocabulary));
 
 		return assetVocabulary;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(AssetVocabularyPersistenceTest.class);
-	private AssetVocabularyPersistence _persistence = (AssetVocabularyPersistence)PortalBeanLocatorUtil.locate(AssetVocabularyPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<AssetVocabulary> _assetVocabularies = new ArrayList<AssetVocabulary>();
+	private AssetVocabularyPersistence _persistence = AssetVocabularyUtil.getPersistence();
 }

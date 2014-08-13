@@ -20,11 +20,19 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
+import com.liferay.portal.kernel.lar.ManifestSummary;
+import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -105,11 +113,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param layout the layout
 	 * @return the layout that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public Layout addLayout(Layout layout) throws SystemException {
+	public Layout addLayout(Layout layout) {
 		layout.setNew(true);
 
 		return layoutPersistence.update(layout);
@@ -132,12 +139,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param plid the primary key of the layout
 	 * @return the layout that was removed
 	 * @throws PortalException if a layout with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public Layout deleteLayout(long plid)
-		throws PortalException, SystemException {
+	public Layout deleteLayout(long plid) throws PortalException {
 		return layoutPersistence.remove(plid);
 	}
 
@@ -146,11 +151,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param layout the layout
 	 * @return the layout that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public Layout deleteLayout(Layout layout) throws SystemException {
+	public Layout deleteLayout(Layout layout) {
 		return layoutPersistence.remove(layout);
 	}
 
@@ -167,12 +171,9 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return layoutPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -187,12 +188,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return layoutPersistence.findWithDynamicQuery(dynamicQuery, start, end);
 	}
 
@@ -208,12 +207,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return layoutPersistence.findWithDynamicQuery(dynamicQuery, start, end,
 			orderByComparator);
 	}
@@ -223,11 +220,9 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return layoutPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -237,31 +232,16 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return layoutPersistence.countWithDynamicQuery(dynamicQuery, projection);
 	}
 
 	@Override
-	public Layout fetchLayout(long plid) throws SystemException {
+	public Layout fetchLayout(long plid) {
 		return layoutPersistence.fetchByPrimaryKey(plid);
-	}
-
-	/**
-	 * Returns the layout with the matching UUID and company.
-	 *
-	 * @param uuid the layout's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching layout, or <code>null</code> if a matching layout could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Layout fetchLayoutByUuidAndCompanyId(String uuid, long companyId)
-		throws SystemException {
-		return layoutPersistence.fetchByUuid_C_First(uuid, companyId, null);
 	}
 
 	/**
@@ -271,11 +251,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param groupId the primary key of the group
 	 * @param privateLayout whether the layout is private to the group
 	 * @return the matching layout, or <code>null</code> if a matching layout could not be found
-	  * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Layout fetchLayoutByUuidAndGroupId(String uuid, long groupId,
-		boolean privateLayout) throws SystemException {
+		boolean privateLayout) {
 		return layoutPersistence.fetchByUUID_G_P(uuid, groupId, privateLayout);
 	}
 
@@ -285,32 +264,115 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param plid the primary key of the layout
 	 * @return the layout
 	 * @throws PortalException if a layout with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Layout getLayout(long plid) throws PortalException, SystemException {
+	public Layout getLayout(long plid) throws PortalException {
 		return layoutPersistence.findByPrimaryKey(plid);
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
-		return layoutPersistence.findByPrimaryKey(primaryKeyObj);
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.LayoutLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(Layout.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("plid");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.LayoutLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(Layout.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("plid");
+	}
+
+	@Override
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		final PortletDataContext portletDataContext) {
+		final ExportActionableDynamicQuery exportActionableDynamicQuery = new ExportActionableDynamicQuery() {
+				@Override
+				public long performCount() throws PortalException {
+					ManifestSummary manifestSummary = portletDataContext.getManifestSummary();
+
+					StagedModelType stagedModelType = getStagedModelType();
+
+					long modelAdditionCount = super.performCount();
+
+					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+						modelAdditionCount);
+
+					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
+							stagedModelType);
+
+					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+						modelDeletionCount);
+
+					return modelAdditionCount;
+				}
+			};
+
+		initActionableDynamicQuery(exportActionableDynamicQuery);
+
+		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					portletDataContext.addDateRangeCriteria(dynamicQuery,
+						"modifiedDate");
+				}
+			});
+
+		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
+
+		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
+
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+					Layout stagedModel = (Layout)object;
+
+					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
+						stagedModel);
+				}
+			});
+		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
+				PortalUtil.getClassNameId(Layout.class.getName())));
+
+		return exportActionableDynamicQuery;
 	}
 
 	/**
-	 * Returns the layout with the matching UUID and company.
-	 *
-	 * @param uuid the layout's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching layout
-	 * @throws PortalException if a matching layout could not be found
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Override
-	public Layout getLayoutByUuidAndCompanyId(String uuid, long companyId)
-		throws PortalException, SystemException {
-		return layoutPersistence.findByUuid_C_First(uuid, companyId, null);
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return layoutLocalService.deleteLayout((Layout)persistedModel);
+	}
+
+	@Override
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+		return layoutPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	@Override
+	public List<Layout> getLayoutsByUuidAndCompanyId(String uuid, long companyId) {
+		return layoutPersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<Layout> getLayoutsByUuidAndCompanyId(String uuid,
+		long companyId, int start, int end,
+		OrderByComparator<Layout> orderByComparator) {
+		return layoutPersistence.findByUuid_C(uuid, companyId, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -321,11 +383,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param privateLayout whether the layout is private to the group
 	 * @return the matching layout
 	 * @throws PortalException if a matching layout could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Layout getLayoutByUuidAndGroupId(String uuid, long groupId,
-		boolean privateLayout) throws PortalException, SystemException {
+		boolean privateLayout) throws PortalException {
 		return layoutPersistence.findByUUID_G_P(uuid, groupId, privateLayout);
 	}
 
@@ -339,11 +400,9 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of layouts
 	 * @param end the upper bound of the range of layouts (not inclusive)
 	 * @return the range of layouts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Layout> getLayouts(int start, int end)
-		throws SystemException {
+	public List<Layout> getLayouts(int start, int end) {
 		return layoutPersistence.findAll(start, end);
 	}
 
@@ -351,10 +410,9 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * Returns the number of layouts.
 	 *
 	 * @return the number of layouts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getLayoutsCount() throws SystemException {
+	public int getLayoutsCount() {
 		return layoutPersistence.countAll();
 	}
 
@@ -363,11 +421,10 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param layout the layout
 	 * @return the layout that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public Layout updateLayout(Layout layout) throws SystemException {
+	public Layout updateLayout(Layout layout) {
 		return layoutPersistence.update(layout);
 	}
 
@@ -2052,7 +2109,7 @@ public abstract class LayoutLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = layoutPersistence.getDataSource();
 

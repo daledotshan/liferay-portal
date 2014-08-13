@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,24 @@ public class ListUtil {
 		copy.addAll(master);
 	}
 
+	public static <E> int count(
+		List<? extends E> list, PredicateFilter<E> predicateFilter) {
+
+		if (isEmpty(list)) {
+			return 0;
+		}
+
+		int count = 0;
+
+		for (E element : list) {
+			if (predicateFilter.filter(element)) {
+				count++;
+			}
+		}
+
+		return count;
+	}
+
 	public static <E> void distinct(
 		List<? extends E> list, Comparator<E> comparator) {
 
@@ -88,6 +107,42 @@ public class ListUtil {
 		distinct(list, null);
 	}
 
+	public static <E> boolean exists(
+		List<? extends E> list, PredicateFilter<E> predicateFilter) {
+
+		if (isEmpty(list)) {
+			return false;
+		}
+
+		for (E element : list) {
+			if (predicateFilter.filter(element)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static <T> List<T> filter(
+		List<? extends T> inputList, List<T> outputList,
+		PredicateFilter<T> predicateFilter) {
+
+		for (T item : inputList) {
+			if (predicateFilter.filter(item)) {
+				outputList.add(item);
+			}
+		}
+
+		return outputList;
+	}
+
+	public static <T> List<T> filter(
+		List<? extends T> inputList, PredicateFilter<T> predicateFilter) {
+
+		return filter(
+			inputList, new ArrayList<T>(inputList.size()), predicateFilter);
+	}
+
 	public static <E> List<E> fromArray(E[] array) {
 		if (ArrayUtil.isEmpty(array)) {
 			return new ArrayList<E>();
@@ -98,7 +153,7 @@ public class ListUtil {
 
 	@SuppressWarnings("rawtypes")
 	public static <E> List<E> fromCollection(Collection<? extends E> c) {
-		if ((c != null) && List.class.isAssignableFrom(c.getClass())) {
+		if ((c != null) && (c instanceof List)) {
 			return (List)c;
 		}
 
@@ -199,7 +254,7 @@ public class ListUtil {
 	}
 
 	public static boolean isUnmodifiableList(List<?> list) {
-		return _unmodifiableListClass.isAssignableFrom(list.getClass());
+		return _unmodifiableListClass.isInstance(list);
 	}
 
 	/**
@@ -346,6 +401,20 @@ public class ListUtil {
 		return list;
 	}
 
+	public static <T, A> List<A> toList(List<T> list, Accessor<T, A> accessor) {
+		List<A> aList = new ArrayList<A>(list.size());
+
+		for (T t : list) {
+			aList.add(accessor.get(t));
+		}
+
+		return aList;
+	}
+
+	public static <T, V extends T> List<T> toList(List<V> vlist) {
+		return new ArrayList<T>(vlist);
+	}
+
 	public static List<Long> toList(long[] array) {
 		if (ArrayUtil.isEmpty(array)) {
 			return new ArrayList<Long>();
@@ -377,8 +446,8 @@ public class ListUtil {
 	/**
 	 * @see ArrayUtil#toString(Object[], Accessor)
 	 */
-	public static <T, V> String toString(
-		List<? extends T> list, Accessor<T, V> accessor) {
+	public static <T, A> String toString(
+		List<? extends T> list, Accessor<T, A> accessor) {
 
 		return toString(list, accessor, StringPool.COMMA);
 	}
@@ -386,8 +455,8 @@ public class ListUtil {
 	/**
 	 * @see ArrayUtil#toString(Object[], Accessor, String)
 	 */
-	public static <T, V> String toString(
-		List<? extends T> list, Accessor<T, V> accessor, String delimiter) {
+	public static <T, A> String toString(
+		List<? extends T> list, Accessor<T, A> accessor, String delimiter) {
 
 		if (isEmpty(list)) {
 			return StringPool.BLANK;
@@ -398,10 +467,10 @@ public class ListUtil {
 		for (int i = 0; i < list.size(); i++) {
 			T bean = list.get(i);
 
-			V value = accessor.get(bean);
+			A attribute = accessor.get(bean);
 
-			if (value != null) {
-				sb.append(value);
+			if (attribute != null) {
+				sb.append(attribute);
 			}
 
 			if ((i + 1) != list.size()) {
@@ -453,6 +522,18 @@ public class ListUtil {
 		}
 
 		return sb.toString();
+	}
+
+	public static <T> List<T> unique(List<T> list) {
+		Set<T> set = new LinkedHashSet<T>();
+
+		set.addAll(list);
+
+		if (list.size() == set.size()) {
+			return list;
+		}
+
+		return new ArrayList<T>(set);
 	}
 
 	private static Class<? extends List<?>> _unmodifiableListClass;

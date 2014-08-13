@@ -77,7 +77,7 @@ if (translating) {
 <liferay-ui:header
 	backURL="<%= redirect %>"
 	showBackURL="<%= !translating %>"
-	title='<%= (record != null) ? LanguageUtil.format(pageContext, "edit-x", ddmStructure.getName(locale), false) : LanguageUtil.format(pageContext, "new-x", ddmStructure.getName(locale), false) %>'
+	title='<%= (record != null) ? LanguageUtil.format(request, "edit-x", ddmStructure.getName(locale), false) : LanguageUtil.format(request, "new-x", ddmStructure.getName(locale), false) %>'
 />
 
 <portlet:actionURL var="editRecordURL">
@@ -127,21 +127,13 @@ if (translating) {
 				readOnly="<%= recordId <= 0 %>"
 			/>
 
-			<liferay-portlet:renderURL copyCurrentRenderParameters="<%= true %>" var="updateDefaultLanguageURL">
-				<portlet:param name="struts_action" value="/dynamic_data_lists/edit_record" />
-			</liferay-portlet:renderURL>
-
-			<liferay-portlet:renderURL copyCurrentRenderParameters="<%= true %>" var="translateRecordURL" windowState="pop_up">
-				<portlet:param name="struts_action" value="/dynamic_data_lists/edit_record" />
-			</liferay-portlet:renderURL>
-
 			<aui:script use="liferay-translation-manager">
 				var translationManager = Liferay.component('<portlet:namespace />translationManager');
 
 				translationManager.on(
 					'defaultLocaleChange',
 					function(event) {
-						if (!confirm('<%= UnicodeLanguageUtil.get(pageContext, "changing-the-default-language-will-delete-all-unsaved-content") %>')) {
+						if (!confirm('<%= UnicodeLanguageUtil.get(request, "changing-the-default-language-will-delete-all-unsaved-content") %>')) {
 							event.preventDefault();
 						}
 					}
@@ -150,7 +142,19 @@ if (translating) {
 				translationManager.after(
 					{
 						defaultLocaleChange: function(event) {
-							var url = '<%= updateDefaultLanguageURL %>' + '&<portlet:namespace />defaultLanguageId=' + event.newVal;
+							<liferay-portlet:renderURL var="updateDefaultLanguageURL">
+								<portlet:param name="struts_action" value="/dynamic_data_lists/edit_record" />
+							</liferay-portlet:renderURL>
+
+							var url = Liferay.PortletURL.createURL('<%= updateDefaultLanguageURL %>');
+
+							url.setPortletId('<%= portletDisplay.getId() %>');
+
+							url.setParameter('defaultLanguageId', event.newVal);
+							url.setParameter('formDDMTemplateId', <%= formDDMTemplateId %>);
+							url.setParameter('recordId', <%= recordId %>);
+							url.setParameter('recordSetId', <%= recordSetId %>);
+							url.setParameter('redirect', '<%= HtmlUtil.escapeJS(redirect) %>');
 
 							window.location.href = url;
 						},
@@ -180,8 +184,13 @@ if (translating) {
 								Liferay.Util.openWindow(
 									{
 										cache: false,
-										id: event.newVal,
-										title: '<%= UnicodeLanguageUtil.get(pageContext, "record-translation") %>',
+										id: '<portlet:namespace />' + event.newVal,
+										title: '<%= UnicodeLanguageUtil.get(request, "record-translation") %>',
+
+										<liferay-portlet:renderURL copyCurrentRenderParameters="<%= true %>" var="translateRecordURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+											<portlet:param name="struts_action" value="/dynamic_data_lists/edit_record" />
+										</liferay-portlet:renderURL>
+
 										uri: '<%= translateRecordURL %>' + '&<portlet:namespace />languageId=' + editingLocale
 									},
 									function(translationWindow) {
@@ -239,9 +248,17 @@ if (translating) {
 		<aui:button-row>
 			<c:choose>
 				<c:when test="<%= translating %>">
-					<aui:button name="saveTranslationButton" onClick='<%= renderResponse.getNamespace() + "setWorkflowAction(false);" %>' type="submit" value="add-translation" />
+					<aui:button name="saveTranslationButton" onClick='<%= renderResponse.getNamespace() + "saveTranslation(event);" %>' type="submit" value="add-translation" />
 
 					<aui:button href="<%= redirect %>" name="cancelButton" type="cancel" />
+
+					<aui:script>
+						function <portlet:namespace />saveTranslation (event) {
+							<portlet:namespace />setWorkflowAction(false);
+
+							document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.TRANSLATE %>";
+						}
+					</aui:script>
 				</c:when>
 				<c:otherwise>
 
@@ -272,7 +289,7 @@ if (translating) {
 
 <aui:script>
 	function <portlet:namespace />setWorkflowAction(draft) {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (record == null) ? Constants.ADD : Constants.UPDATE %>";
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= (record == null) ? Constants.ADD : Constants.UPDATE %>';
 
 		if (draft) {
 			document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = <%= WorkflowConstants.ACTION_SAVE_DRAFT %>;
@@ -281,6 +298,19 @@ if (translating) {
 			document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = <%= WorkflowConstants.ACTION_PUBLISH %>;
 		}
 	}
+
+	Liferay.provide(
+		window,
+		'<portlet:namespace />postProcessTranslation',
+		function(languageId) {
+			<c:if test="<%= !translating %>">
+				A = AUI();
+
+				A.one('#<portlet:namespace />translationsMessage').show();
+			</c:if>
+		},
+		['aui-base']
+	);
 </aui:script>
 
 <%
@@ -292,9 +322,9 @@ portletURL.setParameter("recordSetId", String.valueOf(recordSetId));
 PortalUtil.addPortletBreadcrumbEntry(request, recordSet.getName(locale), portletURL.toString());
 
 if (record != null) {
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.format(pageContext, "edit-x", ddmStructure.getName(locale), false), currentURL);
+	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.format(request, "edit-x", ddmStructure.getName(locale), false), currentURL);
 }
 else {
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.format(pageContext, "add-x", ddmStructure.getName(locale), false), currentURL);
+	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.format(request, "add-x", ddmStructure.getName(locale), false), currentURL);
 }
 %>

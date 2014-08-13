@@ -29,6 +29,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SOCIAL_OFFICE_LOGO</td>
+	<td>//div[@class='so-portlet-user-bar']/a[@class='so-logo']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DASHBOARD</td>
 	<td>//a[contains(text(),'Dashboard')]</td>
 	<td></td>
@@ -74,6 +79,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PAGE_NAME</td>
+	<td>//a[contains(text(),'${key_pageName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>GO_TO</td>
 	<td>//li[contains(@class,'go-to')]//input[contains(@class,'search-input')]</td>
 	<td></td>
@@ -91,6 +101,16 @@
 <tr>
 	<td>EDIT_CONTROLS_NOT_FLAGGED</td>
 	<td>//body[contains(@class,'controls-hidden')] 	</td>
+	<td></td>
+</tr>
+<tr>
+	<td>RESET_CHANGES_MESSAGE</td>
+	<td>//span[@class='page-customization-bar-message']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>RESET_CHANGES_BUTTON</td>
+	<td>//button[contains(.,'Reset Changes')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -112,6 +132,11 @@
 <tr>
 	<td>NOTIFICATION_MENU_COUNT</td>
 	<td>//span[contains(@class,'user-notifications-count')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NOTIFICATION_MENU_NONE_MESSAGE</td>
+	<td>//div[contains(@class,'user-notification')]//li[@class='message']/a</td>
 	<td></td>
 </tr>
 <tr>
@@ -147,6 +172,11 @@
 <tr>
 	<td>NOTIFICATION_MENU_VIEW_ALL</td>
 	<td>//a[contains(text(),'View All Notifications')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NOTIFICATION_MENU_MARK_ALL_AS_READ</td>
+	<td>//a[@class='mark-all-as-read']</td>
 	<td></td>
 </tr>
 <tr>
@@ -208,6 +238,32 @@
 <tr>
 	<td>GO_TO_SITES_DIRECTORY_BUTTON</td>
 	<td>//button[contains(.,'Sites Directory')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--SCREENSHOTS-->
+<tr>
+	<td>SCREENSHOTS_USERBAR_GO_TO_MENU_ADD_SITE_PRESENT_PNG</td>
+	<td>so/screenshots/userbar/userbar_go_to_menu_add_site_present.png</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SCREENSHOTS_USERBAR_GO_TO_MENU_ADD_SITE_NOT_PRESENT_PNG</td>
+	<td>so/screenshots/userbar/userbar_go_to_menu_add_site_not_present.png</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SCREENSHOTS_USERBAR_GO_TO_MENU_ADD_SITE_SITE_NAME_REQUIRED_PNG</td>
+	<td>so/screenshots/userbar/userbar_go_to_menu_add_site_site_name_required.png</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
 	<td></td>
 </tr>
 </tbody>

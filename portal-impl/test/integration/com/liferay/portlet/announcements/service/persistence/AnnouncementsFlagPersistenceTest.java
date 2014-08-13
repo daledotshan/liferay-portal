@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.announcements.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,67 +22,75 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.announcements.NoSuchFlagException;
 import com.liferay.portlet.announcements.model.AnnouncementsFlag;
 import com.liferay.portlet.announcements.model.impl.AnnouncementsFlagModelImpl;
+import com.liferay.portlet.announcements.service.AnnouncementsFlagLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class AnnouncementsFlagPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<AnnouncementsFlag> iterator = _announcementsFlags.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AnnouncementsFlag announcementsFlag = _persistence.create(pk);
 
@@ -110,19 +117,19 @@ public class AnnouncementsFlagPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AnnouncementsFlag newAnnouncementsFlag = _persistence.create(pk);
 
-		newAnnouncementsFlag.setUserId(ServiceTestUtil.nextLong());
+		newAnnouncementsFlag.setUserId(RandomTestUtil.nextLong());
 
-		newAnnouncementsFlag.setCreateDate(ServiceTestUtil.nextDate());
+		newAnnouncementsFlag.setCreateDate(RandomTestUtil.nextDate());
 
-		newAnnouncementsFlag.setEntryId(ServiceTestUtil.nextLong());
+		newAnnouncementsFlag.setEntryId(RandomTestUtil.nextLong());
 
-		newAnnouncementsFlag.setValue(ServiceTestUtil.nextInt());
+		newAnnouncementsFlag.setValue(RandomTestUtil.nextInt());
 
-		_persistence.update(newAnnouncementsFlag);
+		_announcementsFlags.add(_persistence.update(newAnnouncementsFlag));
 
 		AnnouncementsFlag existingAnnouncementsFlag = _persistence.findByPrimaryKey(newAnnouncementsFlag.getPrimaryKey());
 
@@ -142,7 +149,7 @@ public class AnnouncementsFlagPersistenceTest {
 	@Test
 	public void testCountByEntryId() {
 		try {
-			_persistence.countByEntryId(ServiceTestUtil.nextLong());
+			_persistence.countByEntryId(RandomTestUtil.nextLong());
 
 			_persistence.countByEntryId(0L);
 		}
@@ -154,8 +161,8 @@ public class AnnouncementsFlagPersistenceTest {
 	@Test
 	public void testCountByU_E_V() {
 		try {
-			_persistence.countByU_E_V(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt());
+			_persistence.countByU_E_V(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
 			_persistence.countByU_E_V(0L, 0L, 0);
 		}
@@ -175,7 +182,7 @@ public class AnnouncementsFlagPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -197,7 +204,7 @@ public class AnnouncementsFlagPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<AnnouncementsFlag> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("AnnouncementsFlag",
 			"flagId", true, "userId", true, "createDate", true, "entryId",
 			true, "value", true);
@@ -214,7 +221,7 @@ public class AnnouncementsFlagPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AnnouncementsFlag missingAnnouncementsFlag = _persistence.fetchByPrimaryKey(pk);
 
@@ -222,19 +229,103 @@ public class AnnouncementsFlagPersistenceTest {
 	}
 
 	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		AnnouncementsFlag newAnnouncementsFlag1 = addAnnouncementsFlag();
+		AnnouncementsFlag newAnnouncementsFlag2 = addAnnouncementsFlag();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newAnnouncementsFlag1.getPrimaryKey());
+		primaryKeys.add(newAnnouncementsFlag2.getPrimaryKey());
+
+		Map<Serializable, AnnouncementsFlag> announcementsFlags = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, announcementsFlags.size());
+		Assert.assertEquals(newAnnouncementsFlag1,
+			announcementsFlags.get(newAnnouncementsFlag1.getPrimaryKey()));
+		Assert.assertEquals(newAnnouncementsFlag2,
+			announcementsFlags.get(newAnnouncementsFlag2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, AnnouncementsFlag> announcementsFlags = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(announcementsFlags.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		AnnouncementsFlag newAnnouncementsFlag = addAnnouncementsFlag();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newAnnouncementsFlag.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, AnnouncementsFlag> announcementsFlags = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, announcementsFlags.size());
+		Assert.assertEquals(newAnnouncementsFlag,
+			announcementsFlags.get(newAnnouncementsFlag.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, AnnouncementsFlag> announcementsFlags = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(announcementsFlags.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		AnnouncementsFlag newAnnouncementsFlag = addAnnouncementsFlag();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newAnnouncementsFlag.getPrimaryKey());
+
+		Map<Serializable, AnnouncementsFlag> announcementsFlags = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, announcementsFlags.size());
+		Assert.assertEquals(newAnnouncementsFlag,
+			announcementsFlags.get(newAnnouncementsFlag.getPrimaryKey()));
+	}
+
+	@Test
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new AnnouncementsFlagActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = AnnouncementsFlagLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					AnnouncementsFlag announcementsFlag = (AnnouncementsFlag)object;
 
 					Assert.assertNotNull(announcementsFlag);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -267,7 +358,7 @@ public class AnnouncementsFlagPersistenceTest {
 				AnnouncementsFlag.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("flagId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<AnnouncementsFlag> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -306,7 +397,7 @@ public class AnnouncementsFlagPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("flagId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("flagId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -335,24 +426,24 @@ public class AnnouncementsFlagPersistenceTest {
 
 	protected AnnouncementsFlag addAnnouncementsFlag()
 		throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AnnouncementsFlag announcementsFlag = _persistence.create(pk);
 
-		announcementsFlag.setUserId(ServiceTestUtil.nextLong());
+		announcementsFlag.setUserId(RandomTestUtil.nextLong());
 
-		announcementsFlag.setCreateDate(ServiceTestUtil.nextDate());
+		announcementsFlag.setCreateDate(RandomTestUtil.nextDate());
 
-		announcementsFlag.setEntryId(ServiceTestUtil.nextLong());
+		announcementsFlag.setEntryId(RandomTestUtil.nextLong());
 
-		announcementsFlag.setValue(ServiceTestUtil.nextInt());
+		announcementsFlag.setValue(RandomTestUtil.nextInt());
 
-		_persistence.update(announcementsFlag);
+		_announcementsFlags.add(_persistence.update(announcementsFlag));
 
 		return announcementsFlag;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(AnnouncementsFlagPersistenceTest.class);
-	private AnnouncementsFlagPersistence _persistence = (AnnouncementsFlagPersistence)PortalBeanLocatorUtil.locate(AnnouncementsFlagPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<AnnouncementsFlag> _announcementsFlags = new ArrayList<AnnouncementsFlag>();
+	private AnnouncementsFlagPersistence _persistence = AnnouncementsFlagUtil.getPersistence();
 }

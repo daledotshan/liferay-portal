@@ -45,6 +45,7 @@ public class InputTag extends BaseInputTag {
 
 	@Override
 	public int doEndTag() throws JspException {
+		updateFormCheckboxNames();
 		updateFormValidators();
 
 		return super.doEndTag();
@@ -221,23 +222,27 @@ public class InputTag extends BaseInputTag {
 		String forLabel = id;
 
 		if (Validator.equals(type,"assetTags")) {
-			forLabel += "assetTagNames";
-		}
-
-		if (Validator.equals(type, "checkbox")) {
-			forLabel = forLabel.concat("Checkbox");
-		}
-
-		String label = getLabel();
-
-		if (label == null) {
-			label = TextFormatter.format(name, TextFormatter.K);
+			forLabel = forLabel.concat("assetTagNames");
 		}
 
 		String languageId = getLanguageId();
 
 		if (Validator.isNotNull(languageId)) {
 			forLabel = LocalizationUtil.getLocalizedName(forLabel, languageId);
+		}
+
+		String label = getLabel();
+
+		if (label == null) {
+			label = TextFormatter.format(name, TextFormatter.P);
+		}
+
+		String title = getTitle();
+
+		if ((title == null) && (Validator.isNull(label) ||
+			 Validator.equals(type, "image"))) {
+
+			title = TextFormatter.format(name, TextFormatter.P);
 		}
 
 		_inputName = getName();
@@ -255,7 +260,8 @@ public class InputTag extends BaseInputTag {
 		}
 		else if (Validator.isNotNull(type)) {
 			if (Validator.equals(type, "checkbox") ||
-				Validator.equals(type, "radio")) {
+				Validator.equals(type, "radio") ||
+				Validator.equals(type, "resource")) {
 
 				baseType = type;
 			}
@@ -283,6 +289,7 @@ public class InputTag extends BaseInputTag {
 		setNamespacedAttribute(request, "id", id);
 		setNamespacedAttribute(request, "label", label);
 		setNamespacedAttribute(request, "model", model);
+		setNamespacedAttribute(request, "title", String.valueOf(title));
 		setNamespacedAttribute(request, "wrappedField", wrappedField);
 
 		request.setAttribute(getAttributeNamespace() + "value", getValue());
@@ -290,6 +297,28 @@ public class InputTag extends BaseInputTag {
 		if ((_validators != null) && (_validators.get("required") != null)) {
 			setNamespacedAttribute(
 				request, "required", Boolean.TRUE.toString());
+		}
+	}
+
+	protected void updateFormCheckboxNames() {
+		if (!Validator.equals(getType(), "checkbox")) {
+			return;
+		}
+
+		List<String> checkboxNames = (List<String>)request.getAttribute(
+			"aui:form:checkboxNames");
+
+		if (checkboxNames != null) {
+			String inputName = _inputName;
+
+			String languageId = getLanguageId();
+
+			if (Validator.isNotNull(languageId)) {
+				inputName = LocalizationUtil.getLocalizedName(
+					inputName, languageId);
+			}
+
+			checkboxNames.add(inputName);
 		}
 	}
 
@@ -310,10 +339,6 @@ public class InputTag extends BaseInputTag {
 				_validators);
 
 			String inputName = _inputName;
-
-			if (Validator.equals(getType(), "checkbox")) {
-				inputName = inputName.concat("Checkbox");
-			}
 
 			String languageId = getLanguageId();
 
