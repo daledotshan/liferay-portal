@@ -22,18 +22,13 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
 import com.liferay.portlet.shopping.NoSuchItemFieldException;
@@ -44,9 +39,12 @@ import com.liferay.portlet.shopping.service.persistence.ShoppingItemFieldPersist
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -112,11 +110,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 *
 	 * @param itemId the item ID
 	 * @return the matching shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingItemField> findByItemId(long itemId)
-		throws SystemException {
+	public List<ShoppingItemField> findByItemId(long itemId) {
 		return findByItemId(itemId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -131,11 +127,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param start the lower bound of the range of shopping item fields
 	 * @param end the upper bound of the range of shopping item fields (not inclusive)
 	 * @return the range of matching shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingItemField> findByItemId(long itemId, int start, int end)
-		throws SystemException {
+	public List<ShoppingItemField> findByItemId(long itemId, int start, int end) {
 		return findByItemId(itemId, start, end, null);
 	}
 
@@ -151,11 +145,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param end the upper bound of the range of shopping item fields (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingItemField> findByItemId(long itemId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<ShoppingItemField> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -258,12 +251,11 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping item field
 	 * @throws com.liferay.portlet.shopping.NoSuchItemFieldException if a matching shopping item field could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField findByItemId_First(long itemId,
-		OrderByComparator orderByComparator)
-		throws NoSuchItemFieldException, SystemException {
+		OrderByComparator<ShoppingItemField> orderByComparator)
+		throws NoSuchItemFieldException {
 		ShoppingItemField shoppingItemField = fetchByItemId_First(itemId,
 				orderByComparator);
 
@@ -289,11 +281,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param itemId the item ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping item field, or <code>null</code> if a matching shopping item field could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField fetchByItemId_First(long itemId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingItemField> orderByComparator) {
 		List<ShoppingItemField> list = findByItemId(itemId, 0, 1,
 				orderByComparator);
 
@@ -311,12 +302,11 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping item field
 	 * @throws com.liferay.portlet.shopping.NoSuchItemFieldException if a matching shopping item field could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField findByItemId_Last(long itemId,
-		OrderByComparator orderByComparator)
-		throws NoSuchItemFieldException, SystemException {
+		OrderByComparator<ShoppingItemField> orderByComparator)
+		throws NoSuchItemFieldException {
 		ShoppingItemField shoppingItemField = fetchByItemId_Last(itemId,
 				orderByComparator);
 
@@ -342,11 +332,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param itemId the item ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping item field, or <code>null</code> if a matching shopping item field could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField fetchByItemId_Last(long itemId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingItemField> orderByComparator) {
 		int count = countByItemId(itemId);
 
 		if (count == 0) {
@@ -371,12 +360,11 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next shopping item field
 	 * @throws com.liferay.portlet.shopping.NoSuchItemFieldException if a shopping item field with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField[] findByItemId_PrevAndNext(long itemFieldId,
-		long itemId, OrderByComparator orderByComparator)
-		throws NoSuchItemFieldException, SystemException {
+		long itemId, OrderByComparator<ShoppingItemField> orderByComparator)
+		throws NoSuchItemFieldException {
 		ShoppingItemField shoppingItemField = findByPrimaryKey(itemFieldId);
 
 		Session session = null;
@@ -406,7 +394,7 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 
 	protected ShoppingItemField getByItemId_PrevAndNext(Session session,
 		ShoppingItemField shoppingItemField, long itemId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<ShoppingItemField> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -513,10 +501,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * Removes all the shopping item fields where itemId = &#63; from the database.
 	 *
 	 * @param itemId the item ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByItemId(long itemId) throws SystemException {
+	public void removeByItemId(long itemId) {
 		for (ShoppingItemField shoppingItemField : findByItemId(itemId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(shoppingItemField);
@@ -528,10 +515,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 *
 	 * @param itemId the item ID
 	 * @return the number of matching shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByItemId(long itemId) throws SystemException {
+	public int countByItemId(long itemId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_ITEMID;
 
 		Object[] finderArgs = new Object[] { itemId };
@@ -685,11 +671,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param itemFieldId the primary key of the shopping item field
 	 * @return the shopping item field that was removed
 	 * @throws com.liferay.portlet.shopping.NoSuchItemFieldException if a shopping item field with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField remove(long itemFieldId)
-		throws NoSuchItemFieldException, SystemException {
+		throws NoSuchItemFieldException {
 		return remove((Serializable)itemFieldId);
 	}
 
@@ -699,11 +684,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param primaryKey the primary key of the shopping item field
 	 * @return the shopping item field that was removed
 	 * @throws com.liferay.portlet.shopping.NoSuchItemFieldException if a shopping item field with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField remove(Serializable primaryKey)
-		throws NoSuchItemFieldException, SystemException {
+		throws NoSuchItemFieldException {
 		Session session = null;
 
 		try {
@@ -735,8 +719,7 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	}
 
 	@Override
-	protected ShoppingItemField removeImpl(ShoppingItemField shoppingItemField)
-		throws SystemException {
+	protected ShoppingItemField removeImpl(ShoppingItemField shoppingItemField) {
 		shoppingItemField = toUnwrappedModel(shoppingItemField);
 
 		Session session = null;
@@ -769,8 +752,7 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 
 	@Override
 	public ShoppingItemField updateImpl(
-		com.liferay.portlet.shopping.model.ShoppingItemField shoppingItemField)
-		throws SystemException {
+		com.liferay.portlet.shopping.model.ShoppingItemField shoppingItemField) {
 		shoppingItemField = toUnwrappedModel(shoppingItemField);
 
 		boolean isNew = shoppingItemField.isNew();
@@ -858,11 +840,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param primaryKey the primary key of the shopping item field
 	 * @return the shopping item field
 	 * @throws com.liferay.portlet.shopping.NoSuchItemFieldException if a shopping item field with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchItemFieldException, SystemException {
+		throws NoSuchItemFieldException {
 		ShoppingItemField shoppingItemField = fetchByPrimaryKey(primaryKey);
 
 		if (shoppingItemField == null) {
@@ -883,11 +864,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param itemFieldId the primary key of the shopping item field
 	 * @return the shopping item field
 	 * @throws com.liferay.portlet.shopping.NoSuchItemFieldException if a shopping item field with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingItemField findByPrimaryKey(long itemFieldId)
-		throws NoSuchItemFieldException, SystemException {
+		throws NoSuchItemFieldException {
 		return findByPrimaryKey((Serializable)itemFieldId);
 	}
 
@@ -896,11 +876,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 *
 	 * @param primaryKey the primary key of the shopping item field
 	 * @return the shopping item field, or <code>null</code> if a shopping item field with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingItemField fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public ShoppingItemField fetchByPrimaryKey(Serializable primaryKey) {
 		ShoppingItemField shoppingItemField = (ShoppingItemField)EntityCacheUtil.getResult(ShoppingItemFieldModelImpl.ENTITY_CACHE_ENABLED,
 				ShoppingItemFieldImpl.class, primaryKey);
 
@@ -945,22 +923,112 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 *
 	 * @param itemFieldId the primary key of the shopping item field
 	 * @return the shopping item field, or <code>null</code> if a shopping item field with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingItemField fetchByPrimaryKey(long itemFieldId)
-		throws SystemException {
+	public ShoppingItemField fetchByPrimaryKey(long itemFieldId) {
 		return fetchByPrimaryKey((Serializable)itemFieldId);
+	}
+
+	@Override
+	public Map<Serializable, ShoppingItemField> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, ShoppingItemField> map = new HashMap<Serializable, ShoppingItemField>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			ShoppingItemField shoppingItemField = fetchByPrimaryKey(primaryKey);
+
+			if (shoppingItemField != null) {
+				map.put(primaryKey, shoppingItemField);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			ShoppingItemField shoppingItemField = (ShoppingItemField)EntityCacheUtil.getResult(ShoppingItemFieldModelImpl.ENTITY_CACHE_ENABLED,
+					ShoppingItemFieldImpl.class, primaryKey);
+
+			if (shoppingItemField == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, shoppingItemField);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_SHOPPINGITEMFIELD_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (ShoppingItemField shoppingItemField : (List<ShoppingItemField>)q.list()) {
+				map.put(shoppingItemField.getPrimaryKeyObj(), shoppingItemField);
+
+				cacheResult(shoppingItemField);
+
+				uncachedPrimaryKeys.remove(shoppingItemField.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(ShoppingItemFieldModelImpl.ENTITY_CACHE_ENABLED,
+					ShoppingItemFieldImpl.class, primaryKey,
+					_nullShoppingItemField);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the shopping item fields.
 	 *
 	 * @return the shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingItemField> findAll() throws SystemException {
+	public List<ShoppingItemField> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -974,11 +1042,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param start the lower bound of the range of shopping item fields
 	 * @param end the upper bound of the range of shopping item fields (not inclusive)
 	 * @return the range of shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingItemField> findAll(int start, int end)
-		throws SystemException {
+	public List<ShoppingItemField> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -993,11 +1059,10 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * @param end the upper bound of the range of shopping item fields (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingItemField> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingItemField> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1079,10 +1144,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	/**
 	 * Removes all the shopping item fields from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (ShoppingItemField shoppingItemField : findAll()) {
 			remove(shoppingItemField);
 		}
@@ -1092,10 +1156,9 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * Returns the number of shopping item fields.
 	 *
 	 * @return the number of shopping item fields
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -1135,25 +1198,6 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	 * Initializes the shopping item field persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.shopping.model.ShoppingItemField")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<ShoppingItemField>> listenersList = new ArrayList<ModelListener<ShoppingItemField>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<ShoppingItemField>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -1164,6 +1208,7 @@ public class ShoppingItemFieldPersistenceImpl extends BasePersistenceImpl<Shoppi
 	}
 
 	private static final String _SQL_SELECT_SHOPPINGITEMFIELD = "SELECT shoppingItemField FROM ShoppingItemField shoppingItemField";
+	private static final String _SQL_SELECT_SHOPPINGITEMFIELD_WHERE_PKS_IN = "SELECT shoppingItemField FROM ShoppingItemField shoppingItemField WHERE itemFieldId IN (";
 	private static final String _SQL_SELECT_SHOPPINGITEMFIELD_WHERE = "SELECT shoppingItemField FROM ShoppingItemField shoppingItemField WHERE ";
 	private static final String _SQL_COUNT_SHOPPINGITEMFIELD = "SELECT COUNT(shoppingItemField) FROM ShoppingItemField shoppingItemField";
 	private static final String _SQL_COUNT_SHOPPINGITEMFIELD_WHERE = "SELECT COUNT(shoppingItemField) FROM ShoppingItemField shoppingItemField WHERE ";

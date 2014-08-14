@@ -22,17 +22,12 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
 import com.liferay.portlet.announcements.NoSuchFlagException;
@@ -43,9 +38,13 @@ import com.liferay.portlet.announcements.service.persistence.AnnouncementsFlagPe
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The persistence implementation for the announcements flag service.
@@ -111,11 +110,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 *
 	 * @param entryId the entry ID
 	 * @return the matching announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<AnnouncementsFlag> findByEntryId(long entryId)
-		throws SystemException {
+	public List<AnnouncementsFlag> findByEntryId(long entryId) {
 		return findByEntryId(entryId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -130,11 +127,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param start the lower bound of the range of announcements flags
 	 * @param end the upper bound of the range of announcements flags (not inclusive)
 	 * @return the range of matching announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<AnnouncementsFlag> findByEntryId(long entryId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByEntryId(entryId, start, end, null);
 	}
 
@@ -150,11 +146,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param end the upper bound of the range of announcements flags (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<AnnouncementsFlag> findByEntryId(long entryId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<AnnouncementsFlag> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -257,12 +252,11 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching announcements flag
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a matching announcements flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag findByEntryId_First(long entryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchFlagException, SystemException {
+		OrderByComparator<AnnouncementsFlag> orderByComparator)
+		throws NoSuchFlagException {
 		AnnouncementsFlag announcementsFlag = fetchByEntryId_First(entryId,
 				orderByComparator);
 
@@ -288,11 +282,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param entryId the entry ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching announcements flag, or <code>null</code> if a matching announcements flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag fetchByEntryId_First(long entryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<AnnouncementsFlag> orderByComparator) {
 		List<AnnouncementsFlag> list = findByEntryId(entryId, 0, 1,
 				orderByComparator);
 
@@ -310,12 +303,11 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching announcements flag
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a matching announcements flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag findByEntryId_Last(long entryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchFlagException, SystemException {
+		OrderByComparator<AnnouncementsFlag> orderByComparator)
+		throws NoSuchFlagException {
 		AnnouncementsFlag announcementsFlag = fetchByEntryId_Last(entryId,
 				orderByComparator);
 
@@ -341,11 +333,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param entryId the entry ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching announcements flag, or <code>null</code> if a matching announcements flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag fetchByEntryId_Last(long entryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<AnnouncementsFlag> orderByComparator) {
 		int count = countByEntryId(entryId);
 
 		if (count == 0) {
@@ -370,12 +361,11 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next announcements flag
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a announcements flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag[] findByEntryId_PrevAndNext(long flagId,
-		long entryId, OrderByComparator orderByComparator)
-		throws NoSuchFlagException, SystemException {
+		long entryId, OrderByComparator<AnnouncementsFlag> orderByComparator)
+		throws NoSuchFlagException {
 		AnnouncementsFlag announcementsFlag = findByPrimaryKey(flagId);
 
 		Session session = null;
@@ -405,7 +395,7 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 
 	protected AnnouncementsFlag getByEntryId_PrevAndNext(Session session,
 		AnnouncementsFlag announcementsFlag, long entryId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<AnnouncementsFlag> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -512,10 +502,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * Removes all the announcements flags where entryId = &#63; from the database.
 	 *
 	 * @param entryId the entry ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByEntryId(long entryId) throws SystemException {
+	public void removeByEntryId(long entryId) {
 		for (AnnouncementsFlag announcementsFlag : findByEntryId(entryId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(announcementsFlag);
@@ -527,10 +516,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 *
 	 * @param entryId the entry ID
 	 * @return the number of matching announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByEntryId(long entryId) throws SystemException {
+	public int countByEntryId(long entryId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_ENTRYID;
 
 		Object[] finderArgs = new Object[] { entryId };
@@ -603,11 +591,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param value the value
 	 * @return the matching announcements flag
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a matching announcements flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag findByU_E_V(long userId, long entryId, int value)
-		throws NoSuchFlagException, SystemException {
+		throws NoSuchFlagException {
 		AnnouncementsFlag announcementsFlag = fetchByU_E_V(userId, entryId,
 				value);
 
@@ -644,11 +631,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param entryId the entry ID
 	 * @param value the value
 	 * @return the matching announcements flag, or <code>null</code> if a matching announcements flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public AnnouncementsFlag fetchByU_E_V(long userId, long entryId, int value)
-		throws SystemException {
+	public AnnouncementsFlag fetchByU_E_V(long userId, long entryId, int value) {
 		return fetchByU_E_V(userId, entryId, value, true);
 	}
 
@@ -660,11 +645,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param value the value
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching announcements flag, or <code>null</code> if a matching announcements flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag fetchByU_E_V(long userId, long entryId, int value,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { userId, entryId, value };
 
 		Object result = null;
@@ -759,11 +743,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param entryId the entry ID
 	 * @param value the value
 	 * @return the announcements flag that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag removeByU_E_V(long userId, long entryId, int value)
-		throws NoSuchFlagException, SystemException {
+		throws NoSuchFlagException {
 		AnnouncementsFlag announcementsFlag = findByU_E_V(userId, entryId, value);
 
 		return remove(announcementsFlag);
@@ -776,11 +759,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param entryId the entry ID
 	 * @param value the value
 	 * @return the number of matching announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByU_E_V(long userId, long entryId, int value)
-		throws SystemException {
+	public int countByU_E_V(long userId, long entryId, int value) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_U_E_V;
 
 		Object[] finderArgs = new Object[] { userId, entryId, value };
@@ -1009,11 +990,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param flagId the primary key of the announcements flag
 	 * @return the announcements flag that was removed
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a announcements flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public AnnouncementsFlag remove(long flagId)
-		throws NoSuchFlagException, SystemException {
+	public AnnouncementsFlag remove(long flagId) throws NoSuchFlagException {
 		return remove((Serializable)flagId);
 	}
 
@@ -1023,11 +1002,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param primaryKey the primary key of the announcements flag
 	 * @return the announcements flag that was removed
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a announcements flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag remove(Serializable primaryKey)
-		throws NoSuchFlagException, SystemException {
+		throws NoSuchFlagException {
 		Session session = null;
 
 		try {
@@ -1059,8 +1037,7 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	}
 
 	@Override
-	protected AnnouncementsFlag removeImpl(AnnouncementsFlag announcementsFlag)
-		throws SystemException {
+	protected AnnouncementsFlag removeImpl(AnnouncementsFlag announcementsFlag) {
 		announcementsFlag = toUnwrappedModel(announcementsFlag);
 
 		Session session = null;
@@ -1093,8 +1070,7 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 
 	@Override
 	public AnnouncementsFlag updateImpl(
-		com.liferay.portlet.announcements.model.AnnouncementsFlag announcementsFlag)
-		throws SystemException {
+		com.liferay.portlet.announcements.model.AnnouncementsFlag announcementsFlag) {
 		announcementsFlag = toUnwrappedModel(announcementsFlag);
 
 		boolean isNew = announcementsFlag.isNew();
@@ -1185,11 +1161,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param primaryKey the primary key of the announcements flag
 	 * @return the announcements flag
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a announcements flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchFlagException, SystemException {
+		throws NoSuchFlagException {
 		AnnouncementsFlag announcementsFlag = fetchByPrimaryKey(primaryKey);
 
 		if (announcementsFlag == null) {
@@ -1210,11 +1185,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param flagId the primary key of the announcements flag
 	 * @return the announcements flag
 	 * @throws com.liferay.portlet.announcements.NoSuchFlagException if a announcements flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public AnnouncementsFlag findByPrimaryKey(long flagId)
-		throws NoSuchFlagException, SystemException {
+		throws NoSuchFlagException {
 		return findByPrimaryKey((Serializable)flagId);
 	}
 
@@ -1223,11 +1197,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 *
 	 * @param primaryKey the primary key of the announcements flag
 	 * @return the announcements flag, or <code>null</code> if a announcements flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public AnnouncementsFlag fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public AnnouncementsFlag fetchByPrimaryKey(Serializable primaryKey) {
 		AnnouncementsFlag announcementsFlag = (AnnouncementsFlag)EntityCacheUtil.getResult(AnnouncementsFlagModelImpl.ENTITY_CACHE_ENABLED,
 				AnnouncementsFlagImpl.class, primaryKey);
 
@@ -1272,22 +1244,112 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 *
 	 * @param flagId the primary key of the announcements flag
 	 * @return the announcements flag, or <code>null</code> if a announcements flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public AnnouncementsFlag fetchByPrimaryKey(long flagId)
-		throws SystemException {
+	public AnnouncementsFlag fetchByPrimaryKey(long flagId) {
 		return fetchByPrimaryKey((Serializable)flagId);
+	}
+
+	@Override
+	public Map<Serializable, AnnouncementsFlag> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, AnnouncementsFlag> map = new HashMap<Serializable, AnnouncementsFlag>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			AnnouncementsFlag announcementsFlag = fetchByPrimaryKey(primaryKey);
+
+			if (announcementsFlag != null) {
+				map.put(primaryKey, announcementsFlag);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			AnnouncementsFlag announcementsFlag = (AnnouncementsFlag)EntityCacheUtil.getResult(AnnouncementsFlagModelImpl.ENTITY_CACHE_ENABLED,
+					AnnouncementsFlagImpl.class, primaryKey);
+
+			if (announcementsFlag == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, announcementsFlag);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_ANNOUNCEMENTSFLAG_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (AnnouncementsFlag announcementsFlag : (List<AnnouncementsFlag>)q.list()) {
+				map.put(announcementsFlag.getPrimaryKeyObj(), announcementsFlag);
+
+				cacheResult(announcementsFlag);
+
+				uncachedPrimaryKeys.remove(announcementsFlag.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(AnnouncementsFlagModelImpl.ENTITY_CACHE_ENABLED,
+					AnnouncementsFlagImpl.class, primaryKey,
+					_nullAnnouncementsFlag);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the announcements flags.
 	 *
 	 * @return the announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<AnnouncementsFlag> findAll() throws SystemException {
+	public List<AnnouncementsFlag> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1301,11 +1363,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param start the lower bound of the range of announcements flags
 	 * @param end the upper bound of the range of announcements flags (not inclusive)
 	 * @return the range of announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<AnnouncementsFlag> findAll(int start, int end)
-		throws SystemException {
+	public List<AnnouncementsFlag> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -1320,11 +1380,10 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * @param end the upper bound of the range of announcements flags (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<AnnouncementsFlag> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<AnnouncementsFlag> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1406,10 +1465,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	/**
 	 * Removes all the announcements flags from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (AnnouncementsFlag announcementsFlag : findAll()) {
 			remove(announcementsFlag);
 		}
@@ -1419,10 +1477,9 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * Returns the number of announcements flags.
 	 *
 	 * @return the number of announcements flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -1457,25 +1514,6 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	 * Initializes the announcements flag persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.announcements.model.AnnouncementsFlag")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<AnnouncementsFlag>> listenersList = new ArrayList<ModelListener<AnnouncementsFlag>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<AnnouncementsFlag>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -1486,6 +1524,7 @@ public class AnnouncementsFlagPersistenceImpl extends BasePersistenceImpl<Announ
 	}
 
 	private static final String _SQL_SELECT_ANNOUNCEMENTSFLAG = "SELECT announcementsFlag FROM AnnouncementsFlag announcementsFlag";
+	private static final String _SQL_SELECT_ANNOUNCEMENTSFLAG_WHERE_PKS_IN = "SELECT announcementsFlag FROM AnnouncementsFlag announcementsFlag WHERE flagId IN (";
 	private static final String _SQL_SELECT_ANNOUNCEMENTSFLAG_WHERE = "SELECT announcementsFlag FROM AnnouncementsFlag announcementsFlag WHERE ";
 	private static final String _SQL_COUNT_ANNOUNCEMENTSFLAG = "SELECT COUNT(announcementsFlag) FROM AnnouncementsFlag announcementsFlag";
 	private static final String _SQL_COUNT_ANNOUNCEMENTSFLAG_WHERE = "SELECT COUNT(announcementsFlag) FROM AnnouncementsFlag announcementsFlag WHERE ";

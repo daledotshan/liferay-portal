@@ -15,7 +15,6 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchUserTrackerPathException;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -24,63 +23,71 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.model.UserTrackerPath;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.service.UserTrackerPathLocalServiceUtil;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class UserTrackerPathPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<UserTrackerPath> iterator = _userTrackerPaths.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTrackerPath userTrackerPath = _persistence.create(pk);
 
@@ -107,19 +114,19 @@ public class UserTrackerPathPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTrackerPath newUserTrackerPath = _persistence.create(pk);
 
-		newUserTrackerPath.setMvccVersion(ServiceTestUtil.nextLong());
+		newUserTrackerPath.setMvccVersion(RandomTestUtil.nextLong());
 
-		newUserTrackerPath.setUserTrackerId(ServiceTestUtil.nextLong());
+		newUserTrackerPath.setUserTrackerId(RandomTestUtil.nextLong());
 
-		newUserTrackerPath.setPath(ServiceTestUtil.randomString());
+		newUserTrackerPath.setPath(RandomTestUtil.randomString());
 
-		newUserTrackerPath.setPathDate(ServiceTestUtil.nextDate());
+		newUserTrackerPath.setPathDate(RandomTestUtil.nextDate());
 
-		_persistence.update(newUserTrackerPath);
+		_userTrackerPaths.add(_persistence.update(newUserTrackerPath));
 
 		UserTrackerPath existingUserTrackerPath = _persistence.findByPrimaryKey(newUserTrackerPath.getPrimaryKey());
 
@@ -139,7 +146,7 @@ public class UserTrackerPathPersistenceTest {
 	@Test
 	public void testCountByUserTrackerId() {
 		try {
-			_persistence.countByUserTrackerId(ServiceTestUtil.nextLong());
+			_persistence.countByUserTrackerId(RandomTestUtil.nextLong());
 
 			_persistence.countByUserTrackerId(0L);
 		}
@@ -159,7 +166,7 @@ public class UserTrackerPathPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -182,7 +189,7 @@ public class UserTrackerPathPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<UserTrackerPath> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("UserTrackerPath",
 			"mvccVersion", true, "userTrackerPathId", true, "userTrackerId",
 			true, "path", true, "pathDate", true);
@@ -199,7 +206,7 @@ public class UserTrackerPathPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTrackerPath missingUserTrackerPath = _persistence.fetchByPrimaryKey(pk);
 
@@ -207,19 +214,103 @@ public class UserTrackerPathPersistenceTest {
 	}
 
 	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		UserTrackerPath newUserTrackerPath1 = addUserTrackerPath();
+		UserTrackerPath newUserTrackerPath2 = addUserTrackerPath();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newUserTrackerPath1.getPrimaryKey());
+		primaryKeys.add(newUserTrackerPath2.getPrimaryKey());
+
+		Map<Serializable, UserTrackerPath> userTrackerPaths = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, userTrackerPaths.size());
+		Assert.assertEquals(newUserTrackerPath1,
+			userTrackerPaths.get(newUserTrackerPath1.getPrimaryKey()));
+		Assert.assertEquals(newUserTrackerPath2,
+			userTrackerPaths.get(newUserTrackerPath2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, UserTrackerPath> userTrackerPaths = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(userTrackerPaths.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		UserTrackerPath newUserTrackerPath = addUserTrackerPath();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newUserTrackerPath.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, UserTrackerPath> userTrackerPaths = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, userTrackerPaths.size());
+		Assert.assertEquals(newUserTrackerPath,
+			userTrackerPaths.get(newUserTrackerPath.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, UserTrackerPath> userTrackerPaths = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(userTrackerPaths.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		UserTrackerPath newUserTrackerPath = addUserTrackerPath();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newUserTrackerPath.getPrimaryKey());
+
+		Map<Serializable, UserTrackerPath> userTrackerPaths = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, userTrackerPaths.size());
+		Assert.assertEquals(newUserTrackerPath,
+			userTrackerPaths.get(newUserTrackerPath.getPrimaryKey()));
+	}
+
+	@Test
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new UserTrackerPathActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = UserTrackerPathLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					UserTrackerPath userTrackerPath = (UserTrackerPath)object;
 
 					Assert.assertNotNull(userTrackerPath);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -252,7 +343,7 @@ public class UserTrackerPathPersistenceTest {
 				UserTrackerPath.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("userTrackerPathId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<UserTrackerPath> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -293,7 +384,7 @@ public class UserTrackerPathPersistenceTest {
 				"userTrackerPathId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("userTrackerPathId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -301,24 +392,24 @@ public class UserTrackerPathPersistenceTest {
 	}
 
 	protected UserTrackerPath addUserTrackerPath() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTrackerPath userTrackerPath = _persistence.create(pk);
 
-		userTrackerPath.setMvccVersion(ServiceTestUtil.nextLong());
+		userTrackerPath.setMvccVersion(RandomTestUtil.nextLong());
 
-		userTrackerPath.setUserTrackerId(ServiceTestUtil.nextLong());
+		userTrackerPath.setUserTrackerId(RandomTestUtil.nextLong());
 
-		userTrackerPath.setPath(ServiceTestUtil.randomString());
+		userTrackerPath.setPath(RandomTestUtil.randomString());
 
-		userTrackerPath.setPathDate(ServiceTestUtil.nextDate());
+		userTrackerPath.setPathDate(RandomTestUtil.nextDate());
 
-		_persistence.update(userTrackerPath);
+		_userTrackerPaths.add(_persistence.update(userTrackerPath));
 
 		return userTrackerPath;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(UserTrackerPathPersistenceTest.class);
-	private UserTrackerPathPersistence _persistence = (UserTrackerPathPersistence)PortalBeanLocatorUtil.locate(UserTrackerPathPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<UserTrackerPath> _userTrackerPaths = new ArrayList<UserTrackerPath>();
+	private UserTrackerPathPersistence _persistence = UserTrackerPathUtil.getPersistence();
 }

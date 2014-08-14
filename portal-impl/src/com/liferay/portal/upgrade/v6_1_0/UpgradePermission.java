@@ -26,6 +26,7 @@ import com.liferay.portal.model.ResourceBlock;
 import com.liferay.portal.model.ResourceBlockPermissionsContainer;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.ResourcePermission;
+import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.ResourceActionLocalServiceUtil;
@@ -49,9 +50,8 @@ import java.util.List;
 public class UpgradePermission extends UpgradeProcess {
 
 	protected ResourceBlock convertResourcePermissions(
-			String tableName, String pkColumnName, long companyId, long groupId,
-			String name, long primKey)
-		throws SystemException {
+		String tableName, String pkColumnName, long companyId, long groupId,
+		String name, long primKey) {
 
 		PermissionedModel permissionedModel = new UpgradePermissionedModel(
 			tableName, pkColumnName, primKey);
@@ -139,6 +139,14 @@ public class UpgradePermission extends UpgradeProcess {
 	@Override
 	protected void doUpgrade() throws Exception {
 
+		// LPS-46141
+
+		List<String> modelActions = ResourceActionsUtil.getModelResourceActions(
+			Role.class.getName());
+
+		ResourceActionLocalServiceUtil.checkResourceActions(
+			Role.class.getName(), modelActions);
+
 		// LPS-14202 and LPS-17841
 
 		RoleLocalServiceUtil.checkSystemRoles();
@@ -156,9 +164,8 @@ public class UpgradePermission extends UpgradeProcess {
 	}
 
 	protected ResourceBlockPermissionsContainer
-			getResourceBlockPermissionsContainer(
-				long companyId, long groupId, String name, long primKey)
-		throws SystemException {
+		getResourceBlockPermissionsContainer(
+			long companyId, long groupId, String name, long primKey) {
 
 		ResourceBlockPermissionsContainer resourceBlockPermissionContainer =
 			new ResourceBlockPermissionsContainer();
@@ -227,7 +234,7 @@ public class UpgradePermission extends UpgradeProcess {
 		}
 
 		@Override
-		public void persist() throws SystemException {
+		public void persist() {
 			try {
 				StringBundler sb = new StringBundler(8);
 

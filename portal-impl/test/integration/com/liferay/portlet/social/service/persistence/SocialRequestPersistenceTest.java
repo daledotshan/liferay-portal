@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.social.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,68 +22,76 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.social.NoSuchRequestException;
 import com.liferay.portlet.social.model.SocialRequest;
 import com.liferay.portlet.social.model.impl.SocialRequestModelImpl;
+import com.liferay.portlet.social.service.SocialRequestLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class SocialRequestPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<SocialRequest> iterator = _socialRequests.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialRequest socialRequest = _persistence.create(pk);
 
@@ -111,35 +118,35 @@ public class SocialRequestPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialRequest newSocialRequest = _persistence.create(pk);
 
-		newSocialRequest.setUuid(ServiceTestUtil.randomString());
+		newSocialRequest.setUuid(RandomTestUtil.randomString());
 
-		newSocialRequest.setGroupId(ServiceTestUtil.nextLong());
+		newSocialRequest.setGroupId(RandomTestUtil.nextLong());
 
-		newSocialRequest.setCompanyId(ServiceTestUtil.nextLong());
+		newSocialRequest.setCompanyId(RandomTestUtil.nextLong());
 
-		newSocialRequest.setUserId(ServiceTestUtil.nextLong());
+		newSocialRequest.setUserId(RandomTestUtil.nextLong());
 
-		newSocialRequest.setCreateDate(ServiceTestUtil.nextLong());
+		newSocialRequest.setCreateDate(RandomTestUtil.nextLong());
 
-		newSocialRequest.setModifiedDate(ServiceTestUtil.nextLong());
+		newSocialRequest.setModifiedDate(RandomTestUtil.nextLong());
 
-		newSocialRequest.setClassNameId(ServiceTestUtil.nextLong());
+		newSocialRequest.setClassNameId(RandomTestUtil.nextLong());
 
-		newSocialRequest.setClassPK(ServiceTestUtil.nextLong());
+		newSocialRequest.setClassPK(RandomTestUtil.nextLong());
 
-		newSocialRequest.setType(ServiceTestUtil.nextInt());
+		newSocialRequest.setType(RandomTestUtil.nextInt());
 
-		newSocialRequest.setExtraData(ServiceTestUtil.randomString());
+		newSocialRequest.setExtraData(RandomTestUtil.randomString());
 
-		newSocialRequest.setReceiverUserId(ServiceTestUtil.nextLong());
+		newSocialRequest.setReceiverUserId(RandomTestUtil.nextLong());
 
-		newSocialRequest.setStatus(ServiceTestUtil.nextInt());
+		newSocialRequest.setStatus(RandomTestUtil.nextInt());
 
-		_persistence.update(newSocialRequest);
+		_socialRequests.add(_persistence.update(newSocialRequest));
 
 		SocialRequest existingSocialRequest = _persistence.findByPrimaryKey(newSocialRequest.getPrimaryKey());
 
@@ -189,7 +196,7 @@ public class SocialRequestPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -204,7 +211,7 @@ public class SocialRequestPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -218,7 +225,7 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -230,7 +237,7 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByUserId() {
 		try {
-			_persistence.countByUserId(ServiceTestUtil.nextLong());
+			_persistence.countByUserId(RandomTestUtil.nextLong());
 
 			_persistence.countByUserId(0L);
 		}
@@ -242,7 +249,7 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByReceiverUserId() {
 		try {
-			_persistence.countByReceiverUserId(ServiceTestUtil.nextLong());
+			_persistence.countByReceiverUserId(RandomTestUtil.nextLong());
 
 			_persistence.countByReceiverUserId(0L);
 		}
@@ -254,8 +261,8 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByU_S() {
 		try {
-			_persistence.countByU_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByU_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByU_S(0L, 0);
 		}
@@ -267,8 +274,8 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByC_C() {
 		try {
-			_persistence.countByC_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByC_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByC_C(0L, 0L);
 		}
@@ -280,8 +287,8 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByR_S() {
 		try {
-			_persistence.countByR_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByR_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByR_S(0L, 0);
 		}
@@ -293,9 +300,9 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByU_C_C_T_R() {
 		try {
-			_persistence.countByU_C_C_T_R(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt(), ServiceTestUtil.nextLong());
+			_persistence.countByU_C_C_T_R(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt(), RandomTestUtil.nextLong());
 
 			_persistence.countByU_C_C_T_R(0L, 0L, 0L, 0, 0L);
 		}
@@ -307,9 +314,9 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByU_C_C_T_S() {
 		try {
-			_persistence.countByU_C_C_T_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt(), ServiceTestUtil.nextInt());
+			_persistence.countByU_C_C_T_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt(), RandomTestUtil.nextInt());
 
 			_persistence.countByU_C_C_T_S(0L, 0L, 0L, 0, 0);
 		}
@@ -321,9 +328,9 @@ public class SocialRequestPersistenceTest {
 	@Test
 	public void testCountByC_C_T_R_S() {
 		try {
-			_persistence.countByC_C_T_R_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt());
+			_persistence.countByC_C_T_R_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
 			_persistence.countByC_C_T_R_S(0L, 0L, 0, 0L, 0);
 		}
@@ -343,7 +350,7 @@ public class SocialRequestPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -365,7 +372,7 @@ public class SocialRequestPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<SocialRequest> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("SocialRequest", "uuid",
 			true, "requestId", true, "groupId", true, "companyId", true,
 			"userId", true, "createDate", true, "modifiedDate", true,
@@ -384,7 +391,7 @@ public class SocialRequestPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialRequest missingSocialRequest = _persistence.fetchByPrimaryKey(pk);
 
@@ -392,19 +399,103 @@ public class SocialRequestPersistenceTest {
 	}
 
 	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		SocialRequest newSocialRequest1 = addSocialRequest();
+		SocialRequest newSocialRequest2 = addSocialRequest();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialRequest1.getPrimaryKey());
+		primaryKeys.add(newSocialRequest2.getPrimaryKey());
+
+		Map<Serializable, SocialRequest> socialRequests = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, socialRequests.size());
+		Assert.assertEquals(newSocialRequest1,
+			socialRequests.get(newSocialRequest1.getPrimaryKey()));
+		Assert.assertEquals(newSocialRequest2,
+			socialRequests.get(newSocialRequest2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, SocialRequest> socialRequests = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(socialRequests.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		SocialRequest newSocialRequest = addSocialRequest();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialRequest.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, SocialRequest> socialRequests = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, socialRequests.size());
+		Assert.assertEquals(newSocialRequest,
+			socialRequests.get(newSocialRequest.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, SocialRequest> socialRequests = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(socialRequests.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		SocialRequest newSocialRequest = addSocialRequest();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialRequest.getPrimaryKey());
+
+		Map<Serializable, SocialRequest> socialRequests = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, socialRequests.size());
+		Assert.assertEquals(newSocialRequest,
+			socialRequests.get(newSocialRequest.getPrimaryKey()));
+	}
+
+	@Test
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new SocialRequestActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = SocialRequestLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					SocialRequest socialRequest = (SocialRequest)object;
 
 					Assert.assertNotNull(socialRequest);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -437,7 +528,7 @@ public class SocialRequestPersistenceTest {
 				SocialRequest.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("requestId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<SocialRequest> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -476,7 +567,7 @@ public class SocialRequestPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("requestId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("requestId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -514,40 +605,40 @@ public class SocialRequestPersistenceTest {
 	}
 
 	protected SocialRequest addSocialRequest() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialRequest socialRequest = _persistence.create(pk);
 
-		socialRequest.setUuid(ServiceTestUtil.randomString());
+		socialRequest.setUuid(RandomTestUtil.randomString());
 
-		socialRequest.setGroupId(ServiceTestUtil.nextLong());
+		socialRequest.setGroupId(RandomTestUtil.nextLong());
 
-		socialRequest.setCompanyId(ServiceTestUtil.nextLong());
+		socialRequest.setCompanyId(RandomTestUtil.nextLong());
 
-		socialRequest.setUserId(ServiceTestUtil.nextLong());
+		socialRequest.setUserId(RandomTestUtil.nextLong());
 
-		socialRequest.setCreateDate(ServiceTestUtil.nextLong());
+		socialRequest.setCreateDate(RandomTestUtil.nextLong());
 
-		socialRequest.setModifiedDate(ServiceTestUtil.nextLong());
+		socialRequest.setModifiedDate(RandomTestUtil.nextLong());
 
-		socialRequest.setClassNameId(ServiceTestUtil.nextLong());
+		socialRequest.setClassNameId(RandomTestUtil.nextLong());
 
-		socialRequest.setClassPK(ServiceTestUtil.nextLong());
+		socialRequest.setClassPK(RandomTestUtil.nextLong());
 
-		socialRequest.setType(ServiceTestUtil.nextInt());
+		socialRequest.setType(RandomTestUtil.nextInt());
 
-		socialRequest.setExtraData(ServiceTestUtil.randomString());
+		socialRequest.setExtraData(RandomTestUtil.randomString());
 
-		socialRequest.setReceiverUserId(ServiceTestUtil.nextLong());
+		socialRequest.setReceiverUserId(RandomTestUtil.nextLong());
 
-		socialRequest.setStatus(ServiceTestUtil.nextInt());
+		socialRequest.setStatus(RandomTestUtil.nextInt());
 
-		_persistence.update(socialRequest);
+		_socialRequests.add(_persistence.update(socialRequest));
 
 		return socialRequest;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SocialRequestPersistenceTest.class);
-	private SocialRequestPersistence _persistence = (SocialRequestPersistence)PortalBeanLocatorUtil.locate(SocialRequestPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<SocialRequest> _socialRequests = new ArrayList<SocialRequest>();
+	private SocialRequestPersistence _persistence = SocialRequestUtil.getPersistence();
 }
