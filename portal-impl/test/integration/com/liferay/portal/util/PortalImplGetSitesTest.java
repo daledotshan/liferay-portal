@@ -15,8 +15,8 @@
 package com.liferay.portal.util;
 
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.model.Company;
@@ -25,10 +25,16 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.GroupServiceUtil;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.TransactionalExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.listeners.ResetDatabaseExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.util.test.LayoutTestUtil;
+import com.liferay.portal.util.test.UserTestUtil;
 import com.liferay.portlet.sites.util.Sites;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,11 +46,10 @@ import org.junit.runner.RunWith;
  */
 @ExecutionTestListeners(
 	listeners = {
-		EnvironmentExecutionTestListener.class,
-		TransactionalExecutionTestListener.class
+		MainServletExecutionTestListener.class,
+		ResetDatabaseExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
-@Transactional
 public class PortalImplGetSitesTest {
 
 	@Before
@@ -109,6 +114,17 @@ public class PortalImplGetSitesTest {
 		Assert.assertTrue(
 			ArrayUtil.contains(
 				getSharedContentSiteGroupIds(), group.getGroupId()));
+	}
+
+	@Test
+	public void testGetSharedContentSiteGroupIdsReturnsUniqueGroupIds()
+		throws Exception {
+
+		long[] groupIds = getSharedContentSiteGroupIds();
+
+		Set<Long> set = new HashSet<Long>(ListUtil.toList(groupIds));
+
+		Assert.assertFalse(set.size() < groupIds.length);
 	}
 
 	protected long[] getSharedContentSiteGroupIds() throws Exception {

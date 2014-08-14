@@ -155,17 +155,17 @@ boolean wsrp = ParamUtil.getBoolean(PortalUtil.getOriginalServletRequest(request
 					<c:if test="<%= showPortletActions || portletDisplay.isShowBackIcon() %>">
 						<div class="portlet-borderless-bar">
 							<c:if test="<%= showPortletActions %>">
-								<span class="portlet-title-default"><%= portletDisplay.getTitle() %></span>
+								<span class="portlet-title-default"><%= HtmlUtil.escape(portletDisplay.getTitle()) %></span>
 
 								<span class="portlet-actions">
-									<span class="portlet-action portlet-options">
+									<span class="portlet-action">
 										<span class="portlet-action-separator">-</span>
 
 										<liferay-portlet:icon-options />
 									</span>
 
 									<c:if test="<%= portletDisplay.isShowCloseIcon() %>">
-										<span class="portlet-action portlet-close">
+										<span class="portlet-action">
 											<span class="portlet-action-separator">-</span>
 
 											<liferay-portlet:icon-close />
