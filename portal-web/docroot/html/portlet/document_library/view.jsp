@@ -17,6 +17,10 @@
 <%@ include file="/html/portlet/document_library/init.jsp" %>
 
 <%
+DLEntryListDisplayContext dlEntriesListDisplayContext = new DLEntryListDisplayContext(request, dlPortletInstanceSettings);
+
+DLActionsDisplayContext dlActionsDisplayContext = dlEntriesListDisplayContext.getDLActionsDisplayContext();
+
 String strutsAction = ParamUtil.getString(request, "struts_action");
 
 String navigation = ParamUtil.getString(request, "navigation");
@@ -53,17 +57,19 @@ if (Validator.isNull(displayStyle)) {
 	displayStyle = portalPreferences.getValue(PortletKeys.DOCUMENT_LIBRARY, "display-style", PropsValues.DL_DEFAULT_DISPLAY_VIEW);
 }
 
+String[] displayViews = dlPortletInstanceSettings.getDisplayViews();
+
 if (!ArrayUtil.contains(displayViews, displayStyle)) {
 	displayStyle = displayViews[0];
 }
 
 int entryStart = ParamUtil.getInteger(request, "entryStart");
-int entryEnd = ParamUtil.getInteger(request, "entryEnd", entriesPerPage);
+int entryEnd = ParamUtil.getInteger(request, "entryEnd", dlPortletInstanceSettings.getEntriesPerPage());
 
 int folderStart = ParamUtil.getInteger(request, "folderStart");
 int folderEnd = ParamUtil.getInteger(request, "folderEnd", SearchContainer.DEFAULT_DELTA);
 
-int total = DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(repositoryId, folderId, WorkflowConstants.STATUS_APPROVED, false);
+int total = DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(repositoryId, folderId, WorkflowConstants.STATUS_ANY, false);
 
 boolean showSelectAll = false;
 
@@ -98,7 +104,7 @@ request.setAttribute("view.jsp-repositoryId", String.valueOf(repositoryId));
 			<div class="folder-pagination"></div>
 		</aui:col>
 
-		<aui:col cssClass="context-pane" width="<%= showFolderMenu ? 75 : 100 %>">
+		<aui:col cssClass="context-pane" width="<%= dlActionsDisplayContext.isFolderMenuVisible() ? 75 : 100 %>">
 			<liferay-ui:app-view-toolbar
 				includeDisplayStyle="<%= true %>"
 				includeSelectAll="<%= showSelectAll %>"
@@ -117,7 +123,7 @@ request.setAttribute("view.jsp-repositoryId", String.valueOf(repositoryId));
 			%>
 
 			<div class="<%= cssClass %>" id="<portlet:namespace />showSyncMessageIconContainer">
-				<img alt="<%= LanguageUtil.get(pageContext, "show-liferay-sync-tip") %>" class="show-sync-message" id="<portlet:namespace />showSyncMessageIcon" src="<%= themeDisplay.getPathThemeImages() + "/common/liferay_sync.png" %>" title="<%= LanguageUtil.get(pageContext, "liferay-sync") %>" />
+				<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="show-liferay-sync-tip" />" class="show-sync-message" id="<portlet:namespace />showSyncMessageIcon" src='<%= themeDisplay.getPathThemeImages() + "/common/liferay_sync.png" %>' title='<%= LanguageUtil.get(request, "liferay-sync") %>' />
 			</div>
 
 			<div class="document-library-breadcrumb" id="<portlet:namespace />breadcrumbContainer">
@@ -176,7 +182,7 @@ entryStart = GetterUtil.getInteger(request.getAttribute("view_entries.jsp-entryS
 folderEnd = GetterUtil.getInteger(request.getAttribute("view_folders.jsp-folderEnd"), folderEnd);
 folderStart = GetterUtil.getInteger(request.getAttribute("view_folders.jsp-folderStart"), folderStart);
 
-if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOCUMENT_LIBRARY)) {
+if (!defaultFolderView && (folder != null) && (portletName.equals(PortletKeys.DOCUMENT_LIBRARY) || portletName.equals(PortletKeys.DOCUMENT_LIBRARY_ADMIN))) {
 	PortalUtil.setPageSubtitle(folder.getName(), request);
 	PortalUtil.setPageDescription(folder.getDescription(), request);
 }
@@ -191,7 +197,7 @@ if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOC
 
 			var actionsButton = A.one('#<portlet:namespace />actionsButtonContainer');
 
-			var hide = (Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm2, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>Checkbox').length == 0);
+			var hide = (Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm2, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
 
 			if (actionsButton) {
 				actionsButton.toggle(!hide);
@@ -204,9 +210,9 @@ if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOC
 </aui:script>
 
 <aui:script use="liferay-document-library">
-	<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" varImpl="mainURL" />
 
 	<%
+	String[] entryColumns = dlEntriesListDisplayContext.getEntryColumns();
 	String[] escapedEntryColumns = new String[entryColumns.length];
 
 	for (int i = 0; i < entryColumns.length; i++) {
@@ -220,7 +226,7 @@ if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOC
 	}
 	%>
 
-	new Liferay.Portlet.DocumentLibrary(
+	var documentLibrary = new Liferay.Portlet.DocumentLibrary(
 		{
 			columnNames: ['<%= StringUtil.merge(escapedEntryColumns, "','") %>'],
 			displayStyle: '<%= HtmlUtil.escapeJS(displayStyle) %>',
@@ -236,16 +242,22 @@ if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOC
 					p_p_id: <%= HtmlUtil.escapeJS(portletId) %>,
 					p_p_lifecycle: 0
 				},
-				defaultParentFolderId: '<%= DLFolderConstants.DEFAULT_PARENT_FOLDER_ID %>',
+				defaultParentFolderId: '<%= folderId %>',
 				dimensions: {
 					height: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_ENTRY_THUMBNAIL_MAX_HEIGHT) %>',
 					width: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_ENTRY_THUMBNAIL_MAX_WIDTH) %>'
 				},
 				'listViewConfig.useTransition': false,
+
+				<liferay-portlet:resourceURL
+					copyCurrentRenderParameters="<%= false %>"
+					varImpl="mainURL"
+				/>
+
 				mainUrl: '<%= mainURL %>',
+				rootFolderId: '<%= rootFolderId %>',
 				strutsAction: '/document_library/view'
 			},
-			trashEnabled: <%= TrashUtil.isTrashEnabled(scopeGroupId) %>,
 			maxFileSize: <%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE) %>,
 			move: {
 				allRowIds: '<%= RowChecker.ALL_ROW_IDS %>',
@@ -253,13 +265,14 @@ if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOC
 				folderIdRegEx: /&?<portlet:namespace />folderId=([\d]+)/i,
 				folderIdHashRegEx: /#.*&?<portlet:namespace />folderId=([\d]+)/i,
 				form: {
-					method: 'post',
+					method: 'POST',
 					node: A.one(document.<portlet:namespace />fm2)
 				},
 				moveEntryRenderUrl: '<portlet:renderURL><portlet:param name="struts_action" value="/document_library/move_entry" /></portlet:renderURL>',
 				trashLinkId: '<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "_" + PortletKeys.CONTROL_PANEL_MENU + "_portlet_" + PortletKeys.TRASH : StringPool.BLANK %>',
 				updateable: <%= DLFolderPermission.contains(permissionChecker, scopeGroupId, folderId, ActionKeys.UPDATE) %>
 			},
+			namespace: '<portlet:namespace />',
 			paginator: {
 				entriesTotal: <%= entriesTotal %>,
 				entryEnd: <%= entryEnd %>,
@@ -271,13 +284,12 @@ if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOC
 				folderStart: <%= folderStart %>,
 				foldersTotal: <%= foldersTotal %>
 			},
-			namespace: '<portlet:namespace />',
 			portletId: '<%= HtmlUtil.escapeJS(portletId) %>',
 			redirect: encodeURIComponent('<%= currentURL %>'),
 			repositories: [
 				{
 					id: '<%= scopeGroupId %>',
-					name: '<%= LanguageUtil.get(pageContext, "local") %>'
+					name: '<%= LanguageUtil.get(request, "local") %>'
 				}
 
 				<%
@@ -297,14 +309,26 @@ if (!defaultFolderView && (folder != null) && portletName.equals(PortletKeys.DOC
 
 			],
 			rowIds: '<%= RowChecker.ROW_IDS %>',
+			scopeGroupId: '<%= scopeGroupId %>',
 			select: {
 				displayViews: ['<%= StringUtil.merge(escapedDisplayViews, "','") %>']
 			},
 			syncMessageDisabled: <%= !PropsValues.DL_SHOW_LIFERAY_SYNC_MESSAGE %>,
 			syncMessageSuppressed: <%= !GetterUtil.getBoolean(SessionClicks.get(request, liferayPortletResponse.getNamespace() + "show-sync-message", "true")) %>,
+			trashEnabled: <%= TrashUtil.isTrashEnabled(scopeGroupId) %>,
 			updateable: <%= DLFolderPermission.contains(permissionChecker, scopeGroupId, folderId, ActionKeys.UPDATE) %>,
 			uploadURL: '<%= uploadURL %>',
 			viewFileEntryURL: '<portlet:renderURL><portlet:param name="struts_action" value="/document_library/view_file_entry" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>'
 		}
 	);
+
+	var clearDocumentLibraryHandles = function(event) {
+		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+			documentLibrary.destroy();
+
+			Liferay.detach('destroyPortlet', clearDocumentLibraryHandles);
+		}
+	};
+
+	Liferay.on('destroyPortlet', clearDocumentLibraryHandles);
 </aui:script>

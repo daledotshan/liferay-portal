@@ -15,7 +15,6 @@
 package com.liferay.portlet.ratings.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -40,17 +39,24 @@ public class RatingsEntryStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
-		RatingsEntry entry =
-			RatingsEntryLocalServiceUtil.fetchRatingsEntryByUuidAndCompanyId(
-				uuid, group.getCompanyId());
+		RatingsEntry entry = fetchStagedModelByUuidAndCompanyId(
+			uuid, group.getCompanyId());
 
 		if (entry != null) {
 			RatingsEntryLocalServiceUtil.deleteRatingsEntry(entry);
 		}
+	}
+
+	@Override
+	public RatingsEntry fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return RatingsEntryLocalServiceUtil.fetchRatingsEntryByUuidAndCompanyId(
+			uuid, companyId);
 	}
 
 	@Override

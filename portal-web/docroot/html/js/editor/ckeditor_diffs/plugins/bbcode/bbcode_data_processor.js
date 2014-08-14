@@ -39,6 +39,19 @@
 		strong: '_handleStrong'
 	};
 
+	var MAP_IMAGE_ATTRIBUTES = [
+		'alt',
+		'class',
+		'dir',
+		'height',
+		'id',
+		'lang',
+		'longdesc',
+		'style',
+		'title',
+		'width'
+	];
+
 	var MAP_LINK_HANDLERS = {
 		0: 'email'
 	};
@@ -56,8 +69,6 @@
 	var REGEX_LIST_ALPHA = /(upper|lower)-alpha/i;
 
 	var REGEX_NEWLINE = /\r?\n/g;
-
-	var REGEX_NOT_WHITESPACE = /[^\t\n\r ]/;
 
 	var REGEX_PERCENT = /%$/i;
 
@@ -93,7 +104,7 @@
 
 	var TAG_TD = 'td';
 
-	var TEMPLATE_IMAGE = '<img src="{image}">';
+	var tplImage = new CKEDITOR.template('<img src="{image}" />');
 
 	var emoticonImages;
 	var emoticonPath;
@@ -127,7 +138,11 @@
 			var length = emoticonSymbols.length;
 
 			for (var i = 0; i < length; i++) {
-				var image = TEMPLATE_IMAGE.replace('{image}', emoticonPath + emoticonImages[i]);
+				var image = tplImage.output(
+					{
+						image: emoticonPath + emoticonImages[i]
+					}
+				);
 
 				var escapedSymbol = emoticonSymbols[i].replace(REGEX_ESCAPE_REGEX, '\\$&');
 
@@ -317,14 +332,6 @@
 			return index;
 		},
 
-		_isLastItemNewLine: function() {
-			var instance = this;
-
-			var endResult = instance._endResult;
-
-			return (endResult && REGEX_LASTCHAR_NEWLINE_WHITESPACE.test(endResult.slice(-1)));
-		},
-
 		_handle: function(node) {
 			var instance = this;
 
@@ -497,12 +504,37 @@
 			else {
 				var attrSrc = element.getAttribute('src');
 
-				listTagsIn.push('[img]');
+				var openTag = '[img' + instance._handleImageAttributes(element) + ']';
 
+				listTagsIn.push(openTag);
 				listTagsIn.push(attrSrc);
 
 				listTagsOut.push('[/img]');
 			}
+		},
+
+		_handleImageAttributes: function(element) {
+			var attrs = '';
+
+			var length = MAP_IMAGE_ATTRIBUTES.length;
+
+			for (var i = 0; i < length; i++) {
+				var attrName = MAP_IMAGE_ATTRIBUTES[i];
+
+				var attrValue = element.getAttribute(attrName);
+
+				if (attrValue) {
+					attrs += ' ' + attrName + '="' + attrValue + '"';
+				}
+			}
+
+			return attrs;
+		},
+
+		_handleLineThrough: function(element, listTagsIn, listTagsOut) {
+			listTagsIn.push('[s]');
+
+			listTagsOut.push('[/s]');
 		},
 
 		_handleLink: function(element, listTagsIn, listTagsOut) {
@@ -531,12 +563,6 @@
 			}
 
 			listTagsIn.push('[*]');
-		},
-
-		_handleLineThrough: function(element, listTagsIn, listTagsOut) {
-			listTagsIn.push('[s]');
-
-			listTagsOut.push('[/s]');
 		},
 
 		_handleOrderedList: function(element, listTagsIn, listTagsOut) {
@@ -702,23 +728,6 @@
 			}
 		},
 
-		_handleStyleTextDecoration: function(element, stylesTagsIn, stylesTagsOut) {
-			var style = element.style;
-
-			var textDecoration = style.textDecoration.toLowerCase();
-
-			if (textDecoration == 'line-through') {
-				stylesTagsIn.push('[s]');
-
-				stylesTagsOut.push('[/s]');
-			}
-			else if (textDecoration == 'underline') {
-				stylesTagsIn.push('[u]');
-
-				stylesTagsOut.push('[/u]');
-			}
-		},
-
 		_handleStyles: function(element, stylesTagsIn, stylesTagsOut) {
 			var instance = this;
 
@@ -735,6 +744,23 @@
 				instance._handleStyleFontSize(element, stylesTagsIn, stylesTagsOut);
 				instance._handleStyleItalic(element, stylesTagsIn, stylesTagsOut);
 				instance._handleStyleTextDecoration(element, stylesTagsIn, stylesTagsOut);
+			}
+		},
+
+		_handleStyleTextDecoration: function(element, stylesTagsIn, stylesTagsOut) {
+			var style = element.style;
+
+			var textDecoration = style.textDecoration.toLowerCase();
+
+			if (textDecoration == 'line-through') {
+				stylesTagsIn.push('[s]');
+
+				stylesTagsOut.push('[/s]');
+			}
+			else if (textDecoration == 'underline') {
+				stylesTagsIn.push('[u]');
+
+				stylesTagsOut.push('[/u]');
 			}
 		},
 
@@ -794,6 +820,14 @@
 			listTagsIn.push('[list]');
 
 			listTagsOut.push('[/list]');
+		},
+
+		_isLastItemNewLine: function() {
+			var instance = this;
+
+			var endResult = instance._endResult;
+
+			return (endResult && REGEX_LASTCHAR_NEWLINE_WHITESPACE.test(endResult.slice(-1)));
 		},
 
 		_pushTagList: function(tagsList) {

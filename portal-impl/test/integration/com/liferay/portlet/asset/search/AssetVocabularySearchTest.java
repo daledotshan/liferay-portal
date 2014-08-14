@@ -18,12 +18,16 @@ import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.search.BaseSearchTestCase;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portlet.asset.model.AssetVocabulary;
+import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetVocabularyServiceUtil;
+
+import java.util.Locale;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,6 +35,7 @@ import org.junit.runner.RunWith;
 
 /**
  * @author Istvan Andras Dezsi
+ * @author Tibor Lipusz
  */
 @ExecutionTestListeners(
 	listeners = {
@@ -115,12 +120,27 @@ public class AssetVocabularySearchTest extends BaseSearchTestCase {
 
 	@Override
 	protected BaseModel<?> addBaseModelWithWorkflow(
+			BaseModel<?> parentBaseModel, boolean approved,
+			Map<Locale, String> keywordsMap, ServiceContext serviceContext)
+		throws Exception {
+
+		return AssetVocabularyServiceUtil.addVocabulary(
+			null, keywordsMap, null, null, serviceContext);
+	}
+
+	@Override
+	protected BaseModel<?> addBaseModelWithWorkflow(
 			BaseModel<?> parentBaseModel, boolean approved, String keywords,
 			ServiceContext serviceContext)
 		throws Exception {
 
 		return AssetVocabularyServiceUtil.addVocabulary(
 			keywords, serviceContext);
+	}
+
+	@Override
+	protected void deleteBaseModel(long primaryKey) throws Exception {
+		AssetVocabularyServiceUtil.deleteVocabulary(primaryKey);
 	}
 
 	@Override
@@ -131,6 +151,20 @@ public class AssetVocabularySearchTest extends BaseSearchTestCase {
 	@Override
 	protected String getSearchKeywords() {
 		return "Title";
+	}
+
+	@Override
+	protected BaseModel<?> updateBaseModel(
+			BaseModel<?> baseModel, String keywords,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		AssetVocabulary vocabulary = (AssetVocabulary)baseModel;
+
+		vocabulary.setTitle(keywords);
+
+		return AssetVocabularyLocalServiceUtil.updateAssetVocabulary(
+			vocabulary);
 	}
 
 }
