@@ -16,20 +16,19 @@ package com.liferay.portal.kernel.lar;
 
 import com.liferay.portal.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.trash.TrashHandler;
-import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.LocalizedModel;
 import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.model.WorkflowedModel;
+import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
 import com.liferay.portlet.messageboards.model.MBDiscussion;
@@ -56,7 +55,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 	@Override
 	public abstract void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException;
+		throws PortalException;
 
 	@Override
 	public void exportStagedModel(
@@ -104,6 +103,67 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 			throw pde;
 		}
+	}
+
+	@Override
+	public T fetchMissingReference(String uuid, long groupId) {
+
+		// Try to fetch the existing staged model from the importing group
+
+		T existingStagedModel = fetchStagedModelByUuidAndGroupId(uuid, groupId);
+
+		if (existingStagedModel != null) {
+			return existingStagedModel;
+		}
+
+		try {
+
+			// Try to fetch the existing staged model from the parent sites
+
+			Group originalGroup = GroupLocalServiceUtil.getGroup(groupId);
+
+			Group group = originalGroup.getParentGroup();
+
+			while (group != null) {
+				existingStagedModel = fetchStagedModelByUuidAndGroupId(
+					uuid, group.getGroupId());
+
+				if (existingStagedModel != null) {
+					break;
+				}
+
+				group = group.getParentGroup();
+			}
+
+			if (existingStagedModel == null) {
+				existingStagedModel =
+					fetchStagedModelByUuidAndCompanyId(
+						uuid, originalGroup.getCompanyId());
+			}
+
+			return existingStagedModel;
+		}
+		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
+			else if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to fetch missing reference staged model from " +
+						"group " + groupId);
+			}
+
+			return null;
+		}
+	}
+
+	@Override
+	public abstract T fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId);
+
+	@Override
+	public T fetchStagedModelByUuidAndGroupId(String uuid, long groupId) {
+		return null;
 	}
 
 	@Override
@@ -171,7 +231,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 		long liveGroupId = GetterUtil.getLong(
 			referenceElement.attributeValue("live-group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId, liveGroupId);
+		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
 
 		long classPK = GetterUtil.getLong(
 			referenceElement.attributeValue("class-pk"));
@@ -215,6 +275,12 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			PortletDataHandlerStatusMessageSenderUtil.sendStatusMessage(
 				"stagedModel", stagedModel, manifestSummary);
 
+			if (stagedModel instanceof LocalizedModel) {
+				LocalizedModel localizedModel = (LocalizedModel)stagedModel;
+
+				localizedModel.prepareLocalizedFieldsForImport();
+			}
+
 			if (stagedModel instanceof TrashedModel) {
 				restoreStagedModel(portletDataContext, stagedModel);
 			}
@@ -257,11 +323,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 	public boolean validateReference(
 		PortletDataContext portletDataContext, Element referenceElement) {
 
-		if (!validateMissingGroupReference(
-				portletDataContext, referenceElement)) {
-
-			return false;
-		}
+		validateMissingGroupReference(portletDataContext, referenceElement);
 
 		String uuid = referenceElement.attributeValue("uuid");
 
@@ -272,11 +334,10 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 		long liveGroupId = GetterUtil.getLong(
 			referenceElement.attributeValue("live-group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId, liveGroupId);
+		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
 
 		try {
-			return validateMissingReference(
-				uuid, portletDataContext.getCompanyId(), liveGroupId);
+			return validateMissingReference(uuid, liveGroupId);
 		}
 		catch (Exception e) {
 			return false;
@@ -314,7 +375,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 	protected void exportAssetCategories(
 			PortletDataContext portletDataContext, T stagedModel)
-		throws PortletDataException, SystemException {
+		throws PortletDataException {
 
 		List<AssetCategory> assetCategories =
 			AssetCategoryLocalServiceUtil.getCategories(
@@ -330,7 +391,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 	protected void exportComments(
 			PortletDataContext portletDataContext, T stagedModel)
-		throws PortletDataException, SystemException {
+		throws PortletDataException {
 
 		if (!MapUtil.getBoolean(
 				portletDataContext.getParameterMap(),
@@ -374,7 +435,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 	protected void exportRatings(
 			PortletDataContext portletDataContext, T stagedModel)
-		throws PortletDataException, SystemException {
+		throws PortletDataException {
 
 		if (!MapUtil.getBoolean(
 				portletDataContext.getParameterMap(),
@@ -510,33 +571,16 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			}
 		}
 
-		StagedModelType stagedModelType = stagedModel.getStagedModelType();
+		if (stagedModel instanceof TrashedModel) {
+			TrashedModel trashedModel = (TrashedModel)stagedModel;
 
-		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
-			stagedModelType.getClassName());
+			if (trashedModel.isInTrash()) {
+				PortletDataException pde = new PortletDataException(
+					PortletDataException.STATUS_IN_TRASH);
 
-		if (trashHandler != null) {
-			try {
-				long classPK = (Long)stagedModel.getPrimaryKeyObj();
+				pde.setStagedModel(stagedModel);
 
-				if (trashHandler.isInTrash(classPK)) {
-					PortletDataException pde = new PortletDataException(
-						PortletDataException.STATUS_IN_TRASH);
-
-					pde.setStagedModel(stagedModel);
-
-					throw pde;
-				}
-			}
-			catch (PortletDataException pde) {
 				throw pde;
-			}
-			catch (Exception e) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"Unable to check trash status for " +
-							stagedModel.getModelClassName());
-				}
 			}
 		}
 	}
@@ -553,9 +597,12 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 			portletDataContext, referenceElement);
 	}
 
-	protected boolean validateMissingReference(
-			String uuid, long companyId, long groupId)
-		throws Exception {
+	protected boolean validateMissingReference(String uuid, long groupId) {
+		T existingStagedModel = fetchMissingReference(uuid, groupId);
+
+		if (existingStagedModel == null) {
+			return false;
+		}
 
 		return true;
 	}

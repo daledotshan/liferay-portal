@@ -67,7 +67,7 @@
 			formAction=discussionURL?string
 			formName="fm" + entry.getClassPK()
 			ratingsEnabled=getterUtil.getBoolean(enableCommentRatings)
-			redirect=portalUtil.getCurrentURL(request)
+			redirect=currentURL
 			userId=assetRenderer.getUserId()
 		/>
 	</#if>
@@ -88,7 +88,7 @@
 			<@liferay_ui["icon"]
 				image="edit"
 				message=title
-				url="javascript:Liferay.Util.openWindow({dialog: {width: 960}, id:'" + renderResponse.getNamespace() + "editAsset', title: '" + title + "', uri:'" + htmlUtil.escapeURL(editPortletURL.toString()) + "'});"
+				url="javascript:Liferay.Util.openWindow({id:'" + renderResponse.getNamespace() + "editAsset', title: '" + title + "', uri:'" + htmlUtil.escapeURL(editPortletURL.toString()) + "'});"
 			/>
 		</#if>
 	</#if>

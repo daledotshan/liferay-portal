@@ -20,6 +20,8 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -68,11 +70,10 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param shard the shard
 	 * @return the shard that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public Shard addShard(Shard shard) throws SystemException {
+	public Shard addShard(Shard shard) {
 		shard.setNew(true);
 
 		return shardPersistence.update(shard);
@@ -95,12 +96,10 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param shardId the primary key of the shard
 	 * @return the shard that was removed
 	 * @throws PortalException if a shard with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public Shard deleteShard(long shardId)
-		throws PortalException, SystemException {
+	public Shard deleteShard(long shardId) throws PortalException {
 		return shardPersistence.remove(shardId);
 	}
 
@@ -109,11 +108,10 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param shard the shard
 	 * @return the shard that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public Shard deleteShard(Shard shard) throws SystemException {
+	public Shard deleteShard(Shard shard) {
 		return shardPersistence.remove(shard);
 	}
 
@@ -130,12 +128,9 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return shardPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -150,12 +145,10 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return shardPersistence.findWithDynamicQuery(dynamicQuery, start, end);
 	}
 
@@ -171,12 +164,10 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return shardPersistence.findWithDynamicQuery(dynamicQuery, start, end,
 			orderByComparator);
 	}
@@ -186,11 +177,9 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return shardPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -200,16 +189,15 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return shardPersistence.countWithDynamicQuery(dynamicQuery, projection);
 	}
 
 	@Override
-	public Shard fetchShard(long shardId) throws SystemException {
+	public Shard fetchShard(long shardId) {
 		return shardPersistence.fetchByPrimaryKey(shardId);
 	}
 
@@ -219,16 +207,46 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param shardId the primary key of the shard
 	 * @return the shard
 	 * @throws PortalException if a shard with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Shard getShard(long shardId) throws PortalException, SystemException {
+	public Shard getShard(long shardId) throws PortalException {
 		return shardPersistence.findByPrimaryKey(shardId);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.ShardLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(Shard.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("shardId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.ShardLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(Shard.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("shardId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return shardLocalService.deleteShard((Shard)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return shardPersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -242,10 +260,9 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of shards
 	 * @param end the upper bound of the range of shards (not inclusive)
 	 * @return the range of shards
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Shard> getShards(int start, int end) throws SystemException {
+	public List<Shard> getShards(int start, int end) {
 		return shardPersistence.findAll(start, end);
 	}
 
@@ -253,10 +270,9 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * Returns the number of shards.
 	 *
 	 * @return the number of shards
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getShardsCount() throws SystemException {
+	public int getShardsCount() {
 		return shardPersistence.countAll();
 	}
 
@@ -265,11 +281,10 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param shard the shard
 	 * @return the shard that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public Shard updateShard(Shard shard) throws SystemException {
+	public Shard updateShard(Shard shard) {
 		return shardPersistence.update(shard);
 	}
 
@@ -429,7 +444,7 @@ public abstract class ShardLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = shardPersistence.getDataSource();
 

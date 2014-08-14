@@ -22,18 +22,13 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
 import com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException;
@@ -44,9 +39,13 @@ import com.liferay.portlet.dynamicdatalists.service.persistence.DDLRecordVersion
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The persistence implementation for the d d l record version service.
@@ -110,11 +109,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 *
 	 * @param recordId the record ID
 	 * @return the matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DDLRecordVersion> findByRecordId(long recordId)
-		throws SystemException {
+	public List<DDLRecordVersion> findByRecordId(long recordId) {
 		return findByRecordId(recordId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -130,11 +127,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param start the lower bound of the range of d d l record versions
 	 * @param end the upper bound of the range of d d l record versions (not inclusive)
 	 * @return the range of matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DDLRecordVersion> findByRecordId(long recordId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByRecordId(recordId, start, end, null);
 	}
 
@@ -150,11 +146,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param end the upper bound of the range of d d l record versions (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DDLRecordVersion> findByRecordId(long recordId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<DDLRecordVersion> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -257,12 +252,11 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion findByRecordId_First(long recordId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRecordVersionException, SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator)
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = fetchByRecordId_First(recordId,
 				orderByComparator);
 
@@ -288,11 +282,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordId the record ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching d d l record version, or <code>null</code> if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion fetchByRecordId_First(long recordId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator) {
 		List<DDLRecordVersion> list = findByRecordId(recordId, 0, 1,
 				orderByComparator);
 
@@ -310,12 +303,11 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion findByRecordId_Last(long recordId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRecordVersionException, SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator)
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = fetchByRecordId_Last(recordId,
 				orderByComparator);
 
@@ -341,11 +333,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordId the record ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching d d l record version, or <code>null</code> if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion fetchByRecordId_Last(long recordId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator) {
 		int count = countByRecordId(recordId);
 
 		if (count == 0) {
@@ -370,12 +361,11 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion[] findByRecordId_PrevAndNext(long recordVersionId,
-		long recordId, OrderByComparator orderByComparator)
-		throws NoSuchRecordVersionException, SystemException {
+		long recordId, OrderByComparator<DDLRecordVersion> orderByComparator)
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = findByPrimaryKey(recordVersionId);
 
 		Session session = null;
@@ -405,7 +395,7 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 
 	protected DDLRecordVersion getByRecordId_PrevAndNext(Session session,
 		DDLRecordVersion ddlRecordVersion, long recordId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<DDLRecordVersion> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -512,10 +502,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * Removes all the d d l record versions where recordId = &#63; from the database.
 	 *
 	 * @param recordId the record ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByRecordId(long recordId) throws SystemException {
+	public void removeByRecordId(long recordId) {
 		for (DDLRecordVersion ddlRecordVersion : findByRecordId(recordId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(ddlRecordVersion);
@@ -527,10 +516,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 *
 	 * @param recordId the record ID
 	 * @return the number of matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByRecordId(long recordId) throws SystemException {
+	public int countByRecordId(long recordId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_RECORDID;
 
 		Object[] finderArgs = new Object[] { recordId };
@@ -594,11 +582,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param version the version
 	 * @return the matching d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion findByR_V(long recordId, String version)
-		throws NoSuchRecordVersionException, SystemException {
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = fetchByR_V(recordId, version);
 
 		if (ddlRecordVersion == null) {
@@ -630,11 +617,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordId the record ID
 	 * @param version the version
 	 * @return the matching d d l record version, or <code>null</code> if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public DDLRecordVersion fetchByR_V(long recordId, String version)
-		throws SystemException {
+	public DDLRecordVersion fetchByR_V(long recordId, String version) {
 		return fetchByR_V(recordId, version, true);
 	}
 
@@ -645,11 +630,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param version the version
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching d d l record version, or <code>null</code> if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion fetchByR_V(long recordId, String version,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { recordId, version };
 
 		Object result = null;
@@ -752,11 +736,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordId the record ID
 	 * @param version the version
 	 * @return the d d l record version that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion removeByR_V(long recordId, String version)
-		throws NoSuchRecordVersionException, SystemException {
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = findByR_V(recordId, version);
 
 		return remove(ddlRecordVersion);
@@ -768,11 +751,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordId the record ID
 	 * @param version the version
 	 * @return the number of matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByR_V(long recordId, String version)
-		throws SystemException {
+	public int countByR_V(long recordId, String version) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_R_V;
 
 		Object[] finderArgs = new Object[] { recordId, version };
@@ -867,11 +848,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordId the record ID
 	 * @param status the status
 	 * @return the matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DDLRecordVersion> findByR_S(long recordId, int status)
-		throws SystemException {
+	public List<DDLRecordVersion> findByR_S(long recordId, int status) {
 		return findByR_S(recordId, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -888,11 +867,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param start the lower bound of the range of d d l record versions
 	 * @param end the upper bound of the range of d d l record versions (not inclusive)
 	 * @return the range of matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DDLRecordVersion> findByR_S(long recordId, int status,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByR_S(recordId, status, start, end, null);
 	}
 
@@ -909,12 +887,11 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param end the upper bound of the range of d d l record versions (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DDLRecordVersion> findByR_S(long recordId, int status,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end,
+		OrderByComparator<DDLRecordVersion> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1027,12 +1004,11 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion findByR_S_First(long recordId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchRecordVersionException, SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator)
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = fetchByR_S_First(recordId, status,
 				orderByComparator);
 
@@ -1062,11 +1038,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching d d l record version, or <code>null</code> if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion fetchByR_S_First(long recordId, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator) {
 		List<DDLRecordVersion> list = findByR_S(recordId, status, 0, 1,
 				orderByComparator);
 
@@ -1085,12 +1060,11 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion findByR_S_Last(long recordId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchRecordVersionException, SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator)
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = fetchByR_S_Last(recordId, status,
 				orderByComparator);
 
@@ -1120,11 +1094,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching d d l record version, or <code>null</code> if a matching d d l record version could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion fetchByR_S_Last(long recordId, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator) {
 		int count = countByR_S(recordId, status);
 
 		if (count == 0) {
@@ -1150,12 +1123,12 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion[] findByR_S_PrevAndNext(long recordVersionId,
-		long recordId, int status, OrderByComparator orderByComparator)
-		throws NoSuchRecordVersionException, SystemException {
+		long recordId, int status,
+		OrderByComparator<DDLRecordVersion> orderByComparator)
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = findByPrimaryKey(recordVersionId);
 
 		Session session = null;
@@ -1185,7 +1158,7 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 
 	protected DDLRecordVersion getByR_S_PrevAndNext(Session session,
 		DDLRecordVersion ddlRecordVersion, long recordId, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<DDLRecordVersion> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1297,11 +1270,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 *
 	 * @param recordId the record ID
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByR_S(long recordId, int status)
-		throws SystemException {
+	public void removeByR_S(long recordId, int status) {
 		for (DDLRecordVersion ddlRecordVersion : findByR_S(recordId, status,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(ddlRecordVersion);
@@ -1314,10 +1285,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordId the record ID
 	 * @param status the status
 	 * @return the number of matching d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByR_S(long recordId, int status) throws SystemException {
+	public int countByR_S(long recordId, int status) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_R_S;
 
 		Object[] finderArgs = new Object[] { recordId, status };
@@ -1537,11 +1507,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordVersionId the primary key of the d d l record version
 	 * @return the d d l record version that was removed
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion remove(long recordVersionId)
-		throws NoSuchRecordVersionException, SystemException {
+		throws NoSuchRecordVersionException {
 		return remove((Serializable)recordVersionId);
 	}
 
@@ -1551,11 +1520,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param primaryKey the primary key of the d d l record version
 	 * @return the d d l record version that was removed
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion remove(Serializable primaryKey)
-		throws NoSuchRecordVersionException, SystemException {
+		throws NoSuchRecordVersionException {
 		Session session = null;
 
 		try {
@@ -1587,8 +1555,7 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	}
 
 	@Override
-	protected DDLRecordVersion removeImpl(DDLRecordVersion ddlRecordVersion)
-		throws SystemException {
+	protected DDLRecordVersion removeImpl(DDLRecordVersion ddlRecordVersion) {
 		ddlRecordVersion = toUnwrappedModel(ddlRecordVersion);
 
 		Session session = null;
@@ -1621,8 +1588,7 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 
 	@Override
 	public DDLRecordVersion updateImpl(
-		com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion ddlRecordVersion)
-		throws SystemException {
+		com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion ddlRecordVersion) {
 		ddlRecordVersion = toUnwrappedModel(ddlRecordVersion);
 
 		boolean isNew = ddlRecordVersion.isNew();
@@ -1744,11 +1710,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param primaryKey the primary key of the d d l record version
 	 * @return the d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchRecordVersionException, SystemException {
+		throws NoSuchRecordVersionException {
 		DDLRecordVersion ddlRecordVersion = fetchByPrimaryKey(primaryKey);
 
 		if (ddlRecordVersion == null) {
@@ -1769,11 +1734,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param recordVersionId the primary key of the d d l record version
 	 * @return the d d l record version
 	 * @throws com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDLRecordVersion findByPrimaryKey(long recordVersionId)
-		throws NoSuchRecordVersionException, SystemException {
+		throws NoSuchRecordVersionException {
 		return findByPrimaryKey((Serializable)recordVersionId);
 	}
 
@@ -1782,11 +1746,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 *
 	 * @param primaryKey the primary key of the d d l record version
 	 * @return the d d l record version, or <code>null</code> if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public DDLRecordVersion fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public DDLRecordVersion fetchByPrimaryKey(Serializable primaryKey) {
 		DDLRecordVersion ddlRecordVersion = (DDLRecordVersion)EntityCacheUtil.getResult(DDLRecordVersionModelImpl.ENTITY_CACHE_ENABLED,
 				DDLRecordVersionImpl.class, primaryKey);
 
@@ -1831,22 +1793,112 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 *
 	 * @param recordVersionId the primary key of the d d l record version
 	 * @return the d d l record version, or <code>null</code> if a d d l record version with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public DDLRecordVersion fetchByPrimaryKey(long recordVersionId)
-		throws SystemException {
+	public DDLRecordVersion fetchByPrimaryKey(long recordVersionId) {
 		return fetchByPrimaryKey((Serializable)recordVersionId);
+	}
+
+	@Override
+	public Map<Serializable, DDLRecordVersion> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, DDLRecordVersion> map = new HashMap<Serializable, DDLRecordVersion>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			DDLRecordVersion ddlRecordVersion = fetchByPrimaryKey(primaryKey);
+
+			if (ddlRecordVersion != null) {
+				map.put(primaryKey, ddlRecordVersion);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			DDLRecordVersion ddlRecordVersion = (DDLRecordVersion)EntityCacheUtil.getResult(DDLRecordVersionModelImpl.ENTITY_CACHE_ENABLED,
+					DDLRecordVersionImpl.class, primaryKey);
+
+			if (ddlRecordVersion == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, ddlRecordVersion);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_DDLRECORDVERSION_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (DDLRecordVersion ddlRecordVersion : (List<DDLRecordVersion>)q.list()) {
+				map.put(ddlRecordVersion.getPrimaryKeyObj(), ddlRecordVersion);
+
+				cacheResult(ddlRecordVersion);
+
+				uncachedPrimaryKeys.remove(ddlRecordVersion.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(DDLRecordVersionModelImpl.ENTITY_CACHE_ENABLED,
+					DDLRecordVersionImpl.class, primaryKey,
+					_nullDDLRecordVersion);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the d d l record versions.
 	 *
 	 * @return the d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DDLRecordVersion> findAll() throws SystemException {
+	public List<DDLRecordVersion> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1860,11 +1912,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param start the lower bound of the range of d d l record versions
 	 * @param end the upper bound of the range of d d l record versions (not inclusive)
 	 * @return the range of d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DDLRecordVersion> findAll(int start, int end)
-		throws SystemException {
+	public List<DDLRecordVersion> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -1879,11 +1929,10 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * @param end the upper bound of the range of d d l record versions (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DDLRecordVersion> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DDLRecordVersion> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1965,10 +2014,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	/**
 	 * Removes all the d d l record versions from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (DDLRecordVersion ddlRecordVersion : findAll()) {
 			remove(ddlRecordVersion);
 		}
@@ -1978,10 +2026,9 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * Returns the number of d d l record versions.
 	 *
 	 * @return the number of d d l record versions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -2016,25 +2063,6 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	 * Initializes the d d l record version persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<DDLRecordVersion>> listenersList = new ArrayList<ModelListener<DDLRecordVersion>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<DDLRecordVersion>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -2045,6 +2073,7 @@ public class DDLRecordVersionPersistenceImpl extends BasePersistenceImpl<DDLReco
 	}
 
 	private static final String _SQL_SELECT_DDLRECORDVERSION = "SELECT ddlRecordVersion FROM DDLRecordVersion ddlRecordVersion";
+	private static final String _SQL_SELECT_DDLRECORDVERSION_WHERE_PKS_IN = "SELECT ddlRecordVersion FROM DDLRecordVersion ddlRecordVersion WHERE recordVersionId IN (";
 	private static final String _SQL_SELECT_DDLRECORDVERSION_WHERE = "SELECT ddlRecordVersion FROM DDLRecordVersion ddlRecordVersion WHERE ";
 	private static final String _SQL_COUNT_DDLRECORDVERSION = "SELECT COUNT(ddlRecordVersion) FROM DDLRecordVersion ddlRecordVersion";
 	private static final String _SQL_COUNT_DDLRECORDVERSION_WHERE = "SELECT COUNT(ddlRecordVersion) FROM DDLRecordVersion ddlRecordVersion WHERE ";
