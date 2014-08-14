@@ -22,18 +22,13 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
 import com.liferay.portlet.blogs.NoSuchStatsUserException;
@@ -46,10 +41,14 @@ import java.io.Serializable;
 
 import java.sql.Timestamp;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The persistence implementation for the blogs stats user service.
@@ -114,11 +113,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param groupId the group ID
 	 * @return the matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findByGroupId(long groupId)
-		throws SystemException {
+	public List<BlogsStatsUser> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -133,11 +130,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param start the lower bound of the range of blogs stats users
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @return the range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<BlogsStatsUser> findByGroupId(long groupId, int start, int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -153,11 +148,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -260,12 +254,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByGroupId_First(groupId,
 				orderByComparator);
 
@@ -291,11 +284,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		List<BlogsStatsUser> list = findByGroupId(groupId, 0, 1,
 				orderByComparator);
 
@@ -313,12 +305,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByGroupId_Last(groupId,
 				orderByComparator);
 
@@ -344,11 +335,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -373,12 +363,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser[] findByGroupId_PrevAndNext(long statsUserId,
-		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		long groupId, OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = findByPrimaryKey(statsUserId);
 
 		Session session = null;
@@ -408,7 +397,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 
 	protected BlogsStatsUser getByGroupId_PrevAndNext(Session session,
 		BlogsStatsUser blogsStatsUser, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BlogsStatsUser> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -515,10 +504,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * Removes all the blogs stats users where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (BlogsStatsUser blogsStatsUser : findByGroupId(groupId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(blogsStatsUser);
@@ -530,10 +518,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -607,11 +594,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param userId the user ID
 	 * @return the matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findByUserId(long userId)
-		throws SystemException {
+	public List<BlogsStatsUser> findByUserId(long userId) {
 		return findByUserId(userId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -626,11 +611,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param start the lower bound of the range of blogs stats users
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @return the range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findByUserId(long userId, int start, int end)
-		throws SystemException {
+	public List<BlogsStatsUser> findByUserId(long userId, int start, int end) {
 		return findByUserId(userId, start, end, null);
 	}
 
@@ -646,11 +629,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByUserId(long userId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -753,12 +735,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByUserId_First(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByUserId_First(userId,
 				orderByComparator);
 
@@ -784,11 +765,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByUserId_First(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		List<BlogsStatsUser> list = findByUserId(userId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -805,12 +785,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByUserId_Last(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByUserId_Last(userId,
 				orderByComparator);
 
@@ -836,11 +815,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByUserId_Last(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		int count = countByUserId(userId);
 
 		if (count == 0) {
@@ -865,12 +843,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser[] findByUserId_PrevAndNext(long statsUserId,
-		long userId, OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		long userId, OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = findByPrimaryKey(statsUserId);
 
 		Session session = null;
@@ -900,7 +877,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 
 	protected BlogsStatsUser getByUserId_PrevAndNext(Session session,
 		BlogsStatsUser blogsStatsUser, long userId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BlogsStatsUser> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1007,10 +984,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * Removes all the blogs stats users where userId = &#63; from the database.
 	 *
 	 * @param userId the user ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUserId(long userId) throws SystemException {
+	public void removeByUserId(long userId) {
 		for (BlogsStatsUser blogsStatsUser : findByUserId(userId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(blogsStatsUser);
@@ -1022,10 +998,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param userId the user ID
 	 * @return the number of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUserId(long userId) throws SystemException {
+	public int countByUserId(long userId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_USERID;
 
 		Object[] finderArgs = new Object[] { userId };
@@ -1089,11 +1064,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param userId the user ID
 	 * @return the matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByG_U(long groupId, long userId)
-		throws NoSuchStatsUserException, SystemException {
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByG_U(groupId, userId);
 
 		if (blogsStatsUser == null) {
@@ -1125,11 +1099,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param groupId the group ID
 	 * @param userId the user ID
 	 * @return the matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public BlogsStatsUser fetchByG_U(long groupId, long userId)
-		throws SystemException {
+	public BlogsStatsUser fetchByG_U(long groupId, long userId) {
 		return fetchByG_U(groupId, userId, true);
 	}
 
@@ -1140,11 +1112,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param userId the user ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByG_U(long groupId, long userId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { groupId, userId };
 
 		Object result = null;
@@ -1232,11 +1203,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param groupId the group ID
 	 * @param userId the user ID
 	 * @return the blogs stats user that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser removeByG_U(long groupId, long userId)
-		throws NoSuchStatsUserException, SystemException {
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = findByG_U(groupId, userId);
 
 		return remove(blogsStatsUser);
@@ -1248,10 +1218,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param groupId the group ID
 	 * @param userId the user ID
 	 * @return the number of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_U(long groupId, long userId) throws SystemException {
+	public int countByG_U(long groupId, long userId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_U;
 
 		Object[] finderArgs = new Object[] { groupId, userId };
@@ -1323,11 +1292,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param groupId the group ID
 	 * @param entryCount the entry count
 	 * @return the matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findByG_NotE(long groupId, int entryCount)
-		throws SystemException {
+	public List<BlogsStatsUser> findByG_NotE(long groupId, int entryCount) {
 		return findByG_NotE(groupId, entryCount, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -1344,11 +1311,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param start the lower bound of the range of blogs stats users
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @return the range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByG_NotE(long groupId, int entryCount,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByG_NotE(groupId, entryCount, start, end, null);
 	}
 
@@ -1365,12 +1331,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByG_NotE(long groupId, int entryCount,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator<BlogsStatsUser> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1475,12 +1439,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByG_NotE_First(long groupId, int entryCount,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByG_NotE_First(groupId,
 				entryCount, orderByComparator);
 
@@ -1510,11 +1473,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param entryCount the entry count
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByG_NotE_First(long groupId, int entryCount,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		List<BlogsStatsUser> list = findByG_NotE(groupId, entryCount, 0, 1,
 				orderByComparator);
 
@@ -1533,12 +1495,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByG_NotE_Last(long groupId, int entryCount,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByG_NotE_Last(groupId, entryCount,
 				orderByComparator);
 
@@ -1568,11 +1529,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param entryCount the entry count
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByG_NotE_Last(long groupId, int entryCount,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		int count = countByG_NotE(groupId, entryCount);
 
 		if (count == 0) {
@@ -1598,12 +1558,12 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser[] findByG_NotE_PrevAndNext(long statsUserId,
-		long groupId, int entryCount, OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		long groupId, int entryCount,
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = findByPrimaryKey(statsUserId);
 
 		Session session = null;
@@ -1633,7 +1593,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 
 	protected BlogsStatsUser getByG_NotE_PrevAndNext(Session session,
 		BlogsStatsUser blogsStatsUser, long groupId, int entryCount,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BlogsStatsUser> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1745,11 +1705,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param groupId the group ID
 	 * @param entryCount the entry count
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_NotE(long groupId, int entryCount)
-		throws SystemException {
+	public void removeByG_NotE(long groupId, int entryCount) {
 		for (BlogsStatsUser blogsStatsUser : findByG_NotE(groupId, entryCount,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(blogsStatsUser);
@@ -1762,11 +1720,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param groupId the group ID
 	 * @param entryCount the entry count
 	 * @return the number of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_NotE(long groupId, int entryCount)
-		throws SystemException {
+	public int countByG_NotE(long groupId, int entryCount) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_G_NOTE;
 
 		Object[] finderArgs = new Object[] { groupId, entryCount };
@@ -1838,11 +1794,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param companyId the company ID
 	 * @param entryCount the entry count
 	 * @return the matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findByC_NotE(long companyId, int entryCount)
-		throws SystemException {
+	public List<BlogsStatsUser> findByC_NotE(long companyId, int entryCount) {
 		return findByC_NotE(companyId, entryCount, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -1859,11 +1813,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param start the lower bound of the range of blogs stats users
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @return the range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByC_NotE(long companyId, int entryCount,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByC_NotE(companyId, entryCount, start, end, null);
 	}
 
@@ -1880,12 +1833,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByC_NotE(long companyId, int entryCount,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator<BlogsStatsUser> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1990,12 +1941,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByC_NotE_First(long companyId, int entryCount,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByC_NotE_First(companyId,
 				entryCount, orderByComparator);
 
@@ -2025,11 +1975,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param entryCount the entry count
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByC_NotE_First(long companyId, int entryCount,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		List<BlogsStatsUser> list = findByC_NotE(companyId, entryCount, 0, 1,
 				orderByComparator);
 
@@ -2048,12 +1997,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByC_NotE_Last(long companyId, int entryCount,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByC_NotE_Last(companyId,
 				entryCount, orderByComparator);
 
@@ -2083,11 +2031,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param entryCount the entry count
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByC_NotE_Last(long companyId, int entryCount,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		int count = countByC_NotE(companyId, entryCount);
 
 		if (count == 0) {
@@ -2113,12 +2060,12 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser[] findByC_NotE_PrevAndNext(long statsUserId,
-		long companyId, int entryCount, OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		long companyId, int entryCount,
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = findByPrimaryKey(statsUserId);
 
 		Session session = null;
@@ -2148,7 +2095,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 
 	protected BlogsStatsUser getByC_NotE_PrevAndNext(Session session,
 		BlogsStatsUser blogsStatsUser, long companyId, int entryCount,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BlogsStatsUser> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2260,11 +2207,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param companyId the company ID
 	 * @param entryCount the entry count
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_NotE(long companyId, int entryCount)
-		throws SystemException {
+	public void removeByC_NotE(long companyId, int entryCount) {
 		for (BlogsStatsUser blogsStatsUser : findByC_NotE(companyId,
 				entryCount, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(blogsStatsUser);
@@ -2277,11 +2222,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param companyId the company ID
 	 * @param entryCount the entry count
 	 * @return the number of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_NotE(long companyId, int entryCount)
-		throws SystemException {
+	public int countByC_NotE(long companyId, int entryCount) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_C_NOTE;
 
 		Object[] finderArgs = new Object[] { companyId, entryCount };
@@ -2361,11 +2304,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param userId the user ID
 	 * @param lastPostDate the last post date
 	 * @return the matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findByU_L(long userId, Date lastPostDate)
-		throws SystemException {
+	public List<BlogsStatsUser> findByU_L(long userId, Date lastPostDate) {
 		return findByU_L(userId, lastPostDate, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2382,11 +2323,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param start the lower bound of the range of blogs stats users
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @return the range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByU_L(long userId, Date lastPostDate,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByU_L(userId, lastPostDate, start, end, null);
 	}
 
@@ -2403,12 +2343,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findByU_L(long userId, Date lastPostDate,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator<BlogsStatsUser> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2533,12 +2471,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByU_L_First(long userId, Date lastPostDate,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByU_L_First(userId, lastPostDate,
 				orderByComparator);
 
@@ -2568,11 +2505,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param lastPostDate the last post date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByU_L_First(long userId, Date lastPostDate,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		List<BlogsStatsUser> list = findByU_L(userId, lastPostDate, 0, 1,
 				orderByComparator);
 
@@ -2591,12 +2527,11 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByU_L_Last(long userId, Date lastPostDate,
-		OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByU_L_Last(userId, lastPostDate,
 				orderByComparator);
 
@@ -2626,11 +2561,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param lastPostDate the last post date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching blogs stats user, or <code>null</code> if a matching blogs stats user could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser fetchByU_L_Last(long userId, Date lastPostDate,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		int count = countByU_L(userId, lastPostDate);
 
 		if (count == 0) {
@@ -2656,12 +2590,12 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser[] findByU_L_PrevAndNext(long statsUserId,
-		long userId, Date lastPostDate, OrderByComparator orderByComparator)
-		throws NoSuchStatsUserException, SystemException {
+		long userId, Date lastPostDate,
+		OrderByComparator<BlogsStatsUser> orderByComparator)
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = findByPrimaryKey(statsUserId);
 
 		Session session = null;
@@ -2691,7 +2625,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 
 	protected BlogsStatsUser getByU_L_PrevAndNext(Session session,
 		BlogsStatsUser blogsStatsUser, long userId, Date lastPostDate,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BlogsStatsUser> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2814,11 +2748,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param userId the user ID
 	 * @param lastPostDate the last post date
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByU_L(long userId, Date lastPostDate)
-		throws SystemException {
+	public void removeByU_L(long userId, Date lastPostDate) {
 		for (BlogsStatsUser blogsStatsUser : findByU_L(userId, lastPostDate,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(blogsStatsUser);
@@ -2831,11 +2763,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param userId the user ID
 	 * @param lastPostDate the last post date
 	 * @return the number of matching blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByU_L(long userId, Date lastPostDate)
-		throws SystemException {
+	public int countByU_L(long userId, Date lastPostDate) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_U_L;
 
 		Object[] finderArgs = new Object[] { userId, lastPostDate };
@@ -3063,11 +2993,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param statsUserId the primary key of the blogs stats user
 	 * @return the blogs stats user that was removed
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser remove(long statsUserId)
-		throws NoSuchStatsUserException, SystemException {
+		throws NoSuchStatsUserException {
 		return remove((Serializable)statsUserId);
 	}
 
@@ -3077,11 +3006,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param primaryKey the primary key of the blogs stats user
 	 * @return the blogs stats user that was removed
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser remove(Serializable primaryKey)
-		throws NoSuchStatsUserException, SystemException {
+		throws NoSuchStatsUserException {
 		Session session = null;
 
 		try {
@@ -3113,8 +3041,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	}
 
 	@Override
-	protected BlogsStatsUser removeImpl(BlogsStatsUser blogsStatsUser)
-		throws SystemException {
+	protected BlogsStatsUser removeImpl(BlogsStatsUser blogsStatsUser) {
 		blogsStatsUser = toUnwrappedModel(blogsStatsUser);
 
 		Session session = null;
@@ -3147,8 +3074,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 
 	@Override
 	public BlogsStatsUser updateImpl(
-		com.liferay.portlet.blogs.model.BlogsStatsUser blogsStatsUser)
-		throws SystemException {
+		com.liferay.portlet.blogs.model.BlogsStatsUser blogsStatsUser) {
 		blogsStatsUser = toUnwrappedModel(blogsStatsUser);
 
 		boolean isNew = blogsStatsUser.isNew();
@@ -3280,11 +3206,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param primaryKey the primary key of the blogs stats user
 	 * @return the blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchStatsUserException, SystemException {
+		throws NoSuchStatsUserException {
 		BlogsStatsUser blogsStatsUser = fetchByPrimaryKey(primaryKey);
 
 		if (blogsStatsUser == null) {
@@ -3305,11 +3230,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param statsUserId the primary key of the blogs stats user
 	 * @return the blogs stats user
 	 * @throws com.liferay.portlet.blogs.NoSuchStatsUserException if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsStatsUser findByPrimaryKey(long statsUserId)
-		throws NoSuchStatsUserException, SystemException {
+		throws NoSuchStatsUserException {
 		return findByPrimaryKey((Serializable)statsUserId);
 	}
 
@@ -3318,11 +3242,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param primaryKey the primary key of the blogs stats user
 	 * @return the blogs stats user, or <code>null</code> if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public BlogsStatsUser fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public BlogsStatsUser fetchByPrimaryKey(Serializable primaryKey) {
 		BlogsStatsUser blogsStatsUser = (BlogsStatsUser)EntityCacheUtil.getResult(BlogsStatsUserModelImpl.ENTITY_CACHE_ENABLED,
 				BlogsStatsUserImpl.class, primaryKey);
 
@@ -3367,22 +3289,111 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 *
 	 * @param statsUserId the primary key of the blogs stats user
 	 * @return the blogs stats user, or <code>null</code> if a blogs stats user with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public BlogsStatsUser fetchByPrimaryKey(long statsUserId)
-		throws SystemException {
+	public BlogsStatsUser fetchByPrimaryKey(long statsUserId) {
 		return fetchByPrimaryKey((Serializable)statsUserId);
+	}
+
+	@Override
+	public Map<Serializable, BlogsStatsUser> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, BlogsStatsUser> map = new HashMap<Serializable, BlogsStatsUser>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			BlogsStatsUser blogsStatsUser = fetchByPrimaryKey(primaryKey);
+
+			if (blogsStatsUser != null) {
+				map.put(primaryKey, blogsStatsUser);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			BlogsStatsUser blogsStatsUser = (BlogsStatsUser)EntityCacheUtil.getResult(BlogsStatsUserModelImpl.ENTITY_CACHE_ENABLED,
+					BlogsStatsUserImpl.class, primaryKey);
+
+			if (blogsStatsUser == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, blogsStatsUser);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_BLOGSSTATSUSER_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (BlogsStatsUser blogsStatsUser : (List<BlogsStatsUser>)q.list()) {
+				map.put(blogsStatsUser.getPrimaryKeyObj(), blogsStatsUser);
+
+				cacheResult(blogsStatsUser);
+
+				uncachedPrimaryKeys.remove(blogsStatsUser.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(BlogsStatsUserModelImpl.ENTITY_CACHE_ENABLED,
+					BlogsStatsUserImpl.class, primaryKey, _nullBlogsStatsUser);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the blogs stats users.
 	 *
 	 * @return the blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findAll() throws SystemException {
+	public List<BlogsStatsUser> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -3396,11 +3407,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param start the lower bound of the range of blogs stats users
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @return the range of blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BlogsStatsUser> findAll(int start, int end)
-		throws SystemException {
+	public List<BlogsStatsUser> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -3415,11 +3424,10 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * @param end the upper bound of the range of blogs stats users (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BlogsStatsUser> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BlogsStatsUser> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3501,10 +3509,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	/**
 	 * Removes all the blogs stats users from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (BlogsStatsUser blogsStatsUser : findAll()) {
 			remove(blogsStatsUser);
 		}
@@ -3514,10 +3521,9 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * Returns the number of blogs stats users.
 	 *
 	 * @return the number of blogs stats users
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -3552,25 +3558,6 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	 * Initializes the blogs stats user persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.blogs.model.BlogsStatsUser")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<BlogsStatsUser>> listenersList = new ArrayList<ModelListener<BlogsStatsUser>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<BlogsStatsUser>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -3581,6 +3568,7 @@ public class BlogsStatsUserPersistenceImpl extends BasePersistenceImpl<BlogsStat
 	}
 
 	private static final String _SQL_SELECT_BLOGSSTATSUSER = "SELECT blogsStatsUser FROM BlogsStatsUser blogsStatsUser";
+	private static final String _SQL_SELECT_BLOGSSTATSUSER_WHERE_PKS_IN = "SELECT blogsStatsUser FROM BlogsStatsUser blogsStatsUser WHERE statsUserId IN (";
 	private static final String _SQL_SELECT_BLOGSSTATSUSER_WHERE = "SELECT blogsStatsUser FROM BlogsStatsUser blogsStatsUser WHERE ";
 	private static final String _SQL_COUNT_BLOGSSTATSUSER = "SELECT COUNT(blogsStatsUser) FROM BlogsStatsUser blogsStatsUser";
 	private static final String _SQL_COUNT_BLOGSSTATSUSER_WHERE = "SELECT COUNT(blogsStatsUser) FROM BlogsStatsUser blogsStatsUser WHERE ";

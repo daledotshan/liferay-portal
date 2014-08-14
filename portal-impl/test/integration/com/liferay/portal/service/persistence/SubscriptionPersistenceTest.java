@@ -15,7 +15,6 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchSubscriptionException;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -24,65 +23,73 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.model.Subscription;
 import com.liferay.portal.model.impl.SubscriptionModelImpl;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.service.SubscriptionLocalServiceUtil;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class SubscriptionPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<Subscription> iterator = _subscriptions.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Subscription subscription = _persistence.create(pk);
 
@@ -109,29 +116,29 @@ public class SubscriptionPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Subscription newSubscription = _persistence.create(pk);
 
-		newSubscription.setMvccVersion(ServiceTestUtil.nextLong());
+		newSubscription.setMvccVersion(RandomTestUtil.nextLong());
 
-		newSubscription.setCompanyId(ServiceTestUtil.nextLong());
+		newSubscription.setCompanyId(RandomTestUtil.nextLong());
 
-		newSubscription.setUserId(ServiceTestUtil.nextLong());
+		newSubscription.setUserId(RandomTestUtil.nextLong());
 
-		newSubscription.setUserName(ServiceTestUtil.randomString());
+		newSubscription.setUserName(RandomTestUtil.randomString());
 
-		newSubscription.setCreateDate(ServiceTestUtil.nextDate());
+		newSubscription.setCreateDate(RandomTestUtil.nextDate());
 
-		newSubscription.setModifiedDate(ServiceTestUtil.nextDate());
+		newSubscription.setModifiedDate(RandomTestUtil.nextDate());
 
-		newSubscription.setClassNameId(ServiceTestUtil.nextLong());
+		newSubscription.setClassNameId(RandomTestUtil.nextLong());
 
-		newSubscription.setClassPK(ServiceTestUtil.nextLong());
+		newSubscription.setClassPK(RandomTestUtil.nextLong());
 
-		newSubscription.setFrequency(ServiceTestUtil.randomString());
+		newSubscription.setFrequency(RandomTestUtil.randomString());
 
-		_persistence.update(newSubscription);
+		_subscriptions.add(_persistence.update(newSubscription));
 
 		Subscription existingSubscription = _persistence.findByPrimaryKey(newSubscription.getPrimaryKey());
 
@@ -162,7 +169,7 @@ public class SubscriptionPersistenceTest {
 	@Test
 	public void testCountByUserId() {
 		try {
-			_persistence.countByUserId(ServiceTestUtil.nextLong());
+			_persistence.countByUserId(RandomTestUtil.nextLong());
 
 			_persistence.countByUserId(0L);
 		}
@@ -174,8 +181,8 @@ public class SubscriptionPersistenceTest {
 	@Test
 	public void testCountByU_C() {
 		try {
-			_persistence.countByU_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByU_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByU_C(0L, 0L);
 		}
@@ -187,8 +194,8 @@ public class SubscriptionPersistenceTest {
 	@Test
 	public void testCountByC_C_C() {
 		try {
-			_persistence.countByC_C_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong());
+			_persistence.countByC_C_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
 			_persistence.countByC_C_C(0L, 0L, 0L);
 		}
@@ -200,9 +207,9 @@ public class SubscriptionPersistenceTest {
 	@Test
 	public void testCountByC_U_C_C() {
 		try {
-			_persistence.countByC_U_C_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByC_U_C_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByC_U_C_C(0L, 0L, 0L, 0L);
 		}
@@ -214,9 +221,9 @@ public class SubscriptionPersistenceTest {
 	@Test
 	public void testCountByC_U_C_CArrayable() {
 		try {
-			_persistence.countByC_U_C_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong(),
-				new long[] { ServiceTestUtil.nextLong(), 0L });
+			_persistence.countByC_U_C_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+				new long[] { RandomTestUtil.nextLong(), 0L });
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -234,7 +241,7 @@ public class SubscriptionPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -257,7 +264,7 @@ public class SubscriptionPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<Subscription> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Subscription",
 			"mvccVersion", true, "subscriptionId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
@@ -276,7 +283,7 @@ public class SubscriptionPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Subscription missingSubscription = _persistence.fetchByPrimaryKey(pk);
 
@@ -284,19 +291,103 @@ public class SubscriptionPersistenceTest {
 	}
 
 	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		Subscription newSubscription1 = addSubscription();
+		Subscription newSubscription2 = addSubscription();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSubscription1.getPrimaryKey());
+		primaryKeys.add(newSubscription2.getPrimaryKey());
+
+		Map<Serializable, Subscription> subscriptions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, subscriptions.size());
+		Assert.assertEquals(newSubscription1,
+			subscriptions.get(newSubscription1.getPrimaryKey()));
+		Assert.assertEquals(newSubscription2,
+			subscriptions.get(newSubscription2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, Subscription> subscriptions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(subscriptions.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		Subscription newSubscription = addSubscription();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSubscription.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, Subscription> subscriptions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, subscriptions.size());
+		Assert.assertEquals(newSubscription,
+			subscriptions.get(newSubscription.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, Subscription> subscriptions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(subscriptions.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		Subscription newSubscription = addSubscription();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSubscription.getPrimaryKey());
+
+		Map<Serializable, Subscription> subscriptions = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, subscriptions.size());
+		Assert.assertEquals(newSubscription,
+			subscriptions.get(newSubscription.getPrimaryKey()));
+	}
+
+	@Test
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new SubscriptionActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = SubscriptionLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					Subscription subscription = (Subscription)object;
 
 					Assert.assertNotNull(subscription);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -329,7 +420,7 @@ public class SubscriptionPersistenceTest {
 				Subscription.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("subscriptionId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<Subscription> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -370,7 +461,7 @@ public class SubscriptionPersistenceTest {
 				"subscriptionId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("subscriptionId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -400,34 +491,34 @@ public class SubscriptionPersistenceTest {
 	}
 
 	protected Subscription addSubscription() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Subscription subscription = _persistence.create(pk);
 
-		subscription.setMvccVersion(ServiceTestUtil.nextLong());
+		subscription.setMvccVersion(RandomTestUtil.nextLong());
 
-		subscription.setCompanyId(ServiceTestUtil.nextLong());
+		subscription.setCompanyId(RandomTestUtil.nextLong());
 
-		subscription.setUserId(ServiceTestUtil.nextLong());
+		subscription.setUserId(RandomTestUtil.nextLong());
 
-		subscription.setUserName(ServiceTestUtil.randomString());
+		subscription.setUserName(RandomTestUtil.randomString());
 
-		subscription.setCreateDate(ServiceTestUtil.nextDate());
+		subscription.setCreateDate(RandomTestUtil.nextDate());
 
-		subscription.setModifiedDate(ServiceTestUtil.nextDate());
+		subscription.setModifiedDate(RandomTestUtil.nextDate());
 
-		subscription.setClassNameId(ServiceTestUtil.nextLong());
+		subscription.setClassNameId(RandomTestUtil.nextLong());
 
-		subscription.setClassPK(ServiceTestUtil.nextLong());
+		subscription.setClassPK(RandomTestUtil.nextLong());
 
-		subscription.setFrequency(ServiceTestUtil.randomString());
+		subscription.setFrequency(RandomTestUtil.randomString());
 
-		_persistence.update(subscription);
+		_subscriptions.add(_persistence.update(subscription));
 
 		return subscription;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SubscriptionPersistenceTest.class);
-	private SubscriptionPersistence _persistence = (SubscriptionPersistence)PortalBeanLocatorUtil.locate(SubscriptionPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<Subscription> _subscriptions = new ArrayList<Subscription>();
+	private SubscriptionPersistence _persistence = SubscriptionUtil.getPersistence();
 }
