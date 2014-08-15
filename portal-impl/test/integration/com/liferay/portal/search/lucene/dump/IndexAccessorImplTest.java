@@ -18,8 +18,8 @@ import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.search.lucene.IndexAccessorImpl;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.PropsValues;
 
 import java.io.ByteArrayInputStream;
@@ -44,14 +44,12 @@ import org.junit.runner.RunWith;
  * @author Shuyang Zhou
  * @author Mate Thurzo
  */
-@ExecutionTestListeners(listeners = {EnvironmentExecutionTestListener.class})
+@ExecutionTestListeners(listeners = {MainServletExecutionTestListener.class})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class IndexAccessorImplTest {
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
-		System.gc();
-
 		String indexPath = PropsValues.LUCENE_DIR.concat(
 			String.valueOf(_TEST_COMPANY_ID)).concat(StringPool.SLASH);
 

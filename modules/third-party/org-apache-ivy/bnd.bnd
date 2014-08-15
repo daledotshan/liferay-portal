@@ -1,0 +1,4 @@
+Bundle-SymbolicName: org.apache.ivy
+Bundle-Version: 2.3.0.LIFERAY-PATCHED-1
+Export-Package: *
+Include-Resource: classes
