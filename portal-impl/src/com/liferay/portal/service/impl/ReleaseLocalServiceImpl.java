@@ -22,6 +22,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.upgrade.UpgradeException;
+import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -30,12 +33,15 @@ import com.liferay.portal.model.Release;
 import com.liferay.portal.model.ReleaseConstants;
 import com.liferay.portal.service.base.ReleaseLocalServiceBaseImpl;
 import com.liferay.portal.util.PropsUtil;
+import com.liferay.portal.util.PropsValues;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Brian Wing Shun Chan
@@ -43,9 +49,7 @@ import java.util.Date;
 public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 	@Override
-	public Release addRelease(String servletContextName, int buildNumber)
-		throws SystemException {
-
+	public Release addRelease(String servletContextName, int buildNumber) {
 		Release release = null;
 
 		if (servletContextName.equals(
@@ -78,7 +82,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void createTablesAndPopulate() throws SystemException {
+	public void createTablesAndPopulate() {
 		try {
 			if (_log.isInfoEnabled()) {
 				_log.info("Create tables and populate with default data");
@@ -101,9 +105,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	}
 
 	@Override
-	public Release fetchRelease(String servletContextName)
-		throws SystemException {
-
+	public Release fetchRelease(String servletContextName) {
 		if (Validator.isNull(servletContextName)) {
 			throw new IllegalArgumentException("Servlet context name is null");
 		}
@@ -125,8 +127,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	}
 
 	@Override
-	public int getBuildNumberOrCreate()
-		throws PortalException, SystemException {
+	public int getBuildNumberOrCreate() throws PortalException {
 
 		// Get release build number
 
@@ -198,7 +199,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	@Override
 	public Release updateRelease(
 			long releaseId, int buildNumber, Date buildDate, boolean verified)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Release release = releasePersistence.findByPrimaryKey(releaseId);
 
@@ -212,9 +213,71 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		return release;
 	}
 
-	protected void testSupportsStringCaseSensitiveQuery()
-		throws SystemException {
+	@Override
+	public void updateRelease(
+			String servletContextName, List<UpgradeProcess> upgradeProcesses,
+			int buildNumber, int previousBuildNumber, boolean indexOnUpgrade)
+		throws PortalException {
 
+		if (buildNumber <= 0) {
+			_log.error(
+				"Skipping upgrade processes for " + servletContextName +
+					" because \"release.info.build.number\" is not specified");
+
+			return;
+		}
+
+		Release release = releaseLocalService.fetchRelease(servletContextName);
+
+		if (release == null) {
+			release = releaseLocalService.addRelease(
+				servletContextName, previousBuildNumber);
+		}
+
+		if (buildNumber == release.getBuildNumber()) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Skipping upgrade processes for " + servletContextName +
+						" because it is already up to date");
+			}
+		}
+		else if (buildNumber < release.getBuildNumber()) {
+			throw new UpgradeException(
+				"Skipping upgrade processes for " + servletContextName +
+					" because you are trying to upgrade with an older version");
+		}
+		else {
+			UpgradeProcessUtil.upgradeProcess(
+				release.getBuildNumber(), upgradeProcesses, indexOnUpgrade);
+		}
+
+		releaseLocalService.updateRelease(
+			release.getReleaseId(), buildNumber, null, true);
+	}
+
+	@Override
+	public void updateRelease(
+			String servletContextName, List<UpgradeProcess> upgradeProcesses,
+			Properties unfilteredPortalProperties)
+		throws Exception {
+
+		int buildNumber = GetterUtil.getInteger(
+			unfilteredPortalProperties.getProperty(
+				PropsKeys.RELEASE_INFO_BUILD_NUMBER));
+		int previousBuildNumber = GetterUtil.getInteger(
+			unfilteredPortalProperties.getProperty(
+				PropsKeys.RELEASE_INFO_PREVIOUS_BUILD_NUMBER),
+			buildNumber);
+		boolean indexOnUpgrade = GetterUtil.getBoolean(
+			unfilteredPortalProperties.getProperty(PropsKeys.INDEX_ON_UPGRADE),
+			PropsValues.INDEX_ON_UPGRADE);
+
+		updateRelease(
+			servletContextName, upgradeProcesses, buildNumber,
+			previousBuildNumber, indexOnUpgrade);
+	}
+
+	protected void testSupportsStringCaseSensitiveQuery() {
 		DB db = DBFactoryUtil.getDB();
 
 		int count = testSupportsStringCaseSensitiveQuery(

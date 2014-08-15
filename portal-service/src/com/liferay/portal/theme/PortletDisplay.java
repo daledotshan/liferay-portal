@@ -14,8 +14,6 @@
 
 package com.liferay.portal.theme;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -23,8 +21,6 @@ import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.settings.Settings;
-import com.liferay.portal.settings.SettingsFactoryUtil;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -33,6 +29,12 @@ import java.io.Writer;
 import javax.portlet.PortletPreferences;
 
 /**
+ * Provides general configuration methods for the portlet, providing access to
+ * the portlet's content, instance, theme, URLs, and more. This class contains
+ * contextual information about the currently rendered portlet. An object of this
+ * class is only available in the context of a single portlet and is not
+ * available in the context of any page.
+ *
  * @author Brian Wing Shun Chan
  * @author Eduardo Lundgren
  */
@@ -192,6 +194,15 @@ public class PortletDisplay implements Serializable {
 		return _content;
 	}
 
+	/**
+	 * Returns the control panel category where the current portlet resides. A
+	 * portlet's control panel category is configured in its
+	 * <code>liferay-portlet.xml</code> file.
+	 *
+	 * @return the control panel category where the current portlet resides, or
+	 * an empty string if the portlet is not configured to appear in the
+	 * control panel.
+	 */
 	public String getControlPanelCategory() {
 		return _controlPanelCategory;
 	}
@@ -216,21 +227,12 @@ public class PortletDisplay implements Serializable {
 		return _namespace;
 	}
 
-	public Settings getPortletInstanceSettings()
-		throws PortalException, SystemException {
-
-		String portletId = _id;
-
-		if (Validator.isNotNull(_portletResource)) {
-			portletId = _portletResource;
-		}
-
-		return SettingsFactoryUtil.getPortletInstanceSettings(
-			_themeDisplay.getLayout(), portletId);
-	}
-
 	public String getPortletName() {
 		return _portletName;
+	}
+
+	public String getPortletResource() {
+		return _portletResource;
 	}
 
 	public PortletPreferences getPortletSetup() {
@@ -738,8 +740,6 @@ public class PortletDisplay implements Serializable {
 	}
 
 	public void setTitle(String title) {
-		title = HtmlUtil.escape(title);
-
 		_title = title;
 
 		// LEP-5317

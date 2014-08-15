@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -60,19 +59,25 @@ public class LayoutSetPrototypeStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
 		LayoutSetPrototype layoutSetPrototype =
-			LayoutSetPrototypeLocalServiceUtil.
-				fetchLayoutSetPrototypeByUuidAndCompanyId(
-					uuid, group.getCompanyId());
+			fetchStagedModelByUuidAndGroupId(uuid, group.getCompanyId());
 
 		if (layoutSetPrototype != null) {
 			LayoutSetPrototypeLocalServiceUtil.deleteLayoutSetPrototype(
 				layoutSetPrototype);
 		}
+	}
+
+	@Override
+	public LayoutSetPrototype fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return LayoutSetPrototypeLocalServiceUtil.
+			fetchLayoutSetPrototypeByUuidAndCompanyId(uuid, companyId);
 	}
 
 	@Override
@@ -124,10 +129,9 @@ public class LayoutSetPrototypeStagedModelDataHandler
 
 		if (portletDataContext.isDataStrategyMirror()) {
 			LayoutSetPrototype existingLayoutSetPrototype =
-				LayoutSetPrototypeLocalServiceUtil.
-					fetchLayoutSetPrototypeByUuidAndCompanyId(
-						layoutSetPrototype.getUuid(),
-						portletDataContext.getCompanyId());
+				fetchStagedModelByUuidAndCompanyId(
+					layoutSetPrototype.getUuid(),
+					portletDataContext.getCompanyId());
 
 			if (existingLayoutSetPrototype == null) {
 				serviceContext.setUuid(layoutSetPrototype.getUuid());
@@ -288,7 +292,7 @@ public class LayoutSetPrototypeStagedModelDataHandler
 			LayoutSetPrototype layoutSetPrototype,
 			LayoutSetPrototype importedLayoutSetPrototype,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		InputStream inputStream = null;
 
@@ -307,22 +311,6 @@ public class LayoutSetPrototypeStagedModelDataHandler
 		finally {
 			StreamUtil.cleanUp(inputStream);
 		}
-	}
-
-	@Override
-	protected boolean validateMissingReference(
-			String uuid, long companyId, long groupId)
-		throws Exception {
-
-		LayoutSetPrototype layoutSetPrototype =
-			LayoutSetPrototypeLocalServiceUtil.
-				fetchLayoutSetPrototypeByUuidAndCompanyId(uuid, companyId);
-
-		if (layoutSetPrototype == null) {
-			return false;
-		}
-
-		return true;
 	}
 
 }

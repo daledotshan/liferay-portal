@@ -30,7 +30,7 @@
 </tr>
 <tr>
 	<td>ADD_TASK_BUTTON</td>
-	<td>//a[@class='add-task']</td>
+	<td>//a[contains(.,'Add Task')]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -51,6 +51,11 @@
 <tr>
 	<td>SHOW_COMPLETED_TASKS_CHECKBOX</td>
 	<td>//input[@name='all-tasks']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TASK_IFRAME</td>
+	<td>//iframe[contains(@id,'tasksportlet_Dialog_iframe')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -107,27 +112,42 @@
 </tr>
 <tr>
 	<td>TASK_REPORTER</td>
-	<td>//div[@class='result-data']/span[contains(.,'Reporter')]</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[@class='result-data']/span[contains(.,'Reporter')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TASK_ASSIGNEE</td>
-	<td>//div[@class='result-data']/span[contains(.,'Assignee')]</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[@class='result-data']/span[contains(.,'Assignee')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TASK_DUE_DATE</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[@class='due-date']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TASK_DUE_DATE_PAST_DUE</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[@class='due-date past-due']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TASK_PROGRESS_BAR_VISIBLE</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[contains(@class,'progress-wrapper')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TASK_PROGRESS_BAR</td>
-	<td>//div[contains(@class,'progress-picker')]</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[contains(@class,'progress-picker')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TASK_PROGRESS_BAR_PERCENT_CLICK</td>
-	<td>//div[contains(@class,'progress-picker')]/div[@class='progress-selector']/a[@class='progress-${key_percentCompletion}']</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[contains(@class,'progress-picker')]/div[@class='progress-selector']/a[@class='progress-${key_percentCompletion}']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TASK_PROGRESS_BAR_PERCENT_COMPLETION</td>
-	<td>//div[@class='progress' and contains(@style,'${key_percentCompletion}%')]</td>
+	<td>//tr[contains(.,'${key_taskDescription}')]//div[@class='progress' and contains(@style,'${key_percentCompletion}%')]</td>
 	<td></td>
 </tr>
 <tr>

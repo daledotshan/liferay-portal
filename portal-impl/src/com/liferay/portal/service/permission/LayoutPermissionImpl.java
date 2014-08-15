@@ -15,7 +15,7 @@
 package com.liferay.portal.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.staging.permission.StagingPermissionUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
@@ -46,13 +46,16 @@ import java.util.List;
  * @author Brian Wing Shun Chan
  * @author Raymond Augé
  */
+@OSGiBeanProperties(
+	property = {"model.class.name=com.liferay.portal.model.Layout"}
+)
 public class LayoutPermissionImpl
 	implements BaseModelPermissionChecker, LayoutPermission {
 
 	@Override
 	public void check(
 			PermissionChecker permissionChecker, Layout layout, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!contains(permissionChecker, layout, actionId)) {
 			throw new PrincipalException();
@@ -63,7 +66,7 @@ public class LayoutPermissionImpl
 	public void check(
 			PermissionChecker permissionChecker, long groupId,
 			boolean privateLayout, long layoutId, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!contains(
 				permissionChecker, groupId, privateLayout, layoutId,
@@ -76,7 +79,7 @@ public class LayoutPermissionImpl
 	@Override
 	public void check(
 			PermissionChecker permissionChecker, long plid, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!contains(permissionChecker, plid, actionId)) {
 			throw new PrincipalException();
@@ -87,7 +90,7 @@ public class LayoutPermissionImpl
 	public void checkBaseModel(
 			PermissionChecker permissionChecker, long groupId, long primaryKey,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		check(permissionChecker, primaryKey, actionId);
 	}
@@ -96,7 +99,7 @@ public class LayoutPermissionImpl
 	public boolean contains(
 			PermissionChecker permissionChecker, Layout layout,
 			boolean checkViewableGroup, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (isAttemptToModifyLockedLayout(layout, actionId)) {
 			return false;
@@ -117,7 +120,7 @@ public class LayoutPermissionImpl
 	@Override
 	public boolean contains(
 			PermissionChecker permissionChecker, Layout layout, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return contains(permissionChecker, layout, false, actionId);
 	}
@@ -132,7 +135,7 @@ public class LayoutPermissionImpl
 			PermissionChecker permissionChecker, Layout layout,
 			String controlPanelCategory, boolean checkViewableGroup,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return contains(
 			permissionChecker, layout, checkViewableGroup, actionId);
@@ -147,7 +150,7 @@ public class LayoutPermissionImpl
 	public boolean contains(
 			PermissionChecker permissionChecker, Layout layout,
 			String controlPanelCategory, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return contains(permissionChecker, layout, actionId);
 	}
@@ -156,7 +159,7 @@ public class LayoutPermissionImpl
 	public boolean contains(
 			PermissionChecker permissionChecker, long groupId,
 			boolean privateLayout, long layoutId, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Layout layout = LayoutLocalServiceUtil.getLayout(
 			groupId, privateLayout, layoutId);
@@ -174,7 +177,7 @@ public class LayoutPermissionImpl
 			PermissionChecker permissionChecker, long groupId,
 			boolean privateLayout, long layoutId, String controlPanelCategory,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return contains(
 			permissionChecker, groupId, privateLayout, layoutId, actionId);
@@ -183,7 +186,7 @@ public class LayoutPermissionImpl
 	@Override
 	public boolean contains(
 			PermissionChecker permissionChecker, long plid, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Layout layout = LayoutLocalServiceUtil.getLayout(plid);
 
@@ -194,7 +197,7 @@ public class LayoutPermissionImpl
 	public boolean containsWithoutViewableGroup(
 			PermissionChecker permissionChecker, Layout layout,
 			boolean checkLayoutUpdateable, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (layout.isTypeControlPanel()) {
 			return false;
@@ -327,7 +330,7 @@ public class LayoutPermissionImpl
 	@Override
 	public boolean containsWithoutViewableGroup(
 			PermissionChecker permissionChecker, Layout layout, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return containsWithoutViewableGroup(
 			permissionChecker, layout, true, actionId);
@@ -344,7 +347,7 @@ public class LayoutPermissionImpl
 			PermissionChecker permissionChecker, Layout layout,
 			String controlPanelCategory, boolean checkLayoutUpdateable,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return containsWithoutViewableGroup(
 			permissionChecker, layout, checkLayoutUpdateable, actionId);
@@ -360,7 +363,7 @@ public class LayoutPermissionImpl
 	public boolean containsWithoutViewableGroup(
 			PermissionChecker permissionChecker, Layout layout,
 			String controlPanelCategory, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return containsWithoutViewableGroup(
 			permissionChecker, layout, actionId);
@@ -369,7 +372,7 @@ public class LayoutPermissionImpl
 	protected boolean containsWithViewableGroup(
 			PermissionChecker permissionChecker, Layout layout,
 			boolean checkViewableGroup, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (actionId.equals(ActionKeys.VIEW) && checkViewableGroup) {
 			return isViewableGroup(
@@ -396,7 +399,7 @@ public class LayoutPermissionImpl
 	protected boolean isViewableGroup(
 			PermissionChecker permissionChecker, Layout layout,
 			boolean checkResourcePermission)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(layout.getGroupId());
 
