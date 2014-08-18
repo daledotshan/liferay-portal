@@ -61,6 +61,8 @@
 	};
 
 	var Util = {
+		MAP_HTML_CHARS_ESCAPED: MAP_HTML_CHARS_ESCAPED,
+
 		submitCountdown: 0,
 
 		actsAsAspect: function(object) {
@@ -104,8 +106,7 @@
 				function(A) {
 					new A.ButtonSearchCancel(
 						{
-							trigger: 'input[type=password], input[type=search], input.clearable, input.search-query',
-							zIndex: Liferay.zIndex.WINDOW + 100
+							trigger: 'input[type=password], input[type=search], input.clearable, input.search-query'
 						}
 					);
 				}
@@ -167,7 +168,7 @@
 					var defaultType = 'text';
 
 					el.all('input').each(
-						function(item, index, collection) {
+						function(item, index) {
 							var type = item.get('type') || defaultType;
 
 							item.addClass(type);
@@ -264,14 +265,14 @@
 		},
 
 		disableFormButtons: function(inputs, form) {
-			inputs.set('disabled', true);
+			inputs.attr('disabled', true);
 			inputs.setStyle('opacity', 0.5);
 
 			if (A.UA.gecko) {
 				A.getWin().on(
 					'unload',
 					function(event) {
-						inputs.set('disabled', false);
+						inputs.attr('disabled', false);
 					}
 				);
 			}
@@ -282,12 +283,8 @@
 
 			document.body.style.cursor = 'auto';
 
-			inputs.set('disabled', false);
+			inputs.attr('disabled', false);
 			inputs.setStyle('opacity', 1);
-		},
-
-		endsWith: function(str, x) {
-			return (str.lastIndexOf(x) === (str.length - x.length));
 		},
 
 		escapeCDATA: function(str) {
@@ -360,7 +357,7 @@
 
 				while (length--) {
 					var attr = attrs[length];
-					var name = attr.nodeName;
+					var name = attr.nodeName.toLowerCase();
 					var value = attr.nodeValue;
 
 					if (isGetterString) {
@@ -392,17 +389,22 @@
 			return columnId;
 		},
 
-		getGeolocation: function(callback) {
-			if (callback && navigator.geolocation) {
+		getGeolocation: function(success, fallback, options) {
+			if (success && navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(
 					function(position) {
-						callback.call(
-							this,
+						success(
 							position.coords.latitude,
-							position.coords.longitude
+							position.coords.longitude,
+							position
 						);
-					}
+					},
+					fallback,
+					options
 				);
+			}
+			else if (fallback) {
+				fallback();
 			}
 		},
 
@@ -479,22 +481,6 @@
 			return topWindow;
 		},
 
-		getWindow: function(id) {
-			if (!id) {
-				id = Util.getWindowName();
-			}
-
-			return Util.getTop().Liferay.Util.Window.getById(id);
-		},
-
-		getWindowName: function() {
-			return window.name || Window._name || '';
-		},
-
-		getWindowWidth: function() {
-			return (window.innerWidth > 0) ? window.innerWidth : screen.width;
-		},
-
 		getURLWithSessionId: function(url) {
 			if (!themeDisplay.isAddSessionIdToURL()) {
 				return url;
@@ -532,8 +518,69 @@
 			return url + sessionId;
 		},
 
-		isArray: function(object) {
-			return !!(window.Array && object.constructor == window.Array);
+		getWindow: function(id) {
+			if (!id) {
+				id = Util.getWindowName();
+			}
+
+			return Util.getTop().Liferay.Util.Window.getById(id);
+		},
+
+		getWindowName: function() {
+			return window.name || Window._name || '';
+		},
+
+		getWindowWidth: function() {
+			return (window.innerWidth > 0) ? window.innerWidth : screen.width;
+		},
+
+		inBrowserView: function(node, win, nodeRegion) {
+			var DOM = A.DOM;
+
+			var viewable = false;
+
+			node = A.one(node);
+
+			if (node) {
+				if (!nodeRegion) {
+					nodeRegion = node.get('region');
+				}
+
+				if (!win) {
+					win = window;
+				}
+
+				var winRegion = DOM.viewportRegion(win);
+
+				var viewable = (
+					nodeRegion.bottom <= winRegion.bottom &&
+					nodeRegion.left >= winRegion.left &&
+					nodeRegion.right <= winRegion.right &&
+					nodeRegion.top >= winRegion.top
+				);
+
+				if (viewable) {
+					var frameEl = win.frameElement;
+
+					if (frameEl) {
+						var frameXY = DOM.getXY(frameEl);
+
+						var xOffset = frameXY[0] - DOM.docScrollX(win);
+
+						nodeRegion.left += xOffset;
+						nodeRegion.right += xOffset;
+
+						var yOffset = frameXY[1] - DOM.docScrollY(win);
+
+						nodeRegion.top += yOffset;
+						nodeRegion.bottom += yOffset;
+
+						viewable = Util.inBrowserView(node, win.parent, nodeRegion);
+					}
+				}
+			}
+
+			return viewable;
 		},
 
 		isEditorPresent: function(editorImpl) {
@@ -567,7 +614,7 @@
 
 				A.Object.each(
 					obj,
-					function(item, index, collection) {
+					function(item, index) {
 						index = ns(namespace, index);
 
 						value[index] = item;
@@ -724,7 +771,9 @@
 						function() {
 							el.focus();
 							el.setSelectionRange(caretPos, caretPos);
-						}, 0);
+						},
+						0
+					);
 
 				}
 				else {
@@ -955,9 +1004,7 @@
 
 		_unescapeHTML: function(entities, match) {
 			return entities[match];
-		},
-
-		MAP_HTML_CHARS_ESCAPED: MAP_HTML_CHARS_ESCAPED
+		}
 	};
 
 	Liferay.provide(
@@ -1043,7 +1090,7 @@
 			var checkbox = A.one(form[name]);
 
 			if (checkbox) {
-				checkbox.set(STR_CHECKED, checked);
+				checkbox.attr(STR_CHECKED, checked);
 			}
 		},
 		['aui-base']
@@ -1064,7 +1111,7 @@
 
 			form = A.one(form);
 
-			form.all(selector).set(STR_CHECKED, A.one(allBox).get(STR_CHECKED));
+			form.all(selector).attr(STR_CHECKED, A.one(allBox).get(STR_CHECKED));
 
 			if (selectClassName) {
 				form.all(selectClassName).toggleClass('info', A.one(allBox).get(STR_CHECKED));
@@ -1088,7 +1135,7 @@
 			}
 
 			inputs.each(
-				function(item, index, collection) {
+				function(item, index) {
 					if (!item.compareTo(allBox) && (arrayIndexOf(name, item.attr('name')) > -1)) {
 						totalBoxes++;
 
@@ -1099,7 +1146,7 @@
 				}
 			);
 
-			allBox.set(STR_CHECKED, (totalBoxes == totalOn));
+			allBox.attr(STR_CHECKED, (totalBoxes == totalOn));
 		},
 		['aui-base']
 	);
@@ -1117,7 +1164,7 @@
 				var lis = flyout.all('li');
 
 				lis.each(
-					function(item, index, collection) {
+					function(item, index) {
 						var childUL = item.one('ul');
 
 						if (childUL) {
@@ -1234,7 +1281,7 @@
 						visible = value(currentValue, value);
 					}
 
-					toggleBox.set('disabled', !visible);
+					toggleBox.attr('disabled', !visible);
 				};
 
 				disabled();
@@ -1269,16 +1316,16 @@
 
 			if (checkBox && toggleBox) {
 				if (checkBox.get(STR_CHECKED) && checkDisabled) {
-					toggleBox.set('disabled', true);
+					toggleBox.attr('disabled', true);
 				}
 				else {
-					toggleBox.set('disabled', false);
+					toggleBox.attr('disabled', false);
 				}
 
 				checkBox.on(
 					EVENT_CLICK,
 					function() {
-						toggleBox.set('disabled', !toggleBox.get('disabled'));
+						toggleBox.attr('disabled', !toggleBox.get('disabled'));
 					}
 				);
 			}
@@ -1318,14 +1365,8 @@
 				}
 			);
 
-			if (!interacting) {
-				el = A.one(el);
-
-				try {
-					el.focus();
-				}
-				catch (e) {
-				}
+			if (!interacting && Util.inBrowserView(el)) {
+				A.one(el).focus();
 			}
 		},
 		['aui-base']
@@ -1371,7 +1412,7 @@
 				selectedOption = options.item(selectedIndex);
 
 				options.each(
-					function(item, index, collection) {
+					function(item, index) {
 						if (item.get('selected')) {
 							toBox.append(item);
 						}
@@ -1415,6 +1456,12 @@
 			ddmURL.setParameter('classPK', config.classPK);
 			ddmURL.setParameter('eventName', config.eventName);
 			ddmURL.setParameter('groupId', config.groupId);
+			ddmURL.setParameter('mode', config.mode);
+			ddmURL.setParameter('portletResourceNamespace', config.portletResourceNamespace);
+
+			if ('redirect' in config) {
+				ddmURL.setParameter('redirect', config.redirect);
+			}
 
 			if ('refererPortletName' in config) {
 				ddmURL.setParameter('refererPortletName', config.refererPortletName);
@@ -1426,8 +1473,12 @@
 
 			ddmURL.setParameter('scopeTitle', config.title);
 
-			if ('showGlobalScope' in config) {
-				ddmURL.setParameter('showGlobalScope', config.showGlobalScope);
+			if ('showAncestorScopes' in config) {
+				ddmURL.setParameter('showAncestorScopes', config.showAncestorScopes);
+			}
+
+			if ('showBackURL' in config) {
+				ddmURL.setParameter('showBackURL', config.showBackURL);
 			}
 
 			if ('showHeader' in config) {
@@ -1441,6 +1492,8 @@
 			if ('showToolbar' in config) {
 				ddmURL.setParameter('showToolbar', config.showToolbar);
 			}
+
+			ddmURL.setParameter('structureAvailableFields', config.structureAvailableFields);
 
 			if (config.struts_action) {
 				ddmURL.setParameter('struts_action', config.struts_action);
@@ -1587,7 +1640,7 @@
 			var selectedIndex = box.get('selectedIndex');
 
 			if (selectedIndex == -1) {
-				box.set('selectedIndex', 0);
+				box.attr('selectedIndex', 0);
 			}
 			else {
 				var selectedItems = box.all(':selected');
@@ -1843,7 +1896,7 @@
 			var option = A.one(col).one('option[value=' + value + STR_RIGHT_SQUARE_BRACKET);
 
 			if (option) {
-				option.set('selected', true);
+				option.attr('selected', true);
 			}
 		},
 		['aui-base']
@@ -1869,7 +1922,7 @@
 
 			A.each(
 				newBox,
-				function(item, index, collection) {
+				function(item, index) {
 					boxObj.append('<option value="' + item[0] + '">' + item[1] + '</option>');
 				}
 			);
@@ -1938,7 +1991,7 @@
 						if (toggleChildCheckboxes) {
 							var childCheckboxes = toggleBox.all('input[type=checkbox]');
 
-							childCheckboxes.set(STR_CHECKED, checkBox.get(STR_CHECKED));
+							childCheckboxes.attr(STR_CHECKED, checkBox.get(STR_CHECKED));
 						}
 					}
 				);
@@ -1986,37 +2039,32 @@
 				);
 
 				trigger.on(
-					'gesturemovestart',
+					'tap',
 					function(event) {
-						event.currentTarget.once(
-							'gesturemoveend',
-							function(event) {
-								if (icon) {
-									icon.toggleClass(iconVisibleClass);
-									icon.toggleClass(iconHiddenClass);
-								}
+						if (icon) {
+							icon.toggleClass(iconVisibleClass);
+							icon.toggleClass(iconHiddenClass);
+						}
 
-								docBody.toggleClass(visibleClass);
-								docBody.toggleClass(hiddenClass);
+						docBody.toggleClass(visibleClass);
+						docBody.toggleClass(hiddenClass);
 
-								Liferay._editControlsState = (docBody.hasClass(visibleClass) ? 'visible' : 'hidden');
+						Liferay._editControlsState = (docBody.hasClass(visibleClass) ? 'visible' : 'hidden');
 
-								Liferay.Store('liferay_toggle_controls', Liferay._editControlsState);
+						Liferay.Store('liferay_toggle_controls', Liferay._editControlsState);
 
-								Liferay.fire(
-									'toggleControls',
-									{
-										enabled: (Liferay._editControlsState === 'visible'),
-										src: 'ui'
-									}
-								);
+						Liferay.fire(
+							'toggleControls',
+							{
+								enabled: (Liferay._editControlsState === 'visible'),
+								src: 'ui'
 							}
 						);
 					}
 				);
 			}
 		},
-		['event-move', 'liferay-store']
+		['event-tap', 'liferay-store']
 	);
 
 	Liferay.provide(
@@ -2028,7 +2076,7 @@
 			}
 
 			button.each(
-				function(item, index, collection) {
+				function(item, index) {
 					item.attr('disabled', state);
 
 					item.toggleClass('disabled', state);
@@ -2130,31 +2178,6 @@
 	);
 
 	Liferay.provide(
-		Util,
-		'updateCheckboxValue',
-		function(checkbox) {
-			checkbox = A.one(checkbox);
-
-			if (checkbox) {
-				var checked = checkbox.attr(STR_CHECKED);
-
-				var value = 'false';
-
-				if (checked) {
-					value = checkbox.val();
-
-					if (value == 'false') {
-						value = 'true';
-					}
-				}
-
-				checkbox.previous().val(value);
-			}
-		},
-		['aui-base']
-	);
-
-	Liferay.provide(
 		window,
 		'submitForm',
 		function(form, action, singleSubmit, validate) {
@@ -2162,8 +2185,8 @@
 				Liferay.fire(
 					'submitForm',
 					{
-						form: A.one(form),
 						action: action,
+						form: A.one(form),
 						singleSubmit: singleSubmit,
 						validate: validate !== false
 					}

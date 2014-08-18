@@ -49,6 +49,16 @@ public class Entity {
 				return entity.getName();
 			}
 
+			@Override
+			public Class<String> getAttributeClass() {
+				return String.class;
+			}
+
+			@Override
+			public Class<Entity> getTypeClass() {
+				return Entity.class;
+			}
+
 		};
 
 	public static EntityColumn getColumn(
@@ -545,16 +555,6 @@ public class Entity {
 		return false;
 	}
 
-	public boolean hasLocalizedColumn() {
-		for (EntityColumn col : _columnList) {
-			if (col.isLocalized()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	public boolean hasLocalService() {
 		return _localService;
 	}
@@ -698,6 +698,16 @@ public class Entity {
 
 	public boolean isJsonEnabled() {
 		return _jsonEnabled;
+	}
+
+	public boolean isLocalizedModel() {
+		for (EntityColumn col : _columnList) {
+			if (col.isLocalized()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public boolean isMvccEnabled() {
