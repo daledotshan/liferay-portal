@@ -15,7 +15,6 @@
 package com.liferay.portal.model.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -38,6 +37,14 @@ import com.liferay.portal.util.PrefsPropsUtil;
 import java.io.IOException;
 
 /**
+ * Represents a portal layout set, providing access to the layout set's color schemes,
+ * groups, prototypes, themes, and more.
+ *
+ * <p>
+ * Each {@link Group} in Liferay can have a public and a private layout set. This
+ * keeps information common to all layouts (pages) in the layout set.
+ * </p>
+ *
  * @author Brian Wing Shun Chan
  * @author Jorge Ferrer
  */
@@ -46,21 +53,53 @@ public class LayoutSetImpl extends LayoutSetBaseImpl {
 	public LayoutSetImpl() {
 	}
 
+	/**
+	 * Returns the layout set's color scheme.
+	 *
+	 * <p>
+	 * Just like themes, color schemes can be configured on the layout set
+	 * level. The layout set's color scheme can be overridden on the layout
+	 * level.
+	 * </p>
+	 *
+	 * @return the layout set's color scheme
+	 * @throws SystemException if a system exception occurred
+	 */
 	@Override
-	public ColorScheme getColorScheme() throws SystemException {
+	public ColorScheme getColorScheme() {
 		return ThemeLocalServiceUtil.getColorScheme(
 			getCompanyId(), getTheme().getThemeId(), getColorSchemeId(), false);
 	}
 
+	/**
+	 * Returns the layout set's group.
+	 *
+	 * @return the layout set's group
+	 * @throws PortalException if a group with the primary key could not be
+	 *         found
+	 * @throws SystemException if a system exception occurred
+	 */
 	@Override
-	public Group getGroup() throws PortalException, SystemException {
+	public Group getGroup() throws PortalException {
 		return GroupLocalServiceUtil.getGroup(getGroupId());
 	}
 
+	/**
+	 * Returns the layout set prototype's ID, or <code>0</code> if it has no layout
+	 * set prototype.
+	 *
+	 * <p>
+	 * Prototype is Liferay's technical name for a site template.
+	 * </p>
+	 *
+	 * @return the layout set prototype's ID, or <code>0</code> if it has no layout
+	 *         set prototype
+	 * @throws PortalException if a matching layout set prototype could not be
+	 *         found
+	 * @throws SystemException if a system exception occurred
+	 */
 	@Override
-	public long getLayoutSetPrototypeId()
-		throws PortalException, SystemException {
-
+	public long getLayoutSetPrototypeId() throws PortalException {
 		String layoutSetPrototypeUuid = getLayoutSetPrototypeUuid();
 
 		if (Validator.isNull(layoutSetPrototypeUuid)) {
@@ -149,15 +188,13 @@ public class LayoutSetImpl extends LayoutSetBaseImpl {
 	}
 
 	@Override
-	public Theme getTheme() throws SystemException {
+	public Theme getTheme() {
 		return ThemeLocalServiceUtil.getTheme(
 			getCompanyId(), getThemeId(), false);
 	}
 
 	@Override
-	public String getThemeSetting(String key, String device)
-		throws SystemException {
-
+	public String getThemeSetting(String key, String device) {
 		UnicodeProperties settingsProperties = getSettingsProperties();
 
 		String value = settingsProperties.getProperty(
@@ -174,6 +211,17 @@ public class LayoutSetImpl extends LayoutSetBaseImpl {
 		return value;
 	}
 
+	/**
+	 * Returns the name of the layout set's virtual host.
+	 *
+	 * <p>
+	 * When accessing a layout set that has a the virtual host, the URL elements
+	 * "/web/sitename" or "/group/sitename" can be omitted.
+	 * </p>
+	 *
+	 * @return the layout set's virtual host name, or an empty string if the layout
+	 *         set has no virtual host configured
+	 */
 	@Override
 	public String getVirtualHostname() {
 		if (_virtualHostname != null) {
@@ -200,14 +248,14 @@ public class LayoutSetImpl extends LayoutSetBaseImpl {
 	}
 
 	@Override
-	public ColorScheme getWapColorScheme() throws SystemException {
+	public ColorScheme getWapColorScheme() {
 		return ThemeLocalServiceUtil.getColorScheme(
 			getCompanyId(), getWapTheme().getThemeId(), getWapColorSchemeId(),
 			true);
 	}
 
 	@Override
-	public Theme getWapTheme() throws SystemException {
+	public Theme getWapTheme() {
 		return ThemeLocalServiceUtil.getTheme(
 			getCompanyId(), getWapThemeId(), true);
 	}
@@ -242,12 +290,18 @@ public class LayoutSetImpl extends LayoutSetBaseImpl {
 		super.setSettings(_settingsProperties.toString());
 	}
 
+	/**
+	 * Sets the name of the layout set's virtual host.
+	 *
+	 * @param virtualHostname the name of the layout set's virtual host
+	 * @see #getVirtualHostname()
+	 */
 	@Override
 	public void setVirtualHostname(String virtualHostname) {
 		_virtualHostname = virtualHostname;
 	}
 
-	protected Theme getTheme(String device) throws SystemException {
+	protected Theme getTheme(String device) {
 		boolean controlPanel = false;
 
 		try {

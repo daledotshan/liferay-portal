@@ -16,7 +16,6 @@ package com.liferay.portlet.usergroupsadmin.util;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.BaseIndexer;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
@@ -28,7 +27,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
-import com.liferay.portal.service.persistence.UserGroupActionableDynamicQuery;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 
@@ -55,7 +53,7 @@ public class UserGroupIndexer extends BaseIndexer {
 
 	public UserGroupIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {Field.COMPANY_ID, Field.UID, Field.USER_GROUP_ID});
+			Field.COMPANY_ID, Field.UID, Field.USER_GROUP_ID);
 		setIndexerEnabled(PropsValues.USER_GROUPS_INDEXER_ENABLED);
 		setPermissionAware(true);
 		setStagingAware(false);
@@ -228,24 +226,26 @@ public class UserGroupIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexUserGroups(long companyId)
-		throws PortalException, SystemException {
-
-		ActionableDynamicQuery actionableDynamicQuery =
-			new UserGroupActionableDynamicQuery() {
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				UserGroup userGroup = (UserGroup)object;
-
-				Document document = getDocument(userGroup);
-
-				addDocument(document);
-			}
-
-		};
+	protected void reindexUserGroups(long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			UserGroupLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					UserGroup userGroup = (UserGroup)object;
+
+					Document document = getDocument(userGroup);
+
+					actionableDynamicQuery.addDocument(document);
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

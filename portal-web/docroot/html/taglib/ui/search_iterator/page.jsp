@@ -39,7 +39,7 @@ if (end > total) {
 
 if (rowChecker != null) {
 	if (headerNames != null) {
-		headerNames.add(0, rowChecker.getAllRowsCheckBox());
+		headerNames.add(0, rowChecker.getAllRowsCheckBox(request));
 
 		normalizedHeaderNames.add(0, "rowChecker");
 	}
@@ -55,12 +55,12 @@ if (iteratorURL != null) {
 	url = HttpUtil.removeParameter(url, namespace + searchContainer.getOrderByTypeParam());
 }
 
-List<String> primaryKeys = new ArrayList<String>();
+JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 %>
 
 <c:if test="<%= resultRows.isEmpty() && (emptyResultsMessage != null) %>">
 	<div class="alert alert-info">
-		<%= LanguageUtil.get(pageContext, emptyResultsMessage) %>
+		<%= LanguageUtil.get(request, emptyResultsMessage) %>
 	</div>
 </c:if>
 
@@ -177,7 +177,7 @@ List<String> primaryKeys = new ArrayList<String>();
 							String headerNameValue = null;
 
 							if ((rowChecker == null) || (i > 0)) {
-								headerNameValue = LanguageUtil.get(pageContext, HtmlUtil.escape(headerName));
+								headerNameValue = LanguageUtil.get(request, HtmlUtil.escape(headerName));
 							}
 							else {
 								headerNameValue = headerName;
@@ -213,7 +213,7 @@ List<String> primaryKeys = new ArrayList<String>();
 		<c:if test="<%= resultRows.isEmpty() && (emptyResultsMessage != null) %>">
 			<tr>
 				<td class="table-cell">
-					<%= LanguageUtil.get(pageContext, emptyResultsMessage) %>
+					<%= LanguageUtil.get(request, emptyResultsMessage) %>
 				</td>
 			</tr>
 		</c:if>
@@ -222,9 +222,9 @@ List<String> primaryKeys = new ArrayList<String>();
 		boolean allRowsIsChecked = true;
 
 		for (int i = 0; i < resultRows.size(); i++) {
-			ResultRow row = (ResultRow)resultRows.get(i);
+			com.liferay.portal.kernel.dao.search.ResultRow row = (com.liferay.portal.kernel.dao.search.ResultRow)resultRows.get(i);
 
-			primaryKeys.add(HtmlUtil.escape(row.getPrimaryKey()));
+			primaryKeysJSONArray.put(row.getPrimaryKey());
 
 			request.setAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW, row);
 
@@ -261,7 +261,7 @@ List<String> primaryKeys = new ArrayList<String>();
 
 			<%
 			for (int j = 0; j < entries.size(); j++) {
-				SearchEntry entry = (SearchEntry)entries.get(j);
+				com.liferay.portal.kernel.dao.search.SearchEntry entry = (com.liferay.portal.kernel.dao.search.SearchEntry)entries.get(j);
 
 				String normalizedHeaderName = null;
 
@@ -290,7 +290,7 @@ List<String> primaryKeys = new ArrayList<String>();
 				}
 			%>
 
-				<td class="table-cell <%= columnClassName %>">
+				<td class="table-cell <%= columnClassName %> text-<%= entry.getAlign() %> text-<%= entry.getValign() %>" colspan="<%= entry.getColspan() %>">
 
 					<%
 					entry.print(pageContext);
@@ -343,10 +343,10 @@ List<String> primaryKeys = new ArrayList<String>();
 </c:if>
 
 <c:if test="<%= Validator.isNotNull(id) %>">
-	<input id="<%= namespace + id %>PrimaryKeys" name="<%= namespace + id %>PrimaryKeys" type="hidden" value="<%= StringUtil.merge(primaryKeys) %>" />
+	<input id="<%= namespace + id %>PrimaryKeys" name="<%= namespace + id %>PrimaryKeys" type="hidden" value="" />
 
 	<aui:script use="liferay-search-container">
-		new Liferay.SearchContainer(
+		var searchContainer = new Liferay.SearchContainer(
 			{
 				classNameHover: '<%= _CLASS_NAME_HOVER %>',
 				hover: <%= searchContainer.isHover() %>,
@@ -357,6 +357,8 @@ List<String> primaryKeys = new ArrayList<String>();
 				rowClassNameBodyHover: '<%= _ROW_CLASS_NAME_BODY %>'
 			}
 		).render();
+
+		searchContainer.updateDataStore(<%= primaryKeysJSONArray.toString() %>);
 	</aui:script>
 </c:if>
 

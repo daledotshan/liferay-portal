@@ -113,13 +113,9 @@ import java.util.Set;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
-import javax.portlet.PortletContext;
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.ResourceRequest;
-import javax.portlet.ResourceResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -349,39 +345,10 @@ public class EditLayoutsAction extends PortletAction {
 			getForward(renderRequest, "portlet.layouts_admin.edit_layouts"));
 	}
 
-	@Override
-	public void serveResource(
-			ActionMapping actionMapping, ActionForm actionForm,
-			PortletConfig portletConfig, ResourceRequest resourceRequest,
-			ResourceResponse resourceResponse)
-		throws Exception {
-
-		String cmd = ParamUtil.getString(resourceRequest, Constants.CMD);
-
-		PortletContext portletContext = portletConfig.getPortletContext();
-
-		PortletRequestDispatcher portletRequestDispatcher = null;
-
-		if (cmd.equals(ActionKeys.VIEW_TREE)) {
-			getGroup(resourceRequest);
-
-			portletRequestDispatcher = portletContext.getRequestDispatcher(
-				"/html/portlet/layouts_admin/tree_js.jsp");
-		}
-		else {
-			getGroup(resourceRequest);
-
-			portletRequestDispatcher = portletContext.getRequestDispatcher(
-				"/html/portlet/layouts_admin/view_resources.jsp");
-		}
-
-		portletRequestDispatcher.include(resourceRequest, resourceResponse);
-	}
-
 	protected void checkPermission(
 			PermissionChecker permissionChecker, Group group, Layout layout,
 			long selPlid)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (selPlid > 0) {
 			LayoutPermissionUtil.check(
@@ -635,7 +602,7 @@ public class EditLayoutsAction extends PortletAction {
 
 	protected void inheritMobileRuleGroups(
 			Layout layout, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<MDRRuleGroupInstance> parentMDRRuleGroupInstances =
 			MDRRuleGroupInstanceLocalServiceUtil.getRuleGroupInstances(
@@ -767,7 +734,7 @@ public class EditLayoutsAction extends PortletAction {
 			UnicodeProperties typeSettingsProperties,
 			Map<String, ThemeSetting> themeSettings, String device,
 			String deviceThemeId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		long groupId = ParamUtil.getLong(actionRequest, "groupId");
 		boolean privateLayout = ParamUtil.getBoolean(
@@ -935,14 +902,11 @@ public class EditLayoutsAction extends PortletAction {
 					LayoutPrototypeServiceUtil.getLayoutPrototype(
 						layoutPrototypeId);
 
-				String layoutPrototypeLinkEnabled = ParamUtil.getString(
+				boolean layoutPrototypeLinkEnabled = ParamUtil.getBoolean(
 					uploadPortletRequest, "layoutPrototypeLinkEnabled");
 
-				if (Validator.isNotNull(layoutPrototypeLinkEnabled)) {
-					serviceContext.setAttribute(
-						"layoutPrototypeLinkEnabled",
-						layoutPrototypeLinkEnabled);
-				}
+				serviceContext.setAttribute(
+					"layoutPrototypeLinkEnabled", layoutPrototypeLinkEnabled);
 
 				serviceContext.setAttribute(
 					"layoutPrototypeUuid", layoutPrototype.getUuid());
@@ -953,6 +917,10 @@ public class EditLayoutsAction extends PortletAction {
 					LayoutConstants.TYPE_PORTLET,
 					typeSettingsProperties.toString(), hidden, friendlyURLMap,
 					serviceContext);
+
+				// Force propagation from page template to page. See LPS-48430.
+
+				SitesUtil.mergeLayoutPrototypeLayout(layout.getGroup(), layout);
 			}
 			else {
 				long copyLayoutId = ParamUtil.getLong(

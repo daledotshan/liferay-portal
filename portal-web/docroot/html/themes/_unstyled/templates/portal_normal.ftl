@@ -5,7 +5,11 @@
 <html class="${root_css_class}" dir="<@liferay.language key="lang.dir" />" lang="${w3c_language_id}">
 
 <head>
-	<title>${the_title} - ${company_name}</title>
+	<#if ${site_name}.equals(${company_name}) || ${the_title}.equals(${site_name})>
+		<title>${the_title} - ${company_name}</title>
+	<#else>
+		<title>${the_title} - ${site_name} - ${company_name}</title>
+	</#if>
 
 	<meta content="initial-scale=1.0, width=device-width" name="viewport" />
 
@@ -14,7 +18,7 @@
 
 <body class="${css_class}">
 
-<@liferay.quick_access contentId="#main-content" />
+<@liferay.quick_access content_id="#main-content" />
 
 ${theme.include(body_top_include)}
 
@@ -31,7 +35,7 @@ ${theme.include(body_top_include)}
 				</a>
 
 				<#if show_site_name>
-					<span class="site-name" title="<@liferay.language_format objects="${site_name}" key="go-to-x" />">
+					<span class="site-name" title="<@liferay.language_format arguments="${site_name}" key="go-to-x" />">
 						${site_name}
 					</span>
 				</#if>
@@ -39,7 +43,7 @@ ${theme.include(body_top_include)}
 		</div>
 
 		<#if !is_signed_in>
-			<a href="${sign_in_url}" data-redirect="${is_login_redirect_required?string}" id="sign-in" rel="nofollow">${sign_in_text}</a>
+			<a data-redirect="${is_login_redirect_required?string}" href="${sign_in_url}" id="sign-in" rel="nofollow">${sign_in_text}</a>
 		</#if>
 
 		<#if has_navigation || is_signed_in>
@@ -51,8 +55,6 @@ ${theme.include(body_top_include)}
 		<h1 class="hide-accessible">${the_title}</h1>
 
 		<nav id="breadcrumbs">
-			<h1 class="hide-accessible"><@liferay.language key="breadcrumbs" /></h1>
-
 			<@liferay.breadcrumbs />
 		</nav>
 
