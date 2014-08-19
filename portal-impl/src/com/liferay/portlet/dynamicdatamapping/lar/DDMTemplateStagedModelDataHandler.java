@@ -14,20 +14,19 @@
 
 package com.liferay.portlet.dynamicdatamapping.lar;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataException;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
@@ -37,7 +36,6 @@ import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.dynamicdatamapping.TemplateDuplicateTemplateKeyException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
@@ -46,6 +44,7 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUti
 import java.io.File;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,15 +59,38 @@ public class DDMTemplateStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		DDMTemplate ddmTemplate =
-			DDMTemplateLocalServiceUtil.fetchDDMTemplateByUuidAndGroupId(
-				uuid, groupId);
+		DDMTemplate ddmTemplate = fetchStagedModelByUuidAndGroupId(
+			uuid, groupId);
 
 		if (ddmTemplate != null) {
 			DDMTemplateLocalServiceUtil.deleteTemplate(ddmTemplate);
 		}
+	}
+
+	@Override
+	public DDMTemplate fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<DDMTemplate> templates =
+			DDMTemplateLocalServiceUtil.getDDMTemplatesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<DDMTemplate>());
+
+		if (ListUtil.isEmpty(templates)) {
+			return null;
+		}
+
+		return templates.get(0);
+	}
+
+	@Override
+	public DDMTemplate fetchStagedModelByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return DDMTemplateLocalServiceUtil.fetchDDMTemplateByUuidAndGroupId(
+			uuid, groupId);
 	}
 
 	@Override
@@ -128,7 +150,7 @@ public class DDMTemplateStagedModelDataHandler
 		long liveGroupId = GetterUtil.getLong(
 			referenceElement.attributeValue("live-group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId, liveGroupId);
+		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
 
 		long classNameId = PortalUtil.getClassNameId(
 			referenceElement.attributeValue("referenced-class-name"));
@@ -138,13 +160,8 @@ public class DDMTemplateStagedModelDataHandler
 
 		DDMTemplate existingTemplate = null;
 
-		try {
-			existingTemplate = fetchExistingTemplate(
-				uuid, liveGroupId, classNameId, templateKey, preloaded);
-		}
-		catch (SystemException se) {
-			throw new PortletDataException(se);
-		}
+		existingTemplate = fetchExistingTemplate(
+			uuid, liveGroupId, classNameId, templateKey, preloaded);
 
 		Map<Long, Long> templateIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -166,11 +183,7 @@ public class DDMTemplateStagedModelDataHandler
 	public boolean validateReference(
 		PortletDataContext portletDataContext, Element referenceElement) {
 
-		if (!validateMissingGroupReference(
-				portletDataContext, referenceElement)) {
-
-			return false;
-		}
+		validateMissingGroupReference(portletDataContext, referenceElement);
 
 		String uuid = referenceElement.attributeValue("uuid");
 
@@ -181,7 +194,7 @@ public class DDMTemplateStagedModelDataHandler
 		long liveGroupId = GetterUtil.getLong(
 			referenceElement.attributeValue("live-group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId, liveGroupId);
+		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
 
 		long classNameId = PortalUtil.getClassNameId(
 			referenceElement.attributeValue("referenced-class-name"));
@@ -189,60 +202,14 @@ public class DDMTemplateStagedModelDataHandler
 		boolean preloaded = GetterUtil.getBoolean(
 			referenceElement.attributeValue("preloaded"));
 
-		try {
-			DDMTemplate existingTemplate = fetchExistingTemplate(
-				uuid, liveGroupId, classNameId, templateKey, preloaded);
+		DDMTemplate existingTemplate = fetchExistingTemplate(
+			uuid, liveGroupId, classNameId, templateKey, preloaded);
 
-			if (existingTemplate == null) {
-				return false;
-			}
-
-			return true;
-		}
-		catch (SystemException se) {
+		if (existingTemplate == null) {
 			return false;
 		}
-	}
 
-	protected DDMTemplate addTemplate(
-			long userId, long groupId, DDMTemplate template, long classPK,
-			File smallFile, ServiceContext serviceContext)
-		throws Exception {
-
-		DDMTemplate newTemplate = null;
-
-		try {
-			return DDMTemplateLocalServiceUtil.addTemplate(
-				userId, groupId, template.getClassNameId(), classPK,
-				template.getTemplateKey(), template.getNameMap(),
-				template.getDescriptionMap(), template.getType(),
-				template.getMode(), template.getLanguage(),
-				template.getScript(), template.isCacheable(),
-				template.isSmallImage(), template.getSmallImageURL(), smallFile,
-				serviceContext);
-		}
-		catch (TemplateDuplicateTemplateKeyException tdtke) {
-			newTemplate = DDMTemplateLocalServiceUtil.addTemplate(
-				userId, groupId, template.getClassNameId(), classPK, null,
-				template.getNameMap(), template.getDescriptionMap(),
-				template.getType(), template.getMode(), template.getLanguage(),
-				template.getScript(), template.isCacheable(),
-				template.isSmallImage(), template.getSmallImageURL(), smallFile,
-				serviceContext);
-
-			if (_log.isWarnEnabled()) {
-				StringBundler sb = new StringBundler(4);
-
-				sb.append("A template with the key ");
-				sb.append(template.getTemplateKey());
-				sb.append(" already exists. The new generated key is ");
-				sb.append(newTemplate.getTemplateKey());
-
-				_log.warn(sb.toString());
-			}
-		}
-
-		return newTemplate;
+		return true;
 	}
 
 	@Override
@@ -269,9 +236,8 @@ public class DDMTemplateStagedModelDataHandler
 			if (Validator.isNotNull(template.getSmallImageURL())) {
 				String smallImageURL =
 					ExportImportHelperUtil.replaceExportContentReferences(
-						portletDataContext, template, templateElement,
-						template.getSmallImageURL().concat(StringPool.SPACE),
-						true);
+						portletDataContext, template,
+						template.getSmallImageURL() + StringPool.SPACE, true);
 
 				template.setSmallImageURL(smallImageURL);
 			}
@@ -291,16 +257,12 @@ public class DDMTemplateStagedModelDataHandler
 			}
 		}
 
-		if (portletDataContext.getBooleanParameter(
-				DDMPortletDataHandler.NAMESPACE, "referenced-content")) {
+		String script = ExportImportHelperUtil.replaceExportContentReferences(
+			portletDataContext, template, template.getScript(),
+			portletDataContext.getBooleanParameter(
+				DDMPortletDataHandler.NAMESPACE, "referenced-content"));
 
-			String content =
-				ExportImportHelperUtil.replaceExportContentReferences(
-					portletDataContext, template, templateElement,
-					template.getScript(), true);
-
-			template.setScript(content);
-		}
+		template.setScript(script);
 
 		long defaultUserId = UserLocalServiceUtil.getDefaultUserId(
 			template.getCompanyId());
@@ -348,8 +310,8 @@ public class DDMTemplateStagedModelDataHandler
 				if (Validator.isNotNull(template.getSmallImageURL())) {
 					String smallImageURL =
 						ExportImportHelperUtil.replaceImportContentReferences(
-							portletDataContext, template, element,
-							template.getSmallImageURL(), true);
+							portletDataContext, template,
+							template.getSmallImageURL());
 
 					template.setSmallImageURL(smallImageURL);
 				}
@@ -365,6 +327,12 @@ public class DDMTemplateStagedModelDataHandler
 					}
 				}
 			}
+
+			String script =
+				ExportImportHelperUtil.replaceImportContentReferences(
+					portletDataContext, template, template.getScript());
+
+			template.setScript(script);
 
 			ServiceContext serviceContext =
 				portletDataContext.createServiceContext(template);
@@ -387,9 +355,15 @@ public class DDMTemplateStagedModelDataHandler
 				if (existingTemplate == null) {
 					serviceContext.setUuid(template.getUuid());
 
-					importedTemplate = addTemplate(
-						userId, portletDataContext.getScopeGroupId(), template,
-						classPK, smallFile, serviceContext);
+					importedTemplate = DDMTemplateLocalServiceUtil.addTemplate(
+						userId, portletDataContext.getScopeGroupId(),
+						template.getClassNameId(), classPK,
+						template.getTemplateKey(), template.getNameMap(),
+						template.getDescriptionMap(), template.getType(),
+						template.getMode(), template.getLanguage(),
+						template.getScript(), template.isCacheable(),
+						template.isSmallImage(), template.getSmallImageURL(),
+						smallFile, serviceContext);
 				}
 				else {
 					importedTemplate =
@@ -405,9 +379,14 @@ public class DDMTemplateStagedModelDataHandler
 				}
 			}
 			else {
-				importedTemplate = addTemplate(
-					userId, portletDataContext.getScopeGroupId(), template,
-					classPK, smallFile, serviceContext);
+				importedTemplate = DDMTemplateLocalServiceUtil.addTemplate(
+					userId, portletDataContext.getScopeGroupId(),
+					template.getClassNameId(), classPK, null,
+					template.getNameMap(), template.getDescriptionMap(),
+					template.getType(), template.getMode(),
+					template.getLanguage(), template.getScript(),
+					template.isCacheable(), template.isSmallImage(),
+					template.getSmallImageURL(), smallFile, serviceContext);
 			}
 
 			portletDataContext.importClassedModel(template, importedTemplate);
@@ -427,16 +406,13 @@ public class DDMTemplateStagedModelDataHandler
 	}
 
 	protected DDMTemplate fetchExistingTemplate(
-			String uuid, long groupId, long classNameId, String templateKey,
-			boolean preloaded)
-		throws SystemException {
+		String uuid, long groupId, long classNameId, String templateKey,
+		boolean preloaded) {
 
 		DDMTemplate existingTemplate = null;
 
 		if (!preloaded) {
-			existingTemplate =
-				DDMTemplateLocalServiceUtil.fetchDDMTemplateByUuidAndGroupId(
-					uuid, groupId);
+			existingTemplate = fetchStagedModelByUuidAndGroupId(uuid, groupId);
 		}
 		else {
 			existingTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
@@ -445,8 +421,5 @@ public class DDMTemplateStagedModelDataHandler
 
 		return existingTemplate;
 	}
-
-	private static Log _log = LogFactoryUtil.getLog(
-		DDMTemplateStagedModelDataHandler.class);
 
 }

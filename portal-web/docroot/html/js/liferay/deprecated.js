@@ -1,27 +1,97 @@
 // For details about this file see: LPS-2155
 
-// LPS-5741
+;(function(A, Liferay) {
+	var Util = Liferay.namespace('Util');
 
-Liferay.namespace('Util');
+	var REGEX_DASH = /-([a-z])/gi;
 
-Liferay.Util.checkMaxLength = function(box, maxLength) {
-	if ((box.value.length) >= maxLength) {
-		box.value = box.value.substring(0, maxLength - 1);
-	}
-};
+	Util.actsAsAspect = function(object) {
+		object.yield = null;
+		object.rv = {};
 
-// LPS-5802
+		object.before = function(method, f) {
+			var original = eval('this.' + method);
 
-Liferay.namespace('Events');
+			this[method] = function() {
+				f.apply(this, arguments);
 
-Liferay.bind = Liferay.on;
-Liferay.trigger = Liferay.fire;
-Liferay.unbind = Liferay.detach;
+				return original.apply(this, arguments);
+			};
+		};
 
-Liferay.Events.on = Liferay.on;
-Liferay.Events.trigger = Liferay.fire;
-Liferay.Events.unbind = Liferay.detach;
+		object.after = function(method, f) {
+			var original = eval('this.' + method);
 
-// LPS-6237
+			this[method] = function() {
+				this.rv[method] = original.apply(this, arguments);
 
-Liferay.Popup = function(){};
+				return f.apply(this, arguments);
+			};
+		};
+
+		object.around = function(method, f) {
+			var original = eval('this.' + method);
+
+			this[method] = function() {
+				this.yield = original;
+
+				return f.apply(this, arguments);
+			};
+		};
+	};
+
+	Util.camelize = function(value, separator) {
+		var regex = REGEX_DASH;
+
+		if (separator) {
+			regex = new RegExp(separator + '([a-z])', 'gi');
+		}
+
+		value = value.replace(
+			regex,
+			function(match0, match1) {
+				return match1.toUpperCase();
+			}
+		);
+
+		return value;
+	};
+
+	Util.clamp = function(value, min, max) {
+		return Math.min(Math.max(value, min), max);
+	};
+
+	Util.isEditorPresent = function(editorImpl) {
+		return Liferay.EDITORS && Liferay.EDITORS[editorImpl];
+	};
+
+	Util.randomMinMax = function(min, max) {
+		return (Math.round(Math.random() * (max - min))) + min;
+	};
+
+	Util.uncamelize = function(value, separator) {
+		separator = separator || ' ';
+
+		value = value.replace(/([a-zA-Z][a-zA-Z])([A-Z])([a-z])/g, '$1' + separator + '$2$3');
+		value = value.replace(/([a-z])([A-Z])/g, '$1' + separator + '$2');
+
+		return value;
+	};
+
+	Liferay.provide(
+		Util,
+		'switchEditor',
+		function(options) {
+			var uri = options.uri;
+
+			var windowName = Liferay.Util.getWindowName();
+
+			var dialog = Liferay.Util.getWindow(windowName);
+
+			if (dialog) {
+				dialog.iframe.set('uri', uri);
+			}
+		},
+		['aui-io']
+	);
+})(AUI(), Liferay);

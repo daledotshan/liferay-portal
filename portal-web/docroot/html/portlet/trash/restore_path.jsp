@@ -39,7 +39,7 @@
 					String restoreClassName = restoreClassNames.get(i);
 
 					if (Validator.isNotNull(restoreClassName)) {
-						type = ResourceActionsUtil.getModelResource(pageContext, restoreClassName);
+						type = ResourceActionsUtil.getModelResource(request, restoreClassName);
 					}
 				%>
 
@@ -83,11 +83,9 @@
 	A.getBody().delegate(
 		'click',
 		function(event) {
-			var link = event.currentTarget.one('a');
-
-			<portlet:namespace />restoreDialog(link.attr('data-uri'));
+			<portlet:namespace />restoreDialog(event.currentTarget.attr('data-uri'));
 		},
-		'.trash-restore-link'
+		'.trash-restore-link a, button.trash-restore-link'
 	);
 
 	Liferay.provide(
@@ -102,8 +100,8 @@
 						modal: true,
 						width: 1024
 					},
-					eventName: '<portlet:namespace />selectFolder',
-					id: '<portlet:namespace />selectFolder',
+					eventName: '<portlet:namespace />selectContainer',
+					id: '<portlet:namespace />selectContainer',
 					title: '<liferay-ui:message key="warning" />',
 					uri: uri
 				},
@@ -111,6 +109,7 @@
 					document.<portlet:namespace />selectContainerForm.<portlet:namespace />className.value = event.classname;
 					document.<portlet:namespace />selectContainerForm.<portlet:namespace />classPK.value = event.classpk;
 					document.<portlet:namespace />selectContainerForm.<portlet:namespace />containerModelId.value = event.containermodelid;
+					document.<portlet:namespace />selectContainerForm.<portlet:namespace />redirect.value = event.redirect;
 
 					submitForm(document.<portlet:namespace />selectContainerForm);
 				}

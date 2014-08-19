@@ -20,6 +20,8 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -72,12 +74,10 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 *
 	 * @param socialRequest the social request
 	 * @return the social request that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public SocialRequest addSocialRequest(SocialRequest socialRequest)
-		throws SystemException {
+	public SocialRequest addSocialRequest(SocialRequest socialRequest) {
 		socialRequest.setNew(true);
 
 		return socialRequestPersistence.update(socialRequest);
@@ -100,12 +100,11 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param requestId the primary key of the social request
 	 * @return the social request that was removed
 	 * @throws PortalException if a social request with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public SocialRequest deleteSocialRequest(long requestId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return socialRequestPersistence.remove(requestId);
 	}
 
@@ -114,12 +113,10 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 *
 	 * @param socialRequest the social request
 	 * @return the social request that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public SocialRequest deleteSocialRequest(SocialRequest socialRequest)
-		throws SystemException {
+	public SocialRequest deleteSocialRequest(SocialRequest socialRequest) {
 		return socialRequestPersistence.remove(socialRequest);
 	}
 
@@ -136,12 +133,9 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return socialRequestPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -156,12 +150,10 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return socialRequestPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end);
 	}
@@ -178,12 +170,10 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return socialRequestPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end, orderByComparator);
 	}
@@ -193,11 +183,9 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return socialRequestPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -207,34 +195,17 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return socialRequestPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public SocialRequest fetchSocialRequest(long requestId)
-		throws SystemException {
+	public SocialRequest fetchSocialRequest(long requestId) {
 		return socialRequestPersistence.fetchByPrimaryKey(requestId);
-	}
-
-	/**
-	 * Returns the social request with the matching UUID and company.
-	 *
-	 * @param uuid the social request's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching social request, or <code>null</code> if a matching social request could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public SocialRequest fetchSocialRequestByUuidAndCompanyId(String uuid,
-		long companyId) throws SystemException {
-		return socialRequestPersistence.fetchByUuid_C_First(uuid, companyId,
-			null);
 	}
 
 	/**
@@ -243,11 +214,10 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param uuid the social request's UUID
 	 * @param groupId the primary key of the group
 	 * @return the matching social request, or <code>null</code> if a matching social request could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public SocialRequest fetchSocialRequestByUuidAndGroupId(String uuid,
-		long groupId) throws SystemException {
+		long groupId) {
 		return socialRequestPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
@@ -257,33 +227,62 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param requestId the primary key of the social request
 	 * @return the social request
 	 * @throws PortalException if a social request with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public SocialRequest getSocialRequest(long requestId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return socialRequestPersistence.findByPrimaryKey(requestId);
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
-		return socialRequestPersistence.findByPrimaryKey(primaryKeyObj);
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.social.service.SocialRequestLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(SocialRequest.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("requestId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.social.service.SocialRequestLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(SocialRequest.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("requestId");
 	}
 
 	/**
-	 * Returns the social request with the matching UUID and company.
-	 *
-	 * @param uuid the social request's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching social request
-	 * @throws PortalException if a matching social request could not be found
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Override
-	public SocialRequest getSocialRequestByUuidAndCompanyId(String uuid,
-		long companyId) throws PortalException, SystemException {
-		return socialRequestPersistence.findByUuid_C_First(uuid, companyId, null);
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return socialRequestLocalService.deleteSocialRequest((SocialRequest)persistedModel);
+	}
+
+	@Override
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+		return socialRequestPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	@Override
+	public List<SocialRequest> getSocialRequestsByUuidAndCompanyId(
+		String uuid, long companyId) {
+		return socialRequestPersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<SocialRequest> getSocialRequestsByUuidAndCompanyId(
+		String uuid, long companyId, int start, int end,
+		OrderByComparator<SocialRequest> orderByComparator) {
+		return socialRequestPersistence.findByUuid_C(uuid, companyId, start,
+			end, orderByComparator);
 	}
 
 	/**
@@ -293,11 +292,10 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param groupId the primary key of the group
 	 * @return the matching social request
 	 * @throws PortalException if a matching social request could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public SocialRequest getSocialRequestByUuidAndGroupId(String uuid,
-		long groupId) throws PortalException, SystemException {
+		long groupId) throws PortalException {
 		return socialRequestPersistence.findByUUID_G(uuid, groupId);
 	}
 
@@ -311,11 +309,9 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param start the lower bound of the range of social requests
 	 * @param end the upper bound of the range of social requests (not inclusive)
 	 * @return the range of social requests
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<SocialRequest> getSocialRequests(int start, int end)
-		throws SystemException {
+	public List<SocialRequest> getSocialRequests(int start, int end) {
 		return socialRequestPersistence.findAll(start, end);
 	}
 
@@ -323,10 +319,9 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * Returns the number of social requests.
 	 *
 	 * @return the number of social requests
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getSocialRequestsCount() throws SystemException {
+	public int getSocialRequestsCount() {
 		return socialRequestPersistence.countAll();
 	}
 
@@ -335,12 +330,10 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 *
 	 * @param socialRequest the social request
 	 * @return the social request that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public SocialRequest updateSocialRequest(SocialRequest socialRequest)
-		throws SystemException {
+	public SocialRequest updateSocialRequest(SocialRequest socialRequest) {
 		return socialRequestPersistence.update(socialRequest);
 	}
 
@@ -613,7 +606,7 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = socialRequestPersistence.getDataSource();
 

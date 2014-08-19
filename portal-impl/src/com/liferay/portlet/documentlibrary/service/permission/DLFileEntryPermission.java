@@ -15,8 +15,8 @@
 package com.liferay.portlet.documentlibrary.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.staging.permission.StagingPermissionUtil;
 import com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil;
 import com.liferay.portal.security.auth.PrincipalException;
@@ -37,12 +37,17 @@ import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
  * @author Brian Wing Shun Chan
  * @author Charles May
  */
+@OSGiBeanProperties(
+	property = {
+		"model.class.name=com.liferay.portlet.documentlibrary.model.DLFileEntry"
+	}
+)
 public class DLFileEntryPermission implements BaseModelPermissionChecker {
 
 	public static void check(
 			PermissionChecker permissionChecker, DLFileEntry dlFileEntry,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!contains(permissionChecker, dlFileEntry, actionId)) {
 			throw new PrincipalException();
@@ -52,7 +57,7 @@ public class DLFileEntryPermission implements BaseModelPermissionChecker {
 	public static void check(
 			PermissionChecker permissionChecker, FileEntry fileEntry,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!fileEntry.containsPermission(permissionChecker, actionId)) {
 			throw new PrincipalException();
@@ -62,7 +67,7 @@ public class DLFileEntryPermission implements BaseModelPermissionChecker {
 	public static void check(
 			PermissionChecker permissionChecker, long fileEntryId,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!contains(permissionChecker, fileEntryId, actionId)) {
 			throw new PrincipalException();
@@ -72,7 +77,7 @@ public class DLFileEntryPermission implements BaseModelPermissionChecker {
 	public static boolean contains(
 			PermissionChecker permissionChecker, DLFileEntry dlFileEntry,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Boolean hasPermission = StagingPermissionUtil.hasPermission(
 			permissionChecker, dlFileEntry.getGroupId(),
@@ -147,7 +152,7 @@ public class DLFileEntryPermission implements BaseModelPermissionChecker {
 	public static boolean contains(
 			PermissionChecker permissionChecker, FileEntry fileEntry,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return fileEntry.containsPermission(permissionChecker, actionId);
 	}
@@ -155,7 +160,7 @@ public class DLFileEntryPermission implements BaseModelPermissionChecker {
 	public static boolean contains(
 			PermissionChecker permissionChecker, long fileEntryId,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		FileEntry fileEntry = DLAppLocalServiceUtil.getFileEntry(fileEntryId);
 
@@ -166,7 +171,7 @@ public class DLFileEntryPermission implements BaseModelPermissionChecker {
 	public void checkBaseModel(
 			PermissionChecker permissionChecker, long groupId, long primaryKey,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		check(permissionChecker, primaryKey, actionId);
 	}

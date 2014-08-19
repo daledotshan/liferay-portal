@@ -15,7 +15,6 @@
 package com.liferay.portal.repository.cmis.model;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.RepositoryException;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -94,7 +93,7 @@ public abstract class CMISModel {
 	protected abstract CMISRepository getCmisRepository();
 
 	@SuppressWarnings("unused")
-	protected Folder getParentFolder() throws PortalException, SystemException {
+	protected Folder getParentFolder() throws PortalException {
 		return _parentFolder;
 	}
 
@@ -155,6 +154,7 @@ public abstract class CMISModel {
 		_unsupportedActionKeys.add(ActionKeys.ADD_SHORTCUT);
 		_unsupportedActionKeys.add(ActionKeys.DELETE_DISCUSSION);
 		_unsupportedActionKeys.add(ActionKeys.PERMISSIONS);
+		_unsupportedActionKeys.add(ActionKeys.SUBSCRIBE);
 		_unsupportedActionKeys.add(ActionKeys.UPDATE_DISCUSSION);
 	}
 
