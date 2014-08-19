@@ -14,10 +14,13 @@
 
 package com.liferay.portlet.polls.lar;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
@@ -27,6 +30,7 @@ import com.liferay.portlet.polls.model.PollsQuestion;
 import com.liferay.portlet.polls.model.PollsVote;
 import com.liferay.portlet.polls.service.PollsVoteLocalServiceUtil;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +46,35 @@ public class PollsVoteStagedModelDataHandler
 	public void deleteStagedModel(
 		String uuid, long groupId, String className, String extraData) {
 
-		throw new UnsupportedOperationException();
+		PollsVote vote = fetchStagedModelByUuidAndGroupId(uuid, groupId);
+
+		if (vote != null) {
+			PollsVoteLocalServiceUtil.deletePollsVote(vote);
+		}
+	}
+
+	@Override
+	public PollsVote fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<PollsVote> votes =
+			PollsVoteLocalServiceUtil.getPollsVotesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<PollsVote>());
+
+		if (ListUtil.isEmpty(votes)) {
+			return null;
+		}
+
+		return votes.get(0);
+	}
+
+	@Override
+	public PollsVote fetchStagedModelByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return PollsVoteLocalServiceUtil.fetchPollsVoteByUuidAndGroupId(
+			uuid, groupId);
 	}
 
 	@Override
@@ -71,9 +103,7 @@ public class PollsVoteStagedModelDataHandler
 			long voteId)
 		throws Exception {
 
-		PollsVote existingVote =
-			PollsVoteLocalServiceUtil.fetchPollsVoteByUuidAndGroupId(
-				uuid, groupId);
+		PollsVote existingVote = fetchMissingReference(uuid, groupId);
 
 		Map<Long, Long> voteIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -110,9 +140,8 @@ public class PollsVoteStagedModelDataHandler
 		serviceContext.setCreateDate(vote.getVoteDate());
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			PollsVote existingVote =
-				PollsVoteLocalServiceUtil.fetchPollsVoteByUuidAndGroupId(
-					vote.getUuid(), portletDataContext.getScopeGroupId());
+			PollsVote existingVote = fetchStagedModelByUuidAndGroupId(
+				vote.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingVote == null) {
 				serviceContext.setUuid(vote.getUuid());
@@ -125,22 +154,6 @@ public class PollsVoteStagedModelDataHandler
 		}
 		catch (DuplicateVoteException dve) {
 		}
-	}
-
-	@Override
-	protected boolean validateMissingReference(
-			String uuid, long companyId, long groupId)
-		throws Exception {
-
-		PollsVote vote =
-			PollsVoteLocalServiceUtil.fetchPollsVoteByUuidAndGroupId(
-				uuid, groupId);
-
-		if (vote == null) {
-			return false;
-		}
-
-		return true;
 	}
 
 }
