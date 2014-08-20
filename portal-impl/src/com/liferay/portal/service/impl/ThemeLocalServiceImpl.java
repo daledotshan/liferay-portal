@@ -14,7 +14,6 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.image.SpriteProcessor;
 import com.liferay.portal.kernel.image.SpriteProcessorUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -30,7 +29,6 @@ import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.ThemeFactoryUtil;
-import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
@@ -54,6 +52,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -97,9 +96,8 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 
 	@Override
 	public ColorScheme getColorScheme(
-			long companyId, String themeId, String colorSchemeId,
-			boolean wapTheme)
-		throws SystemException {
+		long companyId, String themeId, String colorSchemeId,
+		boolean wapTheme) {
 
 		colorSchemeId = GetterUtil.getString(colorSchemeId);
 
@@ -140,8 +138,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 
 	@Override
 	public List<Theme> getControlPanelThemes(
-			long companyId, long userId, boolean wapTheme)
-		throws SystemException {
+		long companyId, long userId, boolean wapTheme) {
 
 		List<Theme> themes = getThemes(companyId);
 
@@ -164,8 +161,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 
 	@Override
 	public List<Theme> getPageThemes(
-			long companyId, long groupId, long userId, boolean wapTheme)
-		throws SystemException {
+		long companyId, long groupId, long userId, boolean wapTheme) {
 
 		List<Theme> themes = getThemes(companyId);
 
@@ -188,9 +184,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 	}
 
 	@Override
-	public Theme getTheme(long companyId, String themeId, boolean wapTheme)
-		throws SystemException {
-
+	public Theme getTheme(long companyId, String themeId, boolean wapTheme) {
 		themeId = GetterUtil.getString(themeId);
 
 		Map<String, Theme> themes = _getThemes(companyId);
@@ -260,8 +254,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<Theme> getThemes(
-			long companyId, long groupId, long userId, boolean wapTheme)
-		throws SystemException {
+		long companyId, long groupId, long userId, boolean wapTheme) {
 
 		return getPageThemes(companyId, groupId, userId, wapTheme);
 	}
@@ -300,7 +293,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 		String themesPath, boolean loadFromServletContext, String[] xmls,
 		PluginPackage pluginPackage) {
 
-		List<Theme> themes = new UniqueList<Theme>();
+		Set<Theme> themes = new LinkedHashSet<Theme>();
 
 		try {
 			for (String xml : xmls) {
@@ -316,7 +309,7 @@ public class ThemeLocalServiceImpl extends ThemeLocalServiceBaseImpl {
 
 		_themesPool.clear();
 
-		return themes;
+		return new ArrayList<Theme>(themes);
 	}
 
 	@Override

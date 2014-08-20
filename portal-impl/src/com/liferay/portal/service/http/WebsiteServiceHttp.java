@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -49,12 +51,12 @@ import com.liferay.portal.service.WebsiteServiceUtil;
  * @see com.liferay.portal.service.WebsiteServiceUtil
  * @generated
  */
+@ProviderType
 public class WebsiteServiceHttp {
 	public static com.liferay.portal.model.Website addWebsite(
 		HttpPrincipal httpPrincipal, java.lang.String className, long classPK,
 		java.lang.String url, int typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(WebsiteServiceUtil.class,
 					"addWebsite", _addWebsiteParameterTypes0);
@@ -70,10 +72,6 @@ public class WebsiteServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -92,8 +90,7 @@ public class WebsiteServiceHttp {
 		HttpPrincipal httpPrincipal, java.lang.String className, long classPK,
 		java.lang.String url, int typeId, boolean primary,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(WebsiteServiceUtil.class,
 					"addWebsite", _addWebsiteParameterTypes1);
@@ -111,10 +108,6 @@ public class WebsiteServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -128,8 +121,7 @@ public class WebsiteServiceHttp {
 	}
 
 	public static void deleteWebsite(HttpPrincipal httpPrincipal, long websiteId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(WebsiteServiceUtil.class,
 					"deleteWebsite", _deleteWebsiteParameterTypes2);
@@ -144,10 +136,6 @@ public class WebsiteServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -160,8 +148,7 @@ public class WebsiteServiceHttp {
 
 	public static com.liferay.portal.model.Website getWebsite(
 		HttpPrincipal httpPrincipal, long websiteId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(WebsiteServiceUtil.class,
 					"getWebsite", _getWebsiteParameterTypes3);
@@ -178,10 +165,6 @@ public class WebsiteServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -196,8 +179,7 @@ public class WebsiteServiceHttp {
 
 	public static java.util.List<com.liferay.portal.model.Website> getWebsites(
 		HttpPrincipal httpPrincipal, java.lang.String className, long classPK)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(WebsiteServiceUtil.class,
 					"getWebsites", _getWebsitesParameterTypes4);
@@ -215,10 +197,6 @@ public class WebsiteServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -234,8 +212,7 @@ public class WebsiteServiceHttp {
 	public static com.liferay.portal.model.Website updateWebsite(
 		HttpPrincipal httpPrincipal, long websiteId, java.lang.String url,
 		int typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(WebsiteServiceUtil.class,
 					"updateWebsite", _updateWebsiteParameterTypes5);
@@ -251,10 +228,6 @@ public class WebsiteServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

@@ -14,12 +14,16 @@
 
 package com.liferay.portlet.expando.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -61,6 +65,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.expando.service.ExpandoRowLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class ExpandoRowLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements ExpandoRowLocalService,
 		IdentifiableBean {
@@ -75,12 +80,10 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 *
 	 * @param expandoRow the expando row
 	 * @return the expando row that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public ExpandoRow addExpandoRow(ExpandoRow expandoRow)
-		throws SystemException {
+	public ExpandoRow addExpandoRow(ExpandoRow expandoRow) {
 		expandoRow.setNew(true);
 
 		return expandoRowPersistence.update(expandoRow);
@@ -103,12 +106,10 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 * @param rowId the primary key of the expando row
 	 * @return the expando row that was removed
 	 * @throws PortalException if a expando row with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public ExpandoRow deleteExpandoRow(long rowId)
-		throws PortalException, SystemException {
+	public ExpandoRow deleteExpandoRow(long rowId) throws PortalException {
 		return expandoRowPersistence.remove(rowId);
 	}
 
@@ -117,12 +118,10 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 *
 	 * @param expandoRow the expando row
 	 * @return the expando row that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public ExpandoRow deleteExpandoRow(ExpandoRow expandoRow)
-		throws SystemException {
+	public ExpandoRow deleteExpandoRow(ExpandoRow expandoRow) {
 		return expandoRowPersistence.remove(expandoRow);
 	}
 
@@ -139,12 +138,9 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return expandoRowPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -159,12 +155,10 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return expandoRowPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end);
 	}
@@ -181,12 +175,10 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return expandoRowPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end, orderByComparator);
 	}
@@ -196,11 +188,9 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return expandoRowPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -210,17 +200,16 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return expandoRowPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public ExpandoRow fetchExpandoRow(long rowId) throws SystemException {
+	public ExpandoRow fetchExpandoRow(long rowId) {
 		return expandoRowPersistence.fetchByPrimaryKey(rowId);
 	}
 
@@ -230,17 +219,46 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 * @param rowId the primary key of the expando row
 	 * @return the expando row
 	 * @throws PortalException if a expando row with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ExpandoRow getExpandoRow(long rowId)
-		throws PortalException, SystemException {
+	public ExpandoRow getExpandoRow(long rowId) throws PortalException {
 		return expandoRowPersistence.findByPrimaryKey(rowId);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.expando.service.ExpandoRowLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(ExpandoRow.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("rowId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.expando.service.ExpandoRowLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(ExpandoRow.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("rowId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return expandoRowLocalService.deleteExpandoRow((ExpandoRow)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return expandoRowPersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -254,11 +272,9 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 * @param start the lower bound of the range of expando rows
 	 * @param end the upper bound of the range of expando rows (not inclusive)
 	 * @return the range of expando rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ExpandoRow> getExpandoRows(int start, int end)
-		throws SystemException {
+	public List<ExpandoRow> getExpandoRows(int start, int end) {
 		return expandoRowPersistence.findAll(start, end);
 	}
 
@@ -266,10 +282,9 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 * Returns the number of expando rows.
 	 *
 	 * @return the number of expando rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getExpandoRowsCount() throws SystemException {
+	public int getExpandoRowsCount() {
 		return expandoRowPersistence.countAll();
 	}
 
@@ -278,12 +293,10 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 *
 	 * @param expandoRow the expando row
 	 * @return the expando row that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public ExpandoRow updateExpandoRow(ExpandoRow expandoRow)
-		throws SystemException {
+	public ExpandoRow updateExpandoRow(ExpandoRow expandoRow) {
 		return expandoRowPersistence.update(expandoRow);
 	}
 
@@ -689,7 +702,7 @@ public abstract class ExpandoRowLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = expandoRowPersistence.getDataSource();
 

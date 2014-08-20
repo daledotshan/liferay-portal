@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.service.ExportImportConfigurationLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ExportImportConfigurationLocalServiceUtil;
  * @see com.liferay.portal.model.ExportImportConfiguration
  * @generated
  */
+@ProviderType
 public abstract class ExportImportConfigurationBaseImpl
 	extends ExportImportConfigurationModelImpl
 	implements ExportImportConfiguration {
@@ -39,7 +41,7 @@ public abstract class ExportImportConfigurationBaseImpl
 	 * Never modify or reference this class directly. All methods that expect a export import configuration model instance should use the {@link ExportImportConfiguration} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ExportImportConfigurationLocalServiceUtil.addExportImportConfiguration(this);
 		}

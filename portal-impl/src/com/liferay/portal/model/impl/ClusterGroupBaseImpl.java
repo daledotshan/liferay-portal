@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.ClusterGroup;
 import com.liferay.portal.service.ClusterGroupLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ClusterGroupLocalServiceUtil;
  * @see com.liferay.portal.model.ClusterGroup
  * @generated
  */
+@ProviderType
 public abstract class ClusterGroupBaseImpl extends ClusterGroupModelImpl
 	implements ClusterGroup {
 	/*
@@ -38,7 +40,7 @@ public abstract class ClusterGroupBaseImpl extends ClusterGroupModelImpl
 	 * Never modify or reference this class directly. All methods that expect a cluster group model instance should use the {@link ClusterGroup} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ClusterGroupLocalServiceUtil.addClusterGroup(this);
 		}

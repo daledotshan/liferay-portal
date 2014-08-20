@@ -15,7 +15,6 @@
 package com.liferay.portlet.usersadmin.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -61,17 +60,24 @@ public class OrganizationStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
-		Organization organization =
-			OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
-				uuid, group.getCompanyId());
+		Organization organization = fetchStagedModelByUuidAndCompanyId(
+			uuid, group.getCompanyId());
 
 		if (organization != null) {
 			OrganizationLocalServiceUtil.deleteOrganization(organization);
 		}
+	}
+
+	@Override
+	public Organization fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
+			uuid, companyId);
 	}
 
 	@Override
@@ -152,9 +158,8 @@ public class OrganizationStagedModelDataHandler
 
 		serviceContext.setUserId(userId);
 
-		Organization existingOrganization =
-			OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
-				organization.getUuid(), portletDataContext.getCompanyId());
+		Organization existingOrganization = fetchStagedModelByUuidAndCompanyId(
+			organization.getUuid(), portletDataContext.getGroupId());
 
 		if (existingOrganization == null) {
 			existingOrganization =
@@ -201,7 +206,7 @@ public class OrganizationStagedModelDataHandler
 
 	protected void exportAddresses(
 			PortletDataContext portletDataContext, Organization organization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Address> addresses = AddressLocalServiceUtil.getAddresses(
 			organization.getCompanyId(), organization.getModelClassName(),
@@ -216,7 +221,7 @@ public class OrganizationStagedModelDataHandler
 
 	protected void exportEmailAddresses(
 			PortletDataContext portletDataContext, Organization organization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<EmailAddress> emailAddresses =
 			EmailAddressLocalServiceUtil.getEmailAddresses(
@@ -231,8 +236,7 @@ public class OrganizationStagedModelDataHandler
 	}
 
 	protected void exportOrgLabors(
-			PortletDataContext portletDataContext, Organization organization)
-		throws SystemException {
+		PortletDataContext portletDataContext, Organization organization) {
 
 		List<OrgLabor> orgLabors = OrgLaborLocalServiceUtil.getOrgLabors(
 			organization.getOrganizationId());
@@ -245,7 +249,7 @@ public class OrganizationStagedModelDataHandler
 
 	protected void exportPasswordPolicyRel(
 			PortletDataContext portletDataContext, Organization organization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		PasswordPolicyRel passwordPolicyRel =
 			PasswordPolicyRelLocalServiceUtil.fetchPasswordPolicyRel(
@@ -266,7 +270,7 @@ public class OrganizationStagedModelDataHandler
 
 	protected void exportPhones(
 			PortletDataContext portletDataContext, Organization organization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Phone> phones = PhoneLocalServiceUtil.getPhones(
 			organization.getCompanyId(), organization.getModelClassName(),
@@ -281,7 +285,7 @@ public class OrganizationStagedModelDataHandler
 
 	protected void exportWebsites(
 			PortletDataContext portletDataContext, Organization organization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Website> websites = WebsiteLocalServiceUtil.getWebsites(
 			organization.getCompanyId(), organization.getModelClassName(),
@@ -297,7 +301,7 @@ public class OrganizationStagedModelDataHandler
 	protected void importAddresses(
 			PortletDataContext portletDataContext, Organization organization,
 			Organization importedOrganization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Element> addressElements =
 			portletDataContext.getReferenceDataElements(
@@ -336,7 +340,7 @@ public class OrganizationStagedModelDataHandler
 	protected void importEmailAddresses(
 			PortletDataContext portletDataContext, Organization organization,
 			Organization importedOrganization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Element> emailAddressElements =
 			portletDataContext.getReferenceDataElements(
@@ -378,7 +382,7 @@ public class OrganizationStagedModelDataHandler
 	protected void importOrgLabors(
 			PortletDataContext portletDataContext, Organization organization,
 			Organization importedOrganization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String path = ExportImportPathUtil.getModelPath(
 			organization, OrgLabor.class.getSimpleName());
@@ -397,7 +401,7 @@ public class OrganizationStagedModelDataHandler
 	protected void importPasswordPolicyRel(
 			PortletDataContext portletDataContext, Organization organization,
 			Organization importedOrganization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Element> passwordPolicyElements =
 			portletDataContext.getReferenceDataElements(
@@ -434,7 +438,7 @@ public class OrganizationStagedModelDataHandler
 	protected void importPhones(
 			PortletDataContext portletDataContext, Organization organization,
 			Organization importedOrganization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Element> phoneElements =
 			portletDataContext.getReferenceDataElements(
@@ -472,7 +476,7 @@ public class OrganizationStagedModelDataHandler
 	protected void importWebsites(
 			PortletDataContext portletDataContext, Organization organization,
 			Organization importedOrganization)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Element> websiteElements =
 			portletDataContext.getReferenceDataElements(
@@ -505,22 +509,6 @@ public class OrganizationStagedModelDataHandler
 		UsersAdminUtil.updateWebsites(
 			Organization.class.getName(),
 			importedOrganization.getOrganizationId(), websites);
-	}
-
-	@Override
-	protected boolean validateMissingReference(
-			String uuid, long companyId, long groupId)
-		throws Exception {
-
-		Organization organization =
-			OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
-				uuid, companyId);
-
-		if (organization == null) {
-			return false;
-		}
-
-		return true;
 	}
 
 }

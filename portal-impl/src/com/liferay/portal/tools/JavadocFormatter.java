@@ -824,7 +824,7 @@ public class JavadocFormatter {
 
 			// Escape dollar signs
 
-			trimmed = trimmed.replaceAll("\\$", "\\\\\\$");
+			trimmed = StringUtil.replace(trimmed, "$", "\\$");
 
 			matcher.appendReplacement(sb, trimmed);
 		}
@@ -1519,7 +1519,6 @@ public class JavadocFormatter {
 			else {
 				return false;
 			}
-
 		}
 
 		return false;

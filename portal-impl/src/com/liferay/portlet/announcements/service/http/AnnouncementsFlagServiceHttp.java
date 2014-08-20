@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.announcements.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,11 +53,10 @@ import com.liferay.portlet.announcements.service.AnnouncementsFlagServiceUtil;
  * @see com.liferay.portlet.announcements.service.AnnouncementsFlagServiceUtil
  * @generated
  */
+@ProviderType
 public class AnnouncementsFlagServiceHttp {
 	public static void addFlag(HttpPrincipal httpPrincipal, long entryId,
-		int value)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		int value) throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AnnouncementsFlagServiceUtil.class,
 					"addFlag", _addFlagParameterTypes0);
@@ -71,10 +72,6 @@ public class AnnouncementsFlagServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -86,8 +83,7 @@ public class AnnouncementsFlagServiceHttp {
 	}
 
 	public static void deleteFlag(HttpPrincipal httpPrincipal, long flagId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AnnouncementsFlagServiceUtil.class,
 					"deleteFlag", _deleteFlagParameterTypes1);
@@ -102,10 +98,6 @@ public class AnnouncementsFlagServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -118,8 +110,7 @@ public class AnnouncementsFlagServiceHttp {
 
 	public static com.liferay.portlet.announcements.model.AnnouncementsFlag getFlag(
 		HttpPrincipal httpPrincipal, long entryId, int value)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AnnouncementsFlagServiceUtil.class,
 					"getFlag", _getFlagParameterTypes2);
@@ -135,10 +126,6 @@ public class AnnouncementsFlagServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

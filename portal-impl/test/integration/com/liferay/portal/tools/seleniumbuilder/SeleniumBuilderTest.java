@@ -14,7 +14,7 @@
 
 package com.liferay.portal.tools.seleniumbuilder;
 
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -2045,6 +2045,36 @@ public class SeleniumBuilderTest {
 			"TestCaseExecuteElement1007.testcase",
 			"Error 1007: Poorly formed XML in " + _DIR_NAME +
 				"/TestCaseExecuteElement1007.testcase");
+	}
+
+	@Test
+	public void testTestCasePropertyElementInvalidAttributeName()
+		throws Exception {
+
+		test(
+			"TestCasePropertyElementInvalidAttributeName_1.testcase",
+			"Error 1005: Invalid delimiter attribute in " + _DIR_NAME +
+				"/TestCasePropertyElementInvalidAttributeName_1.testcase:2");
+
+		test(
+			"TestCasePropertyElementInvalidAttributeName_2.testcase",
+			"Error 1005: Invalid test-case attribute in " + _DIR_NAME +
+				"/TestCasePropertyElementInvalidAttributeName_2.testcase:2");
+	}
+
+	@Test
+	public void testTestCasePropertyElementInvalidAttributeValue()
+		throws Exception {
+
+		test(
+			"TestCasePropertyElementInvalidAttributeValue_1.testcase",
+			"Error 1006: Invalid delimiter attribute value in " + _DIR_NAME +
+				"/TestCasePropertyElementInvalidAttributeValue_1.testcase:2");
+
+		test(
+			"TestCasePropertyElementInvalidAttributeValue_2.testcase",
+			"Error 1006: Invalid value attribute value in " + _DIR_NAME +
+				"/TestCasePropertyElementInvalidAttributeValue_2.testcase:2");
 	}
 
 	@Test
