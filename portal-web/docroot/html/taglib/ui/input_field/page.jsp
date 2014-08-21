@@ -20,7 +20,7 @@
 boolean autoFocus = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-field:autoFocus"));
 boolean autoSize = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-field:autoSize"));
 Object bean = request.getAttribute("liferay-ui:input-field:bean");
-String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-field:cssClass")) + " form-control";
+String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-field:cssClass"));
 String dateTogglerCheckboxLabel = GetterUtil.getString((String) request.getAttribute("liferay-ui:input-field:dateTogglerCheckboxLabel"));
 String defaultLanguageId = (String)request.getAttribute("liferay-ui:input-field:defaultLanguageId");
 Object defaultValue = request.getAttribute("liferay-ui:input-field:defaultValue");
@@ -41,6 +41,10 @@ Map<String, String> hints = ModelHintsUtil.getHints(model, field);
 
 if (hints != null) {
 	type = GetterUtil.getString(hints.get("type"), type);
+}
+
+if (type.equals("int") || type.equals("String")) {
+	cssClass+=" form-control";
 }
 %>
 
