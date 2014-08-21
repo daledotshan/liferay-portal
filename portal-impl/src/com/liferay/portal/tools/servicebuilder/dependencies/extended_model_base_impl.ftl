@@ -6,7 +6,6 @@ import ${packagePath}.model.${entity.name};
 	import ${packagePath}.service.${entity.name}LocalServiceUtil;
 
 	import com.liferay.portal.kernel.exception.PortalException;
-	import com.liferay.portal.kernel.exception.SystemException;
 	import com.liferay.portal.kernel.util.StringBundler;
 	import com.liferay.portal.kernel.util.StringPool;
 	import com.liferay.portal.model.TreeModel;
@@ -14,6 +13,8 @@ import ${packagePath}.model.${entity.name};
 	import java.util.ArrayList;
 	import java.util.List;
 </#if>
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * The extended model base implementation for the ${entity.name} service. Represents a row in the &quot;${entity.table}&quot; database table, with each column mapped to a property of this class.
@@ -27,6 +28,7 @@ import ${packagePath}.model.${entity.name};
  * @see ${packagePath}.model.${entity.name}
  * @generated
  */
+@ProviderType
 public abstract class ${entity.name}BaseImpl extends ${entity.name}ModelImpl implements ${entity.name} {
 
 	/*
@@ -37,7 +39,7 @@ public abstract class ${entity.name}BaseImpl extends ${entity.name}ModelImpl imp
 
 	<#if entity.hasLocalService() && entity.hasColumns()>
 		@Override
-		public void persist() throws SystemException {
+		public void persist() {
 			if (this.isNew()) {
 				${entity.name}LocalServiceUtil.add${entity.name}(this);
 			}
@@ -52,7 +54,7 @@ public abstract class ${entity.name}BaseImpl extends ${entity.name}ModelImpl imp
 			<#if entity.hasColumn("parent" + pkColumn.methodName)>
 				@Override
 				@SuppressWarnings("unused")
-				public String buildTreePath() throws PortalException, SystemException {
+				public String buildTreePath() throws PortalException {
 					List<${entity.name}> ${entity.varNames} = new ArrayList<${entity.name}>();
 
 					${entity.name} ${entity.varName} = this;
@@ -79,7 +81,7 @@ public abstract class ${entity.name}BaseImpl extends ${entity.name}ModelImpl imp
 			</#if>
 
 			@Override
-			public void updateTreePath(String treePath) throws SystemException {
+			public void updateTreePath(String treePath) {
 				${entity.name} ${entity.varName} = this;
 
 				${entity.varName}.setTreePath(treePath);

@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.flags.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,14 +53,14 @@ import com.liferay.portlet.flags.service.FlagsEntryServiceUtil;
  * @see com.liferay.portlet.flags.service.FlagsEntryServiceUtil
  * @generated
  */
+@ProviderType
 public class FlagsEntryServiceHttp {
 	public static void addEntry(HttpPrincipal httpPrincipal,
 		java.lang.String className, long classPK,
 		java.lang.String reporterEmailAddress, long reportedUserId,
 		java.lang.String contentTitle, java.lang.String contentURL,
 		java.lang.String reason,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.service.ServiceContext serviceContext) {
 		try {
 			MethodKey methodKey = new MethodKey(FlagsEntryServiceUtil.class,
 					"addEntry", _addEntryParameterTypes0);

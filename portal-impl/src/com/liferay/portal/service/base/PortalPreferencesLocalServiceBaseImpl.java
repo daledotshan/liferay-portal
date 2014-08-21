@@ -14,12 +14,16 @@
 
 package com.liferay.portal.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -54,6 +58,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portal.service.PortalPreferencesLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class PortalPreferencesLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements PortalPreferencesLocalService,
 		IdentifiableBean {
@@ -68,12 +73,11 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 *
 	 * @param portalPreferences the portal preferences
 	 * @return the portal preferences that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public PortalPreferences addPortalPreferences(
-		PortalPreferences portalPreferences) throws SystemException {
+		PortalPreferences portalPreferences) {
 		portalPreferences.setNew(true);
 
 		return portalPreferencesPersistence.update(portalPreferences);
@@ -96,12 +100,11 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 * @param portalPreferencesId the primary key of the portal preferences
 	 * @return the portal preferences that was removed
 	 * @throws PortalException if a portal preferences with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public PortalPreferences deletePortalPreferences(long portalPreferencesId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return portalPreferencesPersistence.remove(portalPreferencesId);
 	}
 
@@ -110,12 +113,11 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 *
 	 * @param portalPreferences the portal preferences
 	 * @return the portal preferences that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public PortalPreferences deletePortalPreferences(
-		PortalPreferences portalPreferences) throws SystemException {
+		PortalPreferences portalPreferences) {
 		return portalPreferencesPersistence.remove(portalPreferences);
 	}
 
@@ -132,12 +134,9 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return portalPreferencesPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -152,12 +151,10 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return portalPreferencesPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end);
 	}
@@ -174,12 +171,10 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return portalPreferencesPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end, orderByComparator);
 	}
@@ -189,11 +184,9 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return portalPreferencesPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -203,18 +196,16 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return portalPreferencesPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public PortalPreferences fetchPortalPreferences(long portalPreferencesId)
-		throws SystemException {
+	public PortalPreferences fetchPortalPreferences(long portalPreferencesId) {
 		return portalPreferencesPersistence.fetchByPrimaryKey(portalPreferencesId);
 	}
 
@@ -224,17 +215,47 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 * @param portalPreferencesId the primary key of the portal preferences
 	 * @return the portal preferences
 	 * @throws PortalException if a portal preferences with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public PortalPreferences getPortalPreferences(long portalPreferencesId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return portalPreferencesPersistence.findByPrimaryKey(portalPreferencesId);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.PortalPreferencesLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(PortalPreferences.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("portalPreferencesId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.PortalPreferencesLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(PortalPreferences.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("portalPreferencesId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return portalPreferencesLocalService.deletePortalPreferences((PortalPreferences)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return portalPreferencesPersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -248,11 +269,9 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 * @param start the lower bound of the range of portal preferenceses
 	 * @param end the upper bound of the range of portal preferenceses (not inclusive)
 	 * @return the range of portal preferenceses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<PortalPreferences> getPortalPreferenceses(int start, int end)
-		throws SystemException {
+	public List<PortalPreferences> getPortalPreferenceses(int start, int end) {
 		return portalPreferencesPersistence.findAll(start, end);
 	}
 
@@ -260,10 +279,9 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 * Returns the number of portal preferenceses.
 	 *
 	 * @return the number of portal preferenceses
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getPortalPreferencesesCount() throws SystemException {
+	public int getPortalPreferencesesCount() {
 		return portalPreferencesPersistence.countAll();
 	}
 
@@ -272,12 +290,11 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 *
 	 * @param portalPreferences the portal preferences
 	 * @return the portal preferences that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public PortalPreferences updatePortalPreferences(
-		PortalPreferences portalPreferences) throws SystemException {
+		PortalPreferences portalPreferences) {
 		return portalPreferencesPersistence.update(portalPreferences);
 	}
 
@@ -381,7 +398,7 @@ public abstract class PortalPreferencesLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = portalPreferencesPersistence.getDataSource();
 

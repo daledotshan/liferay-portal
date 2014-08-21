@@ -39,6 +39,13 @@ public class StagedGroupStagedModelDataHandler
 	}
 
 	@Override
+	public StagedGroup fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return null;
+	}
+
+	@Override
 	public String[] getClassNames() {
 		return CLASS_NAMES;
 	}
@@ -130,7 +137,13 @@ public class StagedGroupStagedModelDataHandler
 	protected Group fetchExistingGroup(
 		PortletDataContext portletDataContext, long groupId, long liveGroupId) {
 
-		long existingGroupId = liveGroupId;
+		Group liveGroup = GroupLocalServiceUtil.fetchGroup(liveGroupId);
+
+		if (liveGroup != null) {
+			return liveGroup;
+		}
+
+		long existingGroupId = portletDataContext.getScopeGroupId();
 
 		if (groupId == portletDataContext.getSourceCompanyGroupId()) {
 			existingGroupId = portletDataContext.getCompanyGroupId();
@@ -139,12 +152,7 @@ public class StagedGroupStagedModelDataHandler
 			existingGroupId = portletDataContext.getGroupId();
 		}
 
-		try {
-			return GroupLocalServiceUtil.getGroup(existingGroupId);
-		}
-		catch (Exception e) {
-			return null;
-		}
+		return GroupLocalServiceUtil.fetchGroup(existingGroupId);
 	}
 
 }
