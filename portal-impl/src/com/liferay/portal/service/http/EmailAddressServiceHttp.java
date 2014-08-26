@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -49,12 +51,12 @@ import com.liferay.portal.service.EmailAddressServiceUtil;
  * @see com.liferay.portal.service.EmailAddressServiceUtil
  * @generated
  */
+@ProviderType
 public class EmailAddressServiceHttp {
 	public static com.liferay.portal.model.EmailAddress addEmailAddress(
 		HttpPrincipal httpPrincipal, java.lang.String className, long classPK,
 		java.lang.String address, int typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(EmailAddressServiceUtil.class,
 					"addEmailAddress", _addEmailAddressParameterTypes0);
@@ -70,10 +72,6 @@ public class EmailAddressServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -92,8 +90,7 @@ public class EmailAddressServiceHttp {
 		HttpPrincipal httpPrincipal, java.lang.String className, long classPK,
 		java.lang.String address, int typeId, boolean primary,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(EmailAddressServiceUtil.class,
 					"addEmailAddress", _addEmailAddressParameterTypes1);
@@ -111,10 +108,6 @@ public class EmailAddressServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -129,8 +122,7 @@ public class EmailAddressServiceHttp {
 
 	public static void deleteEmailAddress(HttpPrincipal httpPrincipal,
 		long emailAddressId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(EmailAddressServiceUtil.class,
 					"deleteEmailAddress", _deleteEmailAddressParameterTypes2);
@@ -146,10 +138,6 @@ public class EmailAddressServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -162,8 +150,7 @@ public class EmailAddressServiceHttp {
 
 	public static com.liferay.portal.model.EmailAddress getEmailAddress(
 		HttpPrincipal httpPrincipal, long emailAddressId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(EmailAddressServiceUtil.class,
 					"getEmailAddress", _getEmailAddressParameterTypes3);
@@ -181,10 +168,6 @@ public class EmailAddressServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -199,8 +182,7 @@ public class EmailAddressServiceHttp {
 
 	public static java.util.List<com.liferay.portal.model.EmailAddress> getEmailAddresses(
 		HttpPrincipal httpPrincipal, java.lang.String className, long classPK)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(EmailAddressServiceUtil.class,
 					"getEmailAddresses", _getEmailAddressesParameterTypes4);
@@ -218,10 +200,6 @@ public class EmailAddressServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -237,8 +215,7 @@ public class EmailAddressServiceHttp {
 	public static com.liferay.portal.model.EmailAddress updateEmailAddress(
 		HttpPrincipal httpPrincipal, long emailAddressId,
 		java.lang.String address, int typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(EmailAddressServiceUtil.class,
 					"updateEmailAddress", _updateEmailAddressParameterTypes5);
@@ -254,10 +231,6 @@ public class EmailAddressServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

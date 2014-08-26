@@ -14,17 +14,27 @@
 
 package com.liferay.portlet.messageboards.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
+import com.liferay.portal.kernel.lar.ManifestSummary;
+import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -57,6 +67,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.messageboards.service.MBThreadFlagLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class MBThreadFlagLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements MBThreadFlagLocalService,
 		IdentifiableBean {
@@ -71,12 +82,10 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 *
 	 * @param mbThreadFlag the message boards thread flag
 	 * @return the message boards thread flag that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public MBThreadFlag addMBThreadFlag(MBThreadFlag mbThreadFlag)
-		throws SystemException {
+	public MBThreadFlag addMBThreadFlag(MBThreadFlag mbThreadFlag) {
 		mbThreadFlag.setNew(true);
 
 		return mbThreadFlagPersistence.update(mbThreadFlag);
@@ -99,12 +108,11 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param threadFlagId the primary key of the message boards thread flag
 	 * @return the message boards thread flag that was removed
 	 * @throws PortalException if a message boards thread flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public MBThreadFlag deleteMBThreadFlag(long threadFlagId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return mbThreadFlagPersistence.remove(threadFlagId);
 	}
 
@@ -113,12 +121,10 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 *
 	 * @param mbThreadFlag the message boards thread flag
 	 * @return the message boards thread flag that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public MBThreadFlag deleteMBThreadFlag(MBThreadFlag mbThreadFlag)
-		throws SystemException {
+	public MBThreadFlag deleteMBThreadFlag(MBThreadFlag mbThreadFlag) {
 		return mbThreadFlagPersistence.remove(mbThreadFlag);
 	}
 
@@ -135,12 +141,9 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return mbThreadFlagPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -155,12 +158,10 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return mbThreadFlagPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end);
 	}
@@ -177,12 +178,10 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return mbThreadFlagPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end, orderByComparator);
 	}
@@ -192,11 +191,9 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return mbThreadFlagPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -206,33 +203,17 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return mbThreadFlagPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public MBThreadFlag fetchMBThreadFlag(long threadFlagId)
-		throws SystemException {
+	public MBThreadFlag fetchMBThreadFlag(long threadFlagId) {
 		return mbThreadFlagPersistence.fetchByPrimaryKey(threadFlagId);
-	}
-
-	/**
-	 * Returns the message boards thread flag with the matching UUID and company.
-	 *
-	 * @param uuid the message boards thread flag's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching message boards thread flag, or <code>null</code> if a matching message boards thread flag could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public MBThreadFlag fetchMBThreadFlagByUuidAndCompanyId(String uuid,
-		long companyId) throws SystemException {
-		return mbThreadFlagPersistence.fetchByUuid_C_First(uuid, companyId, null);
 	}
 
 	/**
@@ -241,11 +222,10 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param uuid the message boards thread flag's UUID
 	 * @param groupId the primary key of the group
 	 * @return the matching message boards thread flag, or <code>null</code> if a matching message boards thread flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThreadFlag fetchMBThreadFlagByUuidAndGroupId(String uuid,
-		long groupId) throws SystemException {
+		long groupId) {
 		return mbThreadFlagPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
@@ -255,33 +235,117 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param threadFlagId the primary key of the message boards thread flag
 	 * @return the message boards thread flag
 	 * @throws PortalException if a message boards thread flag with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThreadFlag getMBThreadFlag(long threadFlagId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return mbThreadFlagPersistence.findByPrimaryKey(threadFlagId);
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
-		return mbThreadFlagPersistence.findByPrimaryKey(primaryKeyObj);
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.messageboards.service.MBThreadFlagLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(MBThreadFlag.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("threadFlagId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.messageboards.service.MBThreadFlagLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(MBThreadFlag.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("threadFlagId");
+	}
+
+	@Override
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		final PortletDataContext portletDataContext) {
+		final ExportActionableDynamicQuery exportActionableDynamicQuery = new ExportActionableDynamicQuery() {
+				@Override
+				public long performCount() throws PortalException {
+					ManifestSummary manifestSummary = portletDataContext.getManifestSummary();
+
+					StagedModelType stagedModelType = getStagedModelType();
+
+					long modelAdditionCount = super.performCount();
+
+					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+						modelAdditionCount);
+
+					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
+							stagedModelType);
+
+					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+						modelDeletionCount);
+
+					return modelAdditionCount;
+				}
+			};
+
+		initActionableDynamicQuery(exportActionableDynamicQuery);
+
+		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					portletDataContext.addDateRangeCriteria(dynamicQuery,
+						"modifiedDate");
+				}
+			});
+
+		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
+
+		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
+
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+					MBThreadFlag stagedModel = (MBThreadFlag)object;
+
+					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
+						stagedModel);
+				}
+			});
+		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
+				PortalUtil.getClassNameId(MBThreadFlag.class.getName())));
+
+		return exportActionableDynamicQuery;
 	}
 
 	/**
-	 * Returns the message boards thread flag with the matching UUID and company.
-	 *
-	 * @param uuid the message boards thread flag's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching message boards thread flag
-	 * @throws PortalException if a matching message boards thread flag could not be found
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Override
-	public MBThreadFlag getMBThreadFlagByUuidAndCompanyId(String uuid,
-		long companyId) throws PortalException, SystemException {
-		return mbThreadFlagPersistence.findByUuid_C_First(uuid, companyId, null);
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return mbThreadFlagLocalService.deleteMBThreadFlag((MBThreadFlag)persistedModel);
+	}
+
+	@Override
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+		return mbThreadFlagPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	@Override
+	public List<MBThreadFlag> getMBThreadFlagsByUuidAndCompanyId(String uuid,
+		long companyId) {
+		return mbThreadFlagPersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<MBThreadFlag> getMBThreadFlagsByUuidAndCompanyId(String uuid,
+		long companyId, int start, int end,
+		OrderByComparator<MBThreadFlag> orderByComparator) {
+		return mbThreadFlagPersistence.findByUuid_C(uuid, companyId, start,
+			end, orderByComparator);
 	}
 
 	/**
@@ -291,11 +355,10 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param groupId the primary key of the group
 	 * @return the matching message boards thread flag
 	 * @throws PortalException if a matching message boards thread flag could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThreadFlag getMBThreadFlagByUuidAndGroupId(String uuid,
-		long groupId) throws PortalException, SystemException {
+		long groupId) throws PortalException {
 		return mbThreadFlagPersistence.findByUUID_G(uuid, groupId);
 	}
 
@@ -309,11 +372,9 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param start the lower bound of the range of message boards thread flags
 	 * @param end the upper bound of the range of message boards thread flags (not inclusive)
 	 * @return the range of message boards thread flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThreadFlag> getMBThreadFlags(int start, int end)
-		throws SystemException {
+	public List<MBThreadFlag> getMBThreadFlags(int start, int end) {
 		return mbThreadFlagPersistence.findAll(start, end);
 	}
 
@@ -321,10 +382,9 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * Returns the number of message boards thread flags.
 	 *
 	 * @return the number of message boards thread flags
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getMBThreadFlagsCount() throws SystemException {
+	public int getMBThreadFlagsCount() {
 		return mbThreadFlagPersistence.countAll();
 	}
 
@@ -333,12 +393,10 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 *
 	 * @param mbThreadFlag the message boards thread flag
 	 * @return the message boards thread flag that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public MBThreadFlag updateMBThreadFlag(MBThreadFlag mbThreadFlag)
-		throws SystemException {
+	public MBThreadFlag updateMBThreadFlag(MBThreadFlag mbThreadFlag) {
 		return mbThreadFlagPersistence.update(mbThreadFlag);
 	}
 
@@ -516,7 +574,7 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = mbThreadFlagPersistence.getDataSource();
 

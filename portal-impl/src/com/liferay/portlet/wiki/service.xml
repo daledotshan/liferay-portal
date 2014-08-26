@@ -79,7 +79,7 @@
 
 		<!-- Resource -->
 
-		<column name="resourcePrimKey" type="long" filter-primary="true" />
+		<column name="resourcePrimKey" type="long" filter-primary="true" container-model="true" />
 
 		<!-- Group instance -->
 
@@ -207,6 +207,11 @@
 			<finder-column name="head" />
 			<finder-column name="parentTitle" case-sensitive="false" />
 		</finder>
+		<finder name="N_H_R" return-type="Collection">
+			<finder-column name="nodeId" />
+			<finder-column name="head" />
+			<finder-column name="redirectTitle" case-sensitive="false" />
+		</finder>
 		<finder name="N_H_S" return-type="Collection">
 			<finder-column name="nodeId" />
 			<finder-column name="head" />
@@ -316,6 +321,7 @@
 		<exception>DuplicateNodeName</exception>
 		<exception>DuplicatePage</exception>
 		<exception>ImportFiles</exception>
+		<exception>NodeChange</exception>
 		<exception>NodeName</exception>
 		<exception>NoSuchNode</exception>
 		<exception>NoSuchPage</exception>

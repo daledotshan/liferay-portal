@@ -14,9 +14,9 @@
 
 package com.liferay.portlet.usersadmin.util;
 
+import com.liferay.portal.NoSuchContactException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.BaseIndexer;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.BooleanQuery;
@@ -39,7 +39,6 @@ import com.liferay.portal.security.auth.FullNameGenerator;
 import com.liferay.portal.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.persistence.UserActionableDynamicQuery;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 
@@ -68,7 +67,7 @@ public class UserIndexer extends BaseIndexer {
 
 	public UserIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {Field.COMPANY_ID, Field.UID, Field.USER_ID});
+			Field.COMPANY_ID, Field.UID, Field.USER_ID);
 		setIndexerEnabled(PropsValues.USERS_INDEXER_ENABLED);
 		setPermissionAware(true);
 		setStagingAware(false);
@@ -317,14 +316,7 @@ public class UserIndexer extends BaseIndexer {
 
 	@Override
 	protected void doReindex(Object obj) throws Exception {
-		if (obj instanceof List<?>) {
-			List<User> users = (List<User>)obj;
-
-			for (User user : users) {
-				doReindex(user);
-			}
-		}
-		else if (obj instanceof Long) {
+		if (obj instanceof Long) {
 			long userId = (Long)obj;
 
 			User user = UserLocalServiceUtil.getUserById(userId);
@@ -384,7 +376,14 @@ public class UserIndexer extends BaseIndexer {
 			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 				Contact.class);
 
-			indexer.reindex(user.getContact());
+			try {
+				indexer.reindex(user.getContact());
+			}
+			catch (NoSuchContactException nscce) {
+
+				// This is a temporary workaround for LPS-46825
+
+			}
 		}
 	}
 
@@ -433,26 +432,28 @@ public class UserIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexUsers(long companyId)
-		throws PortalException, SystemException {
-
-		ActionableDynamicQuery actionableDynamicQuery =
-			new UserActionableDynamicQuery() {
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				User user = (User)object;
-
-				if (!user.isDefaultUser()) {
-					Document document = getDocument(user);
-
-					addDocument(document);
-				}
-			}
-
-		};
+	protected void reindexUsers(long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			UserLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					User user = (User)object;
+
+					if (!user.isDefaultUser()) {
+						Document document = getDocument(user);
+
+						actionableDynamicQuery.addDocument(document);
+					}
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

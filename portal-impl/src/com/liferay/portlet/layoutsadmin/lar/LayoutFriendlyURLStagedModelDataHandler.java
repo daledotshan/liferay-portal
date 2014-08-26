@@ -14,11 +14,12 @@
 
 package com.liferay.portlet.layoutsadmin.lar;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Layout;
@@ -26,6 +27,7 @@ import com.liferay.portal.model.LayoutFriendlyURL;
 import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,15 +41,38 @@ public class LayoutFriendlyURLStagedModelDataHandler
 
 	@Override
 	public void deleteStagedModel(
-			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		String uuid, long groupId, String className, String extraData) {
 
-		LayoutFriendlyURL layoutFriendlyURL =
-			LayoutFriendlyURLLocalServiceUtil.
-				getLayoutFriendlyURLByUuidAndGroupId(uuid, groupId);
+		LayoutFriendlyURL layoutFriendlyURL = fetchStagedModelByUuidAndGroupId(
+			uuid, groupId);
 
 		LayoutFriendlyURLLocalServiceUtil.deleteLayoutFriendlyURL(
 			layoutFriendlyURL);
+	}
+
+	@Override
+	public LayoutFriendlyURL fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<LayoutFriendlyURL> friendlyURLs =
+			LayoutFriendlyURLLocalServiceUtil.
+				getLayoutFriendlyURLsByUuidAndCompanyId(
+					uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+					new StagedModelModifiedDateComparator<LayoutFriendlyURL>());
+
+		if (ListUtil.isEmpty(friendlyURLs)) {
+			return null;
+		}
+
+		return friendlyURLs.get(0);
+	}
+
+	@Override
+	public LayoutFriendlyURL fetchStagedModelByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return LayoutFriendlyURLLocalServiceUtil.
+			fetchLayoutFriendlyURLByUuidAndGroupId(uuid, groupId);
 	}
 
 	@Override
@@ -139,15 +164,13 @@ public class LayoutFriendlyURLStagedModelDataHandler
 	}
 
 	protected LayoutFriendlyURL fetchExistingLayoutFriendlyURL(
-			PortletDataContext portletDataContext,
-			LayoutFriendlyURL layoutFriendlyURL, long plid)
-		throws SystemException {
+		PortletDataContext portletDataContext,
+		LayoutFriendlyURL layoutFriendlyURL, long plid) {
 
 		LayoutFriendlyURL existingLayoutFriendlyURL =
-			LayoutFriendlyURLLocalServiceUtil.
-				fetchLayoutFriendlyURLByUuidAndGroupId(
-					layoutFriendlyURL.getUuid(),
-					portletDataContext.getScopeGroupId());
+			fetchStagedModelByUuidAndGroupId(
+				layoutFriendlyURL.getUuid(),
+				portletDataContext.getScopeGroupId());
 
 		if (existingLayoutFriendlyURL == null) {
 			existingLayoutFriendlyURL =

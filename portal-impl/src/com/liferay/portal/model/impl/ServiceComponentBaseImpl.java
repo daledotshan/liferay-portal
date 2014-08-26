@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.ServiceComponent;
 import com.liferay.portal.service.ServiceComponentLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ServiceComponentLocalServiceUtil;
  * @see com.liferay.portal.model.ServiceComponent
  * @generated
  */
+@ProviderType
 public abstract class ServiceComponentBaseImpl extends ServiceComponentModelImpl
 	implements ServiceComponent {
 	/*
@@ -38,7 +40,7 @@ public abstract class ServiceComponentBaseImpl extends ServiceComponentModelImpl
 	 * Never modify or reference this class directly. All methods that expect a service component model instance should use the {@link ServiceComponent} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ServiceComponentLocalServiceUtil.addServiceComponent(this);
 		}

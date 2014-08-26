@@ -85,8 +85,13 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MICROBLOGS_ENTRY_CONTENT_MENTION</td>
+	<td>//div[@class='microblogs-entry' and contains(.,'${key_microblogsEntryContent}')]//div[@class='content']/span/a[contains(.,'${key_mentionUserName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MICROBLOGS_ENTRY_CONTENT_TAG</td>
-	<td>//div[@class='microblogs-entry' and contains(.,'${key_microblogsEntryContent}')]//div[@class='content']/span/a</td>
+	<td>//div[@class='microblogs-entry' and contains(.,'${key_microblogsEntryContent}')]//div[@class='content']/span/a[contains(.,'${key_microblogsEntryTagValue}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -127,6 +132,11 @@
 <tr>
 	<td>MICROBLOGS_ENTRY_CONTENT_EDIT_COUNTDOWN</td>
 	<td>xPath=(//span[@class='microblogs-countdown'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MICROBLOGS_ENTRY_CONTENT_EDIT_COUNTDOWN_WARNING</td>
+	<td>//span[contains(@class,'microblogs-countdown-warned')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -214,6 +224,12 @@
 <tr>
 	<td></td>
 	<td></td>
+	<td></td>
+</tr>
+<!--SCREENSHOTS-->
+<tr>
+	<td>SCREENSHOTS_MICROBLOGS_ENTRY_COMMENT_THREADING_PNG</td>
+	<td>so/screenshots/microblogs/microblogs_entry_comment_threading.png</td>
 	<td></td>
 </tr>
 </tbody>

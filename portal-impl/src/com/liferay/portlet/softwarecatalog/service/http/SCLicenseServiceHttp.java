@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.softwarecatalog.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,13 +53,13 @@ import com.liferay.portlet.softwarecatalog.service.SCLicenseServiceUtil;
  * @see com.liferay.portlet.softwarecatalog.service.SCLicenseServiceUtil
  * @generated
  */
+@ProviderType
 public class SCLicenseServiceHttp {
 	public static com.liferay.portlet.softwarecatalog.model.SCLicense addLicense(
 		HttpPrincipal httpPrincipal, java.lang.String name,
 		java.lang.String url, boolean openSource, boolean active,
 		boolean recommended)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCLicenseServiceUtil.class,
 					"addLicense", _addLicenseParameterTypes0);
@@ -75,10 +77,6 @@ public class SCLicenseServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -92,8 +90,7 @@ public class SCLicenseServiceHttp {
 	}
 
 	public static void deleteLicense(HttpPrincipal httpPrincipal, long licenseId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCLicenseServiceUtil.class,
 					"deleteLicense", _deleteLicenseParameterTypes1);
@@ -108,10 +105,6 @@ public class SCLicenseServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -124,8 +117,7 @@ public class SCLicenseServiceHttp {
 
 	public static com.liferay.portlet.softwarecatalog.model.SCLicense getLicense(
 		HttpPrincipal httpPrincipal, long licenseId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCLicenseServiceUtil.class,
 					"getLicense", _getLicenseParameterTypes2);
@@ -140,10 +132,6 @@ public class SCLicenseServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -162,8 +150,7 @@ public class SCLicenseServiceHttp {
 		HttpPrincipal httpPrincipal, long licenseId, java.lang.String name,
 		java.lang.String url, boolean openSource, boolean active,
 		boolean recommended)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCLicenseServiceUtil.class,
 					"updateLicense", _updateLicenseParameterTypes3);
@@ -179,10 +166,6 @@ public class SCLicenseServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

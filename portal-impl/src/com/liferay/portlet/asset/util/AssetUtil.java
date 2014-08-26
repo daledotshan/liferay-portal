@@ -15,7 +15,6 @@
 package com.liferay.portlet.asset.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -23,6 +22,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Document;
+import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PredicateFilter;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -62,6 +63,8 @@ import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.model.AssetTag;
 import com.liferay.portlet.asset.model.AssetTagProperty;
 import com.liferay.portlet.asset.model.AssetVocabulary;
+import com.liferay.portlet.asset.model.ClassType;
+import com.liferay.portlet.asset.model.ClassTypeReader;
 import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetCategoryPropertyLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
@@ -183,7 +186,7 @@ public class AssetUtil {
 
 	public static long[] filterCategoryIds(
 			PermissionChecker permissionChecker, long[] categoryIds)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Long> viewableCategoryIds = new ArrayList<Long>();
 
@@ -205,7 +208,7 @@ public class AssetUtil {
 
 	public static long[] filterTagIds(
 			PermissionChecker permissionChecker, long[] tagIds)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Long> viewableTagIds = new ArrayList<Long>();
 
@@ -223,7 +226,7 @@ public class AssetUtil {
 
 	public static long[][] filterTagIdsArray(
 			PermissionChecker permissionChecker, long[][] tagIdsArray)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<long[]> viewableTagIdsArray = new ArrayList<long[]>();
 
@@ -250,33 +253,29 @@ public class AssetUtil {
 	}
 
 	public static List<AssetVocabulary> filterVocabularies(
-		List<AssetVocabulary> vocabularies, String className) {
+		List<AssetVocabulary> vocabularies, String className,
+		final long classTypePK) {
 
-		List<AssetVocabulary> filteredVocabularies =
-			new ArrayList<AssetVocabulary>();
+		final long classNameId = PortalUtil.getClassNameId(className);
 
-		for (AssetVocabulary vocabulary : vocabularies) {
-			UnicodeProperties settingsProperties =
-				vocabulary.getSettingsProperties();
+		PredicateFilter<AssetVocabulary> predicateFilter =
+			new PredicateFilter<AssetVocabulary>() {
 
-			long[] selectedClassNameIds = StringUtil.split(
-				settingsProperties.getProperty("selectedClassNameIds"), 0L);
-			long classNameId = PortalUtil.getClassNameId(className);
+				@Override
+				public boolean filter(AssetVocabulary assetVocabulary) {
+					return
+						assetVocabulary.isAssociatedToClassNameIdAndClassTypePK(
+							classNameId, classTypePK);
+				}
 
-			if ((selectedClassNameIds.length == 0) ||
-				(selectedClassNameIds[0] == 0) ||
-				ArrayUtil.contains(selectedClassNameIds, classNameId)) {
+			};
 
-				filteredVocabularies.add(vocabulary);
-			}
-		}
-
-		return filteredVocabularies;
+		return ListUtil.filter(vocabularies, predicateFilter);
 	}
 
 	public static long[] filterVocabularyIds(
 			PermissionChecker permissionChecker, long[] vocabularyIds)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Long> viewableVocabularyIds = new ArrayList<Long>();
 
@@ -422,7 +421,7 @@ public class AssetUtil {
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #getAddPortletURL(LiferayPortletRequest,
 	 *             LiferayPortletResponse, long, String, long, long[], String[],
-	 *             String))}
+	 *             String)}
 	 */
 	@Deprecated
 	public static PortletURL getAddPortletURL(
@@ -489,12 +488,14 @@ public class AssetUtil {
 				continue;
 			}
 
-			Map<Long, String> classTypes = assetRendererFactory.getClassTypes(
-				new long[] {
-					themeDisplay.getCompanyGroupId(),
-					themeDisplay.getScopeGroupId()
-				},
-				themeDisplay.getLocale());
+			ClassTypeReader classTypeReader =
+				assetRendererFactory.getClassTypeReader();
+
+			List<ClassType> classTypes =
+				classTypeReader.getAvailableClassTypes(
+					PortalUtil.getCurrentAndAncestorSiteGroupIds(
+						themeDisplay.getScopeGroupId()),
+					themeDisplay.getLocale());
 
 			if ((classTypeIds.length == 0) || classTypes.isEmpty()) {
 				PortletURL addPortletURL = getAddPortletURL(
@@ -507,7 +508,9 @@ public class AssetUtil {
 				}
 			}
 
-			for (long classTypeId : classTypes.keySet()) {
+			for (ClassType classType : classTypes) {
+				long classTypeId = classType.getClassTypeId();
+
 				if (ArrayUtil.contains(classTypeIds, classTypeId) ||
 					(classTypeIds.length == 0)) {
 
@@ -519,7 +522,7 @@ public class AssetUtil {
 					if (addPortletURL != null) {
 						String mesage =
 							className + CLASSNAME_SEPARATOR +
-								classTypes.get(classTypeId);
+								classType.getName();
 
 						addPortletURLs.put(mesage, addPortletURL);
 					}
@@ -576,9 +579,7 @@ public class AssetUtil {
 		return assetEntries;
 	}
 
-	public static String getAssetKeywords(String className, long classPK)
-		throws SystemException {
-
+	public static String getAssetKeywords(String className, long classPK) {
 		List<AssetTag> tags = AssetTagLocalServiceUtil.getTags(
 			className, classPK);
 		List<AssetCategory> categories =
@@ -722,8 +723,7 @@ public class AssetUtil {
 	}
 
 	public static String substituteCategoryPropertyVariables(
-			long groupId, long categoryId, String s)
-		throws SystemException {
+		long groupId, long categoryId, String s) {
 
 		String result = s;
 
@@ -750,7 +750,7 @@ public class AssetUtil {
 
 	public static String substituteTagPropertyVariables(
 			long groupId, String tagName, String s)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String result = s;
 
@@ -889,8 +889,8 @@ public class AssetUtil {
 			sortField = Field.MODIFIED_DATE;
 		}
 		else if (sortField.equals("title")) {
-			sortField = "localized_title_".concat(
-				LocaleUtil.toLanguageId(locale));
+			sortField = DocumentImpl.getSortableFieldName(
+				"localized_title_".concat(LocaleUtil.toLanguageId(locale)));
 		}
 
 		return SortFactoryUtil.getSort(

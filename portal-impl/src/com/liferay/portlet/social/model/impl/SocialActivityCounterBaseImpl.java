@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.social.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.social.model.SocialActivityCounter;
 import com.liferay.portlet.social.service.SocialActivityCounterLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.social.service.SocialActivityCounterLocalServiceUtil;
  * @see com.liferay.portlet.social.model.SocialActivityCounter
  * @generated
  */
+@ProviderType
 public abstract class SocialActivityCounterBaseImpl
 	extends SocialActivityCounterModelImpl implements SocialActivityCounter {
 	/*
@@ -39,7 +40,7 @@ public abstract class SocialActivityCounterBaseImpl
 	 * Never modify or reference this class directly. All methods that expect a social activity counter model instance should use the {@link SocialActivityCounter} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			SocialActivityCounterLocalServiceUtil.addSocialActivityCounter(this);
 		}

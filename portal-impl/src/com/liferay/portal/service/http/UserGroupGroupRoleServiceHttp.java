@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -49,11 +51,11 @@ import com.liferay.portal.service.UserGroupGroupRoleServiceUtil;
  * @see com.liferay.portal.service.UserGroupGroupRoleServiceUtil
  * @generated
  */
+@ProviderType
 public class UserGroupGroupRoleServiceHttp {
 	public static void addUserGroupGroupRoles(HttpPrincipal httpPrincipal,
 		long userGroupId, long groupId, long[] roleIds)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(UserGroupGroupRoleServiceUtil.class,
 					"addUserGroupGroupRoles",
@@ -70,10 +72,6 @@ public class UserGroupGroupRoleServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -86,8 +84,7 @@ public class UserGroupGroupRoleServiceHttp {
 
 	public static void addUserGroupGroupRoles(HttpPrincipal httpPrincipal,
 		long[] userGroupIds, long groupId, long roleId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(UserGroupGroupRoleServiceUtil.class,
 					"addUserGroupGroupRoles",
@@ -104,10 +101,6 @@ public class UserGroupGroupRoleServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -120,8 +113,7 @@ public class UserGroupGroupRoleServiceHttp {
 
 	public static void deleteUserGroupGroupRoles(HttpPrincipal httpPrincipal,
 		long userGroupId, long groupId, long[] roleIds)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(UserGroupGroupRoleServiceUtil.class,
 					"deleteUserGroupGroupRoles",
@@ -138,10 +130,6 @@ public class UserGroupGroupRoleServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -154,8 +142,7 @@ public class UserGroupGroupRoleServiceHttp {
 
 	public static void deleteUserGroupGroupRoles(HttpPrincipal httpPrincipal,
 		long[] userGroupIds, long groupId, long roleId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(UserGroupGroupRoleServiceUtil.class,
 					"deleteUserGroupGroupRoles",
@@ -170,10 +157,6 @@ public class UserGroupGroupRoleServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

@@ -14,9 +14,10 @@
 
 package com.liferay.portlet.softwarecatalog.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -59,6 +60,7 @@ import java.util.Map;
  * @generated
  */
 @JSON(strict = true)
+@ProviderType
 public class SCProductVersionModelImpl extends BaseModelImpl<SCProductVersion>
 	implements SCProductVersionModel {
 	/*
@@ -97,9 +99,9 @@ public class SCProductVersionModelImpl extends BaseModelImpl<SCProductVersion>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portlet.softwarecatalog.model.SCProductVersion"),
 			true);
-	public static long DIRECTDOWNLOADURL_COLUMN_BITMASK = 1L;
-	public static long PRODUCTENTRYID_COLUMN_BITMASK = 2L;
-	public static long CREATEDATE_COLUMN_BITMASK = 4L;
+	public static final long DIRECTDOWNLOADURL_COLUMN_BITMASK = 1L;
+	public static final long PRODUCTENTRYID_COLUMN_BITMASK = 2L;
+	public static final long CREATEDATE_COLUMN_BITMASK = 4L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -332,7 +334,7 @@ public class SCProductVersionModelImpl extends BaseModelImpl<SCProductVersion>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -785,8 +787,8 @@ public class SCProductVersionModelImpl extends BaseModelImpl<SCProductVersion>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = SCProductVersion.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = SCProductVersion.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			SCProductVersion.class
 		};
 	private long _productVersionId;
