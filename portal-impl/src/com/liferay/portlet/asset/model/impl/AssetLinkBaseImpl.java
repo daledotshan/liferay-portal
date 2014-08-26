@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.asset.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.asset.model.AssetLink;
 import com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil;
  * @see com.liferay.portlet.asset.model.AssetLink
  * @generated
  */
+@ProviderType
 public abstract class AssetLinkBaseImpl extends AssetLinkModelImpl
 	implements AssetLink {
 	/*
@@ -39,7 +40,7 @@ public abstract class AssetLinkBaseImpl extends AssetLinkModelImpl
 	 * Never modify or reference this class directly. All methods that expect a asset link model instance should use the {@link AssetLink} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			AssetLinkLocalServiceUtil.addAssetLink(this);
 		}

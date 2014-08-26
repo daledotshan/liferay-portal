@@ -15,7 +15,6 @@
 package com.liferay.portlet.layoutprototypes.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -44,19 +43,25 @@ public class LayoutPrototypeStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
-		LayoutPrototype layoutPrototype =
-			LayoutPrototypeLocalServiceUtil.
-				fetchLayoutPrototypeByUuidAndCompanyId(
-					uuid, group.getCompanyId());
+		LayoutPrototype layoutPrototype = fetchStagedModelByUuidAndCompanyId(
+			uuid, group.getCompanyId());
 
 		if (layoutPrototype != null) {
 			LayoutPrototypeLocalServiceUtil.deleteLayoutPrototype(
 				layoutPrototype);
 		}
+	}
+
+	@Override
+	public LayoutPrototype fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return LayoutPrototypeLocalServiceUtil.
+			fetchLayoutPrototypeByUuidAndCompanyId(uuid, companyId);
 	}
 
 	@Override
@@ -104,10 +109,9 @@ public class LayoutPrototypeStagedModelDataHandler
 
 		if (portletDataContext.isDataStrategyMirror()) {
 			LayoutPrototype existingLayoutPrototype =
-				LayoutPrototypeLocalServiceUtil.
-					fetchLayoutPrototypeByUuidAndCompanyId(
-						layoutPrototype.getUuid(),
-						portletDataContext.getCompanyId());
+				fetchStagedModelByUuidAndCompanyId(
+					layoutPrototype.getUuid(),
+					portletDataContext.getCompanyId());
 
 			if (existingLayoutPrototype == null) {
 				serviceContext.setUuid(layoutPrototype.getUuid());
@@ -198,22 +202,6 @@ public class LayoutPrototypeStagedModelDataHandler
 			portletDataContext.setPrivateLayout(privateLayout);
 			portletDataContext.setScopeGroupId(scopeGroupId);
 		}
-	}
-
-	@Override
-	protected boolean validateMissingReference(
-			String uuid, long companyId, long groupId)
-		throws Exception {
-
-		LayoutPrototype layoutPrototype =
-			LayoutPrototypeLocalServiceUtil.
-				fetchLayoutPrototypeByUuidAndCompanyId(uuid, companyId);
-
-		if (layoutPrototype == null) {
-			return false;
-		}
-
-		return true;
 	}
 
 }

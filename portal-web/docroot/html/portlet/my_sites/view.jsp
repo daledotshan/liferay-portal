@@ -19,6 +19,10 @@
 <%
 String tabs1 = ParamUtil.getString(request, "tabs1", "my-sites");
 
+if (!tabs1.equals("my-sites") && !tabs1.equals("available-sites")) {
+	tabs1 = "my-sites";
+}
+
 PortletURL portletURL = renderResponse.createRenderURL();
 
 portletURL.setParameter("struts_action", "/my_sites/view");
@@ -54,7 +58,7 @@ request.setAttribute("view.jsp-tabs1", tabs1);
 			groupParams.put("usersGroups", new Long(user.getUserId()));
 			groupParams.put("active", Boolean.TRUE);
 		}
-		else if (tabs1.equals("available-sites")) {
+		else {
 			List types = new ArrayList();
 
 			types.add(new Integer(GroupConstants.TYPE_SITE_OPEN));
@@ -142,32 +146,25 @@ request.setAttribute("view.jsp-tabs1", tabs1);
 			%>
 
 			<liferay-ui:search-container-column-text
-				buffer="buffer"
 				name="name"
 				orderable="<%= true %>"
 			>
+				<c:choose>
+					<c:when test="<%= rowURL != null %>">
+						<a href="<%= rowURL %>" target="_blank">
+							<strong><%= HtmlUtil.escape(group.getDescriptiveName(locale)) %></strong>
+						</a>
+					</c:when>
+					<c:otherwise>
+						<strong><%= HtmlUtil.escape(group.getDescriptiveName(locale)) %></strong>
+					</c:otherwise>
+				</c:choose>
 
-			<%
-			if (rowURL != null) {
-				buffer.append("<a href=\"");
-				buffer.append(rowURL.toString());
-				buffer.append("\" target=\"_blank\"><strong>");
-				buffer.append(HtmlUtil.escape(group.getDescriptiveName(locale)));
-				buffer.append("</strong></a>");
-			}
-			else {
-				buffer.append("<strong>");
-				buffer.append(HtmlUtil.escape(group.getDescriptiveName(locale)));
-				buffer.append("</strong>");
-			}
+				<c:if test='<%= !tabs1.equals("my-sites") && Validator.isNotNull(group.getDescription()) %>'>
+					<br />
 
-			if (!tabs1.equals("my-sites") && Validator.isNotNull(group.getDescription())) {
-				buffer.append("<br /><em>");
-				buffer.append(HtmlUtil.escape(group.getDescription()));
-				buffer.append("</em>");
-			}
-			%>
-
+					<em><%= HtmlUtil.escape(group.getDescription()) %></em>
+				</c:if>
 			</liferay-ui:search-container-column-text>
 
 			<%
@@ -200,6 +197,7 @@ request.setAttribute("view.jsp-tabs1", tabs1);
 
 			<liferay-ui:search-container-column-jsp
 				align="right"
+				cssClass="entry-action"
 				path="/html/portlet/my_sites/site_action.jsp"
 			/>
 		</liferay-ui:search-container-row>

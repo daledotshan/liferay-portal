@@ -62,8 +62,8 @@ if (hints != null) {
 
 			boolean value = BeanPropertiesUtil.getBooleanSilent(bean, field, defaultBoolean);
 
-			if (!ignoreRequestValue) {
-				value = ParamUtil.getBoolean(request, fieldParam, value);
+			if (!ignoreRequestValue && Validator.isNotNull(ParamUtil.getString(request, "checkboxNames"))) {
+				value = Validator.isNotNull(ParamUtil.getString(request, fieldParam));
 			}
 			%>
 
@@ -199,6 +199,8 @@ if (hints != null) {
 				}
 			}
 
+			cssClass += " form-group form-group-inline";
+
 			boolean showTime = true;
 
 			if (hints != null) {
@@ -248,7 +250,7 @@ if (hints != null) {
 				</div>
 
 				<aui:script use="aui-base">
-					var checkbox = A.one('#<portlet:namespace /><%= formName + fieldParam %>Checkbox');
+					var checkbox = A.one('#<portlet:namespace /><%= formName + fieldParam %>');
 
 					checkbox.once(
 						['click', 'mouseover'],
@@ -260,18 +262,18 @@ if (hints != null) {
 					checkbox.on(
 						['click', 'mouseover'],
 						function(event) {
-							var checked = document.getElementById('<portlet:namespace /><%= formName + fieldParam %>Checkbox').checked;
+							var checked = document.getElementById('<portlet:namespace /><%= formName + fieldParam %>').checked;
 
-							document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>"].disabled = checked;
-							document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>Month"].disabled = checked;
-							document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>Day"].disabled = checked;
-							document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>Year"].disabled = checked;
+							document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>'].disabled = checked;
+							document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>Month'].disabled = checked;
+							document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>Day'].disabled = checked;
+							document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>Year'].disabled = checked;
 
 							<c:if test="<%= showTime %>">
-								document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>Time"].disabled = checked;
-								document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>Hour"].disabled = checked;
-								document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>Minute"].disabled = checked;
-								document.<portlet:namespace /><%= formName %>["<portlet:namespace /><%= fieldParam %>AmPm"].disabled = checked;
+								document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>Time'].disabled = checked;
+								document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>Hour'].disabled = checked;
+								document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>Minute'].disabled = checked;
+								document.<portlet:namespace /><%= formName %>['<portlet:namespace /><%= fieldParam %>AmPm'].disabled = checked;
 							</c:if>
 						}
 					);
@@ -347,7 +349,6 @@ if (hints != null) {
 
 			boolean checkTab = false;
 			String displayHeight = ModelHintsConstants.TEXT_DISPLAY_HEIGHT;
-			String displayWidth = ModelHintsConstants.TEXT_DISPLAY_WIDTH;
 			boolean editor = false;
 			String maxLength = ModelHintsConstants.TEXT_MAX_LENGTH;
 			boolean secret = false;
@@ -357,7 +358,6 @@ if (hints != null) {
 				autoSize = GetterUtil.getBoolean(hints.get("autoSize"), autoSize);
 				checkTab = GetterUtil.getBoolean(hints.get("check-tab"), checkTab);
 				displayHeight = GetterUtil.getString(hints.get("display-height"), displayHeight);
-				displayWidth = GetterUtil.getString(hints.get("display-width"), displayWidth);
 				editor = GetterUtil.getBoolean(hints.get("editor"), editor);
 				maxLength = GetterUtil.getString(hints.get("max-length"), maxLength);
 				secret = GetterUtil.getBoolean(hints.get("secret"), secret);
@@ -368,30 +368,10 @@ if (hints != null) {
 				displayHeight = "auto";
 			}
 
-			if (Validator.isDigit(displayWidth)) {
-				int displayWidthInt = GetterUtil.getInteger(displayWidth);
+			cssClass += " form-control";
 
-				if (displayWidthInt <= 60) {
-					cssClass += " input-mini";
-				}
-				else if ((displayWidthInt > 60) && (displayWidthInt <= 90)) {
-					cssClass += " input-small";
-				}
-				else if ((displayWidthInt > 90) && (displayWidthInt <= 150)) {
-					cssClass += " input-medium";
-				}
-				else if ((displayWidthInt > 210) && (displayWidthInt <= 270)) {
-					cssClass += " input-xlarge";
-				}
-				else if (displayWidthInt > 270) {
-					cssClass += " input-xxlarge";
-				}
-				else if (editor) {
-					cssClass += " lfr-input-editor";
-				}
-				else {
-					cssClass += " input-large";
-				}
+			if (editor) {
+				cssClass += " lfr-input-editor";
 			}
 
 			boolean localized = ModelHintsUtil.isLocalized(model, field);
@@ -437,6 +417,7 @@ if (hints != null) {
 						</c:when>
 						<c:otherwise>
 							<liferay-ui:input-editor
+								contentsLanguageId="<%= languageId %>"
 								cssClass="<%= cssClass %>"
 								editorImpl="ckeditor"
 								initMethod='<%= fieldParam + \"InitEditor\" %>'
@@ -446,7 +427,7 @@ if (hints != null) {
 
 							<aui:script>
 								function <portlet:namespace /><%= fieldParam %>InitEditor() {
-									return "<%= UnicodeFormatter.toString(value) %>";
+									return '<%= UnicodeFormatter.toString(value) %>';
 								}
 							</aui:script>
 						</c:otherwise>
@@ -483,7 +464,7 @@ if (hints != null) {
 							/>
 						</c:when>
 						<c:otherwise>
-							<input class="<%= cssClass + " lfr-input-text" %>" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(pageContext, placeholder) + "\"" : StringPool.BLANK %> style="<%= upperCase ? "text-transform: uppercase;" : "" %>" type="<%= secret ? "password" : "text" %>" value="<%= autoEscape ? HtmlUtil.escape(value) : value %>" />
+							<input class="<%= cssClass + " lfr-input-text" %>" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(request, placeholder) + "\"" : StringPool.BLANK %> style="<%= upperCase ? "text-transform: uppercase;" : "" %>" type="<%= secret ? "password" : "text" %>" value="<%= autoEscape ? HtmlUtil.escape(value) : value %>" />
 						</c:otherwise>
 					</c:choose>
 				</c:when>
@@ -511,7 +492,7 @@ if (hints != null) {
 							/>
 						</c:when>
 						<c:otherwise>
-							<textarea class="<%= cssClass + " lfr-textarea" %>" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(pageContext, placeholder) + "\"" : StringPool.BLANK %> style="<%= !autoSize ? "height: " + displayHeight + (Validator.isDigit(displayHeight) ? "px" : StringPool.BLANK) + ";" : StringPool.BLANK %>" wrap="soft" onKeyDown="<%= checkTab ? "Liferay.Util.checkTab(this); " : "" %> Liferay.Util.disableEsc();"><%= autoEscape ? HtmlUtil.escape(value) : value %></textarea>
+							<textarea class="<%= cssClass + " lfr-textarea" %>" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= namespace %><%= id %>" name="<%= namespace %><%= fieldParam %>" <%= Validator.isNotNull(placeholder) ? "placeholder=\"" + LanguageUtil.get(request, placeholder) + "\"" : StringPool.BLANK %> style="<%= !autoSize ? "height: " + displayHeight + (Validator.isDigit(displayHeight) ? "px" : StringPool.BLANK) + ";" : StringPool.BLANK %>" onKeyDown="<%= checkTab ? "Liferay.Util.checkTab(this); " : "" %> Liferay.Util.disableEsc();" wrap="soft"><%= autoEscape ? HtmlUtil.escape(value) : value %></textarea>
 						</c:otherwise>
 					</c:choose>
 

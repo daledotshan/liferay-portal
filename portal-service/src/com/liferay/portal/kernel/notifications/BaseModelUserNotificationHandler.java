@@ -18,8 +18,8 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.UserNotificationEvent;
@@ -82,21 +82,13 @@ public abstract class BaseModelUserNotificationHandler
 			return null;
 		}
 
-		String title = getTitle(jsonObject, assetRenderer, serviceContext);
-
-		StringBundler sb = new StringBundler(5);
-
-		sb.append("<div class=\"title\">");
-		sb.append(title);
-		sb.append("</div><div class=\"body\">");
-
-		String entryTitle = jsonObject.getString("entryTitle");
-
-		sb.append(HtmlUtil.escape(StringUtil.shorten(entryTitle), 50));
-
-		sb.append("</div>");
-
-		return sb.toString();
+		return StringUtil.replace(
+			getBodyTemplate(), new String[] {"[$BODY$]", "[$TITLE$]"},
+			new String[] {
+				HtmlUtil.escape(
+					StringUtil.shorten(jsonObject.getString("entryTitle"), 70)),
+				getTitle(jsonObject, assetRenderer, serviceContext)
+			});
 	}
 
 	@Override
@@ -138,9 +130,13 @@ public abstract class BaseModelUserNotificationHandler
 			message = "x-updated-a-x";
 		}
 
-		return serviceContext.translate(
-			message, HtmlUtil.escape(assetRenderer.getUserName()),
-			StringUtil.toLowerCase(HtmlUtil.escape(typeName)));
+		return LanguageUtil.format(
+			serviceContext.getLocale(), message,
+			new String[] {
+				HtmlUtil.escape(assetRenderer.getUserName()),
+				StringUtil.toLowerCase(HtmlUtil.escape(typeName))
+			},
+			false);
 	}
 
 }

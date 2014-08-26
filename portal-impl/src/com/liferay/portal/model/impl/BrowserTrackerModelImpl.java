@@ -14,9 +14,10 @@
 
 package com.liferay.portal.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -51,6 +52,7 @@ import java.util.Map;
  * @see com.liferay.portal.model.BrowserTrackerModel
  * @generated
  */
+@ProviderType
 public class BrowserTrackerModelImpl extends BaseModelImpl<BrowserTracker>
 	implements BrowserTrackerModel {
 	/*
@@ -81,8 +83,8 @@ public class BrowserTrackerModelImpl extends BaseModelImpl<BrowserTracker>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portal.model.BrowserTracker"),
 			true);
-	public static long USERID_COLUMN_BITMASK = 1L;
-	public static long BROWSERTRACKERID_COLUMN_BITMASK = 2L;
+	public static final long USERID_COLUMN_BITMASK = 1L;
+	public static final long BROWSERTRACKERID_COLUMN_BITMASK = 2L;
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
 				"lock.expiration.time.com.liferay.portal.model.BrowserTracker"));
 
@@ -200,7 +202,7 @@ public class BrowserTrackerModelImpl extends BaseModelImpl<BrowserTracker>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -395,8 +397,8 @@ public class BrowserTrackerModelImpl extends BaseModelImpl<BrowserTracker>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = BrowserTracker.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = BrowserTracker.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			BrowserTracker.class
 		};
 	private long _mvccVersion;

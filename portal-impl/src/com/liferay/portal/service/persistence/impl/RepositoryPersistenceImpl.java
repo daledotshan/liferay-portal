@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.persistence.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.NoSuchRepositoryException;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -23,21 +25,16 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.Repository;
 import com.liferay.portal.model.impl.RepositoryImpl;
 import com.liferay.portal.model.impl.RepositoryModelImpl;
@@ -45,9 +42,12 @@ import com.liferay.portal.service.persistence.RepositoryPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -62,6 +62,7 @@ import java.util.Set;
  * @see RepositoryUtil
  * @generated
  */
+@ProviderType
 public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	implements RepositoryPersistence {
 	/*
@@ -107,10 +108,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 *
 	 * @param uuid the uuid
 	 * @return the matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Repository> findByUuid(String uuid) throws SystemException {
+	public List<Repository> findByUuid(String uuid) {
 		return findByUuid(uuid, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -125,11 +125,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param start the lower bound of the range of repositories
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @return the range of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Repository> findByUuid(String uuid, int start, int end)
-		throws SystemException {
+	public List<Repository> findByUuid(String uuid, int start, int end) {
 		return findByUuid(uuid, start, end, null);
 	}
 
@@ -145,11 +143,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Repository> findByUuid(String uuid, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -266,12 +263,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByUuid_First(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByUuid_First(uuid, orderByComparator);
 
 		if (repository != null) {
@@ -296,11 +292,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByUuid_First(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		List<Repository> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -317,12 +312,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByUuid_Last(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByUuid_Last(uuid, orderByComparator);
 
 		if (repository != null) {
@@ -347,11 +341,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		int count = countByUuid(uuid);
 
 		if (count == 0) {
@@ -376,12 +369,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository[] findByUuid_PrevAndNext(long repositoryId, String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = findByPrimaryKey(repositoryId);
 
 		Session session = null;
@@ -411,7 +403,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 
 	protected Repository getByUuid_PrevAndNext(Session session,
 		Repository repository, String uuid,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Repository> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -532,10 +524,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * Removes all the repositories where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid(String uuid) throws SystemException {
+	public void removeByUuid(String uuid) {
 		for (Repository repository : findByUuid(uuid, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(repository);
@@ -547,10 +538,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 *
 	 * @param uuid the uuid
 	 * @return the number of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid(String uuid) throws SystemException {
+	public int countByUuid(String uuid) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID;
 
 		Object[] finderArgs = new Object[] { uuid };
@@ -630,11 +620,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param groupId the group ID
 	 * @return the matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByUUID_G(String uuid, long groupId)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByUUID_G(uuid, groupId);
 
 		if (repository == null) {
@@ -666,11 +655,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Repository fetchByUUID_G(String uuid, long groupId)
-		throws SystemException {
+	public Repository fetchByUUID_G(String uuid, long groupId) {
 		return fetchByUUID_G(uuid, groupId, true);
 	}
 
@@ -681,11 +668,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param groupId the group ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByUUID_G(String uuid, long groupId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { uuid, groupId };
 
 		Object result = null;
@@ -788,11 +774,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the repository that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository removeByUUID_G(String uuid, long groupId)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		Repository repository = findByUUID_G(uuid, groupId);
 
 		return remove(repository);
@@ -804,11 +789,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the number of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUUID_G(String uuid, long groupId)
-		throws SystemException {
+	public int countByUUID_G(String uuid, long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_G;
 
 		Object[] finderArgs = new Object[] { uuid, groupId };
@@ -902,11 +885,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Repository> findByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public List<Repository> findByUuid_C(String uuid, long companyId) {
 		return findByUuid_C(uuid, companyId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -923,11 +904,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param start the lower bound of the range of repositories
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @return the range of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Repository> findByUuid_C(String uuid, long companyId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByUuid_C(uuid, companyId, start, end, null);
 	}
 
@@ -944,12 +924,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Repository> findByUuid_C(String uuid, long companyId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator<Repository> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1076,12 +1054,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByUuid_C_First(uuid, companyId,
 				orderByComparator);
 
@@ -1111,11 +1088,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		List<Repository> list = findByUuid_C(uuid, companyId, 0, 1,
 				orderByComparator);
 
@@ -1134,12 +1110,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByUuid_C_Last(uuid, companyId,
 				orderByComparator);
 
@@ -1169,11 +1144,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		int count = countByUuid_C(uuid, companyId);
 
 		if (count == 0) {
@@ -1199,12 +1173,12 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository[] findByUuid_C_PrevAndNext(long repositoryId,
-		String uuid, long companyId, OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		String uuid, long companyId,
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = findByPrimaryKey(repositoryId);
 
 		Session session = null;
@@ -1234,7 +1208,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 
 	protected Repository getByUuid_C_PrevAndNext(Session session,
 		Repository repository, String uuid, long companyId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Repository> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1360,11 +1334,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public void removeByUuid_C(String uuid, long companyId) {
 		for (Repository repository : findByUuid_C(uuid, companyId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(repository);
@@ -1377,11 +1349,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the number of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public int countByUuid_C(String uuid, long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_C;
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
@@ -1473,11 +1443,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 *
 	 * @param groupId the group ID
 	 * @return the matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Repository> findByGroupId(long groupId)
-		throws SystemException {
+	public List<Repository> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1492,11 +1460,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param start the lower bound of the range of repositories
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @return the range of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Repository> findByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<Repository> findByGroupId(long groupId, int start, int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -1512,11 +1478,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Repository> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1619,12 +1584,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByGroupId_First(groupId, orderByComparator);
 
 		if (repository != null) {
@@ -1649,11 +1613,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		List<Repository> list = findByGroupId(groupId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1670,12 +1633,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByGroupId_Last(groupId, orderByComparator);
 
 		if (repository != null) {
@@ -1700,11 +1662,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -1729,12 +1690,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository[] findByGroupId_PrevAndNext(long repositoryId,
-		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchRepositoryException, SystemException {
+		long groupId, OrderByComparator<Repository> orderByComparator)
+		throws NoSuchRepositoryException {
 		Repository repository = findByPrimaryKey(repositoryId);
 
 		Session session = null;
@@ -1764,7 +1724,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 
 	protected Repository getByGroupId_PrevAndNext(Session session,
 		Repository repository, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Repository> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1871,10 +1831,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * Removes all the repositories where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (Repository repository : findByGroupId(groupId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(repository);
@@ -1886,10 +1845,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -1961,11 +1919,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param portletId the portlet ID
 	 * @return the matching repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByG_N_P(long groupId, String name, String portletId)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByG_N_P(groupId, name, portletId);
 
 		if (repository == null) {
@@ -2001,11 +1958,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param name the name
 	 * @param portletId the portlet ID
 	 * @return the matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Repository fetchByG_N_P(long groupId, String name, String portletId)
-		throws SystemException {
+	public Repository fetchByG_N_P(long groupId, String name, String portletId) {
 		return fetchByG_N_P(groupId, name, portletId, true);
 	}
 
@@ -2017,11 +1972,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param portletId the portlet ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching repository, or <code>null</code> if a matching repository could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository fetchByG_N_P(long groupId, String name, String portletId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { groupId, name, portletId };
 
 		Object result = null;
@@ -2146,11 +2100,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param name the name
 	 * @param portletId the portlet ID
 	 * @return the repository that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository removeByG_N_P(long groupId, String name, String portletId)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		Repository repository = findByG_N_P(groupId, name, portletId);
 
 		return remove(repository);
@@ -2163,11 +2116,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param name the name
 	 * @param portletId the portlet ID
 	 * @return the number of matching repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_N_P(long groupId, String name, String portletId)
-		throws SystemException {
+	public int countByG_N_P(long groupId, String name, String portletId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_N_P;
 
 		Object[] finderArgs = new Object[] { groupId, name, portletId };
@@ -2472,11 +2423,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param repositoryId the primary key of the repository
 	 * @return the repository that was removed
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository remove(long repositoryId)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		return remove((Serializable)repositoryId);
 	}
 
@@ -2486,11 +2436,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param primaryKey the primary key of the repository
 	 * @return the repository that was removed
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository remove(Serializable primaryKey)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		Session session = null;
 
 		try {
@@ -2522,8 +2471,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	}
 
 	@Override
-	protected Repository removeImpl(Repository repository)
-		throws SystemException {
+	protected Repository removeImpl(Repository repository) {
 		repository = toUnwrappedModel(repository);
 
 		Session session = null;
@@ -2555,8 +2503,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	}
 
 	@Override
-	public Repository updateImpl(com.liferay.portal.model.Repository repository)
-		throws SystemException {
+	public Repository updateImpl(com.liferay.portal.model.Repository repository) {
 		repository = toUnwrappedModel(repository);
 
 		boolean isNew = repository.isNew();
@@ -2699,11 +2646,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param primaryKey the primary key of the repository
 	 * @return the repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		Repository repository = fetchByPrimaryKey(primaryKey);
 
 		if (repository == null) {
@@ -2724,11 +2670,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param repositoryId the primary key of the repository
 	 * @return the repository
 	 * @throws com.liferay.portal.NoSuchRepositoryException if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Repository findByPrimaryKey(long repositoryId)
-		throws NoSuchRepositoryException, SystemException {
+		throws NoSuchRepositoryException {
 		return findByPrimaryKey((Serializable)repositoryId);
 	}
 
@@ -2737,11 +2682,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 *
 	 * @param primaryKey the primary key of the repository
 	 * @return the repository, or <code>null</code> if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Repository fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public Repository fetchByPrimaryKey(Serializable primaryKey) {
 		Repository repository = (Repository)EntityCacheUtil.getResult(RepositoryModelImpl.ENTITY_CACHE_ENABLED,
 				RepositoryImpl.class, primaryKey);
 
@@ -2785,22 +2728,111 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 *
 	 * @param repositoryId the primary key of the repository
 	 * @return the repository, or <code>null</code> if a repository with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Repository fetchByPrimaryKey(long repositoryId)
-		throws SystemException {
+	public Repository fetchByPrimaryKey(long repositoryId) {
 		return fetchByPrimaryKey((Serializable)repositoryId);
+	}
+
+	@Override
+	public Map<Serializable, Repository> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, Repository> map = new HashMap<Serializable, Repository>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			Repository repository = fetchByPrimaryKey(primaryKey);
+
+			if (repository != null) {
+				map.put(primaryKey, repository);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			Repository repository = (Repository)EntityCacheUtil.getResult(RepositoryModelImpl.ENTITY_CACHE_ENABLED,
+					RepositoryImpl.class, primaryKey);
+
+			if (repository == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, repository);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_REPOSITORY_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (Repository repository : (List<Repository>)q.list()) {
+				map.put(repository.getPrimaryKeyObj(), repository);
+
+				cacheResult(repository);
+
+				uncachedPrimaryKeys.remove(repository.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(RepositoryModelImpl.ENTITY_CACHE_ENABLED,
+					RepositoryImpl.class, primaryKey, _nullRepository);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the repositories.
 	 *
 	 * @return the repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Repository> findAll() throws SystemException {
+	public List<Repository> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -2814,11 +2846,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param start the lower bound of the range of repositories
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @return the range of repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Repository> findAll(int start, int end)
-		throws SystemException {
+	public List<Repository> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -2833,11 +2863,10 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * @param end the upper bound of the range of repositories (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Repository> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Repository> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2919,10 +2948,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	/**
 	 * Removes all the repositories from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (Repository repository : findAll()) {
 			remove(repository);
 		}
@@ -2932,10 +2960,9 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * Returns the number of repositories.
 	 *
 	 * @return the number of repositories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -2975,25 +3002,6 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	 * Initializes the repository persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portal.model.Repository")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<Repository>> listenersList = new ArrayList<ModelListener<Repository>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<Repository>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -3004,6 +3012,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	}
 
 	private static final String _SQL_SELECT_REPOSITORY = "SELECT repository FROM Repository repository";
+	private static final String _SQL_SELECT_REPOSITORY_WHERE_PKS_IN = "SELECT repository FROM Repository repository WHERE repositoryId IN (";
 	private static final String _SQL_SELECT_REPOSITORY_WHERE = "SELECT repository FROM Repository repository WHERE ";
 	private static final String _SQL_COUNT_REPOSITORY = "SELECT COUNT(repository) FROM Repository repository";
 	private static final String _SQL_COUNT_REPOSITORY_WHERE = "SELECT COUNT(repository) FROM Repository repository WHERE ";
@@ -3011,11 +3020,11 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Repository exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Repository exists with the key {";
 	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
-	private static Log _log = LogFactoryUtil.getLog(RepositoryPersistenceImpl.class);
-	private static Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
+	private static final Log _log = LogFactoryUtil.getLog(RepositoryPersistenceImpl.class);
+	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"uuid"
 			});
-	private static Repository _nullRepository = new RepositoryImpl() {
+	private static final Repository _nullRepository = new RepositoryImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -3027,7 +3036,7 @@ public class RepositoryPersistenceImpl extends BasePersistenceImpl<Repository>
 			}
 		};
 
-	private static CacheModel<Repository> _nullRepositoryCacheModel = new NullCacheModel();
+	private static final CacheModel<Repository> _nullRepositoryCacheModel = new NullCacheModel();
 
 	private static class NullCacheModel implements CacheModel<Repository>,
 		MVCCModel {

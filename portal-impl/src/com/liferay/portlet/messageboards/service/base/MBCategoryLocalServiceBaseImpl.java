@@ -14,17 +14,31 @@
 
 package com.liferay.portlet.messageboards.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
+import com.liferay.portal.kernel.lar.ManifestSummary;
+import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandler;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistryUtil;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -74,6 +88,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class MBCategoryLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements MBCategoryLocalService,
 		IdentifiableBean {
@@ -88,12 +103,10 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public MBCategory addMBCategory(MBCategory mbCategory)
-		throws SystemException {
+	public MBCategory addMBCategory(MBCategory mbCategory) {
 		mbCategory.setNew(true);
 
 		return mbCategoryPersistence.update(mbCategory);
@@ -116,12 +129,11 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param categoryId the primary key of the message boards category
 	 * @return the message boards category that was removed
 	 * @throws PortalException if a message boards category with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public MBCategory deleteMBCategory(long categoryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return mbCategoryPersistence.remove(categoryId);
 	}
 
@@ -130,12 +142,10 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public MBCategory deleteMBCategory(MBCategory mbCategory)
-		throws SystemException {
+	public MBCategory deleteMBCategory(MBCategory mbCategory) {
 		return mbCategoryPersistence.remove(mbCategory);
 	}
 
@@ -152,12 +162,9 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return mbCategoryPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -172,12 +179,10 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return mbCategoryPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end);
 	}
@@ -194,12 +199,10 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return mbCategoryPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end, orderByComparator);
 	}
@@ -209,11 +212,9 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return mbCategoryPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -223,33 +224,17 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return mbCategoryPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public MBCategory fetchMBCategory(long categoryId)
-		throws SystemException {
+	public MBCategory fetchMBCategory(long categoryId) {
 		return mbCategoryPersistence.fetchByPrimaryKey(categoryId);
-	}
-
-	/**
-	 * Returns the message boards category with the matching UUID and company.
-	 *
-	 * @param uuid the message boards category's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching message boards category, or <code>null</code> if a matching message boards category could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public MBCategory fetchMBCategoryByUuidAndCompanyId(String uuid,
-		long companyId) throws SystemException {
-		return mbCategoryPersistence.fetchByUuid_C_First(uuid, companyId, null);
 	}
 
 	/**
@@ -258,11 +243,9 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param uuid the message boards category's UUID
 	 * @param groupId the primary key of the group
 	 * @return the matching message boards category, or <code>null</code> if a matching message boards category could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MBCategory fetchMBCategoryByUuidAndGroupId(String uuid, long groupId)
-		throws SystemException {
+	public MBCategory fetchMBCategoryByUuidAndGroupId(String uuid, long groupId) {
 		return mbCategoryPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
@@ -272,33 +255,124 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param categoryId the primary key of the message boards category
 	 * @return the message boards category
 	 * @throws PortalException if a message boards category with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MBCategory getMBCategory(long categoryId)
-		throws PortalException, SystemException {
+	public MBCategory getMBCategory(long categoryId) throws PortalException {
 		return mbCategoryPersistence.findByPrimaryKey(categoryId);
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
-		return mbCategoryPersistence.findByPrimaryKey(primaryKeyObj);
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(MBCategory.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("categoryId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(MBCategory.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("categoryId");
+	}
+
+	@Override
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		final PortletDataContext portletDataContext) {
+		final ExportActionableDynamicQuery exportActionableDynamicQuery = new ExportActionableDynamicQuery() {
+				@Override
+				public long performCount() throws PortalException {
+					ManifestSummary manifestSummary = portletDataContext.getManifestSummary();
+
+					StagedModelType stagedModelType = getStagedModelType();
+
+					long modelAdditionCount = super.performCount();
+
+					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+						modelAdditionCount);
+
+					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
+							stagedModelType);
+
+					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+						modelDeletionCount);
+
+					return modelAdditionCount;
+				}
+			};
+
+		initActionableDynamicQuery(exportActionableDynamicQuery);
+
+		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					portletDataContext.addDateRangeCriteria(dynamicQuery,
+						"modifiedDate");
+
+					StagedModelDataHandler<?> stagedModelDataHandler = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(MBCategory.class.getName());
+
+					Property workflowStatusProperty = PropertyFactoryUtil.forName(
+							"status");
+
+					dynamicQuery.add(workflowStatusProperty.in(
+							stagedModelDataHandler.getExportableStatuses()));
+				}
+			});
+
+		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
+
+		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
+
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+					MBCategory stagedModel = (MBCategory)object;
+
+					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
+						stagedModel);
+				}
+			});
+		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
+				PortalUtil.getClassNameId(MBCategory.class.getName())));
+
+		return exportActionableDynamicQuery;
 	}
 
 	/**
-	 * Returns the message boards category with the matching UUID and company.
-	 *
-	 * @param uuid the message boards category's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching message boards category
-	 * @throws PortalException if a matching message boards category could not be found
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Override
-	public MBCategory getMBCategoryByUuidAndCompanyId(String uuid,
-		long companyId) throws PortalException, SystemException {
-		return mbCategoryPersistence.findByUuid_C_First(uuid, companyId, null);
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return mbCategoryLocalService.deleteMBCategory((MBCategory)persistedModel);
+	}
+
+	@Override
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+		return mbCategoryPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	@Override
+	public List<MBCategory> getMBCategoriesByUuidAndCompanyId(String uuid,
+		long companyId) {
+		return mbCategoryPersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<MBCategory> getMBCategoriesByUuidAndCompanyId(String uuid,
+		long companyId, int start, int end,
+		OrderByComparator<MBCategory> orderByComparator) {
+		return mbCategoryPersistence.findByUuid_C(uuid, companyId, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -308,11 +382,10 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param groupId the primary key of the group
 	 * @return the matching message boards category
 	 * @throws PortalException if a matching message boards category could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBCategory getMBCategoryByUuidAndGroupId(String uuid, long groupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return mbCategoryPersistence.findByUUID_G(uuid, groupId);
 	}
 
@@ -326,11 +399,9 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * @param start the lower bound of the range of message boards categories
 	 * @param end the upper bound of the range of message boards categories (not inclusive)
 	 * @return the range of message boards categories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBCategory> getMBCategories(int start, int end)
-		throws SystemException {
+	public List<MBCategory> getMBCategories(int start, int end) {
 		return mbCategoryPersistence.findAll(start, end);
 	}
 
@@ -338,10 +409,9 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 * Returns the number of message boards categories.
 	 *
 	 * @return the number of message boards categories
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getMBCategoriesCount() throws SystemException {
+	public int getMBCategoriesCount() {
 		return mbCategoryPersistence.countAll();
 	}
 
@@ -350,12 +420,10 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 *
 	 * @param mbCategory the message boards category
 	 * @return the message boards category that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public MBCategory updateMBCategory(MBCategory mbCategory)
-		throws SystemException {
+	public MBCategory updateMBCategory(MBCategory mbCategory) {
 		return mbCategoryPersistence.update(mbCategory);
 	}
 
@@ -1208,7 +1276,7 @@ public abstract class MBCategoryLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = mbCategoryPersistence.getDataSource();
 

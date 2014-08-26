@@ -930,6 +930,12 @@
 			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
+			<name>localizeLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
 			<name>onClick</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1062,16 +1068,22 @@
 			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
-			<name>offset</name>
+			<name>lg</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
-			<type>int</type>
+			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
-			<name>offsetWidth</name>
+			<name>md</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
-			<type>int</type>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>sm</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
 			<name>span</name>
@@ -1084,6 +1096,12 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>int</type>
+		</attribute>
+		<attribute>
+			<name>xs</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
 		</attribute>
 		<dynamic-attributes>true</dynamic-attributes>
 	</tag>
@@ -1266,6 +1284,12 @@
 			<type>boolean</type>
 		</attribute>
 		<attribute>
+			<name>localizeLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
 			<name>name</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1311,6 +1335,12 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>localizeLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
 		</attribute>
 		<dynamic-attributes>true</dynamic-attributes>
 	</tag>
@@ -1463,6 +1493,12 @@
 			<type>long</type>
 		</attribute>
 		<attribute>
+			<name>classTypePK</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>long</type>
+		</attribute>
+		<attribute>
 			<name>cssClass</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1541,12 +1577,6 @@
 			<type>boolean</type>
 		</attribute>
 		<attribute>
-			<name>includeHiddenField</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<type>boolean</type>
-		</attribute>
-		<attribute>
 			<name>inlineField</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1565,6 +1595,12 @@
 			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
+			<name>localizeLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
 			<name>languageId</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1572,6 +1608,12 @@
 		</attribute>
 		<attribute>
 			<name>last</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
+			<name>localized</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>boolean</type>
@@ -1888,6 +1930,12 @@
 			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
+			<name>iconSrc</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
 			<name>id</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -1978,6 +2026,12 @@
 			<type>java.lang.Object</type>
 		</attribute>
 		<attribute>
+			<name>localizeLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
 			<name>selected</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -2031,6 +2085,12 @@
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.String</type>
 		</attribute>
+		<attribute>
+			<name>localizeLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
 	</tag>
 	<tag>
 		<name>row</name>
@@ -2041,12 +2101,6 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.String</type>
-		</attribute>
-		<attribute>
-			<name>fluid</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<type>boolean</type>
 		</attribute>
 		<attribute>
 			<name>id</name>
@@ -2168,6 +2222,12 @@
 			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
+			<name>localizeLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
 			<name>multiple</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -2238,6 +2298,12 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.Object</type>
+		</attribute>
+		<attribute>
+			<name>wrapperCssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
 		</attribute>
 		<dynamic-attributes>true</dynamic-attributes>
 	</tag>
