@@ -14,10 +14,11 @@
 
 package com.liferay.portlet.messageboards.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.NoSuchModelException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.trash.TrashHandler;
@@ -70,6 +71,7 @@ import java.util.Map;
  * @generated
  */
 @JSON(strict = true)
+@ProviderType
 public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	implements MBThreadModel {
 	/*
@@ -117,14 +119,14 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portlet.messageboards.model.MBThread"),
 			true);
-	public static long CATEGORYID_COLUMN_BITMASK = 1L;
-	public static long COMPANYID_COLUMN_BITMASK = 2L;
-	public static long GROUPID_COLUMN_BITMASK = 4L;
-	public static long LASTPOSTDATE_COLUMN_BITMASK = 8L;
-	public static long PRIORITY_COLUMN_BITMASK = 16L;
-	public static long ROOTMESSAGEID_COLUMN_BITMASK = 32L;
-	public static long STATUS_COLUMN_BITMASK = 64L;
-	public static long UUID_COLUMN_BITMASK = 128L;
+	public static final long CATEGORYID_COLUMN_BITMASK = 1L;
+	public static final long COMPANYID_COLUMN_BITMASK = 2L;
+	public static final long GROUPID_COLUMN_BITMASK = 4L;
+	public static final long LASTPOSTDATE_COLUMN_BITMASK = 8L;
+	public static final long PRIORITY_COLUMN_BITMASK = 16L;
+	public static final long ROOTMESSAGEID_COLUMN_BITMASK = 32L;
+	public static final long STATUS_COLUMN_BITMASK = 64L;
+	public static final long UUID_COLUMN_BITMASK = 128L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -474,7 +476,7 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -585,7 +587,7 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	}
 
 	@Override
-	public String getRootMessageUserUuid() throws SystemException {
+	public String getRootMessageUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getRootMessageUserId());
 
@@ -634,7 +636,7 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	}
 
 	@Override
-	public String getLastPostByUserUuid() throws SystemException {
+	public String getLastPostByUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getLastPostByUserId());
 
@@ -744,7 +746,7 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	}
 
 	@Override
-	public String getStatusByUserUuid() throws SystemException {
+	public String getStatusByUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getStatusByUserId());
 
@@ -818,7 +820,7 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	}
 
 	@Override
-	public TrashEntry getTrashEntry() throws PortalException, SystemException {
+	public TrashEntry getTrashEntry() throws PortalException {
 		if (!isInTrash()) {
 			return null;
 		}
@@ -832,7 +834,8 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 
 		TrashHandler trashHandler = getTrashHandler();
 
-		if (!Validator.isNull(trashHandler.getContainerModelClassName())) {
+		if (!Validator.isNull(trashHandler.getContainerModelClassName(
+						getPrimaryKey()))) {
 			ContainerModel containerModel = null;
 
 			try {
@@ -849,7 +852,8 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 					return trashedModel.getTrashEntry();
 				}
 
-				trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName());
+				trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName(
+							containerModel.getContainerModelId()));
 
 				if (trashHandler == null) {
 					return null;
@@ -887,7 +891,8 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 		TrashHandler trashHandler = getTrashHandler();
 
 		if ((trashHandler == null) ||
-				Validator.isNull(trashHandler.getContainerModelClassName())) {
+				Validator.isNull(trashHandler.getContainerModelClassName(
+						getPrimaryKey()))) {
 			return false;
 		}
 
@@ -909,7 +914,7 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 	}
 
 	@Override
-	public boolean isInTrashExplicitly() throws SystemException {
+	public boolean isInTrashExplicitly() {
 		if (!isInTrash()) {
 			return false;
 		}
@@ -922,6 +927,22 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean isInTrashImplicitly() {
+		if (!isInTrash()) {
+			return false;
+		}
+
+		TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(),
+				getTrashEntryClassPK());
+
+		if (trashEntry != null) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -1418,8 +1439,8 @@ public class MBThreadModelImpl extends BaseModelImpl<MBThread>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = MBThread.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = MBThread.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			MBThread.class
 		};
 	private String _uuid;

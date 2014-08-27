@@ -14,8 +14,10 @@
 
 package com.liferay.portal.kernel.resiliency.spi.provider;
 
+import com.liferay.portal.kernel.concurrent.DefaultNoticeableFuture;
 import com.liferay.portal.kernel.nio.intraband.blocking.ExecutorIntraband;
 import com.liferay.portal.kernel.process.ProcessCallable;
+import com.liferay.portal.kernel.process.ProcessConfig;
 import com.liferay.portal.kernel.process.ProcessException;
 import com.liferay.portal.kernel.resiliency.PortalResiliencyException;
 import com.liferay.portal.kernel.resiliency.mpi.MPIHelperUtil;
@@ -29,20 +31,18 @@ import com.liferay.portal.kernel.resiliency.spi.agent.MockSPIAgent;
 import com.liferay.portal.kernel.resiliency.spi.agent.SPIAgentFactoryUtil;
 import com.liferay.portal.kernel.resiliency.spi.remote.RemoteSPI;
 import com.liferay.portal.kernel.resiliency.spi.remote.RemoteSPIProxy;
+import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.resiliency.spi.SPIRegistryImpl;
 import com.liferay.portal.test.AdviseWith;
-import com.liferay.portal.test.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
 
 import java.io.File;
 import java.io.Serializable;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 
 import org.aspectj.lang.annotation.Around;
@@ -91,89 +91,93 @@ public class BaseSPIProviderTest {
 	@AdviseWith(adviceClasses = {ProcessExecutorAdvice.class})
 	@Test
 	public void testCreateSPI() throws PortalResiliencyException {
-
-		// Timeout
-
-		JDKLoggerTestUtil.configureJDKLogger(
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
 			MPIHelperUtil.class.getName(), Level.OFF);
 
 		try {
-			_testSPIProvider.createSPI(_spiConfiguration);
+
+			// Timeout
+
+			try {
+				_testSPIProvider.createSPI(_spiConfiguration);
+			}
+			catch (PortalResiliencyException pre) {
+				Assert.assertEquals(
+					"SPI synchronous queue waiting timeout. Forcibly " +
+						"cancelled SPI process launch.",
+					pre.getMessage());
+
+				Assert.assertNull(pre.getCause());
+			}
+
+			// Sucess
+
+			ProcessExecutorAdvice.setRegisterBack(true);
+
+			SPI spi = _testSPIProvider.createSPI(_spiConfiguration);
+
+			Assert.assertSame(RemoteSPIProxy.class, spi.getClass());
+
+			// Reject
+
+			try {
+				_testSPIProvider.createSPI(_spiConfiguration);
+			}
+			catch (PortalResiliencyException pre) {
+				Assert.assertEquals(
+					"Unable to register SPI " + spi +
+						". Forcibly cancelled SPI process launch.",
+					pre.getMessage());
+
+				Assert.assertNull(pre.getCause());
+			}
+
+			// Interrupt
+
+			ProcessExecutorAdvice.setInterrupt(true);
+			ProcessExecutorAdvice.setRegisterBack(false);
+
+			try {
+				_testSPIProvider.createSPI(_spiConfiguration);
+			}
+			catch (PortalResiliencyException pre) {
+				Assert.assertEquals(
+					"Interrupted on waiting SPI process, registering back " +
+						"RMI stub",
+					pre.getMessage());
+
+				Throwable throwable = pre.getCause();
+
+				Assert.assertSame(
+					InterruptedException.class, throwable.getClass());
+			}
+
+			// Process executor failure
+
+			ProcessExecutorAdvice.setInterrupt(false);
+			ProcessExecutorAdvice.setRegisterBack(false);
+			ProcessExecutorAdvice.setThrowException(true);
+
+			try {
+				_testSPIProvider.createSPI(_spiConfiguration);
+			}
+			catch (PortalResiliencyException pre) {
+				Assert.assertEquals(
+					"Unable to launch SPI process", pre.getMessage());
+
+				Throwable throwable = pre.getCause();
+
+				Assert.assertSame(ProcessException.class, throwable.getClass());
+				Assert.assertEquals("ProcessException", throwable.getMessage());
+			}
 		}
-		catch (PortalResiliencyException pre) {
-			Assert.assertEquals(
-				"SPI synchronous queue waiting timeout. Forcibly cancelled " +
-					"SPI process launch.", pre.getMessage());
-
-			Assert.assertNull(pre.getCause());
-		}
-
-		// Sucess
-
-		ProcessExecutorAdvice.setRegisterBack(true);
-
-		SPI spi = _testSPIProvider.createSPI(_spiConfiguration);
-
-		Assert.assertSame(RemoteSPIProxy.class, spi.getClass());
-
-		// Reject
-
-		try {
-			_testSPIProvider.createSPI(_spiConfiguration);
-		}
-		catch (PortalResiliencyException pre) {
-			Assert.assertEquals(
-				"Unable to register SPI " + spi +
-					". Forcibly cancelled SPI process launch.",
-				pre.getMessage());
-
-			Assert.assertNull(pre.getCause());
-		}
-
-		// Interrupt
-
-		ProcessExecutorAdvice.setInterrupt(true);
-		ProcessExecutorAdvice.setRegisterBack(false);
-
-		try {
-			_testSPIProvider.createSPI(_spiConfiguration);
-		}
-		catch (PortalResiliencyException pre) {
-			Assert.assertEquals(
-				"Interrupted on waiting SPI process, registering back RMI stub",
-				pre.getMessage());
-
-			Throwable throwable = pre.getCause();
-
-			Assert.assertSame(InterruptedException.class, throwable.getClass());
-		}
-
-		// Process executor failure
-
-		ProcessExecutorAdvice.setInterrupt(false);
-		ProcessExecutorAdvice.setRegisterBack(false);
-		ProcessExecutorAdvice.setThrowException(true);
-
-		try {
-			_testSPIProvider.createSPI(_spiConfiguration);
-		}
-		catch (PortalResiliencyException pre) {
-			Assert.assertEquals(
-				"Unable to launch SPI process", pre.getMessage());
-
-			Throwable throwable = pre.getCause();
-
-			Assert.assertSame(ProcessException.class, throwable.getClass());
-			Assert.assertEquals("ProcessException", throwable.getMessage());
+		finally {
+			captureHandler.close();
 		}
 	}
 
 	@Aspect
 	public static class ProcessExecutorAdvice {
-
-		public static FutureTask<SPI> getFutureTask() {
-			return _futureTask;
-		}
 
 		public static void setInterrupt(boolean interrupt) {
 			_interrupt = interrupt;
@@ -189,11 +193,11 @@ public class BaseSPIProviderTest {
 
 		@Around(
 			"execution(* com.liferay.portal.kernel.process.ProcessExecutor." +
-				"execute(String, String, java.util.List, " +
+				"execute(com.liferay.portal.kernel.process.ProcessConfig," +
 					"com.liferay.portal.kernel.process.ProcessCallable)) && " +
-						"args(java, classPath, arguments, processCallable)")
+						"args(processConfig, processCallable)")
 		public Object execute(
-				String java, String classPath, List<String> arguments,
+				ProcessConfig processConfig,
 				ProcessCallable<? extends Serializable> processCallable)
 			throws ProcessException {
 
@@ -230,21 +234,14 @@ public class BaseSPIProviderTest {
 				throw new ProcessException("ProcessException");
 			}
 
-			_futureTask = new FutureTask<SPI>(
-				new Callable<SPI>() {
+			DefaultNoticeableFuture<SPI> defaultNoticeableFuture =
+				new DefaultNoticeableFuture<SPI>();
 
-					@Override
-					public SPI call() throws Exception {
-						return mockSPI;
-					}
+			defaultNoticeableFuture.set(mockSPI);
 
-				}
-			);
-
-			return _futureTask;
+			return defaultNoticeableFuture;
 		}
 
-		private static FutureTask<SPI> _futureTask;
 		private static boolean _interrupt;
 		private static boolean _registerBack;
 		private static boolean _throwException;

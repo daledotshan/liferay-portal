@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.util.PredicateFilter;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Portlet;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.comparator.PortletNameComparator;
 import com.liferay.portlet.PortletResourceAccessor;
 
@@ -47,8 +46,8 @@ public class ComboServletStaticURLGenerator {
 			for (PortletResourceAccessor portletResourceAccessor :
 					_portletResourceAccessors) {
 
-				List<String> portletResources = ListUtil.sort(
-					portletResourceAccessor.get(portlet));
+				List<String> portletResources = portletResourceAccessor.get(
+					portlet);
 
 				for (String portletResource : portletResources) {
 					if (!_predicateFilter.filter(portletResource)) {
@@ -65,18 +64,12 @@ public class ComboServletStaticURLGenerator {
 					else {
 						sb.append(StringPool.AMPERSAND);
 
-						String contextName = portlet.getContextName();
-
-						if (!portletResourceAccessor.isPortalResource() &&
-							(contextName != null) &&
-							!contextName.equals(
-								PortalUtil.getServletContextName())) {
-
-							sb.append(contextName);
+						if (!portletResourceAccessor.isPortalResource()) {
+							sb.append(portlet.getPortletId());
 							sb.append(StringPool.COLON);
 						}
 
-						sb.append(HtmlUtil.escape(portletResource));
+						sb.append(HtmlUtil.escapeURL(portletResource));
 
 						timestamp = Math.max(timestamp, portlet.getTimestamp());
 					}

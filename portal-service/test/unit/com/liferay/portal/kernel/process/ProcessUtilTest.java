@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.process;
 
+import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
+import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -64,7 +66,7 @@ public class ProcessUtilTest {
 
 			executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-			_nullOutExecutorService();
+			_nullOutThreadPoolExecutor();
 		}
 	}
 
@@ -79,7 +81,7 @@ public class ProcessUtilTest {
 			public void run() {
 				try {
 					ExecutorService executorService =
-						_invokeGetExecutorService();
+						_invokeGetThreadPoolExecutor();
 
 					atomicReference.set(executorService);
 				}
@@ -97,14 +99,14 @@ public class ProcessUtilTest {
 
 			while (thread.getState() != Thread.State.BLOCKED);
 
-			executorService = _invokeGetExecutorService();
+			executorService = _invokeGetThreadPoolExecutor();
 		}
 
 		thread.join();
 
 		Assert.assertSame(executorService, atomicReference.get());
 
-		_invokeGetExecutorService();
+		_invokeGetThreadPoolExecutor();
 	}
 
 	@Test
@@ -120,7 +122,7 @@ public class ProcessUtilTest {
 
 		// Idle destroy
 
-		ExecutorService executorService = _invokeGetExecutorService();
+		ExecutorService executorService = _invokeGetThreadPoolExecutor();
 
 		Assert.assertNotNull(executorService);
 		Assert.assertNotNull(_getExecutorService());
@@ -131,7 +133,7 @@ public class ProcessUtilTest {
 
 		// Busy destroy
 
-		executorService = _invokeGetExecutorService();
+		executorService = _invokeGetThreadPoolExecutor();
 
 		Assert.assertNotNull(executorService);
 		Assert.assertNotNull(_getExecutorService());
@@ -159,7 +161,7 @@ public class ProcessUtilTest {
 
 		// Concurrent destroy
 
-		_invokeGetExecutorService();
+		_invokeGetThreadPoolExecutor();
 
 		final ProcessUtil referenceProcessUtil = processUtil;
 
@@ -182,7 +184,7 @@ public class ProcessUtilTest {
 
 		thread.join();
 
-		_invokeGetExecutorService();
+		_invokeGetThreadPoolExecutor();
 
 		processUtil.destroy();
 
@@ -198,27 +200,39 @@ public class ProcessUtilTest {
 
 		// Logging
 
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
 			LoggingOutputProcessor.class.getName(), Level.INFO);
 
-		Future<ObjectValuePair<Void, Void>> loggingFuture = ProcessUtil.execute(
-			ProcessUtil.LOGGING_OUTPUT_PROCESSOR,
-			_buildArguments(Echo.class, "2"));
+		try {
+			List<LogRecord> logRecords = captureHandler.getLogRecords();
 
-		loggingFuture.get();
+			Future<ObjectValuePair<Void, Void>> loggingFuture =
+				ProcessUtil.execute(
+					ProcessUtil.LOGGING_OUTPUT_PROCESSOR,
+					_buildArguments(Echo.class, "2"));
 
-		loggingFuture.cancel(true);
+			loggingFuture.get();
 
-		List<String> messageRecords = new ArrayList<String>();
+			loggingFuture.cancel(true);
 
-		for (LogRecord logRecord : logRecords) {
-			messageRecords.add(logRecord.getMessage());
+			List<String> messageRecords = new ArrayList<String>();
+
+			for (LogRecord logRecord : logRecords) {
+				messageRecords.add(logRecord.getMessage());
+			}
+
+			Assert.assertTrue(
+				messageRecords.contains(Echo.buildMessage(false, 0)));
+			Assert.assertTrue(
+				messageRecords.contains(Echo.buildMessage(false, 1)));
+			Assert.assertTrue(
+				messageRecords.contains(Echo.buildMessage(true, 0)));
+			Assert.assertTrue(
+				messageRecords.contains(Echo.buildMessage(true, 1)));
 		}
-
-		Assert.assertTrue(messageRecords.contains(Echo.buildMessage(false, 0)));
-		Assert.assertTrue(messageRecords.contains(Echo.buildMessage(false, 1)));
-		Assert.assertTrue(messageRecords.contains(Echo.buildMessage(true, 0)));
-		Assert.assertTrue(messageRecords.contains(Echo.buildMessage(true, 1)));
+		finally {
+			captureHandler.close();
+		}
 
 		// Collector
 
@@ -255,10 +269,17 @@ public class ProcessUtilTest {
 		catch (ExecutionException ee) {
 			Throwable throwable = ee.getCause();
 
-			Assert.assertEquals(ProcessException.class, throwable.getClass());
+			Assert.assertSame(
+				TerminationProcessException.class, throwable.getClass());
 			Assert.assertEquals(
 				"Subprocess terminated with exit code " + ErrorExit.EXIT_CODE,
 				throwable.getMessage());
+
+			TerminationProcessException terminationProcessException =
+				(TerminationProcessException)throwable;
+
+			Assert.assertEquals(
+				ErrorExit.EXIT_CODE, terminationProcessException.getExitCode());
 		}
 	}
 
@@ -303,7 +324,7 @@ public class ProcessUtilTest {
 
 	@Test
 	public void testExecuteAfterShutdown() throws Exception {
-		ExecutorService executorService = _invokeGetExecutorService();
+		ExecutorService executorService = _invokeGetThreadPoolExecutor();
 
 		executorService.shutdown();
 
@@ -491,27 +512,27 @@ public class ProcessUtilTest {
 		return argumentsList.toArray(new String[argumentsList.size()]);
 	}
 
-	private static ExecutorService _getExecutorService() throws Exception {
-		Field field = ProcessUtil.class.getDeclaredField("_executorService");
+	private static ThreadPoolExecutor _getExecutorService() throws Exception {
+		Field field = ProcessUtil.class.getDeclaredField("_threadPoolExecutor");
 
 		field.setAccessible(true);
 
-		return (ExecutorService)field.get(null);
+		return (ThreadPoolExecutor)field.get(null);
 	}
 
-	private static ExecutorService _invokeGetExecutorService()
+	private static ThreadPoolExecutor _invokeGetThreadPoolExecutor()
 		throws Exception {
 
 		Method method = ProcessUtil.class.getDeclaredMethod(
-			"_getExecutorService");
+			"_getThreadPoolExecutor");
 
 		method.setAccessible(true);
 
-		return (ExecutorService)method.invoke(method);
+		return (ThreadPoolExecutor)method.invoke(method);
 	}
 
-	private static void _nullOutExecutorService() throws Exception {
-		Field field = ProcessUtil.class.getDeclaredField("_executorService");
+	private static void _nullOutThreadPoolExecutor() throws Exception {
+		Field field = ProcessUtil.class.getDeclaredField("_threadPoolExecutor");
 
 		field.setAccessible(true);
 

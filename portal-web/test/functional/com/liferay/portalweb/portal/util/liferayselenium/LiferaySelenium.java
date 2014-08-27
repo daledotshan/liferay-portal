@@ -39,11 +39,14 @@ public interface LiferaySelenium extends Selenium {
 
 	public void assertElementPresent(String locator) throws Exception;
 
-	public void assertEmailBody(String index, String body)
-		throws Exception;
+	public void assertEmailBody(String index, String body) throws Exception;
 
 	public void assertEmailSubject(String index, String subject)
 		throws Exception;
+
+	public void assertHTMLSourceTextNotPresent(String value) throws Exception;
+
+	public void assertHTMLSourceTextPresent(String value) throws Exception;
 
 	public void assertJavaScriptErrors(String ignoreJavaScriptError)
 		throws Exception;
@@ -139,6 +142,10 @@ public interface LiferaySelenium extends Selenium {
 
 	public boolean isElementPresentAfterWait(String locator) throws Exception;
 
+	public boolean isHTMLSourceTextPresent(String value) throws Exception;
+
+	public boolean isMobileDeviceEnabled();
+
 	public boolean isNotChecked(String locator);
 
 	public boolean isNotPartialText(String locator, String value);
@@ -154,6 +161,8 @@ public interface LiferaySelenium extends Selenium {
 	public boolean isPartialText(String locator, String value);
 
 	public boolean isSelectedLabel(String selectLocator, String pattern);
+
+	public boolean isTCatEnabled();
 
 	public boolean isText(String locator, String value);
 
@@ -183,7 +192,12 @@ public interface LiferaySelenium extends Selenium {
 
 	public void saveScreenshot() throws Exception;
 
+	public void saveScreenshotBeforeAction(boolean actionFailed)
+		throws Exception;
+
 	public void saveScreenshotAndSource() throws Exception;
+
+	public void scrollWebElementIntoView(String locator) throws Exception;
 
 	public void selectAndWait(String selectLocator, String optionLocator);
 
@@ -195,6 +209,8 @@ public interface LiferaySelenium extends Selenium {
 		throws Exception;
 
 	public void sendKeys(String locator, String value);
+
+	public void sendKeysAceEditor(String locator, String value);
 
 	public void sendLogger(String id, String status);
 
@@ -212,11 +228,33 @@ public interface LiferaySelenium extends Selenium {
 
 	public void setTimeoutImplicit(String timeout);
 
+	public void setWindowSize(String coordString);
+
+	public void sikuliAssertElementNotPresent(String image) throws Exception;
+
+	public void sikuliAssertElementPresent(String image) throws Exception;
+
 	public void sikuliClick(String image) throws Exception;
+
+	public void sikuliDragAndDrop(String image, String coordString)
+		throws Exception;
+
+	public void sikuliLeftMouseDown() throws Exception;
+
+	public void sikuliLeftMouseUp() throws Exception;
+
+	public void sikuliMouseMove(String image) throws Exception;
+
+	public void sikuliRightMouseDown() throws Exception;
+
+	public void sikuliRightMouseUp() throws Exception;
 
 	public void sikuliType(String image, String value) throws Exception;
 
 	public void sikuliUploadCommonFile(String image, String value)
+		throws Exception;
+
+	public void sikuliUploadTCatFile(String image, String value)
 		throws Exception;
 
 	public void sikuliUploadTempFile(String image, String value)
@@ -230,7 +268,7 @@ public interface LiferaySelenium extends Selenium {
 
 	public void typeFrame(String locator, String value);
 
-	public void typeKeys(String locator, String value, boolean typeAceEditor);
+	public void typeScreen(String value);
 
 	public void uploadCommonFile(String locator, String value);
 

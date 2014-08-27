@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.Role;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.RoleLocalServiceUtil;
  * @see com.liferay.portal.model.Role
  * @generated
  */
+@ProviderType
 public abstract class RoleBaseImpl extends RoleModelImpl implements Role {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -37,7 +39,7 @@ public abstract class RoleBaseImpl extends RoleModelImpl implements Role {
 	 * Never modify or reference this class directly. All methods that expect a role model instance should use the {@link Role} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			RoleLocalServiceUtil.addRole(this);
 		}

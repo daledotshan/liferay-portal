@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.expando.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,12 +53,11 @@ import com.liferay.portlet.expando.service.ExpandoColumnServiceUtil;
  * @see com.liferay.portlet.expando.service.ExpandoColumnServiceUtil
  * @generated
  */
+@ProviderType
 public class ExpandoColumnServiceHttp {
 	public static com.liferay.portlet.expando.model.ExpandoColumn addColumn(
 		HttpPrincipal httpPrincipal, long tableId, java.lang.String name,
-		int type)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		int type) throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ExpandoColumnServiceUtil.class,
 					"addColumn", _addColumnParameterTypes0);
@@ -74,10 +75,6 @@ public class ExpandoColumnServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -93,8 +90,7 @@ public class ExpandoColumnServiceHttp {
 	public static com.liferay.portlet.expando.model.ExpandoColumn addColumn(
 		HttpPrincipal httpPrincipal, long tableId, java.lang.String name,
 		int type, java.lang.Object defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ExpandoColumnServiceUtil.class,
 					"addColumn", _addColumnParameterTypes1);
@@ -112,10 +108,6 @@ public class ExpandoColumnServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -129,8 +121,7 @@ public class ExpandoColumnServiceHttp {
 	}
 
 	public static void deleteColumn(HttpPrincipal httpPrincipal, long columnId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ExpandoColumnServiceUtil.class,
 					"deleteColumn", _deleteColumnParameterTypes2);
@@ -145,10 +136,6 @@ public class ExpandoColumnServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -161,9 +148,7 @@ public class ExpandoColumnServiceHttp {
 
 	public static com.liferay.portlet.expando.model.ExpandoColumn updateColumn(
 		HttpPrincipal httpPrincipal, long columnId, java.lang.String name,
-		int type)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		int type) throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ExpandoColumnServiceUtil.class,
 					"updateColumn", _updateColumnParameterTypes3);
@@ -181,10 +166,6 @@ public class ExpandoColumnServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -200,8 +181,7 @@ public class ExpandoColumnServiceHttp {
 	public static com.liferay.portlet.expando.model.ExpandoColumn updateColumn(
 		HttpPrincipal httpPrincipal, long columnId, java.lang.String name,
 		int type, java.lang.Object defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ExpandoColumnServiceUtil.class,
 					"updateColumn", _updateColumnParameterTypes4);
@@ -219,10 +199,6 @@ public class ExpandoColumnServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -238,8 +214,7 @@ public class ExpandoColumnServiceHttp {
 	public static com.liferay.portlet.expando.model.ExpandoColumn updateTypeSettings(
 		HttpPrincipal httpPrincipal, long columnId,
 		java.lang.String typeSettings)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ExpandoColumnServiceUtil.class,
 					"updateTypeSettings", _updateTypeSettingsParameterTypes5);
@@ -255,10 +230,6 @@ public class ExpandoColumnServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

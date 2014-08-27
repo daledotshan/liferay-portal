@@ -17,11 +17,13 @@ package com.liferay.portal.verify;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.security.auth.FullNameGenerator;
 import com.liferay.portal.security.auth.FullNameGeneratorFactory;
+import com.liferay.portal.verify.model.audited.VerifiableAuditedModel;
+import com.liferay.registry.collections.ServiceTrackerCollections;
+import com.liferay.registry.collections.ServiceTrackerList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,33 +41,80 @@ public class VerifyAuditedModel extends VerifyProcess {
 
 	@Override
 	protected void doVerify() throws Exception {
-		List<String> pendingModels = new ArrayList<String>();
+		List<String> unverifiedTableNames = new ArrayList<String>();
 
-		for (String[] model : _MODELS) {
-			pendingModels.add(model[0]);
+		for (VerifiableAuditedModel verifiableAuditedModel :
+				_verifiableAuditedModels) {
+
+			unverifiedTableNames.add(verifiableAuditedModel.getTableName());
 		}
 
-		while (!pendingModels.isEmpty()) {
-			int count = pendingModels.size();
+		while (!unverifiedTableNames.isEmpty()) {
+			int count = unverifiedTableNames.size();
 
-			for (String[] model : _MODELS) {
-				if (pendingModels.contains(model[3]) ||
-					!pendingModels.contains(model[0])) {
+			for (VerifiableAuditedModel verifiableAuditedModel :
+					_verifiableAuditedModels) {
+
+				if (unverifiedTableNames.contains(
+						verifiableAuditedModel.getJoinByTableName()) ||
+					!unverifiedTableNames.contains(
+						verifiableAuditedModel.getTableName())) {
 
 					continue;
 				}
 
-				verifyModel(
-					model[0], model[1], model[2], model[3], model[4],
-					GetterUtil.getBoolean(model[5]));
+				verifyAuditedModel(verifiableAuditedModel);
 
-				pendingModels.remove(model[0]);
+				unverifiedTableNames.remove(
+					verifiableAuditedModel.getTableName());
 			}
 
-			if (pendingModels.size() == count) {
+			if (unverifiedTableNames.size() == count) {
 				throw new VerifyException(
-					"Circular dependency detected " + pendingModels);
+					"Circular dependency detected " + unverifiedTableNames);
 			}
+		}
+	}
+
+	protected Object[] getAuditedModelArray(
+			String tableName, String pkColumnName, long primKey)
+		throws Exception {
+
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			ps = con.prepareStatement(
+				"select companyId, userId, createDate, modifiedDate from " +
+					tableName + " where " + pkColumnName + " = ?");
+
+			ps.setLong(1, primKey);
+
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				long companyId = rs.getLong("companyId");
+				long userId = rs.getLong("userId");
+				Timestamp createDate = rs.getTimestamp("createDate");
+				Timestamp modifiedDate = rs.getTimestamp("modifiedDate");
+
+				return new Object[] {
+					companyId, userId, getUserName(userId), createDate,
+					modifiedDate
+				};
+			}
+
+			if (_log.isDebugEnabled()) {
+				_log.debug("Unable to find " + tableName + " " + primKey);
+			}
+
+			return null;
+		}
+		finally {
+			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -112,49 +161,6 @@ public class VerifyAuditedModel extends VerifyProcess {
 		}
 	}
 
-	protected Object[] getModelArray(
-			String modelName, String pkColumnName, long primKey)
-		throws Exception {
-
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
-				"select companyId, userId, createDate, modifiedDate from " +
-					modelName + " where " + pkColumnName + " = ?");
-
-			ps.setLong(1, primKey);
-
-			rs = ps.executeQuery();
-
-			if (rs.next()) {
-				long companyId = rs.getLong("companyId");
-				long userId = rs.getLong("userId");
-				Timestamp createDate = rs.getTimestamp("createDate");
-				Timestamp modifiedDate = rs.getTimestamp("modifiedDate");
-
-				return new Object[] {
-					companyId, userId, getUserName(userId), createDate,
-					modifiedDate
-				};
-			}
-
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"Unable to find " + modelName + StringPool.SPACE + primKey);
-			}
-
-			return null;
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
-	}
-
 	protected String getUserName(long userId) throws Exception {
 		Connection con = null;
 		PreparedStatement ps = null;
@@ -190,9 +196,9 @@ public class VerifyAuditedModel extends VerifyProcess {
 		}
 	}
 
-	protected void verifyModel(
-			String modelName, String pkColumnName, long primKey,
-			Object[] modelArray, boolean updateDates)
+	protected void verifyAuditedModel(
+			String tableName, String primaryKeyColumnName, long primKey,
+			Object[] auditedModelArray, boolean updateDates)
 		throws Exception {
 
 		Connection con = null;
@@ -201,25 +207,25 @@ public class VerifyAuditedModel extends VerifyProcess {
 		try {
 			con = DataAccess.getUpgradeOptimizedConnection();
 
-			long companyId = (Long)modelArray[0];
+			long companyId = (Long)auditedModelArray[0];
 
-			if (modelArray[2] == null) {
-				modelArray = getDefaultUserArray(con, companyId);
+			if (auditedModelArray[2] == null) {
+				auditedModelArray = getDefaultUserArray(con, companyId);
 
-				if (modelArray == null) {
+				if (auditedModelArray == null) {
 					return;
 				}
 			}
 
-			long userId = (Long)modelArray[1];
-			String userName = (String)modelArray[2];
-			Timestamp createDate = (Timestamp)modelArray[3];
-			Timestamp modifiedDate = (Timestamp)modelArray[4];
+			long userId = (Long)auditedModelArray[1];
+			String userName = (String)auditedModelArray[2];
+			Timestamp createDate = (Timestamp)auditedModelArray[3];
+			Timestamp modifiedDate = (Timestamp)auditedModelArray[4];
 
 			StringBundler sb = new StringBundler(7);
 
 			sb.append("update ");
-			sb.append(modelName);
+			sb.append(tableName);
 			sb.append(" set companyId = ?, userId = ?, userName = ?");
 
 			if (updateDates) {
@@ -227,7 +233,7 @@ public class VerifyAuditedModel extends VerifyProcess {
 			}
 
 			sb.append(" where ");
-			sb.append(pkColumnName);
+			sb.append(primaryKeyColumnName);
 			sb.append(" = ?");
 
 			ps = con.prepareStatement(sb.toString());
@@ -249,7 +255,7 @@ public class VerifyAuditedModel extends VerifyProcess {
 		}
 		catch (Exception e) {
 			if (_log.isWarnEnabled()) {
-				_log.warn("Unable to verify model " + modelName, e);
+				_log.warn("Unable to verify model " + tableName, e);
 			}
 		}
 		finally {
@@ -257,10 +263,8 @@ public class VerifyAuditedModel extends VerifyProcess {
 		}
 	}
 
-	protected void verifyModel(
-			String modelName, String pkColumnName, String joinByColumnName,
-			String relatedModelName, String relatedPKColumnName,
-			boolean updateDates)
+	protected void verifyAuditedModel(
+			VerifiableAuditedModel verifiableAuditedModel)
 		throws Exception {
 
 		Connection con = null;
@@ -273,48 +277,54 @@ public class VerifyAuditedModel extends VerifyProcess {
 			StringBundler sb = new StringBundler(8);
 
 			sb.append("select ");
-			sb.append(pkColumnName);
+			sb.append(verifiableAuditedModel.getPrimaryKeyColumnName());
 			sb.append(", companyId");
 
-			if (joinByColumnName != null) {
+			if (verifiableAuditedModel.getJoinByTableName() != null) {
 				sb.append(StringPool.COMMA_AND_SPACE);
-				sb.append(joinByColumnName);
+				sb.append(verifiableAuditedModel.getJoinByTableName());
 			}
 
 			sb.append(" from ");
-			sb.append(modelName);
+			sb.append(verifiableAuditedModel.getTableName());
 			sb.append(" where userName is null order by companyId");
 
 			ps = con.prepareStatement(sb.toString());
 
 			rs = ps.executeQuery();
 
-			Object[] modelArray = null;
+			Object[] auditedModelArray = null;
 
 			long previousCompanyId = 0;
 
 			while (rs.next()) {
 				long companyId = rs.getLong("companyId");
-				long primKey = rs.getLong(pkColumnName);
+				long primKey = rs.getLong(
+					verifiableAuditedModel.getPrimaryKeyColumnName());
 
-				if (joinByColumnName != null) {
-					long relatedPrimKey = rs.getLong(joinByColumnName);
+				if (verifiableAuditedModel.getJoinByTableName() != null) {
+					long relatedPrimKey = rs.getLong(
+						verifiableAuditedModel.getJoinByTableName());
 
-					modelArray = getModelArray(
-						relatedModelName, relatedPKColumnName, relatedPrimKey);
+					auditedModelArray = getAuditedModelArray(
+						verifiableAuditedModel.getRelatedModelName(),
+						verifiableAuditedModel.getRelatedPKColumnName(),
+						relatedPrimKey);
 				}
 				else if (previousCompanyId != companyId) {
-					modelArray = getDefaultUserArray(con, companyId);
+					auditedModelArray = getDefaultUserArray(con, companyId);
 
 					previousCompanyId = companyId;
 				}
 
-				if (modelArray == null) {
+				if (auditedModelArray == null) {
 					continue;
 				}
 
-				verifyModel(
-					modelName, pkColumnName, primKey, modelArray, updateDates);
+				verifyAuditedModel(
+					verifiableAuditedModel.getTableName(),
+					verifiableAuditedModel.getPrimaryKeyColumnName(), primKey,
+					auditedModelArray, verifiableAuditedModel.isUpdateDates());
 			}
 		}
 		finally {
@@ -322,55 +332,10 @@ public class VerifyAuditedModel extends VerifyProcess {
 		}
 	}
 
-	private static final String[][] _MODELS = new String[][] {
-		new String[] {
-			"Layout", "plid", null, null, null, "false"
-		},
-		new String[] {
-			"LayoutFriendlyURL", "layoutFriendlyURLId", null, null, null,
-			"false"
-		},
-		new String[] {
-			"LayoutPrototype", "layoutPrototypeId", null, null, null, "true"
-		},
-		new String[] {
-			"LayoutSetPrototype", "layoutSetPrototypeId", null, null, null,
-			"false"
-		},
-		new String[] {
-			"MBDiscussion", "discussionId", "threadId", "MBThread", "threadId",
-			"true"
-		},
-		new String[] {
-			"MBThread", "threadId", "rootMessageId", "MBMessage", "messageId",
-			"true"
-		},
-		new String[] {
-			"MBThreadFlag", "threadFlagId", "userId", "User_", "userId", "true",
-		},
-		new String[] {
-			"Organization_", "organizationId", null, null, null, "true"
-		},
-		new String[] {
-			"PollsChoice", "choiceId", "questionId", "PollsQuestion",
-			"questionId", "true"
-		},
-		new String[] {
-			"PollsVote", "voteId", "questionId", "PollsQuestion", "questionId",
-			"true"
-		},
-		new String[] {
-			"RepositoryEntry", "repositoryEntryId", "repositoryId",
-			"Repository", "repositoryId", "true"
-		},
-		new String[] {
-			"Role_", "roleId", null, null, null, "true"
-		},
-		new String[] {
-			"UserGroup", "userGroupId", null, null, null, "true"
-		}
-	};
-
 	private static Log _log = LogFactoryUtil.getLog(VerifyAuditedModel.class);
+
+	private ServiceTrackerList<VerifiableAuditedModel>
+		_verifiableAuditedModels = ServiceTrackerCollections.list(
+			VerifiableAuditedModel.class);
 
 }

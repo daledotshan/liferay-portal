@@ -117,7 +117,7 @@
 	</portlet>
 	<portlet>
 		<portlet-name>15</portlet-name>
-		<display-name>Journal</display-name>
+		<display-name>Web Content</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
 			<name>config-template</name>
@@ -348,10 +348,6 @@
 		<display-name>Bookmarks</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
-			<name>config-template</name>
-			<value>/html/portlet/bookmarks/configuration.jsp</value>
-		</init-param>
-		<init-param>
 			<name>template-path</name>
 			<value>/html/portlet/bookmarks/</value>
 		</init-param>
@@ -461,6 +457,10 @@
 		<display-name>Blogs</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
 		<init-param>
+			<name>config-template</name>
+			<value>/html/portlet/blogs/configuration.jsp</value>
+		</init-param>
+		<init-param>
 			<name>template-path</name>
 			<value>/html/portlet/blogs/</value>
 		</init-param>
@@ -514,6 +514,10 @@
 		<portlet-name>36</portlet-name>
 		<display-name>Wiki</display-name>
 		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>config-template</name>
+			<value>/html/portlet/wiki/configuration.jsp</value>
+		</init-param>
 		<init-param>
 			<name>template-path</name>
 			<value>/html/portlet/wiki/</value>
@@ -902,118 +906,6 @@
 		<security-role-ref>
 			<role-name>guest</role-name>
 		</security-role-ref>
-		<security-role-ref>
-			<role-name>power-user</role-name>
-		</security-role-ref>
-		<security-role-ref>
-			<role-name>user</role-name>
-		</security-role-ref>
-	</portlet>
-	<portlet>
-		<portlet-name>66</portlet-name>
-		<display-name>Web Proxy</display-name>
-		<portlet-class>com.liferay.portlet.webproxy.WebProxyPortlet</portlet-class>
-		<init-param>
-			<name>authenticatorClassName</name>
-			<value>org.portletbridge.portlet.DefaultBridgeAuthenticator</value>
-		</init-param>
-		<init-param>
-			<name>config-template</name>
-			<value>/html/portlet/web_proxy/configuration.jsp</value>
-		</init-param>
-		<init-param>
-			<name>cssRegex</name>
-			<value>(?:url\((?:'|")?(.*?)(?:'|")?\))|(?:@import\s+[^url](?:'|")?(.*?)(?:'|")|;|\s+|$)</value>
-		</init-param>
-		<init-param>
-			<name>editStylesheet</name>
-			<value>classpath:/org/portletbridge/xsl/pages/edit.xsl</value>
-		</init-param>
-		<init-param>
-			<name>errorStylesheet</name>
-			<value>classpath:/org/portletbridge/xsl/pages/error.xsl</value>
-		</init-param>
-		<init-param>
-			<name>helpStylesheet</name>
-			<value>classpath:/org/portletbridge/xsl/pages/help.xsl</value>
-		</init-param>
-		<init-param>
-			<name>idParamKey</name>
-			<value>id</value>
-		</init-param>
-		<init-param>
-			<name>jsRegex</name>
-			<value>open\('([^']*)'|open\("([^\"]*)"</value>
-		</init-param>
-		<init-param>
-			<name>mementoSessionKey</name>
-			<value>mementoSessionKey</value>
-		</init-param>
-		<init-param>
-			<name>parserClassName</name>
-			<value>org.cyberneko.html.parsers.SAXParser</value>
-		</init-param>
-		<init-param>
-			<name>servletName</name>
-			<value>pbhs</value>
-		</init-param>
-		<init-param>
-			<name>stylesheetUrl</name>
-			<value>classpath:/org/portletbridge/xsl/default.xsl</value>
-		</init-param>
-		<expiration-cache>0</expiration-cache>
-		<supports>
-			<mime-type>text/html</mime-type>
-		</supports>
-		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
-		<portlet-preferences>
-			<preference>
-				<name>initUrl</name>
-				<value/>
-			</preference>
-			<preference>
-				<name>proxyAuthentication</name>
-				<value>none</value>
-			</preference>
-			<preference>
-				<name>proxyAuthenticationDomain</name>
-				<value/>
-			</preference>
-			<preference>
-				<name>proxyAuthenticationHost</name>
-				<value/>
-			</preference>
-			<preference>
-				<name>proxyAuthenticationPassword</name>
-				<value/>
-			</preference>
-			<preference>
-				<name>proxyAuthenticationUsername</name>
-				<value/>
-			</preference>
-			<preference>
-				<name>proxyHost</name>
-				<value/>
-			</preference>
-			<preference>
-				<name>proxyPort</name>
-				<value/>
-			</preference>
-			<preference>
-				<name>scope</name>
-				<value>.*</value>
-			</preference>
-			<preference>
-				<name>secureEdit</name>
-				<value>false</value>
-				<read-only>true</read-only>
-			</preference>
-			<preference>
-				<name>stylesheet</name>
-				<value/>
-			</preference>
-			<preferences-validator>org.portletbridge.portlet.PortletBridgePortletValidator</preferences-validator>
-		</portlet-preferences>
 		<security-role-ref>
 			<role-name>power-user</role-name>
 		</security-role-ref>
@@ -1485,38 +1377,6 @@
 		<supported-public-render-parameter>tags</supported-public-render-parameter>
 	</portlet>
 	<portlet>
-		<portlet-name>102</portlet-name>
-		<display-name>XSL Content</display-name>
-		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
-		<init-param>
-			<name>config-template</name>
-			<value>/html/portlet/xsl_content/configuration.jsp</value>
-		</init-param>
-		<init-param>
-			<name>template-path</name>
-			<value>/html/portlet/xsl_content/</value>
-		</init-param>
-		<init-param>
-			<name>view-action</name>
-			<value>/xsl_content/view</value>
-		</init-param>
-		<expiration-cache>0</expiration-cache>
-		<supports>
-			<mime-type>text/html</mime-type>
-		</supports>
-		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
-		<security-role-ref>
-			<role-name>guest</role-name>
-		</security-role-ref>
-		<security-role-ref>
-			<role-name>power-user</role-name>
-		</security-role-ref>
-		<security-role-ref>
-			<role-name>user</role-name>
-		</security-role-ref>
-		<supported-public-render-parameter>tags</supported-public-render-parameter>
-	</portlet>
-	<portlet>
 		<portlet-name>103</portlet-name>
 		<display-name>Tags Compiler</display-name>
 		<portlet-class>com.liferay.portal.kernel.portlet.LiferayPortlet</portlet-class>
@@ -1600,24 +1460,6 @@
 			<mime-type>text/html</mime-type>
 		</supports>
 		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
-		<portlet-preferences>
-			<preference>
-				<name>fileEntryColumns</name>
-				<value>name,size</value>
-			</preference>
-			<preference>
-				<name>folderColumns</name>
-				<value>name,num-of-folders,num-of-documents</value>
-			</preference>
-			<preference>
-				<name>showFoldersSearch</name>
-				<value>false</value>
-			</preference>
-			<preference>
-				<name>showSubfolders</name>
-				<value>true</value>
-			</preference>
-		</portlet-preferences>
 		<security-role-ref>
 			<role-name>power-user</role-name>
 		</security-role-ref>
@@ -2871,7 +2713,7 @@
 		</init-param>
 		<init-param>
 			<name>view-action</name>
-			<value>/asset_publisher/view</value>
+			<value>/related_assets/view</value>
 		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
@@ -3455,6 +3297,83 @@
 			<role-name>administrator</role-name>
 		</security-role-ref>
 	</portlet>
+	<portlet>
+		<portlet-name>198</portlet-name>
+		<display-name>Bookmarks Admin</display-name>
+		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>config-template</name>
+			<value>/html/portlet/bookmarks_admin/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/bookmarks_admin/</value>
+		</init-param>
+		<init-param>
+			<name>view-action</name>
+			<value>/bookmarks_admin/view</value>
+		</init-param>
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
+		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
+		<security-role-ref>
+			<role-name>administrator</role-name>
+		</security-role-ref>
+	</portlet>
+	<portlet>
+		<portlet-name>199</portlet-name>
+		<display-name>Documents and Media Admin</display-name>
+		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>config-template</name>
+			<value>/html/portlet/document_library_admin/configuration.jsp</value>
+		</init-param>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/document_library_admin/</value>
+		</init-param>
+		<init-param>
+			<name>view-action</name>
+			<value>/document_library_admin/view</value>
+		</init-param>
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
+		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
+		<security-role-ref>
+			<role-name>administrator</role-name>
+		</security-role-ref>
+	</portlet>
+	<portlet>
+		<portlet-name>200</portlet-name>
+		<display-name>Document Selector</display-name>
+		<portlet-class>com.liferay.portlet.StrutsPortlet</portlet-class>
+		<init-param>
+			<name>template-path</name>
+			<value>/html/portlet/document_selector/</value>
+		</init-param>
+		<init-param>
+			<name>view-action</name>
+			<value>/document_selector/view</value>
+		</init-param>
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
+		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
+		<security-role-ref>
+			<role-name>guest</role-name>
+		</security-role-ref>
+		<security-role-ref>
+			<role-name>power-user</role-name>
+		</security-role-ref>
+		<security-role-ref>
+			<role-name>user</role-name>
+		</security-role-ref>
+	</portlet>
 	<custom-portlet-mode>
 		<portlet-mode>edit_guest</portlet-mode>
 		<portal-managed>true</portal-managed>
@@ -3672,6 +3591,15 @@
 	<user-attribute>
 		<name>user.business-info.online.uri</name>
 	</user-attribute>
+	<filter>
+		<filter-name>Related Assets Render Parameters Portlet Filter</filter-name>
+		<filter-class>com.liferay.portlet.relatedassets.filter.RelatedAssetsRenderParametersPortletFilter</filter-class>
+		<lifecycle>RENDER_PHASE</lifecycle>
+	</filter>
+	<filter-mapping>
+		<filter-name>Related Assets Render Parameters Portlet Filter</filter-name>
+		<portlet-name>175</portlet-name>
+	</filter-mapping>
 	<public-render-parameter>
 		<identifier>categoryId</identifier>
 		<qname xmlns:x="http://www.liferay.com/public-render-parameters">x:categoryId</qname>

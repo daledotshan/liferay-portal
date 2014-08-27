@@ -1,11 +1,10 @@
 package ${packagePath}.service.persistence;
 
-import aQute.bnd.annotation.ProviderType;
-
 import ${packagePath}.model.${entity.name};
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.service.persistence.BasePersistence;
@@ -25,10 +24,7 @@ import java.util.Date;
  * @generated
  */
 
-<#if pluginName == "">
-	@ProviderType
-</#if>
-
+@ProviderType
 public interface ${entity.name}Persistence extends BasePersistence<${entity.name}> {
 
 	/*
@@ -43,6 +39,10 @@ public interface ${entity.name}Persistence extends BasePersistence<${entity.name
 
 			<#if serviceBuilder.hasAnnotation(method, "Deprecated")>
 				@Deprecated
+			</#if>
+
+			<#if method.name == "fetchByPrimaryKeys">
+				@Override
 			</#if>
 
 			public ${serviceBuilder.getTypeGenericsName(method.returns)} ${method.name} (
