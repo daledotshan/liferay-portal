@@ -3,6 +3,8 @@
 
 	<set-up>
 		<execute macro="User#firstLoginPG" />
+
+		<execute macro="WikiNode#addMainCP" />
 	</set-up>
 
 	<tear-down>
@@ -20,6 +22,14 @@
 			<var name="portletName" value="Wiki" />
 		</execute>
 
+		<execute macro="WikiNode#gotoCP">
+			<var name="wikiNodeName" value="${wikiNodeName}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoCP">
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
 		<execute macro="WikiPage#addFrontPageCP">
 			<var name="wikiFrontPageContent" value="${wikiFrontPageContent}" />
 			<var name="wikiNodeName" value="${wikiNodeName}" />
@@ -27,6 +37,10 @@
 
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Wiki" />
+		</execute>
+
+		<execute macro="WikiNode#gotoCP">
+			<var name="wikiNodeName" value="${wikiNodeName}" />
 		</execute>
 
 		<execute macro="WikiPage#moveToRecycleBinCP">
@@ -55,12 +69,18 @@
 			<var name="portletName" value="Wiki" />
 		</execute>
 
+		<execute macro="WikiNode#gotoCP">
+			<var name="wikiNodeName" value="${wikiNodeName}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoFrontPageCP" />
+
 		<execute macro="WikiPage#viewFrontPageDefaultCP">
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
-	<command name="RestoreDeleteWikiFrontpage" known-issues="LIFERAYQA-7755" priority="5">
+	<command known-issues="LIFERAYQA-7755" name="RestoreDeleteWikiFrontpage" priority="5">
 		<var name="assetName" value="${wikiPageTitle}" />
 		<var name="assetRestoreLocation" value="Main" />
 		<var name="assetType" value="Wiki Page" />
@@ -72,6 +92,14 @@
 			<var name="portletName" value="Wiki" />
 		</execute>
 
+		<execute macro="WikiNode#gotoCP">
+			<var name="wikiNodeName" value="${wikiNodeName}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoCP">
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
 		<execute macro="WikiPage#addFrontPageCP">
 			<var name="wikiFrontPageContent" value="${wikiFrontPageContent}" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
@@ -79,6 +107,10 @@
 
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Wiki" />
+		</execute>
+
+		<execute macro="WikiNode#gotoCP">
+			<var name="wikiNodeName" value="${wikiNodeName}" />
 		</execute>
 
 		<execute macro="WikiPage#moveToRecycleBinCP">
@@ -107,6 +139,12 @@
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Wiki" />
 		</execute>
+
+		<execute macro="WikiNode#gotoCP">
+			<var name="wikiNodeName" value="${wikiNodeName}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoFrontPageCP" />
 
 		<execute macro="WikiPage#viewFrontPageCP">
 			<var name="webContentContent" value="${webContentContent}" />

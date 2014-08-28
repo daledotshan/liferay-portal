@@ -28,6 +28,9 @@ import com.liferay.portal.util.PortalUtil;
 @ProviderType
 public class StagedModelType {
 
+	public static final String REFERRER_CLASS_NAME_ALL =
+		"referrer-class-name-all";
+
 	public static final int REFERRER_CLASS_NAME_ID_ALL = -1;
 
 	public StagedModelType(Class<?> clazz) {
@@ -108,7 +111,22 @@ public class StagedModelType {
 		return hashCode.toHashCode();
 	}
 
-	public void setClassName(String className) {
+	@Override
+	public String toString() {
+		if (_referrerClassNameId <= 0) {
+			return _className;
+		}
+
+		return _className.concat(StringPool.POUND).concat(_referrerClassName);
+	}
+
+	protected String getSimpleName(String className) {
+		int pos = className.lastIndexOf(StringPool.PERIOD) + 1;
+
+		return className.substring(pos);
+	}
+
+	protected void setClassName(String className) {
 		_className = className;
 		_classSimpleName = getSimpleName(_className);
 
@@ -120,7 +138,7 @@ public class StagedModelType {
 		}
 	}
 
-	public void setClassNameId(long classNameId) {
+	protected void setClassNameId(long classNameId) {
 		if (classNameId > 0) {
 			_className = PortalUtil.getClassName(classNameId);
 			_classSimpleName = getSimpleName(_className);
@@ -133,22 +151,25 @@ public class StagedModelType {
 		_classNameId = classNameId;
 	}
 
-	public void setClassSimpleName(String classSimpleName) {
+	protected void setClassSimpleName(String classSimpleName) {
 		_classSimpleName = classSimpleName;
 	}
 
-	public void setReferrerClassName(String referrerClassName) {
+	protected void setReferrerClassName(String referrerClassName) {
 		_referrerClassName = referrerClassName;
 
-		if (Validator.isNotNull(referrerClassName)) {
-			_referrerClassNameId = PortalUtil.getClassNameId(referrerClassName);
+		if (Validator.isNull(referrerClassName)) {
+			_referrerClassNameId = 0;
+		}
+		else if (referrerClassName.equals(REFERRER_CLASS_NAME_ALL)) {
+			_referrerClassNameId = REFERRER_CLASS_NAME_ID_ALL;
 		}
 		else {
-			_referrerClassNameId = 0;
+			_referrerClassNameId = PortalUtil.getClassNameId(referrerClassName);
 		}
 	}
 
-	public void setReferrerClassNameId(long referrerClassNameId) {
+	protected void setReferrerClassNameId(long referrerClassNameId) {
 		if (referrerClassNameId > 0) {
 			_referrerClassName = PortalUtil.getClassName(referrerClassNameId);
 		}
@@ -157,21 +178,6 @@ public class StagedModelType {
 		}
 
 		_referrerClassNameId = referrerClassNameId;
-	}
-
-	@Override
-	public String toString() {
-		if (_referrerClassNameId <= 0) {
-			return _className;
-		}
-
-		return _className.concat(StringPool.POUND).concat(_referrerClassName);
-	}
-
-	private String getSimpleName(String className) {
-		int pos = className.lastIndexOf(StringPool.PERIOD) + 1;
-
-		return className.substring(pos);
 	}
 
 	private String _className;

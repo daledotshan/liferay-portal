@@ -14,17 +14,27 @@
 
 package com.liferay.portlet.polls.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
+import com.liferay.portal.kernel.lar.ManifestSummary;
+import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -60,6 +70,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.polls.service.PollsQuestionLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class PollsQuestionLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements PollsQuestionLocalService,
 		IdentifiableBean {
@@ -74,12 +85,10 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public PollsQuestion addPollsQuestion(PollsQuestion pollsQuestion)
-		throws SystemException {
+	public PollsQuestion addPollsQuestion(PollsQuestion pollsQuestion) {
 		pollsQuestion.setNew(true);
 
 		return pollsQuestionPersistence.update(pollsQuestion);
@@ -102,12 +111,11 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param questionId the primary key of the polls question
 	 * @return the polls question that was removed
 	 * @throws PortalException if a polls question with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public PollsQuestion deletePollsQuestion(long questionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return pollsQuestionPersistence.remove(questionId);
 	}
 
@@ -116,12 +124,10 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public PollsQuestion deletePollsQuestion(PollsQuestion pollsQuestion)
-		throws SystemException {
+	public PollsQuestion deletePollsQuestion(PollsQuestion pollsQuestion) {
 		return pollsQuestionPersistence.remove(pollsQuestion);
 	}
 
@@ -138,12 +144,9 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return pollsQuestionPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -158,12 +161,10 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return pollsQuestionPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end);
 	}
@@ -180,12 +181,10 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return pollsQuestionPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end, orderByComparator);
 	}
@@ -195,11 +194,9 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return pollsQuestionPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -209,34 +206,17 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return pollsQuestionPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public PollsQuestion fetchPollsQuestion(long questionId)
-		throws SystemException {
+	public PollsQuestion fetchPollsQuestion(long questionId) {
 		return pollsQuestionPersistence.fetchByPrimaryKey(questionId);
-	}
-
-	/**
-	 * Returns the polls question with the matching UUID and company.
-	 *
-	 * @param uuid the polls question's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching polls question, or <code>null</code> if a matching polls question could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public PollsQuestion fetchPollsQuestionByUuidAndCompanyId(String uuid,
-		long companyId) throws SystemException {
-		return pollsQuestionPersistence.fetchByUuid_C_First(uuid, companyId,
-			null);
 	}
 
 	/**
@@ -245,11 +225,10 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param uuid the polls question's UUID
 	 * @param groupId the primary key of the group
 	 * @return the matching polls question, or <code>null</code> if a matching polls question could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public PollsQuestion fetchPollsQuestionByUuidAndGroupId(String uuid,
-		long groupId) throws SystemException {
+		long groupId) {
 		return pollsQuestionPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
@@ -259,33 +238,117 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param questionId the primary key of the polls question
 	 * @return the polls question
 	 * @throws PortalException if a polls question with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public PollsQuestion getPollsQuestion(long questionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return pollsQuestionPersistence.findByPrimaryKey(questionId);
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
-		return pollsQuestionPersistence.findByPrimaryKey(primaryKeyObj);
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.polls.service.PollsQuestionLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(PollsQuestion.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("questionId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.polls.service.PollsQuestionLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(PollsQuestion.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("questionId");
+	}
+
+	@Override
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		final PortletDataContext portletDataContext) {
+		final ExportActionableDynamicQuery exportActionableDynamicQuery = new ExportActionableDynamicQuery() {
+				@Override
+				public long performCount() throws PortalException {
+					ManifestSummary manifestSummary = portletDataContext.getManifestSummary();
+
+					StagedModelType stagedModelType = getStagedModelType();
+
+					long modelAdditionCount = super.performCount();
+
+					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+						modelAdditionCount);
+
+					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
+							stagedModelType);
+
+					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+						modelDeletionCount);
+
+					return modelAdditionCount;
+				}
+			};
+
+		initActionableDynamicQuery(exportActionableDynamicQuery);
+
+		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					portletDataContext.addDateRangeCriteria(dynamicQuery,
+						"modifiedDate");
+				}
+			});
+
+		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
+
+		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
+
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+					PollsQuestion stagedModel = (PollsQuestion)object;
+
+					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
+						stagedModel);
+				}
+			});
+		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
+				PortalUtil.getClassNameId(PollsQuestion.class.getName())));
+
+		return exportActionableDynamicQuery;
 	}
 
 	/**
-	 * Returns the polls question with the matching UUID and company.
-	 *
-	 * @param uuid the polls question's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching polls question
-	 * @throws PortalException if a matching polls question could not be found
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Override
-	public PollsQuestion getPollsQuestionByUuidAndCompanyId(String uuid,
-		long companyId) throws PortalException, SystemException {
-		return pollsQuestionPersistence.findByUuid_C_First(uuid, companyId, null);
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return pollsQuestionLocalService.deletePollsQuestion((PollsQuestion)persistedModel);
+	}
+
+	@Override
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+		return pollsQuestionPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	@Override
+	public List<PollsQuestion> getPollsQuestionsByUuidAndCompanyId(
+		String uuid, long companyId) {
+		return pollsQuestionPersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<PollsQuestion> getPollsQuestionsByUuidAndCompanyId(
+		String uuid, long companyId, int start, int end,
+		OrderByComparator<PollsQuestion> orderByComparator) {
+		return pollsQuestionPersistence.findByUuid_C(uuid, companyId, start,
+			end, orderByComparator);
 	}
 
 	/**
@@ -295,11 +358,10 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param groupId the primary key of the group
 	 * @return the matching polls question
 	 * @throws PortalException if a matching polls question could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public PollsQuestion getPollsQuestionByUuidAndGroupId(String uuid,
-		long groupId) throws PortalException, SystemException {
+		long groupId) throws PortalException {
 		return pollsQuestionPersistence.findByUUID_G(uuid, groupId);
 	}
 
@@ -313,11 +375,9 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * @param start the lower bound of the range of polls questions
 	 * @param end the upper bound of the range of polls questions (not inclusive)
 	 * @return the range of polls questions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<PollsQuestion> getPollsQuestions(int start, int end)
-		throws SystemException {
+	public List<PollsQuestion> getPollsQuestions(int start, int end) {
 		return pollsQuestionPersistence.findAll(start, end);
 	}
 
@@ -325,10 +385,9 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 * Returns the number of polls questions.
 	 *
 	 * @return the number of polls questions
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getPollsQuestionsCount() throws SystemException {
+	public int getPollsQuestionsCount() {
 		return pollsQuestionPersistence.countAll();
 	}
 
@@ -337,12 +396,10 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 *
 	 * @param pollsQuestion the polls question
 	 * @return the polls question that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public PollsQuestion updatePollsQuestion(PollsQuestion pollsQuestion)
-		throws SystemException {
+	public PollsQuestion updatePollsQuestion(PollsQuestion pollsQuestion) {
 		return pollsQuestionPersistence.update(pollsQuestion);
 	}
 
@@ -710,7 +767,7 @@ public abstract class PollsQuestionLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = pollsQuestionPersistence.getDataSource();
 

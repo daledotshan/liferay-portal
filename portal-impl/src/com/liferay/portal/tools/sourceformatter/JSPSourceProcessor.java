@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,9 +69,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
-	protected void addJSPIncludeFileNames(
-		String fileName, Set<String> includeFileNames) {
-
+	protected void addJSPIncludeFileNames(String fileName) {
 		String content = _jspContents.get(fileName);
 
 		if (Validator.isNull(content)) {
@@ -107,36 +104,65 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 					"Invalid include " + includeFileName);
 			}
 
-			String docrootPath = fileName.substring(
-				0, fileName.indexOf("docroot") + 7);
-
-			includeFileName = docrootPath + includeFileName;
+			includeFileName = buildFullPathIncludeFileName(
+				fileName, includeFileName);
 
 			if ((includeFileName.endsWith("jsp") ||
 				 includeFileName.endsWith("jspf")) &&
 				!includeFileName.endsWith("html/common/init.jsp") &&
 				!includeFileName.endsWith("html/portlet/init.jsp") &&
 				!includeFileName.endsWith("html/taglib/init.jsp") &&
-				!includeFileNames.contains(includeFileName)) {
+				!_includeFileNames.contains(includeFileName)) {
 
-				includeFileNames.add(includeFileName);
+				_includeFileNames.add(includeFileName);
 			}
 
 			x = y;
 		}
 	}
 
-	protected void addJSPReferenceFileNames(
-		String fileName, Set<String> includeFileNames) {
-
+	protected void addJSPReferenceFileNames(String fileName) {
 		for (Map.Entry<String, String> entry : _jspContents.entrySet()) {
 			String referenceFileName = entry.getKey();
-			String content = entry.getValue();
 
-			if (content.contains("<%@ include file=\"" + fileName) &&
-				!includeFileNames.contains(referenceFileName)) {
+			if (_includeFileNames.contains(referenceFileName)) {
+				continue;
+			}
 
-				includeFileNames.add(referenceFileName);
+			String sharedPath = fileName.substring(
+				0, StringUtil.startsWithWeight(referenceFileName, fileName));
+
+			if (Validator.isNull(sharedPath) ||
+				!sharedPath.contains(StringPool.SLASH)) {
+
+				continue;
+			}
+
+			if (!sharedPath.endsWith(StringPool.SLASH)) {
+				sharedPath = sharedPath.substring(
+					0, sharedPath.lastIndexOf(CharPool.SLASH) + 1);
+			}
+
+			String content = null;
+
+			for (int x = -1;;) {
+				x = sharedPath.indexOf(CharPool.SLASH, x + 1);
+
+				if (x == -1) {
+					break;
+				}
+
+				if (content == null) {
+					content = entry.getValue();
+				}
+
+				if (content.contains(
+						"<%@ include file=\"" + fileName.substring(x))) {
+
+					_includeFileNames.add(referenceFileName);
+
+					break;
+				}
 			}
 		}
 	}
@@ -146,12 +172,6 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		List<String> unneededImports) {
 
 		for (String importLine : importLines) {
-			Set<String> includeFileNames = new HashSet<String>();
-
-			includeFileNames.add(fileName);
-
-			Set<String> checkedFileNames = new HashSet<String>();
-
 			int x = importLine.indexOf(StringPool.QUOTE);
 			int y = importLine.indexOf(StringPool.QUOTE, x + 1);
 
@@ -164,12 +184,49 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			className = className.substring(
 				className.lastIndexOf(StringPool.PERIOD) + 1);
 
-			if (!isClassOrVariableRequired(
-					fileName, className, "class", includeFileNames,
-					checkedFileNames)) {
+			String regex = "[^A-Za-z0-9_\"]" + className + "[^A-Za-z0-9_\"]";
 
+			if (hasUnusedJSPTerm(fileName, regex, "class")) {
 				unneededImports.add(importLine);
 			}
+		}
+	}
+
+	protected String buildFullPathIncludeFileName(
+		String fileName, String includeFileName) {
+
+		String topLevelDirName = null;
+
+		int x = includeFileName.indexOf(CharPool.SLASH, 1);
+
+		if (x != -1) {
+			topLevelDirName = includeFileName.substring(1, x);
+		}
+
+		String path = fileName;
+
+		while (true) {
+			int y = path.lastIndexOf(CharPool.SLASH);
+
+			if (y == -1) {
+				return StringPool.BLANK;
+			}
+
+			if (Validator.isNull(topLevelDirName) ||
+				path.equals(topLevelDirName) ||
+				path.endsWith(StringPool.SLASH + topLevelDirName)) {
+
+				String fullPathIncludeFileName =
+					path.substring(0, y) + includeFileName;
+
+				if (_jspContents.containsKey(fullPathIncludeFileName) &&
+					!fullPathIncludeFileName.equals(fileName)) {
+
+					return fullPathIncludeFileName;
+				}
+			}
+
+			path = path.substring(0, y);
 		}
 	}
 
@@ -259,8 +316,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 	@Override
 	protected void format() throws Exception {
-		_unusedVariablesExclusions = getExclusionsProperties(
-			"source_formatter_jsp_unused_variables_exclusions.properties");
+		_unusedVariablesExclusions = getExclusions(
+			"jsp.unused.variables.excludes");
 
 		String[] excludes = new String[] {"**\\null.jsp", "**\\tools\\**"};
 		String[] includes = new String[] {
@@ -294,8 +351,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			compareAndAutoFixContent(file, fileName, content, newContent);
 
 			if (portalSource &&
-				!mainReleaseVersion.equals(MAIN_RELEASE_VERSION_6_1_0) &&
+				mainReleaseVersion.equals(MAIN_RELEASE_LATEST_VERSION) &&
 				fileName.endsWith("/init.jsp") &&
+				!fileName.startsWith("modules/") &&
 				!fileName.endsWith("/common/init.jsp")) {
 
 				addImportCounts(content);
@@ -322,35 +380,37 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		fileName = StringUtil.replace(
 			fileName, StringPool.BACK_SLASH, StringPool.SLASH);
 
+		String absolutePath = fileUtil.getAbsolutePath(file);
+
 		String content = fileUtil.read(file);
 
-		String oldContent = content;
-		String newContent = StringPool.BLANK;
+		String newContent = format(fileName, absolutePath, content);
 
-		while (true) {
-			newContent = formatJSP(fileName, oldContent);
+		compareAndAutoFixContent(file, fileName, content, newContent);
 
-			if (oldContent.equals(newContent)) {
-				break;
-			}
+		return newContent;
+	}
 
-			oldContent = newContent;
-		}
+	protected String format(
+			String fileName, String absolutePath, String content)
+		throws Exception {
+
+		String newContent = formatJSP(fileName, absolutePath, content);
 
 		newContent = StringUtil.replace(
 			newContent,
 			new String[] {
 				"<br/>", "\"/>", "\" >", "@page import", "\"%>", ")%>", "else{",
 				"for(", "function (", "if(", "javascript: ", "while(", "){\n",
-				"\n\n\n"
+				";;\n", "\n\n\n"
 			},
 			new String[] {
 				"<br />", "\" />", "\">", "@ page import", "\" %>", ") %>",
 				"else {", "for (", "function(", "if (", "javascript:",
-				"while (", ") {\n", "\n\n"
+				"while (", ") {\n", ";\n", "\n\n"
 			});
 
-		newContent = fixCompatClassImports(file, newContent);
+		newContent = fixCompatClassImports(absolutePath, newContent);
 
 		if (_stripJSPImports && !_jspContents.isEmpty()) {
 			try {
@@ -374,8 +434,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				fileName, "move imports to init.jsp: " + fileName);
 		}
 
-		newContent = fixCopyright(
-			newContent, getCopyright(), getOldCopyright(), file, fileName);
+		newContent = fixCopyright(newContent, absolutePath, fileName);
 
 		newContent = StringUtil.replace(
 			newContent,
@@ -428,21 +487,42 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			fileName, newContent, taglibSessionKeyPattern);
 
 		checkLanguageKeys(fileName, newContent, languageKeyPattern);
-		checkLanguageKeys(fileName, newContent, _taglibLanguageKeyPattern);
+		checkLanguageKeys(fileName, newContent, _taglibLanguageKeyPattern1);
+		checkLanguageKeys(fileName, newContent, _taglibLanguageKeyPattern2);
+		checkLanguageKeys(fileName, newContent, _taglibLanguageKeyPattern3);
+
 		checkXSS(fileName, newContent);
 
-		compareAndAutoFixContent(file, fileName, content, newContent);
+		// LPS-47682
 
-		return newContent;
+		newContent = fixIncorrectParameterTypeForLanguageUtil(
+			newContent, true, fileName);
+
+		Matcher matcher = _javaClassPattern.matcher(newContent);
+
+		if (matcher.find()) {
+			newContent = formatJavaTerms(
+				fileName, newContent, matcher.group(), null, null);
+		}
+
+		if (content.equals(newContent)) {
+			return newContent;
+		}
+
+		return format(fileName, absolutePath, newContent);
 	}
 
-	protected String formatJSP(String fileName, String content)
+	protected String formatJSP(
+			String fileName, String absolutePath, String content)
 		throws IOException {
 
 		StringBundler sb = new StringBundler();
 
 		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
 			new UnsyncStringReader(content));
+
+		_checkedForIncludesFileNames = new HashSet<String>();
+		_includeFileNames = new HashSet<String>();
 
 		int lineCount = 0;
 
@@ -465,6 +545,10 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 		while ((line = unsyncBufferedReader.readLine()) != null) {
 			lineCount++;
+
+			if (portalSource && hasUnusedTaglib(fileName, line)) {
+				continue;
+			}
 
 			if (!fileName.contains("jsonw") ||
 				!fileName.endsWith("action.jsp")) {
@@ -489,6 +573,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 			checkStringBundler(trimmedLine, fileName, lineCount);
 
+			checkEmptyCollection(trimmedLine, fileName, lineCount);
+
 			if (trimmedLine.equals("<%") || trimmedLine.equals("<%!")) {
 				javaSource = true;
 			}
@@ -497,7 +583,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			}
 
 			if (javaSource || trimmedLine.contains("<%= ")) {
-				checkInefficientStringMethods(line, fileName, lineCount);
+				checkInefficientStringMethods(
+					line, fileName, absolutePath, lineCount);
 			}
 
 			if (javaSource && portalSource &&
@@ -507,6 +594,17 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 				processErrorMessage(
 					fileName, "Unused variable: " + fileName + " " + lineCount);
+			}
+
+			// LPS-47179
+
+			if (line.contains(".sendRedirect(") &&
+				!fileName.endsWith("_jsp.jsp")) {
+
+				processErrorMessage(
+					fileName,
+					"Do not use sendRedirect in jsp: " + fileName + " " +
+						lineCount);
 			}
 
 			if (!trimmedLine.equals("%>") && line.contains("%>") &&
@@ -567,8 +665,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 					if (pos != -1) {
 						String attribute = trimmedLine.substring(0, pos);
 
-						if (!trimmedLine.endsWith(StringPool.QUOTE) &&
-							!trimmedLine.endsWith(StringPool.APOSTROPHE)) {
+						if (!trimmedLine.endsWith(StringPool.APOSTROPHE) &&
+							!trimmedLine.endsWith(StringPool.GREATER_THAN) &&
+							!trimmedLine.endsWith(StringPool.QUOTE)) {
 
 							processErrorMessage(
 								fileName,
@@ -585,7 +684,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 							readAttributes = false;
 						}
 						else if (Validator.isNotNull(previousAttribute)) {
-							if (!isJSPAttributName(attribute)) {
+							if (!isAttributName(attribute) &&
+								!attribute.startsWith(StringPool.LESS_THAN)) {
+
 								processErrorMessage(
 									fileName,
 									"attribute: " + fileName + " " + lineCount);
@@ -619,15 +720,23 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			}
 
 			if (!hasUnsortedExceptions) {
-				int i = line.indexOf("<liferay-ui:error exception=\"<%=");
+				int x = line.indexOf("<liferay-ui:error exception=\"<%=");
 
-				if (i != -1) {
-					currentException = line.substring(i + 33);
+				if (x != -1) {
+					int y = line.indexOf(".class %>", x);
 
-					if (Validator.isNotNull(previousException) &&
-						(previousException.compareTo(currentException) > 0)) {
+					if (y != -1) {
+						currentException = line.substring(x, y);
 
-						hasUnsortedExceptions = true;
+						if (Validator.isNotNull(previousException) &&
+							(previousException.compareTo(currentException) >
+								0)) {
+
+							currentException = line;
+							previousException = previousLine;
+
+							hasUnsortedExceptions = true;
+						}
 					}
 				}
 
@@ -647,7 +756,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 					readAttributes = true;
 				}
 				else {
-					line = sortJSPAttributes(fileName, line, lineCount);
+					line = sortAttributes(fileName, line, lineCount, true);
 				}
 			}
 
@@ -762,6 +871,12 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			int y = content.indexOf("%>" + quoteType, x);
 
 			while ((x != -1) && (y != -1)) {
+				String beforeResult = content.substring(matcher.start(), x);
+
+				if (beforeResult.contains(" />\"")) {
+					break;
+				}
+
 				String result = content.substring(x + 1, y + 2);
 
 				if (result.contains(quoteType)) {
@@ -886,6 +1001,43 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		return null;
 	}
 
+	protected boolean hasUnusedJSPTerm(
+		String fileName, String regex, String type) {
+
+		_includeFileNames.add(fileName);
+
+		Set<String> checkedForUnusedJSPTerm = new HashSet<String>();
+
+		return !isJSPTermRequired(
+			fileName, regex, type, checkedForUnusedJSPTerm);
+	}
+
+	protected boolean hasUnusedTaglib(String fileName, String line) {
+		if (!line.startsWith("<%@ taglib uri=")) {
+			return false;
+		}
+
+		int x = line.indexOf(" prefix=");
+
+		if (x == -1) {
+			return false;
+		}
+
+		x = line.indexOf(StringPool.QUOTE, x);
+
+		int y = line.indexOf(StringPool.QUOTE, x + 1);
+
+		if ((x == -1) || (y == -1)) {
+			return false;
+		}
+
+		String taglibPrefix = line.substring(x + 1, y);
+
+		String regex = StringPool.LESS_THAN + taglibPrefix + StringPool.COLON;
+
+		return hasUnusedJSPTerm(fileName, regex, "taglib");
+	}
+
 	protected boolean hasUnusedVariable(String fileName, String line) {
 		if (line.contains(": ")) {
 			return false;
@@ -899,82 +1051,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			return false;
 		}
 
-		Set<String> includeFileNames = new HashSet<String>();
+		String regex = "[^A-Za-z0-9_\"]" + variableName + "[^A-Za-z0-9_\"]";
 
-		includeFileNames.add(fileName);
-
-		Set<String> checkedFileNames = new HashSet<String>();
-
-		return !isClassOrVariableRequired(
-			fileName, variableName, "variable", includeFileNames,
-			checkedFileNames);
-	}
-
-	protected boolean isClassOrVariableRequired(
-		String fileName, String name, String type, Set<String> includeFileNames,
-		Set<String> checkedFileNames) {
-
-		if (checkedFileNames.contains(fileName)) {
-			return false;
-		}
-
-		checkedFileNames.add(fileName);
-
-		String content = _jspContents.get(fileName);
-
-		if (Validator.isNull(content)) {
-			return false;
-		}
-
-		Pattern pattern = Pattern.compile(
-			"[^A-Za-z0-9_\"]" + name + "[^A-Za-z0-9_\"]");
-
-		Matcher matcher = pattern.matcher(content);
-
-		if (matcher.find() &&
-			(type.equals("class") || (checkedFileNames.size() > 1) ||
-			 matcher.find())) {
-
-			return true;
-		}
-
-		addJSPIncludeFileNames(fileName, includeFileNames);
-
-		String docrootPath = fileName.substring(
-			0, fileName.indexOf("docroot") + 7);
-
-		fileName = fileName.replaceFirst(docrootPath, StringPool.BLANK);
-
-		if (fileName.endsWith("init.jsp") || fileName.endsWith("init.jspf") ||
-			fileName.contains("init-ext.jsp")) {
-
-			addJSPReferenceFileNames(fileName, includeFileNames);
-		}
-
-		String[] includeFileNamesArray = includeFileNames.toArray(
-			new String[includeFileNames.size()]);
-
-		for (String includeFileName : includeFileNamesArray) {
-			if (!checkedFileNames.contains(includeFileName) &&
-				isClassOrVariableRequired(
-					includeFileName, name, type, includeFileNames,
-					checkedFileNames)) {
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	protected boolean isJSPAttributName(String attributeName) {
-		if (Validator.isNull(attributeName)) {
-			return false;
-		}
-
-		Matcher matcher = _jspAttributeNamePattern.matcher(attributeName);
-
-		return matcher.matches();
+		return hasUnusedJSPTerm(fileName, regex, "variable");
 	}
 
 	protected boolean isJSPDuplicateImport(
@@ -1016,12 +1095,65 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 		String includeFileName = content.substring(y + 1, z);
 
-		String docrootPath = fileName.substring(
-			0, fileName.indexOf("docroot") + 7);
-
-		includeFileName = docrootPath + includeFileName;
+		includeFileName = buildFullPathIncludeFileName(
+			fileName, includeFileName);
 
 		return isJSPDuplicateImport(includeFileName, importLine, true);
+	}
+
+	protected boolean isJSPTermRequired(
+		String fileName, String regex, String type,
+		Set<String> checkedForUnusedJSPTerm) {
+
+		if (checkedForUnusedJSPTerm.contains(fileName)) {
+			return false;
+		}
+
+		checkedForUnusedJSPTerm.add(fileName);
+
+		String content = _jspContents.get(fileName);
+
+		if (Validator.isNull(content)) {
+			return false;
+		}
+
+		Pattern pattern = Pattern.compile(regex);
+
+		Matcher matcher = pattern.matcher(content);
+
+		if (matcher.find() &&
+			(!type.equals("variable") || (checkedForUnusedJSPTerm.size() > 1) ||
+			 matcher.find())) {
+
+			return true;
+		}
+
+		if (!_checkedForIncludesFileNames.contains(fileName)) {
+			addJSPIncludeFileNames(fileName);
+
+			if (fileName.endsWith("init.jsp") ||
+				fileName.endsWith("init.jspf") ||
+				fileName.contains("init-ext.jsp")) {
+
+				addJSPReferenceFileNames(fileName);
+			}
+		}
+
+		_checkedForIncludesFileNames.add(fileName);
+
+		String[] includeFileNamesArray = _includeFileNames.toArray(
+			new String[_includeFileNames.size()]);
+
+		for (String includeFileName : includeFileNamesArray) {
+			if (!checkedForUnusedJSPTerm.contains(includeFileName) &&
+				isJSPTermRequired(
+					includeFileName, regex, type, checkedForUnusedJSPTerm)) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	protected void moveFrequentlyUsedImportsToCommonInit(int minCount)
@@ -1073,147 +1205,13 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
-	protected String sortJSPAttributes(
-		String fileName, String line, int lineCount) {
-
-		String s = line;
-
-		int x = s.indexOf(StringPool.SPACE);
-
-		if (x == -1) {
-			return line;
-		}
-
-		s = s.substring(x + 1);
-
-		String previousAttribute = null;
-		String previousAttributeAndValue = null;
-
-		boolean wrongOrder = false;
-
-		for (x = 0;;) {
-			x = s.indexOf(StringPool.EQUAL);
-
-			if ((x == -1) || (s.length() <= (x + 1))) {
-				return line;
-			}
-
-			String attribute = s.substring(0, x);
-
-			if (!isJSPAttributName(attribute)) {
-				return line;
-			}
-
-			if (Validator.isNotNull(previousAttribute) &&
-				(previousAttribute.compareTo(attribute) > 0)) {
-
-				wrongOrder = true;
-			}
-
-			s = s.substring(x + 1);
-
-			char delimeter = s.charAt(0);
-
-			if ((delimeter != CharPool.APOSTROPHE) &&
-				(delimeter != CharPool.QUOTE)) {
-
-				processErrorMessage(
-					fileName, "delimeter: " + fileName + " " + lineCount);
-
-				return line;
-			}
-
-			s = s.substring(1);
-
-			String value = null;
-
-			int y = -1;
-
-			while (true) {
-				y = s.indexOf(delimeter, y + 1);
-
-				if ((y == -1) || (s.length() <= (y + 1))) {
-					return line;
-				}
-
-				value = s.substring(0, y);
-
-				if (value.startsWith("<%")) {
-					int endJavaCodeSignCount = StringUtil.count(value, "%>");
-					int startJavaCodeSignCount = StringUtil.count(value, "<%");
-
-					if (endJavaCodeSignCount == startJavaCodeSignCount) {
-						break;
-					}
-				}
-				else {
-					int greaterThanCount = StringUtil.count(
-						value, StringPool.GREATER_THAN);
-					int lessThanCount = StringUtil.count(
-						value, StringPool.LESS_THAN);
-
-					if (greaterThanCount == lessThanCount) {
-						break;
-					}
-				}
-			}
-
-			if ((delimeter == CharPool.APOSTROPHE) &&
-				!value.contains(StringPool.QUOTE)) {
-
-				line = StringUtil.replace(
-					line, StringPool.APOSTROPHE + value + StringPool.APOSTROPHE,
-					StringPool.QUOTE + value + StringPool.QUOTE);
-
-				return sortJSPAttributes(fileName, line, lineCount);
-			}
-
-			StringBundler sb = new StringBundler(5);
-
-			sb.append(attribute);
-			sb.append(StringPool.EQUAL);
-			sb.append(delimeter);
-			sb.append(value);
-			sb.append(delimeter);
-
-			String currentAttributeAndValue = sb.toString();
-
-			if (wrongOrder) {
-				if ((StringUtil.count(line, currentAttributeAndValue) == 1) &&
-					(StringUtil.count(line, previousAttributeAndValue) == 1)) {
-
-					line = StringUtil.replaceFirst(
-						line, previousAttributeAndValue,
-						currentAttributeAndValue);
-
-					line = StringUtil.replaceLast(
-						line, currentAttributeAndValue,
-						previousAttributeAndValue);
-
-					return sortJSPAttributes(fileName, line, lineCount);
-				}
-
-				return line;
-			}
-
-			s = s.substring(y + 1);
-
-			s = StringUtil.trimLeading(s);
-
-			previousAttribute = attribute;
-			previousAttributeAndValue = currentAttributeAndValue;
-		}
-	}
-
 	protected String stripJSPImports(String fileName, String content)
 		throws IOException {
 
 		fileName = fileName.replace(
 			CharPool.BACK_SLASH, CharPool.FORWARD_SLASH);
 
-		if (!fileName.contains("docroot") ||
-			fileName.endsWith("init-ext.jsp")) {
-
+		if (fileName.endsWith("init-ext.jsp")) {
 			return content;
 		}
 
@@ -1284,25 +1282,35 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 	private static final String[] _TAG_LIBRARIES = new String[] {
 		"aui", "c", "html", "jsp", "liferay-portlet", "liferay-security",
-		"liferay-staging", "liferay-theme", "liferay-ui", "liferay-util",
-		"portlet", "struts", "tiles"
+		"liferay-theme", "liferay-ui", "liferay-util", "portlet", "struts",
+		"tiles"
 	};
 
+	private Set<String> _checkedForIncludesFileNames = new HashSet<String>(); 
 	private List<String> _duplicateImportClassNames = new ArrayList<String>();
 	private List<String> _importClassNames = new ArrayList<String>();
 	private Map<String, Integer> _importCountMap =
 		new HashMap<String, Integer>();
-	private Pattern _jspAttributeNamePattern = Pattern.compile(
-		"[a-z]+[-_a-zA-Z0-9]*");
+	private Set<String> _includeFileNames = new HashSet<String>();
+	private Pattern _javaClassPattern = Pattern.compile(
+		"\n(private|protected|public).* class ([\\s\\S]*?)\n\\}\n");
 	private Map<String, String> _jspContents = new HashMap<String, String>();
 	private Pattern _jspImportPattern = Pattern.compile(
 		"(<.*\n*page.import=\".*>\n*)+", Pattern.MULTILINE);
 	private Pattern _jspIncludeFilePattern = Pattern.compile("/.*[.]jsp[f]?");
 	private boolean _stripJSPImports = true;
-	private Pattern _taglibLanguageKeyPattern = Pattern.compile(
+	private Pattern _taglibLanguageKeyPattern1 = Pattern.compile(
 		"(?:confirmation|label|(?:M|m)essage|message key|names|title)=\"[^A-Z" +
 			"<=%\\[\\s]+\"");
-	private Properties _unusedVariablesExclusions;
+	private Pattern _taglibLanguageKeyPattern2 = Pattern.compile(
+		"(aui:)(?:input|select|field-wrapper) (?!.*label=(?:'|\").+(?:'|\").*" +
+			"name=\"[^<=%\\[\\s]+\")(?!.*name=\"[^<=%\\[\\s]+\".*title=" +
+				"(?:'|\").+(?:'|\"))(?!.*name=\"[^<=%\\[\\s]+\".*type=\"" +
+					"hidden\").*name=\"([^<=%\\[\\s]+)\"");
+	private Pattern _taglibLanguageKeyPattern3 = Pattern.compile(
+		"(liferay-ui:)(?:input-resource) .*id=\"([^<=%\\[\\s]+)\"(?!.*title=" +
+			"(?:'|\").+(?:'|\"))");
+	private List<String> _unusedVariablesExclusions;
 	private Pattern _xssPattern = Pattern.compile(
 		"\\s+([^\\s]+)\\s*=\\s*(Bean)?ParamUtil\\.getString\\(");
 

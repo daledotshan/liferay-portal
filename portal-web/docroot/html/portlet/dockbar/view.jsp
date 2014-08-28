@@ -28,10 +28,10 @@ if (layout != null) {
 boolean hasLayoutCustomizePermission = LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.CUSTOMIZE);
 boolean hasLayoutUpdatePermission = LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.UPDATE);
 
-String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "liferay_toggle_controls", ""));
+String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "liferay_toggle_controls", "visible"));
 %>
 
-<aui:nav-bar cssClass="navbar-static-top dockbar" data-namespace="<%= renderResponse.getNamespace() %>" id="dockbar">
+<aui:nav-bar cssClass="dockbar navbar-static-top" data-namespace="<%= renderResponse.getNamespace() %>" id="dockbar">
 	<c:if test="<%= group.isControlPanel() %>">
 
 		<%
@@ -56,10 +56,10 @@ String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "li
 
 				if (refererGroup.isUser() && (refererGroup.getClassPK() == user.getUserId())) {
 					if (refererLayout.isPublicLayout()) {
-						refererGroupDescriptiveName = LanguageUtil.get(pageContext, "my-profile");
+						refererGroupDescriptiveName = LanguageUtil.get(request, "my-profile");
 					}
 					else {
-						refererGroupDescriptiveName = LanguageUtil.get(pageContext, "my-dashboard");
+						refererGroupDescriptiveName = LanguageUtil.get(request, "my-dashboard");
 					}
 				}
 
@@ -86,7 +86,7 @@ String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "li
 		%>
 
 		<c:if test="<%= controlPanelCategory.startsWith(PortletCategoryKeys.CURRENT_SITE) || !controlPanelCategory.equals(PortletCategoryKeys.MY) %>">
-			<div class="brand">
+			<div class="navbar-brand">
 				<a class="control-panel-back-link" href="<%= backURL %>" title="<liferay-ui:message key="back" />">
 					<i class="control-panel-back-icon icon-chevron-sign-left"></i>
 
@@ -99,8 +99,6 @@ String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "li
 					<c:choose>
 						<c:when test="<%= controlPanelCategory.startsWith(PortletCategoryKeys.CURRENT_SITE) %>">
 							<%@ include file="/html/portal/layout/view/control_panel_site_selector.jspf" %>
-
-							<span class="divider">/</span>
 
 							<span class="site-administration-title">
 								<liferay-ui:message key="site-administration" />
@@ -122,7 +120,7 @@ String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "li
 	%>
 
 	<c:if test="<%= !(group.isControlPanel() && controlPanelCategory.startsWith(PortletCategoryKeys.CURRENT_SITE)) %>">
-		<aui:nav collapsible="<%= true %>" cssClass="nav-navigation">
+		<aui:nav collapsible="<%= false %>" cssClass="nav-navigation navbar-nav">
 			<c:if test="<%= !group.isControlPanel() %>">
 				<aui:nav-item anchorCssClass="site-navigation-btn" anchorId="navSiteNavigation" href="javascript:;" iconCssClass="icon-reorder" />
 			</c:if>
@@ -171,12 +169,16 @@ String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "li
 	</c:if>
 
 	<%
-	boolean userSetupComplete = user.isSetupComplete();
+	boolean userSetupComplete = false;
+
+	if (user.isSetupComplete() || themeDisplay.isImpersonated()) {
+		userSetupComplete = true;
+	}
 
 	boolean portalMessageUseAnimation = GetterUtil.getBoolean(PortalMessages.get(request, PortalMessages.KEY_ANIMATION), true);
 	%>
 
-	<aui:nav ariaLabel='<%= LanguageUtil.get(pageContext, "layout-controls") %>' collapsible="<%= true %>" cssClass='<%= portalMessageUseAnimation ? "nav-add-controls" : "nav-add-controls nav-add-controls-notice" %>' icon="pencil" id="navAddControls">
+	<aui:nav ariaLabel='<%= LanguageUtil.get(request, "layout-controls") %>' collapsible="<%= false %>" cssClass='<%= portalMessageUseAnimation ? "nav-add-controls navbar-nav" : "nav-add-controls nav-add-controls-notice navbar-nav" %>' icon="pencil" id="navAddControls">
 		<aui:nav-item cssClass="dockbar-item" dropdown="<%= true %>" iconCssClass="icon-pencil" toggleTouch="<%= false %>">
 
 			<%
@@ -197,7 +199,7 @@ String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "li
 					<portlet:param name="viewEntries" value="<%= Boolean.TRUE.toString() %>" />
 				</portlet:renderURL>
 
-				<aui:nav-item anchorId="addPanel" cssClass="site-add-controls" data-panelURL="<%= addURL %>" href="javascript:;" iconCssClass="icon-plus" label="add" />
+				<aui:nav-item anchorId="addPanel" cssClass="site-add-controls" data-panelURL="<%= HtmlUtil.escapeAttribute(addURL) %>" href="javascript:;" iconCssClass="icon-plus" label="add" />
 			</c:if>
 
 			<c:if test="<%= !group.isControlPanel() && userSetupComplete && (hasLayoutUpdatePermission || GroupPermissionUtil.contains(permissionChecker, group, ActionKeys.PREVIEW_IN_DEVICE)) %>">
@@ -205,18 +207,17 @@ String toggleControlsState = GetterUtil.getString(SessionClicks.get(request, "li
 					<portlet:param name="struts_action" value="/dockbar/preview_panel" />
 				</portlet:renderURL>
 
-				<aui:nav-item anchorId="previewPanel" cssClass="page-preview-controls" data-panelURL="<%= previewContentURL %>" href="javascript:;" iconCssClass="icon-desktop" label="preview" />
+				<aui:nav-item anchorId="previewPanel" cssClass="page-preview-controls" data-panelURL="<%= HtmlUtil.escapeAttribute(previewContentURL) %>" href="javascript:;" iconCssClass="icon-desktop" label="preview" />
 			</c:if>
 
 			<c:if test="<%= !group.isControlPanel() && userSetupComplete && (themeDisplay.isShowLayoutTemplatesIcon() || themeDisplay.isShowPageSettingsIcon()) %>">
 				<portlet:renderURL var="editLayoutURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
 					<portlet:param name="struts_action" value="/dockbar/edit_layout_panel" />
 					<portlet:param name="closeRedirect" value="<%= PortalUtil.getLayoutURL(layout, themeDisplay) %>" />
-					<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
 					<portlet:param name="selPlid" value="<%= String.valueOf(plid) %>" />
 				</portlet:renderURL>
 
-				<aui:nav-item anchorId="editLayoutPanel" cssClass="page-edit-controls" data-panelURL="<%= editLayoutURL %>" href="javascript:;" iconCssClass="icon-edit" label="edit" />
+				<aui:nav-item anchorId="editLayoutPanel" cssClass="page-edit-controls" data-panelURL="<%= HtmlUtil.escapeAttribute(editLayoutURL) %>" href="javascript:;" iconCssClass="icon-edit" label="edit" />
 			</c:if>
 
 			<c:if test="<%= !group.isControlPanel() && userSetupComplete && (!group.hasStagingGroup() || group.isStagingGroup()) && (hasLayoutUpdatePermission || (layoutTypePortlet.isCustomizable() && layoutTypePortlet.isCustomizedView() && hasLayoutCustomizePermission) || PortletPermissionUtil.hasConfigurationPermission(permissionChecker, themeDisplay.getSiteGroupId(), layout, ActionKeys.CONFIGURATION)) %>">
@@ -242,7 +243,7 @@ List<LayoutPrototype> layoutPrototypes = LayoutPrototypeServiceUtil.search(compa
 
 <c:if test="<%= !layoutPrototypes.isEmpty() %>">
 	<div class="html-template" id="layoutPrototypeTemplate">
-		<ul class="unstyled">
+		<ul class="list-unstyled">
 
 			<%
 			for (LayoutPrototype layoutPrototype : layoutPrototypes) {

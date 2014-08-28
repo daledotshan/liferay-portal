@@ -59,9 +59,8 @@ public class PluginPackageIndexer extends BaseIndexer {
 
 	public PluginPackageIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {
-				Field.COMPANY_ID, Field.CONTENT, Field.ENTRY_CLASS_NAME,
-				Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID});
+			Field.COMPANY_ID, Field.CONTENT, Field.ENTRY_CLASS_NAME,
+			Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID);
 		setStagingAware(false);
 	}
 
@@ -140,8 +139,7 @@ public class PluginPackageIndexer extends BaseIndexer {
 
 		document.addKeyword(
 			"license",
-			StringUtil.split(
-				ListUtil.toString(licenses, License.NAME_ACCESSOR)));
+			ListUtil.toArray(licenses, License.NAME_ACCESSOR));
 
 		document.addText("longDescription", longDescription);
 		document.addKeyword("moduleId", pluginPackage.getModuleId());

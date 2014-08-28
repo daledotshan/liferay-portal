@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.asset.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,10 +53,10 @@ import com.liferay.portlet.asset.service.AssetEntryServiceUtil;
  * @see com.liferay.portlet.asset.service.AssetEntryServiceUtil
  * @generated
  */
+@ProviderType
 public class AssetEntryServiceHttp {
 	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> getCompanyEntries(
-		HttpPrincipal httpPrincipal, long companyId, int start, int end)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		HttpPrincipal httpPrincipal, long companyId, int start, int end) {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"getCompanyEntries", _getCompanyEntriesParameterTypes0);
@@ -68,10 +70,6 @@ public class AssetEntryServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -85,8 +83,7 @@ public class AssetEntryServiceHttp {
 	}
 
 	public static int getCompanyEntriesCount(HttpPrincipal httpPrincipal,
-		long companyId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		long companyId) {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"getCompanyEntriesCount",
@@ -100,10 +97,6 @@ public class AssetEntryServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -119,8 +112,7 @@ public class AssetEntryServiceHttp {
 	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> getEntries(
 		HttpPrincipal httpPrincipal,
 		com.liferay.portlet.asset.service.persistence.AssetEntryQuery entryQuery)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"getEntries", _getEntriesParameterTypes2);
@@ -138,10 +130,6 @@ public class AssetEntryServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -156,8 +144,7 @@ public class AssetEntryServiceHttp {
 
 	public static int getEntriesCount(HttpPrincipal httpPrincipal,
 		com.liferay.portlet.asset.service.persistence.AssetEntryQuery entryQuery)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"getEntriesCount", _getEntriesCountParameterTypes3);
@@ -175,10 +162,6 @@ public class AssetEntryServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -193,8 +176,7 @@ public class AssetEntryServiceHttp {
 
 	public static com.liferay.portlet.asset.model.AssetEntry getEntry(
 		HttpPrincipal httpPrincipal, long entryId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"getEntry", _getEntryParameterTypes4);
@@ -211,10 +193,6 @@ public class AssetEntryServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -229,8 +207,7 @@ public class AssetEntryServiceHttp {
 
 	public static com.liferay.portlet.asset.model.AssetEntry incrementViewCounter(
 		HttpPrincipal httpPrincipal, java.lang.String className, long classPK)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"incrementViewCounter", _incrementViewCounterParameterTypes5);
@@ -246,10 +223,6 @@ public class AssetEntryServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -274,8 +247,7 @@ public class AssetEntryServiceHttp {
 		java.lang.String description, java.lang.String summary,
 		java.lang.String url, java.lang.String layoutUuid, int height,
 		int width, java.lang.Integer priority, boolean sync)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"updateEntry", _updateEntryParameterTypes6);
@@ -294,10 +266,6 @@ public class AssetEntryServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -322,8 +290,7 @@ public class AssetEntryServiceHttp {
 		java.lang.String description, java.lang.String summary,
 		java.lang.String url, java.lang.String layoutUuid, int height,
 		int width, java.lang.Integer priority, boolean sync)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"updateEntry", _updateEntryParameterTypes7);
@@ -342,10 +309,6 @@ public class AssetEntryServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -370,8 +333,7 @@ public class AssetEntryServiceHttp {
 		java.lang.String summary, java.lang.String url,
 		java.lang.String layoutUuid, int height, int width,
 		java.lang.Integer priority, boolean sync)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(AssetEntryServiceUtil.class,
 					"updateEntry", _updateEntryParameterTypes8);
@@ -390,10 +352,6 @@ public class AssetEntryServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

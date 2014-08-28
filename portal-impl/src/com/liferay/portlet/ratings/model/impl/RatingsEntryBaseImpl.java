@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.ratings.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.ratings.model.RatingsEntry;
 import com.liferay.portlet.ratings.service.RatingsEntryLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.ratings.service.RatingsEntryLocalServiceUtil;
  * @see com.liferay.portlet.ratings.model.RatingsEntry
  * @generated
  */
+@ProviderType
 public abstract class RatingsEntryBaseImpl extends RatingsEntryModelImpl
 	implements RatingsEntry {
 	/*
@@ -39,7 +40,7 @@ public abstract class RatingsEntryBaseImpl extends RatingsEntryModelImpl
 	 * Never modify or reference this class directly. All methods that expect a ratings entry model instance should use the {@link RatingsEntry} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			RatingsEntryLocalServiceUtil.addRatingsEntry(this);
 		}

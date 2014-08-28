@@ -30,13 +30,12 @@ if (groupId > 0) {
 long layoutSetBranchId = ParamUtil.getLong(request, "layoutSetBranchId");
 
 boolean privateLayout = ParamUtil.getBoolean(request, "privateLayout");
+String selectedLayoutIds = ParamUtil.getString(request, "selectedLayoutIds");
 
-String treeId = ParamUtil.getString(request, "treeId");
-
-long[] selectedLayoutIds = StringUtil.split(ParamUtil.getString(request, "selectedLayoutIds"), 0L);
+Map<String, String[]> parameterMap = (Map<String, String[]>)GetterUtil.getObject(request.getAttribute("select_pages.jsp-parameterMap"), Collections.emptyMap());
 %>
 
-<aui:input name="layoutIds" type="hidden" />
+<aui:input name="layoutIds" type="hidden" value="<%= ExportImportHelperUtil.getSelectedLayoutsJSON(groupId, privateLayout, selectedLayoutIds) %>" />
 
 <span class="selected-labels" id="<portlet:namespace />selectedPages"></span>
 
@@ -49,17 +48,27 @@ long[] selectedLayoutIds = StringUtil.split(ParamUtil.getString(request, "select
 		</div>
 
 		<div class="selected-pages" id="<portlet:namespace />pane">
-			<liferay-util:include page="/html/portlet/layouts_admin/tree_js.jsp">
-				<liferay-util:param name="tabs1" value='<%= privateLayout ? "private-pages" : "public-pages" %>' />
-				<liferay-util:param name="incomplete" value="<%= Boolean.FALSE.toString() %>" />
-				<liferay-util:param name="treeId" value="<%= treeId %>" />
-				<liferay-util:param name="defaultStateChecked" value="1" />
-				<liferay-util:param name="selectableTree" value="1" />
-			</liferay-util:include>
+
+			<%
+			String treeId = ParamUtil.getString(request, "treeId");
+			%>
+
+			<liferay-ui:layouts-tree
+				defaultStateChecked="<%= true %>"
+				groupId="<%= layoutsAdminDisplayContext.getGroupId() %>"
+				incomplete="<%= false %>"
+				portletURL="<%= layoutsAdminDisplayContext.getEditLayoutURL() %>"
+				privateLayout="<%= layoutsAdminDisplayContext.isPrivateLayout() %>"
+				rootNodeName="<%= layoutsAdminDisplayContext.getRootNodeName() %>"
+				selPlid="<%= layoutsAdminDisplayContext.getSelPlid() %>"
+				selectableTree="<%= true %>"
+				selectedLayoutIds="<%= selectedLayoutIds %>"
+				treeId="<%= treeId %>"
+			/>
 		</div>
 
 		<c:if test="<%= cmd.equals(Constants.PUBLISH) %>">
-			<aui:input name="scope" type="hidden" value='<%= ArrayUtil.isEmpty(selectedLayoutIds) ? "all-pages" : "selected-pages" %>' />
+			<aui:input name="scope" type="hidden" value='<%= Validator.isNull(selectedLayoutIds) ? "all-pages" : "selected-pages" %>' />
 
 			<c:choose>
 				<c:when test="<%= layoutSetBranchId > 0 %>">
@@ -94,15 +103,15 @@ long[] selectedLayoutIds = StringUtil.split(ParamUtil.getString(request, "select
 				</c:otherwise>
 			</c:choose>
 
-			<aui:input helpMessage="delete-missing-layouts-staging-help" label="delete-missing-layouts" name="<%= PortletDataHandlerKeys.DELETE_MISSING_LAYOUTS %>" type="checkbox" />
+			<aui:input helpMessage="delete-missing-layouts-staging-help" label="delete-missing-layouts" name="<%= PortletDataHandlerKeys.DELETE_MISSING_LAYOUTS %>" type="checkbox" value="<%= MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.DELETE_MISSING_LAYOUTS) %>" />
 		</c:if>
 
-		<aui:input label="site-pages-settings" name="<%= PortletDataHandlerKeys.LAYOUT_SET_SETTINGS %>" type="checkbox" value="<%= true %>" />
+		<aui:input label="site-pages-settings" name="<%= PortletDataHandlerKeys.LAYOUT_SET_SETTINGS %>" type="checkbox" value="<%= MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.LAYOUT_SET_SETTINGS, true) %>" />
 	</aui:fieldset>
 
 	<aui:fieldset cssClass="portlet-data-section" label="look-and-feel">
-		<aui:input helpMessage="export-import-theme-settings-help" label="theme-settings" name="<%= PortletDataHandlerKeys.THEME_REFERENCE %>" type="checkbox" value="<%= true %>" />
+		<aui:input helpMessage="export-import-theme-settings-help" label="theme-settings" name="<%= PortletDataHandlerKeys.THEME_REFERENCE %>" type="checkbox" value="<%= MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.THEME_REFERENCE, true) %>" />
 
-		<aui:input label="logo" name="<%= PortletDataHandlerKeys.LOGO %>" type="checkbox" value="<%= true %>" />
+		<aui:input label="logo" name="<%= PortletDataHandlerKeys.LOGO %>" type="checkbox" value="<%= MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.LOGO, true) %>" />
 	</aui:fieldset>
 </div>

@@ -14,9 +14,10 @@
 
 package com.liferay.portal.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -59,6 +60,7 @@ import java.util.Map;
  * @generated
  */
 @JSON(strict = true)
+@ProviderType
 public class ContactModelImpl extends BaseModelImpl<Contact>
 	implements ContactModel {
 	/*
@@ -119,11 +121,11 @@ public class ContactModelImpl extends BaseModelImpl<Contact>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portal.model.Contact"),
 			true);
-	public static long ACCOUNTID_COLUMN_BITMASK = 1L;
-	public static long CLASSNAMEID_COLUMN_BITMASK = 2L;
-	public static long CLASSPK_COLUMN_BITMASK = 4L;
-	public static long COMPANYID_COLUMN_BITMASK = 8L;
-	public static long CONTACTID_COLUMN_BITMASK = 16L;
+	public static final long ACCOUNTID_COLUMN_BITMASK = 1L;
+	public static final long CLASSNAMEID_COLUMN_BITMASK = 2L;
+	public static final long CLASSPK_COLUMN_BITMASK = 4L;
+	public static final long COMPANYID_COLUMN_BITMASK = 8L;
+	public static final long CONTACTID_COLUMN_BITMASK = 16L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -541,7 +543,7 @@ public class ContactModelImpl extends BaseModelImpl<Contact>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -1636,8 +1638,8 @@ public class ContactModelImpl extends BaseModelImpl<Contact>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = Contact.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = Contact.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			Contact.class
 		};
 	private long _mvccVersion;

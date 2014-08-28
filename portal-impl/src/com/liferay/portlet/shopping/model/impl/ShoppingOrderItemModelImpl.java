@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.shopping.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -49,6 +51,7 @@ import java.util.Map;
  * @see com.liferay.portlet.shopping.model.ShoppingOrderItemModel
  * @generated
  */
+@ProviderType
 public class ShoppingOrderItemModelImpl extends BaseModelImpl<ShoppingOrderItem>
 	implements ShoppingOrderItemModel {
 	/*
@@ -60,7 +63,7 @@ public class ShoppingOrderItemModelImpl extends BaseModelImpl<ShoppingOrderItem>
 	public static final Object[][] TABLE_COLUMNS = {
 			{ "orderItemId", Types.BIGINT },
 			{ "orderId", Types.BIGINT },
-			{ "itemId", Types.VARCHAR },
+			{ "itemId", Types.CLOB },
 			{ "sku", Types.VARCHAR },
 			{ "name", Types.VARCHAR },
 			{ "description", Types.VARCHAR },
@@ -69,7 +72,7 @@ public class ShoppingOrderItemModelImpl extends BaseModelImpl<ShoppingOrderItem>
 			{ "quantity", Types.INTEGER },
 			{ "shippedDate", Types.TIMESTAMP }
 		};
-	public static final String TABLE_SQL_CREATE = "create table ShoppingOrderItem (orderItemId LONG not null primary key,orderId LONG,itemId VARCHAR(75) null,sku VARCHAR(75) null,name VARCHAR(200) null,description STRING null,properties STRING null,price DOUBLE,quantity INTEGER,shippedDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table ShoppingOrderItem (orderItemId LONG not null primary key,orderId LONG,itemId TEXT null,sku VARCHAR(75) null,name VARCHAR(200) null,description STRING null,properties STRING null,price DOUBLE,quantity INTEGER,shippedDate DATE null)";
 	public static final String TABLE_SQL_DROP = "drop table ShoppingOrderItem";
 	public static final String ORDER_BY_JPQL = " ORDER BY shoppingOrderItem.name ASC, shoppingOrderItem.description ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY ShoppingOrderItem.name ASC, ShoppingOrderItem.description ASC";
@@ -85,9 +88,9 @@ public class ShoppingOrderItemModelImpl extends BaseModelImpl<ShoppingOrderItem>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portlet.shopping.model.ShoppingOrderItem"),
 			true);
-	public static long ORDERID_COLUMN_BITMASK = 1L;
-	public static long NAME_COLUMN_BITMASK = 2L;
-	public static long DESCRIPTION_COLUMN_BITMASK = 4L;
+	public static final long ORDERID_COLUMN_BITMASK = 1L;
+	public static final long NAME_COLUMN_BITMASK = 2L;
+	public static final long DESCRIPTION_COLUMN_BITMASK = 4L;
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
 				"lock.expiration.time.com.liferay.portlet.shopping.model.ShoppingOrderItem"));
 
@@ -610,8 +613,8 @@ public class ShoppingOrderItemModelImpl extends BaseModelImpl<ShoppingOrderItem>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = ShoppingOrderItem.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = ShoppingOrderItem.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			ShoppingOrderItem.class
 		};
 	private long _orderItemId;

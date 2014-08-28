@@ -21,10 +21,11 @@ import com.liferay.portal.kernel.notifications.UserNotificationHandler;
 import com.liferay.portal.kernel.poller.PollerProcessor;
 import com.liferay.portal.kernel.pop.MessageListener;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
-import com.liferay.portal.kernel.portlet.FriendlyURLMapper;
+import com.liferay.portal.kernel.portlet.FriendlyURLMapperTracker;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
 import com.liferay.portal.kernel.portlet.ResourceBundleTracker;
+import com.liferay.portal.kernel.scheduler.SchedulerEntry;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.OpenSearch;
 import com.liferay.portal.kernel.servlet.URLEncoder;
@@ -64,7 +65,8 @@ public class PortletBagImpl implements PortletBag {
 		Portlet portletInstance, ResourceBundleTracker resourceBundleTracker,
 		List<ConfigurationAction> configurationActionInstances,
 		List<Indexer> indexerInstances, List<OpenSearch> openSearchInstances,
-		List<FriendlyURLMapper> friendlyURLMapperInstances,
+		List<SchedulerEntry> schedulerEntryInstances,
+		FriendlyURLMapperTracker friendlyURLMapperTracker,
 		List<URLEncoder> urlEncoderInstances,
 		List<PortletDataHandler> portletDataHandlerInstances,
 		List<StagedModelDataHandler<?>> stagedModelDataHandlerInstances,
@@ -84,7 +86,7 @@ public class PortletBagImpl implements PortletBag {
 		List<DDMDisplay> ddmDisplayInstances,
 		List<PermissionPropagator> permissionPropagatorInstances,
 		List<TrashHandler> trashHandlerInstances,
-		List<WorkflowHandler> workflowHandlerInstances,
+		List<WorkflowHandler<?>> workflowHandlerInstances,
 		List<PreferencesValidator> preferencesValidatorInstances) {
 
 		_portletName = portletName;
@@ -94,7 +96,8 @@ public class PortletBagImpl implements PortletBag {
 		_configurationActionInstances = configurationActionInstances;
 		_indexerInstances = indexerInstances;
 		_openSearchInstances = openSearchInstances;
-		_friendlyURLMapperInstances = friendlyURLMapperInstances;
+		_schedulerEntryInstances = schedulerEntryInstances;
+		_friendlyURLMapperTracker = friendlyURLMapperTracker;
 		_urlEncoderInstances = urlEncoderInstances;
 		_portletDataHandlerInstances = portletDataHandlerInstances;
 		_stagedModelDataHandlerInstances = stagedModelDataHandlerInstances;
@@ -125,8 +128,8 @@ public class PortletBagImpl implements PortletBag {
 			getPortletName(), getServletContext(), getPortletInstance(),
 			getResourceBundleTracker(), getConfigurationActionInstances(),
 			getIndexerInstances(), getOpenSearchInstances(),
-			getFriendlyURLMapperInstances(), getURLEncoderInstances(),
-			getPortletDataHandlerInstances(),
+			getSchedulerEntryInstances(), getFriendlyURLMapperTracker(),
+			getURLEncoderInstances(), getPortletDataHandlerInstances(),
 			getStagedModelDataHandlerInstances(), getTemplateHandlerInstances(),
 			getPortletLayoutListenerInstances(), getPollerProcessorInstances(),
 			getPopMessageListenerInstances(),
@@ -149,7 +152,7 @@ public class PortletBagImpl implements PortletBag {
 		close(_controlPanelEntryInstances);
 		close(_customAttributesDisplayInstances);
 		close(_ddmDisplayInstances);
-		close(_friendlyURLMapperInstances);
+		close(_friendlyURLMapperTracker);
 		close(_indexerInstances);
 		close(_openSearchInstances);
 		close(_permissionPropagatorInstances);
@@ -159,6 +162,7 @@ public class PortletBagImpl implements PortletBag {
 		close(_portletLayoutListenerInstances);
 		close(_preferencesValidatorInstances);
 		close(_resourceBundleTracker);
+		close(_schedulerEntryInstances);
 		close(_socialActivityInterpreterInstances);
 		close(_socialRequestInterpreterInstances);
 		close(_templateHandlerInstances);
@@ -201,8 +205,8 @@ public class PortletBagImpl implements PortletBag {
 	}
 
 	@Override
-	public List<FriendlyURLMapper> getFriendlyURLMapperInstances() {
-		return _friendlyURLMapperInstances;
+	public FriendlyURLMapperTracker getFriendlyURLMapperTracker() {
+		return _friendlyURLMapperTracker;
 	}
 
 	@Override
@@ -279,6 +283,11 @@ public class PortletBagImpl implements PortletBag {
 	}
 
 	@Override
+	public List<SchedulerEntry> getSchedulerEntryInstances() {
+		return _schedulerEntryInstances;
+	}
+
+	@Override
 	public ServletContext getServletContext() {
 		return _servletContext;
 	}
@@ -332,7 +341,7 @@ public class PortletBagImpl implements PortletBag {
 	}
 
 	@Override
-	public List<WorkflowHandler> getWorkflowHandlerInstances() {
+	public List<WorkflowHandler<?>> getWorkflowHandlerInstances() {
 		return _workflowHandlerInstances;
 	}
 
@@ -369,7 +378,7 @@ public class PortletBagImpl implements PortletBag {
 	private List<ControlPanelEntry> _controlPanelEntryInstances;
 	private List<CustomAttributesDisplay> _customAttributesDisplayInstances;
 	private List<DDMDisplay> _ddmDisplayInstances;
-	private List<FriendlyURLMapper> _friendlyURLMapperInstances;
+	private FriendlyURLMapperTracker _friendlyURLMapperTracker;
 	private List<Indexer> _indexerInstances;
 	private List<OpenSearch> _openSearchInstances;
 	private List<PermissionPropagator> _permissionPropagatorInstances;
@@ -381,6 +390,7 @@ public class PortletBagImpl implements PortletBag {
 	private String _portletName;
 	private List<PreferencesValidator> _preferencesValidatorInstances;
 	private ResourceBundleTracker _resourceBundleTracker;
+	private List<SchedulerEntry> _schedulerEntryInstances;
 	private ServletContext _servletContext;
 	private List<SocialActivityInterpreter> _socialActivityInterpreterInstances;
 	private List<SocialRequestInterpreter> _socialRequestInterpreterInstances;
@@ -391,7 +401,7 @@ public class PortletBagImpl implements PortletBag {
 	private List<UserNotificationHandler>
 		_userNotificationHandlerInstances;
 	private List<WebDAVStorage> _webDAVStorageInstances;
-	private List<WorkflowHandler> _workflowHandlerInstances;
+	private List<WorkflowHandler<?>> _workflowHandlerInstances;
 	private List<Method> _xmlRpcMethodInstances;
 
 }

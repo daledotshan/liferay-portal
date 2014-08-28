@@ -26,6 +26,12 @@ if (referer.equals(themeDisplay.getPathMain() + "/portal/update_terms_of_use")) 
 }
 %>
 
+<style type="text/css">
+	.dockbar .container-fluid .nav.nav-add-controls {
+		display: none;
+	}
+</style>
+
 <aui:form action='<%= themeDisplay.getPathMain() + "/portal/update_terms_of_use" %>' name="fm">
 	<aui:input name="doAsUserId" type="hidden" value="<%= themeDisplay.getDoAsUserId() %>" />
 	<aui:input name="<%= WebKeys.REFERER %>" type="hidden" value="<%= referer %>" />
@@ -207,7 +213,7 @@ if (referer.equals(themeDisplay.getPathMain() + "/portal/update_terms_of_use")) 
 			<aui:button type="submit" value="i-agree" />
 
 			<%
-			String taglibOnClick = "alert('" + UnicodeLanguageUtil.get(pageContext, "you-must-agree-with-the-terms-of-use-to-continue") + "');";
+			String taglibOnClick = "alert('" + UnicodeLanguageUtil.get(request, "you-must-agree-with-the-terms-of-use-to-continue") + "');";
 			%>
 
 			<aui:button onClick="<%= taglibOnClick %>" type="cancel" value="i-disagree" />

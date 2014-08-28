@@ -16,33 +16,41 @@ package com.liferay.portal.servlet;
 
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
-import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.language.AggregateResourceBundle;
+import com.liferay.portal.language.LanguageResources;
 import com.liferay.portal.minifier.MinifierUtil;
+import com.liferay.portal.model.Portlet;
+import com.liferay.portal.model.PortletApp;
+import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.servlet.filters.dynamiccss.DynamicCSSUtil;
 import com.liferay.portal.util.AggregateUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.PortletConfigFactoryUtil;
 
 import java.io.IOException;
 import java.io.Serializable;
 
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -50,8 +58,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
+
+import javax.portlet.PortletConfig;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -66,6 +78,11 @@ import javax.servlet.http.HttpServletResponse;
  * @author Raymond Augé
  */
 public class ComboServlet extends HttpServlet {
+
+	public static void clearCache() {
+		_bytesArrayPortalCache.removeAll();
+		_fileContentBagPortalCache.removeAll();
+	}
 
 	@Override
 	public void service(
@@ -84,20 +101,37 @@ public class ComboServlet extends HttpServlet {
 		}
 	}
 
+	protected static String getModulePortletId(String modulePath) {
+		int index = modulePath.indexOf(CharPool.COLON);
+
+		if (index > 0) {
+			return modulePath.substring(0, index);
+		}
+
+		return PortletKeys.PORTAL;
+	}
+
+	protected static String getResourcePath(String modulePath) {
+		int index = modulePath.indexOf(CharPool.COLON);
+
+		if (index > 0) {
+			return modulePath.substring(index + 1);
+		}
+
+		return modulePath;
+	}
+
 	protected void doService(
 			HttpServletRequest request, HttpServletResponse response)
 		throws Exception {
 
 		Set<String> modulePathsSet = new LinkedHashSet<String>();
 
-		Enumeration<String> enu = request.getParameterNames();
+		Map<String, String[]> parameterMap = HttpUtil.getParameterMap(
+			request.getQueryString());
 
-		if (ServerDetector.isWebSphere()) {
-			Map<String, String[]> parameterMap = HttpUtil.getParameterMap(
-				request.getQueryString());
-
-			enu = Collections.enumeration(parameterMap.keySet());
-		}
+		Enumeration<String> enu = Collections.enumeration(
+			parameterMap.keySet());
 
 		while (enu.hasMoreElements()) {
 			String name = enu.nextElement();
@@ -105,6 +139,8 @@ public class ComboServlet extends HttpServlet {
 			if (_protectedParameters.contains(name)) {
 				continue;
 			}
+
+			name = HttpUtil.decodePath(name);
 
 			modulePathsSet.add(name);
 		}
@@ -172,7 +208,7 @@ public class ComboServlet extends HttpServlet {
 				byte[] bytes = new byte[0];
 
 				if (Validator.isNotNull(modulePath)) {
-					URL url = getResourceURL(modulePath);
+					URL url = getResourceURL(request, modulePath);
 
 					if (url == null) {
 						response.setHeader(
@@ -210,15 +246,17 @@ public class ComboServlet extends HttpServlet {
 
 	protected byte[] getResourceContent(
 			HttpServletRequest request, HttpServletResponse response,
-			URL resourceURL, String resourcePath, String minifierType)
+			URL resourceURL, String modulePath, String minifierType)
 		throws IOException {
 
-		int colonIndex = resourcePath.indexOf(CharPool.COLON);
+		String resourcePath = getResourcePath(modulePath);
 
-		if (colonIndex > 0) {
-			resourcePath =
-				resourcePath.substring(0, colonIndex) +
-					resourcePath.substring(colonIndex + 1);
+		String portletId = getModulePortletId(modulePath);
+
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(portletId);
+
+		if (!resourcePath.startsWith(portlet.getContextPath())) {
+			resourcePath = portlet.getContextPath() + resourcePath;
 		}
 
 		String fileContentKey = resourcePath.concat(StringPool.QUESTION).concat(
@@ -298,6 +336,9 @@ public class ComboServlet extends HttpServlet {
 						stringFileContent);
 				}
 				else if (minifierType.equals("js")) {
+					stringFileContent = translate(
+						request, portletId, stringFileContent);
+
 					stringFileContent = MinifierUtil.minifyJavaScript(
 						resourcePath, stringFileContent);
 				}
@@ -319,45 +360,85 @@ public class ComboServlet extends HttpServlet {
 		return fileContentBag._fileContent;
 	}
 
-	protected URL getResourceURL(String modulePath) throws Exception {
-		ModulePathContainer modulePathContainer = new ModulePathContainer(
-			modulePath);
+	protected URL getResourceURL(HttpServletRequest request, String modulePath)
+		throws Exception {
 
-		ServletContext servletContext = getServletContext(
-			modulePathContainer.getModuleContextPath());
+		String portletId = getModulePortletId(modulePath);
 
-		URL url = servletContext.getResource(
-			modulePathContainer.getResourcePath());
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(portletId);
 
-		if (url == null) {
-			throw new ServletException(
-				"Resource " + modulePathContainer.getResourcePath() +
-					" does not exist in " +
-						modulePathContainer.getModuleContextPath());
+		if (portlet.isUndeployedPortlet()) {
+			return null;
 		}
 
-		return url;
-	}
+		PortletApp portletApp = portlet.getPortletApp();
 
-	protected ServletContext getServletContext(String contextName)
-		throws ServletException {
+		ServletContext servletContext = portletApp.getServletContext();
 
-		if (Validator.isNull(contextName)) {
-			return getServletContext();
+		String resourcePath = getResourcePath(modulePath);
+
+		String contextPath = servletContext.getContextPath();
+
+		if (resourcePath.startsWith(contextPath)) {
+			resourcePath = resourcePath.substring(contextPath.length());
 		}
 
-		ServletContext servletContext = ServletContextPool.get(contextName);
+		URL url = servletContext.getResource(resourcePath);
 
-		if (servletContext != null) {
-			return servletContext;
+		if (url != null) {
+			return url;
+		}
+
+		url = new URL(
+			request.getScheme(), request.getLocalAddr(), request.getLocalPort(),
+			contextPath + resourcePath);
+
+		HttpURLConnection urlConnection =
+			(HttpURLConnection)url.openConnection();
+
+		if (urlConnection.getResponseCode() == HttpServletResponse.SC_OK) {
+			return url;
 		}
 
 		throw new ServletException(
-			"Servlet context " + contextName + " does not exist");
+			"Resource " + resourcePath + " does not exist in " +
+				portlet.getContextPath());
+	}
+
+	protected String translate(
+		HttpServletRequest request, String portletId,
+		String stringFileContent) {
+
+		String languageId = LanguageUtil.getLanguageId(request);
+
+		Locale locale = LocaleUtil.fromLanguageId(languageId);
+
+		ResourceBundle resourceBundle = LanguageResources.getResourceBundle(
+			locale);
+
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(portletId);
+
+		if (portlet != null) {
+			PortletConfig portletConfig = PortletConfigFactoryUtil.create(
+				portlet, getServletContext());
+
+			if (portletConfig != null) {
+				resourceBundle = new AggregateResourceBundle(
+					portletConfig.getResourceBundle(locale), resourceBundle);
+			}
+		}
+
+		return LanguageUtil.process(resourceBundle, locale, stringFileContent);
 	}
 
 	protected boolean validateModuleExtension(String moduleName)
 		throws Exception {
+
+		int index = moduleName.indexOf(CharPool.QUESTION);
+
+		if (index != -1) {
+			moduleName = moduleName.substring(0, index);
+		}
 
 		boolean validModuleExtension = false;
 
@@ -377,37 +458,6 @@ public class ComboServlet extends HttpServlet {
 		return validModuleExtension;
 	}
 
-	protected static class ModulePathContainer {
-
-		public String getModuleContextPath() {
-			return _moduleContextPath;
-		}
-
-		public String getResourcePath() {
-			return _resourcePath;
-		}
-
-		ModulePathContainer(String modulePathString) {
-			int index = modulePathString.indexOf(CharPool.COLON);
-
-			if (index > 0) {
-				String moduleContextPath = modulePathString.substring(0, index);
-
-				String resourcePath = modulePathString.substring(index + 1);
-
-				_moduleContextPath = moduleContextPath;
-				_resourcePath = resourcePath;
-			}
-			else {
-				_moduleContextPath = StringPool.BLANK;
-				_resourcePath = modulePathString;
-			}
-		}
-
-		private String _moduleContextPath;
-		private String _resourcePath;
-	}
-
 	private static final String _CSS_EXTENSION = "css";
 
 	private static final String _CSS_MINIFIED_SUFFIX = "-min.css";
@@ -419,10 +469,12 @@ public class ComboServlet extends HttpServlet {
 
 	private static Log _log = LogFactoryUtil.getLog(ComboServlet.class);
 
-	private PortalCache<String, byte[][]> _bytesArrayPortalCache =
+	private static PortalCache<String, byte[][]> _bytesArrayPortalCache =
 		SingleVMPoolUtil.getCache(ComboServlet.class.getName());
-	private PortalCache<String, FileContentBag> _fileContentBagPortalCache =
-		SingleVMPoolUtil.getCache(FileContentBag.class.getName());
+	private static PortalCache<String, FileContentBag>
+		_fileContentBagPortalCache = SingleVMPoolUtil.getCache(
+			FileContentBag.class.getName());
+
 	private Set<String> _protectedParameters = SetUtil.fromArray(
 		new String[] {
 			"b", "browserId", "minifierType", "languageId", "t", "themeId"

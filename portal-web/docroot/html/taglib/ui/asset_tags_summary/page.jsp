@@ -26,13 +26,13 @@ PortletURL portletURL = (PortletURL)request.getAttribute("liferay-ui:asset-tags-
 if (assetTagNames.length == 0) {
 	List<AssetTag> tags = AssetTagServiceUtil.getTags(className, classPK);
 
-	assetTagNames = StringUtil.split(ListUtil.toString(tags, AssetTag.NAME_ACCESSOR));
+	assetTagNames = ListUtil.toArray(tags, AssetTag.NAME_ACCESSOR);
 }
 %>
 
 <c:if test="<%= assetTagNames.length > 0 %>">
 	<span class="taglib-asset-tags-summary">
-		<%= Validator.isNotNull(message) ? (LanguageUtil.get(pageContext, message) + ": ") : "" %>
+		<%= Validator.isNotNull(message) ? (LanguageUtil.get(request, message) + ": ") : "" %>
 
 		<c:choose>
 			<c:when test="<%= portletURL != null %>">
@@ -42,7 +42,7 @@ if (assetTagNames.length == 0) {
 					portletURL.setParameter("tag", assetTagNames[i]);
 				%>
 
-					<a class="tag" href="<%= HtmlUtil.escape(portletURL.toString()) %>"><%= assetTagNames[i] %></a>
+					<a class=" icon-tag tag" href="<%= HtmlUtil.escape(portletURL.toString()) %>"><%= assetTagNames[i] %></a>
 
 				<%
 				}
@@ -55,7 +55,7 @@ if (assetTagNames.length == 0) {
 				for (int i = 0; i < assetTagNames.length; i++) {
 				%>
 
-					<span class="tag"><%= assetTagNames[i] %></span>
+					<span class="icon-tag tag"><%= assetTagNames[i] %></span>
 
 				<%
 				}

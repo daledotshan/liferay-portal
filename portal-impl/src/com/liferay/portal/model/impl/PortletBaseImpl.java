@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
  * @see com.liferay.portal.model.Portlet
  * @generated
  */
+@ProviderType
 public abstract class PortletBaseImpl extends PortletModelImpl
 	implements Portlet {
 	/*
@@ -38,7 +40,7 @@ public abstract class PortletBaseImpl extends PortletModelImpl
 	 * Never modify or reference this class directly. All methods that expect a portlet model instance should use the {@link Portlet} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			PortletLocalServiceUtil.addPortlet(this);
 		}

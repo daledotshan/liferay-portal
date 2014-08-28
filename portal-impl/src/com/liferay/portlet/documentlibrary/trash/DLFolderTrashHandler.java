@@ -16,14 +16,13 @@ package com.liferay.portlet.documentlibrary.trash;
 
 import com.liferay.portal.InvalidRepositoryException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.Repository;
+import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ContainerModel;
-import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.RepositoryServiceUtil;
@@ -31,7 +30,6 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.asset.DLFolderAssetRenderer;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
@@ -53,7 +51,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	@Override
 	public void checkRestorableEntry(
 			long classPK, long containerModelId, String newName)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DLFolder dlFolder = getDLFolder(classPK);
 
@@ -64,7 +62,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	@Override
 	public void checkRestorableEntry(
 			TrashEntry trashEntry, long containerModelId, String newName)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		checkRestorableEntry(
 			trashEntry.getClassPK(), trashEntry.getEntryId(), containerModelId,
@@ -72,10 +70,15 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	}
 
 	@Override
-	public void deleteTrashEntry(long classPK)
-		throws PortalException, SystemException {
+	public void deleteTrashEntry(long classPK) throws PortalException {
+		Repository repository = getRepository(classPK);
 
-		DLFolderLocalServiceUtil.deleteFolder(classPK, false);
+		TrashCapability trashCapability = repository.getCapability(
+			TrashCapability.class);
+
+		Folder folder = repository.getFolder(classPK);
+
+		trashCapability.deleteFolder(folder);
 	}
 
 	@Override
@@ -90,7 +93,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 
 	@Override
 	public ContainerModel getParentContainerModel(long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DLFolder dlFolder = getDLFolder(classPK);
 
@@ -106,7 +109,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	@Override
 	public String getRestoreContainedModelLink(
 			PortletRequest portletRequest, long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DLFolder dlFolder = getDLFolder(classPK);
 
@@ -117,7 +120,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	@Override
 	public String getRestoreContainerModelLink(
 			PortletRequest portletRequest, long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DLFolder dlFolder = getDLFolder(classPK);
 
@@ -127,7 +130,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 
 	@Override
 	public String getRestoreMessage(PortletRequest portletRequest, long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DLFolder dlFolder = getDLFolder(classPK);
 
@@ -141,18 +144,14 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	}
 
 	@Override
-	public TrashEntry getTrashEntry(long classPK)
-		throws PortalException, SystemException {
-
+	public TrashEntry getTrashEntry(long classPK) throws PortalException {
 		DLFolder dlFolder = getDLFolder(classPK);
 
 		return dlFolder.getTrashEntry();
 	}
 
 	@Override
-	public TrashRenderer getTrashRenderer(long classPK)
-		throws PortalException, SystemException {
-
+	public TrashRenderer getTrashRenderer(long classPK) throws PortalException {
 		Folder folder = DLAppLocalServiceUtil.getFolder(classPK);
 
 		return new DLFolderAssetRenderer(folder);
@@ -162,7 +161,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	public boolean hasTrashPermission(
 			PermissionChecker permissionChecker, long groupId, long classPK,
 			String trashActionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (trashActionId.equals(TrashActionKeys.MOVE)) {
 			return DLFolderPermission.contains(
@@ -179,9 +178,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	}
 
 	@Override
-	public boolean isInTrash(long classPK)
-		throws PortalException, SystemException {
-
+	public boolean isInTrash(long classPK) throws PortalException {
 		try {
 			DLFolder dlFolder = getDLFolder(classPK);
 
@@ -193,9 +190,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	}
 
 	@Override
-	public boolean isInTrashContainer(long classPK)
-		throws PortalException, SystemException {
-
+	public boolean isInTrashContainer(long classPK) throws PortalException {
 		try {
 			DLFolder dlFolder = getDLFolder(classPK);
 
@@ -207,9 +202,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	}
 
 	@Override
-	public boolean isRestorable(long classPK)
-		throws PortalException, SystemException {
-
+	public boolean isRestorable(long classPK) throws PortalException {
 		DLFolder dlFolder = fetchDLFolder(classPK);
 
 		if ((dlFolder == null) ||
@@ -227,9 +220,9 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	public void moveEntry(
 			long userId, long classPK, long containerModelId,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		DLFolderLocalServiceUtil.moveFolder(
+		DLAppLocalServiceUtil.moveFolder(
 			userId, classPK, containerModelId, serviceContext);
 	}
 
@@ -237,29 +230,36 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	public void moveTrashEntry(
 			long userId, long classPK, long containerModelId,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Repository repository = getRepository(classPK);
 
-		DLAppHelperLocalServiceUtil.moveFolderFromTrash(
-			userId, repository.getFolder(classPK), containerModelId,
-			serviceContext);
+		TrashCapability trashCapability = repository.getCapability(
+			TrashCapability.class);
+
+		Folder folder = repository.getFolder(classPK);
+		Folder destinationFolder = repository.getFolder(containerModelId);
+
+		trashCapability.moveFolderFromTrash(
+			userId, folder, destinationFolder, serviceContext);
 	}
 
 	@Override
 	public void restoreTrashEntry(long userId, long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Repository repository = getRepository(classPK);
 
-		DLAppHelperLocalServiceUtil.restoreFolderFromTrash(
-			userId, repository.getFolder(classPK));
+		TrashCapability trashCapability = repository.getCapability(
+			TrashCapability.class);
+
+		Folder folder = repository.getFolder(classPK);
+
+		trashCapability.restoreFolderFromTrash(userId, folder);
 	}
 
 	@Override
-	public void updateTitle(long classPK, String name)
-		throws PortalException, SystemException {
-
+	public void updateTitle(long classPK, String name) throws PortalException {
 		DLFolder dlFolder = getDLFolder(classPK);
 
 		dlFolder.setName(name);
@@ -270,12 +270,12 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	protected void checkRestorableEntry(
 			long classPK, long trashEntryId, long containerModelId,
 			String originalTitle, String newName)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DLFolder dlFolder = getDLFolder(classPK);
 
 		if (containerModelId == TrashEntryConstants.DEFAULT_CONTAINER_ID) {
-			containerModelId = dlFolder.getParentFolderId();
+			containerModelId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 		}
 
 		if (Validator.isNotNull(newName)) {
@@ -298,13 +298,11 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	}
 
 	@Override
-	protected Repository getRepository(long classPK)
-		throws PortalException, SystemException {
-
+	protected Repository getRepository(long classPK) throws PortalException {
 		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
 			classPK, 0, 0);
 
-		if (!(repository instanceof LiferayRepository)) {
+		if (!repository.isCapabilityProvided(TrashCapability.class)) {
 			throw new InvalidRepositoryException(
 				"Repository " + repository.getRepositoryId() +
 					" does not support trash operations");
@@ -316,7 +314,7 @@ public class DLFolderTrashHandler extends DLBaseTrashHandler {
 	@Override
 	protected boolean hasPermission(
 			PermissionChecker permissionChecker, long classPK, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DLFolder dlFolder = getDLFolder(classPK);
 
