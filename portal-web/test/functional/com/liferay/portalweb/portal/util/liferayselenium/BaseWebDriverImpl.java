@@ -30,6 +30,7 @@ import net.jsourcerer.webdriver.jserrorcollector.JavaScriptError;
 
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Action;
@@ -63,22 +64,16 @@ public abstract class BaseWebDriverImpl
 				_sikuliImagesDirName, "linux", "windows");
 		}
 
-		WebDriver.Options options = webDriver.manage();
+		if (!TestPropsValues.MOBILE_DEVICE_ENABLED) {
+			WebDriver.Options options = webDriver.manage();
 
-		WebDriver.Window window = options.window();
+			WebDriver.Window window = options.window();
 
-		int x = 1065;
-		int y = 1250;
+			int x = 1065;
+			int y = 1040;
 
-		if (TestPropsValues.MOBILE_DEVICE_ENABLED) {
-			String[] screenResolution = StringUtil.split(
-				TestPropsValues.MOBILE_DEVICE_RESOLUTION, "x");
-
-			x = GetterUtil.getInteger(screenResolution[0]);
-			y = GetterUtil.getInteger(screenResolution[1]);
+			window.setSize(new Dimension(x, y));
 		}
-
-		window.setSize(new Dimension(x, y));
 
 		webDriver.get(browserURL);
 	}
@@ -141,10 +136,26 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public void assertHTMLSourceTextNotPresent(String value) throws Exception {
+		LiferaySeleniumHelper.assertHTMLSourceTextPresent(this, value);
+	}
+
+	@Override
+	public void assertHTMLSourceTextPresent(String value) throws Exception {
+		LiferaySeleniumHelper.assertHTMLSourceTextPresent(this, value);
+	}
+
+	@Override
 	public void assertJavaScriptErrors(String ignoreJavaScriptError)
 		throws Exception {
 
 		if (!TestPropsValues.TEST_ASSSERT_JAVASCRIPT_ERRORS) {
+			return;
+		}
+
+		String location = getLocation();
+
+		if (!location.contains("localhost")) {
 			return;
 		}
 
@@ -201,6 +212,14 @@ public abstract class BaseWebDriverImpl
 
 				if (javaScriptErrorValue.contains(
 						"NS_ERROR_NOT_INITIALIZED:")) {
+
+					continue;
+				}
+
+				// LPS-42469
+
+				if (javaScriptErrorValue.contains(
+						"Permission denied to access property 'type'")) {
 
 					continue;
 				}
@@ -483,6 +502,16 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public boolean isHTMLSourceTextPresent(String value) throws Exception {
+		return LiferaySeleniumHelper.isHTMLSourceTextPresent(this, value);
+	}
+
+	@Override
+	public boolean isMobileDeviceEnabled() {
+		return LiferaySeleniumHelper.isMobileDeviceEnabled();
+	}
+
+	@Override
 	public boolean isNotChecked(String locator) {
 		return LiferaySeleniumHelper.isNotChecked(this, locator);
 	}
@@ -536,6 +565,11 @@ public abstract class BaseWebDriverImpl
 		}
 
 		return pattern.equals(getSelectedLabel(selectLocator, "1"));
+	}
+
+	@Override
+	public boolean isTCatEnabled() {
+		return LiferaySeleniumHelper.isTCatEnabled();
 	}
 
 	@Override
@@ -652,6 +686,24 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public void saveScreenshotBeforeAction(boolean actionFailed)
+		throws Exception {
+
+		if (!TestPropsValues.SAVE_SCREENSHOT) {
+			return;
+		}
+
+		LiferaySeleniumHelper.saveScreenshotBeforeAction(this, actionFailed);
+	}
+
+	@Override
+	public void scrollWebElementIntoView(String locator) throws Exception {
+		WebElement webElement = getWebElement(locator);
+
+		super.scrollWebElementIntoView(webElement);
+	}
+
+	@Override
 	public void selectAndWait(String selectLocator, String optionLocator) {
 		super.select(selectLocator, optionLocator);
 		super.waitForPageToLoad("30000");
@@ -676,6 +728,15 @@ public abstract class BaseWebDriverImpl
 	@Override
 	public void sendKeys(String locator, String value) {
 		typeKeys(locator, value);
+	}
+
+	@Override
+	public void sendKeysAceEditor(String locator, String value) {
+		WebElement webElement = getWebElement(locator);
+
+		webElement.sendKeys(Keys.chord(Keys.CONTROL, Keys.END));
+
+		LiferaySeleniumHelper.typeAceEditor(this, locator, value);
 	}
 
 	@Override
@@ -704,8 +765,70 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public void setWindowSize(String coordString) {
+		WebElement bodyWebElement = getWebElement("//body");
+
+		WrapsDriver wrapsDriver = (WrapsDriver)bodyWebElement;
+
+		WebDriver webDriver = wrapsDriver.getWrappedDriver();
+
+		WebDriver.Options options = webDriver.manage();
+
+		WebDriver.Window window = options.window();
+
+		String[] screenResolution = StringUtil.split(coordString, ",");
+
+		int x = GetterUtil.getInteger(screenResolution[0]);
+		int y = GetterUtil.getInteger(screenResolution[1]);
+
+		window.setSize(new Dimension(x, y));
+	}
+
+	@Override
+	public void sikuliAssertElementNotPresent(String image) throws Exception {
+		LiferaySeleniumHelper.sikuliAssertElementNotPresent(this, image);
+	}
+
+	@Override
+	public void sikuliAssertElementPresent(String image) throws Exception {
+		LiferaySeleniumHelper.sikuliAssertElementPresent(this, image);
+	}
+
+	@Override
 	public void sikuliClick(String image) throws Exception {
 		LiferaySeleniumHelper.sikuliClick(this, image);
+	}
+
+	@Override
+	public void sikuliDragAndDrop(String image, String coordString)
+		throws Exception {
+
+		LiferaySeleniumHelper.sikuliDragAndDrop(this, image, coordString);
+	}
+
+	@Override
+	public void sikuliLeftMouseDown() throws Exception {
+		LiferaySeleniumHelper.sikuliLeftMouseDown(this);
+	}
+
+	@Override
+	public void sikuliLeftMouseUp() throws Exception {
+		LiferaySeleniumHelper.sikuliLeftMouseUp(this);
+	}
+
+	@Override
+	public void sikuliMouseMove(String image) throws Exception {
+		LiferaySeleniumHelper.sikuliMouseMove(this, image);
+	}
+
+	@Override
+	public void sikuliRightMouseDown() throws Exception {
+		LiferaySeleniumHelper.sikuliRightMouseDown(this);
+	}
+
+	@Override
+	public void sikuliRightMouseUp() throws Exception {
+		LiferaySeleniumHelper.sikuliRightMouseUp(this);
 	}
 
 	@Override
@@ -718,6 +841,13 @@ public abstract class BaseWebDriverImpl
 		throws Exception {
 
 		LiferaySeleniumHelper.sikuliUploadCommonFile(this, image, value);
+	}
+
+	@Override
+	public void sikuliUploadTCatFile(String image, String value)
+		throws Exception {
+
+		LiferaySeleniumHelper.sikuliUploadTCatFile(this, image, value);
 	}
 
 	@Override
@@ -737,12 +867,25 @@ public abstract class BaseWebDriverImpl
 
 	@Override
 	public void typeAceEditor(String locator, String value) {
+		WebElement webElement = getWebElement(locator);
+
+		webElement.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+
 		LiferaySeleniumHelper.typeAceEditor(this, locator, value);
+
+		webElement.sendKeys(Keys.chord(Keys.CONTROL, Keys.SHIFT, Keys.END));
+
+		webElement.sendKeys(Keys.DELETE);
 	}
 
 	@Override
 	public void typeFrame(String locator, String value) {
 		LiferaySeleniumHelper.typeFrame(this, locator, value);
+	}
+
+	@Override
+	public void typeScreen(String value) {
+		LiferaySeleniumHelper.typeScreen(value);
 	}
 
 	@Override

@@ -56,7 +56,7 @@ if (windowState.equals(WindowState.MAXIMIZED)) {
 	<c:otherwise>
 		<div>
 			<iframe alt="<%= HtmlUtil.escapeAttribute(alt) %>" border="<%= HtmlUtil.escapeAttribute(border) %>" bordercolor="<%= HtmlUtil.escapeAttribute(bordercolor) %>" frameborder="<%= HtmlUtil.escapeAttribute(frameborder) %>" height="<%= HtmlUtil.escapeAttribute(iframeHeight) %>" hspace="<%= HtmlUtil.escapeAttribute(hspace) %>" id="<portlet:namespace />iframe" longdesc="<%= HtmlUtil.escapeAttribute(longdesc) %>" name="<portlet:namespace />iframe" onload="<portlet:namespace />monitorIframe();" scrolling="<%= HtmlUtil.escapeAttribute(scrolling) %>" src="<%= HtmlUtil.escapeHREF(iframeSrc) %>" title="<%= HtmlUtil.escapeAttribute(title) %>" vspace="<%= HtmlUtil.escapeAttribute(vspace) %>" width="<%= HtmlUtil.escapeAttribute(width) %>">
-				<%= LanguageUtil.format(pageContext, "your-browser-does-not-support-inline-frames-or-is-currently-configured-not-to-display-inline-frames.-content-can-be-viewed-at-actual-source-page-x", HtmlUtil.escape(iframeSrc), false) %>
+				<%= LanguageUtil.format(request, "your-browser-does-not-support-inline-frames-or-is-currently-configured-not-to-display-inline-frames.-content-can-be-viewed-at-actual-source-page-x", HtmlUtil.escape(iframeSrc), false) %>
 			</iframe>
 		</div>
 	</c:otherwise>
@@ -64,6 +64,8 @@ if (windowState.equals(WindowState.MAXIMIZED)) {
 
 <aui:script>
 	function <portlet:namespace />monitorIframe() {
+		var A = AUI();
+
 		var url = null;
 
 		try {
@@ -80,7 +82,7 @@ if (windowState.equals(WindowState.MAXIMIZED)) {
 
 		if ((url == iframeSrc) || (url == (iframeSrc + '/'))) {
 		}
-		else if (Liferay.Util.startsWith(url, baseSrc)) {
+		else if (A.Lang.String.startsWith(url, baseSrc)) {
 			url = url.substring(baseSrc.length);
 
 			<portlet:namespace />updateHash(url);

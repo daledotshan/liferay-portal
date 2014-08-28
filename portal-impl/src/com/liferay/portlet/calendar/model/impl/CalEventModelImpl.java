@@ -14,9 +14,10 @@
 
 package com.liferay.portlet.calendar.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -56,6 +57,7 @@ import java.util.Map;
  * @see com.liferay.portlet.calendar.model.CalEventModel
  * @generated
  */
+@ProviderType
 public class CalEventModelImpl extends BaseModelImpl<CalEvent>
 	implements CalEventModel {
 	/*
@@ -74,7 +76,7 @@ public class CalEventModelImpl extends BaseModelImpl<CalEvent>
 			{ "createDate", Types.TIMESTAMP },
 			{ "modifiedDate", Types.TIMESTAMP },
 			{ "title", Types.VARCHAR },
-			{ "description", Types.VARCHAR },
+			{ "description", Types.CLOB },
 			{ "location", Types.VARCHAR },
 			{ "startDate", Types.TIMESTAMP },
 			{ "endDate", Types.TIMESTAMP },
@@ -89,7 +91,7 @@ public class CalEventModelImpl extends BaseModelImpl<CalEvent>
 			{ "firstReminder", Types.INTEGER },
 			{ "secondReminder", Types.INTEGER }
 		};
-	public static final String TABLE_SQL_CREATE = "create table CalEvent (uuid_ VARCHAR(75) null,eventId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,title VARCHAR(75) null,description STRING null,location STRING null,startDate DATE null,endDate DATE null,durationHour INTEGER,durationMinute INTEGER,allDay BOOLEAN,timeZoneSensitive BOOLEAN,type_ VARCHAR(75) null,repeating BOOLEAN,recurrence TEXT null,remindBy INTEGER,firstReminder INTEGER,secondReminder INTEGER)";
+	public static final String TABLE_SQL_CREATE = "create table CalEvent (uuid_ VARCHAR(75) null,eventId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,title VARCHAR(75) null,description TEXT null,location STRING null,startDate DATE null,endDate DATE null,durationHour INTEGER,durationMinute INTEGER,allDay BOOLEAN,timeZoneSensitive BOOLEAN,type_ VARCHAR(75) null,repeating BOOLEAN,recurrence TEXT null,remindBy INTEGER,firstReminder INTEGER,secondReminder INTEGER)";
 	public static final String TABLE_SQL_DROP = "drop table CalEvent";
 	public static final String ORDER_BY_JPQL = " ORDER BY calEvent.startDate ASC, calEvent.title ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY CalEvent.startDate ASC, CalEvent.title ASC";
@@ -105,14 +107,14 @@ public class CalEventModelImpl extends BaseModelImpl<CalEvent>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portlet.calendar.model.CalEvent"),
 			true);
-	public static long COMPANYID_COLUMN_BITMASK = 1L;
-	public static long GROUPID_COLUMN_BITMASK = 2L;
-	public static long REMINDBY_COLUMN_BITMASK = 4L;
-	public static long REPEATING_COLUMN_BITMASK = 8L;
-	public static long TYPE_COLUMN_BITMASK = 16L;
-	public static long UUID_COLUMN_BITMASK = 32L;
-	public static long STARTDATE_COLUMN_BITMASK = 64L;
-	public static long TITLE_COLUMN_BITMASK = 128L;
+	public static final long COMPANYID_COLUMN_BITMASK = 1L;
+	public static final long GROUPID_COLUMN_BITMASK = 2L;
+	public static final long REMINDBY_COLUMN_BITMASK = 4L;
+	public static final long REPEATING_COLUMN_BITMASK = 8L;
+	public static final long TYPE_COLUMN_BITMASK = 16L;
+	public static final long UUID_COLUMN_BITMASK = 32L;
+	public static final long STARTDATE_COLUMN_BITMASK = 64L;
+	public static final long TITLE_COLUMN_BITMASK = 128L;
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
 				"lock.expiration.time.com.liferay.portlet.calendar.model.CalEvent"));
 
@@ -412,7 +414,7 @@ public class CalEventModelImpl extends BaseModelImpl<CalEvent>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -1123,8 +1125,8 @@ public class CalEventModelImpl extends BaseModelImpl<CalEvent>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = CalEvent.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = CalEvent.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			CalEvent.class
 		};
 	private String _uuid;

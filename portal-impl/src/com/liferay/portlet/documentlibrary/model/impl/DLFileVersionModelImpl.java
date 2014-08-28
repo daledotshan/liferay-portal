@@ -14,9 +14,10 @@
 
 package com.liferay.portlet.documentlibrary.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.DateUtil;
@@ -62,6 +63,7 @@ import java.util.Map;
  * @generated
  */
 @JSON(strict = true)
+@ProviderType
 public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	implements DLFileVersionModel {
 	/*
@@ -114,16 +116,16 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portlet.documentlibrary.model.DLFileVersion"),
 			true);
-	public static long COMPANYID_COLUMN_BITMASK = 1L;
-	public static long FILEENTRYID_COLUMN_BITMASK = 2L;
-	public static long FOLDERID_COLUMN_BITMASK = 4L;
-	public static long GROUPID_COLUMN_BITMASK = 8L;
-	public static long MIMETYPE_COLUMN_BITMASK = 16L;
-	public static long STATUS_COLUMN_BITMASK = 32L;
-	public static long TITLE_COLUMN_BITMASK = 64L;
-	public static long UUID_COLUMN_BITMASK = 128L;
-	public static long VERSION_COLUMN_BITMASK = 256L;
-	public static long CREATEDATE_COLUMN_BITMASK = 512L;
+	public static final long COMPANYID_COLUMN_BITMASK = 1L;
+	public static final long FILEENTRYID_COLUMN_BITMASK = 2L;
+	public static final long FOLDERID_COLUMN_BITMASK = 4L;
+	public static final long GROUPID_COLUMN_BITMASK = 8L;
+	public static final long MIMETYPE_COLUMN_BITMASK = 16L;
+	public static final long STATUS_COLUMN_BITMASK = 32L;
+	public static final long TITLE_COLUMN_BITMASK = 64L;
+	public static final long UUID_COLUMN_BITMASK = 128L;
+	public static final long VERSION_COLUMN_BITMASK = 256L;
+	public static final long CREATEDATE_COLUMN_BITMASK = 512L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -513,7 +515,7 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -856,7 +858,7 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 	}
 
 	@Override
-	public String getStatusByUserUuid() throws SystemException {
+	public String getStatusByUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getStatusByUserId());
 
@@ -1491,8 +1493,8 @@ public class DLFileVersionModelImpl extends BaseModelImpl<DLFileVersion>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = DLFileVersion.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = DLFileVersion.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			DLFileVersion.class
 		};
 	private String _uuid;

@@ -395,11 +395,62 @@ public class HtmlImpl implements Html {
 		return StringUtil.replace(text, "&amp;", "&");
 	}
 
+	@Override
+	public String getAUICompatibleId(String text) {
+		if (Validator.isNull(text)) {
+			return text;
+		}
+
+		StringBundler sb = null;
+
+		int lastReplacementIndex = 0;
+
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+
+			if (((c <= 127) && (Validator.isChar(c) || Validator.isDigit(c))) ||
+				((c > 127) && (c != CharPool.FIGURE_SPACE) &&
+				 (c != CharPool.NARROW_NO_BREAK_SPACE) &&
+				 (c != CharPool.NO_BREAK_SPACE))) {
+
+				continue;
+			}
+
+			if (sb == null) {
+				sb = new StringBundler();
+			}
+
+			if (i > lastReplacementIndex) {
+				sb.append(text.substring(lastReplacementIndex, i));
+			}
+
+			sb.append(CharPool.UNDERLINE);
+
+			if (c != CharPool.UNDERLINE) {
+				sb.append(StringUtil.toHexString(c));
+			}
+
+			sb.append(CharPool.UNDERLINE);
+
+			lastReplacementIndex = i + 1;
+		}
+
+		if (sb == null) {
+			return text;
+		}
+
+		if (lastReplacementIndex < text.length()) {
+			sb.append(text.substring(lastReplacementIndex));
+		}
+
+		return sb.toString();
+	}
+
 	/**
 	 * Renders the HTML content into text. This provides a human readable
-	 * version of the content that is modeled on the way Mozilla Thunderbird&reg;
-	 * and other email clients provide an automatic conversion of HTML content
-	 * to text in their alternative MIME encoding of emails.
+	 * version of the content that is modeled on the way Mozilla
+	 * Thunderbird&reg; and other email clients provide an automatic conversion
+	 * of HTML content to text in their alternative MIME encoding of emails.
 	 *
 	 * <p>
 	 * Using the default settings, the output complies with the
@@ -425,13 +476,15 @@ public class HtmlImpl implements Html {
 	}
 
 	/**
-	 * Replaces all Microsoft&reg; Word Unicode characters with plain HTML entities
-	 * or characters.
+	 * Replaces all Microsoft&reg; Word Unicode characters with plain HTML
+	 * entities or characters.
 	 *
-	 * @param  text the text
-	 * @return the converted text, or <code>null</code> if the text is
-	 *         <code>null</code>
+	 * @param      text the text
+	 * @return     the converted text, or <code>null</code> if the text is
+	 *             <code>null</code>
+	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
+	@Deprecated
 	@Override
 	public String replaceMsWordCharacters(String text) {
 		return StringUtil.replace(text, _MS_WORD_UNICODE, _MS_WORD_HTML);
@@ -451,7 +504,9 @@ public class HtmlImpl implements Html {
 			return null;
 		}
 
-		return html.replaceAll("\r?\n", "<br />");
+		html = StringUtil.replace(html, StringPool.RETURN_NEW_LINE, "<br />");
+
+		return StringUtil.replace(html, StringPool.NEW_LINE, "<br />");
 	}
 
 	/**

@@ -16,7 +16,6 @@ package com.liferay.portlet.asset.util;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.BaseIndexer;
@@ -37,7 +36,6 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.asset.service.permission.AssetVocabularyPermission;
-import com.liferay.portlet.asset.service.persistence.AssetVocabularyActionableDynamicQuery;
 
 import java.util.Locale;
 
@@ -57,10 +55,8 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 
 	public AssetVocabularyIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {
-				Field.ASSET_VOCABULARY_ID, Field.COMPANY_ID, Field.GROUP_ID,
-				Field.UID,
-			});
+			Field.ASSET_VOCABULARY_ID, Field.COMPANY_ID, Field.GROUP_ID,
+			Field.UID);
 		setFilterSearch(true);
 		setPermissionAware(true);
 	}
@@ -99,11 +95,8 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 			BooleanQuery localizedQuery = BooleanQueryFactoryUtil.create(
 				searchContext);
 
-			localizedQuery.addTerm(Field.TITLE, title, true);
-			localizedQuery.addTerm(
-				DocumentImpl.getLocalizedName(
-					searchContext.getLocale(), Field.TITLE),
-				title, true);
+			addSearchLocalizedTerm(
+				localizedQuery, searchContext, Field.TITLE, true);
 
 			searchQuery.add(localizedQuery, BooleanClauseOccur.SHOULD);
 		}
@@ -187,25 +180,29 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 	}
 
 	protected void reindexVocabularies(final long companyId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			new AssetVocabularyActionableDynamicQuery() {
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				AssetVocabulary assetVocabulary = (AssetVocabulary)object;
-
-				Document document = getDocument(assetVocabulary);
-
-				if (document != null) {
-					addDocument(document);
-				}
-			}
-
-		};
+		final ActionableDynamicQuery actionableDynamicQuery =
+			AssetVocabularyLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					AssetVocabulary assetVocabulary = (AssetVocabulary)object;
+
+					Document document = getDocument(assetVocabulary);
+
+					if (document != null) {
+						actionableDynamicQuery.addDocument(document);
+					}
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

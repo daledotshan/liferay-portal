@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.shopping.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.shopping.model.ShoppingCoupon;
 import com.liferay.portlet.shopping.service.ShoppingCouponLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.shopping.service.ShoppingCouponLocalServiceUtil;
  * @see com.liferay.portlet.shopping.model.ShoppingCoupon
  * @generated
  */
+@ProviderType
 public abstract class ShoppingCouponBaseImpl extends ShoppingCouponModelImpl
 	implements ShoppingCoupon {
 	/*
@@ -39,7 +40,7 @@ public abstract class ShoppingCouponBaseImpl extends ShoppingCouponModelImpl
 	 * Never modify or reference this class directly. All methods that expect a shopping coupon model instance should use the {@link ShoppingCoupon} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ShoppingCouponLocalServiceUtil.addShoppingCoupon(this);
 		}

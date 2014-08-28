@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.shopping.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,11 +53,11 @@ import com.liferay.portlet.shopping.service.ShoppingItemServiceUtil;
  * @see com.liferay.portlet.shopping.service.ShoppingItemServiceUtil
  * @generated
  */
+@ProviderType
 public class ShoppingItemServiceHttp {
 	public static void addBookItems(HttpPrincipal httpPrincipal, long groupId,
 		long categoryId, java.lang.String[] isbns)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"addBookItems", _addBookItemsParameterTypes0);
@@ -69,10 +71,6 @@ public class ShoppingItemServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -99,8 +97,7 @@ public class ShoppingItemServiceHttp {
 		java.util.List<com.liferay.portlet.shopping.model.ShoppingItemField> itemFields,
 		java.util.List<com.liferay.portlet.shopping.model.ShoppingItemPrice> itemPrices,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"addItem", _addItemParameterTypes1);
@@ -123,10 +120,6 @@ public class ShoppingItemServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -140,8 +133,7 @@ public class ShoppingItemServiceHttp {
 	}
 
 	public static void deleteItem(HttpPrincipal httpPrincipal, long itemId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"deleteItem", _deleteItemParameterTypes2);
@@ -156,10 +148,6 @@ public class ShoppingItemServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -171,8 +159,7 @@ public class ShoppingItemServiceHttp {
 	}
 
 	public static int getCategoriesItemsCount(HttpPrincipal httpPrincipal,
-		long groupId, java.util.List<java.lang.Long> categoryIds)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		long groupId, java.util.List<java.lang.Long> categoryIds) {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"getCategoriesItemsCount",
@@ -187,10 +174,6 @@ public class ShoppingItemServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -205,8 +188,7 @@ public class ShoppingItemServiceHttp {
 
 	public static com.liferay.portlet.shopping.model.ShoppingItem getItem(
 		HttpPrincipal httpPrincipal, long itemId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"getItem", _getItemParameterTypes4);
@@ -223,10 +205,6 @@ public class ShoppingItemServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -240,8 +218,7 @@ public class ShoppingItemServiceHttp {
 	}
 
 	public static java.util.List<com.liferay.portlet.shopping.model.ShoppingItem> getItems(
-		HttpPrincipal httpPrincipal, long groupId, long categoryId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		HttpPrincipal httpPrincipal, long groupId, long categoryId) {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"getItems", _getItemsParameterTypes5);
@@ -255,10 +232,6 @@ public class ShoppingItemServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -273,8 +246,8 @@ public class ShoppingItemServiceHttp {
 
 	public static java.util.List<com.liferay.portlet.shopping.model.ShoppingItem> getItems(
 		HttpPrincipal httpPrincipal, long groupId, long categoryId, int start,
-		int end, com.liferay.portal.kernel.util.OrderByComparator obc)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.shopping.model.ShoppingItem> obc) {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"getItems", _getItemsParameterTypes6);
@@ -288,10 +261,6 @@ public class ShoppingItemServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -305,8 +274,7 @@ public class ShoppingItemServiceHttp {
 	}
 
 	public static int getItemsCount(HttpPrincipal httpPrincipal, long groupId,
-		long categoryId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		long categoryId) {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"getItemsCount", _getItemsCountParameterTypes7);
@@ -320,10 +288,6 @@ public class ShoppingItemServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -338,9 +302,8 @@ public class ShoppingItemServiceHttp {
 
 	public static com.liferay.portlet.shopping.model.ShoppingItem[] getItemsPrevAndNext(
 		HttpPrincipal httpPrincipal, long itemId,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.shopping.model.ShoppingItem> obc)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"getItemsPrevAndNext", _getItemsPrevAndNextParameterTypes8);
@@ -356,10 +319,6 @@ public class ShoppingItemServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -388,8 +347,7 @@ public class ShoppingItemServiceHttp {
 		java.util.List<com.liferay.portlet.shopping.model.ShoppingItemField> itemFields,
 		java.util.List<com.liferay.portlet.shopping.model.ShoppingItemPrice> itemPrices,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ShoppingItemServiceUtil.class,
 					"updateItem", _updateItemParameterTypes9);
@@ -410,10 +368,6 @@ public class ShoppingItemServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

@@ -45,6 +45,8 @@ public class SQLQueryTableNamesUtilTest {
 		MemoryPortalCacheManager<String, String> memoryPortalCacheManager =
 			new MemoryPortalCacheManager<String, String>();
 
+		memoryPortalCacheManager.setName("SingleVMPortalCacheManager");
+
 		memoryPortalCacheManager.afterPropertiesSet();
 
 		SingleVMPoolImpl singleVMPoolImpl = new SingleVMPoolImpl();
@@ -54,6 +56,11 @@ public class SQLQueryTableNamesUtilTest {
 		SingleVMPoolUtil singleVMPoolUtil = new SingleVMPoolUtil();
 
 		singleVMPoolUtil.setSingleVMPool(singleVMPoolImpl);
+	}
+
+	@Test
+	public void testConstructor() {
+		new SQLQueryTableNamesUtil();
 	}
 
 	@Test
