@@ -14,17 +14,19 @@
 
 package com.liferay.portlet.messageboards.lar;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.StreamUtil;
@@ -63,15 +65,37 @@ public class MBMessageStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		MBMessage message =
-			MBMessageLocalServiceUtil.fetchMBMessageByUuidAndGroupId(
-				uuid, groupId);
+		MBMessage message = fetchStagedModelByUuidAndGroupId(uuid, groupId);
 
 		if (message != null) {
 			MBMessageLocalServiceUtil.deleteMessage(message);
 		}
+	}
+
+	@Override
+	public MBMessage fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<MBMessage> messages =
+			MBMessageLocalServiceUtil.getMBMessagesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<MBMessage>());
+
+		if (ListUtil.isEmpty(messages)) {
+			return null;
+		}
+
+		return messages.get(0);
+	}
+
+	@Override
+	public MBMessage fetchStagedModelByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return MBMessageLocalServiceUtil.fetchMBMessageByUuidAndGroupId(
+			uuid, groupId);
 	}
 
 	@Override
@@ -88,7 +112,7 @@ public class MBMessageStagedModelDataHandler
 			PortletDataContext portletDataContext, long userId, long threadId,
 			long parentMessageId, MBMessage message,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		MBDiscussion discussion =
 			MBDiscussionLocalServiceUtil.getThreadDiscussion(threadId);
@@ -251,10 +275,8 @@ public class MBMessageStagedModelDataHandler
 			MBMessage importedMessage = null;
 
 			if (portletDataContext.isDataStrategyMirror()) {
-				MBMessage existingMessage =
-					MBMessageLocalServiceUtil.fetchMBMessageByUuidAndGroupId(
-						message.getUuid(),
-						portletDataContext.getScopeGroupId());
+				MBMessage existingMessage = fetchStagedModelByUuidAndGroupId(
+					message.getUuid(), portletDataContext.getScopeGroupId());
 
 				if (existingMessage == null) {
 					serviceContext.setUuid(message.getUuid());
@@ -356,9 +378,8 @@ public class MBMessageStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(message.getUserUuid());
 
-		MBMessage existingMessage =
-			MBMessageLocalServiceUtil.fetchMBMessageByUuidAndGroupId(
-				message.getUuid(), portletDataContext.getScopeGroupId());
+		MBMessage existingMessage = fetchStagedModelByUuidAndGroupId(
+			message.getUuid(), portletDataContext.getScopeGroupId());
 
 		if (existingMessage == null) {
 			return;

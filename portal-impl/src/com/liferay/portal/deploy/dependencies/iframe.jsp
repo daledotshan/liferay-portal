@@ -20,7 +20,6 @@
 <%@ page import="com.liferay.portal.kernel.util.HttpUtil" %>
 <%@ page import="com.liferay.portal.kernel.util.ParamUtil" %>
 <%@ page import="com.liferay.portal.kernel.util.StringPool" %>
-<%@ page import="com.liferay.portal.kernel.util.Validator" %>
 <%@ page import="com.liferay.portal.util.PortalUtil" %>
 
 <%@ page import="java.util.HashMap" %>
@@ -105,11 +104,11 @@ portletURL.setParameter("appURL", StringPool.BLANK);
 			}
 
 			var resizeIframe = function() {
-				iframe.set('height', getHeight());
+				iframe.attr('height', getHeight());
 			};
 
 			var updateIframe = function() {
-				bookmarkLink.set('href', '<%= portletURL.toString() %>' + escape(getURL()));
+				bookmarkLink.attr('href', '<%= portletURL.toString() %>' + escape(getURL()));
 
 				resizeIframe();
 			};

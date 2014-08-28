@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.cache.cluster;
 
+import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -26,19 +27,49 @@ import java.io.Serializable;
 public class PortalCacheClusterEvent implements Serializable {
 
 	public PortalCacheClusterEvent(
-		String cacheName, Serializable elementKey,
+		String portalCacheManagerName, String portalCacheName,
+		Serializable elementKey,
 		PortalCacheClusterEventType portalCacheClusterEventType) {
 
-		this(cacheName, elementKey, null, portalCacheClusterEventType);
+		this(
+			portalCacheManagerName, portalCacheName, elementKey, null,
+			PortalCache.DEFAULT_TIME_TO_LIVE, portalCacheClusterEventType);
 	}
 
 	public PortalCacheClusterEvent(
-		String cacheName, Serializable elementKey, Serializable elementValue,
+		String portalCacheManagerName, String portalCacheName,
+		Serializable elementKey, Serializable elementValue, int timeToLive,
 		PortalCacheClusterEventType portalCacheClusterEventType) {
 
-		_cacheName = cacheName;
+		if (portalCacheManagerName == null) {
+			throw new NullPointerException("Portal cache manager name is null");
+		}
+
+		if (portalCacheName == null) {
+			throw new NullPointerException("Portal cache name is null");
+		}
+
+		if (portalCacheClusterEventType == null) {
+			throw new NullPointerException(
+				"Portal cache cluster event type is null");
+		}
+
+		if ((elementKey == null) &&
+			!portalCacheClusterEventType.equals(
+				PortalCacheClusterEventType.REMOVE_ALL)) {
+
+			throw new NullPointerException("Element key is null");
+		}
+
+		if (timeToLive < 0) {
+			throw new IllegalArgumentException("Time to live is negative");
+		}
+
+		_portalCacheManagerName = portalCacheManagerName;
+		_portalCacheName = portalCacheName;
 		_elementKey = elementKey;
 		_elementValue = elementValue;
+		_timeToLive = timeToLive;
 		_portalCacheClusterEventType = portalCacheClusterEventType;
 	}
 
@@ -55,23 +86,23 @@ public class PortalCacheClusterEvent implements Serializable {
 		PortalCacheClusterEvent portalCacheClusterEvent =
 			(PortalCacheClusterEvent)obj;
 
-		if (Validator.equals(_cacheName, portalCacheClusterEvent._cacheName) &&
-			Validator.equals(
+		if (Validator.equals(
 				_elementKey, portalCacheClusterEvent._elementKey) &&
 			Validator.equals(
 				_elementValue, portalCacheClusterEvent._elementValue) &&
 			Validator.equals(
 				_portalCacheClusterEventType,
-				portalCacheClusterEvent._portalCacheClusterEventType)) {
+				portalCacheClusterEvent._portalCacheClusterEventType) &&
+			Validator.equals(
+				_portalCacheManagerName,
+				portalCacheClusterEvent._portalCacheManagerName) &&
+			Validator.equals(
+				_portalCacheName, portalCacheClusterEvent._portalCacheName)) {
 
 			return true;
 		}
 
 		return false;
-	}
-
-	public String getCacheName() {
-		return _cacheName;
 	}
 
 	public Serializable getElementKey() {
@@ -86,6 +117,18 @@ public class PortalCacheClusterEvent implements Serializable {
 		return _portalCacheClusterEventType;
 	}
 
+	public String getPortalCacheManagerName() {
+		return _portalCacheManagerName;
+	}
+
+	public String getPortalCacheName() {
+		return _portalCacheName;
+	}
+
+	public int getTimeToLive() {
+		return _timeToLive;
+	}
+
 	@Override
 	public int hashCode() {
 		return toString().hashCode();
@@ -95,11 +138,21 @@ public class PortalCacheClusterEvent implements Serializable {
 		_elementValue = elementValue;
 	}
 
+	public void setTimeToLive(int timeToLive) {
+		if (timeToLive < 0) {
+			throw new IllegalArgumentException("Time to live is negative");
+		}
+
+		_timeToLive = timeToLive;
+	}
+
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(7);
+		StringBundler sb = new StringBundler(9);
 
-		sb.append(_cacheName);
+		sb.append(_portalCacheManagerName);
+		sb.append(StringPool.COLON);
+		sb.append(_portalCacheName);
 		sb.append(StringPool.COLON);
 		sb.append(_elementKey);
 		sb.append(StringPool.COLON);
@@ -114,9 +167,11 @@ public class PortalCacheClusterEvent implements Serializable {
 		return sb.toString();
 	}
 
-	private String _cacheName;
 	private Serializable _elementKey;
 	private Serializable _elementValue;
 	private PortalCacheClusterEventType _portalCacheClusterEventType;
+	private String _portalCacheManagerName;
+	private String _portalCacheName;
+	private int _timeToLive;
 
 }

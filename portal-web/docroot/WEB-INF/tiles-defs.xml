@@ -104,14 +104,6 @@
 		<put name="content" value="/portal/verify_email_address.jsp" />
 	</definition>
 
-	<!-- Activities -->
-
-	<definition name="portlet.activities" extends="portlet" />
-
-	<definition name="portlet.activities.view" extends="portlet.activities">
-		<put name="portlet_content" value="/portlet/activities/view.jsp" />
-	</definition>
-
 	<!-- Admin -->
 
 	<definition name="portlet.admin" extends="portlet" />
@@ -188,12 +180,20 @@
 		<put name="portlet_content" value="/portlet/asset_category_admin/edit_vocabulary.jsp" />
 	</definition>
 
+	<definition name="portlet.asset_category_admin.error" extends="portlet.asset_category_admin">
+		<put name="portlet_content" value="/portlet/asset_category_admin/error.jsp" />
+	</definition>
+
+	<definition name="portlet.asset_category_admin.move_category" extends="portlet.asset_category_admin">
+		<put name="portlet_content" value="/portlet/asset_category_admin/move_category.jsp" />
+	</definition>
+
 	<definition name="portlet.asset_category_admin.view" extends="portlet.asset_category_admin">
 		<put name="portlet_content" value="/portlet/asset_category_admin/view.jsp" />
 	</definition>
 
-	<definition name="portlet.asset_category_admin.view_category" extends="portlet.asset_category_admin">
-		<put name="portlet_content" value="/portlet/asset_category_admin/view_category.jsp" />
+	<definition name="portlet.asset_category_admin.view_categories" extends="portlet.asset_category_admin">
+		<put name="portlet_content" value="/portlet/asset_category_admin/view_categories.jsp" />
 	</definition>
 
 	<!-- Asset Publisher -->
@@ -230,6 +230,14 @@
 
 	<definition name="portlet.asset_tag_admin.edit_tag" extends="portlet.asset_tag_admin">
 		<put name="portlet_content" value="/portlet/asset_tag_admin/edit_tag.jsp" />
+	</definition>
+
+	<definition name="portlet.asset_tag_admin.error" extends="portlet.asset_tag_admin">
+		<put name="portlet_content" value="/portlet/asset_tag_admin/error.jsp" />
+	</definition>
+
+	<definition name="portlet.asset_tag_admin.merge_tag" extends="portlet.asset_tag_admin">
+		<put name="portlet_content" value="/portlet/asset_tag_admin/merge_tag.jsp" />
 	</definition>
 
 	<definition name="portlet.asset_tag_admin.view" extends="portlet.asset_tag_admin">
@@ -378,18 +386,6 @@
 		<put name="portlet_content" value="/portlet/control_panel_menu/view.jsp" />
 	</definition>
 
-	<!-- Currency Converter -->
-
-	<definition name="portlet.currency_converter" extends="portlet" />
-
-	<definition name="portlet.currency_converter.edit" extends="portlet.currency_converter">
-		<put name="portlet_content" value="/portlet/currency_converter/edit.jsp" />
-	</definition>
-
-	<definition name="portlet.currency_converter.view" extends="portlet.currency_converter">
-		<put name="portlet_content" value="/portlet/currency_converter/view.jsp" />
-	</definition>
-
 	<!-- Directory -->
 
 	<definition name="portlet.directory" extends="portlet" />
@@ -524,6 +520,18 @@
 		<put name="portlet_content" value="/portlet/document_library_display/view.jsp" />
 	</definition>
 
+	<!-- Document Selector -->
+
+	<definition name="portlet.document_selector" extends="portlet" />
+
+	<definition name="portlet.document_selector.add_file_entry" extends="portlet.document_selector">
+		<put name="portlet_content" value="/portlet/document_selector/add_file_entry.jsp" />
+	</definition>
+
+	<definition name="portlet.document_selector.view" extends="portlet.document_selector">
+		<put name="portlet_content" value="/portlet/document_selector/view.jsp" />
+	</definition>
+
 	<!-- Dynamic Data List Display -->
 
 	<definition name="portlet.dynamic_data_list_display" extends="portlet" />
@@ -550,6 +558,10 @@
 
 	<definition name="portlet.dynamic_data_lists.select_dynamic_data_mapping_structure" extends="portlet.dynamic_data_lists">
 		<put name="portlet_content" value="/portlet/dynamic_data_lists/select_dynamic_data_mapping_structure.jsp" />
+	</definition>
+
+	<definition name="portlet.dynamic_data_lists.update_translation_redirect" extends="portlet.dynamic_data_lists">
+		<put name="portlet_content" value="/portlet/dynamic_data_lists/update_translation_redirect.jsp" />
 	</definition>
 
 	<definition name="portlet.dynamic_data_lists.view" extends="portlet.dynamic_data_lists">
@@ -740,6 +752,10 @@
 		<put name="portlet_content" value="/portlet/journal/select_folder.jsp" />
 	</definition>
 
+	<definition name="portlet.journal.select_version" extends="portlet.journal">
+		<put name="portlet_content" value="/portlet/journal/select_version.jsp" />
+	</definition>
+
 	<definition name="portlet.journal.update_translation_redirect" extends="portlet.journal">
 		<put name="portlet_content" value="/portlet/journal/update_translation_redirect.jsp" />
 	</definition>
@@ -846,6 +862,10 @@
 
 	<definition name="portlet.layouts_admin.add_layout" extends="portlet.layouts_admin">
 		<put name="portlet_content" value="/portlet/layouts_admin/add_layout.jsp" />
+	</definition>
+
+	<definition name="portlet.layouts_admin.confirmation" extends="portlet.layouts_admin">
+		<put name="portlet_content" value="/portlet/layouts_admin/export_configuration/confirmation.jsp" />
 	</definition>
 
 	<definition name="portlet.layouts_admin.edit_layouts" extends="portlet.layouts_admin">
@@ -1375,10 +1395,6 @@
 
 	<definition name="portlet.shopping" extends="portlet" />
 
-	<definition name="portlet.shopping.add_book_items" extends="portlet.shopping">
-		<put name="portlet_content" value="/portlet/shopping/add_book_items.jsp" />
-	</definition>
-
 	<definition name="portlet.shopping.cart" extends="portlet.shopping">
 		<put name="portlet_content" value="/portlet/shopping/cart.jsp" />
 	</definition>
@@ -1845,13 +1861,5 @@
 
 	<definition name="portlet.workflow_tasks.view" extends="portlet.workflow_tasks">
 		<put name="portlet_content" value="/portlet/workflow_tasks/view.jsp" />
-	</definition>
-
-	<!-- XSL Content -->
-
-	<definition name="portlet.xsl_content" extends="portlet" />
-
-	<definition name="portlet.xsl_content.view" extends="portlet.xsl_content">
-		<put name="portlet_content" value="/portlet/xsl_content/view.jsp" />
 	</definition>
 </tiles-definitions>

@@ -5,8 +5,6 @@ AUI.add(
 		var Lang = A.Lang;
 		var History = Liferay.HistoryManager;
 
-		var IE = A.UA.ie;
-
 		var CSS_SYNC_MESSAGE_HIDDEN = 'sync-message-hidden';
 
 		var DEFAULT_FOLDER_ID = 0;
@@ -31,11 +29,11 @@ AUI.add(
 
 		var STR_PAGINATION_DATA = 'paginationData';
 
-		var STR_ROW_IDS_FILE_SHORTCUT_CHECKBOX = 'rowIdsDLFileShortcutCheckbox';
+		var STR_ROW_IDS_FILE_SHORTCUT_CHECKBOX = 'rowIdsDLFileShortcut';
 
-		var STR_ROW_IDS_FOLDER_CHECKBOX = 'rowIdsFolderCheckbox';
+		var STR_ROW_IDS_FOLDER_CHECKBOX = 'rowIdsFolder';
 
-		var STR_ROW_IDS_FILE_ENTRY_CHECKBOX = 'rowIdsFileEntryCheckbox';
+		var STR_ROW_IDS_FILE_ENTRY_CHECKBOX = 'rowIdsFileEntry';
 
 		var STR_SEARCH_FOLDER_ID = 'searchFolderId';
 
@@ -59,9 +57,11 @@ AUI.add(
 
 		var WIN = A.config.win;
 
+		var HTML5_UPLOAD = (WIN && WIN.File && WIN.FormData && WIN.XMLHttpRequest);
+
 		var DocumentLibrary = A.Component.create(
 			{
-				AUGMENTS: [Liferay.PortletBase, Liferay.DocumentLibraryUpload, Liferay.StorageFormatter],
+				AUGMENTS: [Liferay.PortletBase],
 
 				EXTENDS: A.Base,
 
@@ -80,11 +80,9 @@ AUI.add(
 						instance._eventDataRetrieveSuccess = instance.ns('dataRetrieveSuccess');
 						instance._eventOpenDocument = instance.ns('openDocument');
 						instance._eventChangeSearchFolder = instance.ns('changeSearchFolder');
-
-						instance._entriesContainer = instance.byId('entriesContainer');
-
 						instance._eventPageLoaded = instance.ns('pageLoaded');
 
+						instance._entriesContainer = instance.byId('entriesContainer');
 						instance._keywordsNode = instance.byId(STR_KEYWORDS);
 
 						if (!config.syncMessageDisabled) {
@@ -168,7 +166,10 @@ AUI.add(
 
 						instance._appViewFolders = new Liferay.AppViewFolders(foldersConfig);
 
+						instance._folderId = foldersConfig.defaultParentFolderId;
+
 						var eventHandles = [
+							Liferay.after('liferay-app-view-folders:dataRequest', instance._afterDataRequest ,instance),
 							Liferay.on(instance._eventDataRetrieveSuccess, instance._onDataRetrieveSuccess, instance),
 							Liferay.on(instance._eventOpenDocument, instance._openDocument, instance),
 							Liferay.on(instance._eventPageLoaded, instance._onPageLoaded, instance),
@@ -183,7 +184,12 @@ AUI.add(
 
 						instance._repositoriesData = {};
 
-						eventHandles.push(Liferay.on(config.portletId + ':portletRefreshed', A.bind('destructor', instance)));
+						eventHandles.push(
+							Liferay.on(
+								config.portletId + ':portletRefreshed',
+								A.bind('destructor', instance)
+							)
+						);
 
 						var searchFormNode = instance.one('#fm1');
 
@@ -192,8 +198,15 @@ AUI.add(
 						}
 
 						instance._toggleSyncNotification();
-
 						instance._toggleTrashAction();
+
+						var hasPermission = (themeDisplay.isSignedIn() && instance.one('#addButtonContainer'));
+
+						if (HTML5_UPLOAD && hasPermission && instance._entriesContainer.inDoc()) {
+							config.appViewEntryTemplates = instance.byId('appViewEntryTemplates');
+
+							A.getDoc().once('dragenter', instance._plugUpload, instance, config);
+						}
 					},
 
 					destructor: function() {
@@ -209,6 +222,18 @@ AUI.add(
 						instance._documentLibraryContainer.purge(true);
 					},
 
+					getFolderId: function() {
+						var instance = this;
+
+						return instance._folderId;
+					},
+
+					_afterDataRequest: function(event) {
+						var instance = this;
+
+						instance._folderId = event.requestParams[instance.ns('folderId')];
+					},
+
 					_afterStateChange: function(event) {
 						var instance = this;
 
@@ -220,7 +245,7 @@ AUI.add(
 
 						AObject.each(
 							state,
-							function(item, index, collection) {
+							function(item, index) {
 								if (index.indexOf(namespace) === 0) {
 									requestParams[index] = item;
 								}
@@ -261,9 +286,7 @@ AUI.add(
 
 						var repositories = instance._config.repositories;
 
-						var length = repositories.length;
-
-						for (var i = 0; i < length; i++) {
+						for (var i = 0; i < repositories.length; i++) {
 							var repository = repositories[i];
 
 							if (repository.id == repositoryId) {
@@ -290,7 +313,7 @@ AUI.add(
 
 						if (event.searchEverywhere) {
 							searchData[SEARCH_REPOSITORY_ID] = instance._config.repositories[0].id;
-							searchData[STR_SEARCH_FOLDER_ID] = DEFAULT_FOLDER_ID;
+							searchData[STR_SEARCH_FOLDER_ID] = instance._config.folders.rootFolderId;
 							searchData[STR_SHOW_REPOSITORY_TABS] = true;
 						}
 						else {
@@ -434,6 +457,28 @@ AUI.add(
 						);
 					},
 
+					_plugUpload: function(event, config) {
+						var instance = this;
+
+						instance.plug(
+							Liferay.DocumentLibraryUpload,
+							{
+								appViewEntryTemplates: config.appViewEntryTemplates,
+								appViewMove: instance._appViewMove,
+								columnNames: config.columnNames,
+								dimensions: config.folders.dimensions,
+								displayStyle: config.displayStyle,
+								entriesContainer: instance._entriesContainer,
+								folderId: instance._folderId,
+								listViewContainer: instance.byId('listViewContainer'),
+								maxFileSize: config.maxFileSize,
+								redirect: config.redirect,
+								uploadURL: config.uploadURL,
+								viewFileEntryURL: config.viewFileEntryURL
+							}
+						);
+					},
+
 					_searchFileEntry: function(searchData) {
 						var instance = this;
 
@@ -548,6 +593,36 @@ AUI.add(
 						}
 					},
 
+					_toggleSyncNotification: function() {
+						var instance = this;
+
+						if (instance._syncMessage) {
+							var entryPagination = instance._appViewPaginator.get('entryPagination');
+
+							var syncMessageBoundingBox = instance._syncMessage.get('boundingBox');
+
+							syncMessageBoundingBox.toggleClass(CSS_SYNC_MESSAGE_HIDDEN, entryPagination.get('total') <= 0);
+						}
+					},
+
+					_toggleTrashAction: function() {
+						var instance = this;
+
+						var trashEnabled = instance._config.trashEnabled;
+
+						if (trashEnabled) {
+							var repositoryId = instance._appViewSelect.get(STR_SELECTED_FOLDER).repositoryId;
+
+							var scopeGroupId = instance._config.scopeGroupId;
+
+							trashEnabled = (scopeGroupId === repositoryId);
+						}
+
+						instance.one('#deleteAction').toggle(!trashEnabled);
+
+						instance.one('#moveToTrashAction').toggle(trashEnabled);
+					},
+
 					_tuneStateChangeParams: function(requestParams) {
 						var instance = this;
 
@@ -574,36 +649,6 @@ AUI.add(
 
 							requestParams[instance.ns(SEARCH_TYPE)] = SEARCH_TYPE_SINGLE;
 						}
-					},
-
-					_toggleSyncNotification: function() {
-						var instance = this;
-
-						if (instance._syncMessage) {
-							var entryPagination = instance._appViewPaginator.get('entryPagination');
-
-							var syncMessageBoundingBox = instance._syncMessage.get('boundingBox');
-
-							syncMessageBoundingBox.toggleClass(CSS_SYNC_MESSAGE_HIDDEN, entryPagination.get('total') <= 0);
-						}
-					},
-
-					_toggleTrashAction: function() {
-						var instance = this;
-
-						var trashEnabled = instance._config.trashEnabled;
-
-						if (trashEnabled) {
-							var repositoryId = instance._appViewSelect.get(STR_SELECTED_FOLDER).repositoryId;
-
-							var scopeGroupId = themeDisplay.getScopeGroupId();
-
-							trashEnabled = (scopeGroupId === repositoryId);
-						}
-
-						instance.one('#deleteAction').toggle(!trashEnabled);
-
-						instance.one('#moveToTrashAction').toggle(trashEnabled);
 					}
 				}
 			}
@@ -617,6 +662,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-loading-mask-deprecated', 'aui-parse-content', 'document-library-upload', 'event-simulate', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-history-manager', 'liferay-message', 'liferay-portlet-base', 'liferay-storage-formatter', 'querystring-parse-simple']
+		requires: ['aui-loading-mask-deprecated', 'document-library-upload', 'event-simulate', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-history-manager', 'liferay-message', 'liferay-portlet-base']
 	}
 );

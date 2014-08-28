@@ -23,6 +23,7 @@ import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
+import com.liferay.portlet.documentlibrary.util.RepositoryModelUtil;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
 import java.io.Serializable;
@@ -37,7 +38,7 @@ import java.util.Map;
 public class LiferayFolder extends LiferayModel implements Folder {
 
 	public LiferayFolder(DLFolder dlFolder) {
-		_dlFolder = dlFolder;
+		this(dlFolder, false);
 	}
 
 	public LiferayFolder(DLFolder dlFolder, boolean escapedModel) {
@@ -72,7 +73,7 @@ public class LiferayFolder extends LiferayModel implements Folder {
 	@Override
 	public boolean containsPermission(
 			PermissionChecker permissionChecker, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return DLFolderPermission.contains(
 			permissionChecker, _dlFolder, actionId);
@@ -98,15 +99,13 @@ public class LiferayFolder extends LiferayModel implements Folder {
 	}
 
 	@Override
-	public List<Long> getAncestorFolderIds()
-		throws PortalException, SystemException {
-
+	public List<Long> getAncestorFolderIds() throws PortalException {
 		return _dlFolder.getAncestorFolderIds();
 	}
 
 	@Override
-	public List<Folder> getAncestors() throws PortalException, SystemException {
-		return toFolders(_dlFolder.getAncestors());
+	public List<Folder> getAncestors() throws PortalException {
+		return RepositoryModelUtil.toFolders(_dlFolder.getAncestors());
 	}
 
 	@Override
@@ -177,7 +176,7 @@ public class LiferayFolder extends LiferayModel implements Folder {
 	}
 
 	@Override
-	public Folder getParentFolder() throws PortalException, SystemException {
+	public Folder getParentFolder() throws PortalException {
 		DLFolder dlParentFolder = _dlFolder.getParentFolder();
 
 		if (dlParentFolder == null) {
@@ -224,7 +223,7 @@ public class LiferayFolder extends LiferayModel implements Folder {
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		return _dlFolder.getUserUuid();
 	}
 
@@ -412,7 +411,7 @@ public class LiferayFolder extends LiferayModel implements Folder {
 		}
 	}
 
-	private DLFolder _dlFolder;
-	private boolean _escapedModel;
+	private final DLFolder _dlFolder;
+	private final boolean _escapedModel;
 
 }

@@ -52,8 +52,8 @@ public class Logger {
 
 		WebDriver.Window window = options.window();
 
-		window.setPosition(new Point(1000, 50));
-		window.setSize(new Dimension(850, 1250));
+		window.setPosition(new Point(1050, 45));
+		window.setSize(new Dimension(850, 950));
 
 		_javascriptExecutor = (JavascriptExecutor)_webDriver;
 
@@ -182,12 +182,32 @@ public class Logger {
 
 		log("actionCommandLog", sb.toString(), "selenium");
 
+		_screenshotErrorCount++;
+
+		sb = new StringBundler();
+
+		sb.append("<h3>Screenshot of action before failure</h3>");
+		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+		sb.append("<img alt=\"");
+		sb.append(_screenshotCount);
+		sb.append("\" height=\"450\" src=\"screenshots/");
+		sb.append("ScreenshotBeforeAction");
+		sb.append(_screenshotErrorCount - 1);
+		sb.append(".jpg\" width=\"630\" />");
+		sb.append("<br />");
+
+		log("errorLog", sb.toString(), "errorLog");
+
 		_liferaySelenium.saveScreenshot();
 
 		_screenshotCount++;
 
 		sb = new StringBundler();
 
+		sb.append("<h3>Screenshot of action after failure</h3>");
 		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;");
 		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;");
 		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -654,6 +674,7 @@ public class Logger {
 	private boolean _loggerStarted;
 	private int _macroStepCount = 1;
 	private int _screenshotCount;
+	private int _screenshotErrorCount;
 	private int _seleniumCount = 1;
 	private WebDriver _webDriver = new FirefoxDriver();
 	private Stack<String> _xPathIdStack = new Stack<String>();

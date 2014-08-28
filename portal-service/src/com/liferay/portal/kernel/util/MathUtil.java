@@ -40,6 +40,10 @@ public class MathUtil {
 		}
 	}
 
+	public static int difference(Integer value1, Integer value2) {
+		return value1 - value2;
+	}
+
 	public static int factorial(int x) {
 		if (x < 0) {
 			return 0;
@@ -125,6 +129,70 @@ public class MathUtil {
 
 	public static boolean isOdd(int x) {
 		return !isEven(x);
+	}
+
+	public static double product(Double... values) {
+		double product = 1.0;
+
+		for (double value : values) {
+			product *= value;
+		}
+
+		return product;
+	}
+
+	public static int product(Integer... values) {
+		int product = 1;
+
+		for (int value : values) {
+			product *= value;
+		}
+
+		return product;
+	}
+
+	public static long product(Long... values) {
+		long product = 1;
+
+		for (long value : values) {
+			product *= value;
+		}
+
+		return product;
+	}
+
+	public static int quotient(Integer value1, Integer value2) {
+		return value1 / value2;
+	}
+
+	public static double sum(Double... values) {
+		double sum = 0.0;
+
+		for (double value : values) {
+			sum += value;
+		}
+
+		return sum;
+	}
+
+	public static int sum(Integer... values) {
+		int sum = 0;
+
+		for (int value : values) {
+			sum += value;
+		}
+
+		return sum;
+	}
+
+	public static long sum(Long... values) {
+		long sum = 0;
+
+		for (long value : values) {
+			sum += value;
+		}
+
+		return sum;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(MathUtil.class);

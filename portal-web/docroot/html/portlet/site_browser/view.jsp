@@ -63,7 +63,7 @@ portletURL.setParameter("target", target);
 		<c:if test='<%= !type.equals("parent-sites") || (types.length > 1) %>'>
 			<aui:nav-bar>
 				<c:if test="<%= types.length > 1 %>">
-					<aui:nav searchContainer="<%= searchContainer %>">
+					<aui:nav cssClass="navbar-nav" searchContainer="<%= searchContainer %>">
 
 						<%
 						for (String curType : types) {
@@ -80,7 +80,7 @@ portletURL.setParameter("target", target);
 				</c:if>
 
 				<c:if test='<%= !type.equals("parent-sites") %>'>
-					<aui:nav-bar-search cssClass="navbar-search-advanced" file="/html/portlet/users_admin/group_search.jsp" searchContainer="<%= searchContainer %>" />
+					<aui:nav-bar-search file="/html/portlet/users_admin/group_search.jsp" searchContainer="<%= searchContainer %>" />
 				</c:if>
 			</aui:nav-bar>
 		</c:if>
@@ -203,7 +203,7 @@ portletURL.setParameter("target", target);
 
 			<liferay-ui:search-container-column-text
 				name="type"
-				value="<%= LanguageUtil.get(pageContext, group.getScopeLabel(themeDisplay)) %>"
+				value="<%= LanguageUtil.get(request, group.getScopeLabel(themeDisplay)) %>"
 			/>
 
 			<liferay-ui:search-container-column-text>

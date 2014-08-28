@@ -146,6 +146,10 @@ public class IndexAccessorImpl implements IndexAccessor {
 		catch (Exception e) {
 			_log.error("Closing Lucene writer failed for " + _companyId, e);
 		}
+
+		if (_scheduledExecutorService != null) {
+			_scheduledExecutorService.shutdownNow();
+		}
 	}
 
 	@Override
@@ -242,27 +246,29 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 		IndexReader indexReader = IndexReader.open(tempDirectory, false);
 
-		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+		if (indexReader.numDocs() > 0) {
+			IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 
-		try {
-			TopDocs topDocs = indexSearcher.search(
-				new MatchAllDocsQuery(), indexReader.numDocs());
+			try {
+				TopDocs topDocs = indexSearcher.search(
+					new MatchAllDocsQuery(), indexReader.numDocs());
 
-			ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+				ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
-			for (ScoreDoc scoreDoc : scoreDocs) {
-				Document document = indexSearcher.doc(scoreDoc.doc);
+				for (ScoreDoc scoreDoc : scoreDocs) {
+					Document document = indexSearcher.doc(scoreDoc.doc);
 
-				addDocument(document);
+					addDocument(document);
+				}
 			}
-		}
-		catch (IllegalArgumentException iae) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(iae.getMessage());
+			catch (IllegalArgumentException iae) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(iae.getMessage());
+				}
 			}
-		}
 
-		indexSearcher.close();
+			indexSearcher.close();
+		}
 
 		indexReader.flush();
 		indexReader.close();
@@ -457,7 +463,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 			return;
 		}
 
-		ScheduledExecutorService scheduledExecutorService =
+		_scheduledExecutorService =
 			Executors.newSingleThreadScheduledExecutor();
 
 		Runnable runnable = new Runnable() {
@@ -476,7 +482,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 		};
 
-		scheduledExecutorService.scheduleWithFixedDelay(
+		_scheduledExecutorService.scheduleWithFixedDelay(
 			runnable, 0, PropsValues.LUCENE_COMMIT_TIME_INTERVAL,
 			TimeUnit.MILLISECONDS);
 	}
@@ -548,6 +554,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 	private IndexSearcherManager _indexSearcherManager;
 	private IndexWriter _indexWriter;
 	private String _path;
+	private ScheduledExecutorService _scheduledExecutorService;
 
 	private static class InvalidateProcessCallable
 		implements ProcessCallable<Serializable> {

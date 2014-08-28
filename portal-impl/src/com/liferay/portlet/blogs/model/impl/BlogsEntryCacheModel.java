@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.blogs.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
@@ -34,11 +36,12 @@ import java.util.Date;
  * @see BlogsEntry
  * @generated
  */
+@ProviderType
 public class BlogsEntryCacheModel implements CacheModel<BlogsEntry>,
 	Externalizable {
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(47);
+		StringBundler sb = new StringBundler(49);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -58,6 +61,8 @@ public class BlogsEntryCacheModel implements CacheModel<BlogsEntry>,
 		sb.append(modifiedDate);
 		sb.append(", title=");
 		sb.append(title);
+		sb.append(", subtitle=");
+		sb.append(subtitle);
 		sb.append(", urlTitle=");
 		sb.append(urlTitle);
 		sb.append(", description=");
@@ -133,6 +138,13 @@ public class BlogsEntryCacheModel implements CacheModel<BlogsEntry>,
 		}
 		else {
 			blogsEntryImpl.setTitle(title);
+		}
+
+		if (subtitle == null) {
+			blogsEntryImpl.setSubtitle(StringPool.BLANK);
+		}
+		else {
+			blogsEntryImpl.setSubtitle(subtitle);
 		}
 
 		if (urlTitle == null) {
@@ -216,6 +228,7 @@ public class BlogsEntryCacheModel implements CacheModel<BlogsEntry>,
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
 		title = objectInput.readUTF();
+		subtitle = objectInput.readUTF();
 		urlTitle = objectInput.readUTF();
 		description = objectInput.readUTF();
 		content = objectInput.readUTF();
@@ -262,6 +275,13 @@ public class BlogsEntryCacheModel implements CacheModel<BlogsEntry>,
 		}
 		else {
 			objectOutput.writeUTF(title);
+		}
+
+		if (subtitle == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(subtitle);
 		}
 
 		if (urlTitle == null) {
@@ -328,6 +348,7 @@ public class BlogsEntryCacheModel implements CacheModel<BlogsEntry>,
 	public long createDate;
 	public long modifiedDate;
 	public String title;
+	public String subtitle;
 	public String urlTitle;
 	public String description;
 	public String content;

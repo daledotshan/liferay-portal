@@ -91,7 +91,7 @@ String jobTitle = BeanParamUtil.getString(selUser, request, "jobTitle");
 		<aui:input name="jobTitle" type="hidden" value="<%= jobTitle %>" />
 	</aui:form>
 
-	<div class="alert alert-block">
+	<div class="alert alert-warning">
 		<liferay-ui:message arguments="<%= emailAddress %>" key="an-account-with-x-as-the-email-address-already-exists-in-the-portal.-do-you-want-to-associate-this-activity-with-that-account" translateArguments="<%= false %>" />
 	</div>
 
@@ -102,13 +102,13 @@ String jobTitle = BeanParamUtil.getString(selUser, request, "jobTitle");
 
 <aui:script>
 	function <portlet:namespace />resetUser() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.RESET %>";
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= Constants.RESET %>';
 
 		submitForm(document.<portlet:namespace />fm);
 	}
 
 	function <portlet:namespace />updateUser() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= Constants.UPDATE %>";
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= Constants.UPDATE %>';
 
 		submitForm(document.<portlet:namespace />fm);
 	}

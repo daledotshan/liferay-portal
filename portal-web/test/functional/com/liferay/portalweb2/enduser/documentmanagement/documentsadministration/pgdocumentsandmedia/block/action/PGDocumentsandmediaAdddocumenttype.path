@@ -25,7 +25,7 @@
 </tr>
 <tr>
 	<td>ERROR_MESSAGE</td>
-	<td>//div[contains(@class,'alert-error')]</td>
+	<td>//div[(contains(@class,'alert-error') or contains(@class,'alert-danger'))]</td>
 	<td></td>
 </tr>
 <tr>
@@ -45,7 +45,7 @@
 </tr>
 <tr>
 	<td>CANCEL_BUTTON</td>
-	<td>//button[contains(.,'Cancel')]</td>
+	<td>//a[contains(@class,'btn-cancel')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -85,7 +85,7 @@
 </tr>
 <tr>
 	<td>BOOLEAN_CHECKBOX</td>
-	<td>//div[contains(@data-fieldname,'${key_fieldName}')]//input[2]</td>
+	<td>//div[contains(@data-fieldname,'${key_fieldName}')]//input</td>
 	<td></td>
 </tr>
 <tr>
@@ -130,7 +130,7 @@
 </tr>
 <tr>
 	<td>LINK_TO_PAGE_SELECT_OPTION</td>
-	<td>//option[contains(.,'${key_recordFieldData}')]</td>
+	<td>//option[contains(.,'${key_ddlRecordFieldData}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -165,12 +165,12 @@
 </tr>
 <tr>
 	<td>RADIO_OPTION_LABEL</td>
-	<td>//div[contains(@data-fieldname,'${key_fieldName}')]/label[contains(.,'${key_recordFieldData}')]</td>
+	<td>//div[contains(@data-fieldname,'${key_fieldName}')]/label[contains(.,'${key_ddlRecordFieldData}')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>RADIO_OPTION_RADIO</td>
-	<td>//div[contains(@data-fieldname,'${key_fieldName}')]/label[contains(.,'${key_recordFieldData}')]/input</td>
+	<td>//div[contains(@data-fieldname,'${key_fieldName}')]/label[contains(.,'${key_ddlRecordFieldData}')]/input</td>
 	<td></td>
 </tr>
 <tr>
