@@ -23,13 +23,13 @@ PasswordPolicy passwordPolicy = (PasswordPolicy)request.getAttribute("user.passw
 
 boolean passwordResetDisabled = false;
 
-if (((selUser == null) || (selUser.getLastLoginDate() == null)) && ((passwordPolicy == null) || (passwordPolicy.isChangeable() && passwordPolicy.isChangeRequired()))) {
+if (((selUser == null) || (selUser.getLastLoginDate() == null)) && ((passwordPolicy == null) || (passwordPolicy.isChangeable() && passwordPolicy.isChangeRequired())) || !passwordPolicy.isChangeable()) {
 	passwordResetDisabled = true;
 }
 
 boolean passwordReset = false;
 
-if (passwordResetDisabled) {
+if (passwordResetDisabled && passwordPolicy.isChangeable()) {
 	passwordReset = true;
 }
 else {

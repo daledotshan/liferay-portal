@@ -16,6 +16,8 @@ package com.liferay.portal.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.exception.PortalException;
+
 /**
  * Provides a wrapper for {@link UserLocalService}.
  *
@@ -163,9 +165,12 @@ public class UserLocalServiceWrapper implements UserLocalService,
 	*
 	* @param passwordPolicyId the primary key of the password policy
 	* @param userIds the primary keys of the users
+	* @throws PortalException if a password policy with the primary key could
+	not be found
 	*/
 	@Override
-	public void addPasswordPolicyUsers(long passwordPolicyId, long[] userIds) {
+	public void addPasswordPolicyUsers(long passwordPolicyId, long[] userIds) 
+		throws PortalException{
 		_userLocalService.addPasswordPolicyUsers(passwordPolicyId, userIds);
 	}
 

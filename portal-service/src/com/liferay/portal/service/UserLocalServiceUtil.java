@@ -17,6 +17,7 @@ package com.liferay.portal.service;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
 
 /**
@@ -165,9 +166,11 @@ public class UserLocalServiceUtil {
 	*
 	* @param passwordPolicyId the primary key of the password policy
 	* @param userIds the primary keys of the users
+	* @throws PortalException if a password policy with the primary key could
+	not be found
 	*/
 	public static void addPasswordPolicyUsers(long passwordPolicyId,
-		long[] userIds) {
+		long[] userIds) throws PortalException{
 		getService().addPasswordPolicyUsers(passwordPolicyId, userIds);
 	}
 
