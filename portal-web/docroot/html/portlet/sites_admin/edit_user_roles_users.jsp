@@ -95,15 +95,17 @@ PortletURL portletURL = (PortletURL)request.getAttribute("edit_user_roles.jsp-po
 		/>
 	</liferay-ui:search-container-row>
 
-	<div class="separator"><!-- --></div>
+	<c:if test="<%= !results.isEmpty() %>">
+		<div class="separator"><!-- --></div>
 
-	<%
-	portletURL.setParameter("cur", String.valueOf(cur));
+		<%
+		portletURL.setParameter("cur", String.valueOf(cur));
 
-	String taglibOnClick = renderResponse.getNamespace() + "updateUserGroupRoleUsers('" + portletURL.toString() + "');";
-	%>
+		String taglibOnClick = renderResponse.getNamespace() + "updateUserGroupRoleUsers('" + portletURL.toString() + "');";
+		%>
 
-	<aui:button onClick="<%= taglibOnClick %>" primary="<%= true %>" value="update-associations" />
+		<aui:button onClick="<%= taglibOnClick %>" primary="<%= true %>" value="update-associations" />
+	</c:if>
 
 	<liferay-ui:search-iterator />
 </liferay-ui:search-container>

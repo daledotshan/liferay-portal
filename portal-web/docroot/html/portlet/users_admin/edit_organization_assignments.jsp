@@ -112,13 +112,15 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "assign-
 			/>
 		</liferay-ui:search-container-row>
 
-		<div class="separator"><!-- --></div>
+		<c:if test="<%= !results.isEmpty() %>">
+			<div class="separator"><!-- --></div>
 
-		<%
-		String taglibOnClick = renderResponse.getNamespace() + "updateOrganizationUsers('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
-		%>
+			<%
+			String taglibOnClick = renderResponse.getNamespace() + "updateOrganizationUsers('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
+			%>
 
-		<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+			<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+		</c:if>
 
 		<liferay-ui:search-iterator />
 	</liferay-ui:search-container>

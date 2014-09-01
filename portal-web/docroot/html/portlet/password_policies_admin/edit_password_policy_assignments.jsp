@@ -145,13 +145,15 @@ portletURL.setParameter("tabs3", tabs3);
 					/>
 				</liferay-ui:search-container-row>
 
-				<div class="separator"><!-- --></div>
+				<c:if test="<%= !results.isEmpty() %>">
+					<div class="separator"><!-- --></div>
 
-				<%
-				String taglibOnClick = renderResponse.getNamespace() + "updatePasswordPolicyUsers('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
-				%>
+					<%
+					String taglibOnClick = renderResponse.getNamespace() + "updatePasswordPolicyUsers('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
+					%>
 
-				<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+					<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+				</c:if>
 
 				<liferay-ui:search-iterator />
 			</liferay-ui:search-container>
@@ -262,13 +264,15 @@ portletURL.setParameter("tabs3", tabs3);
 					</liferay-ui:search-container-column-text>
 				</liferay-ui:search-container-row>
 
-				<div class="separator"><!-- --></div>
+				<c:if test="<%= !results.isEmpty() %>">
+					<div class="separator"><!-- --></div>
 
-				<%
-				String taglibOnClick = renderResponse.getNamespace() + "updatePasswordPolicyOrganizations('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
-				%>
+					<%
+					String taglibOnClick = renderResponse.getNamespace() + "updatePasswordPolicyOrganizations('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
+					%>
 
-				<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+					<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+				</c:if>
 
 				<liferay-ui:search-iterator />
 			</liferay-ui:search-container>

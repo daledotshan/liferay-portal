@@ -86,13 +86,15 @@ portletURL.setParameter("p_u_i_d", String.valueOf(selUser.getUserId()));
 	updateRoleAssignmentsURL.setParameter("groupId", String.valueOf(group.getGroupId()));
 	%>
 
-	<div class="separator"><!-- --></div>
+	<c:if test="<%= !results.isEmpty() %>">
+		<div class="separator"><!-- --></div>
 
-	<%
-	String taglibOnClick = renderResponse.getNamespace() + "updateUserGroupRole('" + updateRoleAssignmentsURL.toString() + "');";
-	%>
+		<%
+		String taglibOnClick = renderResponse.getNamespace() + "updateUserGroupRole('" + updateRoleAssignmentsURL.toString() + "');";
+		%>
 
-	<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+		<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+	</c:if>
 
 	<liferay-ui:search-container-row
 		className="com.liferay.portal.model.Role"

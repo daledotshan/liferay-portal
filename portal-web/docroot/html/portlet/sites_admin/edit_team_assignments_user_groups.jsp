@@ -86,15 +86,17 @@ PortletURL portletURL = (PortletURL)request.getAttribute("edit_team_assignments.
 		/>
 	</liferay-ui:search-container-row>
 
-	<div class="separator"><!-- --></div>
+	<c:if test="<%= !results.isEmpty() %>">
+		<div class="separator"><!-- --></div>
 
-	<%
-	portletURL.setParameter("cur", String.valueOf(cur));
+		<%
+		portletURL.setParameter("cur", String.valueOf(cur));
 
-	String taglibOnClick = renderResponse.getNamespace() + "updateTeamUserGroups('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
-	%>
+		String taglibOnClick = renderResponse.getNamespace() + "updateTeamUserGroups('" + portletURL.toString() + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur=" + cur + "');";
+		%>
 
-	<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+		<aui:button onClick="<%= taglibOnClick %>" value="update-associations" />
+	</c:if>
 
 	<liferay-ui:search-iterator />
 </liferay-ui:search-container>
