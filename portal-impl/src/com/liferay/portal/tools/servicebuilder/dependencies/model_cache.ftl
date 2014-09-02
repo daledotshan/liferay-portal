@@ -2,6 +2,8 @@ package ${packagePath}.model.impl;
 
 import ${packagePath}.model.${entity.name};
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
@@ -13,6 +15,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * The cache model class for representing ${entity.name} in entity cache.
@@ -21,6 +24,7 @@ import java.util.Date;
  * @see ${entity.name}
  * @generated
  */
+@ProviderType
 public class ${entity.name}CacheModel implements CacheModel<${entity.name}>, Externalizable
 	<#if entity.isMvccEnabled()>
 		, MVCCModel
@@ -94,7 +98,7 @@ public class ${entity.name}CacheModel implements CacheModel<${entity.name}>, Ext
 		${entity.varName}Impl.resetOriginalValues();
 
 		<#list cacheFields as cacheField>
-			<#assign methodName = textFormatter.format(serviceBuilder.getVariableName(cacheField), 6)>
+			<#assign methodName = serviceBuilder.getCacheFieldMethodName(cacheField)>
 
 			${entity.varName}Impl.set${methodName}(${cacheField.name});
 		</#list>

@@ -20,8 +20,9 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.process.ClassPathUtil;
 import com.liferay.portal.kernel.process.ProcessCallable;
+import com.liferay.portal.kernel.process.ProcessChannel;
 import com.liferay.portal.kernel.process.ProcessException;
-import com.liferay.portal.kernel.process.ProcessExecutor;
+import com.liferay.portal.kernel.process.ProcessExecutorUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
@@ -109,8 +110,7 @@ public class TikaRawMetadataProcessor extends XugglerRawMetadataProcessor {
 
 	@Override
 	protected Metadata extractMetadata(
-			String extension, String mimeType, File file)
-		throws SystemException {
+		String extension, String mimeType, File file) {
 
 		Metadata metadata = super.extractMetadata(extension, mimeType, file);
 
@@ -130,9 +130,13 @@ public class TikaRawMetadataProcessor extends XugglerRawMetadataProcessor {
 				new ExtractMetadataProcessCallable(file, metadata, _parser);
 
 			try {
-				Future<Metadata> future = ProcessExecutor.execute(
-					ClassPathUtil.getPortalClassPath(),
-					extractMetadataProcessCallable);
+				ProcessChannel<Metadata> processChannel =
+					ProcessExecutorUtil.execute(
+						ClassPathUtil.getPortalProcessConfig(),
+						extractMetadataProcessCallable);
+
+				Future<Metadata> future =
+					processChannel.getProcessNoticeableFuture();
 
 				return future.get();
 			}
@@ -158,8 +162,7 @@ public class TikaRawMetadataProcessor extends XugglerRawMetadataProcessor {
 
 	@Override
 	protected Metadata extractMetadata(
-			String extension, String mimeType, InputStream inputStream)
-		throws SystemException {
+		String extension, String mimeType, InputStream inputStream) {
 
 		Metadata metadata = super.extractMetadata(
 			extension, mimeType, inputStream);
@@ -184,9 +187,13 @@ public class TikaRawMetadataProcessor extends XugglerRawMetadataProcessor {
 				ExtractMetadataProcessCallable extractMetadataProcessCallable =
 					new ExtractMetadataProcessCallable(file, metadata, _parser);
 
-				Future<Metadata> future = ProcessExecutor.execute(
-					ClassPathUtil.getPortalClassPath(),
-					extractMetadataProcessCallable);
+				ProcessChannel<Metadata> processChannel =
+					ProcessExecutorUtil.execute(
+						ClassPathUtil.getPortalProcessConfig(),
+						extractMetadataProcessCallable);
+
+				Future<Metadata> future =
+					processChannel.getProcessNoticeableFuture();
 
 				return future.get();
 			}

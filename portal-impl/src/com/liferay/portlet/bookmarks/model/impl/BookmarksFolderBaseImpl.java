@@ -14,8 +14,9 @@
 
 package com.liferay.portlet.bookmarks.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 
@@ -37,6 +38,7 @@ import java.util.List;
  * @see com.liferay.portlet.bookmarks.model.BookmarksFolder
  * @generated
  */
+@ProviderType
 public abstract class BookmarksFolderBaseImpl extends BookmarksFolderModelImpl
 	implements BookmarksFolder {
 	/*
@@ -45,7 +47,7 @@ public abstract class BookmarksFolderBaseImpl extends BookmarksFolderModelImpl
 	 * Never modify or reference this class directly. All methods that expect a bookmarks folder model instance should use the {@link BookmarksFolder} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			BookmarksFolderLocalServiceUtil.addBookmarksFolder(this);
 		}
@@ -56,7 +58,7 @@ public abstract class BookmarksFolderBaseImpl extends BookmarksFolderModelImpl
 
 	@Override
 	@SuppressWarnings("unused")
-	public String buildTreePath() throws PortalException, SystemException {
+	public String buildTreePath() throws PortalException {
 		List<BookmarksFolder> bookmarksFolders = new ArrayList<BookmarksFolder>();
 
 		BookmarksFolder bookmarksFolder = this;
@@ -82,7 +84,7 @@ public abstract class BookmarksFolderBaseImpl extends BookmarksFolderModelImpl
 	}
 
 	@Override
-	public void updateTreePath(String treePath) throws SystemException {
+	public void updateTreePath(String treePath) {
 		BookmarksFolder bookmarksFolder = this;
 
 		bookmarksFolder.setTreePath(treePath);

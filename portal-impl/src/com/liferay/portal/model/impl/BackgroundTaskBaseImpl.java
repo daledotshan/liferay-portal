@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.service.BackgroundTaskLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.BackgroundTaskLocalServiceUtil;
  * @see com.liferay.portal.model.BackgroundTask
  * @generated
  */
+@ProviderType
 public abstract class BackgroundTaskBaseImpl extends BackgroundTaskModelImpl
 	implements BackgroundTask {
 	/*
@@ -38,7 +40,7 @@ public abstract class BackgroundTaskBaseImpl extends BackgroundTaskModelImpl
 	 * Never modify or reference this class directly. All methods that expect a background task model instance should use the {@link BackgroundTask} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			BackgroundTaskLocalServiceUtil.addBackgroundTask(this);
 		}

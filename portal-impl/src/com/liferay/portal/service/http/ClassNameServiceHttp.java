@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -49,10 +51,10 @@ import com.liferay.portal.service.ClassNameServiceUtil;
  * @see com.liferay.portal.service.ClassNameServiceUtil
  * @generated
  */
+@ProviderType
 public class ClassNameServiceHttp {
 	public static com.liferay.portal.model.ClassName fetchClassName(
-		HttpPrincipal httpPrincipal, java.lang.String value)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		HttpPrincipal httpPrincipal, java.lang.String value) {
 		try {
 			MethodKey methodKey = new MethodKey(ClassNameServiceUtil.class,
 					"fetchClassName", _fetchClassNameParameterTypes0);
@@ -65,10 +67,6 @@ public class ClassNameServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -82,8 +80,7 @@ public class ClassNameServiceHttp {
 	}
 
 	public static long fetchClassNameId(HttpPrincipal httpPrincipal,
-		java.lang.Class<?> clazz)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		java.lang.Class<?> clazz) {
 		try {
 			MethodKey methodKey = new MethodKey(ClassNameServiceUtil.class,
 					"fetchClassNameId", _fetchClassNameIdParameterTypes1);
@@ -109,8 +106,7 @@ public class ClassNameServiceHttp {
 	}
 
 	public static long fetchClassNameId(HttpPrincipal httpPrincipal,
-		java.lang.String value)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		java.lang.String value) {
 		try {
 			MethodKey methodKey = new MethodKey(ClassNameServiceUtil.class,
 					"fetchClassNameId", _fetchClassNameIdParameterTypes2);

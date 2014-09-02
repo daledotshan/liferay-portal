@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.OrganizationConstants;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
-import com.liferay.portal.service.persistence.OrganizationActionableDynamicQuery;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 
@@ -58,8 +57,9 @@ public class OrganizationIndexer extends BaseIndexer {
 	public static final String PORTLET_ID = PortletKeys.USERS_ADMIN;
 
 	public OrganizationIndexer() {
+		setCommitImmediately(true);
 		setDefaultSelectedFieldNames(
-			new String[] {Field.COMPANY_ID, Field.ORGANIZATION_ID, Field.UID});
+			Field.COMPANY_ID, Field.ORGANIZATION_ID, Field.UID);
 		setIndexerEnabled(PropsValues.ORGANIZATIONS_INDEXER_ENABLED);
 		setPermissionAware(true);
 		setStagingAware(false);
@@ -221,14 +221,7 @@ public class OrganizationIndexer extends BaseIndexer {
 
 	@Override
 	protected void doReindex(Object obj) throws Exception {
-		if (obj instanceof List<?>) {
-			List<Organization> organizations = (List<Organization>)obj;
-
-			for (Organization organization : organizations) {
-				doReindex(organization);
-			}
-		}
-		else if (obj instanceof Long) {
+		if (obj instanceof Long) {
 			long organizationId = (Long)obj;
 
 			Organization organization =
@@ -273,7 +266,8 @@ public class OrganizationIndexer extends BaseIndexer {
 				Collection<Document> documents = entry.getValue();
 
 				SearchEngineUtil.updateDocuments(
-					getSearchEngineId(), companyId, documents);
+					getSearchEngineId(), companyId, documents,
+					isCommitImmediately());
 			}
 		}
 		else if (obj instanceof Organization) {
@@ -282,7 +276,8 @@ public class OrganizationIndexer extends BaseIndexer {
 			Document document = getDocument(organization);
 
 			SearchEngineUtil.updateDocument(
-				getSearchEngineId(), organization.getCompanyId(), document);
+				getSearchEngineId(), organization.getCompanyId(), document,
+				isCommitImmediately());
 		}
 	}
 
@@ -307,21 +302,25 @@ public class OrganizationIndexer extends BaseIndexer {
 	}
 
 	protected void reindexOrganizations(long companyId) throws Exception {
-		ActionableDynamicQuery actionableDynamicQuery =
-			new OrganizationActionableDynamicQuery() {
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				Organization organization = (Organization)object;
-
-				Document document = getDocument(organization);
-
-				addDocument(document);
-			}
-
-		};
+		final ActionableDynamicQuery actionableDynamicQuery =
+			OrganizationLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					Organization organization = (Organization)object;
+
+					Document document = getDocument(organization);
+
+					actionableDynamicQuery.addDocument(document);
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

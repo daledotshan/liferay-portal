@@ -1,31 +1,31 @@
 <#include "../init.ftl">
 
-<#if (fieldRawValue?? && fieldRawValue != "")>
-	<#assign fieldLayoutJSONObject = jsonFactoryUtil.createJSONObject(fieldRawValue)>
+<div class="field-wrapper-content lfr-forms-field-wrapper">
+	<label>
+		<@liferay_ui.message key=escape(label) />
+	</label>
 
-	<#assign layoutLocalService = serviceLocator.findService("com.liferay.portal.service.LayoutLocalService")>
+	<#if (fieldRawValue?? && fieldRawValue != "")>
+		<#if !disabled>
+			<@aui.input name=namespacedFieldName type="hidden" value=fieldValue />
+		</#if>
 
-	<#if (fieldLayoutJSONObject.getLong("groupId") > 0)>
-		<#assign fieldLayoutGroupId = fieldLayoutJSONObject.getLong("groupId")>
-	<#else>
-		<#assign fieldLayoutGroupId = scopeGroupId>
-	</#if>
+		<#assign fieldLayoutJSONObject = jsonFactoryUtil.createJSONObject(fieldRawValue)>
 
-	<#assign fieldLayout = layoutLocalService.fetchLayout(fieldLayoutGroupId, fieldLayoutJSONObject.getBoolean("privateLayout"), fieldLayoutJSONObject.getLong("layoutId"))!"">
+		<#assign layoutLocalService = serviceLocator.findService("com.liferay.portal.service.LayoutLocalService")>
 
-	<#if (fieldLayout?? && fieldLayout != "")>
-		<div class="field-wrapper-content lfr-forms-field-wrapper">
-			<#if !disabled>
-				<@aui.input name=namespacedFieldName type="hidden" value=fieldValue />
-			</#if>
+		<#if (fieldLayoutJSONObject.getLong("groupId") > 0)>
+			<#assign fieldLayoutGroupId = fieldLayoutJSONObject.getLong("groupId")>
+		<#else>
+			<#assign fieldLayoutGroupId = scopeGroupId>
+		</#if>
 
-			<label>
-				<@liferay_ui.message key=escape(label) />
-			</label>
+		<#assign fieldLayout = layoutLocalService.fetchLayout(fieldLayoutGroupId, fieldLayoutJSONObject.getBoolean("privateLayout"), fieldLayoutJSONObject.getLong("layoutId"))!"">
 
+		<#if (fieldLayout?? && fieldLayout != "")>
 			<a href="${fieldLayout.getRegularURL(request)}">${escape(fieldLayout.getName(requestedLocale))}</a>
-
-			${fieldStructure.children}
-		</div>
+		</#if>
 	</#if>
-</#if>
+
+	${fieldStructure.children}
+</div>

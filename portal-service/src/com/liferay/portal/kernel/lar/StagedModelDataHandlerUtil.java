@@ -17,7 +17,6 @@ package com.liferay.portal.kernel.lar;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -41,7 +40,7 @@ public class StagedModelDataHandlerUtil {
 
 	public static void deleteStagedModel(
 			PortletDataContext portletDataContext, Element deletionElement)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String className = deletionElement.attributeValue("class-name");
 		String extraData = deletionElement.attributeValue("extra-data");
@@ -200,11 +199,7 @@ public class StagedModelDataHandlerUtil {
 			return;
 		}
 
-		Element referenceDataElement =
-			portletDataContext.getReferenceDataElement(
-				referrerStagedModel, stagedModelClass, classPK);
-
-		importStagedModel(portletDataContext, referenceDataElement);
+		importStagedModel(portletDataContext, referenceElement);
 	}
 
 	public static void importReferenceStagedModels(
@@ -244,20 +239,7 @@ public class StagedModelDataHandlerUtil {
 				continue;
 			}
 
-			long groupId = GetterUtil.getLong(
-				referenceElement.attributeValue("group-id"),
-				portletDataContext.getSourceGroupId());
-			long classPK = GetterUtil.getLong(
-				referenceElement.attributeValue("class-pk"));
-
-			String stagedModelPath = ExportImportPathUtil.getModelPath(
-				groupId, stagedModelClass.getName(), classPK);
-
-			StagedModel stagedModel =
-				(StagedModel)portletDataContext.getZipEntryAsObject(
-					stagedModelPath);
-
-			importStagedModel(portletDataContext, stagedModel);
+			importStagedModel(portletDataContext, referenceElement);
 		}
 	}
 
@@ -300,15 +282,56 @@ public class StagedModelDataHandlerUtil {
 			portletDataContext, stagedModel);
 	}
 
+	private static StagedModel _getReferenceStagedModel(
+		PortletDataContext portletDataContext, Element element) {
+
+		long groupId = GetterUtil.getLong(element.attributeValue("group-id"));
+		String className = element.attributeValue("class-name");
+		long classPK = GetterUtil.getLong(element.attributeValue("class-pk"));
+
+		String path = ExportImportPathUtil.getModelPath(
+			groupId, className, classPK);
+
+		StagedModel stagedModel =
+			(StagedModel)portletDataContext.getZipEntryAsObject(path);
+
+		if (stagedModel != null) {
+			return stagedModel;
+		}
+
+		path = ExportImportPathUtil.getCompanyModelPath(
+			portletDataContext.getSourceCompanyId(), className, classPK);
+
+		return (StagedModel)portletDataContext.getZipEntryAsObject(path);
+	}
+
 	private static StagedModel _getStagedModel(
 		PortletDataContext portletDataContext, Element element) {
 
-		String path = element.attributeValue("path");
+		StagedModel stagedModel = null;
+		Attribute classNameAttribute = null;
 
-		StagedModel stagedModel =
-			(StagedModel)portletDataContext.getZipEntryAsObject(element, path);
+		String elementName = element.getName();
 
-		Attribute classNameAttribute = element.attribute("class-name");
+		if (elementName.equals("reference")) {
+			stagedModel = _getReferenceStagedModel(portletDataContext, element);
+
+			Element referenceStagedModelElement =
+				portletDataContext.getImportDataElement(stagedModel);
+
+			if (referenceStagedModelElement != null) {
+				classNameAttribute = referenceStagedModelElement.attribute(
+					"class-name");
+			}
+		}
+		else {
+			String path = element.attributeValue("path");
+
+			stagedModel = (StagedModel)portletDataContext.getZipEntryAsObject(
+				element, path);
+
+			classNameAttribute = element.attribute("class-name");
+		}
 
 		if ((classNameAttribute != null) &&
 			(stagedModel instanceof TypedModel)) {
