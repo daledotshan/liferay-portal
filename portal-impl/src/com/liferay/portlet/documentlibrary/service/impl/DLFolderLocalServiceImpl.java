@@ -48,11 +48,9 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.WorkflowDefinitionLink;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.bookmarks.model.BookmarksFolderConstants;
-import com.liferay.portlet.documentlibrary.DuplicateFileException;
 import com.liferay.portlet.documentlibrary.DuplicateFolderNameException;
 import com.liferay.portlet.documentlibrary.FolderNameException;
 import com.liferay.portlet.documentlibrary.NoSuchDirectoryException;
-import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.RequiredFileEntryTypeException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
@@ -1190,14 +1188,6 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		validateFolderName(name);
 
 		DLValidatorUtil.validateDirectoryName(name);
-
-		try {
-			dlFileEntryLocalService.getFileEntry(groupId, parentFolderId, name);
-
-			throw new DuplicateFileException(name);
-		}
-		catch (NoSuchFileEntryException nsfee) {
-		}
 
 		DLFolder dlFolder = dlFolderPersistence.fetchByG_P_N(
 			groupId, parentFolderId, name);
