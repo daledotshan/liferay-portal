@@ -25,6 +25,8 @@ long itemId = BeanParamUtil.getLong(item, request, "itemId");
 
 long categoryId = BeanParamUtil.getLong(item, request, "categoryId", ShoppingCategoryConstants.DEFAULT_PARENT_CATEGORY_ID);
 
+boolean hasInfiniteStock = BeanParamUtil.getBoolean(item, request, "hasInfiniteStock");
+
 // Fields
 
 ShoppingItemField[] itemFields = null;
@@ -103,47 +105,40 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 	<liferay-ui:error exception="<%= ItemSKUException.class %>" message="please-enter-a-valid-item-sku" />
 
 	<div class="breadcrumbs">
-		<%= ShoppingUtil.getBreadcrumbs(categoryId, pageContext, renderRequest, renderResponse) %>
+		<%= ShoppingUtil.getBreadcrumbs(categoryId, renderRequest, renderResponse) %>
 	</div>
 
 	<aui:fieldset>
 		<c:if test="<%= item != null %>">
-			<aui:field-wrapper label="category">
 
-				<%
-				String categoryName = "";
+			<%
+			String categoryName = "";
 
-				if (categoryId != ShoppingCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
-					ShoppingCategory category = ShoppingCategoryServiceUtil.getCategory(categoryId);
+			if (categoryId != ShoppingCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
+				ShoppingCategory category = ShoppingCategoryServiceUtil.getCategory(categoryId);
 
-					category = category.toEscapedModel();
+				category = category.toEscapedModel();
 
-					categoryName = category.getName();
-				}
-				%>
+				categoryName = category.getName();
+			}
+			%>
 
-				<portlet:renderURL var="viewCategoryURL">
-					<portlet:param name="struts_action" value="/shopping/view" />
+			<div class="form-group">
+				<aui:input label="category" name="categoryName" type="resource" value="<%= categoryName %>" />
+
+				<portlet:renderURL var="selectCategoryURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+					<portlet:param name="struts_action" value="/shopping/select_category" />
 					<portlet:param name="categoryId" value="<%= String.valueOf(categoryId) %>" />
 				</portlet:renderURL>
 
-				<div class="input-append">
-					<liferay-ui:input-resource id="categoryName" url="<%= categoryName %>" />
+				<%
+				String taglibOpenCategoryWindow = "var categoryWindow = window.open('" + selectCategoryURL + "', 'category', 'directories=no,height=640,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,width=680'); void(''); categoryWindow.focus();";
+				%>
 
-					<portlet:renderURL var="selectCateforyURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-						<portlet:param name="struts_action" value="/shopping/select_category" />
-						<portlet:param name="categoryId" value="<%= String.valueOf(categoryId) %>" />
-					</portlet:renderURL>
+				<aui:button onClick="<%= taglibOpenCategoryWindow %>" value="select" />
 
-					<%
-					String taglibOpenCategoryWindow = "var categoryWindow = window.open('" + selectCateforyURL + "', 'category', 'directories=no,height=640,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no,width=680'); void(''); categoryWindow.focus();";
-					%>
-
-					<aui:button onClick="<%= taglibOpenCategoryWindow %>" value="select" />
-
-					<aui:button onClick='<%= renderResponse.getNamespace() + "removeCategory();" %>' value="remove" />
-				</div>
-			</aui:field-wrapper>
+				<aui:button onClick='<%= renderResponse.getNamespace() + "removeCategory();" %>' value="remove" />
+			</div>
 		</c:if>
 
 		<aui:input bean="<%= item %>" model="<%= ShoppingItem.class %>" name="sku" />
@@ -158,7 +153,9 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 
 		<aui:input bean="<%= item %>" model="<%= ShoppingItem.class %>" name="featured" />
 
-		<c:if test="<%= fieldsCount == 0 %>">
+		<aui:input checked="<%= hasInfiniteStock %>" helpMessage="disable-stock-checking-help" label="disable-stock-checking" name="hasInfiniteStock" onChange='<%= renderResponse.getNamespace() + "toggleInfiniteStock(this);" %>' type="checkbox" />
+
+		<c:if test="<%= (fieldsCount == 0) && !hasInfiniteStock %>">
 			<aui:input bean="<%= item %>" model="<%= ShoppingItem.class %>" name="stockQuantity" />
 		</c:if>
 
@@ -184,6 +181,15 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 			<liferay-ui:message key="fields-are-added-if-you-need-to-distinguish-items-based-on-criteria-chosen-by-the-user" />
 
 			<br /><br />
+
+			<liferay-ui:error exception="<%= DuplicateItemFieldNameException.class %>">
+
+				<%
+				DuplicateItemFieldNameException difne = (DuplicateItemFieldNameException)errorException;
+				%>
+
+				<liferay-ui:message key="field-names-must-be-unique.-the-following-field-names-are-duplicates" /> <%= difne.getMessage() %>.
+			</liferay-ui:error>
 
 			<table class="lfr-table">
 
@@ -222,7 +228,7 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 
 				<tr>
 					<td>
-						<aui:input cssClass="lfr-input-text-container" label="name" name='<%= "fieldName" + i %>' style="width: 100px;" type="text" value="<%= fieldName %>" />
+						<aui:input cssClass="lfr-input-text-container" label="name" maxlength="<%= ModelHintsConstants.TEXT_MAX_LENGTH %>" name='<%= "fieldName" + i %>' style="width: 100px;" type="text" value="<%= fieldName %>" />
 					</td>
 					<td>
 						<aui:input cssClass="lfr-input-text-container" label="values" name='<%= "fieldValues" + i %>' style="width: 100px;" type="text" value='<%= StringUtil.merge(fieldValues, ", ") %>' />
@@ -244,13 +250,13 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 
 			</table>
 
-			<c:if test="<%= fieldsCount > 0 %>">
+			<c:if test="<%= (fieldsCount > 0) && !hasInfiniteStock %>">
 				<br />
 			</c:if>
 
 			<aui:button onClick='<%= renderResponse.getNamespace() + "addField();" %>' value="add-field" />
 
-			<c:if test="<%= fieldsCount > 0 %>">
+			<c:if test="<%= (fieldsCount > 0) && !hasInfiniteStock %>">
 				<aui:button onClick='<%= renderResponse.getNamespace() + "editItemQuantities();" %>' value="edit-stock-quantity" />
 			</c:if>
 
@@ -486,7 +492,7 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 			<aui:fieldset>
 				<aui:input label="small-image-url" name="smallImageURL" />
 
-				<span style="font-size: xx-small;">-- <%= StringUtil.toUpperCase(LanguageUtil.get(pageContext, "or")) %> --</span> <liferay-ui:message key="small-image" />
+				<span style="font-size: xx-small;">-- <%= StringUtil.toUpperCase(LanguageUtil.get(request, "or")) %> --</span> <liferay-ui:message key="small-image" />
 
 				<aui:input label="" name="smallFile" type="file" />
 
@@ -494,7 +500,7 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 
 				<aui:input label="medium-image-url" name="mediumImageURL" />
 
-				<span style="font-size: xx-small;">-- <%= StringUtil.toUpperCase(LanguageUtil.get(pageContext, "or")) %> --</span> <liferay-ui:message key="medium-image" />
+				<span style="font-size: xx-small;">-- <%= StringUtil.toUpperCase(LanguageUtil.get(request, "or")) %> --</span> <liferay-ui:message key="medium-image" />
 
 				<aui:input label="" name="mediumFile" type="file" />
 
@@ -502,7 +508,7 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 
 				<aui:input label="large-image-url" name="largeImageURL" />
 
-				<span style="font-size: xx-small;">-- <%= StringUtil.toUpperCase(LanguageUtil.get(pageContext, "or")) %> --</span> <liferay-ui:message key="large-image" />
+				<span style="font-size: xx-small;">-- <%= StringUtil.toUpperCase(LanguageUtil.get(request, "or")) %> --</span> <liferay-ui:message key="large-image" />
 
 				<aui:input label="" name="largeFile" type="file" />
 
@@ -514,21 +520,21 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 
 <aui:script>
 	function <portlet:namespace />addField() {
-		document.<portlet:namespace />fm.scroll.value = "<portlet:namespace />fields";
+		document.<portlet:namespace />fm.scroll.value = '<portlet:namespace />fields';
 		document.<portlet:namespace />fm.<portlet:namespace />fieldsCount.value = <%= fieldsCount + 1 %>;
 
 		submitForm(document.<portlet:namespace />fm);
 	}
 
 	function <portlet:namespace />addPrice() {
-		document.<portlet:namespace />fm.scroll.value = "<portlet:namespace />prices";
+		document.<portlet:namespace />fm.scroll.value = '<portlet:namespace />prices';
 		document.<portlet:namespace />fm.<portlet:namespace />pricesCount.value = <%= pricesCount + 1 %>;
 
 		submitForm(document.<portlet:namespace />fm);
 	}
 
 	function <portlet:namespace />deleteField(i) {
-		document.<portlet:namespace />fm.scroll.value = "<portlet:namespace />fields";
+		document.<portlet:namespace />fm.scroll.value = '<portlet:namespace />fields';
 		document.<portlet:namespace />fm.<portlet:namespace />fieldsCount.value = <%= fieldsCount - 1 %>;
 		document.<portlet:namespace />fm.<portlet:namespace />fieldId.value = i;
 
@@ -537,10 +543,10 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 
 	function <portlet:namespace />deletePrice(i) {
 		if (document.<portlet:namespace />fm.<portlet:namespace />defaultPrice[i].checked) {
-			alert("<%= UnicodeLanguageUtil.get(pageContext, "you-cannot-delete-or-deactivate-a-default-price") %>");
+			alert('<%= UnicodeLanguageUtil.get(request, "you-cannot-delete-or-deactivate-a-default-price") %>');
 		}
 		else if (document.<portlet:namespace />fm.<portlet:namespace />pricesCount.value > 1) {
-			document.<portlet:namespace />fm.scroll.value = "<portlet:namespace />prices";
+			document.<portlet:namespace />fm.scroll.value = '<portlet:namespace />prices';
 			document.<portlet:namespace />fm.<portlet:namespace />pricesCount.value = <%= pricesCount - 1 %>;
 			document.<portlet:namespace />fm.<portlet:namespace />priceId.value = i;
 
@@ -549,34 +555,34 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 	}
 
 	function <portlet:namespace />editItemQuantities() {
-		var itemQuantitiesURL = "<liferay-portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>" anchor="false"><portlet:param name="struts_action" value="/shopping/edit_item_quantities" /></liferay-portlet:renderURL>&<portlet:namespace />fieldsQuantities=" + document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantities.value;
+		var itemQuantitiesURL = '<liferay-portlet:renderURL anchor="false" windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/shopping/edit_item_quantities" /></liferay-portlet:renderURL>';
 
 		<%
 		for (int i = 0; i < fieldsCount; i++) {
 		%>
 
-			itemQuantitiesURL += "&<portlet:namespace />n<%= i %>=" + encodeURIComponent(document.<portlet:namespace />fm.<portlet:namespace />fieldName<%= i %>.value);
-			itemQuantitiesURL += "&<portlet:namespace />v<%= i %>=" + encodeURIComponent(document.<portlet:namespace />fm.<portlet:namespace />fieldValues<%= i %>.value);
+			itemQuantitiesURL += '&<portlet:namespace />n<%= i %>=' + encodeURIComponent(document.<portlet:namespace />fm.<portlet:namespace />fieldName<%= i %>.value);
+			itemQuantitiesURL += '&<portlet:namespace />v<%= i %>=' + encodeURIComponent(document.<portlet:namespace />fm.<portlet:namespace />fieldValues<%= i %>.value);
 
 		<%
 		}
 		%>
 
-		var itemQuantitiesWindow = window.open(itemQuantitiesURL, "itemQuantities", "directories=no,height=400,location=no,menubar=no,resizable=no,scrollbars=yes,status=no,toolbar=no,width=300");
+		var itemQuantitiesWindow = window.open(itemQuantitiesURL, 'itemQuantities', 'directories=no,height=400,location=no,menubar=no,resizable=no,scrollbars=yes,status=no,toolbar=no,width=300');
 
-		void("");
+		void('');
 
 		itemQuantitiesWindow.focus();
 	}
 
 	function <portlet:namespace />removeCategory() {
-		document.<portlet:namespace />fm.<portlet:namespace />categoryId.value = "<%= ShoppingCategoryConstants.DEFAULT_PARENT_CATEGORY_ID %>";
+		document.<portlet:namespace />fm.<portlet:namespace />categoryId.value = '<%= ShoppingCategoryConstants.DEFAULT_PARENT_CATEGORY_ID %>';
 
 		document.getElementById('<portlet:namespace />categoryName').value = '';
 	}
 
 	function <portlet:namespace />saveItem() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (item == null) ? Constants.ADD : Constants.UPDATE %>";
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= (item == null) ? Constants.ADD : Constants.UPDATE %>';
 
 		submitForm(document.<portlet:namespace />fm);
 	}
@@ -585,5 +591,9 @@ int priceId = ParamUtil.getInteger(request, "priceId", -1);
 		document.<portlet:namespace />fm.<portlet:namespace />categoryId.value = categoryId;
 
 		document.getElementById('<portlet:namespace />categoryName').value = categoryName;
+	}
+
+	function <portlet:namespace />toggleInfiniteStock(checkbox) {
+		submitForm(document.<portlet:namespace />fm);
 	}
 </aui:script>

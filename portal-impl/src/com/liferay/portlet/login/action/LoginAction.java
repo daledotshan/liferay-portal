@@ -207,7 +207,9 @@ public class LoginAction extends PortletAction {
 		if (Validator.isNotNull(redirect)) {
 			redirect = PortalUtil.escapeRedirect(redirect);
 
-			if (!redirect.startsWith(Http.HTTP)) {
+			if (Validator.isNotNull(redirect) &&
+				!redirect.startsWith(Http.HTTP)) {
+
 				redirect = getCompleteRedirectURL(request, redirect);
 			}
 		}
@@ -254,6 +256,12 @@ public class LoginAction extends PortletAction {
 			PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("saveLastPath", Boolean.FALSE.toString());
+
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+		if (Validator.isNotNull(redirect)) {
+			portletURL.setParameter("redirect", redirect);
+		}
 
 		portletURL.setWindowState(WindowState.MAXIMIZED);
 

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
@@ -41,6 +43,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portal.service.LayoutTemplateLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class LayoutTemplateLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements LayoutTemplateLocalService,
 		IdentifiableBean {
@@ -176,7 +179,7 @@ public abstract class LayoutTemplateLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = InfrastructureUtil.getDataSource();
 

@@ -15,7 +15,6 @@
 package com.liferay.portal.kernel.repository.model;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
@@ -78,7 +77,7 @@ public class FileVersionWrapper
 
 	@Override
 	public InputStream getContentStream(boolean incrementCounter)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return _fileVersion.getContentStream(incrementCounter);
 	}
@@ -109,13 +108,18 @@ public class FileVersionWrapper
 	}
 
 	@Override
-	public FileEntry getFileEntry() throws PortalException, SystemException {
+	public FileEntry getFileEntry() throws PortalException {
 		return _fileVersion.getFileEntry();
 	}
 
 	@Override
 	public long getFileEntryId() {
 		return _fileVersion.getFileEntryId();
+	}
+
+	@Override
+	public String getFileName() {
+		return _fileVersion.getFileName();
 	}
 
 	@Override
@@ -199,7 +203,7 @@ public class FileVersionWrapper
 	}
 
 	@Override
-	public String getStatusByUserUuid() throws SystemException {
+	public String getStatusByUserUuid() {
 		return _fileVersion.getStatusByUserUuid();
 	}
 
@@ -224,7 +228,7 @@ public class FileVersionWrapper
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		return _fileVersion.getUserUuid();
 	}
 

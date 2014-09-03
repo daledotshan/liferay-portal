@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.dynamicdatamapping.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.dynamicdatamapping.model.DDMContent;
 import com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalServiceUtil
  * @see com.liferay.portlet.dynamicdatamapping.model.DDMContent
  * @generated
  */
+@ProviderType
 public abstract class DDMContentBaseImpl extends DDMContentModelImpl
 	implements DDMContent {
 	/*
@@ -39,7 +40,7 @@ public abstract class DDMContentBaseImpl extends DDMContentModelImpl
 	 * Never modify or reference this class directly. All methods that expect a d d m content model instance should use the {@link DDMContent} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			DDMContentLocalServiceUtil.addDDMContent(this);
 		}

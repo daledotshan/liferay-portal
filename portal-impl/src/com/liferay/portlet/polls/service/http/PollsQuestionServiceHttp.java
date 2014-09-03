@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.polls.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,6 +53,7 @@ import com.liferay.portlet.polls.service.PollsQuestionServiceUtil;
  * @see com.liferay.portlet.polls.service.PollsQuestionServiceUtil
  * @generated
  */
+@ProviderType
 public class PollsQuestionServiceHttp {
 	public static com.liferay.portlet.polls.model.PollsQuestion addQuestion(
 		HttpPrincipal httpPrincipal,
@@ -60,8 +63,7 @@ public class PollsQuestionServiceHttp {
 		int expirationDateHour, int expirationDateMinute, boolean neverExpire,
 		java.util.List<com.liferay.portlet.polls.model.PollsChoice> choices,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(PollsQuestionServiceUtil.class,
 					"addQuestion", _addQuestionParameterTypes0);
@@ -81,10 +83,6 @@ public class PollsQuestionServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -99,8 +97,7 @@ public class PollsQuestionServiceHttp {
 
 	public static void deleteQuestion(HttpPrincipal httpPrincipal,
 		long questionId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(PollsQuestionServiceUtil.class,
 					"deleteQuestion", _deleteQuestionParameterTypes1);
@@ -116,10 +113,6 @@ public class PollsQuestionServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -132,8 +125,7 @@ public class PollsQuestionServiceHttp {
 
 	public static com.liferay.portlet.polls.model.PollsQuestion getQuestion(
 		HttpPrincipal httpPrincipal, long questionId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(PollsQuestionServiceUtil.class,
 					"getQuestion", _getQuestionParameterTypes2);
@@ -149,10 +141,6 @@ public class PollsQuestionServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -175,8 +163,7 @@ public class PollsQuestionServiceHttp {
 		int expirationDateHour, int expirationDateMinute, boolean neverExpire,
 		java.util.List<com.liferay.portlet.polls.model.PollsChoice> choices,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(PollsQuestionServiceUtil.class,
 					"updateQuestion", _updateQuestionParameterTypes3);
@@ -194,10 +181,6 @@ public class PollsQuestionServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

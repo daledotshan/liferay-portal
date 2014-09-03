@@ -14,6 +14,8 @@
 
 package com.liferay.portal.tools.sourceformatter;
 
+import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
+import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -21,17 +23,16 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.tools.ComparableRoute;
 import com.liferay.util.ContentUtil;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -72,6 +73,154 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return newContent;
 	}
 
+	protected void checkServiceXMLExceptions(
+		String fileName, Element rootElement) {
+
+		Element exceptionsElement = rootElement.element("exceptions");
+
+		if (exceptionsElement == null) {
+			return;
+		}
+
+		List<Element> exceptionElements = exceptionsElement.elements(
+			"exception");
+
+		String previousException = StringPool.BLANK;
+
+		for (Element exceptionElement : exceptionElements) {
+			String exception = exceptionElement.getStringValue();
+
+			if (Validator.isNotNull(previousException) &&
+				(previousException.compareToIgnoreCase(exception) > 0)) {
+
+				processErrorMessage(
+					fileName, "sort: " + fileName + " " + exception);
+			}
+
+			previousException = exception;
+		}
+	}
+
+	protected void checkServiceXMLFinders(
+			String fileName, Element entityElement, String entityName)
+		throws Exception {
+
+		_columnNames = getColumnNames(fileName, entityName);
+
+		FinderElementComparator finderElementComparator =
+			new FinderElementComparator();
+
+		List<Element> finderElements = entityElement.elements("finder");
+
+		for (int i = 1; i < finderElements.size(); i++) {
+			Element finderElement = finderElements.get(i);
+			Element previousFinderElement = finderElements.get(i - 1);
+
+			if (finderElementComparator.compare(
+					previousFinderElement, finderElement) > 0) {
+
+				String finderName = finderElement.attributeValue("name");
+
+				processErrorMessage(
+					fileName,
+					"order: " + fileName + " " + entityName + " " + finderName);
+			}
+		}
+	}
+
+	protected void checkServiceXMLReferences(
+		String fileName, Element entityElement, String entityName) {
+
+		String previousReferenceEntity = StringPool.BLANK;
+		String previousReferencePackagePath = StringPool.BLANK;
+
+		List<Element> referenceElements = entityElement.elements("reference");
+
+		for (Element referenceElement : referenceElements) {
+			String referenceEntity = referenceElement.attributeValue("entity");
+			String referencePackagePath = referenceElement.attributeValue(
+				"package-path");
+
+			if (Validator.isNotNull(previousReferencePackagePath)) {
+				if ((previousReferencePackagePath.compareToIgnoreCase(
+						referencePackagePath) > 0) ||
+					(previousReferencePackagePath.equals(
+						referencePackagePath) &&
+					 (previousReferenceEntity.compareToIgnoreCase(
+						 referenceEntity) > 0))) {
+
+					processErrorMessage(
+						fileName,
+						"sort: " + fileName + " " + entityName + " " +
+							referenceEntity);
+				}
+			}
+
+			previousReferenceEntity = referenceEntity;
+			previousReferencePackagePath = referencePackagePath;
+		}
+	}
+
+	@Override
+	protected String doFormat(
+			File file, String fileName, String absolutePath, String content)
+		throws Exception {
+
+		if (isExcluded(_xmlExclusions, absolutePath)) {
+			return content;
+		}
+
+		String newContent = content;
+
+		if (!fileName.contains("/build")) {
+			newContent = trimContent(newContent, false);
+		}
+
+		if (fileName.contains("/build") && !fileName.contains("/tools/")) {
+			newContent = formatAntXML(fileName, newContent);
+		}
+		else if (fileName.endsWith("structures.xml")) {
+			newContent = formatDDLStructuresXML(newContent);
+		}
+		else if (fileName.endsWith("routes.xml")) {
+			newContent = formatFriendlyURLRoutesXML(absolutePath, newContent);
+		}
+		else if (fileName.endsWith("/liferay-portlet.xml") ||
+				 (portalSource &&
+				  fileName.endsWith("/portlet-custom.xml")) ||
+				 (!portalSource && fileName.endsWith("/portlet.xml"))) {
+
+			newContent = formatPortletXML(fileName, absolutePath, newContent);
+		}
+		else if (portalSource &&
+				 (fileName.endsWith(".action") ||
+				  fileName.endsWith(".function") ||
+				  fileName.endsWith(".macro") ||
+				  fileName.endsWith(".testcase") ||
+				  fileName.endsWith(".testxml"))) {
+
+			newContent = formatPoshiXML(fileName, newContent);
+		}
+		else if (fileName.endsWith("/service.xml")) {
+			formatServiceXML(fileName, newContent);
+		}
+		else if (portalSource && fileName.endsWith("/struts-config.xml")) {
+			formatStrutsConfigXML(fileName, newContent);
+		}
+		else if (portalSource && fileName.endsWith("/tiles-defs.xml")) {
+			formatTilesDefsXML(fileName, newContent);
+		}
+		else if ((portalSource &&
+				  fileName.endsWith(
+					  "portal-web/docroot/WEB-INF/web.xml")) ||
+				 (!portalSource && fileName.endsWith("/web.xml"))) {
+
+			newContent = formatWebXML(fileName, newContent);
+		}
+
+		return formatXML(newContent);
+	}
+
 	protected String fixAntXMLProjectName(String fileName, String content) {
 		int x = 0;
 
@@ -108,6 +257,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			}
 		}
 		else {
+			return content;
+		}
+
+		if (content.contains("<project>")) {
 			return content;
 		}
 
@@ -267,11 +420,15 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 				sb.append(StringPool.LESS_THAN);
 
-				String newStatement = StringUtil.replace(
-					statement, matcher.group(1), sb.toString());
+				String replacement = sb.toString();
 
-				content = StringUtil.replaceFirst(
-					content, statement, newStatement, matcher.start());
+				if (!replacement.equals(matcher.group(1))) {
+					String newStatement = StringUtil.replace(
+						statement, matcher.group(1), replacement);
+
+					return StringUtil.replaceFirst(
+						content, statement, newStatement, matcher.start());
+				}
 			}
 
 			if (openingTagMatcher.find() && !closingTagMatcher.find() &&
@@ -290,9 +447,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	@Override
 	protected void format() throws Exception {
 		String[] excludes = new String[] {
-			"**\\.bnd\\**", "**\\.idea\\**", "portal-impl\\**\\*.action",
-			"portal-impl\\**\\*.function", "portal-impl\\**\\*.macro",
-			"portal-impl\\**\\*.testcase"
+			"**\\.bnd\\**", "**\\.idea\\**", "**\\.ivy\\**",
+			"portal-impl\\**\\*.action", "portal-impl\\**\\*.function",
+			"portal-impl\\**\\*.macro", "portal-impl\\**\\*.testcase",
+			"tools\\sdk\\**"
 		};
 
 		String[] includes = new String[] {
@@ -300,78 +458,21 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			"**\\*.xml"
 		};
 
-		Properties exclusions = getExclusionsProperties(
-			"source_formatter_xml_exclusions.properties");
-
-		_friendlyUrlRoutesSortExclusions = getExclusionsProperties(
-			"source_formatter_friendly_url_routes_sort_exclusions.properties");
+		_friendlyUrlRoutesSortExclusions = getPropertyList(
+			"friendly.url.routes.sort.excludes");
+		_numericalPortletNameElementExclusions = getPropertyList(
+			"numerical.portlet.name.element.excludes");
+		_xmlExclusions = getPropertyList("xml.excludes");
 
 		List<String> fileNames = getFileNames(excludes, includes);
 
 		for (String fileName : fileNames) {
-			File file = new File(BASEDIR + fileName);
-
-			fileName = StringUtil.replace(
-				fileName, StringPool.BACK_SLASH, StringPool.SLASH);
-
-			if (isExcluded(exclusions, fileName)) {
-				continue;
-			}
-
-			String content = fileUtil.read(file);
-
-			String newContent = content;
-
-			if (!fileName.contains("/build")) {
-				newContent = trimContent(newContent, false);
-			}
-
-			if (fileName.contains("/build") && !fileName.contains("/tools/")) {
-				newContent = formatAntXML(fileName, newContent);
-			}
-			else if (fileName.endsWith("structures.xml")) {
-				newContent = formatDDLStructuresXML(newContent);
-			}
-			else if (fileName.endsWith("routes.xml")) {
-				newContent = formatFriendlyURLRoutesXML(fileName, newContent);
-			}
-			else if ((portalSource &&
-					  fileName.endsWith("/portlet-custom.xml")) ||
-					 (!portalSource && fileName.endsWith("/portlet.xml"))) {
-
-				newContent = formatPortletXML(newContent);
-			}
-			else if (portalSource &&
-					 (fileName.endsWith(".action") ||
-					  fileName.endsWith(".function") ||
-					  fileName.endsWith(".macro") ||
-					  fileName.endsWith(".testcase"))) {
-
-				newContent = formatPoshiXML(newContent);
-			}
-			else if (portalSource && fileName.endsWith("/service.xml")) {
-				formatServiceXML(fileName, newContent);
-			}
-			else if (portalSource && fileName.endsWith("/struts-config.xml")) {
-				formatStrutsConfigXML(fileName, newContent);
-			}
-			else if (portalSource && fileName.endsWith("/tiles-defs.xml")) {
-				formatTilesDefsXML(fileName, newContent);
-			}
-			else if ((portalSource && fileName.endsWith("WEB-INF/web.xml")) ||
-					 (!portalSource && fileName.endsWith("/web.xml"))) {
-
-				newContent = formatWebXML(fileName, newContent);
-			}
-
-			newContent = formatXML(newContent);
-
-			compareAndAutoFixContent(file, fileName, content, newContent);
+			format(fileName);
 		}
 	}
 
 	protected String formatAntXML(String fileName, String content)
-		throws DocumentException, IOException {
+		throws Exception {
 
 		String newContent = trimContent(content, true);
 
@@ -405,9 +506,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return newContent;
 	}
 
-	protected String formatDDLStructuresXML(String content)
-		throws DocumentException, IOException {
-
+	protected String formatDDLStructuresXML(String content) throws Exception {
 		Document document = saxReaderUtil.read(content);
 
 		Element rootElement = document.getRootElement();
@@ -438,10 +537,11 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return document.formattedString();
 	}
 
-	protected String formatFriendlyURLRoutesXML(String fileName, String content)
-		throws DocumentException {
+	protected String formatFriendlyURLRoutesXML(
+			String absolutePath, String content)
+		throws Exception {
 
-		if (isExcluded(_friendlyUrlRoutesSortExclusions, fileName)) {
+		if (isExcluded(_friendlyUrlRoutesSortExclusions, absolutePath)) {
 			return content;
 		}
 
@@ -572,8 +672,9 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return sb.toString();
 	}
 
-	protected String formatPortletXML(String content)
-		throws DocumentException, IOException {
+	protected String formatPortletXML(
+			String fileName, String absolutePath, String content)
+		throws Exception {
 
 		Document document = saxReaderUtil.read(content);
 
@@ -581,9 +682,31 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 		rootElement.sortAttributes(true);
 
+		boolean checkNumericalPortletNameElement = !isExcluded(
+			_numericalPortletNameElementExclusions, absolutePath);
+
 		List<Element> portletElements = rootElement.elements("portlet");
 
 		for (Element portletElement : portletElements) {
+			if (checkNumericalPortletNameElement) {
+				Element portletNameElement = portletElement.element(
+					"portlet-name");
+
+				String portletNameText = portletNameElement.getText();
+
+				if (!Validator.isNumber(portletNameText)) {
+					processErrorMessage(
+						fileName,
+						fileName +
+							" contains a nonstandard portlet-name element " +
+								portletNameText);
+				}
+			}
+
+			if (fileName.endsWith("/liferay-portlet.xml")) {
+				continue;
+			}
+
 			portletElement.sortElementsByChildElement("init-param", "name");
 
 			Element portletPreferencesElement = portletElement.element(
@@ -598,7 +721,11 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return document.formattedString();
 	}
 
-	protected String formatPoshiXML(String content) {
+	protected String formatPoshiXML(String fileName, String content)
+		throws Exception {
+
+		content = sortPoshiAttributes(fileName, content);
+
 		content = sortPoshiCommands(content);
 
 		content = sortPoshiVariables(content);
@@ -615,7 +742,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	}
 
 	protected void formatServiceXML(String fileName, String content)
-		throws DocumentException {
+		throws Exception {
 
 		Document document = saxReaderUtil.read(content);
 
@@ -635,67 +762,17 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 					fileName, "sort: " + fileName + " " + entityName);
 			}
 
-			String previousReferenceEntity = StringPool.BLANK;
-			String previousReferencePackagePath = StringPool.BLANK;
-
-			List<Element> referenceElements = entityElement.elements(
-				"reference");
-
-			for (Element referenceElement : referenceElements) {
-				String referenceEntity = referenceElement.attributeValue(
-					"entity");
-				String referencePackagePath = referenceElement.attributeValue(
-					"package-path");
-
-				if (Validator.isNotNull(previousReferencePackagePath)) {
-					if ((previousReferencePackagePath.compareToIgnoreCase(
-							referencePackagePath) > 0) ||
-						(previousReferencePackagePath.equals(
-							referencePackagePath) &&
-						 (previousReferenceEntity.compareToIgnoreCase(
-							 referenceEntity) > 0))) {
-
-						processErrorMessage(
-							fileName,
-							"sort: " + fileName + " " + entityName + " " +
-								referenceEntity);
-					}
-				}
-
-				previousReferenceEntity = referenceEntity;
-				previousReferencePackagePath = referencePackagePath;
-			}
+			checkServiceXMLFinders(fileName, entityElement, entityName);
+			checkServiceXMLReferences(fileName, entityElement, entityName);
 
 			previousEntityName = entityName;
 		}
 
-		Element exceptionsElement = rootElement.element("exceptions");
-
-		if (exceptionsElement == null) {
-			return;
-		}
-
-		List<Element> exceptionElements = exceptionsElement.elements(
-			"exception");
-
-		String previousException = StringPool.BLANK;
-
-		for (Element exceptionElement : exceptionElements) {
-			String exception = exceptionElement.getStringValue();
-
-			if (Validator.isNotNull(previousException) &&
-				(previousException.compareToIgnoreCase(exception) > 0)) {
-
-				processErrorMessage(
-					fileName, "sort: " + fileName + " " + exception);
-			}
-
-			previousException = exception;
-		}
+		checkServiceXMLExceptions(fileName, rootElement);
 	}
 
 	protected void formatStrutsConfigXML(String fileName, String content)
-		throws DocumentException {
+		throws Exception {
 
 		Document document = saxReaderUtil.read(content);
 
@@ -723,7 +800,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	}
 
 	protected void formatTilesDefsXML(String fileName, String content)
-		throws DocumentException {
+		throws Exception {
 
 		Document document = saxReaderUtil.read(content);
 
@@ -748,7 +825,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	}
 
 	protected String formatWebXML(String fileName, String content)
-		throws IOException {
+		throws Exception {
 
 		if (!portalSource) {
 			String webXML = ContentUtil.get(
@@ -832,6 +909,108 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 		return newContent.substring(0, x) + sb.toString() +
 			newContent.substring(y);
+	}
+
+	protected List<String> getColumnNames(String fileName, String entityName)
+		throws Exception {
+
+		List<String> columnNames = new ArrayList<String>();
+
+		Pattern pattern = Pattern.compile(
+			"create table " + entityName + "_? \\(\n([\\s\\S]*?)\n\\);");
+
+		Matcher matcher = pattern.matcher(getTablesContent(fileName));
+
+		if (!matcher.find()) {
+			return columnNames;
+		}
+
+		String tableContent = matcher.group(1);
+
+		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
+			new UnsyncStringReader(tableContent));
+
+		String line = null;
+
+		while ((line = unsyncBufferedReader.readLine()) != null) {
+			line = StringUtil.trim(line);
+
+			String columnName = line.substring(
+				0, line.indexOf(StringPool.SPACE));
+
+			columnName = StringUtil.replace(
+				columnName, StringPool.UNDERLINE, StringPool.BLANK);
+
+			columnNames.add(columnName);
+		}
+
+		return columnNames;
+	}
+
+	protected String getTablesContent(String fileName) throws Exception {
+		if (portalSource) {
+			if (_tablesContent == null) {
+				_tablesContent = getContent("sql/portal-tables.sql", 4);
+			}
+
+			return _tablesContent;
+		}
+
+		int pos = fileName.lastIndexOf(StringPool.SLASH);
+
+		return getContent(fileName.substring(0, pos) + "/sql/tables.sql", 1);
+	}
+
+	protected String sortPoshiAttributes(String fileName, String content)
+		throws Exception {
+
+		StringBundler sb = new StringBundler();
+
+		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
+			new UnsyncStringReader(content));
+
+		String line = null;
+
+		int lineCount = 0;
+
+		boolean sortAttributes = true;
+
+		while ((line = unsyncBufferedReader.readLine()) != null) {
+			lineCount++;
+
+			String trimmedLine = StringUtil.trimLeading(line);
+
+			if (sortAttributes) {
+				if (trimmedLine.startsWith(StringPool.LESS_THAN) &&
+					trimmedLine.endsWith(StringPool.GREATER_THAN) &&
+					!trimmedLine.startsWith("<%") &&
+					!trimmedLine.startsWith("<!")) {
+
+					line = sortAttributes(fileName, line, lineCount, false);
+				}
+				else if (trimmedLine.startsWith("<![CDATA[") &&
+						 !trimmedLine.endsWith("]]>")) {
+
+					sortAttributes = false;
+				}
+			}
+			else if (trimmedLine.endsWith("]]>")) {
+				sortAttributes = true;
+			}
+
+			sb.append(line);
+			sb.append("\n");
+		}
+
+		unsyncBufferedReader.close();
+
+		content = sb.toString();
+
+		if (content.endsWith("\n")) {
+			content = content.substring(0, content.length() - 1);
+		}
+
+		return content;
 	}
 
 	protected String sortPoshiCommands(String content) {
@@ -971,10 +1150,12 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	private static Pattern _commentPattern2 = Pattern.compile(
 		"[\t ]-->\n[\t<]");
 
-	private Properties _friendlyUrlRoutesSortExclusions;
+	private List<String> _columnNames;
+	private List<String> _friendlyUrlRoutesSortExclusions;
+	private List<String> _numericalPortletNameElementExclusions;
 	private Pattern _poshiClosingTagPattern = Pattern.compile("</[^>/]*>");
 	private Pattern _poshiCommandsPattern = Pattern.compile(
-		"\\<command name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
+		"\\<command.*name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
 			"[\\n|\\t]*?(?:[^(?:/\\>)]*?--\\>)*+");
 	private Pattern _poshiElementWithNoChildPattern = Pattern.compile(
 		"\\\"[\\s]*\\>[\\n\\s\\t]*\\</[a-z\\-]+>");
@@ -1001,5 +1182,73 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		"((?:[\\t]*+\\<var.*?\\>\\n[\\t]*+){2,}?)" +
 			"(?:(?:\\n){1,}+|\\</execute\\>)");
 	private Pattern _poshiWholeTagPattern = Pattern.compile("<[^\\>^/]*\\/>");
+	private String _tablesContent;
+	private List<String> _xmlExclusions;
+
+	private class FinderElementComparator implements Comparator<Element> {
+
+		@Override
+		public int compare(Element finderElement1, Element finderElement2) {
+			List<Element> finderColumnElements1 = finderElement1.elements(
+				"finder-column");
+			List<Element> finderColumnElements2 = finderElement2.elements(
+				"finder-column");
+
+			int finderColumnCount1 = finderColumnElements1.size();
+			int finderColumnCount2 = finderColumnElements2.size();
+
+			if (finderColumnCount1 != finderColumnCount2) {
+				return finderColumnCount1 - finderColumnCount2;
+			}
+
+			for (int i = 0; i < finderColumnCount1; i++) {
+				Element finderColumnElement1 = finderColumnElements1.get(i);
+				Element finderColumnElement2 = finderColumnElements2.get(i);
+
+				String finderColumnName1 = finderColumnElement1.attributeValue(
+					"name");
+				String finderColumnName2 = finderColumnElement2.attributeValue(
+					"name");
+
+				int index1 = _columnNames.indexOf(finderColumnName1);
+				int index2 = _columnNames.indexOf(finderColumnName2);
+
+				if (index1 != index2) {
+					return index1 - index2;
+				}
+			}
+
+			String finderName1 = finderElement1.attributeValue("name");
+			String finderName2 = finderElement2.attributeValue("name");
+
+			int startsWithWeight = StringUtil.startsWithWeight(
+				finderName1, finderName2);
+
+			String strippedFinderName1 = finderName1.substring(
+				startsWithWeight);
+			String strippedFinderName2 = finderName2.substring(
+				startsWithWeight);
+
+			if (strippedFinderName1.startsWith("Gt") ||
+				strippedFinderName1.startsWith("Like") ||
+				strippedFinderName1.startsWith("Lt") ||
+				strippedFinderName1.startsWith("Not")) {
+
+				if (!strippedFinderName2.startsWith("Gt") &&
+					!strippedFinderName2.startsWith("Like") &&
+					!strippedFinderName2.startsWith("Lt") &&
+					!strippedFinderName2.startsWith("Not")) {
+
+					return 1;
+				}
+				else {
+					return strippedFinderName1.compareTo(strippedFinderName2);
+				}
+			}
+
+			return 0;
+		}
+
+	}
 
 }

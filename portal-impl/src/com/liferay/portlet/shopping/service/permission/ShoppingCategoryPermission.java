@@ -15,7 +15,7 @@
 package com.liferay.portlet.shopping.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.BaseModelPermissionChecker;
@@ -28,12 +28,17 @@ import com.liferay.portlet.shopping.service.ShoppingCategoryLocalServiceUtil;
 /**
  * @author Brian Wing Shun Chan
  */
+@OSGiBeanProperties(
+	property = {
+		"model.class.name=com.liferay.portlet.shopping.model.ShoppingCategory"
+	}
+)
 public class ShoppingCategoryPermission implements BaseModelPermissionChecker {
 
 	public static void check(
 			PermissionChecker permissionChecker, long groupId, long categoryId,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!contains(permissionChecker, groupId, categoryId, actionId)) {
 			throw new PrincipalException();
@@ -43,7 +48,7 @@ public class ShoppingCategoryPermission implements BaseModelPermissionChecker {
 	public static void check(
 			PermissionChecker permissionChecker, ShoppingCategory category,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!contains(permissionChecker, category, actionId)) {
 			throw new PrincipalException();
@@ -53,7 +58,7 @@ public class ShoppingCategoryPermission implements BaseModelPermissionChecker {
 	public static boolean contains(
 			PermissionChecker permissionChecker, long groupId, long categoryId,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (categoryId ==
 				ShoppingCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
@@ -72,7 +77,7 @@ public class ShoppingCategoryPermission implements BaseModelPermissionChecker {
 	public static boolean contains(
 			PermissionChecker permissionChecker, ShoppingCategory category,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (actionId.equals(ActionKeys.ADD_CATEGORY)) {
 			actionId = ActionKeys.ADD_SUBCATEGORY;
@@ -107,7 +112,7 @@ public class ShoppingCategoryPermission implements BaseModelPermissionChecker {
 	public void checkBaseModel(
 			PermissionChecker permissionChecker, long groupId, long primaryKey,
 			String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		check(permissionChecker, groupId, primaryKey, actionId);
 	}

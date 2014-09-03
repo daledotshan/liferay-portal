@@ -26,6 +26,8 @@ BlogsEntry entry = (BlogsEntry)request.getAttribute(WebKeys.BLOGS_ENTRY);
 
 long entryId = BeanParamUtil.getLong(entry, request, "entryId");
 
+String title = BeanParamUtil.getString(entry, request, "title");
+String subtitle = BeanParamUtil.getString(entry, request, "subtitle");
 String content = BeanParamUtil.getString(entry, request, "content");
 boolean allowPingbacks = PropsValues.BLOGS_PINGBACK_ENABLED && BeanParamUtil.getBoolean(entry, request, "allowPingbacks", true);
 boolean allowTrackbacks = PropsValues.BLOGS_TRACKBACK_ENABLED && BeanParamUtil.getBoolean(entry, request, "allowTrackbacks", true);
@@ -59,6 +61,23 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	<liferay-ui:error exception="<%= EntryContentException.class %>" message="please-enter-valid-content" />
 	<liferay-ui:error exception="<%= EntryTitleException.class %>" message="please-enter-a-valid-title" />
 
+	<liferay-ui:error exception="<%= LiferayFileItemException.class %>">
+		<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(LiferayFileItem.THRESHOLD_SIZE, locale) %>" key="please-enter-valid-content-with-valid-content-size-no-larger-than-x" translateArguments="<%= false %>" />
+	</liferay-ui:error>
+
+	<liferay-ui:error exception="<%= FileSizeException.class %>">
+
+		<%
+		long fileMaxSize = PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE);
+
+		if (fileMaxSize == 0) {
+			fileMaxSize = PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE);
+		}
+		%>
+
+		<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(fileMaxSize, locale) %>" key="please-enter-a-file-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
+	</liferay-ui:error>
+
 	<liferay-ui:asset-categories-error />
 
 	<liferay-ui:asset-tags-error />
@@ -70,11 +89,17 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	</c:if>
 
 	<c:if test="<%= entry != null %>">
-		<aui:workflow-status id="<%= String.valueOf(entry.getEntryId()) %>" status="<%= entry.getStatus() %>" />
+		<aui:workflow-status id="<%= String.valueOf(entry.getEntryId()) %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= entry.getStatus() %>" />
 	</c:if>
 
 	<aui:fieldset>
-		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) || windowState.equals(LiferayWindowState.POP_UP) %>" name="title" />
+		<liferay-ui:input-editor contents="<%= title %>" editorImpl="<%= EDITOR_WYSIWYG_IMPL_KEY %>" name="title" placeholder="title" toolbarSet="none" />
+
+		<aui:input name="title" type="hidden" />
+
+		<liferay-ui:input-editor contents="<%= subtitle %>" editorImpl="<%= EDITOR_WYSIWYG_IMPL_KEY %>" name="subtitle" placeholder="subtitle" toolbarSet="none" />
+
+		<aui:input name="subtitle" type="hidden" />
 
 		<aui:input name="displayDate" />
 
@@ -97,11 +122,9 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 			<br />
 		</c:if>
 
-		<aui:field-wrapper label="content">
-			<liferay-ui:input-editor editorImpl="<%= EDITOR_WYSIWYG_IMPL_KEY %>" />
+		<liferay-ui:input-editor contents="<%= content %>" editorImpl="<%= EDITOR_WYSIWYG_IMPL_KEY %>" name="content" placeholder="content" />
 
-			<aui:input name="content" type="hidden" />
-		</aui:field-wrapper>
+		<aui:input name="content" type="hidden" />
 
 		<liferay-ui:custom-attributes-available className="<%= BlogsEntry.class.getName() %>">
 			<liferay-ui:custom-attribute-list
@@ -122,19 +145,21 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 			<aui:input label="trackbacks-to-send" name="trackbacks" />
 
 			<c:if test="<%= (entry != null) && Validator.isNotNull(entry.getTrackbacks()) %>">
-				<aui:field-wrapper name="trackbacks-already-sent">
+				<aui:fieldset label="trackbacks-already-sent">
 
 					<%
+					int i = 0;
+
 					for (String trackback : StringUtil.split(entry.getTrackbacks())) {
 					%>
 
-						<liferay-ui:input-resource url="<%= trackback %>" /><br />
+						<aui:input label="" name='<%= "trackback" + (i++) %>' title="" type="resource" value="<%= trackback %>" />
 
 					<%
 					}
 					%>
 
-				</aui:field-wrapper>
+				</aui:fieldset>
 			</c:if>
 		</c:if>
 
@@ -179,7 +204,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 						<aui:row>
 							<c:if test="<%= smallImage && (entry != null) %>">
 								<aui:col width="<%= 50 %>">
-									<img alt="<liferay-ui:message key="preview" />" class="lfr-blogs-small-image-preview" src="<%= Validator.isNotNull(entry.getSmallImageURL()) ? entry.getSmallImageURL() : themeDisplay.getPathImage() + "/template?img_id=" + entry.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(entry.getSmallImageId()) %>" />
+									<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="preview" />" class="lfr-blogs-small-image-preview" src='<%= Validator.isNotNull(entry.getSmallImageURL()) ? entry.getSmallImageURL() : themeDisplay.getPathImage() + "/template?img_id=" + entry.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(entry.getSmallImageId()) %>' />
 								</aui:col>
 							</c:if>
 
@@ -187,13 +212,13 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 								<aui:fieldset>
 									<aui:input cssClass="lfr-blogs-small-image-type" inlineField="<%= true %>" label="small-image-url" name="type" type="radio" />
 
-									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallImageURL" />
+									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallImageURL" title="small-image-url" />
 								</aui:fieldset>
 
 								<aui:fieldset>
 									<aui:input cssClass="lfr-blogs-small-image-type" inlineField="<%= true %>" label="small-image" name="type" type="radio" />
 
-									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallFile" type="file" />
+									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallFile" title="small-image-file" type="file" />
 								</aui:fieldset>
 							</aui:col>
 						</aui:row>
@@ -251,7 +276,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 			<c:if test="<%= (entry != null) && entry.isApproved() && WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(entry.getCompanyId(), entry.getGroupId(), BlogsEntry.class.getName()) %>">
 				<div class="alert alert-info">
-					<%= LanguageUtil.format(pageContext, "this-x-is-approved.-publishing-these-changes-will-cause-it-to-be-unpublished-and-go-through-the-approval-process-again", ResourceActionsUtil.getModelResource(locale, BlogsEntry.class.getName()), false) %>
+					<%= LanguageUtil.format(request, "this-x-is-approved.-publishing-these-changes-will-cause-it-to-be-unpublished-and-go-through-the-approval-process-again", ResourceActionsUtil.getModelResource(locale, BlogsEntry.class.getName()), false) %>
 				</div>
 			</c:if>
 
@@ -271,6 +296,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 <aui:script>
 	var <portlet:namespace />saveDraftIntervalId = null;
 	var <portlet:namespace />oldTitle = null;
+	var <portlet:namespace />oldSubtitle = null;
 	var <portlet:namespace />oldContent = null;
 
 	function <portlet:namespace />clearSaveDraftIntervalId() {
@@ -283,14 +309,10 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 		return document.<portlet:namespace />fm.<portlet:namespace />title.value + ' ' + window.<portlet:namespace />editor.getHTML();
 	}
 
-	function <portlet:namespace />initEditor() {
-		return "<%= UnicodeFormatter.toString(content) %>";
-	}
-
 	function <portlet:namespace />previewEntry() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>";
-		document.<portlet:namespace />fm.<portlet:namespace />preview.value = "true";
-		document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = "<%= WorkflowConstants.ACTION_SAVE_DRAFT %>";
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>';
+		document.<portlet:namespace />fm.<portlet:namespace />preview.value = 'true';
+		document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = '<%= WorkflowConstants.ACTION_SAVE_DRAFT %>';
 
 		if (window.<portlet:namespace />editor) {
 			document.<portlet:namespace />fm.<portlet:namespace />content.value = window.<portlet:namespace />editor.getHTML();
@@ -305,14 +327,15 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 		function(draft, ajax) {
 			var A = AUI();
 
-			var title = document.<portlet:namespace />fm.<portlet:namespace />title.value;
-			var content = window.<portlet:namespace />editor.getHTML();
+			var title = window['<portlet:namespace />title'].getHTML();
+			var subtitle = window['<portlet:namespace />subtitle'].getHTML();
+			var content = window['<portlet:namespace />content'].getHTML();
 
 			var publishButton = A.one('#<portlet:namespace />publishButton');
 			var cancelButton = A.one('#<portlet:namespace />cancelButton');
 
 			var saveStatus = A.one('#<portlet:namespace />saveStatus');
-			var saveText = '<%= UnicodeLanguageUtil.format(pageContext, ((entry != null) && entry.isPending()) ? "entry-saved-at-x" : "draft-saved-at-x", "[TIME]", false) %>';
+			var saveText = '<%= UnicodeLanguageUtil.format(request, ((entry != null) && entry.isPending()) ? "entry-saved-at-x" : "draft-saved-at-x", "[TIME]", false) %>';
 
 			if (draft && ajax) {
 				if ((title == '') || (content == '')) {
@@ -320,6 +343,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 				}
 
 				if ((<portlet:namespace />oldTitle == title) &&
+					(<portlet:namespace />oldSubtitle == subtitle) &&
 					(<portlet:namespace />oldContent == content)) {
 
 					return;
@@ -343,6 +367,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 					<portlet:namespace />entryId: document.<portlet:namespace />fm.<portlet:namespace />entryId.value,
 					<portlet:namespace />redirect: document.<portlet:namespace />fm.<portlet:namespace />redirect.value,
 					<portlet:namespace />referringPortletResource: document.<portlet:namespace />fm.<portlet:namespace />referringPortletResource.value,
+					<portlet:namespace />subtitle: subtitle,
 					<portlet:namespace />title: title,
 					<portlet:namespace />workflowAction: <%= WorkflowConstants.ACTION_SAVE_DRAFT %>
 				};
@@ -359,20 +384,20 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 					url,
 					{
 						data: data,
-						dataType: 'json',
+						dataType: 'JSON',
 						on: {
 							failure: function() {
 								if (saveStatus) {
-									saveStatus.set('className', 'alert alert-error save-status');
-									saveStatus.html('<%= UnicodeLanguageUtil.get(pageContext, "could-not-save-draft-to-the-server") %>');
+									saveStatus.attr('className', 'alert alert-danger save-status');
+									saveStatus.html('<%= UnicodeLanguageUtil.get(request, "could-not-save-draft-to-the-server") %>');
 								}
 							},
 							start: function() {
 								Liferay.Util.toggleDisabled(publishButton, true);
 
 								if (saveStatus) {
-									saveStatus.set('className', 'alert alert-info save-status pending');
-									saveStatus.html('<%= UnicodeLanguageUtil.get(pageContext, "saving-draft") %>');
+									saveStatus.attr('className', 'alert alert-info save-status pending');
+									saveStatus.html('<%= UnicodeLanguageUtil.get(request, "saving-draft") %>');
 								}
 							},
 							success: function(event, id, obj) {
@@ -404,7 +429,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 									var now = saveText.replace(/\[TIME\]/gim, (new Date()).toString());
 
 									if (saveStatus) {
-										saveStatus.set('className', 'alert alert-success save-status');
+										saveStatus.attr('className', 'alert alert-success save-status');
 										saveStatus.html(now);
 									}
 								}
@@ -421,7 +446,9 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 			else {
 				<portlet:namespace />clearSaveDraftIntervalId();
 
-				document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>";
+				document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>';
+				document.<portlet:namespace />fm.<portlet:namespace />title.value = title;
+				document.<portlet:namespace />fm.<portlet:namespace />subtitle.value = subtitle;
 				document.<portlet:namespace />fm.<portlet:namespace />content.value = content;
 
 				if (draft) {
@@ -436,6 +463,16 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 		},
 		['aui-io']
 	);
+
+	var clearSaveDraftHandle = function(event) {
+		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+			<portlet:namespace />clearSaveDraftIntervalId();
+
+			Liferay.detach('destroyPortlet', clearSaveDraftHandle);
+		}
+	};
+
+	Liferay.on('destroyPortlet', clearSaveDraftHandle);
 </aui:script>
 
 <aui:script use="aui-base">
@@ -455,7 +492,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	<c:if test="<%= (entry == null) || ((entry.getUserId() == user.getUserId()) && (entry.getStatus() == WorkflowConstants.STATUS_DRAFT)) %>">
 		<portlet:namespace />saveDraftIntervalId = setInterval('<portlet:namespace />saveEntry(true, true)', 30000);
 		<portlet:namespace />oldTitle = document.<portlet:namespace />fm.<portlet:namespace />title.value;
-		<portlet:namespace />oldContent = <portlet:namespace />initEditor();
+		<portlet:namespace />oldContent = '<%= UnicodeFormatter.toString(content) %>';
 	</c:if>
 </aui:script>
 
@@ -466,13 +503,13 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	var values = container.all('.lfr-blogs-small-image-value');
 
 	var selectSmallImageType = function(index) {
-		types.set('checked', false);
+		types.attr('checked', false);
 
-		types.item(index).set('checked', true);
+		types.item(index).attr('checked', true);
 
-		values.set('disabled', true);
+		values.attr('disabled', true);
 
-		values.item(index).set('disabled', false);
+		values.item(index).attr('disabled', false);
 	};
 
 	container.delegate(
@@ -497,20 +534,19 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 					var expanded = !instance.get('expanded');
 
-					A.one('#<portlet:namespace />smallImage').set('value', expanded);
-					A.one('#<portlet:namespace />smallImageCheckbox').set('checked', expanded);
+					A.one('#<portlet:namespace />smallImage').attr('checked', expanded);
 
 					if (expanded) {
 						types.each(
 							function(item, index, collection) {
 								if (item.get('checked')) {
-									values.item(index).set('disabled', false);
+									values.item(index).attr('disabled', false);
 								}
 							}
 						);
 					}
 					else {
-						values.set('disabled', true);
+						values.attr('disabled', true);
 					}
 				}
 			}
@@ -528,10 +564,10 @@ if (entry != null) {
 	portletURL.setParameter("entryId", String.valueOf(entry.getEntryId()));
 
 	PortalUtil.addPortletBreadcrumbEntry(request, entry.getTitle(), portletURL.toString());
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "edit"), currentURL);
+	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "edit"), currentURL);
 }
 else {
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "add-entry"), currentURL);
+	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "add-entry"), currentURL);
 }
 %>
 

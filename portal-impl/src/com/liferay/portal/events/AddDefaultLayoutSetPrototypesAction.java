@@ -97,8 +97,8 @@ public class AddDefaultLayoutSetPrototypesAction
 	}
 
 	protected void addPrivateSite(
-			long companyId, long defaultUserId, List<LayoutSetPrototype>
-			layoutSetPrototypes)
+			long companyId, long defaultUserId,
+			List<LayoutSetPrototype> layoutSetPrototypes)
 		throws Exception {
 
 		LayoutSet layoutSet = addLayoutSetPrototype(
@@ -114,8 +114,6 @@ public class AddDefaultLayoutSetPrototypesAction
 		// Home layout
 
 		Layout layout = addLayout(layoutSet, "home", "/home", "2_columns_i");
-
-		addPortletId(layout, PortletKeys.ACTIVITIES, "column-1");
 
 		String portletId = addPortletId(layout, PortletKeys.SEARCH, "column-2");
 
@@ -224,8 +222,8 @@ public class AddDefaultLayoutSetPrototypesAction
 	}
 
 	protected void addPublicSite(
-			long companyId, long defaultUserId, List<LayoutSetPrototype>
-			layoutSetPrototypes)
+			long companyId, long defaultUserId,
+			List<LayoutSetPrototype> layoutSetPrototypes)
 		throws Exception {
 
 		LayoutSet layoutSet = addLayoutSetPrototype(

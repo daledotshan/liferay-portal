@@ -32,8 +32,12 @@ import com.liferay.portal.service.persistence.PortletPreferencesFinder;
 import com.liferay.portal.service.persistence.PortletPreferencesUtil;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
+import java.io.Serializable;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Brian Wing Shun Chan
@@ -72,9 +76,8 @@ public class PortletPreferencesFinderImpl
 
 	@Override
 	public long countByO_O_P(
-			long ownerId, int ownerType, String portletId,
-			boolean excludeDefaultPreferences)
-		throws SystemException {
+		long ownerId, int ownerType, String portletId,
+		boolean excludeDefaultPreferences) {
 
 		Session session = null;
 
@@ -135,9 +138,8 @@ public class PortletPreferencesFinderImpl
 
 	@Override
 	public long countByO_O_P_P_P(
-			long ownerId, int ownerType, long plid, String portletId,
-			boolean excludeDefaultPreferences)
-		throws SystemException {
+		long ownerId, int ownerType, long plid, String portletId,
+		boolean excludeDefaultPreferences) {
 
 		Session session = null;
 
@@ -211,9 +213,7 @@ public class PortletPreferencesFinderImpl
 	}
 
 	@Override
-	public List<PortletPreferences> findByPortletId(String portletId)
-		throws SystemException {
-
+	public List<PortletPreferences> findByPortletId(String portletId) {
 		Session session = null;
 
 		try {
@@ -240,10 +240,16 @@ public class PortletPreferencesFinderImpl
 	}
 
 	@Override
+	public Map<Serializable, PortletPreferences> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+
+		return PortletPreferencesUtil.fetchByPrimaryKeys(primaryKeys);
+	}
+
+	@Override
 	public List<PortletPreferences> findByC_G_O_O_P_P(
-			long companyId, long groupId, long ownerId, int ownerType,
-			String portletId, boolean privateLayout)
-		throws SystemException {
+		long companyId, long groupId, long ownerId, int ownerType,
+		String portletId, boolean privateLayout) {
 
 		Object[] finderArgs = {
 			companyId, groupId, ownerId, ownerType, portletId, privateLayout

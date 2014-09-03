@@ -1,5 +1,7 @@
 package ${packagePath}.service.persistence;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -8,6 +10,11 @@ import java.io.Serializable;
 
 import java.util.Date;
 
+/**
+ * @author ${author}
+ * @generated
+ */
+@ProviderType
 public class ${entity.PKClassName} implements Comparable<${entity.PKClassName}>, Serializable {
 
 	<#list entity.PKList as column>

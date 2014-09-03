@@ -99,9 +99,7 @@ public class JournalArticleServiceSoap {
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param layoutUuid the unique string identifying the web content
 	article's display page
 	* @param displayDateMonth the month the web content article is set to
@@ -146,7 +144,6 @@ public class JournalArticleServiceSoap {
 	* @return the web content article
 	* @throws PortalException if the user did not have permission to add the
 	web content article or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap addArticle(
 		long groupId, long folderId, long classNameId, long classPK,
@@ -207,7 +204,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to add the
 	copy the web content article, if a matching web content article
 	could not be found, or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap copyArticle(
 		long groupId, java.lang.String oldArticleId,
@@ -241,7 +237,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to delete the
 	web content article, if a matching web content article could not
 	be found, or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static void deleteArticle(long groupId, java.lang.String articleId,
 		double version, java.lang.String articleURL,
@@ -271,7 +266,6 @@ public class JournalArticleServiceSoap {
 	recipients of the unapproved web content article's denial.
 	* @throws PortalException if the user did not have permission to delete the
 	web content article or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static void deleteArticle(long groupId, java.lang.String articleId,
 		java.lang.String articleURL,
@@ -308,7 +302,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to expire the
 	web content article, if a matching web content article could not
 	be found, or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap expireArticle(
 		long groupId, java.lang.String articleId, double version,
@@ -348,7 +341,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to expire the
 	web content article, if a matching web content article could not
 	be found, or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static void expireArticle(long groupId, java.lang.String articleId,
 		java.lang.String articleURL,
@@ -373,7 +365,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if a matching web content article could not be
 	found or if the user did not have permission to view the web
 	content article
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getArticle(
 		long id) throws RemoteException {
@@ -400,7 +391,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to view the
 	web content article or if a matching web content article could
 	not be found
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getArticle(
 		long groupId, java.lang.String articleId) throws RemoteException {
@@ -428,7 +418,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to view the
 	web content article or if a matching web content article could
 	not be found
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getArticle(
 		long groupId, java.lang.String articleId, double version)
@@ -463,7 +452,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if a matching web content article could not be
 	found or if the user did not have permission to view the web
 	content article
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getArticle(
 		long groupId, java.lang.String className, long classPK)
@@ -491,7 +479,6 @@ public class JournalArticleServiceSoap {
 	* @return the matching web content article
 	* @throws PortalException if the user did not have permission to view the
 	web content article or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getArticleByUrlTitle(
 		long groupId, java.lang.String urlTitle) throws RemoteException {
@@ -514,7 +501,6 @@ public class JournalArticleServiceSoap {
 	* @param groupId the primary key of the web content article's group
 	* @param folderId the primary key of the web content article folder
 	* @return the matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getArticles(
 		long groupId, long folderId) throws RemoteException {
@@ -553,11 +539,10 @@ public class JournalArticleServiceSoap {
 	return (not inclusive)
 	* @param obc the comparator to order the web content articles
 	* @return the matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getArticles(
 		long groupId, long folderId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -596,11 +581,10 @@ public class JournalArticleServiceSoap {
 	* @param obc the comparator to order the web content articles
 	* @return the range of matching web content articles ordered by the
 	comparator
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getArticlesByArticleId(
 		long groupId, java.lang.String articleId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -623,7 +607,6 @@ public class JournalArticleServiceSoap {
 	* @param layoutUuid the unique string identifying the web content
 	article's display page
 	* @return the matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getArticlesByLayoutUuid(
 		long groupId, java.lang.String layoutUuid) throws RemoteException {
@@ -672,12 +655,11 @@ public class JournalArticleServiceSoap {
 	* @param obc the comparator to order the web content articles
 	* @return the range of matching web content articles ordered by the
 	comparator
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getArticlesByStructureId(
 		long groupId, long classNameId, java.lang.String ddmStructureKey,
 		int status, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -717,11 +699,10 @@ public class JournalArticleServiceSoap {
 	* @param obc the comparator to order the web content articles
 	* @return the range of matching web content articles ordered by the
 	comparator
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getArticlesByStructureId(
 		long groupId, java.lang.String ddmStructureKey, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -743,7 +724,6 @@ public class JournalArticleServiceSoap {
 	* @param groupId the primary key of the web content article's group
 	* @param folderId the primary key of the web content article folder
 	* @return the number of matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int getArticlesCount(long groupId, long folderId)
 		throws RemoteException {
@@ -760,6 +740,17 @@ public class JournalArticleServiceSoap {
 		}
 	}
 
+	/**
+	* Returns the number of web content articles matching the group, folder,
+	* and status.
+	*
+	* @param groupId the primary key of the web content article's group
+	* @param folderId the primary key of the web content article's folder
+	* @param status the web content article's workflow status. For more
+	information see {@link WorkflowConstants} for constants starting
+	with the "STATUS_" prefix.
+	* @return the number of matching web content articles
+	*/
 	public static int getArticlesCount(long groupId, long folderId, int status)
 		throws RemoteException {
 		try {
@@ -782,7 +773,6 @@ public class JournalArticleServiceSoap {
 	* @param groupId the primary key of the web content article's group
 	* @param articleId the primary key of the web content article
 	* @return the number of matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int getArticlesCountByArticleId(long groupId,
 		java.lang.String articleId) throws RemoteException {
@@ -814,7 +804,6 @@ public class JournalArticleServiceSoap {
 	information see {@link WorkflowConstants} for constants starting
 	with the "STATUS_" prefix.
 	* @return the number of matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int getArticlesCountByStructureId(long groupId,
 		long classNameId, java.lang.String ddmStructureKey, int status)
@@ -840,7 +829,6 @@ public class JournalArticleServiceSoap {
 	* @param ddmStructureKey the primary key of the web content article's DDM
 	structure
 	* @return the number of matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int getArticlesCountByStructureId(long groupId,
 		java.lang.String ddmStructureKey) throws RemoteException {
@@ -869,7 +857,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to view the
 	web content article or if no approved matching web content
 	articles could be found
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getDisplayArticleByUrlTitle(
 		long groupId, java.lang.String urlTitle) throws RemoteException {
@@ -894,7 +881,6 @@ public class JournalArticleServiceSoap {
 	* @param folderIds the primary keys of the web content article folders
 	(optionally {@link java.util.Collections#EMPTY_LIST})
 	* @return the number of matching folders containing web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int getFoldersAndArticlesCount(long groupId, Long[] folderIds)
 		throws RemoteException {
@@ -911,10 +897,41 @@ public class JournalArticleServiceSoap {
 		}
 	}
 
+	/**
+	* Returns an ordered range of all the web content articles matching the
+	* group, user, the root folder or any of its subfolders.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end -
+	* start</code> instances. <code>start</code> and <code>end</code> are not
+	* primary keys, they are indexes in the result set. Thus, <code>0</code>
+	* refers to the first result in the set. Setting both <code>start</code>
+	* and <code>end</code> to {@link
+	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* result set.
+	* </p>
+	*
+	* @param groupId the primary key of the web content article's group
+	* @param userId the primary key of the user (optionally <code>0</code>)
+	* @param rootFolderId the primary key of the root folder to begin the
+	search
+	* @param status the web content article's workflow status. For more
+	information see {@link WorkflowConstants} for constants starting
+	with the "STATUS_" prefix.
+	* @param start the lower bound of the range of web content articles to
+	return
+	* @param end the upper bound of the range of web content articles to
+	return (not inclusive)
+	* @param orderByComparator the comparator to order the web content
+	articles
+	* @return the range of matching web content articles ordered by the
+	comparator
+	* @throws PortalException if a portal exception occurred
+	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getGroupArticles(
 		long groupId, long userId, long rootFolderId, int status, int start,
 		int end,
-		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> orderByComparator)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -934,6 +951,16 @@ public class JournalArticleServiceSoap {
 	* Returns an ordered range of all the web content articles matching the
 	* group, user, the root folder or any of its subfolders.
 	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end -
+	* start</code> instances. <code>start</code> and <code>end</code> are not
+	* primary keys, they are indexes in the result set. Thus, <code>0</code>
+	* refers to the first result in the set. Setting both <code>start</code>
+	* and <code>end</code> to {@link
+	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* result set.
+	* </p>
+	*
 	* @param groupId the primary key of the web content article's group
 	* @param userId the primary key of the user (optionally <code>0</code>)
 	* @param rootFolderId the primary key of the root folder to begin the
@@ -949,11 +976,10 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the root folder could not be found, if the
 	current user did not have permission to view the root folder, or
 	if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] getGroupArticles(
 		long groupId, long userId, long rootFolderId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> orderByComparator)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -981,7 +1007,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the root folder could not be found, if the
 	current user did not have permission to view the root folder, or
 	if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int getGroupArticlesCount(long groupId, long userId,
 		long rootFolderId) throws RemoteException {
@@ -998,6 +1023,20 @@ public class JournalArticleServiceSoap {
 		}
 	}
 
+	/**
+	* Returns the number of web content articles matching the group, user, and
+	* the root folder or any of its subfolders.
+	*
+	* @param groupId the primary key of the web content article's group
+	* @param userId the primary key of the user (optionally <code>0</code>)
+	* @param rootFolderId the primary key of the root folder to begin the
+	search
+	* @param status the web content article's workflow status. For more
+	information see {@link WorkflowConstants} for constants starting
+	with the "STATUS_" prefix.
+	* @return the number of matching web content articles
+	* @throws PortalException if a portal exception occurred
+	*/
 	public static int getGroupArticlesCount(long groupId, long userId,
 		long rootFolderId, int status) throws RemoteException {
 		try {
@@ -1023,7 +1062,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to view the
 	web content article or if a matching web content article could
 	not be found
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getLatestArticle(
 		long resourcePrimKey) throws RemoteException {
@@ -1052,7 +1090,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to view the
 	web content article or if a matching web content article could
 	not be found
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getLatestArticle(
 		long groupId, java.lang.String articleId, int status)
@@ -1087,7 +1124,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if a matching web content article could not be
 	found or if the user did not have permission to view the web
 	content article
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap getLatestArticle(
 		long groupId, java.lang.String className, long classPK)
@@ -1117,7 +1153,6 @@ public class JournalArticleServiceSoap {
 	one of the versions of the web content article or if any one of
 	the versions of the web content article could not be moved to the
 	folder
-	* @throws SystemException if a system exception occurred
 	*/
 	public static void moveArticle(long groupId, java.lang.String articleId,
 		long newFolderId) throws RemoteException {
@@ -1152,7 +1187,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to view or
 	update the web content article, if a matching trashed web content
 	article could not be found, or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap moveArticleFromTrash(
 		long groupId, long resourcePrimKey, long newFolderId,
@@ -1192,7 +1226,6 @@ public class JournalArticleServiceSoap {
 	update the web content article, if a trashed web content article
 	with the primary key could not be found, or if a portal exception
 	occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap moveArticleFromTrash(
 		long groupId, java.lang.String articleId, long newFolderId,
@@ -1221,7 +1254,6 @@ public class JournalArticleServiceSoap {
 	article was found
 	* @throws PortalException if the user did not have permission to move the
 	article to the Recycle Bin or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap moveArticleToTrash(
 		long groupId, java.lang.String articleId) throws RemoteException {
@@ -1247,7 +1279,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to update any
 	one of the the web content articles or if web content matching
 	the language could not be found for any one of the articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static void removeArticleLocale(long companyId,
 		java.lang.String languageId) throws RemoteException {
@@ -1273,7 +1304,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to update the
 	web content article or if a matching web content article could
 	not be found
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap removeArticleLocale(
 		long groupId, java.lang.String articleId, double version,
@@ -1299,7 +1329,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if a matching web content article could not be
 	found in the Recycle Bin, if the user did not have permission to
 	view or restore the article, or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static void restoreArticleFromTrash(long resourcePrimKey)
 		throws RemoteException {
@@ -1322,7 +1351,6 @@ public class JournalArticleServiceSoap {
 	could not be found in the Recycle Bin, if the user did not have
 	permission to restore the article, or if a portal exception
 	occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static void restoreArticleFromTrash(long groupId,
 		java.lang.String articleId) throws RemoteException {
@@ -1373,9 +1401,7 @@ public class JournalArticleServiceSoap {
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -1394,7 +1420,6 @@ public class JournalArticleServiceSoap {
 	* @param obc the comparator to order the web content articles
 	* @return the range of matching web content articles ordered by the
 	comparator
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] search(
 		long companyId, long groupId, Long[] folderIds, long classNameId,
@@ -1402,7 +1427,8 @@ public class JournalArticleServiceSoap {
 		java.lang.String type, java.lang.String ddmStructureKey,
 		java.lang.String ddmTemplateKey, java.util.Date displayDateGT,
 		java.util.Date displayDateLT, int status, java.util.Date reviewDate,
-		int start, int end, com.liferay.portal.kernel.util.OrderByComparator obc)
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -1460,9 +1486,7 @@ public class JournalArticleServiceSoap {
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -1484,7 +1508,6 @@ public class JournalArticleServiceSoap {
 	* @param obc the comparator to order the web content articles
 	* @return the range of matching web content articles ordered by the
 	comparator
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] search(
 		long companyId, long groupId, Long[] folderIds, long classNameId,
@@ -1494,7 +1517,7 @@ public class JournalArticleServiceSoap {
 		java.lang.String ddmStructureKey, java.lang.String ddmTemplateKey,
 		java.util.Date displayDateGT, java.util.Date displayDateLT, int status,
 		java.util.Date reviewDate, boolean andOperator, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -1578,7 +1601,6 @@ public class JournalArticleServiceSoap {
 	* @param obc the comparator to order the web content articles
 	* @return the range of matching web content articles ordered by the
 	comparator
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap[] search(
 		long companyId, long groupId, Long[] folderIds, long classNameId,
@@ -1589,7 +1611,7 @@ public class JournalArticleServiceSoap {
 		java.lang.String[] ddmTemplateKeys, java.util.Date displayDateGT,
 		java.util.Date displayDateLT, int status, java.util.Date reviewDate,
 		boolean andOperator, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.journal.model.JournalArticle> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.journal.model.JournalArticle> returnValue =
@@ -1636,9 +1658,7 @@ public class JournalArticleServiceSoap {
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -1651,7 +1671,6 @@ public class JournalArticleServiceSoap {
 	* @param reviewDate the web content article's scheduled review date
 	(optionally <code>null</code>)
 	* @return the number of matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int searchCount(long companyId, long groupId,
 		Long[] folderIds, long classNameId, java.lang.String keywords,
@@ -1704,9 +1723,7 @@ public class JournalArticleServiceSoap {
 	structure, if the article is related to a DDM structure, or
 	<code>null</code> otherwise
 	* @param ddmTemplateKey the primary key of the web content article's DDM
-	template (optionally <code>null</code>). If the article is
-	related to a DDM structure, the template's structure must match
-	it.
+	template
 	* @param displayDateGT the date after which a matching web content
 	article's display date must be after (optionally
 	<code>null</code>)
@@ -1722,7 +1739,6 @@ public class JournalArticleServiceSoap {
 	or just one field must match. Group, folder IDs, class name ID,
 	and status must all match their values.
 	* @return the number of matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int searchCount(long companyId, long groupId,
 		Long[] folderIds, long classNameId, java.lang.String articleId,
@@ -1796,7 +1812,6 @@ public class JournalArticleServiceSoap {
 	or just one field must match.  Group, folder IDs, class name ID,
 	and status must all match their values.
 	* @return the number of matching web content articles
-	* @throws SystemException if a system exception occurred
 	*/
 	public static int searchCount(long companyId, long groupId,
 		Long[] folderIds, long classNameId, java.lang.String articleId,
@@ -1822,6 +1837,15 @@ public class JournalArticleServiceSoap {
 		}
 	}
 
+	/**
+	* Subscribes the user to changes in elements that belong to the web content
+	* article's DDM structure.
+	*
+	* @param groupId the primary key of the folder's group
+	* @param userId the primary key of the user to be subscribed
+	* @param ddmStructureId the primary key of the structure to subscribe to
+	* @throws PortalException if a matching user or group could not be found
+	*/
 	public static void subscribeStructure(long groupId, long userId,
 		long ddmStructureId) throws RemoteException {
 		try {
@@ -1835,6 +1859,16 @@ public class JournalArticleServiceSoap {
 		}
 	}
 
+	/**
+	* Unsubscribes the user from changes in elements that belong to the web
+	* content article's DDM structure.
+	*
+	* @param groupId the primary key of the folder's group
+	* @param userId the primary key of the user to be subscribed
+	* @param ddmStructureId the primary key of the structure to subscribe to
+	* @throws PortalException if a matching user or subscription could not be
+	found
+	*/
 	public static void unsubscribeStructure(long groupId, long userId,
 		long ddmStructureId) throws RemoteException {
 		try {
@@ -1880,7 +1914,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if a user with the primary key or a matching web
 	content article could not be found, or if a portal exception
 	occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap updateArticle(
 		long userId, long groupId, long folderId, java.lang.String articleId,
@@ -1936,7 +1969,6 @@ public class JournalArticleServiceSoap {
 	web content article, if a user with the primary key or a matching
 	web content article could not be found, or if a portal exception
 	occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap updateArticle(
 		long groupId, long folderId, java.lang.String articleId,
@@ -1970,7 +2002,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to update the
 	web content article or if a matching web content article could
 	not be found
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap updateContent(
 		long groupId, java.lang.String articleId, double version,
@@ -2006,7 +2037,6 @@ public class JournalArticleServiceSoap {
 	* @throws PortalException if the user did not have permission to update the
 	web content article, if a matching web content article could not
 	be found, or if a portal exception occurred
-	* @throws SystemException if a system exception occurred
 	*/
 	public static com.liferay.portlet.journal.model.JournalArticleSoap updateStatus(
 		long groupId, java.lang.String articleId, double version, int status,

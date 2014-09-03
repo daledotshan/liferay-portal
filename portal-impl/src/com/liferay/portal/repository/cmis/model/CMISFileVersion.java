@@ -15,7 +15,6 @@
 package com.liferay.portal.repository.cmis.model;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -33,6 +32,7 @@ import com.liferay.portal.service.CMISRepositoryLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.util.DLAppUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
@@ -138,7 +138,7 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 	}
 
 	@Override
-	public FileEntry getFileEntry() throws PortalException, SystemException {
+	public FileEntry getFileEntry() throws PortalException {
 		Document document = null;
 
 		try {
@@ -171,6 +171,11 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 		}
 
 		return 0;
+	}
+
+	@Override
+	public String getFileName() {
+		return DLAppUtil.getSanitizedFileName(getTitle(), getExtension());
 	}
 
 	@Override

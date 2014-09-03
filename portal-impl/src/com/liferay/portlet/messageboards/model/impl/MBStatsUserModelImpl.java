@@ -14,9 +14,10 @@
 
 package com.liferay.portlet.messageboards.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -53,6 +54,7 @@ import java.util.Map;
  * @see com.liferay.portlet.messageboards.model.MBStatsUserModel
  * @generated
  */
+@ProviderType
 public class MBStatsUserModelImpl extends BaseModelImpl<MBStatsUser>
 	implements MBStatsUserModel {
 	/*
@@ -84,9 +86,9 @@ public class MBStatsUserModelImpl extends BaseModelImpl<MBStatsUser>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portlet.messageboards.model.MBStatsUser"),
 			true);
-	public static long GROUPID_COLUMN_BITMASK = 1L;
-	public static long MESSAGECOUNT_COLUMN_BITMASK = 2L;
-	public static long USERID_COLUMN_BITMASK = 4L;
+	public static final long GROUPID_COLUMN_BITMASK = 1L;
+	public static final long MESSAGECOUNT_COLUMN_BITMASK = 2L;
+	public static final long USERID_COLUMN_BITMASK = 4L;
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
 				"lock.expiration.time.com.liferay.portlet.messageboards.model.MBStatsUser"));
 
@@ -183,7 +185,7 @@ public class MBStatsUserModelImpl extends BaseModelImpl<MBStatsUser>
 	}
 
 	@Override
-	public String getStatsUserUuid() throws SystemException {
+	public String getStatsUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getStatsUserId());
 
@@ -239,7 +241,7 @@ public class MBStatsUserModelImpl extends BaseModelImpl<MBStatsUser>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -488,8 +490,8 @@ public class MBStatsUserModelImpl extends BaseModelImpl<MBStatsUser>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = MBStatsUser.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = MBStatsUser.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			MBStatsUser.class
 		};
 	private long _statsUserId;

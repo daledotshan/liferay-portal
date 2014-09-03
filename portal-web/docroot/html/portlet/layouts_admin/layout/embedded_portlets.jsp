@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/layouts_admin/init.jsp" %>
 
 <%
-Layout selLayout = (Layout)request.getAttribute("edit_pages.jsp-selLayout");
+Layout selLayout = layoutsAdminDisplayContext.getSelLayout();
 
 List<Portlet> embeddedPortlets = (List<Portlet>)request.getAttribute("edit_pages.jsp-embeddedPortlets");
 
@@ -40,7 +40,7 @@ rowChecker.setRowIds("removeEmbeddedPortletIds");
 		</div>
 	</c:when>
 	<c:otherwise>
-		<div class="alert alert-block">
+		<div class="alert alert-warning">
 			<liferay-ui:message key="warning-preferences-of-selected-portlets-will-be-reset-or-deleted" />
 		</div>
 	</c:otherwise>

@@ -16,7 +16,6 @@ package com.liferay.portal.security.pwd;
 
 import com.liferay.portal.UserPasswordException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.security.RandomUtil;
 import com.liferay.portal.kernel.security.SecureRandom;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -84,7 +83,7 @@ public class PasswordPolicyToolkit extends BasicToolkit {
 	public void validate(
 			long userId, String password1, String password2,
 			PasswordPolicy passwordPolicy)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (passwordPolicy.isCheckSyntax()) {
 			if (!passwordPolicy.isAllowDictionaryWords() &&
@@ -136,21 +135,15 @@ public class PasswordPolicyToolkit extends BasicToolkit {
 		Date passwordModfiedDate = user.getPasswordModifiedDate();
 
 		if (passwordModfiedDate != null) {
-
-			// LEP-2961
-
 			Date now = new Date();
 
 			long passwordModificationElapsedTime =
 				now.getTime() - passwordModfiedDate.getTime();
 
-			long userCreationElapsedTime =
-				now.getTime() - user.getCreateDate().getTime();
-
 			long minAge = passwordPolicy.getMinAge() * 1000;
 
 			if ((passwordModificationElapsedTime < minAge) &&
-				(userCreationElapsedTime > minAge)) {
+				!user.getPasswordReset()) {
 
 				throw new UserPasswordException(
 					UserPasswordException.PASSWORD_TOO_YOUNG);

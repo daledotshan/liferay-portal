@@ -29,10 +29,15 @@ import com.liferay.portal.model.ResourcePermission;
 import com.liferay.portal.model.impl.ResourcePermissionImpl;
 import com.liferay.portal.model.impl.ResourcePermissionModelImpl;
 import com.liferay.portal.service.persistence.ResourcePermissionFinder;
+import com.liferay.portal.service.persistence.ResourcePermissionUtil;
 import com.liferay.util.dao.orm.CustomSQLUtil;
+
+import java.io.Serializable;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Brian Wing Shun Chan
@@ -67,7 +72,7 @@ public class ResourcePermissionFinderImpl
 			});
 
 	@Override
-	public int countByR_S(long roleId, int[] scopes) throws SystemException {
+	public int countByR_S(long roleId, int[] scopes) {
 		Session session = null;
 
 		try {
@@ -108,9 +113,8 @@ public class ResourcePermissionFinderImpl
 
 	@Override
 	public int countByC_N_S_P_R_A(
-			long companyId, String name, int scope, String primKey,
-			long[] roleIds, long actionId)
-		throws SystemException {
+		long companyId, String name, int scope, String primKey, long[] roleIds,
+		long actionId) {
 
 		Object[] finderArgs = new Object[] {
 			companyId, name, scope, primKey, roleIds, actionId
@@ -180,8 +184,7 @@ public class ResourcePermissionFinderImpl
 
 	@Override
 	public List<ResourcePermission> findByResource(
-			long companyId, long groupId, String name, String primKey)
-		throws SystemException {
+		long companyId, long groupId, String name, String primKey) {
 
 		Session session = null;
 
@@ -213,9 +216,15 @@ public class ResourcePermissionFinderImpl
 	}
 
 	@Override
+	public Map<Serializable, ResourcePermission> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+
+		return ResourcePermissionUtil.fetchByPrimaryKeys(primaryKeys);
+	}
+
+	@Override
 	public List<ResourcePermission> findByR_S(
-			long roleId, int[] scopes, int start, int end)
-		throws SystemException {
+		long roleId, int[] scopes, int start, int end) {
 
 		Session session = null;
 

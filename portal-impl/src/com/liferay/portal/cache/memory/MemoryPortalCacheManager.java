@@ -17,6 +17,7 @@ package com.liferay.portal.cache.memory;
 import com.liferay.portal.kernel.cache.CacheManagerListener;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.PortalCacheManager;
+import com.liferay.portal.kernel.cache.PortalCacheProvider;
 
 import java.io.Serializable;
 
@@ -35,6 +36,10 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 	implements PortalCacheManager<K, V> {
 
 	public void afterPropertiesSet() {
+		if (_name == null) {
+			throw new NullPointerException("Name is null");
+		}
+
 		_memoryPortalCaches =
 			new ConcurrentHashMap<String, MemoryPortalCache<K, V>>(
 				_cacheManagerInitialCapacity);
@@ -44,6 +49,8 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 
 			cacheManagerListener.init();
 		}
+
+		PortalCacheProvider.registerPortalCacheManager(this);
 	}
 
 	@Override
@@ -57,6 +64,8 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 
 	@Override
 	public void destroy() {
+		PortalCacheProvider.unregisterPortalCacheManager(_name);
+
 		for (MemoryPortalCache<K, V> memoryPortalCache :
 				_memoryPortalCaches.values()) {
 
@@ -81,7 +90,7 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 
 		if (portalCache == null) {
 			portalCache = new MemoryPortalCache<K, V>(
-				name, _cacheInitialCapacity);
+				this, name, _cacheInitialCapacity);
 
 			_memoryPortalCaches.put(name, portalCache);
 
@@ -98,6 +107,16 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 	@Override
 	public Set<CacheManagerListener> getCacheManagerListeners() {
 		return new HashSet<CacheManagerListener>(_cacheManagerListeners);
+	}
+
+	@Override
+	public String getName() {
+		return _name;
+	}
+
+	@Override
+	public boolean isClusterAware() {
+		return _clusterAware;
 	}
 
 	@Override
@@ -135,6 +154,14 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 		_cacheManagerInitialCapacity = cacheManagerInitialCapacity;
 	}
 
+	public void setClusterAware(boolean clusterAware) {
+		_clusterAware = clusterAware;
+	}
+
+	public void setName(String name) {
+		_name = name;
+	}
+
 	@Override
 	public boolean unregisterCacheManagerListener(
 		CacheManagerListener cacheManagerListener) {
@@ -151,6 +178,8 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 	private int _cacheManagerInitialCapacity = 10000;
 	private Set<CacheManagerListener> _cacheManagerListeners =
 		new CopyOnWriteArraySet<CacheManagerListener>();
+	private boolean _clusterAware;
 	private Map<String, MemoryPortalCache<K, V>> _memoryPortalCaches;
+	private String _name;
 
 }

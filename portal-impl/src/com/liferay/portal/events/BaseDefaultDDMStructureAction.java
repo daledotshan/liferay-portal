@@ -20,8 +20,8 @@ import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Attribute;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
@@ -82,7 +82,7 @@ public abstract class BaseDefaultDDMStructureAction extends SimpleAction {
 			Element structureElementRootElement = structureElement.element(
 				"root");
 
-			String xsd = structureElementRootElement.asXML();
+			String definition = structureElementRootElement.asXML();
 
 			Map<Locale, String> nameMap = new HashMap<Locale, String>();
 			Map<Locale, String> descriptionMap = new HashMap<Locale, String>();
@@ -101,8 +101,8 @@ public abstract class BaseDefaultDDMStructureAction extends SimpleAction {
 			Locale ddmStructureDefaultLocale = LocaleUtil.fromLanguageId(
 				defaultLocaleAttribute.getValue());
 
-			xsd = DDMXMLUtil.updateXMLDefaultLocale(
-				xsd, ddmStructureDefaultLocale, locale);
+			definition = DDMXMLUtil.updateXMLDefaultLocale(
+				definition, ddmStructureDefaultLocale, locale);
 
 			if (name.equals(DLFileEntryTypeConstants.NAME_IG_IMAGE) &&
 				!UpgradeProcessUtil.isCreateIGImageDocumentType()) {
@@ -113,21 +113,28 @@ public abstract class BaseDefaultDDMStructureAction extends SimpleAction {
 			ddmStructure = DDMStructureLocalServiceUtil.addStructure(
 				userId, groupId,
 				DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID, classNameId,
-				ddmStructureKey, nameMap, descriptionMap, xsd, "xml",
+				ddmStructureKey, nameMap, descriptionMap, definition, "xml",
 				DDMStructureConstants.TYPE_DEFAULT, serviceContext);
 
-			String templateFileName = structureElement.elementText("template");
+			Element templateElement = structureElement.element("template");
 
-			if (Validator.isNotNull(templateFileName)) {
-				DDMTemplateLocalServiceUtil.addTemplate(
-					userId, groupId,
-					PortalUtil.getClassNameId(DDMStructure.class),
-					ddmStructure.getStructureId(), nameMap, null,
-					DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY,
-					DDMTemplateConstants.TEMPLATE_MODE_CREATE,
-					TemplateConstants.LANG_TYPE_FTL,
-					getContent(templateFileName), serviceContext);
+			if (templateElement == null) {
+				continue;
 			}
+
+			String templateFileName = templateElement.elementText("file-name");
+
+			boolean templateCacheable = GetterUtil.getBoolean(
+				templateElement.elementText("cacheable"));
+
+			DDMTemplateLocalServiceUtil.addTemplate(
+				userId, groupId, PortalUtil.getClassNameId(DDMStructure.class),
+				ddmStructure.getStructureId(), null, nameMap, null,
+				DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY,
+				DDMTemplateConstants.TEMPLATE_MODE_CREATE,
+				TemplateConstants.LANG_TYPE_FTL, getContent(templateFileName),
+				templateCacheable, false, StringPool.BLANK, null,
+				serviceContext);
 		}
 	}
 
@@ -150,7 +157,7 @@ public abstract class BaseDefaultDDMStructureAction extends SimpleAction {
 		return rootElement.elements("structure");
 	}
 
-	protected String getDynamicDDMStructureXSD(
+	protected String getDynamicDDMStructureDefinition(
 			String fileName, String dynamicDDMStructureName, Locale locale)
 		throws DocumentException {
 

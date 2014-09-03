@@ -15,7 +15,6 @@
 package com.liferay.portal.kernel.repository.model;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
 import java.io.InputStream;
@@ -33,7 +32,7 @@ public interface FileVersion extends RepositoryModel<FileVersion> {
 	public long getCompanyId();
 
 	public InputStream getContentStream(boolean incrementCounter)
-		throws PortalException, SystemException;
+		throws PortalException;
 
 	@Override
 	public Date getCreateDate();
@@ -47,9 +46,11 @@ public interface FileVersion extends RepositoryModel<FileVersion> {
 
 	public String getExtraSettings();
 
-	public FileEntry getFileEntry() throws PortalException, SystemException;
+	public FileEntry getFileEntry() throws PortalException;
 
 	public long getFileEntryId();
+
+	public String getFileName();
 
 	public long getFileVersionId();
 
@@ -70,7 +71,7 @@ public interface FileVersion extends RepositoryModel<FileVersion> {
 
 	public String getStatusByUserName();
 
-	public String getStatusByUserUuid() throws SystemException;
+	public String getStatusByUserUuid();
 
 	public Date getStatusDate();
 
@@ -83,7 +84,7 @@ public interface FileVersion extends RepositoryModel<FileVersion> {
 	public String getUserName();
 
 	@Override
-	public String getUserUuid() throws SystemException;
+	public String getUserUuid();
 
 	@Override
 	public String getUuid();
