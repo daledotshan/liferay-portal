@@ -14,6 +14,7 @@
 
 package com.liferay.portal.tools.seleniumbuilder;
 
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -58,6 +59,30 @@ public class SeleniumBuilder {
 		_seleniumBuilderContext = new SeleniumBuilderContext(
 			_seleniumBuilderFileUtil);
 
+		Set<String> actionNames = _seleniumBuilderContext.getActionNames();
+
+		for (String actionName : actionNames) {
+			_seleniumBuilderContext.validateActionElements(actionName);
+		}
+
+		Set<String> functionNames = _seleniumBuilderContext.getFunctionNames();
+
+		for (String functionName : functionNames) {
+			_seleniumBuilderContext.validateFunctionElements(functionName);
+		}
+
+		Set<String> macroNames = _seleniumBuilderContext.getMacroNames();
+
+		for (String macroName : macroNames) {
+			_seleniumBuilderContext.validateMacroElements(macroName);
+		}
+
+		Set<String> testCaseNames = _seleniumBuilderContext.getTestCaseNames();
+
+		for (String testCaseName : testCaseNames) {
+			_seleniumBuilderContext.validateTestCaseElements(testCaseName);
+		}
+
 		Set<String> types = SetUtil.fromArray(
 			StringUtil.split(arguments.get("selenium.types")));
 
@@ -65,11 +90,7 @@ public class SeleniumBuilder {
 			ActionConverter actionConverter = new ActionConverter(
 				_seleniumBuilderContext, _seleniumBuilderFileUtil);
 
-			Set<String> actionNames = _seleniumBuilderContext.getActionNames();
-
 			for (String actionName : actionNames) {
-				_seleniumBuilderContext.validateActionElements(actionName);
-
 				actionConverter.convert(actionName);
 			}
 		}
@@ -78,12 +99,7 @@ public class SeleniumBuilder {
 			FunctionConverter functionConverter = new FunctionConverter(
 				_seleniumBuilderContext, _seleniumBuilderFileUtil);
 
-			Set<String> functionNames =
-				_seleniumBuilderContext.getFunctionNames();
-
 			for (String functionName : functionNames) {
-				_seleniumBuilderContext.validateFunctionElements(functionName);
-
 				functionConverter.convert(functionName);
 			}
 		}
@@ -92,11 +108,7 @@ public class SeleniumBuilder {
 			MacroConverter macroConverter = new MacroConverter(
 				_seleniumBuilderContext, _seleniumBuilderFileUtil);
 
-			Set<String> macroNames = _seleniumBuilderContext.getMacroNames();
-
 			for (String macroName : macroNames) {
-				_seleniumBuilderContext.validateMacroElements(macroName);
-
 				macroConverter.convert(macroName);
 			}
 		}
@@ -115,13 +127,6 @@ public class SeleniumBuilder {
 		if (types.contains("testcase")) {
 			TestCaseConverter testCaseConverter = new TestCaseConverter(
 				_seleniumBuilderContext, _seleniumBuilderFileUtil);
-
-			Set<String> testCaseNames =
-				_seleniumBuilderContext.getTestCaseNames();
-
-			for (String testCaseName : testCaseNames) {
-				_seleniumBuilderContext.validateTestCaseElements(testCaseName);
-			}
 
 			String testClass = arguments.get("test.class");
 
@@ -217,6 +222,26 @@ public class SeleniumBuilder {
 		return testCaseCount;
 	}
 
+	private boolean _isIgnoreCommandName(
+		Element rootElement, String commandName) {
+
+		String ignoreCommandNamesString = rootElement.attributeValue(
+			"ignore-command-names");
+
+		if (ignoreCommandNamesString == null) {
+			return false;
+		}
+
+		String[] ignoreCommandNames = StringUtil.split(
+			ignoreCommandNamesString);
+
+		ignoreCommandNamesString = StringUtil.replace(
+			ignoreCommandNamesString, new String[] {" ", "\n", "\t"},
+			new String[] {"", "", ""});
+
+		return ArrayUtil.contains(ignoreCommandNames, commandName);
+	}
+
 	/**
 	 * Writes lists of all test case method names, aggregated by component, to a
 	 * properties file named <code>test.case.method.names.properties</code>.
@@ -279,9 +304,14 @@ public class SeleniumBuilder {
 						extendsRootElement, "command");
 
 				for (Element commandElement : commandElements) {
+					String commandName = commandElement.attributeValue("name");
+
+					if (_isIgnoreCommandName(rootElement, commandName)) {
+						continue;
+					}
+
 					String testCaseMethodName =
-						testCaseName + "TestCase#test" +
-							commandElement.attributeValue("name");
+						testCaseName + "TestCase#test" + commandName;
 
 					compontentTestCaseMethodNames.add(testCaseMethodName);
 
@@ -466,16 +496,45 @@ public class SeleniumBuilder {
 			List<Element> rootPropertyElements = rootElement.elements(
 				"property");
 
+			StringBundler sb = new StringBundler();
+
+			sb.append(testCaseName);
+			sb.append("TestCase.all.testray.testcase.product.edition=CE");
+
+			testCaseProperties.add(sb.toString());
+
 			for (Element rootPropertyElement : rootPropertyElements) {
-				StringBundler sb = new StringBundler();
+				sb = new StringBundler();
 
 				sb.append(testCaseName);
 				sb.append("TestCase.all.");
-				sb.append(rootPropertyElement.attributeValue("name"));
+
+				String rootPropertyName = rootPropertyElement.attributeValue(
+					"name");
+
+				sb.append(rootPropertyName);
+
 				sb.append("=");
 				sb.append(rootPropertyElement.attributeValue("value"));
 
 				testCaseProperties.add(sb.toString());
+
+				String rootPropertyDelimiter =
+					rootPropertyElement.attributeValue("delimiter");
+
+				if ((rootPropertyDelimiter != null) &&
+					rootPropertyName.equals("ignore.errors")) {
+
+					sb = new StringBundler();
+
+					sb.append(testCaseName);
+					sb.append("TestCase.all.");
+					sb.append(rootPropertyName);
+					sb.append(".delimiter=");
+					sb.append(rootPropertyDelimiter);
+
+					testCaseProperties.add(sb.toString());
+				}
 			}
 
 			List<Element> commandElements =
@@ -488,7 +547,7 @@ public class SeleniumBuilder {
 						commandElement, "property");
 
 				for (Element commandPropertyElement : commandPropertyElements) {
-					StringBundler sb = new StringBundler();
+					sb = new StringBundler();
 
 					sb.append(testCaseName);
 					sb.append("TestCase.test");
@@ -501,7 +560,32 @@ public class SeleniumBuilder {
 					testCaseProperties.add(sb.toString());
 				}
 
-				StringBundler sb = new StringBundler();
+				sb = new StringBundler();
+
+				sb.append(testCaseName);
+				sb.append("TestCase.test");
+				sb.append(commandElement.attributeValue("name"));
+				sb.append(".testray.testcase.description=");
+
+				if (commandElement.attributeValue("description") != null) {
+					sb.append(commandElement.attributeValue("description"));
+				}
+
+				testCaseProperties.add(sb.toString());
+
+				sb = new StringBundler();
+
+				sb.append(testCaseName);
+				sb.append("TestCase.test");
+				sb.append(commandElement.attributeValue("name"));
+				sb.append(".testray.testcase.name=");
+				sb.append(testCaseName);
+				sb.append("#");
+				sb.append(commandElement.attributeValue("name"));
+
+				testCaseProperties.add(sb.toString());
+
+				sb = new StringBundler();
 
 				sb.append(testCaseName);
 				sb.append("TestCase.test");

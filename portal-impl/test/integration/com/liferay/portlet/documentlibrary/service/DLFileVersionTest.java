@@ -17,18 +17,18 @@ package com.liferay.portlet.documentlibrary.service;
 import com.liferay.portal.events.AddDefaultDocumentLibraryStructuresAction;
 import com.liferay.portal.kernel.events.SimpleAction;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.util.test.ServiceContextTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
@@ -37,6 +37,7 @@ import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.storage.Field;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
+import com.liferay.portlet.dynamicdatamapping.util.DDMImpl;
 import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTable;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
@@ -44,6 +45,7 @@ import com.liferay.portlet.expando.service.ExpandoTableLocalServiceUtil;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -119,6 +121,35 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 	}
 
 	@Test
+	public void testRevertVersion() throws Exception {
+		DLAppServiceUtil.updateFileEntry(
+			_fileVersion.getFileEntryId(), _SOURCE_FILE_NAME,
+			_fileVersion.getMimeType(), _fileVersion.getTitle(),
+			_fileVersion.getDescription(), _fileVersion.getChangeLog(), false,
+			_DATA_VERSION_1, _serviceContext);
+
+		DLAppServiceUtil.updateFileEntry(
+			_fileVersion.getFileEntryId(), _SOURCE_FILE_NAME,
+			_fileVersion.getMimeType(), _UPDATE_VALUE,
+			_fileVersion.getDescription(), _fileVersion.getChangeLog(), false,
+			_DATA_VERSION_1, _serviceContext);
+
+		FileEntry fileEntry = DLAppServiceUtil.updateFileEntry(
+			_fileVersion.getFileEntryId(), _SOURCE_FILE_NAME,
+			_fileVersion.getMimeType(), _fileVersion.getTitle(),
+			_fileVersion.getDescription(), _fileVersion.getChangeLog(), false,
+			_DATA_VERSION_1, _serviceContext);
+
+		DLAppServiceUtil.revertFileEntry(
+			fileEntry.getFileEntryId(), DLFileEntryConstants.VERSION_DEFAULT,
+			_serviceContext);
+
+		fileEntry = DLAppServiceUtil.getFileEntry(fileEntry.getFileEntryId());
+
+		Assert.assertEquals("2.0", fileEntry.getVersion());
+	}
+
+	@Test
 	public void testUpdateChecksum() throws Exception {
 		FileEntry fileEntry = DLAppServiceUtil.updateFileEntry(
 			_fileVersion.getFileEntryId(), _SOURCE_FILE_NAME,
@@ -168,18 +199,6 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 			_fileVersion.getFileEntryId(), _SOURCE_FILE_NAME,
 			_fileVersion.getMimeType(), _fileVersion.getTitle(),
 			_fileVersion.getDescription(), _fileVersion.getChangeLog(), false,
-			_DATA_VERSION_1, _serviceContext);
-
-		Assert.assertNotEquals(
-			DLFileEntryConstants.VERSION_DEFAULT, fileEntry.getVersion());
-	}
-
-	@Test
-	public void testUpdateMajorVersion() throws Exception {
-		FileEntry fileEntry = DLAppServiceUtil.updateFileEntry(
-			_fileVersion.getFileEntryId(), _SOURCE_FILE_NAME,
-			_fileVersion.getMimeType(), _fileVersion.getTitle(),
-			_fileVersion.getDescription(), _fileVersion.getChangeLog(), true,
 			_DATA_VERSION_1, _serviceContext);
 
 		Assert.assertNotEquals(
@@ -237,9 +256,42 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 			DLFileEntryConstants.VERSION_DEFAULT, fileEntry.getVersion());
 	}
 
+	protected Field createField(DDMStructure ddmStructure, String name) {
+		Field field = new Field(
+			ddmStructure.getStructureId(), name, StringPool.BLANK);
+
+		field.setDefaultLocale(LocaleUtil.US);
+
+		return field;
+	}
+
+	protected Field createFieldsDisplayField(
+		DDMStructure ddmStructure, Set<String> fieldNames) {
+
+		List<String> fieldsDisplayValues = new ArrayList<String>();
+
+		for (String fieldName : fieldNames) {
+			if (ddmStructure.isFieldPrivate(fieldName)) {
+				continue;
+			}
+
+			fieldsDisplayValues.add(
+				fieldName + DDMImpl.INSTANCE_SEPARATOR +
+				StringUtil.randomString());
+		}
+
+		Field fieldsDisplayField = new Field(
+			ddmStructure.getStructureId(), DDMImpl.FIELDS_DISPLAY_NAME,
+			StringUtil.merge(fieldsDisplayValues));
+
+		fieldsDisplayField.setDefaultLocale(LocaleUtil.US);
+
+		return fieldsDisplayField;
+	}
+
 	protected ServiceContext getServiceContext() throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		serviceContext.setAttribute(
 			"fileEntryTypeId", _contractDLFileEntryTypeId);
@@ -260,18 +312,22 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 		for (DDMStructure ddmStructure : ddmStructures) {
 			Fields fields = new Fields();
 
-			Set<String> names = ddmStructure.getFieldNames();
+			Set<String> fieldNames = ddmStructure.getFieldNames();
 
-			for (String name : names) {
-				Field field = new Field(
-					ddmStructure.getStructureId(), name, StringPool.BLANK);
-
-				if (ddmStructure.isFieldPrivate(name)) {
-					field.setValue(ServiceTestUtil.randomString());
+			for (String fieldName : fieldNames) {
+				if (ddmStructure.isFieldPrivate(fieldName)) {
+					continue;
 				}
+
+				Field field = createField(ddmStructure, fieldName);
 
 				fields.put(field);
 			}
+
+			Field fieldsDisplayField = createFieldsDisplayField(
+				ddmStructure, fieldNames);
+
+			fields.put(fieldsDisplayField);
 
 			serviceContext.setAttribute(
 				Fields.class.getName() + ddmStructure.getStructureId(), fields);
@@ -282,7 +338,7 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 
 	protected void updateServiceContext(
 			String expando, long fileEntryTypeId, String metadata)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Map<String, Serializable> expandoBridgeAttributes =
 			_serviceContext.getExpandoBridgeAttributes();

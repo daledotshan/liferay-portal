@@ -16,21 +16,21 @@ package com.liferay.portlet.bookmarks.service;
 
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.model.Group;
-import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
-import com.liferay.portal.util.GroupTestUtil;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.test.DeleteAfterTestRun;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.util.test.ServiceContextTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.bookmarks.model.BookmarksEntry;
 import com.liferay.portlet.bookmarks.model.BookmarksFolder;
-import com.liferay.portlet.bookmarks.util.BookmarksTestUtil;
+import com.liferay.portlet.bookmarks.model.BookmarksFolderConstants;
+import com.liferay.portlet.bookmarks.util.test.BookmarksTestUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,16 +49,38 @@ public class BookmarksEntryLocalServiceTreeTest {
 		_group = GroupTestUtil.addGroup();
 	}
 
-	@After
-	public void tearDown() throws Exception {
-		GroupLocalServiceUtil.deleteGroup(_group);
+	@Test
+	public void testBookmarksEntryTreePathWhenMovingSubfolderWithEntry()
+		throws Exception {
+
+		BookmarksFolder folderA = BookmarksTestUtil.addFolder(
+			_group.getGroupId(),
+			BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID, "Folder A");
+
+		BookmarksFolder folderAA = BookmarksTestUtil.addFolder(
+			_group.getGroupId(), folderA.getFolderId(), "Folder AA");
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		BookmarksEntry entry = BookmarksTestUtil.addEntry(
+			folderAA.getFolderId(), true, serviceContext);
+
+		BookmarksFolderLocalServiceUtil.moveFolder(
+			folderAA.getFolderId(),
+			BookmarksFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+		entry = BookmarksEntryLocalServiceUtil.getBookmarksEntry(
+			entry.getEntryId());
+
+		Assert.assertEquals(entry.buildTreePath(), entry.getTreePath());
 	}
 
 	@Test
 	public void testRebuildTree() throws Exception {
-		createTree();
+		List<BookmarksEntry> entries = createTree();
 
-		for (BookmarksEntry entry : _entries) {
+		for (BookmarksEntry entry : entries) {
 			entry.setTreePath(null);
 
 			BookmarksEntryLocalServiceUtil.updateBookmarksEntry(entry);
@@ -67,31 +89,36 @@ public class BookmarksEntryLocalServiceTreeTest {
 		BookmarksEntryLocalServiceUtil.rebuildTree(
 			TestPropsValues.getCompanyId());
 
-		for (BookmarksEntry entry : _entries) {
+		for (BookmarksEntry entry : entries) {
 			entry = BookmarksEntryLocalServiceUtil.getEntry(entry.getEntryId());
 
 			Assert.assertEquals(entry.buildTreePath(), entry.getTreePath());
 		}
 	}
 
-	protected void createTree() throws Exception {
-		BookmarksEntry entryA = BookmarksTestUtil.addEntry(true);
+	protected List<BookmarksEntry> createTree() throws Exception {
+		List<BookmarksEntry> entries = new ArrayList<BookmarksEntry>();
 
-		_entries.add(entryA);
+		BookmarksEntry entryA = BookmarksTestUtil.addEntry(
+			_group.getGroupId(), true);
 
-		_folder = BookmarksTestUtil.addFolder("Folder A");
+		entries.add(entryA);
 
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			TestPropsValues.getGroupId());
+		BookmarksFolder folder = BookmarksTestUtil.addFolder(
+			_group.getGroupId(), "Folder A");
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		BookmarksEntry entryAA = BookmarksTestUtil.addEntry(
-			_folder.getFolderId(), true, serviceContext);
+			folder.getFolderId(), true, serviceContext);
 
-		_entries.add(entryAA);
+		entries.add(entryAA);
+
+		return entries;
 	}
 
-	private List<BookmarksEntry> _entries = new ArrayList<BookmarksEntry>();
-	private BookmarksFolder _folder;
+	@DeleteAfterTestRun
 	private Group _group;
 
 }

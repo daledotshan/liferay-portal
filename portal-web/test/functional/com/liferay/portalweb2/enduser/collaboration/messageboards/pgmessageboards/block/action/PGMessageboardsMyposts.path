@@ -76,6 +76,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>THREAD_TABLE_THREAD_URGENT_IMAGE</td>
+	<td>//tr[contains(.,'${key_threadSubject}')]/td[1]/a/img[@title='Urgent']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_TABLE_THREAD_STICKY_IMAGE</td>
+	<td>//tr[contains(.,'${key_threadSubject}')]/td[1]/a/img[@title='Sticky']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>THREAD_TABLE_STARTED_BY</td>
 	<td>//tr[contains(.,'${key_threadSubject}')]/td[2]/a</td>
 	<td></td>
@@ -102,12 +112,12 @@
 </tr>
 <tr>
 	<td>THREAD_TABLE_ACTIONS</td>
-	<td>//tr[contains(.,'${key_threadSubject}')]//a[@title='Actions']</td>
+	<td>//tr[contains(.,'${key_threadSubject}')]//div/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>THREAD_TABLE_ACTIONS_GENERIC</td>
-	<td>//tr[1]//a[@title='Actions']</td>
+	<td>//tr[1]//div/a</td>
 	<td></td>
 </tr>
 <tr>

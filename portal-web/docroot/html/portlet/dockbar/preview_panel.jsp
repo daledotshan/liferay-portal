@@ -17,11 +17,11 @@
 <%@ include file="/html/portlet/dockbar/init.jsp" %>
 
 <div id="<portlet:namespace />devicePreviewContainer">
-	<aui:button cssClass="close pull-right" name="closePanelPreview" value="&times;" />
+	<aui:button cssClass="close" name="closePanelPreview" value="&times;" />
 
 	<h1><liferay-ui:message key="preview" /></h1>
 
-	<aui:nav cssClass="nav-list">
+	<aui:nav>
 		<aui:nav-item cssClass="autosize lfr-device-item" data-device="autosize">
 			<div class="device-info">
 				<span class="device-name"><liferay-ui:message key="autosize" /></span>
@@ -52,12 +52,21 @@
 
 		<aui:nav-item cssClass="lfr-device-item" data-device="custom">
 			<p><liferay-ui:message key="custom" /> (px)</p>
+				<div class="col-xs-5">
+					<aui:input cssClass="form-control" inlineField="<%= true %>" label="" name="width" value="400" />
+				</div>
 
-			<aui:input cssClass="input-mini" inlineField="<%= true %>" label="" name="width" value="400" /><span> &times; </span><aui:input cssClass="input-mini" inlineField="<%= true %>" label="" name="height" value="400" />
+				<div class="col-xs-2">
+					<span> &times; </span>
+				</div>
+
+				<div class="col-xs-5">
+					<aui:input cssClass="form-control" inlineField="<%= true %>" label="" name="height" value="400" />
+				</div>
 		</aui:nav-item>
 	</aui:nav>
 
-	<div class="alert">
+	<div class="alert alert-warning">
 		<small><liferay-ui:message key="preview-may-not-be-accurate" /></small>
 	</div>
 </div>

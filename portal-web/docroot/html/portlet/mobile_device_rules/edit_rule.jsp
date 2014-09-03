@@ -34,7 +34,7 @@ long ruleGroupId = BeanParamUtil.getLong(ruleGroup, request, "ruleGroupId");
 String title = StringPool.BLANK;
 
 if (ruleGroup != null) {
-	title = LanguageUtil.format(pageContext, "new-classification-rule-for-x", ruleGroup.getName(locale), false);
+	title = LanguageUtil.format(request, "new-classification-rule-for-x", ruleGroup.getName(locale), false);
 
 	if (rule != null) {
 		title = rule.getName(locale) + " (" + ruleGroup.getName(locale) + ")";
@@ -73,7 +73,7 @@ Collection<String> ruleHandlerTypes = RuleGroupProcessorUtil.getRuleHandlerTypes
 	<aui:model-context bean="<%= rule %>" model="<%= MDRRule.class %>" />
 
 	<c:if test='<%= !PluginPackageUtil.isInstalled("wurfl-web") %>'>
-		<div class="alert alert-block">
+		<div class="alert alert-warning">
 			<liferay-ui:message key="there-is-no-device-recognition-provider-installed" />
 		</div>
 	</c:if>

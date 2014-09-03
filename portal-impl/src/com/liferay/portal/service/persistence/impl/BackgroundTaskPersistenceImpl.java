@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.persistence.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.NoSuchBackgroundTaskException;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -23,12 +25,9 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -37,16 +36,19 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.impl.BackgroundTaskImpl;
 import com.liferay.portal.model.impl.BackgroundTaskModelImpl;
 import com.liferay.portal.service.persistence.BackgroundTaskPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The persistence implementation for the background task service.
@@ -60,6 +62,7 @@ import java.util.List;
  * @see BackgroundTaskUtil
  * @generated
  */
+@ProviderType
 public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<BackgroundTask>
 	implements BackgroundTaskPersistence {
 	/*
@@ -111,11 +114,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param groupId the group ID
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findByGroupId(long groupId)
-		throws SystemException {
+	public List<BackgroundTask> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -130,11 +131,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<BackgroundTask> findByGroupId(long groupId, int start, int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -150,11 +149,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -257,12 +255,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByGroupId_First(groupId,
 				orderByComparator);
 
@@ -288,11 +285,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByGroupId(groupId, 0, 1,
 				orderByComparator);
 
@@ -310,12 +306,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByGroupId_Last(groupId,
 				orderByComparator);
 
@@ -341,11 +336,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -370,12 +364,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByGroupId_PrevAndNext(long backgroundTaskId,
-		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		long groupId, OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -405,7 +398,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	protected BackgroundTask getByGroupId_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -512,10 +505,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * Removes all the background tasks where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (BackgroundTask backgroundTask : findByGroupId(groupId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(backgroundTask);
@@ -527,10 +519,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -605,11 +596,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param companyId the company ID
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findByCompanyId(long companyId)
-		throws SystemException {
+	public List<BackgroundTask> findByCompanyId(long companyId) {
 		return findByCompanyId(companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -625,11 +614,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByCompanyId(long companyId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByCompanyId(companyId, start, end, null);
 	}
 
@@ -645,11 +633,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByCompanyId(long companyId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -752,12 +739,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByCompanyId_First(companyId,
 				orderByComparator);
 
@@ -783,11 +769,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByCompanyId(companyId, 0, 1,
 				orderByComparator);
 
@@ -805,12 +790,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByCompanyId_Last(companyId,
 				orderByComparator);
 
@@ -836,11 +820,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByCompanyId(companyId);
 
 		if (count == 0) {
@@ -865,12 +848,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByCompanyId_PrevAndNext(long backgroundTaskId,
-		long companyId, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		long companyId, OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -900,7 +882,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	protected BackgroundTask getByCompanyId_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long companyId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1007,10 +989,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * Removes all the background tasks where companyId = &#63; from the database.
 	 *
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByCompanyId(long companyId) throws SystemException {
+	public void removeByCompanyId(long companyId) {
 		for (BackgroundTask backgroundTask : findByCompanyId(companyId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(backgroundTask);
@@ -1022,10 +1003,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param companyId the company ID
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByCompanyId(long companyId) throws SystemException {
+	public int countByCompanyId(long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_COMPANYID;
 
 		Object[] finderArgs = new Object[] { companyId };
@@ -1099,11 +1079,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param status the status
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findByStatus(int status)
-		throws SystemException {
+	public List<BackgroundTask> findByStatus(int status) {
 		return findByStatus(status, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1118,11 +1096,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findByStatus(int status, int start, int end)
-		throws SystemException {
+	public List<BackgroundTask> findByStatus(int status, int start, int end) {
 		return findByStatus(status, start, end, null);
 	}
 
@@ -1138,11 +1114,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByStatus(int status, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1245,12 +1220,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByStatus_First(int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByStatus_First(status,
 				orderByComparator);
 
@@ -1276,11 +1250,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByStatus_First(int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByStatus(status, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1297,12 +1270,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByStatus_Last(int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByStatus_Last(status,
 				orderByComparator);
 
@@ -1328,11 +1300,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByStatus_Last(int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByStatus(status);
 
 		if (count == 0) {
@@ -1357,12 +1328,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByStatus_PrevAndNext(long backgroundTaskId,
-		int status, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		int status, OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -1392,7 +1362,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	protected BackgroundTask getByStatus_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1499,10 +1469,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * Removes all the background tasks where status = &#63; from the database.
 	 *
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByStatus(int status) throws SystemException {
+	public void removeByStatus(int status) {
 		for (BackgroundTask backgroundTask : findByStatus(status,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(backgroundTask);
@@ -1514,10 +1483,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param status the status
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByStatus(int status) throws SystemException {
+	public int countByStatus(int status) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_STATUS;
 
 		Object[] finderArgs = new Object[] { status };
@@ -1596,11 +1564,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param taskExecutorClassName the task executor class name
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T(long groupId,
-		String taskExecutorClassName) throws SystemException {
+		String taskExecutorClassName) {
 		return findByG_T(groupId, taskExecutorClassName, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -1617,12 +1584,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T(long groupId,
-		String taskExecutorClassName, int start, int end)
-		throws SystemException {
+		String taskExecutorClassName, int start, int end) {
 		return findByG_T(groupId, taskExecutorClassName, start, end, null);
 	}
 
@@ -1639,12 +1604,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T(long groupId,
 		String taskExecutorClassName, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1772,12 +1736,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_T_First(long groupId,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_T_First(groupId,
 				taskExecutorClassName, orderByComparator);
 
@@ -1807,12 +1771,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_T_First(long groupId,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByG_T(groupId, taskExecutorClassName,
 				0, 1, orderByComparator);
 
@@ -1831,12 +1794,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_T_Last(long groupId,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_T_Last(groupId,
 				taskExecutorClassName, orderByComparator);
 
@@ -1866,12 +1829,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_T_Last(long groupId,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByG_T(groupId, taskExecutorClassName);
 
 		if (count == 0) {
@@ -1897,13 +1859,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByG_T_PrevAndNext(long backgroundTaskId,
 		long groupId, String taskExecutorClassName,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -1933,8 +1894,8 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	protected BackgroundTask getByG_T_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long groupId,
-		String taskExecutorClassName, OrderByComparator orderByComparator,
-		boolean previous) {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2065,11 +2026,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param taskExecutorClassNames the task executor class names
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T(long groupId,
-		String[] taskExecutorClassNames) throws SystemException {
+		String[] taskExecutorClassNames) {
 		return findByG_T(groupId, taskExecutorClassNames, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2086,12 +2046,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T(long groupId,
-		String[] taskExecutorClassNames, int start, int end)
-		throws SystemException {
+		String[] taskExecutorClassNames, int start, int end) {
 		return findByG_T(groupId, taskExecutorClassNames, start, end, null);
 	}
 
@@ -2108,12 +2066,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T(long groupId,
 		String[] taskExecutorClassNames, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -2260,11 +2217,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param groupId the group ID
 	 * @param taskExecutorClassName the task executor class name
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_T(long groupId, String taskExecutorClassName)
-		throws SystemException {
+	public void removeByG_T(long groupId, String taskExecutorClassName) {
 		for (BackgroundTask backgroundTask : findByG_T(groupId,
 				taskExecutorClassName, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 				null)) {
@@ -2278,11 +2233,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param taskExecutorClassName the task executor class name
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_T(long groupId, String taskExecutorClassName)
-		throws SystemException {
+	public int countByG_T(long groupId, String taskExecutorClassName) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_T;
 
 		Object[] finderArgs = new Object[] { groupId, taskExecutorClassName };
@@ -2351,11 +2304,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param taskExecutorClassNames the task executor class names
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_T(long groupId, String[] taskExecutorClassNames)
-		throws SystemException {
+	public int countByG_T(long groupId, String[] taskExecutorClassNames) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -2477,11 +2428,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findByG_S(long groupId, int status)
-		throws SystemException {
+	public List<BackgroundTask> findByG_S(long groupId, int status) {
 		return findByG_S(groupId, status, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -2498,11 +2447,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_S(long groupId, int status, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByG_S(groupId, status, start, end, null);
 	}
 
@@ -2519,11 +2467,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_S(long groupId, int status, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2636,12 +2583,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_S_First(groupId, status,
 				orderByComparator);
 
@@ -2671,11 +2617,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByG_S(groupId, status, 0, 1,
 				orderByComparator);
 
@@ -2694,12 +2639,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_S_Last(groupId, status,
 				orderByComparator);
 
@@ -2729,11 +2673,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByG_S(groupId, status);
 
 		if (count == 0) {
@@ -2759,12 +2702,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByG_S_PrevAndNext(long backgroundTaskId,
-		long groupId, int status, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		long groupId, int status,
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -2794,7 +2737,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	protected BackgroundTask getByG_S_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long groupId, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2906,10 +2849,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_S(long groupId, int status) throws SystemException {
+	public void removeByG_S(long groupId, int status) {
 		for (BackgroundTask backgroundTask : findByG_S(groupId, status,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(backgroundTask);
@@ -2922,10 +2864,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_S(long groupId, int status) throws SystemException {
+	public int countByG_S(long groupId, int status) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_S;
 
 		Object[] finderArgs = new Object[] { groupId, status };
@@ -3009,11 +2950,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param status the status
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByT_S(String taskExecutorClassName,
-		int status) throws SystemException {
+		int status) {
 		return findByT_S(taskExecutorClassName, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -3030,11 +2970,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByT_S(String taskExecutorClassName,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByT_S(taskExecutorClassName, status, start, end, null);
 	}
 
@@ -3051,12 +2990,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByT_S(String taskExecutorClassName,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end,
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3184,12 +3122,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByT_S_First(String taskExecutorClassName,
-		int status, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		int status, OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByT_S_First(taskExecutorClassName,
 				status, orderByComparator);
 
@@ -3219,12 +3156,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByT_S_First(String taskExecutorClassName,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByT_S(taskExecutorClassName, status, 0,
 				1, orderByComparator);
 
@@ -3243,12 +3178,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByT_S_Last(String taskExecutorClassName,
-		int status, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		int status, OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByT_S_Last(taskExecutorClassName,
 				status, orderByComparator);
 
@@ -3278,12 +3212,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByT_S_Last(String taskExecutorClassName,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByT_S(taskExecutorClassName, status);
 
 		if (count == 0) {
@@ -3309,13 +3241,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByT_S_PrevAndNext(long backgroundTaskId,
 		String taskExecutorClassName, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -3345,7 +3276,8 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	protected BackgroundTask getByT_S_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, String taskExecutorClassName,
-		int status, OrderByComparator orderByComparator, boolean previous) {
+		int status, OrderByComparator<BackgroundTask> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -3476,11 +3408,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassNames the task executor class names
 	 * @param status the status
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByT_S(String[] taskExecutorClassNames,
-		int status) throws SystemException {
+		int status) {
 		return findByT_S(taskExecutorClassNames, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -3497,11 +3428,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByT_S(String[] taskExecutorClassNames,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByT_S(taskExecutorClassNames, status, start, end, null);
 	}
 
@@ -3518,12 +3448,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByT_S(String[] taskExecutorClassNames,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end,
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -3672,11 +3601,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param taskExecutorClassName the task executor class name
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByT_S(String taskExecutorClassName, int status)
-		throws SystemException {
+	public void removeByT_S(String taskExecutorClassName, int status) {
 		for (BackgroundTask backgroundTask : findByT_S(taskExecutorClassName,
 				status, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(backgroundTask);
@@ -3689,11 +3616,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param status the status
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByT_S(String taskExecutorClassName, int status)
-		throws SystemException {
+	public int countByT_S(String taskExecutorClassName, int status) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_T_S;
 
 		Object[] finderArgs = new Object[] { taskExecutorClassName, status };
@@ -3762,11 +3687,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassNames the task executor class names
 	 * @param status the status
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByT_S(String[] taskExecutorClassNames, int status)
-		throws SystemException {
+	public int countByT_S(String[] taskExecutorClassNames, int status) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -3905,11 +3828,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param name the name
 	 * @param taskExecutorClassName the task executor class name
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_N_T(long groupId, String name,
-		String taskExecutorClassName) throws SystemException {
+		String taskExecutorClassName) {
 		return findByG_N_T(groupId, name, taskExecutorClassName,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -3927,12 +3849,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_N_T(long groupId, String name,
-		String taskExecutorClassName, int start, int end)
-		throws SystemException {
+		String taskExecutorClassName, int start, int end) {
 		return findByG_N_T(groupId, name, taskExecutorClassName, start, end,
 			null);
 	}
@@ -3951,12 +3871,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_N_T(long groupId, String name,
 		String taskExecutorClassName, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4104,12 +4023,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_N_T_First(long groupId, String name,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_N_T_First(groupId, name,
 				taskExecutorClassName, orderByComparator);
 
@@ -4143,12 +4062,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_N_T_First(long groupId, String name,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByG_N_T(groupId, name,
 				taskExecutorClassName, 0, 1, orderByComparator);
 
@@ -4168,12 +4086,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_N_T_Last(long groupId, String name,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_N_T_Last(groupId, name,
 				taskExecutorClassName, orderByComparator);
 
@@ -4207,12 +4125,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_N_T_Last(long groupId, String name,
-		String taskExecutorClassName, OrderByComparator orderByComparator)
-		throws SystemException {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByG_N_T(groupId, name, taskExecutorClassName);
 
 		if (count == 0) {
@@ -4239,13 +4156,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByG_N_T_PrevAndNext(long backgroundTaskId,
 		long groupId, String name, String taskExecutorClassName,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -4275,8 +4191,8 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	protected BackgroundTask getByG_N_T_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long groupId, String name,
-		String taskExecutorClassName, OrderByComparator orderByComparator,
-		boolean previous) {
+		String taskExecutorClassName,
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -4421,11 +4337,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param name the name
 	 * @param taskExecutorClassName the task executor class name
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByG_N_T(long groupId, String name,
-		String taskExecutorClassName) throws SystemException {
+		String taskExecutorClassName) {
 		for (BackgroundTask backgroundTask : findByG_N_T(groupId, name,
 				taskExecutorClassName, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 				null)) {
@@ -4440,11 +4355,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param name the name
 	 * @param taskExecutorClassName the task executor class name
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByG_N_T(long groupId, String name,
-		String taskExecutorClassName) throws SystemException {
+		String taskExecutorClassName) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_N_T;
 
 		Object[] finderArgs = new Object[] { groupId, name, taskExecutorClassName };
@@ -4577,12 +4491,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param completed the completed
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_C(long groupId,
-		String taskExecutorClassName, boolean completed)
-		throws SystemException {
+		String taskExecutorClassName, boolean completed) {
 		return findByG_T_C(groupId, taskExecutorClassName, completed,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -4600,12 +4512,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_C(long groupId,
-		String taskExecutorClassName, boolean completed, int start, int end)
-		throws SystemException {
+		String taskExecutorClassName, boolean completed, int start, int end) {
 		return findByG_T_C(groupId, taskExecutorClassName, completed, start,
 			end, null);
 	}
@@ -4624,12 +4534,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_C(long groupId,
 		String taskExecutorClassName, boolean completed, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4763,13 +4672,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_T_C_First(long groupId,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_T_C_First(groupId,
 				taskExecutorClassName, completed, orderByComparator);
 
@@ -4803,12 +4711,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param completed the completed
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_T_C_First(long groupId,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByG_T_C(groupId, taskExecutorClassName,
 				completed, 0, 1, orderByComparator);
 
@@ -4828,13 +4735,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_T_C_Last(long groupId,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_T_C_Last(groupId,
 				taskExecutorClassName, completed, orderByComparator);
 
@@ -4868,12 +4774,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param completed the completed
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_T_C_Last(long groupId,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByG_T_C(groupId, taskExecutorClassName, completed);
 
 		if (count == 0) {
@@ -4900,13 +4805,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByG_T_C_PrevAndNext(long backgroundTaskId,
 		long groupId, String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -4937,7 +4841,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	protected BackgroundTask getByG_T_C_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long groupId,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -5073,12 +4977,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassNames the task executor class names
 	 * @param completed the completed
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_C(long groupId,
-		String[] taskExecutorClassNames, boolean completed)
-		throws SystemException {
+		String[] taskExecutorClassNames, boolean completed) {
 		return findByG_T_C(groupId, taskExecutorClassNames, completed,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -5096,12 +4998,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_C(long groupId,
-		String[] taskExecutorClassNames, boolean completed, int start, int end)
-		throws SystemException {
+		String[] taskExecutorClassNames, boolean completed, int start, int end) {
 		return findByG_T_C(groupId, taskExecutorClassNames, completed, start,
 			end, null);
 	}
@@ -5120,12 +5020,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_C(long groupId,
 		String[] taskExecutorClassNames, boolean completed, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -5280,11 +5179,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param taskExecutorClassName the task executor class name
 	 * @param completed the completed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByG_T_C(long groupId, String taskExecutorClassName,
-		boolean completed) throws SystemException {
+		boolean completed) {
 		for (BackgroundTask backgroundTask : findByG_T_C(groupId,
 				taskExecutorClassName, completed, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
@@ -5299,11 +5197,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param completed the completed
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByG_T_C(long groupId, String taskExecutorClassName,
-		boolean completed) throws SystemException {
+		boolean completed) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_T_C;
 
 		Object[] finderArgs = new Object[] {
@@ -5379,11 +5276,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassNames the task executor class names
 	 * @param completed the completed
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByG_T_C(long groupId, String[] taskExecutorClassNames,
-		boolean completed) throws SystemException {
+		boolean completed) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -5534,11 +5430,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param status the status
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_S(long groupId,
-		String taskExecutorClassName, int status) throws SystemException {
+		String taskExecutorClassName, int status) {
 		return findByG_T_S(groupId, taskExecutorClassName, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -5556,12 +5451,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_S(long groupId,
-		String taskExecutorClassName, int status, int start, int end)
-		throws SystemException {
+		String taskExecutorClassName, int status, int start, int end) {
 		return findByG_T_S(groupId, taskExecutorClassName, status, start, end,
 			null);
 	}
@@ -5580,12 +5473,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_S(long groupId,
 		String taskExecutorClassName, int status, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5719,13 +5611,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_T_S_First(long groupId,
 		String taskExecutorClassName, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_T_S_First(groupId,
 				taskExecutorClassName, status, orderByComparator);
 
@@ -5759,12 +5650,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_T_S_First(long groupId,
 		String taskExecutorClassName, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByG_T_S(groupId, taskExecutorClassName,
 				status, 0, 1, orderByComparator);
 
@@ -5784,13 +5674,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_T_S_Last(long groupId,
 		String taskExecutorClassName, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_T_S_Last(groupId,
 				taskExecutorClassName, status, orderByComparator);
 
@@ -5824,12 +5713,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_T_S_Last(long groupId,
 		String taskExecutorClassName, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByG_T_S(groupId, taskExecutorClassName, status);
 
 		if (count == 0) {
@@ -5856,13 +5744,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByG_T_S_PrevAndNext(long backgroundTaskId,
 		long groupId, String taskExecutorClassName, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -5893,7 +5780,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	protected BackgroundTask getByG_T_S_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long groupId,
 		String taskExecutorClassName, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -6029,11 +5916,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassNames the task executor class names
 	 * @param status the status
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_S(long groupId,
-		String[] taskExecutorClassNames, int status) throws SystemException {
+		String[] taskExecutorClassNames, int status) {
 		return findByG_T_S(groupId, taskExecutorClassNames, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -6051,12 +5937,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_S(long groupId,
-		String[] taskExecutorClassNames, int status, int start, int end)
-		throws SystemException {
+		String[] taskExecutorClassNames, int status, int start, int end) {
 		return findByG_T_S(groupId, taskExecutorClassNames, status, start, end,
 			null);
 	}
@@ -6075,12 +5959,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_T_S(long groupId,
 		String[] taskExecutorClassNames, int status, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -6235,11 +6118,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param groupId the group ID
 	 * @param taskExecutorClassName the task executor class name
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByG_T_S(long groupId, String taskExecutorClassName,
-		int status) throws SystemException {
+		int status) {
 		for (BackgroundTask backgroundTask : findByG_T_S(groupId,
 				taskExecutorClassName, status, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
@@ -6254,11 +6136,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param status the status
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByG_T_S(long groupId, String taskExecutorClassName,
-		int status) throws SystemException {
+		int status) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_T_S;
 
 		Object[] finderArgs = new Object[] {
@@ -6334,11 +6215,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassNames the task executor class names
 	 * @param status the status
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByG_T_S(long groupId, String[] taskExecutorClassNames,
-		int status) throws SystemException {
+		int status) {
 		if (taskExecutorClassNames == null) {
 			taskExecutorClassNames = new String[0];
 		}
@@ -6485,12 +6365,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param completed the completed
 	 * @return the matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_N_T_C(long groupId, String name,
-		String taskExecutorClassName, boolean completed)
-		throws SystemException {
+		String taskExecutorClassName, boolean completed) {
 		return findByG_N_T_C(groupId, name, taskExecutorClassName, completed,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -6509,12 +6387,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_N_T_C(long groupId, String name,
-		String taskExecutorClassName, boolean completed, int start, int end)
-		throws SystemException {
+		String taskExecutorClassName, boolean completed, int start, int end) {
 		return findByG_N_T_C(groupId, name, taskExecutorClassName, completed,
 			start, end, null);
 	}
@@ -6534,12 +6410,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findByG_N_T_C(long groupId, String name,
 		String taskExecutorClassName, boolean completed, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -6695,13 +6570,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_N_T_C_First(long groupId, String name,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_N_T_C_First(groupId, name,
 				taskExecutorClassName, completed, orderByComparator);
 
@@ -6739,12 +6613,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param completed the completed
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_N_T_C_First(long groupId, String name,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		List<BackgroundTask> list = findByG_N_T_C(groupId, name,
 				taskExecutorClassName, completed, 0, 1, orderByComparator);
 
@@ -6765,13 +6638,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByG_N_T_C_Last(long groupId, String name,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByG_N_T_C_Last(groupId, name,
 				taskExecutorClassName, completed, orderByComparator);
 
@@ -6809,12 +6681,11 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param completed the completed
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching background task, or <code>null</code> if a matching background task could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask fetchByG_N_T_C_Last(long groupId, String name,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		int count = countByG_N_T_C(groupId, name, taskExecutorClassName,
 				completed);
 
@@ -6844,13 +6715,12 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask[] findByG_N_T_C_PrevAndNext(long backgroundTaskId,
 		long groupId, String name, String taskExecutorClassName,
-		boolean completed, OrderByComparator orderByComparator)
-		throws NoSuchBackgroundTaskException, SystemException {
+		boolean completed, OrderByComparator<BackgroundTask> orderByComparator)
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = findByPrimaryKey(backgroundTaskId);
 
 		Session session = null;
@@ -6883,7 +6753,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	protected BackgroundTask getByG_N_T_C_PrevAndNext(Session session,
 		BackgroundTask backgroundTask, long groupId, String name,
 		String taskExecutorClassName, boolean completed,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<BackgroundTask> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -7033,12 +6903,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param name the name
 	 * @param taskExecutorClassName the task executor class name
 	 * @param completed the completed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByG_N_T_C(long groupId, String name,
-		String taskExecutorClassName, boolean completed)
-		throws SystemException {
+		String taskExecutorClassName, boolean completed) {
 		for (BackgroundTask backgroundTask : findByG_N_T_C(groupId, name,
 				taskExecutorClassName, completed, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
@@ -7054,12 +6922,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param taskExecutorClassName the task executor class name
 	 * @param completed the completed
 	 * @return the number of matching background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByG_N_T_C(long groupId, String name,
-		String taskExecutorClassName, boolean completed)
-		throws SystemException {
+		String taskExecutorClassName, boolean completed) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_N_T_C;
 
 		Object[] finderArgs = new Object[] {
@@ -7261,11 +7127,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param backgroundTaskId the primary key of the background task
 	 * @return the background task that was removed
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask remove(long backgroundTaskId)
-		throws NoSuchBackgroundTaskException, SystemException {
+		throws NoSuchBackgroundTaskException {
 		return remove((Serializable)backgroundTaskId);
 	}
 
@@ -7275,11 +7140,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param primaryKey the primary key of the background task
 	 * @return the background task that was removed
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask remove(Serializable primaryKey)
-		throws NoSuchBackgroundTaskException, SystemException {
+		throws NoSuchBackgroundTaskException {
 		Session session = null;
 
 		try {
@@ -7311,8 +7175,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	}
 
 	@Override
-	protected BackgroundTask removeImpl(BackgroundTask backgroundTask)
-		throws SystemException {
+	protected BackgroundTask removeImpl(BackgroundTask backgroundTask) {
 		backgroundTask = toUnwrappedModel(backgroundTask);
 
 		Session session = null;
@@ -7345,8 +7208,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 
 	@Override
 	public BackgroundTask updateImpl(
-		com.liferay.portal.model.BackgroundTask backgroundTask)
-		throws SystemException {
+		com.liferay.portal.model.BackgroundTask backgroundTask) {
 		backgroundTask = toUnwrappedModel(backgroundTask);
 
 		boolean isNew = backgroundTask.isNew();
@@ -7637,11 +7499,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param primaryKey the primary key of the background task
 	 * @return the background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchBackgroundTaskException, SystemException {
+		throws NoSuchBackgroundTaskException {
 		BackgroundTask backgroundTask = fetchByPrimaryKey(primaryKey);
 
 		if (backgroundTask == null) {
@@ -7662,11 +7523,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param backgroundTaskId the primary key of the background task
 	 * @return the background task
 	 * @throws com.liferay.portal.NoSuchBackgroundTaskException if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BackgroundTask findByPrimaryKey(long backgroundTaskId)
-		throws NoSuchBackgroundTaskException, SystemException {
+		throws NoSuchBackgroundTaskException {
 		return findByPrimaryKey((Serializable)backgroundTaskId);
 	}
 
@@ -7675,11 +7535,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param primaryKey the primary key of the background task
 	 * @return the background task, or <code>null</code> if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public BackgroundTask fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public BackgroundTask fetchByPrimaryKey(Serializable primaryKey) {
 		BackgroundTask backgroundTask = (BackgroundTask)EntityCacheUtil.getResult(BackgroundTaskModelImpl.ENTITY_CACHE_ENABLED,
 				BackgroundTaskImpl.class, primaryKey);
 
@@ -7724,22 +7582,111 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 *
 	 * @param backgroundTaskId the primary key of the background task
 	 * @return the background task, or <code>null</code> if a background task with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public BackgroundTask fetchByPrimaryKey(long backgroundTaskId)
-		throws SystemException {
+	public BackgroundTask fetchByPrimaryKey(long backgroundTaskId) {
 		return fetchByPrimaryKey((Serializable)backgroundTaskId);
+	}
+
+	@Override
+	public Map<Serializable, BackgroundTask> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, BackgroundTask> map = new HashMap<Serializable, BackgroundTask>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			BackgroundTask backgroundTask = fetchByPrimaryKey(primaryKey);
+
+			if (backgroundTask != null) {
+				map.put(primaryKey, backgroundTask);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			BackgroundTask backgroundTask = (BackgroundTask)EntityCacheUtil.getResult(BackgroundTaskModelImpl.ENTITY_CACHE_ENABLED,
+					BackgroundTaskImpl.class, primaryKey);
+
+			if (backgroundTask == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, backgroundTask);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_BACKGROUNDTASK_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (BackgroundTask backgroundTask : (List<BackgroundTask>)q.list()) {
+				map.put(backgroundTask.getPrimaryKeyObj(), backgroundTask);
+
+				cacheResult(backgroundTask);
+
+				uncachedPrimaryKeys.remove(backgroundTask.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(BackgroundTaskModelImpl.ENTITY_CACHE_ENABLED,
+					BackgroundTaskImpl.class, primaryKey, _nullBackgroundTask);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the background tasks.
 	 *
 	 * @return the background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findAll() throws SystemException {
+	public List<BackgroundTask> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -7753,11 +7700,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param start the lower bound of the range of background tasks
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @return the range of background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<BackgroundTask> findAll(int start, int end)
-		throws SystemException {
+	public List<BackgroundTask> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -7772,11 +7717,10 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * @param end the upper bound of the range of background tasks (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<BackgroundTask> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<BackgroundTask> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -7858,10 +7802,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	/**
 	 * Removes all the background tasks from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (BackgroundTask backgroundTask : findAll()) {
 			remove(backgroundTask);
 		}
@@ -7871,10 +7814,9 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * Returns the number of background tasks.
 	 *
 	 * @return the number of background tasks
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -7909,25 +7851,6 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	 * Initializes the background task persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portal.model.BackgroundTask")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<BackgroundTask>> listenersList = new ArrayList<ModelListener<BackgroundTask>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<BackgroundTask>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -7938,6 +7861,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	}
 
 	private static final String _SQL_SELECT_BACKGROUNDTASK = "SELECT backgroundTask FROM BackgroundTask backgroundTask";
+	private static final String _SQL_SELECT_BACKGROUNDTASK_WHERE_PKS_IN = "SELECT backgroundTask FROM BackgroundTask backgroundTask WHERE backgroundTaskId IN (";
 	private static final String _SQL_SELECT_BACKGROUNDTASK_WHERE = "SELECT backgroundTask FROM BackgroundTask backgroundTask WHERE ";
 	private static final String _SQL_COUNT_BACKGROUNDTASK = "SELECT COUNT(backgroundTask) FROM BackgroundTask backgroundTask";
 	private static final String _SQL_COUNT_BACKGROUNDTASK_WHERE = "SELECT COUNT(backgroundTask) FROM BackgroundTask backgroundTask WHERE ";
@@ -7945,8 +7869,8 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No BackgroundTask exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No BackgroundTask exists with the key {";
 	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
-	private static Log _log = LogFactoryUtil.getLog(BackgroundTaskPersistenceImpl.class);
-	private static BackgroundTask _nullBackgroundTask = new BackgroundTaskImpl() {
+	private static final Log _log = LogFactoryUtil.getLog(BackgroundTaskPersistenceImpl.class);
+	private static final BackgroundTask _nullBackgroundTask = new BackgroundTaskImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -7958,7 +7882,8 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 			}
 		};
 
-	private static CacheModel<BackgroundTask> _nullBackgroundTaskCacheModel = new NullCacheModel();
+	private static final CacheModel<BackgroundTask> _nullBackgroundTaskCacheModel =
+		new NullCacheModel();
 
 	private static class NullCacheModel implements CacheModel<BackgroundTask>,
 		MVCCModel {

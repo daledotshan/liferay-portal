@@ -66,18 +66,6 @@ import java.rmi.RemoteException;
  */
 @ProviderType
 public class ShoppingItemServiceSoap {
-	public static void addBookItems(long groupId, long categoryId,
-		java.lang.String[] isbns) throws RemoteException {
-		try {
-			ShoppingItemServiceUtil.addBookItems(groupId, categoryId, isbns);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
 	public static void deleteItem(long itemId) throws RemoteException {
 		try {
 			ShoppingItemServiceUtil.deleteItem(itemId);
@@ -135,7 +123,7 @@ public class ShoppingItemServiceSoap {
 
 	public static com.liferay.portlet.shopping.model.ShoppingItemSoap[] getItems(
 		long groupId, long categoryId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator obc)
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.shopping.model.ShoppingItem> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.shopping.model.ShoppingItem> returnValue =
@@ -167,7 +155,8 @@ public class ShoppingItemServiceSoap {
 	}
 
 	public static com.liferay.portlet.shopping.model.ShoppingItemSoap[] getItemsPrevAndNext(
-		long itemId, com.liferay.portal.kernel.util.OrderByComparator obc)
+		long itemId,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.shopping.model.ShoppingItem> obc)
 		throws RemoteException {
 		try {
 			com.liferay.portlet.shopping.model.ShoppingItem[] returnValue = ShoppingItemServiceUtil.getItemsPrevAndNext(itemId,

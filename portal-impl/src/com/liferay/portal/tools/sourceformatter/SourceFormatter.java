@@ -17,10 +17,11 @@ package com.liferay.portal.tools.sourceformatter;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
-import com.liferay.portal.kernel.util.UniqueList;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Hugo Huijser
@@ -66,7 +67,7 @@ public class SourceFormatter {
 					sourceProcessors.add(
 						FTLSourceProcessor.class.newInstance());
 					sourceProcessors.add(
-						JavaSourceProcessor.class.newInstance());
+						JSPSourceProcessor.class.newInstance());
 					sourceProcessors.add(JSSourceProcessor.class.newInstance());
 					sourceProcessors.add(
 						PropertiesSourceProcessor.class.newInstance());
@@ -95,7 +96,7 @@ public class SourceFormatter {
 			public void run() {
 				try {
 					SourceProcessor sourceProcessor =
-						JSPSourceProcessor.class.newInstance();
+						JavaSourceProcessor.class.newInstance();
 
 					_runSourceProcessor(sourceProcessor);
 				}
@@ -128,6 +129,9 @@ public class SourceFormatter {
 
 		if (fileName.endsWith(".testjava")) {
 			sourceProcessor = JavaSourceProcessor.class.newInstance();
+		}
+		else if (fileName.endsWith(".testxml")) {
+			sourceProcessor = XMLSourceProcessor.class.newInstance();
 		}
 
 		if (sourceProcessor == null) {
@@ -181,7 +185,7 @@ public class SourceFormatter {
 	}
 
 	private boolean _autoFix;
-	private List<String> _errorMessages = new UniqueList<String>();
+	private Set<String> _errorMessages = new LinkedHashSet<String>();
 	private SourceMismatchException _firstSourceMismatchException;
 	private String _mainReleaseVersion;
 	private boolean _printErrors;

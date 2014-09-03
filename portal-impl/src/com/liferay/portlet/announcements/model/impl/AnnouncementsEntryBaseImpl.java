@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.announcements.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.announcements.model.AnnouncementsEntry;
 import com.liferay.portlet.announcements.service.AnnouncementsEntryLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.announcements.service.AnnouncementsEntryLocalServiceU
  * @see com.liferay.portlet.announcements.model.AnnouncementsEntry
  * @generated
  */
+@ProviderType
 public abstract class AnnouncementsEntryBaseImpl
 	extends AnnouncementsEntryModelImpl implements AnnouncementsEntry {
 	/*
@@ -39,7 +40,7 @@ public abstract class AnnouncementsEntryBaseImpl
 	 * Never modify or reference this class directly. All methods that expect a announcements entry model instance should use the {@link AnnouncementsEntry} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			AnnouncementsEntryLocalServiceUtil.addAnnouncementsEntry(this);
 		}

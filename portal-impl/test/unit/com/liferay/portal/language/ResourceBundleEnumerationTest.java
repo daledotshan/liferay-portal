@@ -15,9 +15,7 @@
 package com.liferay.portal.language;
 
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
-import com.liferay.portal.kernel.util.ReflectionUtil;
-
-import java.lang.reflect.Method;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,7 +38,7 @@ public class ResourceBundleEnumerationTest {
 		new CodeCoverageAssertor();
 
 	@Test
-	public void testWithEnumeration() throws Exception {
+	public void testWithEnumeration() {
 		Set<String> set = new LinkedHashSet<String>(
 			Arrays.asList("key1", "key2"));
 		Enumeration<String> enumeration = Collections.enumeration(
@@ -51,12 +49,10 @@ public class ResourceBundleEnumerationTest {
 
 		Assert.assertTrue(resourceBundleEnumeration.hasMoreElements());
 		Assert.assertEquals("key1", resourceBundleEnumeration.nextElement());
-
-		Method nextElementMethod = ReflectionUtil.getBridgeMethod(
-			ResourceBundleEnumeration.class, "nextElement");
-
 		Assert.assertEquals(
-			"key2", nextElementMethod.invoke(resourceBundleEnumeration));
+			"key2",
+			ReflectionTestUtil.invokeBridge(
+				resourceBundleEnumeration, "nextElement", new Class<?>[0]));
 		Assert.assertTrue(resourceBundleEnumeration.hasMoreElements());
 		Assert.assertEquals("key3", resourceBundleEnumeration.nextElement());
 
@@ -70,7 +66,7 @@ public class ResourceBundleEnumerationTest {
 	}
 
 	@Test
-	public void testWithoutEnumeration() throws Exception {
+	public void testWithoutEnumeration() {
 		Set<String> set = new LinkedHashSet<String>(
 			Arrays.asList("key1", "key2"));
 
@@ -79,12 +75,10 @@ public class ResourceBundleEnumerationTest {
 
 		Assert.assertTrue(resourceBundleEnumeration.hasMoreElements());
 		Assert.assertEquals("key1", resourceBundleEnumeration.nextElement());
-
-		Method nextElementMethod = ReflectionUtil.getBridgeMethod(
-			ResourceBundleEnumeration.class, "nextElement");
-
 		Assert.assertEquals(
-			"key2", nextElementMethod.invoke(resourceBundleEnumeration));
+			"key2",
+			ReflectionTestUtil.invokeBridge(
+				resourceBundleEnumeration, "nextElement", new Class<?>[0]));
 
 		try {
 			resourceBundleEnumeration.nextElement();

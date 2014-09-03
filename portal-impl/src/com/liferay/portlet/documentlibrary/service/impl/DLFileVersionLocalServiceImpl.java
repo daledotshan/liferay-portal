@@ -14,17 +14,16 @@
 
 package com.liferay.portlet.documentlibrary.service.impl;
 
-import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.TreePathUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portlet.documentlibrary.NoSuchFileVersionException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
-import com.liferay.portlet.documentlibrary.model.impl.DLFileVersionModelImpl;
-import com.liferay.portlet.documentlibrary.model.impl.DLFolderModelImpl;
 import com.liferay.portlet.documentlibrary.service.base.DLFileVersionLocalServiceBaseImpl;
 import com.liferay.portlet.documentlibrary.util.comparator.FileVersionVersionComparator;
 
@@ -39,30 +38,27 @@ public class DLFileVersionLocalServiceImpl
 
 	@Override
 	public DLFileVersion getFileVersion(long fileVersionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return dlFileVersionPersistence.findByPrimaryKey(fileVersionId);
 	}
 
 	@Override
 	public DLFileVersion getFileVersion(long fileEntryId, String version)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return dlFileVersionPersistence.findByF_V(fileEntryId, version);
 	}
 
 	@Override
 	public DLFileVersion getFileVersionByUuidAndGroupId(
-			String uuid, long groupId)
-		throws SystemException {
+		String uuid, long groupId) {
 
 		return dlFileVersionPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
 	@Override
-	public List<DLFileVersion> getFileVersions(long fileEntryId, int status)
-		throws SystemException {
-
+	public List<DLFileVersion> getFileVersions(long fileEntryId, int status) {
 		List<DLFileVersion> dlFileVersions = null;
 
 		if (status == WorkflowConstants.STATUS_ANY) {
@@ -82,16 +78,14 @@ public class DLFileVersionLocalServiceImpl
 	}
 
 	@Override
-	public int getFileVersionsCount(long fileEntryId, int status)
-		throws SystemException {
-
+	public int getFileVersionsCount(long fileEntryId, int status) {
 		return dlFileVersionPersistence.countByF_S(fileEntryId, status);
 	}
 
 	@Override
 	public DLFileVersion getLatestFileVersion(
 			long fileEntryId, boolean excludeWorkingCopy)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<DLFileVersion> dlFileVersions =
 			dlFileVersionPersistence.findByFileEntryId(fileEntryId);
@@ -120,7 +114,7 @@ public class DLFileVersionLocalServiceImpl
 
 	@Override
 	public DLFileVersion getLatestFileVersion(long userId, long fileEntryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		boolean excludeWorkingCopy = true;
 
@@ -133,21 +127,50 @@ public class DLFileVersionLocalServiceImpl
 	}
 
 	@Override
-	public void rebuildTree(long companyId) throws SystemException {
+	public void rebuildTree(long companyId) throws PortalException {
 		dlFolderLocalService.rebuildTree(companyId);
+	}
 
-		Session session = dlFileVersionPersistence.openSession();
+	@Override
+	public void setTreePaths(final long folderId, final String treePath)
+		throws PortalException {
 
-		try {
-			TreePathUtil.rebuildTree(
-				session, companyId, DLFileVersionModelImpl.TABLE_NAME,
-				DLFolderModelImpl.TABLE_NAME, "folderId", true);
-		}
-		finally {
-			dlFileVersionPersistence.closeSession(session);
+		ActionableDynamicQuery actionableDynamicQuery =
+			getActionableDynamicQuery();
 
-			dlFileVersionPersistence.clearCache();
-		}
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
+
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					Property folderIdProperty = PropertyFactoryUtil.forName(
+						"folderId");
+
+					dynamicQuery.add(folderIdProperty.eq(folderId));
+
+					Property treePathProperty = PropertyFactoryUtil.forName(
+						"treePath");
+
+					dynamicQuery.add(treePathProperty.ne(treePath));
+				}
+
+			});
+
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object) {
+					DLFileVersion dlFileVersion = (DLFileVersion)object;
+
+					dlFileVersion.setTreePath(treePath);
+
+					updateDLFileVersion(dlFileVersion);
+				}
+
+			});
+
+		actionableDynamicQuery.performActions();
 	}
 
 }
