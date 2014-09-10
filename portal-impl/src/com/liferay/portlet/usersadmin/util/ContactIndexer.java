@@ -16,7 +16,6 @@ package com.liferay.portlet.usersadmin.util;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.BaseIndexer;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
@@ -31,7 +30,6 @@ import com.liferay.portal.model.Contact;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ContactLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.persistence.ContactActionableDynamicQuery;
 import com.liferay.portal.util.PortletKeys;
 
 import java.util.LinkedHashMap;
@@ -169,7 +167,8 @@ public class ContactIndexer extends BaseIndexer {
 
 		if (document != null) {
 			SearchEngineUtil.updateDocument(
-				getSearchEngineId(), contact.getCompanyId(), document);
+				getSearchEngineId(), contact.getCompanyId(), document,
+				isCommitImmediately());
 		}
 	}
 
@@ -192,26 +191,28 @@ public class ContactIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexContacts(long companyId)
-		throws PortalException, SystemException {
-
-		ActionableDynamicQuery actionableDynamicQuery =
-			new ContactActionableDynamicQuery() {
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				Contact contact = (Contact)object;
-
-				Document document = getDocument(contact);
-
-				if (document != null) {
-					addDocument(document);
-				}
-			}
-
-		};
+	protected void reindexContacts(long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			ContactLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					Contact contact = (Contact)object;
+
+					Document document = getDocument(contact);
+
+					if (document != null) {
+						actionableDynamicQuery.addDocument(document);
+					}
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

@@ -16,14 +16,12 @@ package com.liferay.portal.kernel.io;
 
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
-import com.liferay.portal.kernel.util.ReflectionUtil;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.Writer;
-
-import java.lang.reflect.Field;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -69,7 +67,7 @@ public class WriterOutputStreamTest {
 	}
 
 	@Test
-	public void testConstructor() throws Exception {
+	public void testConstructor() {
 		DummyWriter dummyWriter = new DummyWriter();
 
 		WriterOutputStream writerOutputStream = new WriterOutputStream(
@@ -131,8 +129,19 @@ public class WriterOutputStreamTest {
 		Assert.assertEquals(32, _getOutputBufferSize(writerOutputStream));
 		Assert.assertTrue(_isAutoFlush(writerOutputStream));
 
+		writerOutputStream = new WriterOutputStream(
+			dummyWriter, encoding, 0, true);
+
+		Assert.assertSame(dummyWriter, _getWriter(writerOutputStream));
+		Assert.assertSame(encoding, writerOutputStream.getEncoding());
+		Assert.assertEquals(1, _getInputBufferSize(writerOutputStream));
+		Assert.assertEquals(
+			_getDefaultOutputBufferSize(),
+			_getOutputBufferSize(writerOutputStream));
+		Assert.assertTrue(_isAutoFlush(writerOutputStream));
+
 		try {
-			new WriterOutputStream(dummyWriter, encoding, 0, true);
+			new WriterOutputStream(dummyWriter, encoding, 0, false);
 
 			Assert.fail();
 		}
@@ -247,11 +256,13 @@ public class WriterOutputStreamTest {
 	}
 
 	@Test
-	public void testWriteError() throws Exception {
+	public void testWriteError() {
 		WriterOutputStream writerOutputStream = new WriterOutputStream(
 			new DummyWriter(), "US-ASCII");
 
-		CharsetDecoder charsetDecoder = _getCharsetDecoder(writerOutputStream);
+		CharsetDecoder charsetDecoder =
+			(CharsetDecoder)ReflectionTestUtil.getFieldValue(
+				writerOutputStream, "_charsetDecoder");
 
 		charsetDecoder.onMalformedInput(CodingErrorAction.REPORT);
 
@@ -266,61 +277,34 @@ public class WriterOutputStreamTest {
 		}
 	}
 
-	private CharsetDecoder _getCharsetDecoder(
-			WriterOutputStream writerOutputStream)
-		throws Exception {
-
-		Field field = ReflectionUtil.getDeclaredField(
-			WriterOutputStream.class, "_charsetDecoder");
-
-		return (CharsetDecoder)field.get(writerOutputStream);
-	}
-
-	private int _getDefaultOutputBufferSize() throws Exception {
-		Field field = ReflectionUtil.getDeclaredField(
+	private int _getDefaultOutputBufferSize() {
+		return (Integer)ReflectionTestUtil.getFieldValue(
 			WriterOutputStream.class, "_DEFAULT_OUTPUT_BUFFER_SIZE");
-
-		return field.getInt(null);
 	}
 
-	private int _getInputBufferSize(WriterOutputStream writerOutputStream)
-		throws Exception {
-
-		Field field = ReflectionUtil.getDeclaredField(
-			WriterOutputStream.class, "_inputByteBuffer");
-
-		ByteBuffer inputByteBuffer = (ByteBuffer)field.get(writerOutputStream);
+	private int _getInputBufferSize(WriterOutputStream writerOutputStream) {
+		ByteBuffer inputByteBuffer =
+			(ByteBuffer)ReflectionTestUtil.getFieldValue(
+				writerOutputStream, "_inputByteBuffer");
 
 		return inputByteBuffer.capacity();
 	}
 
-	private int _getOutputBufferSize(WriterOutputStream writerOutputStream)
-		throws Exception {
-
-		Field field = ReflectionUtil.getDeclaredField(
-			WriterOutputStream.class, "_outputCharBuffer");
-
-		CharBuffer outputBuffer = (CharBuffer)field.get(writerOutputStream);
+	private int _getOutputBufferSize(WriterOutputStream writerOutputStream) {
+		CharBuffer outputBuffer = (CharBuffer)ReflectionTestUtil.getFieldValue(
+			writerOutputStream, "_outputCharBuffer");
 
 		return outputBuffer.capacity();
 	}
 
-	private Writer _getWriter(WriterOutputStream writerOutputStream)
-		throws Exception {
-
-		Field field = ReflectionUtil.getDeclaredField(
-			WriterOutputStream.class, "_writer");
-
-		return (Writer)field.get(writerOutputStream);
+	private Writer _getWriter(WriterOutputStream writerOutputStream) {
+		return (Writer)ReflectionTestUtil.getFieldValue(
+			writerOutputStream, "_writer");
 	}
 
-	private boolean _isAutoFlush(WriterOutputStream writerOutputStream)
-		throws Exception {
-
-		Field field = ReflectionUtil.getDeclaredField(
-			WriterOutputStream.class, "_autoFlush");
-
-		return field.getBoolean(writerOutputStream);
+	private boolean _isAutoFlush(WriterOutputStream writerOutputStream) {
+		return (Boolean)ReflectionTestUtil.getFieldValue(
+			writerOutputStream, "_autoFlush");
 	}
 
 	private void _testWriteBlock(boolean autoFlush) throws IOException {

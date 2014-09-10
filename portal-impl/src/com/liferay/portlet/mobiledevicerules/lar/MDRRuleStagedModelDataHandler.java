@@ -14,11 +14,13 @@
 
 package com.liferay.portlet.mobiledevicerules.lar;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
@@ -27,6 +29,7 @@ import com.liferay.portlet.mobiledevicerules.model.MDRRuleGroup;
 import com.liferay.portlet.mobiledevicerules.service.MDRRuleGroupLocalServiceUtil;
 import com.liferay.portlet.mobiledevicerules.service.MDRRuleLocalServiceUtil;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,15 +42,35 @@ public class MDRRuleStagedModelDataHandler
 
 	@Override
 	public void deleteStagedModel(
-			String uuid, long groupId, String className, String extraData)
-		throws SystemException {
+		String uuid, long groupId, String className, String extraData) {
 
-		MDRRule rule = MDRRuleLocalServiceUtil.fetchMDRRuleByUuidAndGroupId(
-			uuid, groupId);
+		MDRRule rule = fetchStagedModelByUuidAndGroupId(uuid, groupId);
 
 		if (rule != null) {
 			MDRRuleLocalServiceUtil.deleteRule(rule);
 		}
+	}
+
+	@Override
+	public MDRRule fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<MDRRule> rules =
+			MDRRuleLocalServiceUtil.getMDRRulesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<MDRRule>());
+
+		if (ListUtil.isEmpty(rules)) {
+			return null;
+		}
+
+		return rules.get(0);
+	}
+
+	@Override
+	public MDRRule fetchStagedModelByUuidAndGroupId(String uuid, long groupId) {
+		return MDRRuleLocalServiceUtil.fetchMDRRuleByUuidAndGroupId(
+			uuid, groupId);
 	}
 
 	@Override
@@ -103,9 +126,8 @@ public class MDRRuleStagedModelDataHandler
 		MDRRule importedRule = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			MDRRule existingRule =
-				MDRRuleLocalServiceUtil.fetchMDRRuleByUuidAndGroupId(
-					rule.getUuid(), portletDataContext.getScopeGroupId());
+			MDRRule existingRule = fetchStagedModelByUuidAndGroupId(
+				rule.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingRule == null) {
 				serviceContext.setUuid(rule.getUuid());

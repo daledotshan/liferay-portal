@@ -71,28 +71,28 @@ if (!rankingNamesList.isEmpty()) {
 		resultRows.add(row);
 	}
 
-	String rankingNamesMessage = LanguageUtil.format(pageContext, rankingNames[0], StringPool.BLANK, false);
+	String rankingNamesMessage = LanguageUtil.format(request, rankingNames[0], StringPool.BLANK, false);
 
 	for (int i = 1; i < rankingNames.length; i++) {
-		rankingNamesMessage = LanguageUtil.format(pageContext, "x-and-y", new Object[] {rankingNamesMessage, rankingNames[i]});
+		rankingNamesMessage = LanguageUtil.format(request, "x-and-y", new Object[] {rankingNamesMessage, rankingNames[i]});
 	}
 	%>
 
 	<c:if test="<%= showHeaderText %>">
 		<div class="top-users">
 			<c:if test="<%= total > 0 %>">
-				<liferay-ui:message arguments="<%= total %>" key="top-users-out-of-x" translateArguments="<%= false %>" /> <%= LanguageUtil.format(pageContext, "ranking-is-based-on-x", rankingNamesMessage, false) %><br />
+				<liferay-ui:message arguments="<%= total %>" key="top-users-out-of-x" translateArguments="<%= false %>" /> <%= LanguageUtil.format(request, "ranking-is-based-on-x", rankingNamesMessage, false) %><br />
 			</c:if>
 		</div>
 	</c:if>
 
-	<c:if test="<%= total == 0 %>">
+	<c:if test="<%= results.isEmpty() %>">
 		<liferay-ui:message key="there-are-no-active-users-for-this-period" />
 	</c:if>
 
 	<liferay-ui:search-iterator paginate="<%= false %>" searchContainer="<%= searchContainer %>" />
 
-	<c:if test="<%= results.size() > 0 %>">
+	<c:if test="<%= !results.isEmpty() %>">
 		<div class="taglib-search-iterator-page-iterator-bottom" id="<portlet:namespace />searchTopUsers">
 			<liferay-ui:search-paginator searchContainer="<%= searchContainer %>" type="article" />
 		</div>
@@ -131,7 +131,7 @@ else {
 %>
 
 	<div class="alert alert-info portlet-configuration">
-		<a href="<%= portletDisplay.getURLConfiguration() %>" onClick="<%= portletDisplay.getURLConfigurationJS() %>">
+		<a href="<%= HtmlUtil.escapeHREF(portletDisplay.getURLConfiguration()) %>" onClick="<%= portletDisplay.getURLConfigurationJS() %>">
 			<liferay-ui:message key="please-configure-this-portlet-and-select-at-least-one-ranking-criteria" />
 		</a>
 	</div>

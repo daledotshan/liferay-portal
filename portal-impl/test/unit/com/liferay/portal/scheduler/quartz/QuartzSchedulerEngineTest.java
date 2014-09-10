@@ -27,26 +27,26 @@ import com.liferay.portal.kernel.scheduler.JobState;
 import com.liferay.portal.kernel.scheduler.JobStateSerializeUtil;
 import com.liferay.portal.kernel.scheduler.SchedulerEngine;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
+import com.liferay.portal.kernel.scheduler.SchedulerException;
 import com.liferay.portal.kernel.scheduler.StorageType;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerState;
 import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
+import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.scheduler.SchedulerEngineHelperImpl;
 import com.liferay.portal.scheduler.job.MessageSenderJob;
 import com.liferay.portal.test.AdviseWith;
-import com.liferay.portal.test.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
 import com.liferay.portal.util.PropsImpl;
 import com.liferay.portal.uuid.PortalUUIDImpl;
-
-import java.lang.reflect.Field;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,7 +92,7 @@ import org.quartz.spi.JobFactory;
 public class QuartzSchedulerEngineTest {
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws SchedulerException {
 		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
 
 		jsonFactoryUtil.setJSONFactory(new JSONFactoryImpl());
@@ -121,17 +121,13 @@ public class QuartzSchedulerEngineTest {
 
 		_quartzSchedulerEngine = new QuartzSchedulerEngine();
 
-		_memorySchedulerField = ReflectionUtil.getDeclaredField(
-			QuartzSchedulerEngine.class, "_memoryScheduler");
+		ReflectionTestUtil.setFieldValue(
+			_quartzSchedulerEngine, "_memoryScheduler",
+			new MockScheduler(StorageType.MEMORY));
 
-		_memorySchedulerField.set(
-			_quartzSchedulerEngine, new MockScheduler(StorageType.MEMORY));
-
-		_persistedSchedulerField = ReflectionUtil.getDeclaredField(
-			QuartzSchedulerEngine.class, "_persistedScheduler");
-
-		_persistedSchedulerField.set(
-			_quartzSchedulerEngine, new MockScheduler(StorageType.PERSISTED));
+		ReflectionTestUtil.setFieldValue(
+			_quartzSchedulerEngine, "_persistedScheduler",
+			new MockScheduler(StorageType.PERSISTED));
 
 		_quartzSchedulerEngine.start();
 	}
@@ -257,26 +253,33 @@ public class QuartzSchedulerEngineTest {
 
 	@AdviseWith(adviceClasses = {EnableSchedulerAdvice.class})
 	@Test
-	public void testGetQuartzTrigger3() throws Exception {
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
+	public void testGetQuartzTrigger3() throws SchedulerException {
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
 			QuartzSchedulerEngine.class.getName(), Level.FINE);
 
-		IntervalTrigger intervalTrigger = new IntervalTrigger(
-			_TEST_JOB_NAME_0, _MEMORY_TEST_GROUP_NAME, 0);
+		try {
+			List<LogRecord> logRecords = captureHandler.getLogRecords();
 
-		org.quartz.Trigger trigger = _quartzSchedulerEngine.getQuartzTrigger(
-			intervalTrigger);
+			IntervalTrigger intervalTrigger = new IntervalTrigger(
+				_TEST_JOB_NAME_0, _MEMORY_TEST_GROUP_NAME, 0);
 
-		Assert.assertNull(trigger);
+			org.quartz.Trigger trigger =
+				_quartzSchedulerEngine.getQuartzTrigger(intervalTrigger);
 
-		Assert.assertEquals(1, logRecords.size());
+			Assert.assertNull(trigger);
 
-		LogRecord logRecord = logRecords.get(0);
+			Assert.assertEquals(1, logRecords.size());
 
-		Assert.assertEquals(
-			"Not scheduling " + _TEST_JOB_NAME_0 + " because interval is less" +
-				" than or equal to 0",
-			logRecord.getMessage());
+			LogRecord logRecord = logRecords.get(0);
+
+			Assert.assertEquals(
+				"Not scheduling " + _TEST_JOB_NAME_0 + " because interval " +
+					"is less than or equal to 0",
+				logRecord.getMessage());
+		}
+		finally {
+			captureHandler.close();
+		}
 	}
 
 	@AdviseWith(adviceClasses = {EnableSchedulerAdvice.class})
@@ -312,7 +315,8 @@ public class QuartzSchedulerEngineTest {
 		Assert.assertEquals(_DEFAULT_JOB_NUMBER, schedulerResponses.size());
 
 		MockScheduler mockScheduler =
-			(MockScheduler)_persistedSchedulerField.get(_quartzSchedulerEngine);
+			(MockScheduler)ReflectionTestUtil.getFieldValue(
+				_quartzSchedulerEngine, "_persistedScheduler");
 
 		mockScheduler.addJob(
 			_TEST_JOB_NAME_PREFIX + "persisted", _TEST_GROUP_NAME,
@@ -650,9 +654,10 @@ public class QuartzSchedulerEngineTest {
 
 	@AdviseWith(adviceClasses = {EnableSchedulerAdvice.class})
 	@Test
-	public void testUpdate3() throws Exception {
-		MockScheduler mockScheduler = (MockScheduler)_memorySchedulerField.get(
-			_quartzSchedulerEngine);
+	public void testUpdate3() throws SchedulerException {
+		MockScheduler mockScheduler =
+			(MockScheduler)ReflectionTestUtil.getFieldValue(
+				_quartzSchedulerEngine, "_memoryScheduler");
 
 		String jobName = _TEST_JOB_NAME_PREFIX + "memory";
 
@@ -729,8 +734,6 @@ public class QuartzSchedulerEngineTest {
 
 	private static final String _TEST_PORTLET_ID = "testPortletId";
 
-	private Field _memorySchedulerField;
-	private Field _persistedSchedulerField;
 	private QuartzSchedulerEngine _quartzSchedulerEngine;
 	private SynchronousDestination _testDestination;
 
@@ -753,6 +756,19 @@ public class QuartzSchedulerEngineTest {
 					_TEST_JOB_NAME_PREFIX + i, _TEST_GROUP_NAME, storageType,
 					trigger);
 			}
+		}
+
+		@Override
+		public void addCalendar(
+			String name, Calendar calendar, boolean replace,
+			boolean updateTriggers) {
+		}
+
+		@Override
+		public void addJob(JobDetail jobDetail, boolean replace) {
+			_jobs.put(
+				jobDetail.getKey(),
+				new Tuple(jobDetail, null, TriggerState.UNSCHEDULED));
 		}
 
 		public final void addJob(
@@ -787,19 +803,6 @@ public class QuartzSchedulerEngineTest {
 
 			_jobs.put(
 				jobKey, new Tuple(jobDetail, trigger, TriggerState.NORMAL));
-		}
-
-		@Override
-		public void addCalendar(
-			String name, Calendar calendar, boolean replace,
-			boolean updateTriggers) {
-		}
-
-		@Override
-		public void addJob(JobDetail jobDetail, boolean replace) {
-			_jobs.put(
-				jobDetail.getKey(),
-				new Tuple(jobDetail, null, TriggerState.UNSCHEDULED));
 		}
 
 		@Override
@@ -981,6 +984,44 @@ public class QuartzSchedulerEngineTest {
 		}
 
 		@Override
+		public void pauseAll() {
+		}
+
+		@Override
+		public void pauseJob(JobKey jobKey) {
+			Tuple tuple = _jobs.get(jobKey);
+
+			if (tuple == null) {
+				return;
+			}
+
+			_jobs.put(
+				jobKey,
+				new Tuple(
+					tuple.getObject(0), tuple.getObject(1),
+					TriggerState.PAUSED));
+		}
+
+		@Override
+		public void pauseJobs(GroupMatcher<JobKey> groupMatcher) {
+			String groupName = groupMatcher.getCompareToValue();
+
+			for (JobKey jobKey : _jobs.keySet()) {
+				if (jobKey.getGroup().equals(groupName)) {
+					pauseJob(jobKey);
+				}
+			}
+		}
+
+		@Override
+		public void pauseTrigger(TriggerKey triggerKey) {
+		}
+
+		@Override
+		public void pauseTriggers(GroupMatcher<TriggerKey> groupMatcher) {
+		}
+
+		@Override
 		public Date rescheduleJob(
 			TriggerKey triggerKey, org.quartz.Trigger trigger) {
 
@@ -1036,44 +1077,6 @@ public class QuartzSchedulerEngineTest {
 
 		@Override
 		public void resumeTriggers(GroupMatcher<TriggerKey> groupMatcher) {
-		}
-
-		@Override
-		public void pauseAll() {
-		}
-
-		@Override
-		public void pauseJob(JobKey jobKey) {
-			Tuple tuple = _jobs.get(jobKey);
-
-			if (tuple == null) {
-				return;
-			}
-
-			_jobs.put(
-				jobKey,
-				new Tuple(
-					tuple.getObject(0), tuple.getObject(1),
-					TriggerState.PAUSED));
-		}
-
-		@Override
-		public void pauseJobs(GroupMatcher<JobKey> groupMatcher) {
-			String groupName = groupMatcher.getCompareToValue();
-
-			for (JobKey jobKey : _jobs.keySet()) {
-				if (jobKey.getGroup().equals(groupName)) {
-					pauseJob(jobKey);
-				}
-			}
-		}
-
-		@Override
-		public void pauseTrigger(TriggerKey triggerKey) {
-		}
-
-		@Override
-		public void pauseTriggers(GroupMatcher<TriggerKey> groupMatcher) {
 		}
 
 		@Override

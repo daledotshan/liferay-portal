@@ -43,16 +43,15 @@ import com.liferay.portal.kernel.scheduler.TriggerState;
 import com.liferay.portal.kernel.scheduler.TriggerType;
 import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
 import com.liferay.portal.kernel.servlet.PluginContextLifecycleThreadLocal;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.kernel.util.ObjectValuePair;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.model.Lock;
 import com.liferay.portal.model.impl.LockImpl;
-import com.liferay.portal.service.LockLocalService;
 import com.liferay.portal.service.LockLocalServiceUtil;
 import com.liferay.portal.service.impl.LockLocalServiceImpl;
 import com.liferay.portal.util.PortalImpl;
@@ -67,7 +66,6 @@ import java.io.ObjectOutput;
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import java.net.InetAddress;
@@ -102,20 +100,13 @@ public class ClusterSchedulerEngineTest {
 
 		portalUUIDUtil.setPortalUUID(new PortalUUIDImpl());
 
-		Field field = ReflectionUtil.getDeclaredField(
-			LockLocalServiceUtil.class, "_service");
-
-		LockLocalService lockLocalService = new MockLockLocalService();
-
-		field.set(null, lockLocalService);
-
-		field = ClusterableContextThreadLocal.class.getDeclaredField(
-			"_contextThreadLocal");
-
-		field.setAccessible(true);
+		ReflectionTestUtil.setFieldValue(
+			LockLocalServiceUtil.class, "_service", new MockLockLocalService());
 
 		_threadLocalContext =
-			(ThreadLocal<HashMap<String, Serializable>>)field.get(null);
+			(ThreadLocal<HashMap<String, Serializable>>)
+				ReflectionTestUtil.getFieldValue(
+					ClusterableContextThreadLocal.class, "_contextThreadLocal");
 
 		Method method = ClusterSchedulerEngine.class.getDeclaredMethod(
 			"delete", String.class);
@@ -277,7 +268,7 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	@Test
-	public void testMasterToSlave1() throws Exception {
+	public void testMasterToSlave1() throws SchedulerException {
 		_clusterSchedulerEngine = _getClusterSchedulerEngine(true, 2, 2);
 
 		Assert.assertTrue(_isMaster(_clusterSchedulerEngine));
@@ -302,7 +293,7 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	@Test
-	public void testMasterToSlave2() throws Exception {
+	public void testMasterToSlave2() throws SchedulerException {
 		_clusterSchedulerEngine = _getClusterSchedulerEngine(true, 2, 2);
 
 		Assert.assertTrue(_isMaster(_clusterSchedulerEngine));
@@ -502,7 +493,7 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	@Test
-	public void testSchedule2() throws Exception {
+	public void testSchedule2() throws SchedulerException {
 		_clusterSchedulerEngine = _getClusterSchedulerEngine(false, 1, 0);
 
 		Map<String, SchedulerResponse> schedulerResponses =
@@ -616,7 +607,7 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	@Test
-	public void testSlaveToMaster() throws Exception {
+	public void testSlaveToMaster() throws SchedulerException {
 		_clusterSchedulerEngine = _getClusterSchedulerEngine(false, 2, 0);
 
 		Assert.assertFalse(_isMaster(_clusterSchedulerEngine));
@@ -858,7 +849,9 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	@Test
-	public void testUpdateMemorySchedulerClusterMaster() throws Exception {
+	public void testUpdateMemorySchedulerClusterMaster()
+		throws SchedulerException {
+
 		_clusterSchedulerEngine = _getClusterSchedulerEngine(false, 2, 0);
 
 		Assert.assertFalse(_isMaster(_clusterSchedulerEngine));
@@ -916,7 +909,7 @@ public class ClusterSchedulerEngineTest {
 
 	private ClusterSchedulerEngine _getClusterSchedulerEngine(
 			boolean master, int memoryClusterJobs, int persistentJobs)
-		throws Exception {
+		throws SchedulerException {
 
 		MockSchedulerEngine mockSchedulerEngine = new MockSchedulerEngine(
 			memoryClusterJobs, persistentJobs);
@@ -966,9 +959,8 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	private SchedulerResponse _getMemoryClusteredJob(
-			ClusterSchedulerEngine clusterSchedulerEngine, String jobName,
-			String groupName)
-		throws Exception {
+		ClusterSchedulerEngine clusterSchedulerEngine, String jobName,
+		String groupName) {
 
 		Map<String, SchedulerResponse> allJobs = _getMemoryClusteredJobs(
 			clusterSchedulerEngine);
@@ -979,16 +971,13 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	private Map<String, SchedulerResponse> _getMemoryClusteredJobs(
-			ClusterSchedulerEngine clusterSchedulerEngine)
-		throws Exception {
-
-		Field field = ReflectionUtil.getDeclaredField(
-			ClusterSchedulerEngine.class, "_memoryClusteredJobs");
+		ClusterSchedulerEngine clusterSchedulerEngine) {
 
 		Map<String, ObjectValuePair<SchedulerResponse, TriggerState>>
 			memoryJobs =
 				(Map<String, ObjectValuePair<SchedulerResponse, TriggerState>>)
-					field.get(clusterSchedulerEngine);
+					ReflectionTestUtil.getFieldValue(
+						clusterSchedulerEngine, "_memoryClusteredJobs");
 
 		if (memoryJobs.isEmpty()) {
 			return Collections.emptyMap();
@@ -1016,8 +1005,7 @@ public class ClusterSchedulerEngineTest {
 	}
 
 	private List<SchedulerResponse> _getMemoryClusteredJobs(
-			ClusterSchedulerEngine clusterSchedulerEngine, String groupName)
-		throws Exception {
+		ClusterSchedulerEngine clusterSchedulerEngine, String groupName) {
 
 		List<SchedulerResponse> schedulerResponses =
 			new ArrayList<SchedulerResponse>();
@@ -1034,14 +1022,10 @@ public class ClusterSchedulerEngineTest {
 		return schedulerResponses;
 	}
 
-	private boolean _isMaster(ClusterSchedulerEngine clusterSchedulerEngine)
-		throws Exception {
-
-		Field localClusterNodeAddressField = ReflectionUtil.getDeclaredField(
-			ClusterSchedulerEngine.class, "_localClusterNodeAddress");
-
+	private boolean _isMaster(ClusterSchedulerEngine clusterSchedulerEngine) {
 		String localClusterNodeAddress =
-			(String)localClusterNodeAddressField.get(clusterSchedulerEngine);
+			(String)ReflectionTestUtil.getFieldValue(
+				clusterSchedulerEngine, "_localClusterNodeAddress");
 
 		Lock lock = MockLockLocalService.getLock();
 
@@ -1097,8 +1081,8 @@ public class ClusterSchedulerEngineTest {
 		}
 
 		@Override
-		public int hashCode() {
-			return 11 * (int)_timestamp;
+		public int compareTo(org.jgroups.Address jGroupsAddress) {
+			return 0;
 		}
 
 		@Override
@@ -1112,13 +1096,13 @@ public class ClusterSchedulerEngineTest {
 			return false;
 		}
 
-		@Override
-		public int compareTo(org.jgroups.Address jGroupsAddress) {
-			return 0;
-		}
-
 		public long getTimestamp() {
 			return _timestamp;
+		}
+
+		@Override
+		public int hashCode() {
+			return 11 * (int)_timestamp;
 		}
 
 		@Override
@@ -1381,16 +1365,16 @@ public class ClusterSchedulerEngineTest {
 
 	private static class MockLockLocalService extends LockLocalServiceImpl {
 
+		public static Lock getLock() {
+			return _lock;
+		}
+
 		public static void setLock(String owner) {
 			Lock lock = new LockImpl();
 
 			lock.setOwner(owner);
 
 			_lock = lock;
-		}
-
-		public static Lock getLock() {
-			return _lock;
 		}
 
 		@Override
@@ -1522,26 +1506,6 @@ public class ClusterSchedulerEngineTest {
 			return new ArrayList<SchedulerResponse>(_defaultJobs.values());
 		}
 
-		@Override
-		public List<SchedulerResponse> getScheduledJobs(String groupName)
-			throws SchedulerException {
-
-			List<SchedulerResponse> schedulerResponses =
-				new ArrayList<SchedulerResponse>();
-
-			for (String key : _defaultJobs.keySet()) {
-				if (key.contains(groupName)) {
-					schedulerResponses.add(_defaultJobs.get(key));
-				}
-			}
-
-			if (schedulerResponses.isEmpty()) {
-				throw new SchedulerException("No jobs in group " + groupName);
-			}
-
-			return schedulerResponses;
-		}
-
 		public List<SchedulerResponse> getScheduledJobs(StorageType storageType)
 			throws SchedulerException {
 
@@ -1557,6 +1521,26 @@ public class ClusterSchedulerEngineTest {
 			if (schedulerResponses.isEmpty()) {
 				throw new SchedulerException(
 					"No jobs with type " + storageType);
+			}
+
+			return schedulerResponses;
+		}
+
+		@Override
+		public List<SchedulerResponse> getScheduledJobs(String groupName)
+			throws SchedulerException {
+
+			List<SchedulerResponse> schedulerResponses =
+				new ArrayList<SchedulerResponse>();
+
+			for (String key : _defaultJobs.keySet()) {
+				if (key.contains(groupName)) {
+					schedulerResponses.add(_defaultJobs.get(key));
+				}
+			}
+
+			if (schedulerResponses.isEmpty()) {
+				throw new SchedulerException("No jobs in group " + groupName);
 			}
 
 			return schedulerResponses;

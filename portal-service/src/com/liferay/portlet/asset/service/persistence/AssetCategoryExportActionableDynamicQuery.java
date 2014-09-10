@@ -14,9 +14,10 @@
 
 package com.liferay.portlet.asset.service.persistence;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ManifestSummary;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -28,12 +29,15 @@ import com.liferay.portlet.asset.model.AssetCategory;
 
 /**
  * @author Brian Wing Shun Chan
+ * @deprecated As of 7.0.0, replaced by {@link com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil#getExportActionableDynamicQuery()}
  * @generated
  */
+@Deprecated
+@ProviderType
 public class AssetCategoryExportActionableDynamicQuery
 	extends AssetCategoryActionableDynamicQuery {
 	public AssetCategoryExportActionableDynamicQuery(
-		PortletDataContext portletDataContext) throws SystemException {
+		PortletDataContext portletDataContext) {
 		_portletDataContext = portletDataContext;
 
 		setCompanyId(_portletDataContext.getCompanyId());
@@ -42,7 +46,7 @@ public class AssetCategoryExportActionableDynamicQuery
 	}
 
 	@Override
-	public long performCount() throws PortalException, SystemException {
+	public long performCount() throws PortalException {
 		ManifestSummary manifestSummary = _portletDataContext.getManifestSummary();
 
 		StagedModelType stagedModelType = getStagedModelType();
@@ -72,9 +76,7 @@ public class AssetCategoryExportActionableDynamicQuery
 	}
 
 	@Override
-	@SuppressWarnings("unused")
-	protected void performAction(Object object)
-		throws PortalException, SystemException {
+	protected void performAction(Object object) throws PortalException {
 		AssetCategory stagedModel = (AssetCategory)object;
 
 		StagedModelDataHandlerUtil.exportStagedModel(_portletDataContext,

@@ -2,14 +2,11 @@ AUI.add(
 	'liferay-dockbar-add-base',
 	function(A) {
 		var DDM = A.DD.DDM;
-
 		var Lang = A.Lang;
-
 		var Dockbar = Liferay.Dockbar;
-
 		var Layout = Liferay.Layout;
-
 		var Portlet = Liferay.Portlet;
+		var Util = Liferay.Util;
 
 		var PROXY_NODE_ITEM = Layout.PROXY_NODE_ITEM;
 
@@ -29,10 +26,6 @@ AUI.add(
 
 		var AddBase = A.Component.create(
 			{
-				EXTENDS: A.Base,
-
-				NAME: 'addbase',
-
 				ATTRS: {
 					focusItem: {
 						setter: A.one
@@ -46,26 +39,12 @@ AUI.add(
 						setter: A.one
 					},
 
-					nodeSelector: {
-						validator: Lang.isString
-					},
-
 					nodeList: {
 						setter: A.one
 					},
 
-					nodes: {
-						getter: '_getNodes',
-						readOnly: true
-					},
-
-					searchData: {
-						getter: '_getSearchData',
-						readOnly: true
-					},
-
-					searchDataLocator: {
-						value: 'data-search'
+					nodeSelector: {
+						validator: Lang.isString
 					},
 
 					selected: {
@@ -73,35 +52,13 @@ AUI.add(
 					}
 				},
 
+				EXTENDS: A.Base,
+
+				NAME: 'addbase',
+
 				prototype: {
 					initializer: function(config) {
 						var instance = this;
-
-						var nodeList = instance.get('nodeList');
-
-						if (nodeList) {
-							var nodeSelector = instance.get('nodeSelector');
-
-							var nodes = nodeList.all(nodeSelector);
-
-							var searchDataLocator = instance.get('searchDataLocator');
-
-							var searchData = [];
-
-							nodes.each(
-								function(item, index, collection) {
-									searchData.push(
-										{
-											node: item,
-											search: item.attr(searchDataLocator)
-										}
-									);
-								}
-							);
-
-							instance._nodes = nodes;
-							instance._searchData = searchData;
-						}
 
 						if (instance.get('selected')) {
 							var focusItem = instance.get('focusItem');
@@ -110,6 +67,12 @@ AUI.add(
 								focusItem.focus();
 							}
 						}
+
+						instance._addedMessage = instance.byId('addedMessage');
+
+						instance._hideAddedMessageTask = A.debounce(A.bind('_hideAddedMessage', instance), 2000);
+
+						instance._eventHandles = [];
 
 						instance._bindUIDABase();
 					},
@@ -153,12 +116,25 @@ AUI.add(
 									if (referencePortlet) {
 										referencePortlet.placeBefore(placeHolder);
 									}
-									else {
-										if (dropColumn) {
-											dropColumn.append(placeHolder);
-										}
+									else if (dropColumn) {
+										dropColumn.append(placeHolder);
 									}
 								}
+							}
+
+							if (Util.isPhone() || Util.isTablet()) {
+								placeHolder.guid();
+
+								instance._syncContentLink(placeHolder);
+
+								instance._portletFeedback(portletId, portlet);
+
+								Liferay.once(
+									'addPortlet',
+									function(event) {
+										instance._syncContentLink(event.portlet);
+									}
+								);
 							}
 
 							Portlet.add(
@@ -177,9 +153,7 @@ AUI.add(
 					_bindUIDABase: function() {
 						var instance = this;
 
-						instance._eventHandles = [
-							Liferay.after('showTab', instance._showTab, instance)
-						];
+						instance._eventHandles.push(Liferay.after('showTab', instance._showTab, instance));
 					},
 
 					_disablePortletEntry: function(portletId) {
@@ -210,12 +184,6 @@ AUI.add(
 								item.removeClass(CSS_LFR_PORTLET_USED);
 							}
 						);
-					},
-
-					_getNodes: function() {
-						var instance = this;
-
-						return instance._nodes;
 					},
 
 					_getPortletMetaData: function(portlet) {
@@ -255,10 +223,35 @@ AUI.add(
 						return portletMetaData;
 					},
 
-					_getSearchData: function() {
+					_hideAddedMessage: function() {
 						var instance = this;
 
-						return instance._searchData;
+						instance._addedMessage.hide(true);
+
+						instance._skipToContentHandle.detach();
+					},
+
+					_portletFeedback: function(portletId, portlet) {
+						var instance = this;
+
+						var addedMessagePortlet = instance.byId('portletName');
+
+						var portletNameNode = portlet.ancestor('[data-portlet-id=' + portletId + ']', true);
+
+						if (portletNameNode) {
+							var portletName = portletNameNode.attr('data-title');
+
+							addedMessagePortlet.setHTML(portletName);
+
+							instance._skipToContentHandle = instance._contentLink.on('tap', A.bind('_skipToContent', instance));
+
+							instance._addedMessage.show(
+								true,
+								function() {
+									instance._hideAddedMessageTask();
+								}
+							);
+						}
 					},
 
 					_showTab: function(event) {
@@ -269,6 +262,56 @@ AUI.add(
 						if (focusItem && event.tabSection && event.tabSection.contains(focusItem)) {
 							focusItem.focus();
 						}
+					},
+
+					_skipToContent: function(event) {
+						var instance = this;
+
+						event.preventDefault();
+
+						var portletXY = instance._lastAddedPortlet.getXY();
+						var scrollAnim = instance._scrollAnim;
+
+						if (!scrollAnim) {
+							scrollAnim = new A.Anim(
+								{
+									duration: 0.3,
+									easing: 'easeOut',
+									node: 'win'
+								}
+							);
+
+							instance._scrollAnim = scrollAnim;
+						}
+
+						scrollAnim.set(
+							'to',
+							{
+								scroll: [portletXY[0], (portletXY[1] - 40)]
+							}
+						).run();
+
+						instance._hideAddedMessage();
+					},
+
+					_syncContentLink: function(node) {
+						var instance = this;
+
+						var href = '#' + node.attr('id');
+
+						var contentLink = instance._contentLink;
+
+						if (!contentLink) {
+							contentLink = instance.byId('contentLink');
+
+							contentLink.swallowEvent('click', true);
+
+							instance._contentLink = contentLink;
+						}
+
+						contentLink.attr('href', href);
+
+						instance._lastAddedPortlet = node;
 					}
 				}
 			}
@@ -412,6 +455,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['liferay-dockbar', 'liferay-layout']
+		requires: ['anim', 'aui-base', 'liferay-dockbar', 'liferay-layout', 'transition']
 	}
 );

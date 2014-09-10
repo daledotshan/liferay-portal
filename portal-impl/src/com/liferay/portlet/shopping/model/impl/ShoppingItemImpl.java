@@ -15,7 +15,6 @@
 package com.liferay.portlet.shopping.model.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -32,6 +31,8 @@ import java.util.List;
  * @author Brian Wing Shun Chan
  */
 public class ShoppingItemImpl extends ShoppingItemBaseImpl {
+
+	public static final int STOCK_QUANTITY_INFINITE_STOCK = -1;
 
 	public ShoppingItemImpl() {
 	}
@@ -73,10 +74,17 @@ public class ShoppingItemImpl extends ShoppingItemBaseImpl {
 	}
 
 	@Override
-	public List<ShoppingItemPrice> getItemPrices()
-		throws PortalException, SystemException {
-
+	public List<ShoppingItemPrice> getItemPrices() throws PortalException {
 		return ShoppingItemPriceLocalServiceUtil.getItemPrices(getItemId());
+	}
+
+	@Override
+	public boolean hasInfiniteStock() {
+		if (getStockQuantity() == STOCK_QUANTITY_INFINITE_STOCK) {
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
