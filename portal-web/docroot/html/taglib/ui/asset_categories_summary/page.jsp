@@ -61,7 +61,7 @@ for (AssetVocabulary vocabulary : vocabularies) {
 					%>
 
 						<span class="asset-category">
-							<%= _buildCategoryPath(category, themeDisplay) %>
+							<%= HtmlUtil.unescape(_buildCategoryPath(category, themeDisplay)) %>
 						</span>
 
 					<%
