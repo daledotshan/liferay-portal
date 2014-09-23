@@ -16,7 +16,6 @@ package com.liferay.portal.mobile.device.rulegroup.action.impl;
 
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -31,7 +30,7 @@ import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.mobiledevicerules.model.MDRAction;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -69,7 +68,7 @@ public class SiteRedirectActionHandler extends BaseRedirectActionHandler {
 	protected String getURL(
 			MDRAction mdrAction, HttpServletRequest request,
 			HttpServletResponse response)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		UnicodeProperties typeSettingsProperties =
 			mdrAction.getTypeSettingsProperties();
@@ -138,21 +137,13 @@ public class SiteRedirectActionHandler extends BaseRedirectActionHandler {
 	private static Log _log = LogFactoryUtil.getLog(
 		SiteRedirectActionHandler.class);
 
-	private static Collection<String> _propertyNames;
+	private static final Collection<String> _propertyNames =
+		Collections.unmodifiableCollection(Arrays.asList("groupId", "plid"));
 
 	@BeanReference(type = GroupLocalService.class)
 	private GroupLocalService _groupLocalService;
 
 	@BeanReference(type = LayoutLocalService.class)
 	private LayoutLocalService _layoutLocalService;
-
-	static {
-		_propertyNames = new ArrayList<String>(2);
-
-		_propertyNames.add("groupId");
-		_propertyNames.add("plid");
-
-		_propertyNames = Collections.unmodifiableCollection(_propertyNames);
-	}
 
 }

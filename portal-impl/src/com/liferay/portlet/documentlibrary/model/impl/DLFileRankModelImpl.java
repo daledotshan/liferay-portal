@@ -14,9 +14,10 @@
 
 package com.liferay.portlet.documentlibrary.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -54,6 +55,7 @@ import java.util.Map;
  * @see com.liferay.portlet.documentlibrary.model.DLFileRankModel
  * @generated
  */
+@ProviderType
 public class DLFileRankModelImpl extends BaseModelImpl<DLFileRank>
 	implements DLFileRankModel {
 	/*
@@ -87,12 +89,12 @@ public class DLFileRankModelImpl extends BaseModelImpl<DLFileRank>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portlet.documentlibrary.model.DLFileRank"),
 			true);
-	public static long ACTIVE_COLUMN_BITMASK = 1L;
-	public static long COMPANYID_COLUMN_BITMASK = 2L;
-	public static long FILEENTRYID_COLUMN_BITMASK = 4L;
-	public static long GROUPID_COLUMN_BITMASK = 8L;
-	public static long USERID_COLUMN_BITMASK = 16L;
-	public static long CREATEDATE_COLUMN_BITMASK = 32L;
+	public static final long ACTIVE_COLUMN_BITMASK = 1L;
+	public static final long COMPANYID_COLUMN_BITMASK = 2L;
+	public static final long FILEENTRYID_COLUMN_BITMASK = 4L;
+	public static final long GROUPID_COLUMN_BITMASK = 8L;
+	public static final long USERID_COLUMN_BITMASK = 16L;
+	public static final long CREATEDATE_COLUMN_BITMASK = 32L;
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(com.liferay.portal.util.PropsUtil.get(
 				"lock.expiration.time.com.liferay.portlet.documentlibrary.model.DLFileRank"));
 
@@ -265,7 +267,7 @@ public class DLFileRankModelImpl extends BaseModelImpl<DLFileRank>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -561,8 +563,8 @@ public class DLFileRankModelImpl extends BaseModelImpl<DLFileRank>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = DLFileRank.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = DLFileRank.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			DLFileRank.class
 		};
 	private long _fileRankId;

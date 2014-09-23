@@ -29,7 +29,7 @@ portletURL.setParameter("struts_action", "/message_boards/view");
 %>
 
 <aui:nav-bar>
-	<aui:nav>
+	<aui:nav cssClass="navbar-nav">
 
 		<%
 		String label = "message-boards-home";
@@ -95,7 +95,7 @@ portletURL.setParameter("struts_action", "/message_boards/view");
 			<portlet:param name="struts_action" value="/message_boards/search" />
 		</liferay-portlet:renderURL>
 
-		<aui:nav-bar-search cssClass="pull-right">
+		<aui:nav-bar-search>
 			<div class="form-search">
 				<aui:form action="<%= searchURL %>" method="get" name="searchFm">
 					<liferay-portlet:renderURLParams varImpl="searchURL" />
@@ -112,6 +112,6 @@ portletURL.setParameter("struts_action", "/message_boards/view");
 
 <c:if test="<%= layout.isTypeControlPanel() %>">
 	<div id="breadcrumb">
-		<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showCurrentPortlet="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
+		<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
 	</div>
 </c:if>

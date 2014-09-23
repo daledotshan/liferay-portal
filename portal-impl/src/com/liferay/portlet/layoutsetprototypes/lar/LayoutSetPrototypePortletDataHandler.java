@@ -22,10 +22,11 @@ import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.lar.xstream.XStreamAliasRegistryUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.LayoutSetPrototype;
+import com.liferay.portal.model.impl.LayoutSetPrototypeImpl;
 import com.liferay.portal.service.LayoutSetPrototypeLocalServiceUtil;
-import com.liferay.portal.service.persistence.LayoutSetPrototypeExportActionableDynamicQuery;
 
 import java.util.List;
 
@@ -52,6 +53,9 @@ public class LayoutSetPrototypePortletDataHandler
 				},
 				LayoutSetPrototype.class.getName()
 			));
+
+		XStreamAliasRegistryUtil.register(
+			LayoutSetPrototypeImpl.class, "LayoutSetPrototype");
 	}
 
 	@Override
@@ -86,7 +90,7 @@ public class LayoutSetPrototypePortletDataHandler
 			"group-id", String.valueOf(portletDataContext.getScopeGroupId()));
 
 		ActionableDynamicQuery actionableDynamicQuery =
-			new LayoutSetPrototypeExportActionableDynamicQuery(
+			LayoutSetPrototypeLocalServiceUtil.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		actionableDynamicQuery.performActions();
@@ -124,7 +128,7 @@ public class LayoutSetPrototypePortletDataHandler
 		throws Exception {
 
 		ActionableDynamicQuery layoutSetPrototypeExportActionableDynamicQuery =
-			new LayoutSetPrototypeExportActionableDynamicQuery(
+			LayoutSetPrototypeLocalServiceUtil.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		layoutSetPrototypeExportActionableDynamicQuery.performCount();

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -49,11 +51,11 @@ import com.liferay.portal.service.ImageServiceUtil;
  * @see com.liferay.portal.service.ImageServiceUtil
  * @generated
  */
+@ProviderType
 public class ImageServiceHttp {
 	public static com.liferay.portal.model.Image getImage(
 		HttpPrincipal httpPrincipal, long imageId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(ImageServiceUtil.class,
 					"getImage", _getImageParameterTypes0);
@@ -68,10 +70,6 @@ public class ImageServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

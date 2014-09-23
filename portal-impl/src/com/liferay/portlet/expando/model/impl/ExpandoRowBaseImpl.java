@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.expando.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.expando.model.ExpandoRow;
 import com.liferay.portlet.expando.service.ExpandoRowLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.expando.service.ExpandoRowLocalServiceUtil;
  * @see com.liferay.portlet.expando.model.ExpandoRow
  * @generated
  */
+@ProviderType
 public abstract class ExpandoRowBaseImpl extends ExpandoRowModelImpl
 	implements ExpandoRow {
 	/*
@@ -39,7 +40,7 @@ public abstract class ExpandoRowBaseImpl extends ExpandoRowModelImpl
 	 * Never modify or reference this class directly. All methods that expect a expando row model instance should use the {@link ExpandoRow} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ExpandoRowLocalServiceUtil.addExpandoRow(this);
 		}

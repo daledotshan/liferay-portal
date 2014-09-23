@@ -15,8 +15,9 @@
 package com.liferay.portal.service.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.search.Indexable;
+import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -40,12 +41,13 @@ import java.util.Map;
 public class ExportImportConfigurationLocalServiceImpl
 	extends ExportImportConfigurationLocalServiceBaseImpl {
 
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ExportImportConfiguration addExportImportConfiguration(
 			long userId, long groupId, String name, String description,
 			int type, Map<String, Serializable> settingsMap, int status,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		Date now = new Date();
@@ -88,18 +90,20 @@ public class ExportImportConfigurationLocalServiceImpl
 			long userId, long groupId, String name, String description,
 			int type, Map<String, Serializable> settingsMap,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		return addExportImportConfiguration(
-			userId, groupId, name, description, type, settingsMap,
-			WorkflowConstants.STATUS_APPROVED, serviceContext);
+		return exportImportConfigurationLocalService.
+			addExportImportConfiguration(
+				userId, groupId, name, description, type, settingsMap,
+				WorkflowConstants.STATUS_APPROVED, serviceContext);
 	}
 
+	@Indexable(type = IndexableType.DELETE)
 	@Override
 	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ExportImportConfiguration deleteExportImportConfiguration(
 			ExportImportConfiguration exportImportConfiguration)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		exportImportConfigurationPersistence.remove(exportImportConfiguration);
 
@@ -113,7 +117,7 @@ public class ExportImportConfigurationLocalServiceImpl
 	@Override
 	public ExportImportConfiguration deleteExportImportConfiguration(
 			long exportImportConfigurationId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		ExportImportConfiguration exportImportConfiguration =
 			exportImportConfigurationPersistence.findByPrimaryKey(
@@ -125,7 +129,7 @@ public class ExportImportConfigurationLocalServiceImpl
 
 	@Override
 	public void deleteExportImportConfigurations(long groupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<ExportImportConfiguration> exportImportConfigurations =
 			exportImportConfigurationPersistence.findByGroupId(groupId);
@@ -140,8 +144,7 @@ public class ExportImportConfigurationLocalServiceImpl
 
 	@Override
 	public List<ExportImportConfiguration> getExportImportConfigurations(
-			long groupId, int type)
-		throws SystemException {
+		long groupId, int type) {
 
 		return exportImportConfigurationPersistence.findByG_T_S(
 			groupId, type, WorkflowConstants.STATUS_APPROVED);
@@ -149,9 +152,8 @@ public class ExportImportConfigurationLocalServiceImpl
 
 	@Override
 	public List<ExportImportConfiguration> getExportImportConfigurations(
-			long groupId, int type, int start, int end,
-			OrderByComparator orderByComparator)
-		throws SystemException {
+		long groupId, int type, int start, int end,
+		OrderByComparator<ExportImportConfiguration> orderByComparator) {
 
 		return exportImportConfigurationPersistence.findByG_T_S(
 			groupId, type, WorkflowConstants.STATUS_APPROVED, start, end,
@@ -159,25 +161,22 @@ public class ExportImportConfigurationLocalServiceImpl
 	}
 
 	@Override
-	public int getExportImportConfigurationsCount(long groupId)
-		throws SystemException {
-
+	public int getExportImportConfigurationsCount(long groupId) {
 		return exportImportConfigurationPersistence.countByG_S(
 			groupId, WorkflowConstants.STATUS_APPROVED);
 	}
 
 	@Override
-	public int getExportImportConfigurationsCount(long groupId, int type)
-		throws SystemException {
-
+	public int getExportImportConfigurationsCount(long groupId, int type) {
 		return exportImportConfigurationPersistence.countByG_T_S(
 			groupId, type, WorkflowConstants.STATUS_APPROVED);
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ExportImportConfiguration moveExportImportConfigurationToTrash(
 			long userId, long exportImportConfigurationId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		ExportImportConfiguration exportImportConfiguration =
 			exportImportConfigurationPersistence.findByPrimaryKey(
@@ -198,10 +197,11 @@ public class ExportImportConfigurationLocalServiceImpl
 		return exportImportConfiguration;
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ExportImportConfiguration restoreExportImportConfigurationFromTrash(
 			long userId, long exportImportConfigurationId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		ExportImportConfiguration exportImportConfiguration =
 			exportImportConfigurationPersistence.findByPrimaryKey(
@@ -222,12 +222,13 @@ public class ExportImportConfigurationLocalServiceImpl
 		return exportImportConfiguration;
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ExportImportConfiguration updateExportImportConfiguration(
 			long userId, long exportImportConfigurationId, String name,
 			String description, Map<String, Serializable> settingsMap,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 
@@ -252,10 +253,11 @@ public class ExportImportConfigurationLocalServiceImpl
 			exportImportConfiguration);
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ExportImportConfiguration updateStatus(
 			long userId, long exportImportConfigurationId, int status)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 

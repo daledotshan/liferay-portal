@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
@@ -28,6 +30,7 @@ import com.liferay.portal.service.persistence.GroupFinder;
 import com.liferay.portal.service.persistence.GroupPersistence;
 import com.liferay.portal.service.persistence.LayoutFinder;
 import com.liferay.portal.service.persistence.LayoutPersistence;
+import com.liferay.portal.service.persistence.LayoutRevisionPersistence;
 import com.liferay.portal.service.persistence.LayoutSetBranchPersistence;
 import com.liferay.portal.service.persistence.LayoutSetPersistence;
 import com.liferay.portal.util.PortalUtil;
@@ -46,6 +49,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portal.service.StagingLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 	implements StagingLocalService, IdentifiableBean {
 	/*
@@ -260,6 +264,63 @@ public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
+	 * Returns the layout revision local service.
+	 *
+	 * @return the layout revision local service
+	 */
+	public com.liferay.portal.service.LayoutRevisionLocalService getLayoutRevisionLocalService() {
+		return layoutRevisionLocalService;
+	}
+
+	/**
+	 * Sets the layout revision local service.
+	 *
+	 * @param layoutRevisionLocalService the layout revision local service
+	 */
+	public void setLayoutRevisionLocalService(
+		com.liferay.portal.service.LayoutRevisionLocalService layoutRevisionLocalService) {
+		this.layoutRevisionLocalService = layoutRevisionLocalService;
+	}
+
+	/**
+	 * Returns the layout revision remote service.
+	 *
+	 * @return the layout revision remote service
+	 */
+	public com.liferay.portal.service.LayoutRevisionService getLayoutRevisionService() {
+		return layoutRevisionService;
+	}
+
+	/**
+	 * Sets the layout revision remote service.
+	 *
+	 * @param layoutRevisionService the layout revision remote service
+	 */
+	public void setLayoutRevisionService(
+		com.liferay.portal.service.LayoutRevisionService layoutRevisionService) {
+		this.layoutRevisionService = layoutRevisionService;
+	}
+
+	/**
+	 * Returns the layout revision persistence.
+	 *
+	 * @return the layout revision persistence
+	 */
+	public LayoutRevisionPersistence getLayoutRevisionPersistence() {
+		return layoutRevisionPersistence;
+	}
+
+	/**
+	 * Sets the layout revision persistence.
+	 *
+	 * @param layoutRevisionPersistence the layout revision persistence
+	 */
+	public void setLayoutRevisionPersistence(
+		LayoutRevisionPersistence layoutRevisionPersistence) {
+		this.layoutRevisionPersistence = layoutRevisionPersistence;
+	}
+
+	/**
 	 * Returns the layout set local service.
 	 *
 	 * @return the layout set local service
@@ -404,7 +465,7 @@ public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = InfrastructureUtil.getDataSource();
 
@@ -445,6 +506,12 @@ public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected LayoutPersistence layoutPersistence;
 	@BeanReference(type = LayoutFinder.class)
 	protected LayoutFinder layoutFinder;
+	@BeanReference(type = com.liferay.portal.service.LayoutRevisionLocalService.class)
+	protected com.liferay.portal.service.LayoutRevisionLocalService layoutRevisionLocalService;
+	@BeanReference(type = com.liferay.portal.service.LayoutRevisionService.class)
+	protected com.liferay.portal.service.LayoutRevisionService layoutRevisionService;
+	@BeanReference(type = LayoutRevisionPersistence.class)
+	protected LayoutRevisionPersistence layoutRevisionPersistence;
 	@BeanReference(type = com.liferay.portal.service.LayoutSetLocalService.class)
 	protected com.liferay.portal.service.LayoutSetLocalService layoutSetLocalService;
 	@BeanReference(type = com.liferay.portal.service.LayoutSetService.class)

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.repository.model.RepositoryModelOperation;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Lock;
 import com.liferay.portal.security.permission.PermissionChecker;
@@ -76,9 +77,16 @@ public class FileEntryProxyBean
 	@Override
 	public boolean containsPermission(
 			PermissionChecker permissionChecker, String actionId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return _fileEntry.containsPermission(permissionChecker, actionId);
+	}
+
+	@Override
+	public void execute(RepositoryModelOperation repositoryModelOperation)
+		throws PortalException {
+
+		repositoryModelOperation.execute(this);
 	}
 
 	@Override
@@ -92,16 +100,12 @@ public class FileEntryProxyBean
 	}
 
 	@Override
-	public InputStream getContentStream()
-		throws PortalException, SystemException {
-
+	public InputStream getContentStream() throws PortalException {
 		return _fileEntry.getContentStream();
 	}
 
 	@Override
-	public InputStream getContentStream(String version)
-		throws PortalException, SystemException {
-
+	public InputStream getContentStream(String version) throws PortalException {
 		return _fileEntry.getContentStream(version);
 	}
 
@@ -134,27 +138,26 @@ public class FileEntryProxyBean
 	}
 
 	@Override
-	public FileVersion getFileVersion()
-		throws PortalException, SystemException {
+	public String getFileName() {
+		return _fileEntry.getFileName();
+	}
 
+	@Override
+	public FileVersion getFileVersion() throws PortalException {
 		FileVersion fileVersion = _fileEntry.getFileVersion();
 
 		return newFileVersionProxyBean(fileVersion);
 	}
 
 	@Override
-	public FileVersion getFileVersion(String version)
-		throws PortalException, SystemException {
-
+	public FileVersion getFileVersion(String version) throws PortalException {
 		FileVersion fileVersion = _fileEntry.getFileVersion(version);
 
 		return newFileVersionProxyBean(fileVersion);
 	}
 
 	@Override
-	public List<FileVersion> getFileVersions(int status)
-		throws SystemException {
-
+	public List<FileVersion> getFileVersions(int status) {
 		List<FileVersion> fileVersions = _fileEntry.getFileVersions(status);
 
 		return toFileVersionProxyBeans(fileVersions);
@@ -183,9 +186,12 @@ public class FileEntryProxyBean
 	}
 
 	@Override
-	public FileVersion getLatestFileVersion()
-		throws PortalException, SystemException {
+	public String getIconCssClass() {
+		return _fileEntry.getIconCssClass();
+	}
 
+	@Override
+	public FileVersion getLatestFileVersion() throws PortalException {
 		FileVersion fileVersion = _fileEntry.getLatestFileVersion();
 
 		return newFileVersionProxyBean(fileVersion);
@@ -193,7 +199,7 @@ public class FileEntryProxyBean
 
 	@Override
 	public FileVersion getLatestFileVersion(boolean trusted)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		FileVersion fileVersion = _fileEntry.getLatestFileVersion(trusted);
 
@@ -283,7 +289,7 @@ public class FileEntryProxyBean
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		return _fileEntry.getUserUuid();
 	}
 

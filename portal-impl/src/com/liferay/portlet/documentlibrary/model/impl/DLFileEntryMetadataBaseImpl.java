@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.documentlibrary.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServi
  * @see com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata
  * @generated
  */
+@ProviderType
 public abstract class DLFileEntryMetadataBaseImpl
 	extends DLFileEntryMetadataModelImpl implements DLFileEntryMetadata {
 	/*
@@ -39,7 +40,7 @@ public abstract class DLFileEntryMetadataBaseImpl
 	 * Never modify or reference this class directly. All methods that expect a document library file entry metadata model instance should use the {@link DLFileEntryMetadata} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			DLFileEntryMetadataLocalServiceUtil.addDLFileEntryMetadata(this);
 		}

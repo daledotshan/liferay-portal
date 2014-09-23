@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.Account;
 import com.liferay.portal.service.AccountLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.AccountLocalServiceUtil;
  * @see com.liferay.portal.model.Account
  * @generated
  */
+@ProviderType
 public abstract class AccountBaseImpl extends AccountModelImpl
 	implements Account {
 	/*
@@ -38,7 +40,7 @@ public abstract class AccountBaseImpl extends AccountModelImpl
 	 * Never modify or reference this class directly. All methods that expect a account model instance should use the {@link Account} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			AccountLocalServiceUtil.addAccount(this);
 		}

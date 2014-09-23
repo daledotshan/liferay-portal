@@ -136,7 +136,8 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 				_searchContainer.setTotalVar(_totalVar);
 			}
 
-			pageContext.setAttribute(_searchContainer.getTotalVar(), 0);
+			pageContext.setAttribute(
+				_searchContainer.getTotalVar(), _searchContainer.getTotal());
 			pageContext.setAttribute(_var, _searchContainer);
 
 			SearchContainerReference searchContainerReference =
@@ -188,7 +189,7 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		return _orderByColParam;
 	}
 
-	public OrderByComparator getOrderByComparator() {
+	public OrderByComparator<R> getOrderByComparator() {
 		return _orderByComparator;
 	}
 
@@ -295,7 +296,7 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		_orderByColParam = orderByColParam;
 	}
 
-	public void setOrderByComparator(OrderByComparator orderByComparator) {
+	public void setOrderByComparator(OrderByComparator<R> orderByComparator) {
 		_orderByComparator = orderByComparator;
 	}
 
@@ -345,7 +346,7 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 	private String _orderByCol;
 	private String _orderByColParam =
 		SearchContainer.DEFAULT_ORDER_BY_COL_PARAM;
-	private OrderByComparator _orderByComparator;
+	private OrderByComparator<R> _orderByComparator;
 	private String _orderByType;
 	private String _orderByTypeParam =
 		SearchContainer.DEFAULT_ORDER_BY_TYPE_PARAM;

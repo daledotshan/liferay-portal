@@ -14,12 +14,16 @@
 
 package com.liferay.portlet.dynamicdatamapping.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -55,6 +59,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class DDMStructureLinkLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements DDMStructureLinkLocalService,
 		IdentifiableBean {
@@ -69,12 +74,11 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 *
 	 * @param ddmStructureLink the d d m structure link
 	 * @return the d d m structure link that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public DDMStructureLink addDDMStructureLink(
-		DDMStructureLink ddmStructureLink) throws SystemException {
+		DDMStructureLink ddmStructureLink) {
 		ddmStructureLink.setNew(true);
 
 		return ddmStructureLinkPersistence.update(ddmStructureLink);
@@ -97,12 +101,11 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 * @param structureLinkId the primary key of the d d m structure link
 	 * @return the d d m structure link that was removed
 	 * @throws PortalException if a d d m structure link with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public DDMStructureLink deleteDDMStructureLink(long structureLinkId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return ddmStructureLinkPersistence.remove(structureLinkId);
 	}
 
@@ -111,12 +114,11 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 *
 	 * @param ddmStructureLink the d d m structure link
 	 * @return the d d m structure link that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public DDMStructureLink deleteDDMStructureLink(
-		DDMStructureLink ddmStructureLink) throws SystemException {
+		DDMStructureLink ddmStructureLink) {
 		return ddmStructureLinkPersistence.remove(ddmStructureLink);
 	}
 
@@ -133,12 +135,9 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return ddmStructureLinkPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -153,12 +152,10 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return ddmStructureLinkPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end);
 	}
@@ -175,12 +172,10 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return ddmStructureLinkPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end, orderByComparator);
 	}
@@ -190,11 +185,9 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return ddmStructureLinkPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -204,18 +197,16 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return ddmStructureLinkPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public DDMStructureLink fetchDDMStructureLink(long structureLinkId)
-		throws SystemException {
+	public DDMStructureLink fetchDDMStructureLink(long structureLinkId) {
 		return ddmStructureLinkPersistence.fetchByPrimaryKey(structureLinkId);
 	}
 
@@ -225,17 +216,47 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 * @param structureLinkId the primary key of the d d m structure link
 	 * @return the d d m structure link
 	 * @throws PortalException if a d d m structure link with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DDMStructureLink getDDMStructureLink(long structureLinkId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return ddmStructureLinkPersistence.findByPrimaryKey(structureLinkId);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(DDMStructureLink.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("structureLinkId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(DDMStructureLink.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("structureLinkId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return ddmStructureLinkLocalService.deleteDDMStructureLink((DDMStructureLink)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return ddmStructureLinkPersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -249,11 +270,9 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 * @param start the lower bound of the range of d d m structure links
 	 * @param end the upper bound of the range of d d m structure links (not inclusive)
 	 * @return the range of d d m structure links
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DDMStructureLink> getDDMStructureLinks(int start, int end)
-		throws SystemException {
+	public List<DDMStructureLink> getDDMStructureLinks(int start, int end) {
 		return ddmStructureLinkPersistence.findAll(start, end);
 	}
 
@@ -261,10 +280,9 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 * Returns the number of d d m structure links.
 	 *
 	 * @return the number of d d m structure links
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getDDMStructureLinksCount() throws SystemException {
+	public int getDDMStructureLinksCount() {
 		return ddmStructureLinkPersistence.countAll();
 	}
 
@@ -273,12 +291,11 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 *
 	 * @param ddmStructureLink the d d m structure link
 	 * @return the d d m structure link that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public DDMStructureLink updateDDMStructureLink(
-		DDMStructureLink ddmStructureLink) throws SystemException {
+		DDMStructureLink ddmStructureLink) {
 		return ddmStructureLinkPersistence.update(ddmStructureLink);
 	}
 
@@ -382,7 +399,7 @@ public abstract class DDMStructureLinkLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = ddmStructureLinkPersistence.getDataSource();
 

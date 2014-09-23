@@ -115,10 +115,10 @@ if (reminderAttempts == null) {
 					%>
 
 					<div class="alert alert-info">
-						<%= LanguageUtil.format(pageContext, "a-new-password-will-be-sent-to-x-if-you-can-correctly-answer-the-following-question", login, false) %>
+						<%= LanguageUtil.format(request, "a-new-password-will-be-sent-to-x-if-you-can-correctly-answer-the-following-question", login, false) %>
 					</div>
 
-					<aui:input autoFocus="<%= true %>" label="<%= HtmlUtil.escape(LanguageUtil.get(pageContext, user2.getReminderQueryQuestion())) %>" name="answer" type="text" />
+					<aui:input autoFocus="<%= true %>" label="<%= HtmlUtil.escape(LanguageUtil.get(request, user2.getReminderQueryQuestion())) %>" name="answer" type="text" />
 				</c:if>
 
 				<c:choose>
@@ -143,7 +143,7 @@ if (reminderAttempts == null) {
 				</c:choose>
 			</c:when>
 			<c:otherwise>
-				<div class="alert alert-block">
+				<div class="alert alert-warning">
 					<liferay-ui:message key="the-system-cannot-send-you-a-new-password-because-you-have-not-provided-an-email-address" />
 				</div>
 			</c:otherwise>

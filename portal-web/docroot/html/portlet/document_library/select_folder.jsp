@@ -24,7 +24,7 @@ long folderId = BeanParamUtil.getLong(folder, request, "folderId", DLFolderConst
 String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectFolder");
 
 long repositoryId = scopeGroupId;
-String folderName = LanguageUtil.get(pageContext, "home");
+String folderName = LanguageUtil.get(request, "home");
 
 if (folder != null) {
 	repositoryId = folder.getRepositoryId();
@@ -32,6 +32,8 @@ if (folder != null) {
 
 	DLUtil.addPortletBreadcrumbEntries(folder, request, renderResponse);
 }
+
+DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(request, dlPortletInstanceSettings);
 %>
 
 <aui:form method="post" name="selectFolderFm">
@@ -42,7 +44,7 @@ if (folder != null) {
 	<liferay-ui:breadcrumb showGuestGroup="<%= false %>" showLayout="<%= false %>" showParentGroups="<%= false %>" />
 
 	<aui:button-row>
-		<c:if test="<%= showAddFolderButton && DLFolderPermission.contains(permissionChecker, repositoryId, folderId, ActionKeys.ADD_FOLDER) %>">
+		<c:if test="<%= dlActionsDisplayContext.isAddFolderButtonVisible() && DLFolderPermission.contains(permissionChecker, repositoryId, folderId, ActionKeys.ADD_FOLDER) %>">
 			<portlet:renderURL var="editFolderURL">
 				<portlet:param name="struts_action" value="/document_library/edit_folder" />
 				<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -70,6 +72,7 @@ if (folder != null) {
 
 	portletURL.setParameter("struts_action", "/document_library/select_folder");
 	portletURL.setParameter("folderId", String.valueOf(folderId));
+	portletURL.setParameter("ignoreRootFolder", Boolean.TRUE.toString());
 	%>
 
 	<liferay-ui:search-container
@@ -90,9 +93,14 @@ if (folder != null) {
 			<liferay-portlet:renderURL varImpl="rowURL">
 				<portlet:param name="struts_action" value="/document_library/select_folder" />
 				<portlet:param name="folderId" value="<%= String.valueOf(curFolder.getFolderId()) %>" />
+				<portlet:param name="ignoreRootFolder" value="<%= Boolean.TRUE.toString() %>" />
 			</liferay-portlet:renderURL>
 
 			<%
+			AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(DLFolder.class.getName());
+
+			AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(curFolder.getFolderId());
+
 			int foldersCount = 0;
 			int fileEntriesCount = 0;
 
@@ -112,31 +120,18 @@ if (folder != null) {
 			catch (com.liferay.portal.security.auth.PrincipalException pe) {
 				rowURL = null;
 			}
-
-			String image = null;
-
-			if (curFolder.isMountPoint()) {
-				if (rowURL != null) {
-					image = "drive";
-				}
-				else {
-					image = "drive_error";
-				}
-			}
-			else {
-				if ((foldersCount + fileEntriesCount) > 0) {
-					image = "folder_full_document";
-				}
-				else {
-					image = "folder_empty";
-				}
-			}
 			%>
 
 			<liferay-ui:search-container-column-text
 				name="folder"
 			>
-				<liferay-ui:icon image="<%= image %>" label="<%= true %>" message="<%= HtmlUtil.escape(curFolder.getName()) %>" url="<%= (rowURL != null) ? rowURL.toString() : StringPool.BLANK %>" />
+				<liferay-ui:icon
+					iconCssClass="<%= assetRenderer.getIconCssClass() %>"
+					label="<%= true %>"
+					localizeMessage="<%= false %>"
+					message="<%= HtmlUtil.escape(curFolder.getName()) %>"
+					url="<%= (rowURL != null) ? rowURL.toString() : StringPool.BLANK %>"
+				/>
 			</liferay-ui:search-container-column-text>
 
 			<liferay-ui:search-container-column-text

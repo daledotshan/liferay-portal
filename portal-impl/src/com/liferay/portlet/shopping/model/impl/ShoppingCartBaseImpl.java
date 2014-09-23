@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.shopping.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.shopping.model.ShoppingCart;
 import com.liferay.portlet.shopping.service.ShoppingCartLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.shopping.service.ShoppingCartLocalServiceUtil;
  * @see com.liferay.portlet.shopping.model.ShoppingCart
  * @generated
  */
+@ProviderType
 public abstract class ShoppingCartBaseImpl extends ShoppingCartModelImpl
 	implements ShoppingCart {
 	/*
@@ -39,7 +40,7 @@ public abstract class ShoppingCartBaseImpl extends ShoppingCartModelImpl
 	 * Never modify or reference this class directly. All methods that expect a shopping cart model instance should use the {@link ShoppingCart} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ShoppingCartLocalServiceUtil.addShoppingCart(this);
 		}

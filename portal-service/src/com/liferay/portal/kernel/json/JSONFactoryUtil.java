@@ -75,6 +75,12 @@ public class JSONFactoryUtil {
 		return getJSONFactory().createJSONSerializer();
 	}
 
+	public static JSONValidator createJSONValidator(String jsonSchema)
+		throws JSONException {
+
+		return getJSONFactory().createJSONValidator(jsonSchema);
+	}
+
 	public static Object deserialize(JSONObject jsonObj) {
 		return getJSONFactory().deserialize(jsonObj);
 	}
@@ -103,14 +109,6 @@ public class JSONFactoryUtil {
 
 	public static <T> T looseDeserialize(String json, Class<T> clazz) {
 		return getJSONFactory().looseDeserialize(json, clazz);
-	}
-
-	public static Object looseDeserializeSafe(String json) {
-		return getJSONFactory().looseDeserializeSafe(json);
-	}
-
-	public static <T> T looseDeserializeSafe(String json, Class<T> clazz) {
-		return getJSONFactory().looseDeserializeSafe(json, clazz);
 	}
 
 	public static String looseSerialize(Object object) {

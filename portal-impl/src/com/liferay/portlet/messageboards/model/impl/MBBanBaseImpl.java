@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.messageboards.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.messageboards.model.MBBan;
 import com.liferay.portlet.messageboards.service.MBBanLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.messageboards.service.MBBanLocalServiceUtil;
  * @see com.liferay.portlet.messageboards.model.MBBan
  * @generated
  */
+@ProviderType
 public abstract class MBBanBaseImpl extends MBBanModelImpl implements MBBan {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -38,7 +39,7 @@ public abstract class MBBanBaseImpl extends MBBanModelImpl implements MBBan {
 	 * Never modify or reference this class directly. All methods that expect a message boards ban model instance should use the {@link MBBan} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			MBBanLocalServiceUtil.addMBBan(this);
 		}

@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.Contact;
 import com.liferay.portal.service.ContactLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ContactLocalServiceUtil;
  * @see com.liferay.portal.model.Contact
  * @generated
  */
+@ProviderType
 public abstract class ContactBaseImpl extends ContactModelImpl
 	implements Contact {
 	/*
@@ -38,7 +40,7 @@ public abstract class ContactBaseImpl extends ContactModelImpl
 	 * Never modify or reference this class directly. All methods that expect a contact model instance should use the {@link Contact} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ContactLocalServiceUtil.addContact(this);
 		}

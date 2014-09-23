@@ -1,5 +1,7 @@
 package ${packagePath}.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.service.Invokable${sessionTypeName}Service;
 
 /**
@@ -14,6 +16,7 @@ import com.liferay.portal.service.Invokable${sessionTypeName}Service;
 	@Deprecated
 </#if>
 
+@ProviderType
 public class ${entity.name}${sessionTypeName}ServiceClp implements ${entity.name}${sessionTypeName}Service {
 
 	public ${entity.name}${sessionTypeName}ServiceClp(Invokable${sessionTypeName}Service invokable${sessionTypeName}Service) {
@@ -46,12 +49,13 @@ public class ${entity.name}${sessionTypeName}ServiceClp implements ${entity.name
 			<#assign parameters = method.parameters>
 
 			@Override
+			public
 
-			<#if method.name = "dynamicQuery" && (method.parameters?size != 0)>
-				@SuppressWarnings("rawtypes")
+			<#if method.name = "dynamicQuery" && (returnTypeName == "java.util.List<T>")>
+				<T>
 			</#if>
 
-			public ${returnTypeName} ${method.name}(
+			${returnTypeName} ${method.name}(
 
 			<#list parameters as parameter>
 				${serviceBuilder.getTypeGenericsName(parameter.type)} ${parameter.name}

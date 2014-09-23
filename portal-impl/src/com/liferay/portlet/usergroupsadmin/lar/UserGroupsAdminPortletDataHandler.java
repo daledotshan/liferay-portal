@@ -20,10 +20,11 @@ import com.liferay.portal.kernel.lar.DataLevel;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.xstream.XStreamAliasRegistryUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.UserGroup;
+import com.liferay.portal.model.impl.UserGroupImpl;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
-import com.liferay.portal.service.persistence.UserGroupExportActionableDynamicQuery;
 
 import java.util.List;
 
@@ -44,6 +45,8 @@ public class UserGroupsAdminPortletDataHandler extends BasePortletDataHandler {
 				NAMESPACE, "user-groups", true, true, null,
 				UserGroup.class.getName()));
 		setSupportsDataStrategyCopyAsNew(false);
+
+		XStreamAliasRegistryUtil.register(UserGroupImpl.class, "UserGroup");
 	}
 
 	@Override
@@ -78,7 +81,8 @@ public class UserGroupsAdminPortletDataHandler extends BasePortletDataHandler {
 			"group-id", String.valueOf(portletDataContext.getScopeGroupId()));
 
 		ActionableDynamicQuery actionableDynamicQuery =
-			new UserGroupExportActionableDynamicQuery(portletDataContext);
+			UserGroupLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		actionableDynamicQuery.performActions();
 
@@ -113,7 +117,8 @@ public class UserGroupsAdminPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery actionableDynamicQuery =
-			new UserGroupExportActionableDynamicQuery(portletDataContext);
+			UserGroupLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		actionableDynamicQuery.performCount();
 	}

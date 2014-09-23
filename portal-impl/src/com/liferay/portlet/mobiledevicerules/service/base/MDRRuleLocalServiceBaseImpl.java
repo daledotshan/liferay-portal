@@ -14,17 +14,27 @@
 
 package com.liferay.portlet.mobiledevicerules.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
+import com.liferay.portal.kernel.lar.ManifestSummary;
+import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -60,6 +70,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.mobiledevicerules.service.MDRRuleLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	implements MDRRuleLocalService, IdentifiableBean {
 	/*
@@ -73,11 +84,10 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param mdrRule the m d r rule
 	 * @return the m d r rule that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public MDRRule addMDRRule(MDRRule mdrRule) throws SystemException {
+	public MDRRule addMDRRule(MDRRule mdrRule) {
 		mdrRule.setNew(true);
 
 		return mdrRulePersistence.update(mdrRule);
@@ -100,12 +110,10 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param ruleId the primary key of the m d r rule
 	 * @return the m d r rule that was removed
 	 * @throws PortalException if a m d r rule with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public MDRRule deleteMDRRule(long ruleId)
-		throws PortalException, SystemException {
+	public MDRRule deleteMDRRule(long ruleId) throws PortalException {
 		return mdrRulePersistence.remove(ruleId);
 	}
 
@@ -114,11 +122,10 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param mdrRule the m d r rule
 	 * @return the m d r rule that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public MDRRule deleteMDRRule(MDRRule mdrRule) throws SystemException {
+	public MDRRule deleteMDRRule(MDRRule mdrRule) {
 		return mdrRulePersistence.remove(mdrRule);
 	}
 
@@ -135,12 +142,9 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return mdrRulePersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -155,12 +159,10 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return mdrRulePersistence.findWithDynamicQuery(dynamicQuery, start, end);
 	}
 
@@ -176,12 +178,10 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return mdrRulePersistence.findWithDynamicQuery(dynamicQuery, start,
 			end, orderByComparator);
 	}
@@ -191,11 +191,9 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return mdrRulePersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -205,31 +203,16 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return mdrRulePersistence.countWithDynamicQuery(dynamicQuery, projection);
 	}
 
 	@Override
-	public MDRRule fetchMDRRule(long ruleId) throws SystemException {
+	public MDRRule fetchMDRRule(long ruleId) {
 		return mdrRulePersistence.fetchByPrimaryKey(ruleId);
-	}
-
-	/**
-	 * Returns the m d r rule with the matching UUID and company.
-	 *
-	 * @param uuid the m d r rule's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching m d r rule, or <code>null</code> if a matching m d r rule could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public MDRRule fetchMDRRuleByUuidAndCompanyId(String uuid, long companyId)
-		throws SystemException {
-		return mdrRulePersistence.fetchByUuid_C_First(uuid, companyId, null);
 	}
 
 	/**
@@ -238,11 +221,9 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param uuid the m d r rule's UUID
 	 * @param groupId the primary key of the group
 	 * @return the matching m d r rule, or <code>null</code> if a matching m d r rule could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MDRRule fetchMDRRuleByUuidAndGroupId(String uuid, long groupId)
-		throws SystemException {
+	public MDRRule fetchMDRRuleByUuidAndGroupId(String uuid, long groupId) {
 		return mdrRulePersistence.fetchByUUID_G(uuid, groupId);
 	}
 
@@ -252,33 +233,116 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param ruleId the primary key of the m d r rule
 	 * @return the m d r rule
 	 * @throws PortalException if a m d r rule with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MDRRule getMDRRule(long ruleId)
-		throws PortalException, SystemException {
+	public MDRRule getMDRRule(long ruleId) throws PortalException {
 		return mdrRulePersistence.findByPrimaryKey(ruleId);
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
-		return mdrRulePersistence.findByPrimaryKey(primaryKeyObj);
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.mobiledevicerules.service.MDRRuleLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(MDRRule.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("ruleId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.mobiledevicerules.service.MDRRuleLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(MDRRule.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("ruleId");
+	}
+
+	@Override
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		final PortletDataContext portletDataContext) {
+		final ExportActionableDynamicQuery exportActionableDynamicQuery = new ExportActionableDynamicQuery() {
+				@Override
+				public long performCount() throws PortalException {
+					ManifestSummary manifestSummary = portletDataContext.getManifestSummary();
+
+					StagedModelType stagedModelType = getStagedModelType();
+
+					long modelAdditionCount = super.performCount();
+
+					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+						modelAdditionCount);
+
+					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
+							stagedModelType);
+
+					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+						modelDeletionCount);
+
+					return modelAdditionCount;
+				}
+			};
+
+		initActionableDynamicQuery(exportActionableDynamicQuery);
+
+		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					portletDataContext.addDateRangeCriteria(dynamicQuery,
+						"modifiedDate");
+				}
+			});
+
+		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
+
+		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
+
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+					MDRRule stagedModel = (MDRRule)object;
+
+					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
+						stagedModel);
+				}
+			});
+		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
+				PortalUtil.getClassNameId(MDRRule.class.getName())));
+
+		return exportActionableDynamicQuery;
 	}
 
 	/**
-	 * Returns the m d r rule with the matching UUID and company.
-	 *
-	 * @param uuid the m d r rule's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching m d r rule
-	 * @throws PortalException if a matching m d r rule could not be found
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Override
-	public MDRRule getMDRRuleByUuidAndCompanyId(String uuid, long companyId)
-		throws PortalException, SystemException {
-		return mdrRulePersistence.findByUuid_C_First(uuid, companyId, null);
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return mdrRuleLocalService.deleteMDRRule((MDRRule)persistedModel);
+	}
+
+	@Override
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+		return mdrRulePersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	@Override
+	public List<MDRRule> getMDRRulesByUuidAndCompanyId(String uuid,
+		long companyId) {
+		return mdrRulePersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<MDRRule> getMDRRulesByUuidAndCompanyId(String uuid,
+		long companyId, int start, int end,
+		OrderByComparator<MDRRule> orderByComparator) {
+		return mdrRulePersistence.findByUuid_C(uuid, companyId, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -288,11 +352,10 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param groupId the primary key of the group
 	 * @return the matching m d r rule
 	 * @throws PortalException if a matching m d r rule could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MDRRule getMDRRuleByUuidAndGroupId(String uuid, long groupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return mdrRulePersistence.findByUUID_G(uuid, groupId);
 	}
 
@@ -306,11 +369,9 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of m d r rules
 	 * @param end the upper bound of the range of m d r rules (not inclusive)
 	 * @return the range of m d r rules
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MDRRule> getMDRRules(int start, int end)
-		throws SystemException {
+	public List<MDRRule> getMDRRules(int start, int end) {
 		return mdrRulePersistence.findAll(start, end);
 	}
 
@@ -318,10 +379,9 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * Returns the number of m d r rules.
 	 *
 	 * @return the number of m d r rules
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getMDRRulesCount() throws SystemException {
+	public int getMDRRulesCount() {
 		return mdrRulePersistence.countAll();
 	}
 
@@ -330,11 +390,10 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param mdrRule the m d r rule
 	 * @return the m d r rule that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public MDRRule updateMDRRule(MDRRule mdrRule) throws SystemException {
+	public MDRRule updateMDRRule(MDRRule mdrRule) {
 		return mdrRulePersistence.update(mdrRule);
 	}
 
@@ -643,7 +702,7 @@ public abstract class MDRRuleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = mdrRulePersistence.getDataSource();
 

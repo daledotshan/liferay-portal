@@ -16,15 +16,15 @@ package com.liferay.portal.kernel.nio.intraband.welder.fifo;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
 import com.liferay.portal.kernel.test.NewClassLoaderJUnitTestRunner;
+import com.liferay.portal.kernel.test.SwappableSecurityManager;
 import com.liferay.portal.kernel.util.OSDetector;
 
 import java.io.File;
 import java.io.IOException;
-
-import java.security.Permission;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,6 +55,11 @@ public class FIFOUtilTest {
 			}
 
 		};
+
+	@Test
+	public void testConstructor() {
+		new FIFOUtil();
+	}
 
 	@Test
 	public void testCreateFIFOWithBrokenFile() throws Exception {
@@ -97,52 +102,47 @@ public class FIFOUtilTest {
 		final AtomicInteger checkDeleteCount = new AtomicInteger();
 		final AtomicBoolean checkFlag = new AtomicBoolean();
 
-		SecurityManager securityManager = new SecurityManager() {
+		try (SwappableSecurityManager swappableSecurityManager =
+				new SwappableSecurityManager() {
 
-			@Override
-			public void checkDelete(String fileName) {
-				if (!checkFlag.get() && fileName.contains("temp-fifo-")) {
-					checkFlag.set(true);
+					@Override
+					public void checkDelete(String fileName) {
+						if (!checkFlag.get() &&
+							fileName.contains("temp-fifo-")) {
 
-					if (checkDeleteCount.getAndIncrement() == 0) {
-						File file = new File(fileName);
+							checkFlag.set(true);
 
-						Assert.assertTrue(file.delete());
+							if (checkDeleteCount.getAndIncrement() == 0) {
+								File file = new File(fileName);
+
+								Assert.assertTrue(file.delete());
+							}
+
+							checkFlag.set(false);
+						}
 					}
 
-					checkFlag.set(false);
-				}
-			}
+					@Override
+					public void checkRead(String file) {
+						if (!checkFlag.get() && file.contains("temp-fifo-")) {
+							try {
+								checkFlag.set(true);
 
-			@Override
-			public void checkRead(String file) {
-				if (!checkFlag.get() && file.contains("temp-fifo-")) {
-					try {
-						checkFlag.set(true);
+								new File(file).createNewFile();
 
-						new File(file).createNewFile();
-
-						checkFlag.set(false);
+								checkFlag.set(false);
+							}
+							catch (IOException ioe) {
+								Assert.fail(ioe.getMessage());
+							}
+						}
 					}
-					catch (IOException ioe) {
-						Assert.fail(ioe.getMessage());
-					}
-				}
-			}
 
-			@Override
-			public void checkPermission(Permission permission) {
-			}
+				}) {
 
-		};
+			swappableSecurityManager.install();
 
-		System.setSecurityManager(securityManager);
-
-		try {
 			Assert.assertTrue(FIFOUtil.isFIFOSupported());
-		}
-		finally {
-			System.setSecurityManager(null);
 		}
 
 		Assert.assertEquals(2, checkDeleteCount.get());
@@ -154,41 +154,48 @@ public class FIFOUtilTest {
 			return;
 		}
 
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
 			FIFOUtil.class.getName(), Level.WARNING);
 
-		File newTmpDir = new File("newTmpDir");
-
-		newTmpDir.delete();
-
-		String oldTmpDirName = System.getProperty("java.io.tmpdir");
-
-		System.setProperty("java.io.tmpdir", newTmpDir.getAbsolutePath());
-
 		try {
-			Assert.assertFalse(FIFOUtil.isFIFOSupported());
+			List<LogRecord> logRecords = captureHandler.getLogRecords();
+
+			File newTmpDir = new File("newTmpDir");
+
+			newTmpDir.delete();
+
+			String oldTmpDirName = System.getProperty("java.io.tmpdir");
+
+			System.setProperty("java.io.tmpdir", newTmpDir.getAbsolutePath());
+
+			try {
+				Assert.assertFalse(FIFOUtil.isFIFOSupported());
+			}
+			finally {
+				System.setProperty("java.io.tmpdir", oldTmpDirName);
+			}
+
+			Assert.assertEquals(1, logRecords.size());
+
+			LogRecord logRecord = logRecords.get(0);
+
+			Assert.assertEquals(
+				"Unable to detect FIFO support", logRecord.getMessage());
+
+			Throwable throwable = logRecord.getThrown();
+
+			Assert.assertEquals(Exception.class, throwable.getClass());
+
+			String message = throwable.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith(
+					"Unable to create FIFO with command \"mkfifo\", " +
+						"external process returned "));
 		}
 		finally {
-			System.setProperty("java.io.tmpdir", oldTmpDirName);
+			captureHandler.close();
 		}
-
-		Assert.assertEquals(1, logRecords.size());
-
-		LogRecord logRecord = logRecords.get(0);
-
-		Assert.assertEquals(
-			"Unable to detect FIFO support", logRecord.getMessage());
-
-		Throwable throwable = logRecord.getThrown();
-
-		Assert.assertEquals(Exception.class, throwable.getClass());
-
-		String message = throwable.getMessage();
-
-		Assert.assertTrue(
-			message.startsWith(
-				"Unable to create FIFO with command \"mkfifo\", external " +
-					"process returned "));
 	}
 
 	@Test
@@ -197,25 +204,32 @@ public class FIFOUtilTest {
 			return;
 		}
 
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
 			FIFOUtil.class.getName(), Level.OFF);
 
-		File newTmpDir = new File("newTmpDir");
-
-		newTmpDir.delete();
-
-		String oldTmpDirName = System.getProperty("java.io.tmpdir");
-
-		System.setProperty("java.io.tmpdir", newTmpDir.getAbsolutePath());
-
 		try {
-			Assert.assertFalse(FIFOUtil.isFIFOSupported());
+			List<LogRecord> logRecords = captureHandler.getLogRecords();
+
+			File newTmpDir = new File("newTmpDir");
+
+			newTmpDir.delete();
+
+			String oldTmpDirName = System.getProperty("java.io.tmpdir");
+
+			System.setProperty("java.io.tmpdir", newTmpDir.getAbsolutePath());
+
+			try {
+				Assert.assertFalse(FIFOUtil.isFIFOSupported());
+			}
+			finally {
+				System.setProperty("java.io.tmpdir", oldTmpDirName);
+			}
+
+			Assert.assertTrue(logRecords.isEmpty());
 		}
 		finally {
-			System.setProperty("java.io.tmpdir", oldTmpDirName);
+			captureHandler.close();
 		}
-
-		Assert.assertTrue(logRecords.isEmpty());
 	}
 
 	private static boolean _shouldTest() {

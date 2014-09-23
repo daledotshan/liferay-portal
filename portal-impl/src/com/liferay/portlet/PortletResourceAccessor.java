@@ -111,6 +111,17 @@ public interface PortletResourceAccessor
 		implements PortletResourceAccessor {
 
 		@Override
+		@SuppressWarnings("rawtypes")
+		public Class<List<String>> getAttributeClass() {
+			return (Class)List.class;
+		}
+
+		@Override
+		public Class<Portlet> getTypeClass() {
+			return Portlet.class;
+		}
+
+		@Override
 		public boolean isPortalResource() {
 			return false;
 		}
@@ -119,6 +130,17 @@ public interface PortletResourceAccessor
 
 	public static abstract class PortalPortletResourceAccessor
 		implements PortletResourceAccessor {
+
+		@Override
+		@SuppressWarnings("rawtypes")
+		public Class<List<String>> getAttributeClass() {
+			return (Class)List.class;
+		}
+
+		@Override
+		public Class<Portlet> getTypeClass() {
+			return Portlet.class;
+		}
 
 		@Override
 		public boolean isPortalResource() {

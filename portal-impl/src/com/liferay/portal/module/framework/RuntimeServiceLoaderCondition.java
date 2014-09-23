@@ -15,6 +15,8 @@
 package com.liferay.portal.module.framework;
 
 import com.liferay.portal.kernel.util.ServiceLoaderCondition;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.util.PropsValues;
 
 import java.net.URL;
@@ -28,7 +30,10 @@ public class RuntimeServiceLoaderCondition implements ServiceLoaderCondition {
 	public boolean isLoad(URL url) {
 		String path = url.getPath();
 
-		return path.contains(PropsValues.LIFERAY_WEB_PORTAL_CONTEXT_TEMPDIR);
+		path = StringUtil.replace(
+			path, StringPool.BACK_SLASH, StringPool.SLASH);
+
+		return path.contains(PropsValues.MODULE_FRAMEWORK_BASE_DIR);
 	}
 
 }

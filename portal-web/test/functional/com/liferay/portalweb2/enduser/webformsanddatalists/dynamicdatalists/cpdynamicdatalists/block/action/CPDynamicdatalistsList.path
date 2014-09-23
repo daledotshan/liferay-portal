@@ -88,7 +88,7 @@
 <!--RECORD_TABLE-->
 <tr>
 	<td>RECORD_TABLE_ENTRY</td>
-	<td>//tr/th[contains(.,'${key_fieldFieldLabel}')]/../../../tbody/tr/td[contains(.,'${key_recordFieldData}')]</td>
+	<td>//tr/th[contains(.,'${key_fieldFieldLabel}')]/../../../tbody/tr/td[contains(.,'${key_ddlRecordFieldData}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -117,6 +117,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>RECORD_TABLE_COLUMN_TWO_RECORD_1_WORKFLOW_STATUS</td>
+	<td>xpath=(//div[@id='_167_ocerSearchContainer']//tr/td[2]/span)</td>
+	<td></td>
+</tr>
+<tr>
 	<td>RECORD_TABLE_COLUMN_THREE_NAME</td>
 	<td>xpath=(//div[@id='_167_ocerSearchContainer']//thead/tr/th[3])</td>
 	<td></td>
@@ -128,12 +133,12 @@
 </tr>
 <tr>
 	<td>RECORD_TABLE_ACTIONS_1</td>
-	<td>xpath=(//div/a[@title='Actions'])[1]</td>
+	<td>//tr/td[5]/div/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>RECORD_TABLE_PREVIEW</td>
-	<td>//div/div/div[contains(.,'${key_recordFieldData}')]</td>
+	<td>//div/div/div[contains(.,'${key_ddlRecordFieldData}')]</td>
 	<td></td>
 </tr>
 <tr>

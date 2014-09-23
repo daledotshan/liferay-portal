@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.shopping.service.persistence.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
@@ -22,17 +24,12 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
 import com.liferay.portlet.shopping.NoSuchCartException;
@@ -43,9 +40,13 @@ import com.liferay.portlet.shopping.service.persistence.ShoppingCartPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The persistence implementation for the shopping cart service.
@@ -59,6 +60,7 @@ import java.util.List;
  * @see ShoppingCartUtil
  * @generated
  */
+@ProviderType
 public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCart>
 	implements ShoppingCartPersistence {
 	/*
@@ -105,11 +107,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 *
 	 * @param groupId the group ID
 	 * @return the matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingCart> findByGroupId(long groupId)
-		throws SystemException {
+	public List<ShoppingCart> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -124,11 +124,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param start the lower bound of the range of shopping carts
 	 * @param end the upper bound of the range of shopping carts (not inclusive)
 	 * @return the range of matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingCart> findByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<ShoppingCart> findByGroupId(long groupId, int start, int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -144,11 +142,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param end the upper bound of the range of shopping carts (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingCart> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -251,12 +248,11 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchCartException, SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator)
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = fetchByGroupId_First(groupId,
 				orderByComparator);
 
@@ -282,11 +278,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping cart, or <code>null</code> if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator) {
 		List<ShoppingCart> list = findByGroupId(groupId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -303,12 +298,11 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchCartException, SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator)
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = fetchByGroupId_Last(groupId,
 				orderByComparator);
 
@@ -334,11 +328,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping cart, or <code>null</code> if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -363,12 +356,11 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart[] findByGroupId_PrevAndNext(long cartId, long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchCartException, SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator)
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = findByPrimaryKey(cartId);
 
 		Session session = null;
@@ -398,7 +390,7 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 
 	protected ShoppingCart getByGroupId_PrevAndNext(Session session,
 		ShoppingCart shoppingCart, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<ShoppingCart> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -505,10 +497,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * Removes all the shopping carts where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (ShoppingCart shoppingCart : findByGroupId(groupId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(shoppingCart);
@@ -520,10 +511,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -594,11 +584,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 *
 	 * @param userId the user ID
 	 * @return the matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingCart> findByUserId(long userId)
-		throws SystemException {
+	public List<ShoppingCart> findByUserId(long userId) {
 		return findByUserId(userId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -613,11 +601,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param start the lower bound of the range of shopping carts
 	 * @param end the upper bound of the range of shopping carts (not inclusive)
 	 * @return the range of matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingCart> findByUserId(long userId, int start, int end)
-		throws SystemException {
+	public List<ShoppingCart> findByUserId(long userId, int start, int end) {
 		return findByUserId(userId, start, end, null);
 	}
 
@@ -633,11 +619,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param end the upper bound of the range of shopping carts (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingCart> findByUserId(long userId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -740,12 +725,11 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart findByUserId_First(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchCartException, SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator)
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = fetchByUserId_First(userId,
 				orderByComparator);
 
@@ -771,11 +755,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping cart, or <code>null</code> if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart fetchByUserId_First(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator) {
 		List<ShoppingCart> list = findByUserId(userId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -792,12 +775,11 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart findByUserId_Last(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchCartException, SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator)
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = fetchByUserId_Last(userId, orderByComparator);
 
 		if (shoppingCart != null) {
@@ -822,11 +804,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping cart, or <code>null</code> if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart fetchByUserId_Last(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator) {
 		int count = countByUserId(userId);
 
 		if (count == 0) {
@@ -851,12 +832,11 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart[] findByUserId_PrevAndNext(long cartId, long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchCartException, SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator)
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = findByPrimaryKey(cartId);
 
 		Session session = null;
@@ -886,7 +866,7 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 
 	protected ShoppingCart getByUserId_PrevAndNext(Session session,
 		ShoppingCart shoppingCart, long userId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<ShoppingCart> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -993,10 +973,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * Removes all the shopping carts where userId = &#63; from the database.
 	 *
 	 * @param userId the user ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUserId(long userId) throws SystemException {
+	public void removeByUserId(long userId) {
 		for (ShoppingCart shoppingCart : findByUserId(userId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(shoppingCart);
@@ -1008,10 +987,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 *
 	 * @param userId the user ID
 	 * @return the number of matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUserId(long userId) throws SystemException {
+	public int countByUserId(long userId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_USERID;
 
 		Object[] finderArgs = new Object[] { userId };
@@ -1075,11 +1053,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param userId the user ID
 	 * @return the matching shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart findByG_U(long groupId, long userId)
-		throws NoSuchCartException, SystemException {
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = fetchByG_U(groupId, userId);
 
 		if (shoppingCart == null) {
@@ -1111,11 +1088,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param groupId the group ID
 	 * @param userId the user ID
 	 * @return the matching shopping cart, or <code>null</code> if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingCart fetchByG_U(long groupId, long userId)
-		throws SystemException {
+	public ShoppingCart fetchByG_U(long groupId, long userId) {
 		return fetchByG_U(groupId, userId, true);
 	}
 
@@ -1126,11 +1101,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param userId the user ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching shopping cart, or <code>null</code> if a matching shopping cart could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart fetchByG_U(long groupId, long userId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { groupId, userId };
 
 		Object result = null;
@@ -1218,11 +1192,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param groupId the group ID
 	 * @param userId the user ID
 	 * @return the shopping cart that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart removeByG_U(long groupId, long userId)
-		throws NoSuchCartException, SystemException {
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = findByG_U(groupId, userId);
 
 		return remove(shoppingCart);
@@ -1234,10 +1207,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param groupId the group ID
 	 * @param userId the user ID
 	 * @return the number of matching shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_U(long groupId, long userId) throws SystemException {
+	public int countByG_U(long groupId, long userId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_U;
 
 		Object[] finderArgs = new Object[] { groupId, userId };
@@ -1452,11 +1424,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param cartId the primary key of the shopping cart
 	 * @return the shopping cart that was removed
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingCart remove(long cartId)
-		throws NoSuchCartException, SystemException {
+	public ShoppingCart remove(long cartId) throws NoSuchCartException {
 		return remove((Serializable)cartId);
 	}
 
@@ -1466,11 +1436,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param primaryKey the primary key of the shopping cart
 	 * @return the shopping cart that was removed
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart remove(Serializable primaryKey)
-		throws NoSuchCartException, SystemException {
+		throws NoSuchCartException {
 		Session session = null;
 
 		try {
@@ -1502,8 +1471,7 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	}
 
 	@Override
-	protected ShoppingCart removeImpl(ShoppingCart shoppingCart)
-		throws SystemException {
+	protected ShoppingCart removeImpl(ShoppingCart shoppingCart) {
 		shoppingCart = toUnwrappedModel(shoppingCart);
 
 		Session session = null;
@@ -1536,8 +1504,7 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 
 	@Override
 	public ShoppingCart updateImpl(
-		com.liferay.portlet.shopping.model.ShoppingCart shoppingCart)
-		throws SystemException {
+		com.liferay.portlet.shopping.model.ShoppingCart shoppingCart) {
 		shoppingCart = toUnwrappedModel(shoppingCart);
 
 		boolean isNew = shoppingCart.isNew();
@@ -1650,11 +1617,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param primaryKey the primary key of the shopping cart
 	 * @return the shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchCartException, SystemException {
+		throws NoSuchCartException {
 		ShoppingCart shoppingCart = fetchByPrimaryKey(primaryKey);
 
 		if (shoppingCart == null) {
@@ -1675,11 +1641,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param cartId the primary key of the shopping cart
 	 * @return the shopping cart
 	 * @throws com.liferay.portlet.shopping.NoSuchCartException if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingCart findByPrimaryKey(long cartId)
-		throws NoSuchCartException, SystemException {
+		throws NoSuchCartException {
 		return findByPrimaryKey((Serializable)cartId);
 	}
 
@@ -1688,11 +1653,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 *
 	 * @param primaryKey the primary key of the shopping cart
 	 * @return the shopping cart, or <code>null</code> if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingCart fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public ShoppingCart fetchByPrimaryKey(Serializable primaryKey) {
 		ShoppingCart shoppingCart = (ShoppingCart)EntityCacheUtil.getResult(ShoppingCartModelImpl.ENTITY_CACHE_ENABLED,
 				ShoppingCartImpl.class, primaryKey);
 
@@ -1736,22 +1699,111 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 *
 	 * @param cartId the primary key of the shopping cart
 	 * @return the shopping cart, or <code>null</code> if a shopping cart with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingCart fetchByPrimaryKey(long cartId)
-		throws SystemException {
+	public ShoppingCart fetchByPrimaryKey(long cartId) {
 		return fetchByPrimaryKey((Serializable)cartId);
+	}
+
+	@Override
+	public Map<Serializable, ShoppingCart> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, ShoppingCart> map = new HashMap<Serializable, ShoppingCart>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			ShoppingCart shoppingCart = fetchByPrimaryKey(primaryKey);
+
+			if (shoppingCart != null) {
+				map.put(primaryKey, shoppingCart);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			ShoppingCart shoppingCart = (ShoppingCart)EntityCacheUtil.getResult(ShoppingCartModelImpl.ENTITY_CACHE_ENABLED,
+					ShoppingCartImpl.class, primaryKey);
+
+			if (shoppingCart == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, shoppingCart);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_SHOPPINGCART_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (ShoppingCart shoppingCart : (List<ShoppingCart>)q.list()) {
+				map.put(shoppingCart.getPrimaryKeyObj(), shoppingCart);
+
+				cacheResult(shoppingCart);
+
+				uncachedPrimaryKeys.remove(shoppingCart.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(ShoppingCartModelImpl.ENTITY_CACHE_ENABLED,
+					ShoppingCartImpl.class, primaryKey, _nullShoppingCart);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the shopping carts.
 	 *
 	 * @return the shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingCart> findAll() throws SystemException {
+	public List<ShoppingCart> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1765,11 +1817,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param start the lower bound of the range of shopping carts
 	 * @param end the upper bound of the range of shopping carts (not inclusive)
 	 * @return the range of shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingCart> findAll(int start, int end)
-		throws SystemException {
+	public List<ShoppingCart> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -1784,11 +1834,10 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * @param end the upper bound of the range of shopping carts (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingCart> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingCart> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1870,10 +1919,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	/**
 	 * Removes all the shopping carts from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (ShoppingCart shoppingCart : findAll()) {
 			remove(shoppingCart);
 		}
@@ -1883,10 +1931,9 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * Returns the number of shopping carts.
 	 *
 	 * @return the number of shopping carts
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -1921,25 +1968,6 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	 * Initializes the shopping cart persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.shopping.model.ShoppingCart")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<ShoppingCart>> listenersList = new ArrayList<ModelListener<ShoppingCart>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<ShoppingCart>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -1950,6 +1978,7 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	}
 
 	private static final String _SQL_SELECT_SHOPPINGCART = "SELECT shoppingCart FROM ShoppingCart shoppingCart";
+	private static final String _SQL_SELECT_SHOPPINGCART_WHERE_PKS_IN = "SELECT shoppingCart FROM ShoppingCart shoppingCart WHERE cartId IN (";
 	private static final String _SQL_SELECT_SHOPPINGCART_WHERE = "SELECT shoppingCart FROM ShoppingCart shoppingCart WHERE ";
 	private static final String _SQL_COUNT_SHOPPINGCART = "SELECT COUNT(shoppingCart) FROM ShoppingCart shoppingCart";
 	private static final String _SQL_COUNT_SHOPPINGCART_WHERE = "SELECT COUNT(shoppingCart) FROM ShoppingCart shoppingCart WHERE ";
@@ -1957,8 +1986,8 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No ShoppingCart exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No ShoppingCart exists with the key {";
 	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
-	private static Log _log = LogFactoryUtil.getLog(ShoppingCartPersistenceImpl.class);
-	private static ShoppingCart _nullShoppingCart = new ShoppingCartImpl() {
+	private static final Log _log = LogFactoryUtil.getLog(ShoppingCartPersistenceImpl.class);
+	private static final ShoppingCart _nullShoppingCart = new ShoppingCartImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -1970,7 +1999,7 @@ public class ShoppingCartPersistenceImpl extends BasePersistenceImpl<ShoppingCar
 			}
 		};
 
-	private static CacheModel<ShoppingCart> _nullShoppingCartCacheModel = new CacheModel<ShoppingCart>() {
+	private static final CacheModel<ShoppingCart> _nullShoppingCartCacheModel = new CacheModel<ShoppingCart>() {
 			@Override
 			public ShoppingCart toEntityModel() {
 				return _nullShoppingCart;

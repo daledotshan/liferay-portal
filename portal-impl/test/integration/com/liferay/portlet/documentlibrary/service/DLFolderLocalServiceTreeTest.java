@@ -16,30 +16,68 @@ package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.model.TreeModel;
 import com.liferay.portal.service.BaseLocalServiceTreeTestCase;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
-import com.liferay.portal.test.TransactionalExecutionTestListener;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.ServiceContextTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Shinn Lok
  */
-@ExecutionTestListeners(
-	listeners = {
-		MainServletExecutionTestListener.class,
-		TransactionalExecutionTestListener.class
-	})
+@ExecutionTestListeners(listeners = {MainServletExecutionTestListener.class})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
-@Transactional
 public class DLFolderLocalServiceTreeTest extends BaseLocalServiceTreeTestCase {
+
+	@Test
+	public void testFolderTreePathWhenMovingFolderWithSubfolder()
+		throws Exception {
+
+		List<Folder> folders = new ArrayList<Folder>();
+
+		Folder folderA = DLAppTestUtil.addFolder(
+			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			"Folder A");
+
+		folders.add(folderA);
+
+		Folder folderAA = DLAppTestUtil.addFolder(
+			group.getGroupId(), folderA.getFolderId(), "Folder AA");
+
+		folders.add(folderAA);
+
+		Folder folderAAA = DLAppTestUtil.addFolder(
+			group.getGroupId(), folderAA.getFolderId(), "Folder AAA");
+
+		folders.add(folderAAA);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		DLAppLocalServiceUtil.moveFolder(
+			TestPropsValues.getUserId(), folderAA.getFolderId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, serviceContext);
+
+		for (Folder folder : folders) {
+			DLFolder dlFolder = DLFolderLocalServiceUtil.getFolder(
+				folder.getFolderId());
+
+			Assert.assertEquals(
+				dlFolder.buildTreePath(), dlFolder.getTreePath());
+		}
+	}
 
 	@Override
 	protected TreeModel addTreeModel(TreeModel parentTreeModel)
@@ -54,7 +92,7 @@ public class DLFolderLocalServiceTreeTest extends BaseLocalServiceTreeTestCase {
 		}
 
 		Folder folder = DLAppTestUtil.addFolder(
-			TestPropsValues.getGroupId(), parentFolderId);
+			group.getGroupId(), parentFolderId);
 
 		DLFolder dlFolder = DLFolderLocalServiceUtil.getFolder(
 			folder.getFolderId());

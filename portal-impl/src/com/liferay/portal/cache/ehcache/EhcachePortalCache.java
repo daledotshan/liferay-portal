@@ -14,12 +14,15 @@
 
 package com.liferay.portal.cache.ehcache;
 
+import com.liferay.portal.kernel.cache.AbstractPortalCache;
+import com.liferay.portal.kernel.cache.BootstrapLoader;
 import com.liferay.portal.kernel.cache.CacheListener;
 import com.liferay.portal.kernel.cache.CacheListenerScope;
-import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.cache.PortalCacheManager;
 
 import java.io.Serializable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,22 +38,25 @@ import net.sf.ehcache.event.RegisteredEventListeners;
  * @author Shuyang Zhou
  */
 public class EhcachePortalCache<K extends Serializable, V>
-	implements PortalCache<K, V> {
+	extends AbstractPortalCache<K, V> {
 
-	public EhcachePortalCache(Ehcache ehcache) {
+	public EhcachePortalCache(
+		PortalCacheManager<K, V> portalCacheManager, Ehcache ehcache,
+		BootstrapLoader bootstrapLoader) {
+
+		_portalCacheManager = portalCacheManager;
 		this.ehcache = ehcache;
+		_bootstrapLoader = bootstrapLoader;
 	}
 
 	@Override
-	public V get(K key) {
-		Element element = ehcache.get(key);
+	public BootstrapLoader getBootstrapLoader() {
+		return _bootstrapLoader;
+	}
 
-		if (element == null) {
-			return null;
-		}
-		else {
-			return (V)element.getObjectValue();
-		}
+	@Override
+	public List<K> getKeys() {
+		return ehcache.getKeys();
 	}
 
 	@Override
@@ -59,35 +65,8 @@ public class EhcachePortalCache<K extends Serializable, V>
 	}
 
 	@Override
-	public void put(K key, V value) {
-		Element element = new Element(key, value);
-
-		ehcache.put(element);
-	}
-
-	@Override
-	public void put(K key, V value, int timeToLive) {
-		Element element = new Element(key, value);
-
-		element.setTimeToLive(timeToLive);
-
-		ehcache.put(element);
-	}
-
-	@Override
-	public void putQuiet(K key, V value) {
-		Element element = new Element(key, value);
-
-		ehcache.putQuiet(element);
-	}
-
-	@Override
-	public void putQuiet(K key, V value, int timeToLive) {
-		Element element = new Element(key, value);
-
-		element.setTimeToLive(timeToLive);
-
-		ehcache.putQuiet(element);
+	public PortalCacheManager<K, V> getPortalCacheManager() {
+		return _portalCacheManager;
 	}
 
 	@Override
@@ -119,11 +98,6 @@ public class EhcachePortalCache<K extends Serializable, V>
 
 		registeredEventListeners.registerListener(
 			cacheEventListener, notificationScope);
-	}
-
-	@Override
-	public void remove(K key) {
-		ehcache.remove(key);
 	}
 
 	@Override
@@ -177,6 +151,92 @@ public class EhcachePortalCache<K extends Serializable, V>
 		_cacheEventListeners.clear();
 	}
 
+	@Override
+	protected V doGet(K key) {
+		Element element = ehcache.get(key);
+
+		if (element == null) {
+			return null;
+		}
+
+		return (V)element.getObjectValue();
+	}
+
+	@Override
+	protected void doPut(K key, V value, int timeToLive, boolean quiet) {
+		Element element = new Element(key, value);
+
+		if (timeToLive != DEFAULT_TIME_TO_LIVE) {
+			element.setTimeToLive(timeToLive);
+		}
+
+		if (quiet) {
+			ehcache.putQuiet(element);
+		}
+		else {
+			ehcache.put(element);
+		}
+	}
+
+	@Override
+	protected V doPutIfAbsent(K key, V value, int timeToLive) {
+		Element element = new Element(key, value);
+
+		if (timeToLive != DEFAULT_TIME_TO_LIVE) {
+			element.setTimeToLive(timeToLive);
+		}
+
+		Element oldElement = ehcache.putIfAbsent(element);
+
+		if (oldElement == null) {
+			return null;
+		}
+
+		return (V)oldElement.getObjectValue();
+	}
+
+	@Override
+	protected void doRemove(K key) {
+		ehcache.remove(key);
+	}
+
+	@Override
+	protected boolean doRemove(K key, V value) {
+		Element element = new Element(key, value);
+
+		return ehcache.removeElement(element);
+	}
+
+	@Override
+	protected V doReplace(K key, V value, int timeToLive) {
+		Element element = new Element(key, value);
+
+		if (timeToLive != DEFAULT_TIME_TO_LIVE) {
+			element.setTimeToLive(timeToLive);
+		}
+
+		Element oldElement = ehcache.replace(element);
+
+		if (oldElement == null) {
+			return null;
+		}
+
+		return (V)oldElement.getObjectValue();
+	}
+
+	@Override
+	protected boolean doReplace(K key, V oldValue, V newValue, int timeToLive) {
+		Element oldElement = new Element(key, oldValue);
+
+		Element newElement = new Element(key, newValue);
+
+		if (timeToLive != DEFAULT_TIME_TO_LIVE) {
+			newElement.setTimeToLive(timeToLive);
+		}
+
+		return ehcache.replace(oldElement, newElement);
+	}
+
 	protected NotificationScope getNotificationScope(
 		CacheListenerScope cacheListenerScope) {
 
@@ -193,8 +253,10 @@ public class EhcachePortalCache<K extends Serializable, V>
 
 	protected Ehcache ehcache;
 
+	private BootstrapLoader _bootstrapLoader;
 	private Map<CacheListener<K, V>, RegistrationPair> _cacheEventListeners =
 		new ConcurrentHashMap<CacheListener<K, V>, RegistrationPair>();
+	private PortalCacheManager<K, V> _portalCacheManager;
 
 	private static class RegistrationPair {
 

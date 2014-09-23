@@ -18,10 +18,11 @@ import com.liferay.portal.kernel.io.BigEndianCodec;
 import com.liferay.portal.kernel.io.Serializer;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.nio.intraband.Datagram;
-import com.liferay.portal.kernel.nio.intraband.MockIntraband;
-import com.liferay.portal.kernel.nio.intraband.MockRegistrationReference;
 import com.liferay.portal.kernel.nio.intraband.RegistrationReference;
+import com.liferay.portal.kernel.nio.intraband.mailbox.MailboxException;
 import com.liferay.portal.kernel.nio.intraband.mailbox.MailboxUtil;
+import com.liferay.portal.kernel.nio.intraband.test.MockIntraband;
+import com.liferay.portal.kernel.nio.intraband.test.MockRegistrationReference;
 import com.liferay.portal.kernel.resiliency.PortalResiliencyException;
 import com.liferay.portal.kernel.resiliency.spi.MockSPI;
 import com.liferay.portal.kernel.resiliency.spi.SPI;
@@ -29,20 +30,21 @@ import com.liferay.portal.kernel.resiliency.spi.SPIConfiguration;
 import com.liferay.portal.kernel.resiliency.spi.agent.AcceptorServlet;
 import com.liferay.portal.kernel.servlet.BufferCacheServletResponse;
 import com.liferay.portal.kernel.servlet.ReadOnlyServletResponse;
+import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.InetAddressUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.PropsUtilAdvice;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SocketUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.test.AdviseWith;
-import com.liferay.portal.test.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
 import com.liferay.portal.util.PropsImpl;
 import com.liferay.portal.util.PropsValues;
 
@@ -51,9 +53,6 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
@@ -126,142 +125,151 @@ public class HttpClientSPIAgentTest {
 
 		serverSocketChannel.configureBlocking(true);
 
-		ServerSocket serverSocket = serverSocketChannel.socket();
+		try (ServerSocket serverSocket = serverSocketChannel.socket()) {
+			SPIConfiguration spiConfiguration = new SPIConfiguration(
+				null, null, serverSocket.getLocalPort(),
+				_spiConfiguration.getBaseDir(), null, null, null);
 
-		SPIConfiguration spiConfiguration = new SPIConfiguration(
-			null, null, serverSocket.getLocalPort(),
-			_spiConfiguration.getBaseDir(), null, null, null);
+			HttpClientSPIAgent httpClientSPIAgent = new HttpClientSPIAgent(
+				spiConfiguration,
+				new MockRegistrationReference(new MockIntraband()));
 
-		HttpClientSPIAgent httpClientSPIAgent = new HttpClientSPIAgent(
-			spiConfiguration,
-			new MockRegistrationReference(new MockIntraband()));
+			Socket socket = httpClientSPIAgent.borrowSocket();
 
-		Socket socket = httpClientSPIAgent.borrowSocket();
+			closePeers(socket, serverSocket);
 
-		closePeers(socket, serverSocket);
+			// Clean up when closed
 
-		// Clean up when closed
+			Queue<Socket> socketBlockingQueue =
+				httpClientSPIAgent.socketBlockingQueue;
 
-		Queue<Socket> socketBlockingQueue =
-			httpClientSPIAgent.socketBlockingQueue;
+			socketBlockingQueue.add(socket);
 
-		socketBlockingQueue.add(socket);
+			socket = httpClientSPIAgent.borrowSocket();
 
-		socket = httpClientSPIAgent.borrowSocket();
+			closePeers(socket, serverSocket);
 
-		closePeers(socket, serverSocket);
+			// Clean up not connected
 
-		// Clean up not connected
+			socketBlockingQueue.add(new Socket());
 
-		socketBlockingQueue.add(new Socket());
+			socket = httpClientSPIAgent.borrowSocket();
 
-		socket = httpClientSPIAgent.borrowSocket();
+			closePeers(socket, serverSocket);
 
-		closePeers(socket, serverSocket);
+			// Clean up when input is shutdown
 
-		// Clean up when input is shutdown
+			socket = httpClientSPIAgent.borrowSocket();
 
-		socket = httpClientSPIAgent.borrowSocket();
+			socket.shutdownInput();
 
-		socket.shutdownInput();
+			socketBlockingQueue.add(socket);
 
-		socketBlockingQueue.add(socket);
+			socket = httpClientSPIAgent.borrowSocket();
 
-		socket = httpClientSPIAgent.borrowSocket();
+			closePeers(socket, serverSocket);
 
-		closePeers(socket, serverSocket);
+			socket = serverSocket.accept();
 
-		socket = serverSocket.accept();
+			socket.close();
 
-		socket.close();
+			CaptureHandler captureHandler = null;
 
-		// Clean up when input is shutdown, failed without log
+			try {
 
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.OFF);
+				// Clean up when input is shutdown, failed without log
 
-		socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
+				captureHandler = JDKLoggerTestUtil.configureJDKLogger(
+					HttpClientSPIAgent.class.getName(), Level.OFF);
 
-		socket.shutdownInput();
+				List<LogRecord> logRecords = captureHandler.getLogRecords();
 
-		SocketImpl socketImpl = swapSocketImpl(socket, null);
+				socket = new Socket(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort());
 
-		socketBlockingQueue.add(socket);
+				socket.shutdownInput();
 
-		socket = httpClientSPIAgent.borrowSocket();
+				SocketImpl socketImpl = swapSocketImpl(socket, null);
 
-		swapSocketImpl(socket, socketImpl);
+				socketBlockingQueue.add(socket);
 
-		closePeers(socket, serverSocket);
+				socket = httpClientSPIAgent.borrowSocket();
 
-		socket = serverSocket.accept();
+				swapSocketImpl(socket, socketImpl);
 
-		socket.close();
+				closePeers(socket, serverSocket);
 
-		Assert.assertTrue(logRecords.isEmpty());
+				socket = serverSocket.accept();
 
-		// Clean up when input is shutdown, failed with log
+				socket.close();
 
-		logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.WARNING);
+				Assert.assertTrue(logRecords.isEmpty());
 
-		socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
+				// Clean up when input is shutdown, failed with log
 
-		socket.shutdownInput();
+				logRecords = captureHandler.resetLogLevel(Level.WARNING);
 
-		socketImpl = swapSocketImpl(socket, null);
+				socket = new Socket(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort());
 
-		socketBlockingQueue.add(socket);
+				socket.shutdownInput();
 
-		socket = httpClientSPIAgent.borrowSocket();
+				socketImpl = swapSocketImpl(socket, null);
 
-		swapSocketImpl(socket, socketImpl);
+				socketBlockingQueue.add(socket);
 
-		closePeers(socket, serverSocket);
+				socket = httpClientSPIAgent.borrowSocket();
 
-		socket = serverSocket.accept();
+				swapSocketImpl(socket, socketImpl);
 
-		socket.close();
+				closePeers(socket, serverSocket);
 
-		Assert.assertEquals(1, logRecords.size());
+				socket = serverSocket.accept();
 
-		LogRecord logRecord = logRecords.get(0);
+				socket.close();
 
-		Throwable throwable = logRecord.getThrown();
+				Assert.assertEquals(1, logRecords.size());
 
-		Assert.assertSame(IOException.class, throwable.getClass());
+				LogRecord logRecord = logRecords.get(0);
 
-		// Clean up when output is shutdown()
+				Throwable throwable = logRecord.getThrown();
 
-		socket = httpClientSPIAgent.borrowSocket();
+				Assert.assertSame(IOException.class, throwable.getClass());
+			}
+			finally {
+				if (captureHandler != null) {
+					captureHandler.close();
+				}
+			}
 
-		socket.shutdownOutput();
+			// Clean up when output is shutdown()
 
-		socketBlockingQueue.add(socket);
+			socket = httpClientSPIAgent.borrowSocket();
 
-		socket = httpClientSPIAgent.borrowSocket();
+			socket.shutdownOutput();
 
-		closePeers(socket, serverSocket);
+			socketBlockingQueue.add(socket);
 
-		socket = serverSocket.accept();
+			socket = httpClientSPIAgent.borrowSocket();
 
-		socket.close();
+			closePeers(socket, serverSocket);
 
-		// Reuse socket
+			socket = serverSocket.accept();
 
-		socket = httpClientSPIAgent.borrowSocket();
+			socket.close();
 
-		socketBlockingQueue.add(socket);
+			// Reuse socket
 
-		Assert.assertSame(socket, httpClientSPIAgent.borrowSocket());
+			socket = httpClientSPIAgent.borrowSocket();
 
-		closePeers(socket, serverSocket);
+			socketBlockingQueue.add(socket);
 
-		serverSocket.close();
+			Assert.assertSame(socket, httpClientSPIAgent.borrowSocket());
+
+			closePeers(socket, serverSocket);
+		}
 	}
 
 	@Test
@@ -374,78 +382,108 @@ public class HttpClientSPIAgentTest {
 
 	@Test
 	public void testDestroy() throws Exception {
+		CaptureHandler captureHandler = null;
 
-		// Without log
+		try {
 
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.OFF);
+			// Error without log
 
-		ServerSocketChannel serverSocketChannel =
-			SocketUtil.createServerSocketChannel(
-				InetAddressUtil.getLoopbackInetAddress(),
-				_spiConfiguration.getConnectorPort(), null);
+			captureHandler = JDKLoggerTestUtil.configureJDKLogger(
+				HttpClientSPIAgent.class.getName(), Level.OFF);
 
-		serverSocketChannel.configureBlocking(true);
+			List<LogRecord> logRecords = captureHandler.getLogRecords();
 
-		ServerSocket serverSocket = serverSocketChannel.socket();
+			ServerSocketChannel serverSocketChannel =
+				SocketUtil.createServerSocketChannel(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort(), null);
 
-		Socket socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
+			serverSocketChannel.configureBlocking(true);
 
-		SocketImpl socketImpl = swapSocketImpl(socket, null);
+			try (ServerSocket serverSocket = serverSocketChannel.socket()) {
+				Socket socket = new Socket(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort());
 
-		HttpClientSPIAgent httpClientSPIAgent = new HttpClientSPIAgent(
-			_spiConfiguration,
-			new MockRegistrationReference(new MockIntraband()));
+				SocketImpl socketImpl = swapSocketImpl(socket, null);
 
-		Queue<Socket> socketBlockingQueue =
-			httpClientSPIAgent.socketBlockingQueue;
+				HttpClientSPIAgent httpClientSPIAgent = new HttpClientSPIAgent(
+					_spiConfiguration,
+					new MockRegistrationReference(new MockIntraband()));
 
-		socketBlockingQueue.add(socket);
+				Queue<Socket> socketBlockingQueue =
+					httpClientSPIAgent.socketBlockingQueue;
 
-		httpClientSPIAgent.destroy();
+				socketBlockingQueue.add(socket);
 
-		swapSocketImpl(socket, socketImpl);
+				httpClientSPIAgent.destroy();
 
-		closePeers(socket, serverSocket);
+				swapSocketImpl(socket, socketImpl);
 
-		Assert.assertTrue(logRecords.isEmpty());
+				closePeers(socket, serverSocket);
 
-		// With log
+				Assert.assertTrue(logRecords.isEmpty());
 
-		logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.WARNING);
+				// Error with log
 
-		httpClientSPIAgent = new HttpClientSPIAgent(
-			_spiConfiguration,
-			new MockRegistrationReference(new MockIntraband()));
+				logRecords = captureHandler.resetLogLevel(Level.WARNING);
 
-		socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
+				httpClientSPIAgent = new HttpClientSPIAgent(
+					_spiConfiguration,
+					new MockRegistrationReference(new MockIntraband()));
 
-		socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
+				socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
 
-		socketImpl = swapSocketImpl(socket, null);
+				socket = new Socket(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort());
 
-		socketBlockingQueue.add(socket);
+				socketImpl = swapSocketImpl(socket, null);
 
-		httpClientSPIAgent.destroy();
+				socketBlockingQueue.add(socket);
 
-		swapSocketImpl(socket, socketImpl);
+				httpClientSPIAgent.destroy();
 
-		closePeers(socket, serverSocket);
+				swapSocketImpl(socket, socketImpl);
 
-		Assert.assertEquals(1, logRecords.size());
+				closePeers(socket, serverSocket);
 
-		LogRecord logRecord = logRecords.get(0);
+				Assert.assertEquals(1, logRecords.size());
 
-		Throwable throwable = logRecord.getThrown();
+				LogRecord logRecord = logRecords.get(0);
 
-		Assert.assertSame(IOException.class, throwable.getClass());
+				Throwable throwable = logRecord.getThrown();
 
-		serverSocket.close();
+				Assert.assertSame(IOException.class, throwable.getClass());
+
+				// Successfully destroy
+
+				logRecords = captureHandler.resetLogLevel(Level.WARNING);
+
+				httpClientSPIAgent = new HttpClientSPIAgent(
+					_spiConfiguration,
+					new MockRegistrationReference(new MockIntraband()));
+
+				socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
+
+				socket = new Socket(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort());
+
+				socketBlockingQueue.add(socket);
+
+				httpClientSPIAgent.destroy();
+
+				closePeers(socket, serverSocket);
+
+				Assert.assertTrue(logRecords.isEmpty());
+			}
+		}
+		finally {
+			if (captureHandler != null) {
+				captureHandler.close();
+			}
+		}
 	}
 
 	@Test
@@ -517,11 +555,9 @@ public class HttpClientSPIAgentTest {
 		serializer.writeString(_SERVLET_CONTEXT_NAME);
 		serializer.writeObject(new SPIAgentRequest(_mockHttpServletRequest));
 
-		Method depositMailMethod = ReflectionUtil.getDeclaredMethod(
-			MailboxUtil.class, "depositMail", ByteBuffer.class);
-
-		long receipt = (Long)depositMailMethod.invoke(
-			null, serializer.toByteBuffer());
+		long receipt = ReflectionTestUtil.invoke(
+			MailboxUtil.class, "depositMail", new Class<?>[] {ByteBuffer.class},
+			serializer.toByteBuffer());
 
 		byte[] data = new byte[8];
 
@@ -600,124 +636,136 @@ public class HttpClientSPIAgentTest {
 
 		serverSocketChannel.configureBlocking(true);
 
-		ServerSocket serverSocket = serverSocketChannel.socket();
+		try (ServerSocket serverSocket = serverSocketChannel.socket()) {
+			HttpClientSPIAgent httpClientSPIAgent = new HttpClientSPIAgent(
+				new SPIConfiguration(
+					null, null, serverSocket.getLocalPort(),
+					_spiConfiguration.getBaseDir(), null, null, null),
+				new MockRegistrationReference(new MockIntraband()));
 
-		HttpClientSPIAgent httpClientSPIAgent = new HttpClientSPIAgent(
-			new SPIConfiguration(
-				null, null, serverSocket.getLocalPort(),
-				_spiConfiguration.getBaseDir(), null, null, null),
-			new MockRegistrationReference(new MockIntraband()));
+			SocketChannel socketChannel = SocketChannel.open(
+				httpClientSPIAgent.socketAddress);
 
-		SocketChannel socketChannel = SocketChannel.open(
-			httpClientSPIAgent.socketAddress);
+			Socket socket = socketChannel.socket();
 
-		Socket socket = socketChannel.socket();
+			httpClientSPIAgent.returnSocket(socket, true);
 
-		httpClientSPIAgent.returnSocket(socket, true);
+			Queue<Socket> socketBlockingQueue =
+				httpClientSPIAgent.socketBlockingQueue;
 
-		Queue<Socket> socketBlockingQueue =
-			httpClientSPIAgent.socketBlockingQueue;
+			Assert.assertTrue(socketBlockingQueue.isEmpty());
 
-		Assert.assertTrue(socketBlockingQueue.isEmpty());
+			closePeers(socket, serverSocket);
 
-		closePeers(socket, serverSocket);
+			CaptureHandler captureHandler = null;
 
-		// Force close, failed without log
+			try {
 
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.OFF);
+				// Force close, failed without log
 
-		socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
+				captureHandler = JDKLoggerTestUtil.configureJDKLogger(
+					HttpClientSPIAgent.class.getName(), Level.OFF);
 
-		SocketImpl socketImpl = swapSocketImpl(socket, null);
+				List<LogRecord> logRecords = captureHandler.getLogRecords();
 
-		httpClientSPIAgent.returnSocket(socket, true);
+				socket = new Socket(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort());
 
-		Assert.assertTrue(socketBlockingQueue.isEmpty());
+				SocketImpl socketImpl = swapSocketImpl(socket, null);
 
-		swapSocketImpl(socket, socketImpl);
+				httpClientSPIAgent.returnSocket(socket, true);
 
-		closePeers(socket, serverSocket);
+				Assert.assertTrue(socketBlockingQueue.isEmpty());
 
-		Assert.assertTrue(logRecords.isEmpty());
+				swapSocketImpl(socket, socketImpl);
 
-		// Force close, failed with log
+				closePeers(socket, serverSocket);
 
-		logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.WARNING);
+				Assert.assertTrue(logRecords.isEmpty());
 
-		socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
+				// Force close, failed with log
 
-		socketImpl = swapSocketImpl(socket, null);
+				logRecords = captureHandler.resetLogLevel(Level.WARNING);
 
-		httpClientSPIAgent.returnSocket(socket, true);
+				socket = new Socket(
+					InetAddressUtil.getLoopbackInetAddress(),
+					_spiConfiguration.getConnectorPort());
 
-		Assert.assertTrue(socketBlockingQueue.isEmpty());
+				socketImpl = swapSocketImpl(socket, null);
 
-		swapSocketImpl(socket, socketImpl);
+				httpClientSPIAgent.returnSocket(socket, true);
 
-		closePeers(socket, serverSocket);
+				Assert.assertTrue(socketBlockingQueue.isEmpty());
 
-		Assert.assertEquals(1, logRecords.size());
+				swapSocketImpl(socket, socketImpl);
 
-		LogRecord logRecord = logRecords.get(0);
+				closePeers(socket, serverSocket);
 
-		Throwable throwable = logRecord.getThrown();
+				Assert.assertEquals(1, logRecords.size());
 
-		Assert.assertSame(IOException.class, throwable.getClass());
+				LogRecord logRecord = logRecords.get(0);
 
-		// socket.isConnected()
+				Throwable throwable = logRecord.getThrown();
 
-		httpClientSPIAgent.returnSocket(new Socket(), false);
+				Assert.assertSame(IOException.class, throwable.getClass());
+			}
+			finally {
+				if (captureHandler != null) {
+					captureHandler.close();
+				}
+			}
 
-		Assert.assertTrue(socketBlockingQueue.isEmpty());
+			// socket.isConnected()
 
-		// socket.isInputShutdown()
+			httpClientSPIAgent.returnSocket(new Socket(), false);
 
-		socketChannel = SocketChannel.open(httpClientSPIAgent.socketAddress);
+			Assert.assertTrue(socketBlockingQueue.isEmpty());
 
-		socket = socketChannel.socket();
+			// socket.isInputShutdown()
 
-		socket.shutdownInput();
+			socketChannel = SocketChannel.open(
+				httpClientSPIAgent.socketAddress);
 
-		httpClientSPIAgent.returnSocket(socket, false);
+			socket = socketChannel.socket();
 
-		Assert.assertTrue(socketBlockingQueue.isEmpty());
+			socket.shutdownInput();
 
-		closePeers(socket, serverSocket);
+			httpClientSPIAgent.returnSocket(socket, false);
 
-		// socket.isOutputShutdown()
+			Assert.assertTrue(socketBlockingQueue.isEmpty());
 
-		socketChannel = SocketChannel.open(httpClientSPIAgent.socketAddress);
+			closePeers(socket, serverSocket);
 
-		socket = socketChannel.socket();
+			// socket.isOutputShutdown()
 
-		socket.shutdownOutput();
+			socketChannel = SocketChannel.open(
+				httpClientSPIAgent.socketAddress);
 
-		httpClientSPIAgent.returnSocket(socket, false);
+			socket = socketChannel.socket();
 
-		Assert.assertTrue(socketBlockingQueue.isEmpty());
+			socket.shutdownOutput();
 
-		closePeers(socket, serverSocket);
+			httpClientSPIAgent.returnSocket(socket, false);
 
-		// Successfully return
+			Assert.assertTrue(socketBlockingQueue.isEmpty());
 
-		socketChannel = SocketChannel.open(httpClientSPIAgent.socketAddress);
+			closePeers(socket, serverSocket);
 
-		socket = socketChannel.socket();
+			// Successfully return
 
-		httpClientSPIAgent.returnSocket(socket, false);
+			socketChannel = SocketChannel.open(
+				httpClientSPIAgent.socketAddress);
 
-		Assert.assertEquals(1, socketBlockingQueue.size());
-		Assert.assertSame(socket, socketBlockingQueue.poll());
+			socket = socketChannel.socket();
 
-		closePeers(socket, serverSocket);
+			httpClientSPIAgent.returnSocket(socket, false);
 
-		serverSocket.close();
+			Assert.assertEquals(1, socketBlockingQueue.size());
+			Assert.assertSame(socket, socketBlockingQueue.poll());
+
+			closePeers(socket, serverSocket);
+		}
 	}
 
 	@Test
@@ -742,10 +790,14 @@ public class HttpClientSPIAgentTest {
 
 		// Unable to send, successfully close
 
+		MockIntraband mockIntraband = new MockIntraband();
+
+		IOException ioException = new IOException();
+
+		mockIntraband.setIOException(ioException);
+
 		httpClientSPIAgent = new HttpClientSPIAgent(
-			_spiConfiguration,
-			new MockRegistrationReference(
-				new DirectMailboxIntraBand(new IOException())));
+			_spiConfiguration, new MockRegistrationReference(mockIntraband));
 
 		ServerSocketChannel serverSocketChannel =
 			SocketUtil.createServerSocketChannel(
@@ -779,92 +831,103 @@ public class HttpClientSPIAgentTest {
 			Throwable throwable = pre.getCause();
 
 			Assert.assertSame(IOException.class, throwable.getClass());
+
+			throwable = throwable.getCause();
+
+			Assert.assertSame(MailboxException.class, throwable.getClass());
+			Assert.assertSame(ioException, throwable.getCause());
 		}
 
 		ServerSocket serverSocket = serverSocketChannel.socket();
 
 		closePeers(socket, serverSocket);
 
-		// Unable to send, unable to close, without log
-
-		List<LogRecord> logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.OFF);
-
-		socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
-
-		SocketImpl socketImpl = swapSocketImpl(socket, null);
-
-		DirectMailboxIntraBand directMailboxIntraBand =
-			new DirectMailboxIntraBand(new IOException());
-
-		httpClientSPIAgent = new HttpClientSPIAgent(
-			_spiConfiguration,
-			new MockRegistrationReference(directMailboxIntraBand));
-
-		socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
-
-		socketBlockingQueue.add(socket);
+		CaptureHandler captureHandler = null;
 
 		try {
-			httpClientSPIAgent.service(mockHttpServletRequest, null);
 
-			Assert.fail();
-		}
-		catch (PortalResiliencyException pre) {
-			Throwable throwable = pre.getCause();
+			// Unable to send, unable to close, without log
+
+			captureHandler = JDKLoggerTestUtil.configureJDKLogger(
+				HttpClientSPIAgent.class.getName(), Level.OFF);
+
+			List<LogRecord> logRecords = captureHandler.getLogRecords();
+
+			socket = new Socket(
+				InetAddressUtil.getLoopbackInetAddress(),
+				_spiConfiguration.getConnectorPort());
+
+			SocketImpl socketImpl = swapSocketImpl(socket, null);
+
+			httpClientSPIAgent = new HttpClientSPIAgent(
+				_spiConfiguration,
+				new MockRegistrationReference(mockIntraband));
+
+			socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
+
+			socketBlockingQueue.add(socket);
+
+			try {
+				httpClientSPIAgent.service(mockHttpServletRequest, null);
+
+				Assert.fail();
+			}
+			catch (PortalResiliencyException pre) {
+				Throwable throwable = pre.getCause();
+
+				Assert.assertSame(IOException.class, throwable.getClass());
+			}
+
+			Assert.assertTrue(logRecords.isEmpty());
+
+			swapSocketImpl(socket, socketImpl);
+
+			closePeers(socket, serverSocket);
+
+			// Unable to send, unable to close, with log
+
+			logRecords = captureHandler.resetLogLevel(Level.WARNING);
+
+			socket = new Socket(
+				InetAddressUtil.getLoopbackInetAddress(),
+				_spiConfiguration.getConnectorPort());
+
+			socketImpl = swapSocketImpl(socket, null);
+
+			httpClientSPIAgent = new HttpClientSPIAgent(
+				_spiConfiguration,
+				new MockRegistrationReference(mockIntraband));
+
+			socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
+
+			socketBlockingQueue.add(socket);
+
+			try {
+				httpClientSPIAgent.service(mockHttpServletRequest, null);
+
+				Assert.fail();
+			}
+			catch (PortalResiliencyException pre) {
+				Throwable throwable = pre.getCause();
+
+				Assert.assertSame(IOException.class, throwable.getClass());
+			}
+
+			Assert.assertEquals(1, logRecords.size());
+
+			LogRecord logRecord = logRecords.get(0);
+
+			Throwable throwable = logRecord.getThrown();
 
 			Assert.assertSame(IOException.class, throwable.getClass());
+
+			swapSocketImpl(socket, socketImpl);
 		}
-
-		Assert.assertTrue(logRecords.isEmpty());
-
-		swapSocketImpl(socket, socketImpl);
-
-		closePeers(socket, serverSocket);
-
-		// Unable to send, unable to close, with log
-
-		logRecords = JDKLoggerTestUtil.configureJDKLogger(
-			HttpClientSPIAgent.class.getName(), Level.WARNING);
-
-		socket = new Socket(
-			InetAddressUtil.getLoopbackInetAddress(),
-			_spiConfiguration.getConnectorPort());
-
-		socketImpl = swapSocketImpl(socket, null);
-
-		directMailboxIntraBand = new DirectMailboxIntraBand(new IOException());
-
-		httpClientSPIAgent = new HttpClientSPIAgent(
-			_spiConfiguration,
-			new MockRegistrationReference(directMailboxIntraBand));
-
-		socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
-
-		socketBlockingQueue.add(socket);
-
-		try {
-			httpClientSPIAgent.service(mockHttpServletRequest, null);
-
-			Assert.fail();
+		finally {
+			if (captureHandler != null) {
+				captureHandler.close();
+			}
 		}
-		catch (PortalResiliencyException pre) {
-			Throwable throwable = pre.getCause();
-
-			Assert.assertSame(IOException.class, throwable.getClass());
-		}
-
-		Assert.assertEquals(1, logRecords.size());
-
-		LogRecord logRecord = logRecords.get(0);
-
-		Throwable throwable = logRecord.getThrown();
-
-		Assert.assertSame(IOException.class, throwable.getClass());
-
-		swapSocketImpl(socket, socketImpl);
 
 		closePeers(socket, serverSocket);
 
@@ -874,9 +937,32 @@ public class HttpClientSPIAgentTest {
 
 		socketChannel.configureBlocking(true);
 
+		mockIntraband = new MockIntraband() {
+
+			@Override
+			protected Datagram processDatagram(Datagram datagram) {
+				try {
+					long receipt = ReflectionTestUtil.invoke(
+						MailboxUtil.class, "depositMail",
+						new Class<?>[] {ByteBuffer.class},
+						datagram.getDataByteBuffer());
+
+					byte[] receiptData = new byte[8];
+
+					BigEndianCodec.putLong(receiptData, 0, receipt);
+
+					return Datagram.createResponseDatagram(
+						datagram, ByteBuffer.wrap(receiptData));
+				}
+				catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+		};
+
 		httpClientSPIAgent = new HttpClientSPIAgent(
-			_spiConfiguration,
-			new MockRegistrationReference(new DirectMailboxIntraBand(null)));
+			_spiConfiguration, new MockRegistrationReference(mockIntraband));
 
 		socketBlockingQueue = httpClientSPIAgent.socketBlockingQueue;
 
@@ -889,11 +975,9 @@ public class HttpClientSPIAgentTest {
 		serializer.writeString(_SERVLET_CONTEXT_NAME);
 		serializer.writeObject(new SPIAgentResponse(_SERVLET_CONTEXT_NAME));
 
-		Method depositMailMethod = ReflectionUtil.getDeclaredMethod(
-			MailboxUtil.class, "depositMail", ByteBuffer.class);
-
-		long receipt = (Long)depositMailMethod.invoke(
-			null, serializer.toByteBuffer());
+		long receipt = ReflectionTestUtil.invoke(
+			MailboxUtil.class, "depositMail", new Class<?>[] {ByteBuffer.class},
+			serializer.toByteBuffer());
 
 		Socket remoteSocket = serverSocket.accept();
 
@@ -1057,11 +1141,8 @@ public class HttpClientSPIAgentTest {
 		httpClientSPIAgent.transferResponse(
 			mockHttpServletRequest, bufferCacheServletResponse, null);
 
-		Class<?> clazz = Class.forName("java.io.DeleteOnExitHook");
-
-		Field filesField = ReflectionUtil.getDeclaredField(clazz, "files");
-
-		Set<String> files = (Set<String>)filesField.get(null);
+		Set<String> files = ReflectionTestUtil.getFieldValue(
+			Class.forName("java.io.DeleteOnExitHook"), "files");
 
 		Assert.assertTrue(files.contains(tempFile.getPath()));
 	}
@@ -1078,42 +1159,35 @@ public class HttpClientSPIAgentTest {
 
 	protected void closeSocketChannel(
 			SocketChannel socketChannel, FileDescriptor fileDescriptor)
-		throws Exception {
+		throws IOException {
 
-		Field fileDescriptorField = ReflectionUtil.getDeclaredField(
-			socketChannel.getClass(), "fd");
-
-		fileDescriptorField.set(socketChannel, fileDescriptor);
+		ReflectionTestUtil.setFieldValue(socketChannel, "fd", fileDescriptor);
 
 		socketChannel.close();
 	}
 
-	protected SocketImpl swapSocketImpl(Socket socket, SocketImpl socketImpl)
-		throws Exception {
-
-		Field implField = ReflectionUtil.getDeclaredField(Socket.class, "impl");
-
-		SocketImpl oldSocketImpl = (SocketImpl)implField.get(socket);
+	protected SocketImpl swapSocketImpl(Socket socket, SocketImpl socketImpl) {
+		SocketImpl oldSocketImpl = ReflectionTestUtil.getFieldValue(
+			socket, "impl");
 
 		if (socketImpl == null) {
 			Socket unbindSocket = new Socket();
 
-			socketImpl = (SocketImpl)implField.get(unbindSocket);
+			socketImpl = ReflectionTestUtil.getFieldValue(unbindSocket, "impl");
 
-			Field cmdsockField = ReflectionUtil.getDeclaredField(
-				socketImpl.getClass(), "cmdsock");
+			ReflectionTestUtil.setFieldValue(
+				socketImpl, "cmdsock",
+				new Socket() {
 
-			cmdsockField.set(socketImpl, new Socket() {
+					@Override
+					public synchronized void close() throws IOException {
+						throw new IOException();
+					}
 
-				@Override
-				public synchronized void close() throws IOException {
-					throw new IOException();
-				}
-
-			});
+				});
 		}
 
-		implField.set(socket, socketImpl);
+		ReflectionTestUtil.setFieldValue(socket, "impl", socketImpl);
 
 		return oldSocketImpl;
 	}
@@ -1125,45 +1199,6 @@ public class HttpClientSPIAgentTest {
 	private Portlet _portlet;
 	private SPIConfiguration _spiConfiguration = new SPIConfiguration(
 		null, null, 1234, "baseDir", null, null, null);
-
-	private static class DirectMailboxIntraBand extends MockIntraband {
-
-		public DirectMailboxIntraBand(IOException ioException) {
-			_ioException = ioException;
-		}
-
-		@Override
-		public Datagram sendSyncDatagram(
-				RegistrationReference registrationReference, Datagram datagram)
-			throws IOException {
-
-			if (_ioException != null) {
-				throw _ioException;
-			}
-
-			try {
-				Method depositMailMethod = ReflectionUtil.getDeclaredMethod(
-					MailboxUtil.class, "depositMail", ByteBuffer.class);
-
-				long receipt = (Long)depositMailMethod.invoke(
-					null, datagram.getDataByteBuffer());
-
-				_receiptData = new byte[8];
-
-				BigEndianCodec.putLong(_receiptData, 0, receipt);
-
-				return Datagram.createResponseDatagram(
-					datagram, ByteBuffer.wrap(_receiptData));
-			}
-			catch (Exception e) {
-				throw new IOException(e);
-			}
-		}
-
-		private IOException _ioException;
-		private byte[] _receiptData;
-
-	}
 
 	private static class RecordSPIAgentResponse extends SPIAgentResponse {
 

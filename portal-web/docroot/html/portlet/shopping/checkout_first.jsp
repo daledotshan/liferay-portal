@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/shopping/init.jsp" %>
 
 <%
-ShoppingOrder order = (ShoppingOrder)request.getAttribute(WebKeys.SHOPPING_ORDER);
+ShoppingOrder order = ShoppingOrderLocalServiceUtil.getLatestOrder(user.getUserId(), themeDisplay.getScopeGroupId());
 
 String billingState = BeanParamUtil.getString(order, request, "billingState");
 String billingStateSel = ParamUtil.getString(request, "billingStateSel");
@@ -87,8 +87,8 @@ List addresses = AddressServiceUtil.getAddresses(Contact.class.getName(), contac
 					String taglibUpdateBillingAddress = renderResponse.getNamespace() + "updateAddress(this[this.selectedIndex].value, 'billing');";
 					%>
 
-					<aui:select label="" name="addressBilling" onChange="<%= taglibUpdateBillingAddress %>">
-						<aui:option label='<%= "--" + LanguageUtil.get(pageContext,"my-addresses") + "--" %>' />
+					<aui:select label="" name="addressBilling" onChange="<%= taglibUpdateBillingAddress %>" title="billing-address">
+						<aui:option label='<%= "--" + LanguageUtil.get(request,"my-addresses") + "--" %>' />
 
 						<%
 						for (int i = 0; addresses != null && i < addresses.size(); i++) {
@@ -126,8 +126,8 @@ List addresses = AddressServiceUtil.getAddresses(Contact.class.getName(), contac
 					String taglibUpdateShippingAddress = renderResponse.getNamespace() + "updateAddress(this[this.selectedIndex].value, 'shipping');";
 					%>
 
-					<aui:select label="" name="addressShipping" onChange="<%= taglibUpdateShippingAddress %>">
-						<aui:option label='<%= "--" + LanguageUtil.get(pageContext,"my-addresses") + "--" %>' />
+					<aui:select label="" name="addressShipping" onChange="<%= taglibUpdateShippingAddress %>" title="shipping-address">
+						<aui:option label='<%= "--" + LanguageUtil.get(request,"my-addresses") + "--" %>' />
 
 						<%
 						for (int i = 0; addresses != null && i < addresses.size(); i++) {
@@ -244,6 +244,12 @@ List addresses = AddressServiceUtil.getAddresses(Contact.class.getName(), contac
 
 	<aui:button-row>
 		<aui:button type="submit" value="continue" />
+
+		<portlet:renderURL var="cartURL">
+			<portlet:param name="struts_action" value="/shopping/cart" />
+		</portlet:renderURL>
+
+		<aui:button href="<%= cartURL.toString() %>" value="back-to-cart" />
 	</aui:button-row>
 </aui:form>
 
@@ -258,12 +264,12 @@ List addresses = AddressServiceUtil.getAddresses(Contact.class.getName(), contac
 			Country country = address.getCountry();
 		%>
 
-			if ("<%= address.getAddressId() %>" == addressId) {
-				document.getElementById("<portlet:namespace />" + type + "Street").value = "<%= HtmlUtil.escapeJS(address.getStreet1()) %>";
-				document.getElementById("<portlet:namespace />" + type + "City").value = "<%= HtmlUtil.escapeJS(address.getCity()) %>";
+			if ('<%= address.getAddressId() %>' == addressId) {
+				document.getElementById('<portlet:namespace />' + type + 'Street').value = '<%= HtmlUtil.escapeJS(address.getStreet1()) %>';
+				document.getElementById('<portlet:namespace />' + type + 'City').value = '<%= HtmlUtil.escapeJS(address.getCity()) %>';
 
-				var stateSel = document.getElementById("<portlet:namespace />" + type + "StateSel");
-				var stateSelValue = "<%= HtmlUtil.escapeJS(region.getRegionCode()) %>";
+				var stateSel = document.getElementById('<portlet:namespace />' + type + 'StateSel');
+				var stateSelValue = '<%= HtmlUtil.escapeJS(region.getRegionCode()) %>';
 
 				for (var i = 0; i < stateSel.length; i++) {
 					if (stateSel[i].value == stateSelValue) {
@@ -273,8 +279,8 @@ List addresses = AddressServiceUtil.getAddresses(Contact.class.getName(), contac
 					}
 				}
 
-				document.getElementById("<portlet:namespace />" + type + "Zip").value = "<%= HtmlUtil.escapeJS(address.getZip()) %>";
-				document.getElementById("<portlet:namespace />" + type + "Country").value = "<%= HtmlUtil.escapeJS(country.getName()) %>";
+				document.getElementById('<portlet:namespace />' + type + 'Zip').value = '<%= HtmlUtil.escapeJS(address.getZip()) %>';
+				document.getElementById('<portlet:namespace />' + type + 'Country').value = '<%= HtmlUtil.escapeJS(country.getName()) %>';
 			}
 
 		<%

@@ -54,6 +54,27 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PERMISSIONS_CHECKBOX</td>
+	<td>//label[contains(.,'Permissions')]/input[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!-- VALIDATION -->
+<tr>
+	<td>VALIDATION_ERROR_MESSAGE_HEADER</td>
+	<td>//h4[@class='upload-error-message']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VALIDATION_ERROR_MESSAGE</td>
+	<td>//span[@class='error-message']</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>

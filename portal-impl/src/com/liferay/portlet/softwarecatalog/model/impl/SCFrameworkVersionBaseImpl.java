@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.softwarecatalog.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.softwarecatalog.model.SCFrameworkVersion;
 import com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionLocalServic
  * @see com.liferay.portlet.softwarecatalog.model.SCFrameworkVersion
  * @generated
  */
+@ProviderType
 public abstract class SCFrameworkVersionBaseImpl
 	extends SCFrameworkVersionModelImpl implements SCFrameworkVersion {
 	/*
@@ -39,7 +40,7 @@ public abstract class SCFrameworkVersionBaseImpl
 	 * Never modify or reference this class directly. All methods that expect a s c framework version model instance should use the {@link SCFrameworkVersion} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			SCFrameworkVersionLocalServiceUtil.addSCFrameworkVersion(this);
 		}

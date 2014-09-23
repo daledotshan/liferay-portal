@@ -14,7 +14,6 @@
 
 package com.liferay.portal.json;
 
-import com.liferay.alloy.util.json.StringTransformer;
 import com.liferay.portal.json.jabsorb.serializer.LiferayJSONSerializer;
 import com.liferay.portal.json.jabsorb.serializer.LiferaySerializer;
 import com.liferay.portal.json.jabsorb.serializer.LocaleSerializer;
@@ -25,6 +24,7 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONSerializer;
 import com.liferay.portal.kernel.json.JSONTransformer;
+import com.liferay.portal.kernel.json.JSONValidator;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
@@ -129,11 +129,8 @@ public class JSONFactoryImpl implements JSONFactory {
 	public JSONTransformer createJavaScriptNormalizerJSONTransformer(
 		List<String> javaScriptAttributes) {
 
-		StringTransformer stringTransformer = new StringTransformer();
-
-		stringTransformer.setJavaScriptAttributes(javaScriptAttributes);
-
-		return stringTransformer;
+		throw new UnsupportedOperationException(
+			"Temporally disabled until alloy-taglib.jar is updated");
 	}
 
 	@Override
@@ -164,6 +161,13 @@ public class JSONFactoryImpl implements JSONFactory {
 	@Override
 	public JSONSerializer createJSONSerializer() {
 		return new JSONSerializerImpl();
+	}
+
+	@Override
+	public JSONValidator createJSONValidator(String jsonSchema)
+		throws JSONException {
+
+		return new JSONValidatorImpl(jsonSchema);
 	}
 
 	@Override
@@ -214,35 +218,6 @@ public class JSONFactoryImpl implements JSONFactory {
 	@Override
 	public <T> T looseDeserialize(String json, Class<T> clazz) {
 		JSONDeserializer<?> jsonDeserializer = createJSONDeserializer();
-
-		jsonDeserializer.use(null, clazz);
-
-		return (T)jsonDeserializer.deserialize(json);
-	}
-
-	@Override
-	public Object looseDeserializeSafe(String json) {
-		try {
-			JSONDeserializer<?> jsonDeserializer = createJSONDeserializer();
-
-			jsonDeserializer.safeMode(true);
-
-			return jsonDeserializer.deserialize(json);
-		}
-		catch (Exception e) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(e, e);
-			}
-
-			throw new IllegalStateException("Unable to deserialize object", e);
-		}
-	}
-
-	@Override
-	public <T> T looseDeserializeSafe(String json, Class<T> clazz) {
-		JSONDeserializer<?> jsonDeserializer = createJSONDeserializer();
-
-		jsonDeserializer.safeMode(true);
 
 		jsonDeserializer.use(null, clazz);
 
@@ -304,7 +279,7 @@ public class JSONFactoryImpl implements JSONFactory {
 				_log.warn(me, me);
 			}
 
-			throw new IllegalStateException("Unable to serialize oject", me);
+			throw new IllegalStateException("Unable to serialize object", me);
 		}
 	}
 
@@ -316,15 +291,46 @@ public class JSONFactoryImpl implements JSONFactory {
 			throwable = throwable.getCause();
 		}
 
-		jsonObject.put("exception", ClassUtil.getClassName(throwable));
+		String throwableMessage = throwable.getMessage();
 
-		String message = throwable.getMessage();
-
-		if (Validator.isNull(message)) {
-			message = throwable.toString();
+		if (Validator.isNull(throwableMessage)) {
+			throwableMessage = throwable.toString();
 		}
 
-		jsonObject.put("message", message);
+		JSONObject errorJSONObject = createJSONObject();
+
+		errorJSONObject.put("message", throwableMessage);
+		errorJSONObject.put("type", ClassUtil.getClassName(throwable));
+
+		jsonObject.put("error", errorJSONObject);
+
+		jsonObject.put("exception", throwableMessage);
+		jsonObject.put("throwable", throwable.toString());
+
+		if (throwable.getCause() == null) {
+			return jsonObject.toString();
+		}
+
+		Throwable rootCauseThrowable = throwable;
+
+		while (rootCauseThrowable.getCause() != null) {
+			rootCauseThrowable = rootCauseThrowable.getCause();
+		}
+
+		JSONObject rootCauseJSONObject = createJSONObject();
+
+		throwableMessage = rootCauseThrowable.getMessage();
+
+		if (Validator.isNull(throwableMessage)) {
+			throwableMessage = rootCauseThrowable.toString();
+		}
+
+		rootCauseJSONObject.put("message", throwableMessage);
+
+		rootCauseJSONObject.put(
+			"type", ClassUtil.getClassName(rootCauseThrowable));
+
+		jsonObject.put("rootCause", rootCauseJSONObject);
 
 		return jsonObject.toString();
 	}

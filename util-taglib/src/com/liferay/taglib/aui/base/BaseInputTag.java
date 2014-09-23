@@ -57,6 +57,10 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		return _classPK;
 	}
 
+	public long getClassTypePK() {
+		return _classTypePK;
+	}
+
 	public java.lang.String getCssClass() {
 		return _cssClass;
 	}
@@ -109,10 +113,6 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		return _ignoreRequestValue;
 	}
 
-	public boolean getIncludeHiddenField() {
-		return _includeHiddenField;
-	}
-
 	public boolean getInlineField() {
 		return _inlineField;
 	}
@@ -125,12 +125,20 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		return _label;
 	}
 
+	public boolean getLocalizeLabel() {
+		return _localizeLabel;
+	}
+
 	public java.lang.String getLanguageId() {
 		return _languageId;
 	}
 
 	public boolean getLast() {
 		return _last;
+	}
+
+	public boolean getLocalized() {
+		return _localized;
 	}
 
 	public java.lang.Object getMax() {
@@ -201,6 +209,10 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		return _value;
 	}
 
+	public boolean getWrappedField() {
+		return _wrappedField;
+	}
+
 	public java.lang.String getWrapperCssClass() {
 		return _wrapperCssClass;
 	}
@@ -239,6 +251,12 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_classPK = classPK;
 
 		setScopedAttribute("classPK", classPK);
+	}
+
+	public void setClassTypePK(long classTypePK) {
+		_classTypePK = classTypePK;
+
+		setScopedAttribute("classTypePK", classTypePK);
 	}
 
 	public void setCssClass(java.lang.String cssClass) {
@@ -319,12 +337,6 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setScopedAttribute("ignoreRequestValue", ignoreRequestValue);
 	}
 
-	public void setIncludeHiddenField(boolean includeHiddenField) {
-		_includeHiddenField = includeHiddenField;
-
-		setScopedAttribute("includeHiddenField", includeHiddenField);
-	}
-
 	public void setInlineField(boolean inlineField) {
 		_inlineField = inlineField;
 
@@ -343,6 +355,12 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setScopedAttribute("label", label);
 	}
 
+	public void setLocalizeLabel(boolean localizeLabel) {
+		_localizeLabel = localizeLabel;
+
+		setScopedAttribute("localizeLabel", localizeLabel);
+	}
+
 	public void setLanguageId(java.lang.String languageId) {
 		_languageId = languageId;
 
@@ -353,6 +371,12 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_last = last;
 
 		setScopedAttribute("last", last);
+	}
+
+	public void setLocalized(boolean localized) {
+		_localized = localized;
+
+		setScopedAttribute("localized", localized);
 	}
 
 	public void setMax(java.lang.Object max) {
@@ -457,6 +481,12 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setScopedAttribute("value", value);
 	}
 
+	public void setWrappedField(boolean wrappedField) {
+		_wrappedField = wrappedField;
+
+		setScopedAttribute("wrappedField", wrappedField);
+	}
+
 	public void setWrapperCssClass(java.lang.String wrapperCssClass) {
 		_wrapperCssClass = wrapperCssClass;
 
@@ -471,6 +501,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_changesContext = false;
 		_checked = false;
 		_classPK = 0;
+		_classTypePK = -1;
 		_cssClass = null;
 		_data = null;
 		_dateTogglerCheckboxLabel = null;
@@ -481,15 +512,16 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_first = false;
 		_formName = null;
 		_helpMessage = null;
-		_helpTextCssClass = "add-on";
+		_helpTextCssClass = "input-group-addon";
 		_id = null;
 		_ignoreRequestValue = false;
-		_includeHiddenField = true;
 		_inlineField = false;
 		_inlineLabel = null;
 		_label = null;
+		_localizeLabel = true;
 		_languageId = null;
 		_last = false;
+		_localized = false;
 		_max = null;
 		_model = null;
 		_min = null;
@@ -507,6 +539,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_type = null;
 		_useNamespace = true;
 		_value = null;
+		_wrappedField = false;
 		_wrapperCssClass = null;
 	}
 
@@ -523,6 +556,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setNamespacedAttribute(request, "changesContext", _changesContext);
 		setNamespacedAttribute(request, "checked", _checked);
 		setNamespacedAttribute(request, "classPK", _classPK);
+		setNamespacedAttribute(request, "classTypePK", _classTypePK);
 		setNamespacedAttribute(request, "cssClass", _cssClass);
 		setNamespacedAttribute(request, "data", _data);
 		setNamespacedAttribute(request, "dateTogglerCheckboxLabel", _dateTogglerCheckboxLabel);
@@ -536,12 +570,13 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setNamespacedAttribute(request, "helpTextCssClass", _helpTextCssClass);
 		setNamespacedAttribute(request, "id", _id);
 		setNamespacedAttribute(request, "ignoreRequestValue", _ignoreRequestValue);
-		setNamespacedAttribute(request, "includeHiddenField", _includeHiddenField);
 		setNamespacedAttribute(request, "inlineField", _inlineField);
 		setNamespacedAttribute(request, "inlineLabel", _inlineLabel);
 		setNamespacedAttribute(request, "label", _label);
+		setNamespacedAttribute(request, "localizeLabel", _localizeLabel);
 		setNamespacedAttribute(request, "languageId", _languageId);
 		setNamespacedAttribute(request, "last", _last);
+		setNamespacedAttribute(request, "localized", _localized);
 		setNamespacedAttribute(request, "max", _max);
 		setNamespacedAttribute(request, "model", _model);
 		setNamespacedAttribute(request, "min", _min);
@@ -559,6 +594,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setNamespacedAttribute(request, "type", _type);
 		setNamespacedAttribute(request, "useNamespace", _useNamespace);
 		setNamespacedAttribute(request, "value", _value);
+		setNamespacedAttribute(request, "wrappedField", _wrappedField);
 		setNamespacedAttribute(request, "wrapperCssClass", _wrapperCssClass);
 	}
 
@@ -573,6 +609,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 	private boolean _changesContext = false;
 	private boolean _checked = false;
 	private long _classPK = 0;
+	private long _classTypePK = -1;
 	private java.lang.String _cssClass = null;
 	private java.lang.Object _data = null;
 	private java.lang.String _dateTogglerCheckboxLabel = null;
@@ -583,15 +620,16 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 	private boolean _first = false;
 	private java.lang.String _formName = null;
 	private java.lang.String _helpMessage = null;
-	private java.lang.String _helpTextCssClass = "add-on";
+	private java.lang.String _helpTextCssClass = "input-group-addon";
 	private java.lang.String _id = null;
 	private boolean _ignoreRequestValue = false;
-	private boolean _includeHiddenField = true;
 	private boolean _inlineField = false;
 	private java.lang.String _inlineLabel = null;
 	private java.lang.String _label = null;
+	private boolean _localizeLabel = true;
 	private java.lang.String _languageId = null;
 	private boolean _last = false;
+	private boolean _localized = false;
 	private java.lang.Object _max = null;
 	private java.lang.Class<?> _model = null;
 	private java.lang.Object _min = null;
@@ -609,6 +647,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 	private java.lang.String _type = null;
 	private boolean _useNamespace = true;
 	private java.lang.Object _value = null;
+	private boolean _wrappedField = false;
 	private java.lang.String _wrapperCssClass = null;
 
 }

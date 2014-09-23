@@ -15,7 +15,6 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchSystemEventException;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -24,63 +23,71 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.model.SystemEvent;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.service.SystemEventLocalServiceUtil;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.PersistenceIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(PersistenceIntegrationJUnitTestRunner.class)
 public class SystemEventPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<SystemEvent> iterator = _systemEvents.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SystemEvent systemEvent = _persistence.create(pk);
 
@@ -107,39 +114,39 @@ public class SystemEventPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SystemEvent newSystemEvent = _persistence.create(pk);
 
-		newSystemEvent.setMvccVersion(ServiceTestUtil.nextLong());
+		newSystemEvent.setMvccVersion(RandomTestUtil.nextLong());
 
-		newSystemEvent.setGroupId(ServiceTestUtil.nextLong());
+		newSystemEvent.setGroupId(RandomTestUtil.nextLong());
 
-		newSystemEvent.setCompanyId(ServiceTestUtil.nextLong());
+		newSystemEvent.setCompanyId(RandomTestUtil.nextLong());
 
-		newSystemEvent.setUserId(ServiceTestUtil.nextLong());
+		newSystemEvent.setUserId(RandomTestUtil.nextLong());
 
-		newSystemEvent.setUserName(ServiceTestUtil.randomString());
+		newSystemEvent.setUserName(RandomTestUtil.randomString());
 
-		newSystemEvent.setCreateDate(ServiceTestUtil.nextDate());
+		newSystemEvent.setCreateDate(RandomTestUtil.nextDate());
 
-		newSystemEvent.setClassNameId(ServiceTestUtil.nextLong());
+		newSystemEvent.setClassNameId(RandomTestUtil.nextLong());
 
-		newSystemEvent.setClassPK(ServiceTestUtil.nextLong());
+		newSystemEvent.setClassPK(RandomTestUtil.nextLong());
 
-		newSystemEvent.setClassUuid(ServiceTestUtil.randomString());
+		newSystemEvent.setClassUuid(RandomTestUtil.randomString());
 
-		newSystemEvent.setReferrerClassNameId(ServiceTestUtil.nextLong());
+		newSystemEvent.setReferrerClassNameId(RandomTestUtil.nextLong());
 
-		newSystemEvent.setParentSystemEventId(ServiceTestUtil.nextLong());
+		newSystemEvent.setParentSystemEventId(RandomTestUtil.nextLong());
 
-		newSystemEvent.setSystemEventSetKey(ServiceTestUtil.nextLong());
+		newSystemEvent.setSystemEventSetKey(RandomTestUtil.nextLong());
 
-		newSystemEvent.setType(ServiceTestUtil.nextInt());
+		newSystemEvent.setType(RandomTestUtil.nextInt());
 
-		newSystemEvent.setExtraData(ServiceTestUtil.randomString());
+		newSystemEvent.setExtraData(RandomTestUtil.randomString());
 
-		_persistence.update(newSystemEvent);
+		_systemEvents.add(_persistence.update(newSystemEvent));
 
 		SystemEvent existingSystemEvent = _persistence.findByPrimaryKey(newSystemEvent.getPrimaryKey());
 
@@ -179,7 +186,7 @@ public class SystemEventPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -191,8 +198,8 @@ public class SystemEventPersistenceTest {
 	@Test
 	public void testCountByG_S() {
 		try {
-			_persistence.countByG_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByG_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByG_S(0L, 0L);
 		}
@@ -204,8 +211,8 @@ public class SystemEventPersistenceTest {
 	@Test
 	public void testCountByG_C_C() {
 		try {
-			_persistence.countByG_C_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong());
+			_persistence.countByG_C_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
 			_persistence.countByG_C_C(0L, 0L, 0L);
 		}
@@ -217,9 +224,9 @@ public class SystemEventPersistenceTest {
 	@Test
 	public void testCountByG_C_C_T() {
 		try {
-			_persistence.countByG_C_C_T(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByG_C_C_T(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByG_C_C_T(0L, 0L, 0L, 0);
 		}
@@ -239,7 +246,7 @@ public class SystemEventPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -262,7 +269,7 @@ public class SystemEventPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<SystemEvent> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("SystemEvent",
 			"mvccVersion", true, "systemEventId", true, "groupId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
@@ -282,7 +289,7 @@ public class SystemEventPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SystemEvent missingSystemEvent = _persistence.fetchByPrimaryKey(pk);
 
@@ -290,19 +297,103 @@ public class SystemEventPersistenceTest {
 	}
 
 	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		SystemEvent newSystemEvent1 = addSystemEvent();
+		SystemEvent newSystemEvent2 = addSystemEvent();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSystemEvent1.getPrimaryKey());
+		primaryKeys.add(newSystemEvent2.getPrimaryKey());
+
+		Map<Serializable, SystemEvent> systemEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, systemEvents.size());
+		Assert.assertEquals(newSystemEvent1,
+			systemEvents.get(newSystemEvent1.getPrimaryKey()));
+		Assert.assertEquals(newSystemEvent2,
+			systemEvents.get(newSystemEvent2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, SystemEvent> systemEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(systemEvents.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		SystemEvent newSystemEvent = addSystemEvent();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSystemEvent.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, SystemEvent> systemEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, systemEvents.size());
+		Assert.assertEquals(newSystemEvent,
+			systemEvents.get(newSystemEvent.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, SystemEvent> systemEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(systemEvents.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		SystemEvent newSystemEvent = addSystemEvent();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSystemEvent.getPrimaryKey());
+
+		Map<Serializable, SystemEvent> systemEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, systemEvents.size());
+		Assert.assertEquals(newSystemEvent,
+			systemEvents.get(newSystemEvent.getPrimaryKey()));
+	}
+
+	@Test
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new SystemEventActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = SystemEventLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					SystemEvent systemEvent = (SystemEvent)object;
 
 					Assert.assertNotNull(systemEvent);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -335,7 +426,7 @@ public class SystemEventPersistenceTest {
 				SystemEvent.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("systemEventId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<SystemEvent> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -376,7 +467,7 @@ public class SystemEventPersistenceTest {
 				"systemEventId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("systemEventId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -384,44 +475,44 @@ public class SystemEventPersistenceTest {
 	}
 
 	protected SystemEvent addSystemEvent() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SystemEvent systemEvent = _persistence.create(pk);
 
-		systemEvent.setMvccVersion(ServiceTestUtil.nextLong());
+		systemEvent.setMvccVersion(RandomTestUtil.nextLong());
 
-		systemEvent.setGroupId(ServiceTestUtil.nextLong());
+		systemEvent.setGroupId(RandomTestUtil.nextLong());
 
-		systemEvent.setCompanyId(ServiceTestUtil.nextLong());
+		systemEvent.setCompanyId(RandomTestUtil.nextLong());
 
-		systemEvent.setUserId(ServiceTestUtil.nextLong());
+		systemEvent.setUserId(RandomTestUtil.nextLong());
 
-		systemEvent.setUserName(ServiceTestUtil.randomString());
+		systemEvent.setUserName(RandomTestUtil.randomString());
 
-		systemEvent.setCreateDate(ServiceTestUtil.nextDate());
+		systemEvent.setCreateDate(RandomTestUtil.nextDate());
 
-		systemEvent.setClassNameId(ServiceTestUtil.nextLong());
+		systemEvent.setClassNameId(RandomTestUtil.nextLong());
 
-		systemEvent.setClassPK(ServiceTestUtil.nextLong());
+		systemEvent.setClassPK(RandomTestUtil.nextLong());
 
-		systemEvent.setClassUuid(ServiceTestUtil.randomString());
+		systemEvent.setClassUuid(RandomTestUtil.randomString());
 
-		systemEvent.setReferrerClassNameId(ServiceTestUtil.nextLong());
+		systemEvent.setReferrerClassNameId(RandomTestUtil.nextLong());
 
-		systemEvent.setParentSystemEventId(ServiceTestUtil.nextLong());
+		systemEvent.setParentSystemEventId(RandomTestUtil.nextLong());
 
-		systemEvent.setSystemEventSetKey(ServiceTestUtil.nextLong());
+		systemEvent.setSystemEventSetKey(RandomTestUtil.nextLong());
 
-		systemEvent.setType(ServiceTestUtil.nextInt());
+		systemEvent.setType(RandomTestUtil.nextInt());
 
-		systemEvent.setExtraData(ServiceTestUtil.randomString());
+		systemEvent.setExtraData(RandomTestUtil.randomString());
 
-		_persistence.update(systemEvent);
+		_systemEvents.add(_persistence.update(systemEvent));
 
 		return systemEvent;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SystemEventPersistenceTest.class);
-	private SystemEventPersistence _persistence = (SystemEventPersistence)PortalBeanLocatorUtil.locate(SystemEventPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<SystemEvent> _systemEvents = new ArrayList<SystemEvent>();
+	private SystemEventPersistence _persistence = SystemEventUtil.getPersistence();
 }

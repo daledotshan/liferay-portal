@@ -295,7 +295,6 @@ public class RubyExecutor extends BaseScriptingExecutor {
 	private static Log _log = LogFactoryUtil.getLog(RubyExecutor.class);
 
 	private static Field _globalRuntimeField;
-
 	private static ThreadFactory _threadFactory =
 		new NamedThreadFactory(
 			RubyExecutor.class.getName(), Thread.NORM_PRIORITY,
@@ -339,11 +338,11 @@ public class RubyExecutor extends BaseScriptingExecutor {
 		}
 
 		private final Set<String> _allowedClasses;
+		private final ClassLoader[] _classLoaders;
 		private final Map<String, Object> _inputObjects;
 		private final Set<String> _outputNames;
-		private final File _scriptFile;
 		private final String _script;
-		private final ClassLoader[] _classLoaders;
+		private final File _scriptFile;
 
 	}
 

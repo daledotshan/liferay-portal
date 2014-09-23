@@ -118,6 +118,20 @@ public class WikiPageServiceSoap {
 		}
 	}
 
+	public static void changeNode(long nodeId, java.lang.String title,
+		long newNodeId, com.liferay.portal.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			WikiPageServiceUtil.changeNode(nodeId, title, newNodeId,
+				serviceContext);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static void changeParent(long nodeId, java.lang.String title,
 		java.lang.String newParentTitle,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -201,12 +215,11 @@ public class WikiPageServiceSoap {
 		}
 	}
 
-	public static void deleteTempPageAttachment(long nodeId,
-		java.lang.String fileName, java.lang.String tempFolderName)
+	public static void deleteTempFileEntry(long nodeId,
+		java.lang.String folderName, java.lang.String fileName)
 		throws RemoteException {
 		try {
-			WikiPageServiceUtil.deleteTempPageAttachment(nodeId, fileName,
-				tempFolderName);
+			WikiPageServiceUtil.deleteTempFileEntry(nodeId, folderName, fileName);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -421,7 +434,8 @@ public class WikiPageServiceSoap {
 
 	public static com.liferay.portlet.wiki.model.WikiPageSoap[] getPages(
 		long groupId, long nodeId, boolean head, int status, int start,
-		int end, com.liferay.portal.kernel.util.OrderByComparator obc)
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.wiki.model.WikiPage> obc)
 		throws RemoteException {
 		try {
 			java.util.List<com.liferay.portlet.wiki.model.WikiPage> returnValue = WikiPageServiceUtil.getPages(groupId,
@@ -557,11 +571,11 @@ public class WikiPageServiceSoap {
 		}
 	}
 
-	public static java.lang.String[] getTempPageAttachmentNames(long nodeId,
-		java.lang.String tempFolderName) throws RemoteException {
+	public static java.lang.String[] getTempFileNames(long nodeId,
+		java.lang.String folderName) throws RemoteException {
 		try {
-			java.lang.String[] returnValue = WikiPageServiceUtil.getTempPageAttachmentNames(nodeId,
-					tempFolderName);
+			java.lang.String[] returnValue = WikiPageServiceUtil.getTempFileNames(nodeId,
+					folderName);
 
 			return returnValue;
 		}
@@ -572,6 +586,11 @@ public class WikiPageServiceSoap {
 		}
 	}
 
+	/**
+	* @deprecated As of 6.2.0, replaced by {@link #renamePage(long, String,
+	String, ServiceContext)}
+	*
+	*/
 	public static void movePage(long nodeId, java.lang.String title,
 		java.lang.String newTitle,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -625,6 +644,21 @@ public class WikiPageServiceSoap {
 					title, version);
 
 			return com.liferay.portlet.wiki.model.WikiPageSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void renamePage(long nodeId, java.lang.String title,
+		java.lang.String newTitle,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			WikiPageServiceUtil.renamePage(nodeId, title, newTitle,
+				serviceContext);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

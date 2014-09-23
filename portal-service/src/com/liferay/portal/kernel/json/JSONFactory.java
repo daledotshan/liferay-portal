@@ -47,6 +47,9 @@ public interface JSONFactory {
 
 	public JSONSerializer createJSONSerializer();
 
+	public JSONValidator createJSONValidator(String jsonSchema)
+		throws JSONException;
+
 	public Object deserialize(JSONObject jsonObj);
 
 	public Object deserialize(String json);
@@ -58,10 +61,6 @@ public interface JSONFactory {
 	public Object looseDeserialize(String json);
 
 	public <T> T looseDeserialize(String json, Class<T> clazz);
-
-	public Object looseDeserializeSafe(String json);
-
-	public <T> T looseDeserializeSafe(String json, Class<T> clazz);
 
 	public String looseSerialize(Object object);
 

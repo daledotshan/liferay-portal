@@ -5,6 +5,8 @@ AUI.add(
 
 		var AArray = A.Array;
 
+		var LString = Lang.String;
+
 		var NAME = 'tagselector';
 
 		var CSS_INPUT_NODE = 'lfr-tag-selector-input';
@@ -61,8 +63,8 @@ AUI.add(
 			'</fieldset>'
 		);
 
-		var TPL_SEARCH_FORM = '<form action="javascript:;" class="form-search lfr-tag-selector-search row-fluid">' +
-			'<input class="lfr-tag-selector-input search-query span12" placeholder="{0}" type="text" />' +
+		var TPL_SEARCH_FORM = '<form action="javascript:;" class="form-search lfr-tag-selector-search row">' +
+			'<input class="col-md-12 lfr-tag-selector-input search-query" placeholder="{0}" type="text" />' +
 		'</form>';
 
 		var TPL_SUGGESTIONS_QUERY = 'select * from search.termextract where context="{0}"';
@@ -94,15 +96,19 @@ AUI.add(
 					allowAnyEntry: {
 						value: true
 					},
+
 					allowSuggestions: {
 						value: false
 					},
+
 					className: {
 						value: null
 					},
+
 					contentCallback: {
 						value: null
 					},
+
 					curEntries: {
 						setter: function(value) {
 							var instance = this;
@@ -115,6 +121,7 @@ AUI.add(
 						},
 						value: ''
 					},
+
 					dataSource: {
 						valueFn: function() {
 							var instance = this;
@@ -122,19 +129,16 @@ AUI.add(
 							return instance._getTagsDataSource();
 						}
 					},
+
 					groupIds: {
 						setter: '_setGroupIds',
 						validator: Lang.isString
 					},
+
 					guid: {
 						value: ''
 					},
-					instanceVar: {
-						value: ''
-					},
-					portalModelResource: {
-						value: false
-					},
+
 					hiddenInput: {
 						setter: function(value) {
 							var instance = this;
@@ -142,9 +146,19 @@ AUI.add(
 							return A.one(value + instance.get('guid'));
 						}
 					},
+
+					instanceVar: {
+						value: ''
+					},
+
 					matchKey: {
 						value: 'value'
 					},
+
+					portalModelResource: {
+						value: false
+					},
+
 					schema: {
 						value: {
 							resultFields: ['text', 'value']
@@ -182,12 +196,6 @@ AUI.add(
 						entries.after('remove', instance._updateHiddenInput, instance);
 					},
 
-					addEntries: function() {
-						var instance = this;
-
-						instance._addEntries();
-					},
-
 					syncUI: function() {
 						var instance = this;
 
@@ -198,10 +206,16 @@ AUI.add(
 						A.each(curEntries, instance.add, instance);
 					},
 
+					addEntries: function() {
+						var instance = this;
+
+						instance._addEntries();
+					},
+
 					_addEntries: function() {
 						var instance = this;
 
-						var text = Liferay.Util.escapeHTML(instance.inputNode.val());
+						var text = LString.escapeHTML(instance.inputNode.val());
 
 						if (text) {
 							if (text.indexOf(',') > -1) {
@@ -209,7 +223,7 @@ AUI.add(
 
 								A.each(
 									items,
-									function(item, index, collection) {
+									function(item, index) {
 										instance.entries.add(item, {});
 									}
 								);
@@ -228,6 +242,18 @@ AUI.add(
 						instance._submitFormListener = A.Do.before(instance._addEntries, window, 'submitForm', instance);
 
 						instance.get('boundingBox').on('keypress', instance._onKeyPress, instance);
+					},
+
+					_getEntries: function(callback) {
+						var instance = this;
+
+						Liferay.Service(
+							'/assettag/get-groups-tags',
+							{
+								groupIds: instance.get('groupIds')
+							},
+							callback
+						);
 					},
 
 					_getPopup: function() {
@@ -273,18 +299,6 @@ AUI.add(
 						return instance._popup;
 					},
 
-					_getEntries: function(callback) {
-						var instance = this;
-
-						Liferay.Service(
-							'/assettag/get-groups-tags',
-							{
-								groupIds: instance.get('groupIds')
-							},
-							callback
-						);
-					},
-
 					_getTagsDataSource: function() {
 						var instance = this;
 
@@ -310,11 +324,11 @@ AUI.add(
 
 										if (!serviceQueryObj) {
 											serviceQueryObj = {
+												end: 20,
 												groupIds: instance.get('groupIds'),
 												name: '%' + term + '%',
-												tagProperties: STR_BLANK,
 												start: 0,
-												end: 20
+												tagProperties: STR_BLANK
 											};
 
 											serviceQueryCache[key] = serviceQueryObj;
@@ -347,7 +361,7 @@ AUI.add(
 										var fieldsets = popup.entriesNode.all('fieldset');
 
 										fieldsets.each(
-											function(item, index, collection) {
+											function(item, index) {
 												var visibleEntries = item.one('label:not(.hide)');
 
 												var action = 'addClass';
@@ -534,8 +548,8 @@ AUI.add(
 							context = String(context);
 						}
 
-						context = Lang.String.stripTags(context);
-						context = Liferay.Util.escapeHTML(context);
+						context = LString.stripTags(context);
+						context = LString.escapeHTML(context);
 
 						var query = Lang.sub(TPL_SUGGESTIONS_QUERY, [context]);
 
@@ -555,7 +569,7 @@ AUI.add(
 								if (results) {
 									data = AArray.map(
 										AArray(results.Result),
-										function(item, index, collection) {
+										function(item, index) {
 											return {
 												name: item
 											};
@@ -591,7 +605,7 @@ AUI.add(
 									checked = true;
 								}
 
-								checkbox.set('checked', checked);
+								checkbox.attr('checked', checked);
 							}
 						}
 					},

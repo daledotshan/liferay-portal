@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/trash/init.jsp" %>
 
 <aui:nav-bar>
-	<aui:nav-bar-search cssClass="pull-right">
+	<aui:nav-bar-search>
 		<div class="form-search">
 			<liferay-ui:input-search autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) %>" placeholder='<%= LanguageUtil.get(locale, "keywords") %>' />
 		</div>

@@ -26,9 +26,14 @@ import com.liferay.portlet.ratings.model.RatingsStats;
 import com.liferay.portlet.ratings.model.impl.RatingsStatsImpl;
 import com.liferay.portlet.ratings.model.impl.RatingsStatsModelImpl;
 import com.liferay.portlet.ratings.service.persistence.RatingsStatsFinder;
+import com.liferay.portlet.ratings.service.persistence.RatingsStatsUtil;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
+import java.io.Serializable;
+
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Shuyang Zhou
@@ -48,9 +53,14 @@ public class RatingsStatsFinderImpl
 		new String[] {Long.class.getName(), List.class.getName()});
 
 	@Override
-	public List<RatingsStats> findByC_C(long classNameId, List<Long> classPKs)
-		throws SystemException {
+	public Map<Serializable, RatingsStats> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
 
+		return RatingsStatsUtil.fetchByPrimaryKeys(primaryKeys);
+	}
+
+	@Override
+	public List<RatingsStats> findByC_C(long classNameId, List<Long> classPKs) {
 		Object[] finderArgs = new Object[] {
 			classNameId,
 			StringUtil.merge(classPKs.toArray(new Long[classPKs.size()]))

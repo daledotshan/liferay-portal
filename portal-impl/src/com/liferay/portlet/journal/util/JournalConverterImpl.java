@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -160,14 +161,15 @@ public class JournalConverterImpl implements JournalConverter {
 
 		Element rootElement = document.getRootElement();
 
-		String defaultLocale = rootElement.attributeValue("default-locale");
+		String defaultLanguageId = rootElement.attributeValue("default-locale");
 
 		List<Element> dynamicElementElements = rootElement.elements(
 			"dynamic-element");
 
 		for (Element dynamicElementElement : dynamicElementElements) {
 			addDDMFields(
-				dynamicElementElement, ddmStructure, ddmFields, defaultLocale);
+				dynamicElementElement, ddmStructure, ddmFields,
+				defaultLanguageId);
 		}
 
 		return ddmFields;
@@ -182,11 +184,18 @@ public class JournalConverterImpl implements JournalConverter {
 
 	@Override
 	public String getDDMXSD(String journalXSD) throws Exception {
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+		return getDDMXSD(journalXSD, defaultLocale);
+	}
+
+	@Override
+	public String getDDMXSD(String journalXSD, Locale defaultLocale)
+		throws Exception {
+
 		Document document = SAXReaderUtil.read(journalXSD);
 
 		Element rootElement = document.getRootElement();
-
-		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		rootElement.addAttribute("available-locales", defaultLocale.toString());
 		rootElement.addAttribute("default-locale", defaultLocale.toString());
@@ -195,7 +204,8 @@ public class JournalConverterImpl implements JournalConverter {
 			"dynamic-element");
 
 		for (Element dynamicElementElement : dynamicElementElements) {
-			updateJournalXSDDynamicElement(dynamicElementElement);
+			updateJournalXSDDynamicElement(
+				dynamicElementElement, defaultLocale.toString());
 		}
 
 		return DDMXMLUtil.formatXML(document);
@@ -207,7 +217,7 @@ public class JournalConverterImpl implements JournalConverter {
 
 		Element rootElement = document.getRootElement();
 
-		String defaultLocale = rootElement.attributeValue("default-locale");
+		String defaultLanguageId = rootElement.attributeValue("default-locale");
 
 		removeAttribute(rootElement, "available-locales");
 		removeAttribute(rootElement, "default-locale");
@@ -216,7 +226,8 @@ public class JournalConverterImpl implements JournalConverter {
 			"dynamic-element");
 
 		for (Element dynamicElementElement : dynamicElementElements) {
-			updateDDMXSDDynamicElement(dynamicElementElement, defaultLocale);
+			updateDDMXSDDynamicElement(
+				dynamicElementElement, defaultLanguageId);
 		}
 
 		return DDMXMLUtil.formatXML(document);
@@ -224,10 +235,11 @@ public class JournalConverterImpl implements JournalConverter {
 
 	protected void addDDMFields(
 			Element dynamicElementElement, DDMStructure ddmStructure,
-			Fields ddmFields, String defaultLocale)
+			Fields ddmFields, String defaultLanguageId)
 		throws Exception {
 
 		String name = dynamicElementElement.attributeValue("name");
+		String instanceId = dynamicElementElement.attributeValue("instance-id");
 
 		if (!ddmStructure.hasField(name)) {
 			return;
@@ -235,7 +247,7 @@ public class JournalConverterImpl implements JournalConverter {
 
 		if (!ddmStructure.isFieldTransient(name)) {
 			Field ddmField = getField(
-				dynamicElementElement, ddmStructure, defaultLocale);
+				dynamicElementElement, ddmStructure, defaultLanguageId);
 
 			String fieldName = ddmField.getName();
 
@@ -252,7 +264,7 @@ public class JournalConverterImpl implements JournalConverter {
 			}
 		}
 
-		updateFieldsDisplay(ddmFields, name);
+		updateFieldsDisplay(ddmFields, name, instanceId);
 
 		List<Element> childrenDynamicElementElements =
 			dynamicElementElement.elements("dynamic-element");
@@ -262,7 +274,7 @@ public class JournalConverterImpl implements JournalConverter {
 
 			addDDMFields(
 				childrenDynamicElementElement, ddmStructure, ddmFields,
-				defaultLocale);
+				defaultLanguageId);
 		}
 	}
 
@@ -381,13 +393,13 @@ public class JournalConverterImpl implements JournalConverter {
 
 	protected Field getField(
 			Element dynamicElementElement, DDMStructure ddmStructure,
-			String defaultLocale)
+			String defaultLanguageId)
 		throws Exception {
 
 		Field ddmField = new Field();
 
 		ddmField.setDDMStructureId(ddmStructure.getStructureId());
-		ddmField.setDefaultLocale(LocaleUtil.fromLanguageId(defaultLocale));
+		ddmField.setDefaultLocale(LocaleUtil.fromLanguageId(defaultLanguageId));
 
 		String name = dynamicElementElement.attributeValue("name");
 
@@ -400,8 +412,14 @@ public class JournalConverterImpl implements JournalConverter {
 			"dynamic-content");
 
 		for (Element dynamicContentElement : dynamicContentElements) {
-			Locale locale = LocaleUtil.fromLanguageId(
-				dynamicContentElement.attributeValue("language-id"));
+			Locale locale = LocaleUtil.fromLanguageId(defaultLanguageId);
+
+			String languageId = dynamicContentElement.attributeValue(
+				"language-id");
+
+			if (Validator.isNotNull(languageId)) {
+				locale = LocaleUtil.fromLanguageId(languageId);
+			}
 
 			Serializable serializable = getFieldValue(
 				dataType, type, dynamicContentElement);
@@ -410,6 +428,30 @@ public class JournalConverterImpl implements JournalConverter {
 		}
 
 		return ddmField;
+	}
+
+	protected String getFieldInstanceId(
+		Fields ddmFields, String fieldName, int index) {
+
+		Field fieldsDisplayField = ddmFields.get(DDMImpl.FIELDS_DISPLAY_NAME);
+
+		String prefix = fieldName.concat(DDMImpl.INSTANCE_SEPARATOR);
+
+		String[] fieldsDisplayValues = StringUtil.split(
+			(String)fieldsDisplayField.getValue());
+
+		for (String fieldsDisplayValue : fieldsDisplayValues) {
+			if (fieldsDisplayValue.startsWith(prefix)) {
+				index--;
+
+				if (index < 0) {
+					return StringUtil.extractLast(
+						fieldsDisplayValue, DDMImpl.INSTANCE_SEPARATOR);
+				}
+			}
+		}
+
+		return null;
 	}
 
 	protected Serializable getFieldValue(
@@ -433,6 +475,10 @@ public class JournalConverterImpl implements JournalConverter {
 		else if (DDMImpl.TYPE_DDM_LINK_TO_PAGE.equals(type)) {
 			String[] values = StringUtil.split(
 				dynamicContentElement.getText(), CharPool.AT);
+
+			if (ArrayUtil.isEmpty(values)) {
+				return StringPool.BLANK;
+			}
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -532,6 +578,12 @@ public class JournalConverterImpl implements JournalConverter {
 				childDynamicElementElement.addAttribute(
 					"index", String.valueOf(i));
 
+				String instanceId = getFieldInstanceId(
+					ddmFields, fieldName, (count + i));
+
+				childDynamicElementElement.addAttribute(
+					"instance-id", instanceId);
+
 				updateContentDynamicElement(
 					childDynamicElementElement, ddmStructure, ddmFields,
 					ddmFieldsCounter);
@@ -567,6 +619,10 @@ public class JournalConverterImpl implements JournalConverter {
 
 		dynamicElementElement.addAttribute("index", String.valueOf(count));
 
+		String instanceId = getFieldInstanceId(ddmFields, fieldName, count);
+
+		dynamicElementElement.addAttribute("instance-id", instanceId);
+
 		Field ddmField = ddmFields.get(fieldName);
 
 		if (!ddmStructure.isFieldTransient(fieldName) && (ddmField != null)) {
@@ -596,7 +652,7 @@ public class JournalConverterImpl implements JournalConverter {
 	}
 
 	protected void updateDDMXSDDynamicElement(
-		Element dynamicElementElement, String defaultLocale) {
+		Element dynamicElementElement, String defaultLanguageId) {
 
 		// Metadata
 
@@ -604,9 +660,9 @@ public class JournalConverterImpl implements JournalConverter {
 			"meta-data");
 
 		for (Element metadataElement : metadataElements) {
-			String locale = metadataElement.attributeValue("locale");
+			String languageId = metadataElement.attributeValue("locale");
 
-			if (locale.equals(defaultLocale)) {
+			if (languageId.equals(defaultLanguageId)) {
 				getJournalMetadataElement(metadataElement);
 			}
 			else {
@@ -621,21 +677,25 @@ public class JournalConverterImpl implements JournalConverter {
 		if (Validator.equals(parentType, "list") ||
 			Validator.equals(parentType, "multi-list")) {
 
+			Element metadataElement = dynamicElementElement.element(
+				"meta-data");
+
+			Element labelElement = fetchMetadataEntry(
+				metadataElement, "name", "label");
+
+			dynamicElementElement.addAttribute("name", labelElement.getText());
+
 			String repeatable = parentElement.attributeValue("repeatable");
+
+			dynamicElementElement.addAttribute("repeatable", repeatable);
 
 			String value = dynamicElementElement.attributeValue("value");
 
-			dynamicElementElement.addAttribute("name", value);
-			dynamicElementElement.addAttribute("repeatable", repeatable);
-			dynamicElementElement.addAttribute("type", "value");
+			dynamicElementElement.addAttribute("type", value);
 
 			removeAttribute(dynamicElementElement, "value");
 
-			for (Element metadataElement :
-					dynamicElementElement.elements("meta-data")) {
-
-				dynamicElementElement.remove(metadataElement);
-			}
+			dynamicElementElement.remove(metadataElement);
 
 			return;
 		}
@@ -682,7 +742,7 @@ public class JournalConverterImpl implements JournalConverter {
 				childrenDynamicElementElements) {
 
 			updateDDMXSDDynamicElement(
-				childrenDynamicElementElement, defaultLocale);
+				childrenDynamicElementElement, defaultLanguageId);
 		}
 	}
 
@@ -789,10 +849,15 @@ public class JournalConverterImpl implements JournalConverter {
 		}
 	}
 
-	protected void updateFieldsDisplay(Fields ddmFields, String fieldName) {
-		String fieldsDisplayValue =
-			fieldName.concat(DDMImpl.INSTANCE_SEPARATOR).concat(
-				StringUtil.randomString());
+	protected void updateFieldsDisplay(
+		Fields ddmFields, String fieldName, String instanceId) {
+
+		if (Validator.isNull(instanceId)) {
+			instanceId = StringUtil.randomString();
+		}
+
+		String fieldsDisplayValue = fieldName.concat(
+			DDMImpl.INSTANCE_SEPARATOR).concat(instanceId);
 
 		Field fieldsDisplayField = ddmFields.get(DDMImpl.FIELDS_DISPLAY_NAME);
 
@@ -807,6 +872,13 @@ public class JournalConverterImpl implements JournalConverter {
 
 	protected void updateJournalXSDDynamicElement(Element element) {
 		Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+		updateJournalXSDDynamicElement(
+			element, LocaleUtil.toLanguageId(defaultLocale));
+	}
+
+	protected void updateJournalXSDDynamicElement(
+		Element element, String defaultLanguageId) {
 
 		String name = element.attributeValue("name");
 		String type = element.attributeValue("type");
@@ -826,14 +898,16 @@ public class JournalConverterImpl implements JournalConverter {
 			String parentType = parentElement.attributeValue("type");
 
 			if ((parentType != null) && parentType.equals("select")) {
-				metadataElement.addAttribute(
-					"locale", defaultLocale.toString());
+				metadataElement.addAttribute("locale", defaultLanguageId);
 
-				addMetadataEntry(metadataElement, "label", name);
+				addMetadataEntry(
+					metadataElement, "label", HttpUtil.decodeURL(name));
+
+				removeAttribute(element, "index-type");
 
 				element.addAttribute("name", "option" + StringUtil.randomId());
 				element.addAttribute("type", "option");
-				element.addAttribute("value", name);
+				element.addAttribute("value", HttpUtil.decodeURL(type));
 
 				return;
 			}
@@ -888,7 +962,7 @@ public class JournalConverterImpl implements JournalConverter {
 			element.addAttribute("fieldNamespace", "ddm");
 		}
 
-		metadataElement.addAttribute("locale", defaultLocale.toString());
+		metadataElement.addAttribute("locale", defaultLanguageId);
 
 		List<Element> entryElements = metadataElement.elements();
 
@@ -923,11 +997,14 @@ public class JournalConverterImpl implements JournalConverter {
 			element.addAttribute("readOnly", "false");
 		}
 
+		element.add(metadataElement.detach());
+
 		List<Element> dynamicElementElements = element.elements(
 			"dynamic-element");
 
 		for (Element dynamicElementElement : dynamicElementElements) {
-			updateJournalXSDDynamicElement(dynamicElementElement);
+			updateJournalXSDDynamicElement(
+				dynamicElementElement, defaultLanguageId);
 		}
 	}
 

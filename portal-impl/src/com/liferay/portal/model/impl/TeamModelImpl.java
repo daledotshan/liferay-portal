@@ -14,9 +14,10 @@
 
 package com.liferay.portal.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -57,6 +58,7 @@ import java.util.Map;
  * @generated
  */
 @JSON(strict = true)
+@ProviderType
 public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -92,8 +94,8 @@ public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portal.model.Team"),
 			true);
-	public static long GROUPID_COLUMN_BITMASK = 1L;
-	public static long NAME_COLUMN_BITMASK = 2L;
+	public static final long GROUPID_COLUMN_BITMASK = 1L;
+	public static final long NAME_COLUMN_BITMASK = 2L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -323,7 +325,7 @@ public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -693,8 +695,10 @@ public class TeamModelImpl extends BaseModelImpl<Team> implements TeamModel {
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = Team.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] { Team.class };
+	private static final ClassLoader _classLoader = Team.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
+			Team.class
+		};
 	private long _mvccVersion;
 	private long _teamId;
 	private long _companyId;

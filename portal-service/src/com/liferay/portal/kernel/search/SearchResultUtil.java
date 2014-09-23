@@ -15,7 +15,6 @@
 package com.liferay.portal.kernel.search;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -160,7 +159,7 @@ public class SearchResultUtil {
 			Document document, String className, long classPK, Locale locale,
 			PortletURL portletURL, PortletRequest portletRequest,
 			PortletResponse portletResponse)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Indexer indexer = IndexerRegistryUtil.getIndexer(className);
 
@@ -168,8 +167,7 @@ public class SearchResultUtil {
 			String snippet = document.get(Field.SNIPPET);
 
 			return indexer.getSummary(
-				document, locale, snippet, portletURL, portletRequest,
-				portletResponse);
+				document, snippet, portletURL, portletRequest, portletResponse);
 		}
 
 		return getSummary(className, classPK, locale, portletURL);
@@ -178,7 +176,7 @@ public class SearchResultUtil {
 	protected static Summary getSummary(
 			String className, long classPK, Locale locale,
 			PortletURL portletURL)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		AssetRendererFactory assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
@@ -199,11 +197,13 @@ public class SearchResultUtil {
 			assetRenderer.getTitle(locale),
 			assetRenderer.getSearchSummary(locale), portletURL);
 
-		summary.setMaxContentLength(200);
+		summary.setMaxContentLength(SUMMARY_MAX_CONTENT_LENGTH);
 		summary.setPortletURL(portletURL);
 
 		return summary;
 	}
+
+	protected static final int SUMMARY_MAX_CONTENT_LENGTH = 200;
 
 	private static Log _log = LogFactoryUtil.getLog(SearchResultUtil.class);
 

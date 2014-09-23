@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -49,11 +51,11 @@ import com.liferay.portal.service.BackgroundTaskServiceUtil;
  * @see com.liferay.portal.service.BackgroundTaskServiceUtil
  * @generated
  */
+@ProviderType
 public class BackgroundTaskServiceHttp {
 	public static int getBackgroundTasksCount(HttpPrincipal httpPrincipal,
 		long groupId, java.lang.String taskExecutorClassName,
-		java.lang.String completed)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		java.lang.String completed) {
 		try {
 			MethodKey methodKey = new MethodKey(BackgroundTaskServiceUtil.class,
 					"getBackgroundTasksCount",
@@ -68,10 +70,6 @@ public class BackgroundTaskServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -85,8 +83,7 @@ public class BackgroundTaskServiceHttp {
 	}
 
 	public static java.lang.String getBackgroundTaskStatusJSON(
-		HttpPrincipal httpPrincipal, long backgroundTaskId)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		HttpPrincipal httpPrincipal, long backgroundTaskId) {
 		try {
 			MethodKey methodKey = new MethodKey(BackgroundTaskServiceUtil.class,
 					"getBackgroundTaskStatusJSON",

@@ -14,17 +14,13 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.kernel.bean.ClassLoaderBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.cmis.CMISRepositoryHandler;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.repository.cmis.CMISRepository;
-import com.liferay.portal.repository.proxy.BaseRepositoryProxyBean;
 import com.liferay.portal.service.base.CMISRepositoryLocalServiceBaseImpl;
 
 import org.apache.chemistry.opencmis.client.api.Document;
@@ -36,9 +32,7 @@ public class CMISRepositoryLocalServiceImpl
 	extends CMISRepositoryLocalServiceBaseImpl {
 
 	@Override
-	public Object getSession(long repositoryId)
-		throws PortalException, SystemException {
-
+	public Object getSession(long repositoryId) throws PortalException {
 		CMISRepository cmisRepository = getCmisRepository(repositoryId);
 
 		return cmisRepository.getSession();
@@ -46,7 +40,7 @@ public class CMISRepositoryLocalServiceImpl
 
 	@Override
 	public FileEntry toFileEntry(long repositoryId, Object object)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		CMISRepository cmisRepository = getCmisRepository(repositoryId);
 
@@ -57,7 +51,7 @@ public class CMISRepositoryLocalServiceImpl
 
 	@Override
 	public FileVersion toFileVersion(long repositoryId, Object object)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		CMISRepository cmisRepository = getCmisRepository(repositoryId);
 
@@ -68,7 +62,7 @@ public class CMISRepositoryLocalServiceImpl
 
 	@Override
 	public Folder toFolder(long repositoryId, Object object)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		CMISRepository cmisRepository = getCmisRepository(repositoryId);
 
@@ -79,35 +73,15 @@ public class CMISRepositoryLocalServiceImpl
 	}
 
 	protected CMISRepository getCmisRepository(long repositoryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Repository repositoryImpl = repositoryLocalService.getRepositoryImpl(
 			repositoryId);
 
-		CMISRepositoryHandler cmisRepositoryHandler = null;
+		CMISRepositoryHandler cmisRepositoryHandler =
+			repositoryImpl.getCapability(CMISRepositoryHandler.class);
 
-		if (repositoryImpl instanceof CMISRepositoryHandler) {
-			cmisRepositoryHandler = (CMISRepositoryHandler)repositoryImpl;
-		}
-		else if (repositoryImpl instanceof BaseRepositoryProxyBean) {
-			BaseRepositoryProxyBean baseRepositoryProxyBean =
-				(BaseRepositoryProxyBean)repositoryImpl;
-
-			ClassLoaderBeanHandler classLoaderBeanHandler =
-				(ClassLoaderBeanHandler)ProxyUtil.getInvocationHandler(
-					baseRepositoryProxyBean.getProxyBean());
-
-			Object bean = classLoaderBeanHandler.getBean();
-
-			if (bean instanceof CMISRepositoryHandler) {
-				cmisRepositoryHandler = (CMISRepositoryHandler)bean;
-			}
-		}
-
-		CMISRepository cmisRepository =
-			(CMISRepository)cmisRepositoryHandler.getCmisRepository();
-
-		return cmisRepository;
+		return (CMISRepository)cmisRepositoryHandler.getCmisRepository();
 	}
 
 }

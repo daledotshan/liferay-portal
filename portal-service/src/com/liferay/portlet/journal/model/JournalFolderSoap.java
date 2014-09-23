@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.journal.model;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import java.util.List;
  * @see com.liferay.portlet.journal.service.http.JournalFolderServiceSoap
  * @generated
  */
+@ProviderType
 public class JournalFolderSoap implements Serializable {
 	public static JournalFolderSoap toSoapModel(JournalFolder model) {
 		JournalFolderSoap soapModel = new JournalFolderSoap();
@@ -43,6 +46,7 @@ public class JournalFolderSoap implements Serializable {
 		soapModel.setTreePath(model.getTreePath());
 		soapModel.setName(model.getName());
 		soapModel.setDescription(model.getDescription());
+		soapModel.setRestrictionType(model.getRestrictionType());
 		soapModel.setStatus(model.getStatus());
 		soapModel.setStatusByUserId(model.getStatusByUserId());
 		soapModel.setStatusByUserName(model.getStatusByUserName());
@@ -195,6 +199,14 @@ public class JournalFolderSoap implements Serializable {
 		_description = description;
 	}
 
+	public int getRestrictionType() {
+		return _restrictionType;
+	}
+
+	public void setRestrictionType(int restrictionType) {
+		_restrictionType = restrictionType;
+	}
+
 	public int getStatus() {
 		return _status;
 	}
@@ -239,6 +251,7 @@ public class JournalFolderSoap implements Serializable {
 	private String _treePath;
 	private String _name;
 	private String _description;
+	private int _restrictionType;
 	private int _status;
 	private long _statusByUserId;
 	private String _statusByUserName;

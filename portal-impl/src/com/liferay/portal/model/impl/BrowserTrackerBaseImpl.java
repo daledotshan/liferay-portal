@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.BrowserTracker;
 import com.liferay.portal.service.BrowserTrackerLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.BrowserTrackerLocalServiceUtil;
  * @see com.liferay.portal.model.BrowserTracker
  * @generated
  */
+@ProviderType
 public abstract class BrowserTrackerBaseImpl extends BrowserTrackerModelImpl
 	implements BrowserTracker {
 	/*
@@ -38,7 +40,7 @@ public abstract class BrowserTrackerBaseImpl extends BrowserTrackerModelImpl
 	 * Never modify or reference this class directly. All methods that expect a browser tracker model instance should use the {@link BrowserTracker} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			BrowserTrackerLocalServiceUtil.addBrowserTracker(this);
 		}

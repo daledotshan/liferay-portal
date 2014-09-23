@@ -14,12 +14,16 @@
 
 package com.liferay.portlet.documentlibrary.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -59,6 +63,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements DLFileEntryMetadataLocalService,
 		IdentifiableBean {
@@ -73,12 +78,11 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 *
 	 * @param dlFileEntryMetadata the document library file entry metadata
 	 * @return the document library file entry metadata that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public DLFileEntryMetadata addDLFileEntryMetadata(
-		DLFileEntryMetadata dlFileEntryMetadata) throws SystemException {
+		DLFileEntryMetadata dlFileEntryMetadata) {
 		dlFileEntryMetadata.setNew(true);
 
 		return dlFileEntryMetadataPersistence.update(dlFileEntryMetadata);
@@ -102,12 +106,11 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 * @param fileEntryMetadataId the primary key of the document library file entry metadata
 	 * @return the document library file entry metadata that was removed
 	 * @throws PortalException if a document library file entry metadata with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public DLFileEntryMetadata deleteDLFileEntryMetadata(
-		long fileEntryMetadataId) throws PortalException, SystemException {
+		long fileEntryMetadataId) throws PortalException {
 		return dlFileEntryMetadataPersistence.remove(fileEntryMetadataId);
 	}
 
@@ -116,12 +119,11 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 *
 	 * @param dlFileEntryMetadata the document library file entry metadata
 	 * @return the document library file entry metadata that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public DLFileEntryMetadata deleteDLFileEntryMetadata(
-		DLFileEntryMetadata dlFileEntryMetadata) throws SystemException {
+		DLFileEntryMetadata dlFileEntryMetadata) {
 		return dlFileEntryMetadataPersistence.remove(dlFileEntryMetadata);
 	}
 
@@ -138,12 +140,9 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return dlFileEntryMetadataPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -158,12 +157,10 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return dlFileEntryMetadataPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end);
 	}
@@ -180,12 +177,10 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return dlFileEntryMetadataPersistence.findWithDynamicQuery(dynamicQuery,
 			start, end, orderByComparator);
 	}
@@ -195,11 +190,9 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return dlFileEntryMetadataPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -209,18 +202,17 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return dlFileEntryMetadataPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
 	public DLFileEntryMetadata fetchDLFileEntryMetadata(
-		long fileEntryMetadataId) throws SystemException {
+		long fileEntryMetadataId) {
 		return dlFileEntryMetadataPersistence.fetchByPrimaryKey(fileEntryMetadataId);
 	}
 
@@ -230,17 +222,47 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 * @param fileEntryMetadataId the primary key of the document library file entry metadata
 	 * @return the document library file entry metadata
 	 * @throws PortalException if a document library file entry metadata with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLFileEntryMetadata getDLFileEntryMetadata(long fileEntryMetadataId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return dlFileEntryMetadataPersistence.findByPrimaryKey(fileEntryMetadataId);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(DLFileEntryMetadata.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("fileEntryMetadataId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(DLFileEntryMetadata.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("fileEntryMetadataId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return dlFileEntryMetadataLocalService.deleteDLFileEntryMetadata((DLFileEntryMetadata)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return dlFileEntryMetadataPersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -254,11 +276,9 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 * @param start the lower bound of the range of document library file entry metadatas
 	 * @param end the upper bound of the range of document library file entry metadatas (not inclusive)
 	 * @return the range of document library file entry metadatas
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DLFileEntryMetadata> getDLFileEntryMetadatas(int start, int end)
-		throws SystemException {
+	public List<DLFileEntryMetadata> getDLFileEntryMetadatas(int start, int end) {
 		return dlFileEntryMetadataPersistence.findAll(start, end);
 	}
 
@@ -266,10 +286,9 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 * Returns the number of document library file entry metadatas.
 	 *
 	 * @return the number of document library file entry metadatas
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getDLFileEntryMetadatasCount() throws SystemException {
+	public int getDLFileEntryMetadatasCount() {
 		return dlFileEntryMetadataPersistence.countAll();
 	}
 
@@ -278,12 +297,11 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 *
 	 * @param dlFileEntryMetadata the document library file entry metadata
 	 * @return the document library file entry metadata that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public DLFileEntryMetadata updateDLFileEntryMetadata(
-		DLFileEntryMetadata dlFileEntryMetadata) throws SystemException {
+		DLFileEntryMetadata dlFileEntryMetadata) {
 		return dlFileEntryMetadataPersistence.update(dlFileEntryMetadata);
 	}
 
@@ -558,7 +576,7 @@ public abstract class DLFileEntryMetadataLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = dlFileEntryMetadataPersistence.getDataSource();
 

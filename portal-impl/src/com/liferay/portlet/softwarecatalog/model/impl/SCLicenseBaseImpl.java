@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.softwarecatalog.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.softwarecatalog.model.SCLicense;
 import com.liferay.portlet.softwarecatalog.service.SCLicenseLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.softwarecatalog.service.SCLicenseLocalServiceUtil;
  * @see com.liferay.portlet.softwarecatalog.model.SCLicense
  * @generated
  */
+@ProviderType
 public abstract class SCLicenseBaseImpl extends SCLicenseModelImpl
 	implements SCLicense {
 	/*
@@ -39,7 +40,7 @@ public abstract class SCLicenseBaseImpl extends SCLicenseModelImpl
 	 * Never modify or reference this class directly. All methods that expect a s c license model instance should use the {@link SCLicense} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			SCLicenseLocalServiceUtil.addSCLicense(this);
 		}

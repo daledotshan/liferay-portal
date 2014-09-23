@@ -16,13 +16,10 @@ package com.liferay.portal.action;
 
 import com.liferay.portal.kernel.audit.AuditMessage;
 import com.liferay.portal.kernel.audit.AuditRouterUtil;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletContainerUtil;
-import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.MetaInfoCacheServletResponse;
-import com.liferay.portal.kernel.servlet.PipingServletResponse;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -37,7 +34,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.struts.ActionConstants;
-import com.liferay.portal.struts.StrutsUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
@@ -54,8 +50,6 @@ import java.util.Set;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -102,13 +96,13 @@ public class LayoutAction extends Action {
 			HttpServletRequest request, HttpServletResponse response)
 		throws Exception {
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		Boolean layoutDefault = (Boolean)request.getAttribute(
 			WebKeys.LAYOUT_DEFAULT);
 
 		if (Boolean.TRUE.equals(layoutDefault)) {
-			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
 			Layout requestedLayout = (Layout)request.getAttribute(
 				WebKeys.REQUESTED_LAYOUT);
 
@@ -187,6 +181,12 @@ public class LayoutAction extends Action {
 		}
 
 		if (plid > 0) {
+			Layout layout = themeDisplay.getLayout();
+
+			if (layout != null) {
+				plid = layout.getPlid();
+			}
+
 			ActionForward actionForward = processLayout(
 				actionMapping, request, response, plid);
 
@@ -246,57 +246,6 @@ public class LayoutAction extends Action {
 		}
 
 		request.setAttribute(WebKeys.FORWARD_URL, forwardURL);
-	}
-
-	protected void includeLayoutContent(
-			HttpServletRequest request, HttpServletResponse response,
-			ThemeDisplay themeDisplay, Layout layout, String portletId)
-		throws Exception {
-
-		ServletContext servletContext = (ServletContext)request.getAttribute(
-			WebKeys.CTX);
-
-		String path = StrutsUtil.TEXT_HTML_DIR;
-
-		if (BrowserSnifferUtil.isWap(request)) {
-			path = StrutsUtil.TEXT_WAP_DIR;
-		}
-
-		// Manually check the p_p_id. See LEP-1724.
-
-		if (Validator.isNotNull(portletId)) {
-			if (layout.isTypePanel()) {
-				path += "/portal/layout/view/panel.jsp";
-			}
-			else if (layout.isTypeControlPanel()) {
-				path += "/portal/layout/view/control_panel.jsp";
-			}
-			else {
-				path += "/portal/layout/view/portlet.jsp";
-			}
-		}
-		else {
-			path += PortalUtil.getLayoutViewPage(layout);
-		}
-
-		RequestDispatcher requestDispatcher =
-			servletContext.getRequestDispatcher(path);
-
-		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
-
-		PipingServletResponse pipingServletResponse = new PipingServletResponse(
-			response, unsyncStringWriter);
-
-		String contentType = pipingServletResponse.getContentType();
-
-		requestDispatcher.include(request, pipingServletResponse);
-
-		if (contentType != null) {
-			response.setContentType(contentType);
-		}
-
-		request.setAttribute(
-			WebKeys.LAYOUT_CONTENT, unsyncStringWriter.getStringBundler());
 	}
 
 	protected ActionForward processLayout(
@@ -386,14 +335,12 @@ public class LayoutAction extends Action {
 
 					return null;
 				}
-				else {
 
-					// Include layout content before the page loads because
-					// portlets on the page can set the page title and page
-					// subtitle
+				// Include layout content before the page loads because portlets
+				// on the page can set the page title and page subtitle
 
-					includeLayoutContent(
-						request, response, themeDisplay, layout, portletId);
+				if (layout.includeLayoutContent(request, response)) {
+					return null;
 				}
 			}
 

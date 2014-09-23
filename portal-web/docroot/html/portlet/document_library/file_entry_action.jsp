@@ -22,12 +22,6 @@ ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_
 FileEntry fileEntry = null;
 DLFileShortcut fileShortcut = null;
 
-boolean showWhenSingleIcon = false;
-
-if (portletId.equals(PortletKeys.DOCUMENT_LIBRARY)) {
-	showWhenSingleIcon = true;
-}
-
 if (row != null) {
 	Object result = row.getObject();
 
@@ -110,24 +104,41 @@ if (fileShortcut != null) {
 	fileEntry = DLAppLocalServiceUtil.getFileEntry(fileShortcut.getToFileEntryId());
 }
 
-DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(request, fileEntry);
+DLActionsDisplayContext dlActionsDisplayContext = new DLActionsDisplayContext(request, dlPortletInstanceSettings);
+DLFileVersionDisplayContext dlFileVersionDisplayContext = DLFileVersionDisplayContextUtil.getDLFileVersionActionsDisplayContext(request, response, fileEntry.getFileVersion());
 %>
 
 <liferay-util:buffer var="iconMenu">
-	<liferay-ui:icon-menu direction='<%= showMinimalActionButtons ? "down" : "left" %>' extended="<%= showMinimalActionButtons ? false : true %>" icon="<%= showMinimalActionButtons ? StringPool.BLANK : null %>" message='<%= showMinimalActionButtons ? StringPool.BLANK : "actions" %>' showExpanded="<%= false %>" showWhenSingleIcon="<%= showWhenSingleIcon %>" triggerCssClass="btn">
-		<%@ include file="/html/portlet/document_library/action/download.jspf" %>
-		<%@ include file="/html/portlet/document_library/action/open_document.jspf" %>
-		<%@ include file="/html/portlet/document_library/action/view_original.jspf" %>
-		<%@ include file="/html/portlet/document_library/action/edit.jspf" %>
-		<%@ include file="/html/portlet/document_library/action/move.jspf" %>
-		<%@ include file="/html/portlet/document_library/action/lock.jspf" %>
-		<%@ include file="/html/portlet/document_library/action/permissions.jspf" %>
-		<%@ include file="/html/portlet/document_library/action/delete.jspf" %>
+	<liferay-ui:icon-menu direction='<%= dlActionsDisplayContext.isShowMinimalActionsButton() ? "down" : "left" %>' extended="<%= dlActionsDisplayContext.isShowMinimalActionsButton() ? false : true %>" icon="<%= dlActionsDisplayContext.isShowMinimalActionsButton() ? StringPool.BLANK : null %>" message='<%= dlActionsDisplayContext.isShowMinimalActionsButton() ? StringPool.BLANK : "actions" %>' showExpanded="<%= false %>" showWhenSingleIcon="<%= dlActionsDisplayContext.isShowWhenSingleIconActionButton() %>" triggerCssClass="btn btn-default">
+		<c:choose>
+			<c:when test="<%= (fileShortcut == null) %>">
+
+				<%
+				for (MenuItem menuItem : dlFileVersionDisplayContext.getMenuItems()) {
+				%>
+
+					<liferay-ui:menu-item menuItem="<%= menuItem %>" />
+
+				<%
+				}
+				%>
+
+			</c:when>
+			<c:otherwise>
+				<%@ include file="/html/portlet/document_library/action/download.jspf" %>
+				<%@ include file="/html/portlet/document_library/action/open_document.jspf" %>
+				<%@ include file="/html/portlet/document_library/action/view_original.jspf" %>
+				<%@ include file="/html/portlet/document_library/action/edit.jspf" %>
+				<%@ include file="/html/portlet/document_library/action/move.jspf" %>
+				<%@ include file="/html/portlet/document_library/action/permissions.jspf" %>
+				<%@ include file="/html/portlet/document_library/action/delete.jspf" %>
+			</c:otherwise>
+		</c:choose>
 	</liferay-ui:icon-menu>
 </liferay-util:buffer>
 
 <c:choose>
-	<c:when test="<%= portletName.equals(PortletKeys.DOCUMENT_LIBRARY_DISPLAY) && !showMinimalActionButtons %>">
+	<c:when test="<%= portletName.equals(PortletKeys.DOCUMENT_LIBRARY_DISPLAY) && !dlActionsDisplayContext.isShowMinimalActionsButton() %>">
 
 		<%= iconMenu %>
 

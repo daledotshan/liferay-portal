@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.shopping.service.persistence.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
@@ -23,11 +25,8 @@ import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -35,7 +34,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -47,9 +45,12 @@ import com.liferay.portlet.shopping.service.persistence.ShoppingOrderPersistence
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -64,6 +65,7 @@ import java.util.Set;
  * @see ShoppingOrderUtil
  * @generated
  */
+@ProviderType
 public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOrder>
 	implements ShoppingOrderPersistence {
 	/*
@@ -114,11 +116,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param groupId the group ID
 	 * @return the matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingOrder> findByGroupId(long groupId)
-		throws SystemException {
+	public List<ShoppingOrder> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -133,11 +133,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param start the lower bound of the range of shopping orders
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @return the range of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingOrder> findByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<ShoppingOrder> findByGroupId(long groupId, int start, int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -153,11 +151,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -260,12 +257,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = fetchByGroupId_First(groupId,
 				orderByComparator);
 
@@ -291,11 +287,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		List<ShoppingOrder> list = findByGroupId(groupId, 0, 1,
 				orderByComparator);
 
@@ -313,12 +308,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = fetchByGroupId_Last(groupId,
 				orderByComparator);
 
@@ -344,11 +338,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -373,12 +366,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder[] findByGroupId_PrevAndNext(long orderId,
-		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		long groupId, OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = findByPrimaryKey(orderId);
 
 		Session session = null;
@@ -408,7 +400,7 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 
 	protected ShoppingOrder getByGroupId_PrevAndNext(Session session,
 		ShoppingOrder shoppingOrder, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<ShoppingOrder> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -516,11 +508,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param groupId the group ID
 	 * @return the matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingOrder> filterFindByGroupId(long groupId)
-		throws SystemException {
+	public List<ShoppingOrder> filterFindByGroupId(long groupId) {
 		return filterFindByGroupId(groupId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -536,11 +526,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param start the lower bound of the range of shopping orders
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @return the range of matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> filterFindByGroupId(long groupId, int start,
-		int end) throws SystemException {
+		int end) {
 		return filterFindByGroupId(groupId, start, end, null);
 	}
 
@@ -556,11 +545,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> filterFindByGroupId(long groupId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<ShoppingOrder> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
@@ -648,12 +636,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder[] filterFindByGroupId_PrevAndNext(long orderId,
-		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		long groupId, OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId_PrevAndNext(orderId, groupId, orderByComparator);
 		}
@@ -687,7 +674,7 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 
 	protected ShoppingOrder filterGetByGroupId_PrevAndNext(Session session,
 		ShoppingOrder shoppingOrder, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<ShoppingOrder> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -829,10 +816,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * Removes all the shopping orders where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (ShoppingOrder shoppingOrder : findByGroupId(groupId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(shoppingOrder);
@@ -844,10 +830,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -897,10 +882,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByGroupId(long groupId) throws SystemException {
+	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
 		}
@@ -958,11 +942,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param number the number
 	 * @return the matching shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByNumber(String number)
-		throws NoSuchOrderException, SystemException {
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = fetchByNumber(number);
 
 		if (shoppingOrder == null) {
@@ -990,10 +973,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param number the number
 	 * @return the matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingOrder fetchByNumber(String number) throws SystemException {
+	public ShoppingOrder fetchByNumber(String number) {
 		return fetchByNumber(number, true);
 	}
 
@@ -1003,11 +985,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param number the number
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingOrder fetchByNumber(String number, boolean retrieveFromCache)
-		throws SystemException {
+	public ShoppingOrder fetchByNumber(String number, boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { number };
 
 		Object result = null;
@@ -1103,11 +1083,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param number the number
 	 * @return the shopping order that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder removeByNumber(String number)
-		throws NoSuchOrderException, SystemException {
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = findByNumber(number);
 
 		return remove(shoppingOrder);
@@ -1118,10 +1097,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param number the number
 	 * @return the number of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByNumber(String number) throws SystemException {
+	public int countByNumber(String number) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_NUMBER;
 
 		Object[] finderArgs = new Object[] { number };
@@ -1199,11 +1177,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param ppTxnId the pp txn ID
 	 * @return the matching shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByPPTxnId(String ppTxnId)
-		throws NoSuchOrderException, SystemException {
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = fetchByPPTxnId(ppTxnId);
 
 		if (shoppingOrder == null) {
@@ -1231,11 +1208,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param ppTxnId the pp txn ID
 	 * @return the matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingOrder fetchByPPTxnId(String ppTxnId)
-		throws SystemException {
+	public ShoppingOrder fetchByPPTxnId(String ppTxnId) {
 		return fetchByPPTxnId(ppTxnId, true);
 	}
 
@@ -1245,11 +1220,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param ppTxnId the pp txn ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder fetchByPPTxnId(String ppTxnId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { ppTxnId };
 
 		Object result = null;
@@ -1352,11 +1326,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param ppTxnId the pp txn ID
 	 * @return the shopping order that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder removeByPPTxnId(String ppTxnId)
-		throws NoSuchOrderException, SystemException {
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = findByPPTxnId(ppTxnId);
 
 		return remove(shoppingOrder);
@@ -1367,10 +1340,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param ppTxnId the pp txn ID
 	 * @return the number of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByPPTxnId(String ppTxnId) throws SystemException {
+	public int countByPPTxnId(String ppTxnId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_PPTXNID;
 
 		Object[] finderArgs = new Object[] { ppTxnId };
@@ -1471,11 +1443,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param userId the user ID
 	 * @param ppPaymentStatus the pp payment status
 	 * @return the matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> findByG_U_PPPS(long groupId, long userId,
-		String ppPaymentStatus) throws SystemException {
+		String ppPaymentStatus) {
 		return findByG_U_PPPS(groupId, userId, ppPaymentStatus,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -1493,11 +1464,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param start the lower bound of the range of shopping orders
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @return the range of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> findByG_U_PPPS(long groupId, long userId,
-		String ppPaymentStatus, int start, int end) throws SystemException {
+		String ppPaymentStatus, int start, int end) {
 		return findByG_U_PPPS(groupId, userId, ppPaymentStatus, start, end, null);
 	}
 
@@ -1515,12 +1485,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> findByG_U_PPPS(long groupId, long userId,
 		String ppPaymentStatus, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1654,12 +1623,12 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByG_U_PPPS_First(long groupId, long userId,
-		String ppPaymentStatus, OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		String ppPaymentStatus,
+		OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = fetchByG_U_PPPS_First(groupId, userId,
 				ppPaymentStatus, orderByComparator);
 
@@ -1693,12 +1662,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param ppPaymentStatus the pp payment status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder fetchByG_U_PPPS_First(long groupId, long userId,
-		String ppPaymentStatus, OrderByComparator orderByComparator)
-		throws SystemException {
+		String ppPaymentStatus,
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		List<ShoppingOrder> list = findByG_U_PPPS(groupId, userId,
 				ppPaymentStatus, 0, 1, orderByComparator);
 
@@ -1718,12 +1686,12 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByG_U_PPPS_Last(long groupId, long userId,
-		String ppPaymentStatus, OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		String ppPaymentStatus,
+		OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = fetchByG_U_PPPS_Last(groupId, userId,
 				ppPaymentStatus, orderByComparator);
 
@@ -1757,12 +1725,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param ppPaymentStatus the pp payment status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching shopping order, or <code>null</code> if a matching shopping order could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder fetchByG_U_PPPS_Last(long groupId, long userId,
-		String ppPaymentStatus, OrderByComparator orderByComparator)
-		throws SystemException {
+		String ppPaymentStatus,
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		int count = countByG_U_PPPS(groupId, userId, ppPaymentStatus);
 
 		if (count == 0) {
@@ -1789,13 +1756,12 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder[] findByG_U_PPPS_PrevAndNext(long orderId,
 		long groupId, long userId, String ppPaymentStatus,
-		OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = findByPrimaryKey(orderId);
 
 		Session session = null;
@@ -1825,8 +1791,8 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 
 	protected ShoppingOrder getByG_U_PPPS_PrevAndNext(Session session,
 		ShoppingOrder shoppingOrder, long groupId, long userId,
-		String ppPaymentStatus, OrderByComparator orderByComparator,
-		boolean previous) {
+		String ppPaymentStatus,
+		OrderByComparator<ShoppingOrder> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1958,11 +1924,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param userId the user ID
 	 * @param ppPaymentStatus the pp payment status
 	 * @return the matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> filterFindByG_U_PPPS(long groupId, long userId,
-		String ppPaymentStatus) throws SystemException {
+		String ppPaymentStatus) {
 		return filterFindByG_U_PPPS(groupId, userId, ppPaymentStatus,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -1980,11 +1945,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param start the lower bound of the range of shopping orders
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @return the range of matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> filterFindByG_U_PPPS(long groupId, long userId,
-		String ppPaymentStatus, int start, int end) throws SystemException {
+		String ppPaymentStatus, int start, int end) {
 		return filterFindByG_U_PPPS(groupId, userId, ppPaymentStatus, start,
 			end, null);
 	}
@@ -2003,12 +1967,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> filterFindByG_U_PPPS(long groupId, long userId,
 		String ppPaymentStatus, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_U_PPPS(groupId, userId, ppPaymentStatus, start, end,
 				orderByComparator);
@@ -2121,13 +2084,12 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder[] filterFindByG_U_PPPS_PrevAndNext(long orderId,
 		long groupId, long userId, String ppPaymentStatus,
-		OrderByComparator orderByComparator)
-		throws NoSuchOrderException, SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator)
+		throws NoSuchOrderException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_U_PPPS_PrevAndNext(orderId, groupId, userId,
 				ppPaymentStatus, orderByComparator);
@@ -2162,8 +2124,8 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 
 	protected ShoppingOrder filterGetByG_U_PPPS_PrevAndNext(Session session,
 		ShoppingOrder shoppingOrder, long groupId, long userId,
-		String ppPaymentStatus, OrderByComparator orderByComparator,
-		boolean previous) {
+		String ppPaymentStatus,
+		OrderByComparator<ShoppingOrder> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2329,11 +2291,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param groupId the group ID
 	 * @param userId the user ID
 	 * @param ppPaymentStatus the pp payment status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByG_U_PPPS(long groupId, long userId,
-		String ppPaymentStatus) throws SystemException {
+		String ppPaymentStatus) {
 		for (ShoppingOrder shoppingOrder : findByG_U_PPPS(groupId, userId,
 				ppPaymentStatus, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(shoppingOrder);
@@ -2347,11 +2308,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param userId the user ID
 	 * @param ppPaymentStatus the pp payment status
 	 * @return the number of matching shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_U_PPPS(long groupId, long userId, String ppPaymentStatus)
-		throws SystemException {
+	public int countByG_U_PPPS(long groupId, long userId, String ppPaymentStatus) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_U_PPPS;
 
 		Object[] finderArgs = new Object[] { groupId, userId, ppPaymentStatus };
@@ -2425,11 +2384,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param userId the user ID
 	 * @param ppPaymentStatus the pp payment status
 	 * @return the number of matching shopping orders that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int filterCountByG_U_PPPS(long groupId, long userId,
-		String ppPaymentStatus) throws SystemException {
+		String ppPaymentStatus) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U_PPPS(groupId, userId, ppPaymentStatus);
 		}
@@ -2685,11 +2643,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderId the primary key of the shopping order
 	 * @return the shopping order that was removed
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingOrder remove(long orderId)
-		throws NoSuchOrderException, SystemException {
+	public ShoppingOrder remove(long orderId) throws NoSuchOrderException {
 		return remove((Serializable)orderId);
 	}
 
@@ -2699,11 +2655,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param primaryKey the primary key of the shopping order
 	 * @return the shopping order that was removed
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder remove(Serializable primaryKey)
-		throws NoSuchOrderException, SystemException {
+		throws NoSuchOrderException {
 		Session session = null;
 
 		try {
@@ -2735,8 +2690,7 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	}
 
 	@Override
-	protected ShoppingOrder removeImpl(ShoppingOrder shoppingOrder)
-		throws SystemException {
+	protected ShoppingOrder removeImpl(ShoppingOrder shoppingOrder) {
 		shoppingOrder = toUnwrappedModel(shoppingOrder);
 
 		Session session = null;
@@ -2769,8 +2723,7 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 
 	@Override
 	public ShoppingOrder updateImpl(
-		com.liferay.portlet.shopping.model.ShoppingOrder shoppingOrder)
-		throws SystemException {
+		com.liferay.portlet.shopping.model.ShoppingOrder shoppingOrder) {
 		shoppingOrder = toUnwrappedModel(shoppingOrder);
 
 		boolean isNew = shoppingOrder.isNew();
@@ -2929,11 +2882,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param primaryKey the primary key of the shopping order
 	 * @return the shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchOrderException, SystemException {
+		throws NoSuchOrderException {
 		ShoppingOrder shoppingOrder = fetchByPrimaryKey(primaryKey);
 
 		if (shoppingOrder == null) {
@@ -2954,11 +2906,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param orderId the primary key of the shopping order
 	 * @return the shopping order
 	 * @throws com.liferay.portlet.shopping.NoSuchOrderException if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public ShoppingOrder findByPrimaryKey(long orderId)
-		throws NoSuchOrderException, SystemException {
+		throws NoSuchOrderException {
 		return findByPrimaryKey((Serializable)orderId);
 	}
 
@@ -2967,11 +2918,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param primaryKey the primary key of the shopping order
 	 * @return the shopping order, or <code>null</code> if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingOrder fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public ShoppingOrder fetchByPrimaryKey(Serializable primaryKey) {
 		ShoppingOrder shoppingOrder = (ShoppingOrder)EntityCacheUtil.getResult(ShoppingOrderModelImpl.ENTITY_CACHE_ENABLED,
 				ShoppingOrderImpl.class, primaryKey);
 
@@ -3015,22 +2964,111 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 *
 	 * @param orderId the primary key of the shopping order
 	 * @return the shopping order, or <code>null</code> if a shopping order with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public ShoppingOrder fetchByPrimaryKey(long orderId)
-		throws SystemException {
+	public ShoppingOrder fetchByPrimaryKey(long orderId) {
 		return fetchByPrimaryKey((Serializable)orderId);
+	}
+
+	@Override
+	public Map<Serializable, ShoppingOrder> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, ShoppingOrder> map = new HashMap<Serializable, ShoppingOrder>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			ShoppingOrder shoppingOrder = fetchByPrimaryKey(primaryKey);
+
+			if (shoppingOrder != null) {
+				map.put(primaryKey, shoppingOrder);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			ShoppingOrder shoppingOrder = (ShoppingOrder)EntityCacheUtil.getResult(ShoppingOrderModelImpl.ENTITY_CACHE_ENABLED,
+					ShoppingOrderImpl.class, primaryKey);
+
+			if (shoppingOrder == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, shoppingOrder);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_SHOPPINGORDER_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (ShoppingOrder shoppingOrder : (List<ShoppingOrder>)q.list()) {
+				map.put(shoppingOrder.getPrimaryKeyObj(), shoppingOrder);
+
+				cacheResult(shoppingOrder);
+
+				uncachedPrimaryKeys.remove(shoppingOrder.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(ShoppingOrderModelImpl.ENTITY_CACHE_ENABLED,
+					ShoppingOrderImpl.class, primaryKey, _nullShoppingOrder);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the shopping orders.
 	 *
 	 * @return the shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingOrder> findAll() throws SystemException {
+	public List<ShoppingOrder> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -3044,11 +3082,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param start the lower bound of the range of shopping orders
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @return the range of shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<ShoppingOrder> findAll(int start, int end)
-		throws SystemException {
+	public List<ShoppingOrder> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -3063,11 +3099,10 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * @param end the upper bound of the range of shopping orders (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<ShoppingOrder> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<ShoppingOrder> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3149,10 +3184,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	/**
 	 * Removes all the shopping orders from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (ShoppingOrder shoppingOrder : findAll()) {
 			remove(shoppingOrder);
 		}
@@ -3162,10 +3196,9 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * Returns the number of shopping orders.
 	 *
 	 * @return the number of shopping orders
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -3205,25 +3238,6 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	 * Initializes the shopping order persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.shopping.model.ShoppingOrder")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<ShoppingOrder>> listenersList = new ArrayList<ModelListener<ShoppingOrder>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<ShoppingOrder>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -3234,6 +3248,7 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	}
 
 	private static final String _SQL_SELECT_SHOPPINGORDER = "SELECT shoppingOrder FROM ShoppingOrder shoppingOrder";
+	private static final String _SQL_SELECT_SHOPPINGORDER_WHERE_PKS_IN = "SELECT shoppingOrder FROM ShoppingOrder shoppingOrder WHERE orderId IN (";
 	private static final String _SQL_SELECT_SHOPPINGORDER_WHERE = "SELECT shoppingOrder FROM ShoppingOrder shoppingOrder WHERE ";
 	private static final String _SQL_COUNT_SHOPPINGORDER = "SELECT COUNT(shoppingOrder) FROM ShoppingOrder shoppingOrder";
 	private static final String _SQL_COUNT_SHOPPINGORDER_WHERE = "SELECT COUNT(shoppingOrder) FROM ShoppingOrder shoppingOrder WHERE ";
@@ -3251,11 +3266,11 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No ShoppingOrder exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No ShoppingOrder exists with the key {";
 	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
-	private static Log _log = LogFactoryUtil.getLog(ShoppingOrderPersistenceImpl.class);
-	private static Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
+	private static final Log _log = LogFactoryUtil.getLog(ShoppingOrderPersistenceImpl.class);
+	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"number"
 			});
-	private static ShoppingOrder _nullShoppingOrder = new ShoppingOrderImpl() {
+	private static final ShoppingOrder _nullShoppingOrder = new ShoppingOrderImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -3267,7 +3282,7 @@ public class ShoppingOrderPersistenceImpl extends BasePersistenceImpl<ShoppingOr
 			}
 		};
 
-	private static CacheModel<ShoppingOrder> _nullShoppingOrderCacheModel = new CacheModel<ShoppingOrder>() {
+	private static final CacheModel<ShoppingOrder> _nullShoppingOrderCacheModel = new CacheModel<ShoppingOrder>() {
 			@Override
 			public ShoppingOrder toEntityModel() {
 				return _nullShoppingOrder;

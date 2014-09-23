@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.mobiledevicerules.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.mobiledevicerules.model.MDRRule;
 import com.liferay.portlet.mobiledevicerules.service.MDRRuleLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.mobiledevicerules.service.MDRRuleLocalServiceUtil;
  * @see com.liferay.portlet.mobiledevicerules.model.MDRRule
  * @generated
  */
+@ProviderType
 public abstract class MDRRuleBaseImpl extends MDRRuleModelImpl
 	implements MDRRule {
 	/*
@@ -39,7 +40,7 @@ public abstract class MDRRuleBaseImpl extends MDRRuleModelImpl
 	 * Never modify or reference this class directly. All methods that expect a m d r rule model instance should use the {@link MDRRule} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			MDRRuleLocalServiceUtil.addMDRRule(this);
 		}

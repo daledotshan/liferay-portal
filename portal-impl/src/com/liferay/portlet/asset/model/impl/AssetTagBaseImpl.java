@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.asset.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.asset.model.AssetTag;
 import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
  * @see com.liferay.portlet.asset.model.AssetTag
  * @generated
  */
+@ProviderType
 public abstract class AssetTagBaseImpl extends AssetTagModelImpl
 	implements AssetTag {
 	/*
@@ -39,7 +40,7 @@ public abstract class AssetTagBaseImpl extends AssetTagModelImpl
 	 * Never modify or reference this class directly. All methods that expect a asset tag model instance should use the {@link AssetTag} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			AssetTagLocalServiceUtil.addAssetTag(this);
 		}

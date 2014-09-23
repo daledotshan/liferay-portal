@@ -17,8 +17,8 @@ package com.liferay.portal.kernel.template;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.test.ConsoleTestUtil;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.template.CacheTemplateResource;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 
@@ -33,7 +33,6 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -60,12 +59,11 @@ public class TemplateResourceExternalizationTest {
 		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 			new UnsyncByteArrayOutputStream();
 
-		ObjectOutput objectOutput = new ObjectOutputStream(
-			unsyncByteArrayOutputStream);
+		try (ObjectOutput objectOutput = new ObjectOutputStream(
+				unsyncByteArrayOutputStream)) {
 
-		cacheTemplateResource.writeExternal(objectOutput);
-
-		objectOutput.close();
+			cacheTemplateResource.writeExternal(objectOutput);
+		}
 
 		byte[] externalizedData = unsyncByteArrayOutputStream.toByteArray();
 
@@ -86,13 +84,10 @@ public class TemplateResourceExternalizationTest {
 
 		newCacheTemplateResource.readExternal(objectInput);
 
-		Field templateResourceField = ReflectionUtil.getDeclaredField(
-			CacheTemplateResource.class, "_templateResource");
-
 		Assert.assertEquals(
 			stringTemplateResource,
-			templateResourceField.get(newCacheTemplateResource));
-
+			ReflectionTestUtil.getFieldValue(
+				newCacheTemplateResource, "_templateResource"));
 		Assert.assertEquals(
 			cacheTemplateResource.getLastModified(),
 			newCacheTemplateResource.getLastModified());
@@ -140,12 +135,11 @@ public class TemplateResourceExternalizationTest {
 		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 			new UnsyncByteArrayOutputStream();
 
-		ObjectOutput objectOutput = new MockObjectOutput(
-			unsyncByteArrayOutputStream);
+		try (ObjectOutput objectOutput = new MockObjectOutput(
+				unsyncByteArrayOutputStream)) {
 
-		ddmTemplateResource.writeExternal(objectOutput);
-
-		objectOutput.close();
+			ddmTemplateResource.writeExternal(objectOutput);
+		}
 
 		byte[] externalizedData = unsyncByteArrayOutputStream.toByteArray();
 
@@ -212,12 +206,11 @@ public class TemplateResourceExternalizationTest {
 		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 			new UnsyncByteArrayOutputStream();
 
-		ObjectOutput objectOutput = new MockObjectOutput(
-			unsyncByteArrayOutputStream);
+		try (ObjectOutput objectOutput = new MockObjectOutput(
+				unsyncByteArrayOutputStream)) {
 
-		stringTemplateResource.writeExternal(objectOutput);
-
-		objectOutput.close();
+			stringTemplateResource.writeExternal(objectOutput);
+		}
 
 		byte[] externalizedData = unsyncByteArrayOutputStream.toByteArray();
 
@@ -251,7 +244,7 @@ public class TemplateResourceExternalizationTest {
 	}
 
 	@Test
-	public void testURLTemplateResourceExternalization() throws Exception {
+	public void testURLTemplateResourceExternalization() throws IOException {
 		String templateId = "testId";
 
 		Class<?> clazz = getClass();
@@ -272,12 +265,11 @@ public class TemplateResourceExternalizationTest {
 		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 			new UnsyncByteArrayOutputStream();
 
-		ObjectOutput objectOutput = new MockObjectOutput(
-			unsyncByteArrayOutputStream);
+		try (ObjectOutput objectOutput = new MockObjectOutput(
+				unsyncByteArrayOutputStream)) {
 
-		urlTemplateResource.writeExternal(objectOutput);
-
-		objectOutput.close();
+			urlTemplateResource.writeExternal(objectOutput);
+		}
 
 		byte[] externalizedData = unsyncByteArrayOutputStream.toByteArray();
 
@@ -298,11 +290,10 @@ public class TemplateResourceExternalizationTest {
 		newURLTemplateResource.readExternal(mockObjectInput);
 
 		Assert.assertEquals(templateId, newURLTemplateResource.getTemplateId());
-
-		Field templateURLField = ReflectionUtil.getDeclaredField(
-			URLTemplateResource.class, "_templateURL");
-
-		Assert.assertEquals(url, templateURLField.get(newURLTemplateResource));
+		Assert.assertEquals(
+			url,
+			ReflectionTestUtil.getFieldValue(
+				newURLTemplateResource, "_templateURL"));
 	}
 
 	private static class MockObjectInput

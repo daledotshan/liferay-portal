@@ -63,32 +63,23 @@ public class OracleDB extends BaseDB {
 
 		oracle = _preBuildSQL(oracle);
 
-		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
-			new UnsyncStringReader(oracle));
-
 		StringBundler imageSB = new StringBundler();
 		StringBundler journalArticleSB = new StringBundler();
-		StringBundler journalStructureSB = new StringBundler();
-		StringBundler journalTemplateSB = new StringBundler();
 
-		String line = null;
+		try (UnsyncBufferedReader unsyncBufferedReader =
+				new UnsyncBufferedReader(new UnsyncStringReader(oracle))) {
 
-		while ((line = unsyncBufferedReader.readLine()) != null) {
-			if (line.startsWith("insert into Image")) {
-				_convertToOracleCSV(line, imageSB);
-			}
-			else if (line.startsWith("insert into JournalArticle (")) {
-				_convertToOracleCSV(line, journalArticleSB);
-			}
-			else if (line.startsWith("insert into JournalStructure (")) {
-				_convertToOracleCSV(line, journalStructureSB);
-			}
-			else if (line.startsWith("insert into JournalTemplate (")) {
-				_convertToOracleCSV(line, journalTemplateSB);
+			String line = null;
+
+			while ((line = unsyncBufferedReader.readLine()) != null) {
+				if (line.startsWith("insert into Image")) {
+					_convertToOracleCSV(line, imageSB);
+				}
+				else if (line.startsWith("insert into JournalArticle (")) {
+					_convertToOracleCSV(line, journalArticleSB);
+				}
 			}
 		}
-
-		unsyncBufferedReader.close();
 
 		if (imageSB.length() > 0) {
 			FileUtil.write(
@@ -101,20 +92,6 @@ public class OracleDB extends BaseDB {
 				sqlDir + "/" + fileName + "/" + fileName +
 					"-oracle-journalarticle.csv",
 				journalArticleSB.toString());
-		}
-
-		if (journalStructureSB.length() > 0) {
-			FileUtil.write(
-				sqlDir + "/" + fileName + "/" + fileName +
-					"-oracle-journalstructure.csv",
-				journalStructureSB.toString());
-		}
-
-		if (journalTemplateSB.length() > 0) {
-			FileUtil.write(
-				sqlDir + "/" + fileName + "/" + fileName +
-					"-oracle-journaltemplate.csv",
-				journalTemplateSB.toString());
 		}
 
 		oracle = _postBuildSQL(oracle);
@@ -241,50 +218,49 @@ public class OracleDB extends BaseDB {
 
 	@Override
 	protected String reword(String data) throws IOException {
-		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
-			new UnsyncStringReader(data));
+		try (UnsyncBufferedReader unsyncBufferedReader =
+				new UnsyncBufferedReader(new UnsyncStringReader(data))) {
 
-		StringBundler sb = new StringBundler();
+			StringBundler sb = new StringBundler();
 
-		String line = null;
+			String line = null;
 
-		while ((line = unsyncBufferedReader.readLine()) != null) {
-			if (line.startsWith(ALTER_COLUMN_NAME)) {
-				String[] template = buildColumnNameTokens(line);
+			while ((line = unsyncBufferedReader.readLine()) != null) {
+				if (line.startsWith(ALTER_COLUMN_NAME)) {
+					String[] template = buildColumnNameTokens(line);
 
-				line = StringUtil.replace(
-					"alter table @table@ rename column @old-column@ to " +
-						"@new-column@;",
-					REWORD_TEMPLATE, template);
+					line = StringUtil.replace(
+						"alter table @table@ rename column @old-column@ to " +
+							"@new-column@;",
+						REWORD_TEMPLATE, template);
+				}
+				else if (line.startsWith(ALTER_COLUMN_TYPE)) {
+					String[] template = buildColumnTypeTokens(line);
+
+					line = StringUtil.replace(
+						"alter table @table@ modify @old-column@ @type@;",
+						REWORD_TEMPLATE, template);
+				}
+				else if (line.startsWith(ALTER_TABLE_NAME)) {
+					String[] template = buildTableNameTokens(line);
+
+					line = StringUtil.replace(
+						"alter table @old-table@ rename to @new-table@;",
+						RENAME_TABLE_TEMPLATE, template);
+				}
+				else if (line.contains(DROP_INDEX)) {
+					String[] tokens = StringUtil.split(line, ' ');
+
+					line = StringUtil.replace(
+						"drop index @index@;", "@index@", tokens[2]);
+				}
+
+				sb.append(line);
+				sb.append("\n");
 			}
-			else if (line.startsWith(ALTER_COLUMN_TYPE)) {
-				String[] template = buildColumnTypeTokens(line);
 
-				line = StringUtil.replace(
-					"alter table @table@ modify @old-column@ @type@;",
-					REWORD_TEMPLATE, template);
-			}
-			else if (line.startsWith(ALTER_TABLE_NAME)) {
-				String[] template = buildTableNameTokens(line);
-
-				line = StringUtil.replace(
-					"alter table @old-table@ rename to @new-table@;",
-					RENAME_TABLE_TEMPLATE, template);
-			}
-			else if (line.contains(DROP_INDEX)) {
-				String[] tokens = StringUtil.split(line, ' ');
-
-				line = StringUtil.replace(
-					"drop index @index@;", "@index@", tokens[2]);
-			}
-
-			sb.append(line);
-			sb.append("\n");
+			return sb.toString();
 		}
-
-		unsyncBufferedReader.close();
-
-		return sb.toString();
 	}
 
 	private void _convertToOracleCSV(String line, StringBundler sb) {

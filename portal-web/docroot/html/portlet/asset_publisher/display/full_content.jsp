@@ -19,6 +19,10 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
+if (Validator.isNull(redirect)) {
+	redirect = ParamUtil.getString(PortalUtil.getOriginalServletRequest(request), "redirect");
+}
+
 List results = (List)request.getAttribute("view.jsp-results");
 
 if (Validator.isNull(redirect) && results.isEmpty()) {
@@ -56,7 +60,7 @@ request.setAttribute("view.jsp-showIconLabel", true);
 	/>
 </c:if>
 
-<div class="asset-full-content <%= AssetUtil.isDefaultAssetPublisher(layout, portletDisplay.getId(), portletResource) ? "default-asset-publisher" : StringPool.BLANK %> <%= assetPublisherDisplayContext.isShowAssetTitle() ? "show-asset-title" : "no-title" %>">
+<div class="asset-full-content <%= AssetUtil.isDefaultAssetPublisher(layout, portletDisplay.getId(), assetPublisherDisplayContext.getPortletResource()) ? "default-asset-publisher" : StringPool.BLANK %> <%= assetPublisherDisplayContext.isShowAssetTitle() ? "show-asset-title" : "no-title" %>">
 	<c:if test="<%= !print %>">
 		<liferay-util:include page="/html/portlet/asset_publisher/asset_actions.jsp" />
 	</c:if>

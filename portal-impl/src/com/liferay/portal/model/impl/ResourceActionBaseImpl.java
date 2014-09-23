@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.ResourceAction;
 import com.liferay.portal.service.ResourceActionLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ResourceActionLocalServiceUtil;
  * @see com.liferay.portal.model.ResourceAction
  * @generated
  */
+@ProviderType
 public abstract class ResourceActionBaseImpl extends ResourceActionModelImpl
 	implements ResourceAction {
 	/*
@@ -38,7 +40,7 @@ public abstract class ResourceActionBaseImpl extends ResourceActionModelImpl
 	 * Never modify or reference this class directly. All methods that expect a resource action model instance should use the {@link ResourceAction} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ResourceActionLocalServiceUtil.addResourceAction(this);
 		}

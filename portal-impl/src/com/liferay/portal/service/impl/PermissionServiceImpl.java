@@ -14,9 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceMode;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -39,9 +37,16 @@ import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.service.permission.TeamPermissionUtil;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
+import com.liferay.registry.Filter;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceReference;
+import com.liferay.registry.ServiceTracker;
+import com.liferay.registry.ServiceTrackerCustomizer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides the remote service for checking permissions.
@@ -50,6 +55,20 @@ import java.util.Map;
  * @author Raymond Augé
  */
 public class PermissionServiceImpl extends PermissionServiceBaseImpl {
+
+	@Override
+	public void afterPropertiesSet() {
+		Registry registry = RegistryUtil.getRegistry();
+
+		Filter filter = registry.getFilter(
+			"(&(model.class.name=*)(objectClass=" +
+				BaseModelPermissionChecker.class.getName() + "))");
+
+		_serviceTracker = registry.trackServices(
+			filter, new BaseModelPermissionCheckerServiceTrackerCustomizer());
+
+		_serviceTracker.open();
+	}
 
 	/**
 	 * Checks to see if the group has permission to the service.
@@ -60,12 +79,11 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	 * @throws PortalException if the group did not have permission to the
 	 *         service, if a group with the primary key could not be found or if
 	 *         the permission information was invalid
-	 * @throws SystemException if a system exception occurred
 	 */
 	@JSONWebService(mode = JSONWebServiceMode.IGNORE)
 	@Override
 	public void checkPermission(long groupId, String name, long primKey)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		checkPermission(
 			getPermissionChecker(), groupId, name, String.valueOf(primKey));
@@ -80,11 +98,10 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	 * @throws PortalException if the group did not have permission to the
 	 *         service, if a group with the primary key could not be found or if
 	 *         the permission information was invalid
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void checkPermission(long groupId, String name, String primKey)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		checkPermission(getPermissionChecker(), groupId, name, primKey);
 	}
@@ -92,7 +109,7 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	protected boolean checkBaseModelPermission(
 			PermissionChecker permissionChecker, long groupId, String className,
 			long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String actionId = ActionKeys.PERMISSIONS;
 
@@ -122,7 +139,7 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	protected void checkPermission(
 			PermissionChecker permissionChecker, long groupId, String name,
 			String primKey)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (checkBaseModelPermission(
 				permissionChecker, groupId, name,
@@ -228,8 +245,57 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 		}
 	}
 
-	@BeanReference(name = "baseModelPermissionCheckers")
 	private Map<String, BaseModelPermissionChecker>
-		_baseModelPermissionCheckers;
+		_baseModelPermissionCheckers =
+			new ConcurrentHashMap<String, BaseModelPermissionChecker>();
+	private ServiceTracker
+		<BaseModelPermissionChecker, BaseModelPermissionChecker>
+			_serviceTracker;
+
+	private class BaseModelPermissionCheckerServiceTrackerCustomizer
+		implements
+			ServiceTrackerCustomizer
+				<BaseModelPermissionChecker, BaseModelPermissionChecker> {
+
+		@Override
+		public BaseModelPermissionChecker addingService(
+			ServiceReference<BaseModelPermissionChecker> serviceReference) {
+
+			Registry registry = RegistryUtil.getRegistry();
+
+			BaseModelPermissionChecker baseModelPermissionChecker =
+				registry.getService(serviceReference);
+
+			String modelClassName = GetterUtil.getString(
+				serviceReference.getProperty("model.class.name"));
+
+			_baseModelPermissionCheckers.put(
+				modelClassName, baseModelPermissionChecker);
+
+			return baseModelPermissionChecker;
+		}
+
+		@Override
+		public void modifiedService(
+			ServiceReference<BaseModelPermissionChecker> serviceReference,
+			BaseModelPermissionChecker baseModelPermissionChecker) {
+		}
+
+		@Override
+		public void removedService(
+			ServiceReference<BaseModelPermissionChecker> serviceReference,
+			BaseModelPermissionChecker baseModelPermissionChecker) {
+
+			Registry registry = RegistryUtil.getRegistry();
+
+			registry.ungetService(serviceReference);
+
+			String modelClassName = GetterUtil.getString(
+				serviceReference.getProperty("model.class.name"));
+
+			_baseModelPermissionCheckers.remove(modelClassName);
+		}
+
+	}
 
 }

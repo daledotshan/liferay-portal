@@ -16,7 +16,6 @@ package com.liferay.portlet.journal.util;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
@@ -38,7 +37,6 @@ import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.service.JournalFolderLocalServiceUtil;
 import com.liferay.portlet.journal.service.permission.JournalFolderPermission;
-import com.liferay.portlet.journal.service.persistence.JournalFolderActionableDynamicQuery;
 
 import java.util.Locale;
 
@@ -58,9 +56,8 @@ public class JournalFolderIndexer extends BaseIndexer {
 
 	public JournalFolderIndexer() {
 		setDefaultSelectedFieldNames(
-			new String[] {
-				Field.COMPANY_ID, Field.DESCRIPTION, Field.ENTRY_CLASS_NAME,
-				Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID});
+			Field.COMPANY_ID, Field.DESCRIPTION, Field.ENTRY_CLASS_NAME,
+			Field.ENTRY_CLASS_PK, Field.TITLE, Field.UID);
 		setFilterSearch(true);
 		setPermissionAware(true);
 	}
@@ -105,8 +102,8 @@ public class JournalFolderIndexer extends BaseIndexer {
 		document.addUID(PORTLET_ID, folder.getFolderId());
 
 		SearchEngineUtil.deleteDocument(
-			getSearchEngineId(), folder.getCompanyId(),
-			document.get(Field.UID));
+			getSearchEngineId(), folder.getCompanyId(), document.get(Field.UID),
+			isCommitImmediately());
 	}
 
 	@Override
@@ -169,7 +166,8 @@ public class JournalFolderIndexer extends BaseIndexer {
 		Document document = getDocument(folder);
 
 		SearchEngineUtil.updateDocument(
-			getSearchEngineId(), folder.getCompanyId(), document);
+			getSearchEngineId(), folder.getCompanyId(), document,
+			isCommitImmediately());
 	}
 
 	@Override
@@ -191,26 +189,28 @@ public class JournalFolderIndexer extends BaseIndexer {
 		return PORTLET_ID;
 	}
 
-	protected void reindexFolders(long companyId)
-		throws PortalException, SystemException {
-
-		ActionableDynamicQuery actionableDynamicQuery =
-			new JournalFolderActionableDynamicQuery() {
-
-			@Override
-			protected void performAction(Object object) throws PortalException {
-				JournalFolder folder = (JournalFolder)object;
-
-				Document document = getDocument(folder);
-
-				if (document != null) {
-					addDocument(document);
-				}
-			}
-
-		};
+	protected void reindexFolders(long companyId) throws PortalException {
+		final ActionableDynamicQuery actionableDynamicQuery =
+			JournalFolderLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setCompanyId(companyId);
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+
+					JournalFolder folder = (JournalFolder)object;
+
+					Document document = getDocument(folder);
+
+					if (document != null) {
+						actionableDynamicQuery.addDocument(document);
+					}
+				}
+
+			});
 		actionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 
 		actionableDynamicQuery.performActions();

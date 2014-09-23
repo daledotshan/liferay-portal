@@ -14,27 +14,27 @@
  */
 --%>
 
-<%@ include file="/html/taglib/init.jsp" %>
+<%@ include file="/html/taglib/ui/asset_categories_summary/init.jsp" %>
 
 <%
 String className = (String)request.getAttribute("liferay-ui:asset-categories-summary:className");
 long classPK = GetterUtil.getLong((String)request.getAttribute("liferay-ui:asset-categories-summary:classPK"));
 PortletURL portletURL = (PortletURL)request.getAttribute("liferay-ui:asset-categories-summary:portletURL");
 
-List<AssetVocabulary> vocabularies = AssetVocabularyServiceUtil.getGroupVocabularies(PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId));
+AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(className, classPK);
+
+List<AssetVocabulary> vocabularies = AssetVocabularyServiceUtil.getGroupVocabularies(PortalUtil.getCurrentAndAncestorSiteGroupIds((assetEntry != null) ? assetEntry.getGroupId() : scopeGroupId));
 List<AssetCategory> categories = AssetCategoryServiceUtil.getCategories(className, classPK);
 
 for (AssetVocabulary vocabulary : vocabularies) {
 	vocabulary = vocabulary.toEscapedModel();
-
-	String vocabularyTitle = vocabulary.getTitle(themeDisplay.getLocale());
 
 	List<AssetCategory> curCategories = _filterCategories(categories, vocabulary);
 %>
 
 	<c:if test="<%= !curCategories.isEmpty() %>">
 		<span class="taglib-asset-categories-summary">
-			<%= vocabularyTitle %>:
+			<%= vocabulary.getUnambiguousTitle(vocabularies, themeDisplay.getSiteGroupId(), themeDisplay.getLocale()) %>:
 
 			<c:choose>
 				<c:when test="<%= portletURL != null %>">
@@ -61,7 +61,7 @@ for (AssetVocabulary vocabulary : vocabularies) {
 					%>
 
 						<span class="asset-category">
-							<%= _buildCategoryPath(category, themeDisplay) %>
+							<%= HtmlUtil.unescape(_buildCategoryPath(category, themeDisplay)) %>
 						</span>
 
 					<%

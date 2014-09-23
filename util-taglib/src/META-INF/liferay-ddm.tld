@@ -27,12 +27,6 @@
 			<type>long</type>
 		</attribute>
 		<attribute>
-			<name>fieldName</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<type>java.lang.String</type>
-		</attribute>
-		<attribute>
 			<name>fields</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -40,12 +34,6 @@
 		</attribute>
 		<attribute>
 			<name>fieldsNamespace</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<type>java.lang.String</type>
-		</attribute>
-		<attribute>
-			<name>mode</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.String</type>
@@ -67,6 +55,12 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.util.Locale</type>
+		</attribute>
+		<attribute>
+			<name>showEmptyFieldLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
 		</attribute>
 		<dynamic-attributes>true</dynamic-attributes>
 	</tag>
@@ -99,12 +93,6 @@
 			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
-			<name>mode</name>
-			<required>false</required>
-			<rtexprvalue>true</rtexprvalue>
-			<type>java.lang.String</type>
-		</attribute>
-		<attribute>
 			<name>readOnly</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -121,6 +109,12 @@
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.util.Locale</type>
+		</attribute>
+		<attribute>
+			<name>showEmptyFieldLabel</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
 		</attribute>
 		<dynamic-attributes>true</dynamic-attributes>
 	</tag>

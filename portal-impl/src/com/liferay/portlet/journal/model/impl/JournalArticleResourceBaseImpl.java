@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.journal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.journal.model.JournalArticleResource;
 import com.liferay.portlet.journal.service.JournalArticleResourceLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.journal.service.JournalArticleResourceLocalServiceUti
  * @see com.liferay.portlet.journal.model.JournalArticleResource
  * @generated
  */
+@ProviderType
 public abstract class JournalArticleResourceBaseImpl
 	extends JournalArticleResourceModelImpl implements JournalArticleResource {
 	/*
@@ -39,7 +40,7 @@ public abstract class JournalArticleResourceBaseImpl
 	 * Never modify or reference this class directly. All methods that expect a journal article resource model instance should use the {@link JournalArticleResource} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			JournalArticleResourceLocalServiceUtil.addJournalArticleResource(this);
 		}

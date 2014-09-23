@@ -18,19 +18,20 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.model.Group;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
-import com.liferay.portal.util.GroupTestUtil;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.test.DeleteAfterTestRun;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.util.test.ServiceContextTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,9 +50,35 @@ public class DLFileShortcutLocalServiceTreeTest {
 		_group = GroupTestUtil.addGroup();
 	}
 
-	@After
-	public void tearDown() throws Exception {
-		GroupLocalServiceUtil.deleteGroup(_group);
+	@Test
+	public void testFileShortcutTreePathWhenMovingSubfolderWithFileShortcut()
+		throws Exception {
+
+		Folder folderA = DLAppTestUtil.addFolder(
+			_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			"Folder A");
+
+		Folder folderAA = DLAppTestUtil.addFolder(
+			_group.getGroupId(), folderA.getFolderId(), "Folder AA");
+
+		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
+			_group.getGroupId(), folderA.getFolderId(), "Entry.txt");
+
+		DLFileShortcut dlFileShortcut = DLAppTestUtil.addDLFileShortcut(
+			fileEntry, TestPropsValues.getGroupId(), folderAA.getFolderId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		DLAppLocalServiceUtil.moveFolder(
+			TestPropsValues.getUserId(), folderAA.getFolderId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, serviceContext);
+
+		dlFileShortcut = DLFileShortcutLocalServiceUtil.getDLFileShortcut(
+			dlFileShortcut.getFileShortcutId());
+
+		Assert.assertEquals(
+			dlFileShortcut.buildTreePath(), dlFileShortcut.getTreePath());
 	}
 
 	@Test
@@ -101,6 +128,8 @@ public class DLFileShortcutLocalServiceTreeTest {
 		new ArrayList<DLFileShortcut>();
 	private FileEntry _fileEntry;
 	private Folder _folder;
+
+	@DeleteAfterTestRun
 	private Group _group;
 
 }

@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.social.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,12 +53,12 @@ import com.liferay.portlet.social.service.SocialActivitySettingServiceUtil;
  * @see com.liferay.portlet.social.service.SocialActivitySettingServiceUtil
  * @generated
  */
+@ProviderType
 public class SocialActivitySettingServiceHttp {
 	public static com.liferay.portlet.social.model.SocialActivityDefinition getActivityDefinition(
 		HttpPrincipal httpPrincipal, long groupId, java.lang.String className,
 		int activityType)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SocialActivitySettingServiceUtil.class,
 					"getActivityDefinition",
@@ -75,10 +77,6 @@ public class SocialActivitySettingServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -93,8 +91,7 @@ public class SocialActivitySettingServiceHttp {
 
 	public static java.util.List<com.liferay.portlet.social.model.SocialActivityDefinition> getActivityDefinitions(
 		HttpPrincipal httpPrincipal, long groupId, java.lang.String className)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SocialActivitySettingServiceUtil.class,
 					"getActivityDefinitions",
@@ -113,10 +110,6 @@ public class SocialActivitySettingServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -131,8 +124,7 @@ public class SocialActivitySettingServiceHttp {
 
 	public static java.util.List<com.liferay.portlet.social.model.SocialActivitySetting> getActivitySettings(
 		HttpPrincipal httpPrincipal, long groupId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SocialActivitySettingServiceUtil.class,
 					"getActivitySettings", _getActivitySettingsParameterTypes2);
@@ -149,10 +141,6 @@ public class SocialActivitySettingServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -167,8 +155,7 @@ public class SocialActivitySettingServiceHttp {
 
 	public static com.liferay.portal.kernel.json.JSONArray getJSONActivityDefinitions(
 		HttpPrincipal httpPrincipal, long groupId, java.lang.String className)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SocialActivitySettingServiceUtil.class,
 					"getJSONActivityDefinitions",
@@ -187,10 +174,6 @@ public class SocialActivitySettingServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -205,8 +188,7 @@ public class SocialActivitySettingServiceHttp {
 
 	public static void updateActivitySetting(HttpPrincipal httpPrincipal,
 		long groupId, java.lang.String className, boolean enabled)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SocialActivitySettingServiceUtil.class,
 					"updateActivitySetting",
@@ -223,10 +205,6 @@ public class SocialActivitySettingServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -240,8 +218,7 @@ public class SocialActivitySettingServiceHttp {
 	public static void updateActivitySetting(HttpPrincipal httpPrincipal,
 		long groupId, java.lang.String className, int activityType,
 		com.liferay.portlet.social.model.SocialActivityCounterDefinition activityCounterDefinition)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SocialActivitySettingServiceUtil.class,
 					"updateActivitySetting",
@@ -258,10 +235,6 @@ public class SocialActivitySettingServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -275,8 +248,7 @@ public class SocialActivitySettingServiceHttp {
 	public static void updateActivitySettings(HttpPrincipal httpPrincipal,
 		long groupId, java.lang.String className, int activityType,
 		java.util.List<com.liferay.portlet.social.model.SocialActivityCounterDefinition> activityCounterDefinitions)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SocialActivitySettingServiceUtil.class,
 					"updateActivitySettings",
@@ -291,10 +263,6 @@ public class SocialActivitySettingServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

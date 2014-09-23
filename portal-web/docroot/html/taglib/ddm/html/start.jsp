@@ -21,24 +21,61 @@
 
 		<%
 		pageContext.setAttribute("checkRequired", checkRequired);
+
+		DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(xsd);
+
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext = new DDMFormFieldRenderingContext();
+
+		ddmFormFieldRenderingContext.setFields(fields);
+		ddmFormFieldRenderingContext.setHttpServletRequest(request);
+		ddmFormFieldRenderingContext.setHttpServletResponse(response);
+		ddmFormFieldRenderingContext.setLocale(requestedLocale);
+		ddmFormFieldRenderingContext.setMode(mode);
+		ddmFormFieldRenderingContext.setNamespace(fieldsNamespace);
+		ddmFormFieldRenderingContext.setPortletNamespace(portletResponse.getNamespace());
+		ddmFormFieldRenderingContext.setReadOnly(readOnly);
+		ddmFormFieldRenderingContext.setShowEmptyFieldLabel(showEmptyFieldLabel);
 		%>
 
-		<%= DDMXSDUtil.getHTML(pageContext, xsd, fields, portletResponse.getNamespace(), fieldsNamespace, mode, readOnly, requestedLocale) %>
+		<%= DDMFormRendererUtil.render(ddmForm, ddmFormFieldRenderingContext) %>
 
-		<aui:input name="<%= fieldsDisplayInputName %>" type="hidden" />
+		<aui:input name="<%= ddmFormValuesInputName %>" type="hidden" />
 
-		<aui:script use="liferay-ddm-repeatable-fields">
-			new Liferay.DDM.RepeatableFields(
+		<aui:script use="liferay-ddm-form">
+			new Liferay.DDM.Form(
 				{
 					classNameId: <%= classNameId %>,
 					classPK: <%= classPK %>,
 					container: '#<%= randomNamespace %>',
+					ddmFormValuesInput: '#<portlet:namespace /><%= ddmFormValuesInputName %>',
+					definition: <%= DDMFormJSONSerializerUtil.serialize(ddmForm) %>,
 					doAsGroupId: <%= scopeGroupId %>,
-					fieldsDisplayInput: '#<portlet:namespace /><%= fieldsDisplayInputName %>',
-					namespace: '<%= fieldsNamespace %>',
+					fieldsNamespace: '<%= fieldsNamespace %>',
 					p_l_id: <%= themeDisplay.getPlid() %>,
 					portletNamespace: '<portlet:namespace />',
 					repeatable: <%= repeatable %>
+
+					<%
+					long ddmStructureId = classPK;
+
+					if (classNameId == PortalUtil.getClassNameId(DDMTemplate.class)) {
+						DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(classPK);
+
+						ddmStructureId = ddmTemplate.getClassPK();
+					}
+
+					DDMStructure ddmStructure = DDMStructureServiceUtil.getStructure(ddmStructureId);
+
+					DDMFormValues ddmFormValues = null;
+
+					if (fields != null) {
+						ddmFormValues = FieldsToDDMFormValuesConverterUtil.convert(ddmStructure, fields);
+					}
+					%>
+
+					<c:if test="<%= ddmFormValues != null %>">
+						, values: <%= DDMFormValuesJSONSerializerUtil.serialize(ddmFormValues) %>
+					</c:if>
 				}
 			);
 		</aui:script>

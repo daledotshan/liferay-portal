@@ -15,7 +15,6 @@
 package com.liferay.portlet.usersadmin.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -37,17 +36,24 @@ public class WebsiteStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
-		Website website =
-			WebsiteLocalServiceUtil.fetchWebsiteByUuidAndCompanyId(
-				uuid, group.getCompanyId());
+		Website website = fetchStagedModelByUuidAndCompanyId(
+			uuid, group.getCompanyId());
 
 		if (website != null) {
 			WebsiteLocalServiceUtil.deleteWebsite(website);
 		}
+	}
+
+	@Override
+	public Website fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return WebsiteLocalServiceUtil.fetchWebsiteByUuidAndCompanyId(
+			uuid, companyId);
 	}
 
 	@Override
@@ -78,9 +84,8 @@ public class WebsiteStagedModelDataHandler
 		ServiceContext serviceContext = portletDataContext.createServiceContext(
 			website);
 
-		Website existingWebsite =
-			WebsiteLocalServiceUtil.fetchWebsiteByUuidAndCompanyId(
-				website.getUuid(), portletDataContext.getCompanyId());
+		Website existingWebsite = fetchStagedModelByUuidAndCompanyId(
+			website.getUuid(), portletDataContext.getCompanyGroupId());
 
 		Website importedWebsite = null;
 

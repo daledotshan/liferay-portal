@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.softwarecatalog.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -51,6 +53,7 @@ import com.liferay.portlet.softwarecatalog.service.SCProductEntryServiceUtil;
  * @see com.liferay.portlet.softwarecatalog.service.SCProductEntryServiceUtil
  * @generated
  */
+@ProviderType
 public class SCProductEntryServiceHttp {
 	public static com.liferay.portlet.softwarecatalog.model.SCProductEntry addProductEntry(
 		HttpPrincipal httpPrincipal, java.lang.String name,
@@ -61,8 +64,7 @@ public class SCProductEntryServiceHttp {
 		long[] licenseIds, java.util.List<byte[]> thumbnails,
 		java.util.List<byte[]> fullImages,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCProductEntryServiceUtil.class,
 					"addProductEntry", _addProductEntryParameterTypes0);
@@ -82,10 +84,6 @@ public class SCProductEntryServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
@@ -100,8 +98,7 @@ public class SCProductEntryServiceHttp {
 
 	public static void deleteProductEntry(HttpPrincipal httpPrincipal,
 		long productEntryId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCProductEntryServiceUtil.class,
 					"deleteProductEntry", _deleteProductEntryParameterTypes1);
@@ -117,10 +114,6 @@ public class SCProductEntryServiceHttp {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
 				}
 
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
-				}
-
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 		}
@@ -133,8 +126,7 @@ public class SCProductEntryServiceHttp {
 
 	public static com.liferay.portlet.softwarecatalog.model.SCProductEntry getProductEntry(
 		HttpPrincipal httpPrincipal, long productEntryId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCProductEntryServiceUtil.class,
 					"getProductEntry", _getProductEntryParameterTypes2);
@@ -150,10 +142,6 @@ public class SCProductEntryServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -176,8 +164,7 @@ public class SCProductEntryServiceHttp {
 		java.lang.String repoGroupId, java.lang.String repoArtifactId,
 		long[] licenseIds, java.util.List<byte[]> thumbnails,
 		java.util.List<byte[]> fullImages)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(SCProductEntryServiceUtil.class,
 					"updateProductEntry", _updateProductEntryParameterTypes3);
@@ -195,10 +182,6 @@ public class SCProductEntryServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

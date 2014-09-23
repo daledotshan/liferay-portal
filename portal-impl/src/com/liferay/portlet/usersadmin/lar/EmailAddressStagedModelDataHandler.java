@@ -15,7 +15,6 @@
 package com.liferay.portlet.usersadmin.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -37,15 +36,22 @@ public class EmailAddressStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
-		EmailAddress emailAddress =
-			EmailAddressLocalServiceUtil.fetchEmailAddressByUuidAndCompanyId(
-				uuid, group.getCompanyId());
+		EmailAddress emailAddress = fetchStagedModelByUuidAndCompanyId(
+			uuid, group.getCompanyId());
 
 		EmailAddressLocalServiceUtil.deleteEmailAddress(emailAddress);
+	}
+
+	@Override
+	public EmailAddress fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return EmailAddressLocalServiceUtil.fetchEmailAddressByUuidAndCompanyId(
+			uuid, companyId);
 	}
 
 	@Override
@@ -76,9 +82,8 @@ public class EmailAddressStagedModelDataHandler
 		ServiceContext serviceContext = portletDataContext.createServiceContext(
 			emailAddress);
 
-		EmailAddress existingEmailAddress =
-			EmailAddressLocalServiceUtil.fetchEmailAddressByUuidAndCompanyId(
-				emailAddress.getUuid(), portletDataContext.getCompanyId());
+		EmailAddress existingEmailAddress = fetchStagedModelByUuidAndCompanyId(
+			emailAddress.getUuid(), portletDataContext.getCompanyId());
 
 		EmailAddress importedEmailAddress = null;
 

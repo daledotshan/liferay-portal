@@ -40,7 +40,7 @@ if (workflowEnabled) {
 String taglibHelpMessage = null;
 
 if (layoutRevision.isHead()) {
-	taglibHelpMessage = LanguageUtil.format(pageContext, "this-version-will-be-published-when-x-is-published-to-live", HtmlUtil.escape(layoutSetBranch.getName()), false);
+	taglibHelpMessage = LanguageUtil.format(request, "this-version-will-be-published-when-x-is-published-to-live", HtmlUtil.escape(layoutSetBranch.getName()), false);
 }
 else if (hasWorkflowTask) {
 	taglibHelpMessage = "you-are-currently-reviewing-this-page.-you-can-make-changes-and-send-them-to-the-next-step-in-the-workflow-when-ready";
@@ -58,8 +58,8 @@ else {
 		%>
 
 		<liferay-ui:icon
+			iconCssClass="icon-time"
 			id="viewHistoryLink"
-			image="../aui/time"
 			message="history"
 			method="get"
 			url="<%= taglibURL %>"
@@ -74,8 +74,8 @@ else {
 			%>
 
 			<liferay-ui:icon
+				iconCssClass="icon-undo"
 				id="undoLink"
-				image="../aui/undo"
 				message="undo"
 				url="<%= taglibURL %>"
 			/>
@@ -96,8 +96,8 @@ else {
 				%>
 
 				<liferay-ui:icon
+					iconCssClass="icon-repeat"
 					id="redoLink"
-					image="../aui/repeat"
 					message="redo"
 					url="<%= taglibURL %>"
 				/>
@@ -110,7 +110,7 @@ else {
 	</c:if>
 </div>
 
-<div class="layout-revision-info <%= layoutRevision.isIncomplete() ? "incomplete" : "span7" %>">
+<div class="layout-revision-info <%= layoutRevision.isIncomplete() ? "incomplete" : "col-md-7" %>">
 	<c:if test="<%= !layoutRevision.isIncomplete() %>">
 		<span class="layout-revision-version"><label><liferay-ui:message key="version" />:</label> <span class=""><%= layoutRevision.getLayoutRevisionId() %></span></span>
 
@@ -157,8 +157,8 @@ else {
 
 			<liferay-ui:icon
 				cssClass="submit-link"
+				iconCssClass="icon-random"
 				id="reviewTaskIcon"
-				image="../aui/random"
 				message="workflow"
 				method="get"
 				url="<%= portletURL.toString() %>"
@@ -179,7 +179,7 @@ else {
 			String label = null;
 
 			if (layoutRevision.isIncomplete()) {
-				label = LanguageUtil.format(pageContext, "enable-in-x", layoutSetBranch.getName(), false);
+				label = LanguageUtil.format(request, "enable-in-x", layoutSetBranch.getName(), false);
 			}
 			else {
 				if (workflowEnabled) {
@@ -195,7 +195,6 @@ else {
 				<portlet:param name="struts_action" value="/staging_bar/edit_layouts" />
 				<portlet:param name="<%= Constants.CMD %>" value="update_layout_revision" />
 				<portlet:param name="redirect" value="<%= PortalUtil.getLayoutFullURL(themeDisplay) %>" />
-				<portlet:param name="groupId" value="<%= String.valueOf(layoutRevision.getGroupId()) %>" />
 				<portlet:param name="layoutRevisionId" value="<%= String.valueOf(layoutRevision.getLayoutRevisionId()) %>" />
 				<portlet:param name="major" value="true" />
 				<portlet:param name="workflowAction" value="<%= String.valueOf(layoutRevision.isIncomplete() ? WorkflowConstants.ACTION_SAVE_DRAFT : WorkflowConstants.ACTION_PUBLISH) %>" />
@@ -213,8 +212,8 @@ else {
 
 			<liferay-ui:icon
 				cssClass="label label-submit"
+				iconCssClass="icon-ok"
 				id="submitLink"
-				image="../aui/ok"
 				label="<%= true %>"
 				message="<%= label %>"
 				url="<%= taglibURL %>"

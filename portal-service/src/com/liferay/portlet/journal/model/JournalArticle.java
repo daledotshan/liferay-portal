@@ -42,27 +42,33 @@ public interface JournalArticle extends JournalArticleModel, PersistedModel,
 			public String get(JournalArticle journalArticle) {
 				return journalArticle.getArticleId();
 			}
+
+			@Override
+			public Class<String> getAttributeClass() {
+				return String.class;
+			}
+
+			@Override
+			public Class<JournalArticle> getTypeClass() {
+				return JournalArticle.class;
+			}
 		};
 
 	@Override
 	public java.lang.String buildTreePath()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
 
 	public long getArticleImageId(java.lang.String elInstanceId,
-		java.lang.String elName, java.lang.String languageId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+		java.lang.String elName, java.lang.String languageId);
 
 	public java.lang.String getArticleImageURL(
 		com.liferay.portal.theme.ThemeDisplay themeDisplay);
 
 	public com.liferay.portlet.journal.model.JournalArticleResource getArticleResource()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
 
 	public java.lang.String getArticleResourceUuid()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
 
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #getAvailableLanguageIds}
@@ -71,6 +77,12 @@ public interface JournalArticle extends JournalArticleModel, PersistedModel,
 	public java.lang.String[] getAvailableLocales();
 
 	public java.lang.String getContentByLocale(java.lang.String languageId);
+
+	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure getDDMStructure()
+		throws com.liferay.portal.kernel.exception.PortalException;
+
+	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate getDDMTemplate()
+		throws com.liferay.portal.kernel.exception.PortalException;
 
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #getDefaultLanguageId}
@@ -81,15 +93,14 @@ public interface JournalArticle extends JournalArticleModel, PersistedModel,
 	public com.liferay.portal.kernel.xml.Document getDocument();
 
 	public com.liferay.portlet.journal.model.JournalFolder getFolder()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
+
+	public com.liferay.portal.model.Layout getLayout();
 
 	public java.lang.String getSmallImageType()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
 
-	public boolean hasApprovedVersion()
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public boolean hasApprovedVersion();
 
 	/**
 	* @deprecated As of 7.0.0, with no direct replacement

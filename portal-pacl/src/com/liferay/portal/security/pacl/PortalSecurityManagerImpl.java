@@ -22,6 +22,9 @@ import com.liferay.portal.freemarker.FreeMarkerTemplate;
 import com.liferay.portal.freemarker.LiferayTemplateCache;
 import com.liferay.portal.kernel.bean.BeanLocator;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.concurrent.ConcurrentIdentityHashMap;
+import com.liferay.portal.kernel.concurrent.ConcurrentReferenceKeyHashMap;
+import com.liferay.portal.kernel.concurrent.ConcurrentReferenceValueHashMap;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.jndi.JNDIUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -36,7 +39,6 @@ import com.liferay.portal.kernel.security.pacl.permission.PortalMessageBusPermis
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 import com.liferay.portal.kernel.security.pacl.permission.PortalServicePermission;
 import com.liferay.portal.kernel.security.pacl.permission.PortalSocketPermission;
-import com.liferay.portal.kernel.servlet.taglib.FileAvailabilityUtil;
 import com.liferay.portal.kernel.util.AutoResetThreadLocal;
 import com.liferay.portal.kernel.util.CentralizedThreadLocal;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
@@ -50,7 +52,6 @@ import com.liferay.portal.kernel.util.ReferenceRegistry;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.util.WeakValueConcurrentHashMap;
 import com.liferay.portal.security.lang.DoPrivilegedBean;
 import com.liferay.portal.security.lang.DoPrivilegedFactory;
 import com.liferay.portal.security.lang.DoPrivilegedHandler;
@@ -145,6 +146,8 @@ public class PortalSecurityManagerImpl extends SecurityManager
 
 		initClasses();
 
+		PortalPolicy portalPolicy = null;
+
 		try {
 			Policy policy = null;
 
@@ -152,11 +155,11 @@ public class PortalSecurityManagerImpl extends SecurityManager
 				policy = Policy.getPolicy();
 			}
 
-			_portalPolicy = new PortalPolicy(policy);
+			portalPolicy = new PortalPolicy(policy);
 
-			Policy.setPolicy(_portalPolicy);
+			Policy.setPolicy(portalPolicy);
 
-			_portalPolicy.refresh();
+			portalPolicy.refresh();
 		}
 		catch (Exception e) {
 			if (_log.isInfoEnabled()) {
@@ -169,9 +172,9 @@ public class PortalSecurityManagerImpl extends SecurityManager
 			if (_log.isWarnEnabled()) {
 				_log.warn(e, e);
 			}
-
-			return;
 		}
+
+		_portalPolicy = portalPolicy;
 
 		try {
 			initInitialContextFactoryBuilder();
@@ -383,12 +386,14 @@ public class PortalSecurityManagerImpl extends SecurityManager
 		initClass(
 			com.liferay.portal.kernel.security.pacl.permission.
 				CheckMemberAccessPermission.class);
+		initClass(ConcurrentIdentityHashMap.class);
+		initClass(ConcurrentReferenceKeyHashMap.class);
+		initClass(ConcurrentReferenceValueHashMap.class);
 		initClass(DoPrivilegedBean.class);
 		initClass(DoPrivilegedFactory.class);
 		initClass(DoPrivilegedHandler.class);
 		initClass(DynamicQueryFactoryImpl.class);
 		initClass(EqualityWeakReference.class);
-		initClass(FileAvailabilityUtil.class);
 		initClass(FinalizeManager.class);
 		initClass(FreeMarkerTemplate.class);
 		initClass(GeneratingPACLPolicy.class);
@@ -426,7 +431,8 @@ public class PortalSecurityManagerImpl extends SecurityManager
 		initClass(TemplateContextHelper.class);
 		initClass(URLWrapper.class);
 		initClass(VelocityTemplate.class);
-		initClass(WeakValueConcurrentHashMap.class);
+		initClass(
+			com.liferay.portal.kernel.util.WeakValueConcurrentHashMap.class);
 		initClass(XSLTemplate.class);
 	}
 
@@ -534,15 +540,16 @@ public class PortalSecurityManagerImpl extends SecurityManager
 	private static Log _log = LogFactoryUtil.getLog(
 		PortalSecurityManagerImpl.class.getName());
 
-	private static ThreadLocal<ClassLoader> _checkMemberAccessClassLoader =
-		new AutoResetThreadLocal<ClassLoader>(
-			PortalSecurityManagerImpl.class +
-				"._checkMembersAccessClassLoader");
-	private static RuntimePermission _checkMemberAccessPermission =
+	private static final ThreadLocal<ClassLoader>
+		_checkMemberAccessClassLoader =
+			new AutoResetThreadLocal<ClassLoader>(
+				PortalSecurityManagerImpl.class +
+					"._checkMembersAccessClassLoader");
+	private static final RuntimePermission _checkMemberAccessPermission =
 		new RuntimePermission("accessDeclaredMembers");
 
 	private SecurityManager _originalSecurityManager;
-	private PortalPolicy _portalPolicy;
+	private final PortalPolicy _portalPolicy;
 
 	private static class DoBeanLocatorImplPACL implements BeanLocatorImpl.PACL {
 

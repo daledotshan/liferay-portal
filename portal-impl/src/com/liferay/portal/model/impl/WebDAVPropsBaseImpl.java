@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.WebDAVProps;
 import com.liferay.portal.service.WebDAVPropsLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.WebDAVPropsLocalServiceUtil;
  * @see com.liferay.portal.model.WebDAVProps
  * @generated
  */
+@ProviderType
 public abstract class WebDAVPropsBaseImpl extends WebDAVPropsModelImpl
 	implements WebDAVProps {
 	/*
@@ -38,7 +40,7 @@ public abstract class WebDAVPropsBaseImpl extends WebDAVPropsModelImpl
 	 * Never modify or reference this class directly. All methods that expect a web d a v props model instance should use the {@link WebDAVProps} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			WebDAVPropsLocalServiceUtil.addWebDAVProps(this);
 		}

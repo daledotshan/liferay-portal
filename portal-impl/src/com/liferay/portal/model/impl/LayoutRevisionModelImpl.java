@@ -14,10 +14,11 @@
 
 package com.liferay.portal.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -66,6 +67,7 @@ import java.util.TreeSet;
  * @generated
  */
 @JSON(strict = true)
+@ProviderType
 public class LayoutRevisionModelImpl extends BaseModelImpl<LayoutRevision>
 	implements LayoutRevisionModel {
 	/*
@@ -123,13 +125,13 @@ public class LayoutRevisionModelImpl extends BaseModelImpl<LayoutRevision>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portal.model.LayoutRevision"),
 			true);
-	public static long HEAD_COLUMN_BITMASK = 1L;
-	public static long LAYOUTBRANCHID_COLUMN_BITMASK = 2L;
-	public static long LAYOUTSETBRANCHID_COLUMN_BITMASK = 4L;
-	public static long PARENTLAYOUTREVISIONID_COLUMN_BITMASK = 8L;
-	public static long PLID_COLUMN_BITMASK = 16L;
-	public static long STATUS_COLUMN_BITMASK = 32L;
-	public static long MODIFIEDDATE_COLUMN_BITMASK = 64L;
+	public static final long HEAD_COLUMN_BITMASK = 1L;
+	public static final long LAYOUTBRANCHID_COLUMN_BITMASK = 2L;
+	public static final long LAYOUTSETBRANCHID_COLUMN_BITMASK = 4L;
+	public static final long PARENTLAYOUTREVISIONID_COLUMN_BITMASK = 8L;
+	public static final long PLID_COLUMN_BITMASK = 16L;
+	public static final long STATUS_COLUMN_BITMASK = 32L;
+	public static final long MODIFIEDDATE_COLUMN_BITMASK = 64L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -523,7 +525,7 @@ public class LayoutRevisionModelImpl extends BaseModelImpl<LayoutRevision>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -1373,7 +1375,7 @@ public class LayoutRevisionModelImpl extends BaseModelImpl<LayoutRevision>
 	}
 
 	@Override
-	public String getStatusByUserUuid() throws SystemException {
+	public String getStatusByUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getStatusByUserId());
 
@@ -1591,19 +1593,28 @@ public class LayoutRevisionModelImpl extends BaseModelImpl<LayoutRevision>
 			return StringPool.BLANK;
 		}
 
-		return LocalizationUtil.getDefaultLanguageId(xml);
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+		return LocalizationUtil.getDefaultLanguageId(xml, defaultLocale);
 	}
 
 	@Override
 	public void prepareLocalizedFieldsForImport() throws LocaleException {
-		prepareLocalizedFieldsForImport(null);
+		Locale defaultLocale = LocaleUtil.fromLanguageId(getDefaultLanguageId());
+
+		Locale[] availableLocales = LocaleUtil.fromLanguageIds(getAvailableLanguageIds());
+
+		Locale defaultImportLocale = LocalizationUtil.getDefaultImportLocale(LayoutRevision.class.getName(),
+				getPrimaryKey(), defaultLocale, availableLocales);
+
+		prepareLocalizedFieldsForImport(defaultImportLocale);
 	}
 
 	@Override
 	@SuppressWarnings("unused")
 	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
 		throws LocaleException {
-		Locale defaultLocale = LocaleUtil.getDefault();
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		String modelDefaultLanguageId = getDefaultLanguageId();
 
@@ -2166,8 +2177,8 @@ public class LayoutRevisionModelImpl extends BaseModelImpl<LayoutRevision>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = LayoutRevision.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] {
+	private static final ClassLoader _classLoader = LayoutRevision.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
 			LayoutRevision.class
 		};
 	private long _mvccVersion;

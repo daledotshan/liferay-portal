@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
@@ -22,12 +24,9 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.CharPool;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -35,7 +34,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
 import com.liferay.portlet.documentlibrary.NoSuchContentException;
@@ -46,9 +44,12 @@ import com.liferay.portlet.documentlibrary.service.persistence.DLContentPersiste
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -63,6 +64,7 @@ import java.util.Set;
  * @see DLContentUtil
  * @generated
  */
+@ProviderType
 public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	implements DLContentPersistence {
 	/*
@@ -111,11 +113,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param companyId the company ID
 	 * @param repositoryId the repository ID
 	 * @return the matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DLContent> findByC_R(long companyId, long repositoryId)
-		throws SystemException {
+	public List<DLContent> findByC_R(long companyId, long repositoryId) {
 		return findByC_R(companyId, repositoryId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -132,11 +132,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param start the lower bound of the range of document library contents
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @return the range of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R(long companyId, long repositoryId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByC_R(companyId, repositoryId, start, end, null);
 	}
 
@@ -153,12 +152,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R(long companyId, long repositoryId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator<DLContent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -271,12 +268,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByC_R_First(long companyId, long repositoryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = fetchByC_R_First(companyId, repositoryId,
 				orderByComparator);
 
@@ -306,11 +302,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param repositoryId the repository ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_First(long companyId, long repositoryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DLContent> orderByComparator) {
 		List<DLContent> list = findByC_R(companyId, repositoryId, 0, 1,
 				orderByComparator);
 
@@ -329,12 +324,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByC_R_Last(long companyId, long repositoryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = fetchByC_R_Last(companyId, repositoryId,
 				orderByComparator);
 
@@ -364,11 +358,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param repositoryId the repository ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_Last(long companyId, long repositoryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DLContent> orderByComparator) {
 		int count = countByC_R(companyId, repositoryId);
 
 		if (count == 0) {
@@ -394,12 +387,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent[] findByC_R_PrevAndNext(long contentId, long companyId,
-		long repositoryId, OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		long repositoryId, OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = findByPrimaryKey(contentId);
 
 		Session session = null;
@@ -429,7 +421,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 
 	protected DLContent getByC_R_PrevAndNext(Session session,
 		DLContent dlContent, long companyId, long repositoryId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<DLContent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -541,11 +533,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 *
 	 * @param companyId the company ID
 	 * @param repositoryId the repository ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_R(long companyId, long repositoryId)
-		throws SystemException {
+	public void removeByC_R(long companyId, long repositoryId) {
 		for (DLContent dlContent : findByC_R(companyId, repositoryId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(dlContent);
@@ -558,11 +548,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param companyId the company ID
 	 * @param repositoryId the repository ID
 	 * @return the number of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_R(long companyId, long repositoryId)
-		throws SystemException {
+	public int countByC_R(long companyId, long repositoryId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_R;
 
 		Object[] finderArgs = new Object[] { companyId, repositoryId };
@@ -649,11 +637,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param repositoryId the repository ID
 	 * @param path the path
 	 * @return the matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R_P(long companyId, long repositoryId,
-		String path) throws SystemException {
+		String path) {
 		return findByC_R_P(companyId, repositoryId, path, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -671,11 +658,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param start the lower bound of the range of document library contents
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @return the range of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R_P(long companyId, long repositoryId,
-		String path, int start, int end) throws SystemException {
+		String path, int start, int end) {
 		return findByC_R_P(companyId, repositoryId, path, start, end, null);
 	}
 
@@ -693,12 +679,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R_P(long companyId, long repositoryId,
-		String path, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		String path, int start, int end,
+		OrderByComparator<DLContent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -831,12 +816,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByC_R_P_First(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = fetchByC_R_P_First(companyId, repositoryId, path,
 				orderByComparator);
 
@@ -870,12 +854,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param path the path
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_P_First(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator) {
 		List<DLContent> list = findByC_R_P(companyId, repositoryId, path, 0, 1,
 				orderByComparator);
 
@@ -895,12 +877,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByC_R_P_Last(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = fetchByC_R_P_Last(companyId, repositoryId, path,
 				orderByComparator);
 
@@ -934,12 +915,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param path the path
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_P_Last(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator) {
 		int count = countByC_R_P(companyId, repositoryId, path);
 
 		if (count == 0) {
@@ -966,12 +945,12 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent[] findByC_R_P_PrevAndNext(long contentId, long companyId,
-		long repositoryId, String path, OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		long repositoryId, String path,
+		OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = findByPrimaryKey(contentId);
 
 		Session session = null;
@@ -1001,7 +980,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 
 	protected DLContent getByC_R_P_PrevAndNext(Session session,
 		DLContent dlContent, long companyId, long repositoryId, String path,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<DLContent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1132,11 +1111,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param companyId the company ID
 	 * @param repositoryId the repository ID
 	 * @param path the path
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_R_P(long companyId, long repositoryId, String path)
-		throws SystemException {
+	public void removeByC_R_P(long companyId, long repositoryId, String path) {
 		for (DLContent dlContent : findByC_R_P(companyId, repositoryId, path,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(dlContent);
@@ -1150,11 +1127,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param repositoryId the repository ID
 	 * @param path the path
 	 * @return the number of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_R_P(long companyId, long repositoryId, String path)
-		throws SystemException {
+	public int countByC_R_P(long companyId, long repositoryId, String path) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_R_P;
 
 		Object[] finderArgs = new Object[] { companyId, repositoryId, path };
@@ -1253,11 +1228,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param repositoryId the repository ID
 	 * @param path the path
 	 * @return the matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R_LikeP(long companyId, long repositoryId,
-		String path) throws SystemException {
+		String path) {
 		return findByC_R_LikeP(companyId, repositoryId, path,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -1275,11 +1249,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param start the lower bound of the range of document library contents
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @return the range of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R_LikeP(long companyId, long repositoryId,
-		String path, int start, int end) throws SystemException {
+		String path, int start, int end) {
 		return findByC_R_LikeP(companyId, repositoryId, path, start, end, null);
 	}
 
@@ -1297,12 +1270,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findByC_R_LikeP(long companyId, long repositoryId,
-		String path, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		String path, int start, int end,
+		OrderByComparator<DLContent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1429,12 +1401,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByC_R_LikeP_First(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = fetchByC_R_LikeP_First(companyId, repositoryId,
 				path, orderByComparator);
 
@@ -1468,12 +1439,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param path the path
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_LikeP_First(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator) {
 		List<DLContent> list = findByC_R_LikeP(companyId, repositoryId, path,
 				0, 1, orderByComparator);
 
@@ -1493,12 +1462,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByC_R_LikeP_Last(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = fetchByC_R_LikeP_Last(companyId, repositoryId,
 				path, orderByComparator);
 
@@ -1532,12 +1500,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param path the path
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_LikeP_Last(long companyId, long repositoryId,
-		String path, OrderByComparator orderByComparator)
-		throws SystemException {
+		String path, OrderByComparator<DLContent> orderByComparator) {
 		int count = countByC_R_LikeP(companyId, repositoryId, path);
 
 		if (count == 0) {
@@ -1564,13 +1530,12 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent[] findByC_R_LikeP_PrevAndNext(long contentId,
 		long companyId, long repositoryId, String path,
-		OrderByComparator orderByComparator)
-		throws NoSuchContentException, SystemException {
+		OrderByComparator<DLContent> orderByComparator)
+		throws NoSuchContentException {
 		DLContent dlContent = findByPrimaryKey(contentId);
 
 		Session session = null;
@@ -1600,7 +1565,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 
 	protected DLContent getByC_R_LikeP_PrevAndNext(Session session,
 		DLContent dlContent, long companyId, long repositoryId, String path,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<DLContent> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1731,11 +1696,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param companyId the company ID
 	 * @param repositoryId the repository ID
 	 * @param path the path
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_R_LikeP(long companyId, long repositoryId, String path)
-		throws SystemException {
+	public void removeByC_R_LikeP(long companyId, long repositoryId, String path) {
 		for (DLContent dlContent : findByC_R_LikeP(companyId, repositoryId,
 				path, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(dlContent);
@@ -1749,11 +1712,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param repositoryId the repository ID
 	 * @param path the path
 	 * @return the number of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_R_LikeP(long companyId, long repositoryId, String path)
-		throws SystemException {
+	public int countByC_R_LikeP(long companyId, long repositoryId, String path) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_C_R_LIKEP;
 
 		Object[] finderArgs = new Object[] { companyId, repositoryId, path };
@@ -1853,12 +1814,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param version the version
 	 * @return the matching document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByC_R_P_V(long companyId, long repositoryId,
-		String path, String version)
-		throws NoSuchContentException, SystemException {
+		String path, String version) throws NoSuchContentException {
 		DLContent dlContent = fetchByC_R_P_V(companyId, repositoryId, path,
 				version);
 
@@ -1899,11 +1858,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param path the path
 	 * @param version the version
 	 * @return the matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_P_V(long companyId, long repositoryId,
-		String path, String version) throws SystemException {
+		String path, String version) {
 		return fetchByC_R_P_V(companyId, repositoryId, path, version, true);
 	}
 
@@ -1916,12 +1874,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param version the version
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching document library content, or <code>null</code> if a matching document library content could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent fetchByC_R_P_V(long companyId, long repositoryId,
-		String path, String version, boolean retrieveFromCache)
-		throws SystemException {
+		String path, String version, boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] {
 				companyId, repositoryId, path, version
 			};
@@ -2055,12 +2011,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param path the path
 	 * @param version the version
 	 * @return the document library content that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent removeByC_R_P_V(long companyId, long repositoryId,
-		String path, String version)
-		throws NoSuchContentException, SystemException {
+		String path, String version) throws NoSuchContentException {
 		DLContent dlContent = findByC_R_P_V(companyId, repositoryId, path,
 				version);
 
@@ -2075,11 +2029,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param path the path
 	 * @param version the version
 	 * @return the number of matching document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByC_R_P_V(long companyId, long repositoryId, String path,
-		String version) throws SystemException {
+		String version) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_R_P_V;
 
 		Object[] finderArgs = new Object[] {
@@ -2345,11 +2298,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param contentId the primary key of the document library content
 	 * @return the document library content that was removed
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public DLContent remove(long contentId)
-		throws NoSuchContentException, SystemException {
+	public DLContent remove(long contentId) throws NoSuchContentException {
 		return remove((Serializable)contentId);
 	}
 
@@ -2359,11 +2310,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param primaryKey the primary key of the document library content
 	 * @return the document library content that was removed
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent remove(Serializable primaryKey)
-		throws NoSuchContentException, SystemException {
+		throws NoSuchContentException {
 		Session session = null;
 
 		try {
@@ -2395,8 +2345,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	}
 
 	@Override
-	protected DLContent removeImpl(DLContent dlContent)
-		throws SystemException {
+	protected DLContent removeImpl(DLContent dlContent) {
 		dlContent = toUnwrappedModel(dlContent);
 
 		Session session = null;
@@ -2429,8 +2378,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 
 	@Override
 	public DLContent updateImpl(
-		com.liferay.portlet.documentlibrary.model.DLContent dlContent)
-		throws SystemException {
+		com.liferay.portlet.documentlibrary.model.DLContent dlContent) {
 		dlContent = toUnwrappedModel(dlContent);
 
 		boolean isNew = dlContent.isNew();
@@ -2553,11 +2501,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param primaryKey the primary key of the document library content
 	 * @return the document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchContentException, SystemException {
+		throws NoSuchContentException {
 		DLContent dlContent = fetchByPrimaryKey(primaryKey);
 
 		if (dlContent == null) {
@@ -2578,11 +2525,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param contentId the primary key of the document library content
 	 * @return the document library content
 	 * @throws com.liferay.portlet.documentlibrary.NoSuchContentException if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLContent findByPrimaryKey(long contentId)
-		throws NoSuchContentException, SystemException {
+		throws NoSuchContentException {
 		return findByPrimaryKey((Serializable)contentId);
 	}
 
@@ -2591,11 +2537,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 *
 	 * @param primaryKey the primary key of the document library content
 	 * @return the document library content, or <code>null</code> if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public DLContent fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public DLContent fetchByPrimaryKey(Serializable primaryKey) {
 		DLContent dlContent = (DLContent)EntityCacheUtil.getResult(DLContentModelImpl.ENTITY_CACHE_ENABLED,
 				DLContentImpl.class, primaryKey);
 
@@ -2639,22 +2583,111 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 *
 	 * @param contentId the primary key of the document library content
 	 * @return the document library content, or <code>null</code> if a document library content with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public DLContent fetchByPrimaryKey(long contentId)
-		throws SystemException {
+	public DLContent fetchByPrimaryKey(long contentId) {
 		return fetchByPrimaryKey((Serializable)contentId);
+	}
+
+	@Override
+	public Map<Serializable, DLContent> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, DLContent> map = new HashMap<Serializable, DLContent>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			DLContent dlContent = fetchByPrimaryKey(primaryKey);
+
+			if (dlContent != null) {
+				map.put(primaryKey, dlContent);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			DLContent dlContent = (DLContent)EntityCacheUtil.getResult(DLContentModelImpl.ENTITY_CACHE_ENABLED,
+					DLContentImpl.class, primaryKey);
+
+			if (dlContent == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, dlContent);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_DLCONTENT_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (DLContent dlContent : (List<DLContent>)q.list()) {
+				map.put(dlContent.getPrimaryKeyObj(), dlContent);
+
+				cacheResult(dlContent);
+
+				uncachedPrimaryKeys.remove(dlContent.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(DLContentModelImpl.ENTITY_CACHE_ENABLED,
+					DLContentImpl.class, primaryKey, _nullDLContent);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the document library contents.
 	 *
 	 * @return the document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DLContent> findAll() throws SystemException {
+	public List<DLContent> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -2668,11 +2701,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param start the lower bound of the range of document library contents
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @return the range of document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DLContent> findAll(int start, int end)
-		throws SystemException {
+	public List<DLContent> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -2687,11 +2718,10 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * @param end the upper bound of the range of document library contents (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<DLContent> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<DLContent> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2773,10 +2803,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	/**
 	 * Removes all the document library contents from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (DLContent dlContent : findAll()) {
 			remove(dlContent);
 		}
@@ -2786,10 +2815,9 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * Returns the number of document library contents.
 	 *
 	 * @return the number of document library contents
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -2829,25 +2857,6 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	 * Initializes the document library content persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portlet.documentlibrary.model.DLContent")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<DLContent>> listenersList = new ArrayList<ModelListener<DLContent>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<DLContent>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -2858,6 +2867,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	}
 
 	private static final String _SQL_SELECT_DLCONTENT = "SELECT dlContent FROM DLContent dlContent";
+	private static final String _SQL_SELECT_DLCONTENT_WHERE_PKS_IN = "SELECT dlContent FROM DLContent dlContent WHERE contentId IN (";
 	private static final String _SQL_SELECT_DLCONTENT_WHERE = "SELECT dlContent FROM DLContent dlContent WHERE ";
 	private static final String _SQL_COUNT_DLCONTENT = "SELECT COUNT(dlContent) FROM DLContent dlContent";
 	private static final String _SQL_COUNT_DLCONTENT_WHERE = "SELECT COUNT(dlContent) FROM DLContent dlContent WHERE ";
@@ -2865,11 +2875,11 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No DLContent exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No DLContent exists with the key {";
 	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
-	private static Log _log = LogFactoryUtil.getLog(DLContentPersistenceImpl.class);
-	private static Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
+	private static final Log _log = LogFactoryUtil.getLog(DLContentPersistenceImpl.class);
+	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"path", "data", "size"
 			});
-	private static DLContent _nullDLContent = new DLContentImpl() {
+	private static final DLContent _nullDLContent = new DLContentImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -2881,7 +2891,7 @@ public class DLContentPersistenceImpl extends BasePersistenceImpl<DLContent>
 			}
 		};
 
-	private static CacheModel<DLContent> _nullDLContentCacheModel = new CacheModel<DLContent>() {
+	private static final CacheModel<DLContent> _nullDLContentCacheModel = new CacheModel<DLContent>() {
 			@Override
 			public DLContent toEntityModel() {
 				return _nullDLContent;

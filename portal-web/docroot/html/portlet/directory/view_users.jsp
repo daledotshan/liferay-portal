@@ -66,17 +66,17 @@ if (Validator.isNotNull(viewUsersRedirect)) {
 	<c:if test="<%= organization != null %>">
 		<aui:input name="<%= UserDisplayTerms.ORGANIZATION_ID %>" type="hidden" value="<%= organization.getOrganizationId() %>" />
 
-		<h3><%= HtmlUtil.escape(LanguageUtil.format(pageContext, "users-of-x", organization.getName(), false)) %></h3>
+		<h3><%= HtmlUtil.escape(LanguageUtil.format(request, "users-of-x", organization.getName(), false)) %></h3>
 	</c:if>
 
 	<c:if test="<%= userGroup != null %>">
 		<aui:input name="<%= UserDisplayTerms.USER_GROUP_ID %>" type="hidden" value="<%= userGroup.getUserGroupId() %>" />
 
-		<h3><%= LanguageUtil.format(pageContext, "users-of-x", HtmlUtil.escape(userGroup.getName()), false) %></h3>
+		<h3><%= LanguageUtil.format(request, "users-of-x", HtmlUtil.escape(userGroup.getName()), false) %></h3>
 	</c:if>
 
 	<aui:nav-bar>
-		<aui:nav-bar-search cssClass="navbar-search-advanced" file="/html/portlet/directory/user_search.jsp" searchContainer="<%= userSearchContainer %>" />
+		<aui:nav-bar-search file="/html/portlet/directory/user_search.jsp" searchContainer="<%= userSearchContainer %>" />
 	</aui:nav-bar>
 
 	<%

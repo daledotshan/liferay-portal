@@ -17,7 +17,6 @@ package com.liferay.portlet.login.util;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
 import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -85,7 +84,7 @@ public class LoginUtil {
 	public static long getAuthenticatedUserId(
 			HttpServletRequest request, String login, String password,
 			String authType)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		long userId = GetterUtil.getLong(login);
 
@@ -200,10 +199,6 @@ public class LoginUtil {
 			LanguageUtil.get(
 				themeDisplay.getLocale(), "the-name-of-the-email-recipient"));
 		definitionTerms.put(
-			"[$USER_AGENT$]",
-			LanguageUtil.get(
-				themeDisplay.getLocale(), "the-browser's-user-agent"));
-		definitionTerms.put(
 			"[$USER_ID$]",
 			LanguageUtil.get(themeDisplay.getLocale(), "the-user-id"));
 
@@ -222,24 +217,21 @@ public class LoginUtil {
 	}
 
 	public static String getEmailFromAddress(
-			PortletPreferences preferences, long companyId)
-		throws SystemException {
+		PortletPreferences preferences, long companyId) {
 
 		return PortalUtil.getEmailFromAddress(
 			preferences, companyId, PropsValues.LOGIN_EMAIL_FROM_ADDRESS);
 	}
 
 	public static String getEmailFromName(
-			PortletPreferences preferences, long companyId)
-		throws SystemException {
+		PortletPreferences preferences, long companyId) {
 
 		return PortalUtil.getEmailFromName(
 			preferences, companyId, PropsValues.LOGIN_EMAIL_FROM_NAME);
 	}
 
 	public static String getLogin(
-			HttpServletRequest request, String paramName, Company company)
-		throws SystemException {
+		HttpServletRequest request, String paramName, Company company) {
 
 		String login = request.getParameter(paramName);
 

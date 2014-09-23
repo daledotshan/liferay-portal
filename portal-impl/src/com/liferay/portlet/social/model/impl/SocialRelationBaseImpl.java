@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.social.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.social.model.SocialRelation;
 import com.liferay.portlet.social.service.SocialRelationLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.social.service.SocialRelationLocalServiceUtil;
  * @see com.liferay.portlet.social.model.SocialRelation
  * @generated
  */
+@ProviderType
 public abstract class SocialRelationBaseImpl extends SocialRelationModelImpl
 	implements SocialRelation {
 	/*
@@ -39,7 +40,7 @@ public abstract class SocialRelationBaseImpl extends SocialRelationModelImpl
 	 * Never modify or reference this class directly. All methods that expect a social relation model instance should use the {@link SocialRelation} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			SocialRelationLocalServiceUtil.addSocialRelation(this);
 		}

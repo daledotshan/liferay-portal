@@ -94,8 +94,8 @@ public class DummyIndexer implements Indexer {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getSummary(Document, Locale,
-	 *             String, PortletURL, PortletRequest, PortletResponse)}
+	 * @deprecated As of 7.0.0, replaced by {@link #getSummary(Document, String,
+	 *             PortletURL, PortletRequest, PortletResponse)}
 	 */
 	@Deprecated
 	@Override
@@ -108,7 +108,7 @@ public class DummyIndexer implements Indexer {
 
 	@Override
 	public Summary getSummary(
-		Document document, Locale locale, String snippet, PortletURL portletURL,
+		Document document, String snippet, PortletURL portletURL,
 		PortletRequest portletRequest, PortletResponse portletResponse) {
 
 		return null;
@@ -119,6 +119,11 @@ public class DummyIndexer implements Indexer {
 		PermissionChecker permissionChecker, String entryClassName,
 		long entryClassPK, String actionId) {
 
+		return false;
+	}
+
+	@Override
+	public boolean isCommitImmediately() {
 		return false;
 	}
 
@@ -195,6 +200,10 @@ public class DummyIndexer implements Indexer {
 	@Override
 	public void unregisterIndexerPostProcessor(
 		IndexerPostProcessor indexerPostProcessor) {
+	}
+
+	@Override
+	public void updateFullQuery(SearchContext searchContext) {
 	}
 
 }

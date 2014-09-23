@@ -14,9 +14,13 @@
 
 package com.liferay.portlet.documentlibrary.lar;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Repository;
@@ -24,6 +28,7 @@ import com.liferay.portal.model.RepositoryEntry;
 import com.liferay.portal.service.RepositoryEntryLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,9 +42,41 @@ public class RepositoryEntryStagedModelDataHandler
 
 	@Override
 	public void deleteStagedModel(
-		String uuid, long groupId, String className, String extraData) {
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException {
 
-		throw new UnsupportedOperationException();
+		RepositoryEntry repositoryEntry = fetchStagedModelByUuidAndGroupId(
+			uuid, groupId);
+
+		if (repositoryEntry != null) {
+			RepositoryEntryLocalServiceUtil.deleteRepositoryEntry(
+				repositoryEntry.getRepositoryId());
+		}
+	}
+
+	@Override
+	public RepositoryEntry fetchStagedModelByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<RepositoryEntry> entries =
+			RepositoryEntryLocalServiceUtil.
+				getRepositoryEntriesByUuidAndCompanyId(
+					uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+					new StagedModelModifiedDateComparator<RepositoryEntry>());
+
+		if (ListUtil.isEmpty(entries)) {
+			return null;
+		}
+
+		return entries.get(0);
+	}
+
+	@Override
+	public RepositoryEntry fetchStagedModelByUuidAndGroupId(
+		String uuid, long groupId) {
+
+		return RepositoryEntryLocalServiceUtil.
+			fetchRepositoryEntryByUuidAndGroupId(uuid, groupId);
 	}
 
 	@Override
@@ -86,10 +123,9 @@ public class RepositoryEntryStagedModelDataHandler
 
 		if (portletDataContext.isDataStrategyMirror()) {
 			RepositoryEntry existingRepositoryEntry =
-				RepositoryEntryLocalServiceUtil.
-					fetchRepositoryEntryByUuidAndGroupId(
-						repositoryEntry.getUuid(),
-						portletDataContext.getScopeGroupId());
+				fetchStagedModelByUuidAndGroupId(
+					repositoryEntry.getUuid(),
+					portletDataContext.getScopeGroupId());
 
 			if (existingRepositoryEntry == null) {
 				serviceContext.setUuid(repositoryEntry.getUuid());

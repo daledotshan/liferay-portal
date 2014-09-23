@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerPostProcessor;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.Query;
+import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Sort;
@@ -32,14 +33,14 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.User;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.DeleteAfterTestRun;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.util.GroupTestUtil;
-import com.liferay.portal.util.UserTestUtil;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.util.test.SearchContextTestUtil;
+import com.liferay.portal.util.test.UserTestUtil;
 import com.liferay.portlet.usersadmin.util.UserIndexer;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ import org.junit.runner.RunWith;
  */
 @ExecutionTestListeners(
 	listeners = {
-		EnvironmentExecutionTestListener.class,
+		MainServletExecutionTestListener.class,
 		SynchronousDestinationExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
@@ -114,8 +115,6 @@ public class DocumentImplTest {
 	@After
 	public void tearDown() throws Exception {
 		_indexer.unregisterIndexerPostProcessor(_indexerPostProcessor);
-
-		GroupLocalServiceUtil.deleteGroup(_group);
 	}
 
 	@Test
@@ -237,11 +236,15 @@ public class DocumentImplTest {
 	protected SearchContext buildSearchContext(String keywords)
 		throws Exception {
 
-		SearchContext searchContext = ServiceTestUtil.getSearchContext();
+		SearchContext searchContext = SearchContextTestUtil.getSearchContext();
 
 		searchContext.setAttribute(Field.STATUS, WorkflowConstants.STATUS_ANY);
 		searchContext.setKeywords(keywords);
 		searchContext.setGroupIds(new long[] {});
+
+		QueryConfig queryConfig = searchContext.getQueryConfig();
+
+		queryConfig.setSelectedFieldNames(getSelectedFieldNames());
 
 		return searchContext;
 	}
@@ -249,7 +252,7 @@ public class DocumentImplTest {
 	protected void checkSearchContext(SearchContext searchContext)
 		throws Exception {
 
-		Hits results = _indexer.search(searchContext, Field.ANY);
+		Hits results = _indexer.search(searchContext, getSelectedFieldNames());
 
 		for (Document document : results.getDocs()) {
 			String screenName = document.get("screenName");
@@ -296,6 +299,10 @@ public class DocumentImplTest {
 	protected void checkSearchContext(
 			SearchContext searchContext, Sort sort, String[] screenNames)
 		throws Exception {
+
+		QueryConfig queryConfig = searchContext.getQueryConfig();
+
+		queryConfig.setSelectedFieldNames(getSelectedFieldNames());
 
 		searchContext.setSorts(sort);
 
@@ -371,6 +378,14 @@ public class DocumentImplTest {
 		}
 
 		return list.toArray(new Long[list.size()]);
+	}
+
+	protected String[] getSelectedFieldNames() {
+		return new String[] {
+			_FIELD_DOUBLE, _FIELD_DOUBLE_ARRAY, _FIELD_FLOAT,
+			_FIELD_FLOAT_ARRAY, _FIELD_INTEGER, _FIELD_INTEGER_ARRAY,
+			_FIELD_LONG, _FIELD_LONG_ARRAY, "screenName"
+		};
 	}
 
 	protected void populateNumberArrays(
@@ -501,7 +516,10 @@ public class DocumentImplTest {
 	private Map<String, Double> _doubles = new HashMap<String, Double>();
 	private Map<String, Float[]> _floatArrays = new HashMap<String, Float[]>();
 	private Map<String, Float> _floats = new HashMap<String, Float>();
+
+	@DeleteAfterTestRun
 	private Group _group;
+
 	private Indexer _indexer;
 	private IndexerPostProcessor _indexerPostProcessor;
 	private Map<String, Integer[]> _integerArrays =

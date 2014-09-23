@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/layouts_admin/init.jsp" %>
 
 <%
-Layout selLayout = (Layout)request.getAttribute("edit_pages.jsp-selLayout");
+Layout selLayout = layoutsAdminDisplayContext.getSelLayout();
 
 boolean curFreeformLayout = false;
 boolean prototypeGroup = false;
@@ -71,12 +71,12 @@ if (selLayout != null) {
 
 <c:choose>
 	<c:when test="<%= curFreeformLayout %>">
-		<div class="alert alert-block">
+		<div class="alert alert-warning">
 			<liferay-ui:message key="it-is-not-possible-to-specify-customization-settings-for-freeform-layouts" />
 		</div>
 	</c:when>
 	<c:when test="<%= prototypeGroup %>">
-		<div class="alert alert-block">
+		<div class="alert alert-warning">
 			<liferay-ui:message key="it-is-not-possible-to-specify-customization-settings-for-pages-in-site-templates-or-page-templates" />
 		</div>
 	</c:when>
@@ -100,7 +100,7 @@ if (selLayout != null) {
 
 					<%
 					if (Validator.isNotNull(velocityTemplateId) && Validator.isNotNull(velocityTemplateContent)) {
-						RuntimePageUtil.processCustomizationSettings(pageContext, new StringTemplateResource(velocityTemplateId, velocityTemplateContent));
+						RuntimePageUtil.processCustomizationSettings(request, response, new StringTemplateResource(velocityTemplateId, velocityTemplateContent));
 					}
 					%>
 

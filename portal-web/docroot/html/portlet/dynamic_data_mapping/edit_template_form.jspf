@@ -15,32 +15,108 @@
 --%>
 
 <%
-if (Validator.isNull(script)) {
-	script = structure.getXsd();
-	scriptJSONArray = DDMXSDUtil.getJSONArray(script);
-}
-
-if (scriptJSONArray != null) {
-	scriptJSONArray = _addFormTemplateFieldAttributes(structure, scriptJSONArray);
-}
-
 String namespace = renderResponse.getNamespace();
 
 if (Validator.isNotNull(portletResourceNamespace)) {
 	namespace = portletResourceNamespace;
 }
+
+if (Validator.isNull(script)) {
+	script = structure.getDefinition();
+}
+
+JSONArray fieldsJSONArray = _getFormTemplateFieldsJSONArray(structure, script);
 %>
 
 <aui:input name="language" type="hidden" value="xsd" />
 <aui:input name="scriptContent" type="hidden" />
 
+<%@ include file="/html/portlet/dynamic_data_mapping/form_builder.jspf" %>
+
 <aui:script>
-	window["<%= HtmlUtil.escapeJS(namespace) %>getAvailableFields"] = function(A, FormBuilder) {
-		var availableFields = <%= scriptJSONArray.toString() %>;
+	Liferay.provide(
+		window,
+		'<portlet:namespace />attachValueChange',
+		function(mode) {
+			var A = AUI();
+
+			A.one('#<portlet:namespace />mode').on(
+				'change',
+				function(event) {
+					var currentTarget = event.currentTarget;
+
+					<portlet:namespace />toggleMode(currentTarget.get('value'));
+				}
+			);
+		},
+		['aui-base']
+	);
+
+	Liferay.on(
+		'<portlet:namespace />formBuilderLoaded',
+		function(event) {
+			<portlet:namespace />attachValueChange();
+
+			<portlet:namespace />toggleMode('<%= HtmlUtil.escape(mode) %>');
+		}
+	);
+
+	Liferay.provide(
+		window,
+		'<portlet:namespace />setFieldsHiddenAttributes',
+		function(item, index, collection, mode) {
+			var A = AUI();
+
+			var hiddenAttributesMap = window.<portlet:namespace />formBuilder.MAP_HIDDEN_FIELD_ATTRS;
+			var hiddenAttributes = hiddenAttributesMap[item.get('type')] || hiddenAttributesMap.DEFAULT;
+
+			hiddenAttributes = A.Array(hiddenAttributes);
+
+			if (mode === '<%= DDMTemplateConstants.TEMPLATE_MODE_EDIT %>') {
+				A.Array.removeItem(hiddenAttributes, 'readOnly');
+			}
+
+			item.set('hiddenAttributes', hiddenAttributes);
+		},
+		['aui-base']
+	);
+
+	Liferay.provide(
+		window,
+		'<portlet:namespace />toggleMode',
+		function(mode) {
+			var A = AUI();
+
+			var formBuilder = window.<portlet:namespace />formBuilder;
+
+			var modeEdit = (mode === '<%= DDMTemplateConstants.TEMPLATE_MODE_EDIT %>');
+
+			formBuilder.set('allowRemoveRequiredFields', modeEdit);
+
+			formBuilder.get('fields').each(A.rbind('<portlet:namespace />setFieldsHiddenAttributes', window, mode));
+
+			A.Array.each(formBuilder.get('availableFields'), A.rbind('<portlet:namespace />setFieldsHiddenAttributes', window, mode));
+
+			var editingField = formBuilder.editingField;
+
+			if (editingField) {
+				formBuilder.propertyList.set('data', formBuilder.getFieldProperties(editingField, true));
+			}
+		},
+		['aui-base']
+	);
+
+	window['<%= HtmlUtil.escapeJS(namespace) %>getAvailableFields'] = function(A, FormBuilder) {
+
+		<%
+		JSONArray structureJSONArray = _getFormTemplateFieldsJSONArray(structure, structure.getDefinition());
+		%>
+
+		var availableFields = <%= structureJSONArray.toString() %>;
 
 		A.Array.each(
 			availableFields,
-			function(item, index, collection) {
+			function(item, index) {
 				item.iconClass = FormBuilder.DEFAULT_ICON_CLASS;
 			}
 		);
@@ -50,9 +126,9 @@ if (Validator.isNotNull(portletResourceNamespace)) {
 </aui:script>
 
 <%!
-public JSONArray _addFormTemplateFieldAttributes(DDMStructure structure, JSONArray scriptJSONArray) throws Exception {
-	for (int i = 0; i < scriptJSONArray.length(); i++) {
-		JSONObject jsonObject = scriptJSONArray.getJSONObject(i);
+public void _addFormTemplateFieldAttributes(DDMStructure structure, JSONArray jsonArray) throws Exception {
+	for (int i = 0; i < jsonArray.length(); i++) {
+		JSONObject jsonObject = jsonArray.getJSONObject(i);
 
 		String fieldName = jsonObject.getString("name");
 
@@ -63,8 +139,6 @@ public JSONArray _addFormTemplateFieldAttributes(DDMStructure structure, JSONArr
 		catch (StructureFieldException sfe) {
 		}
 	}
-
-	return scriptJSONArray;
 }
 
 public JSONArray _getFieldReadOnlyAttributes(DDMStructure structure, String fieldName) throws Exception {
@@ -82,5 +156,13 @@ public JSONArray _getFieldReadOnlyAttributes(DDMStructure structure, String fiel
 	}
 
 	return readOnlyAttributesJSONArray;
+}
+
+public JSONArray _getFormTemplateFieldsJSONArray(DDMStructure structure, String script) throws Exception {
+	JSONArray jsonArray = DDMXSDUtil.getJSONArray(script);
+
+	_addFormTemplateFieldAttributes(structure, jsonArray);
+
+	return jsonArray;
 }
 %>

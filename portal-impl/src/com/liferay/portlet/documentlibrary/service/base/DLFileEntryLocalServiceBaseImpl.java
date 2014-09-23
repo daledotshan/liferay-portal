@@ -14,17 +14,29 @@
 
 package com.liferay.portlet.documentlibrary.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
+import com.liferay.portal.kernel.lar.ManifestSummary;
+import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -85,6 +97,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class DLFileEntryLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements DLFileEntryLocalService,
 		IdentifiableBean {
@@ -99,12 +112,10 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 *
 	 * @param dlFileEntry the document library file entry
 	 * @return the document library file entry that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public DLFileEntry addDLFileEntry(DLFileEntry dlFileEntry)
-		throws SystemException {
+	public DLFileEntry addDLFileEntry(DLFileEntry dlFileEntry) {
 		dlFileEntry.setNew(true);
 
 		return dlFileEntryPersistence.update(dlFileEntry);
@@ -127,12 +138,11 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param fileEntryId the primary key of the document library file entry
 	 * @return the document library file entry that was removed
 	 * @throws PortalException if a document library file entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public DLFileEntry deleteDLFileEntry(long fileEntryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return dlFileEntryPersistence.remove(fileEntryId);
 	}
 
@@ -141,12 +151,10 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 *
 	 * @param dlFileEntry the document library file entry
 	 * @return the document library file entry that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public DLFileEntry deleteDLFileEntry(DLFileEntry dlFileEntry)
-		throws SystemException {
+	public DLFileEntry deleteDLFileEntry(DLFileEntry dlFileEntry) {
 		return dlFileEntryPersistence.remove(dlFileEntry);
 	}
 
@@ -163,12 +171,9 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return dlFileEntryPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -183,12 +188,10 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return dlFileEntryPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end);
 	}
@@ -205,12 +208,10 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return dlFileEntryPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end, orderByComparator);
 	}
@@ -220,11 +221,9 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return dlFileEntryPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -234,33 +233,17 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return dlFileEntryPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public DLFileEntry fetchDLFileEntry(long fileEntryId)
-		throws SystemException {
+	public DLFileEntry fetchDLFileEntry(long fileEntryId) {
 		return dlFileEntryPersistence.fetchByPrimaryKey(fileEntryId);
-	}
-
-	/**
-	 * Returns the document library file entry with the matching UUID and company.
-	 *
-	 * @param uuid the document library file entry's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching document library file entry, or <code>null</code> if a matching document library file entry could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public DLFileEntry fetchDLFileEntryByUuidAndCompanyId(String uuid,
-		long companyId) throws SystemException {
-		return dlFileEntryPersistence.fetchByUuid_C_First(uuid, companyId, null);
 	}
 
 	/**
@@ -269,11 +252,10 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param uuid the document library file entry's UUID
 	 * @param groupId the primary key of the group
 	 * @return the matching document library file entry, or <code>null</code> if a matching document library file entry could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLFileEntry fetchDLFileEntryByUuidAndGroupId(String uuid,
-		long groupId) throws SystemException {
+		long groupId) {
 		return dlFileEntryPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
@@ -283,33 +265,127 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param fileEntryId the primary key of the document library file entry
 	 * @return the document library file entry
 	 * @throws PortalException if a document library file entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLFileEntry getDLFileEntry(long fileEntryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return dlFileEntryPersistence.findByPrimaryKey(fileEntryId);
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
-		return dlFileEntryPersistence.findByPrimaryKey(primaryKeyObj);
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(DLFileEntry.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("fileEntryId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(DLFileEntry.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("fileEntryId");
+	}
+
+	@Override
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		final PortletDataContext portletDataContext) {
+		final ExportActionableDynamicQuery exportActionableDynamicQuery = new ExportActionableDynamicQuery() {
+				@Override
+				public long performCount() throws PortalException {
+					ManifestSummary manifestSummary = portletDataContext.getManifestSummary();
+
+					StagedModelType stagedModelType = getStagedModelType();
+
+					long modelAdditionCount = super.performCount();
+
+					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+						modelAdditionCount);
+
+					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
+							stagedModelType);
+
+					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+						modelDeletionCount);
+
+					return modelAdditionCount;
+				}
+			};
+
+		initActionableDynamicQuery(exportActionableDynamicQuery);
+
+		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					portletDataContext.addDateRangeCriteria(dynamicQuery,
+						"modifiedDate");
+
+					StagedModelType stagedModelType = exportActionableDynamicQuery.getStagedModelType();
+
+					if (stagedModelType.getReferrerClassNameId() >= 0) {
+						Property classNameIdProperty = PropertyFactoryUtil.forName(
+								"classNameId");
+
+						dynamicQuery.add(classNameIdProperty.eq(
+								stagedModelType.getReferrerClassNameId()));
+					}
+				}
+			});
+
+		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
+
+		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
+
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+				@Override
+				public void performAction(Object object)
+					throws PortalException {
+					DLFileEntry stagedModel = (DLFileEntry)object;
+
+					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
+						stagedModel);
+				}
+			});
+		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
+				PortalUtil.getClassNameId(DLFileEntry.class.getName())));
+
+		return exportActionableDynamicQuery;
 	}
 
 	/**
-	 * Returns the document library file entry with the matching UUID and company.
-	 *
-	 * @param uuid the document library file entry's UUID
-	 * @param  companyId the primary key of the company
-	 * @return the matching document library file entry
-	 * @throws PortalException if a matching document library file entry could not be found
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Override
-	public DLFileEntry getDLFileEntryByUuidAndCompanyId(String uuid,
-		long companyId) throws PortalException, SystemException {
-		return dlFileEntryPersistence.findByUuid_C_First(uuid, companyId, null);
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return dlFileEntryLocalService.deleteDLFileEntry((DLFileEntry)persistedModel);
+	}
+
+	@Override
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException {
+		return dlFileEntryPersistence.findByPrimaryKey(primaryKeyObj);
+	}
+
+	@Override
+	public List<DLFileEntry> getDLFileEntriesByUuidAndCompanyId(String uuid,
+		long companyId) {
+		return dlFileEntryPersistence.findByUuid_C(uuid, companyId);
+	}
+
+	@Override
+	public List<DLFileEntry> getDLFileEntriesByUuidAndCompanyId(String uuid,
+		long companyId, int start, int end,
+		OrderByComparator<DLFileEntry> orderByComparator) {
+		return dlFileEntryPersistence.findByUuid_C(uuid, companyId, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -319,11 +395,10 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param groupId the primary key of the group
 	 * @return the matching document library file entry
 	 * @throws PortalException if a matching document library file entry could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public DLFileEntry getDLFileEntryByUuidAndGroupId(String uuid, long groupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return dlFileEntryPersistence.findByUUID_G(uuid, groupId);
 	}
 
@@ -337,11 +412,9 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * @param start the lower bound of the range of document library file entries
 	 * @param end the upper bound of the range of document library file entries (not inclusive)
 	 * @return the range of document library file entries
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<DLFileEntry> getDLFileEntries(int start, int end)
-		throws SystemException {
+	public List<DLFileEntry> getDLFileEntries(int start, int end) {
 		return dlFileEntryPersistence.findAll(start, end);
 	}
 
@@ -349,10 +422,9 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 * Returns the number of document library file entries.
 	 *
 	 * @return the number of document library file entries
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getDLFileEntriesCount() throws SystemException {
+	public int getDLFileEntriesCount() {
 		return dlFileEntryPersistence.countAll();
 	}
 
@@ -361,12 +433,10 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 *
 	 * @param dlFileEntry the document library file entry
 	 * @return the document library file entry that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public DLFileEntry updateDLFileEntry(DLFileEntry dlFileEntry)
-		throws SystemException {
+	public DLFileEntry updateDLFileEntry(DLFileEntry dlFileEntry) {
 		return dlFileEntryPersistence.update(dlFileEntry);
 	}
 
@@ -1709,7 +1779,7 @@ public abstract class DLFileEntryLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = dlFileEntryPersistence.getDataSource();
 

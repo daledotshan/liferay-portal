@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.trash.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.trash.model.TrashEntry;
 import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
  * @see com.liferay.portlet.trash.model.TrashEntry
  * @generated
  */
+@ProviderType
 public abstract class TrashEntryBaseImpl extends TrashEntryModelImpl
 	implements TrashEntry {
 	/*
@@ -39,7 +40,7 @@ public abstract class TrashEntryBaseImpl extends TrashEntryModelImpl
 	 * Never modify or reference this class directly. All methods that expect a trash entry model instance should use the {@link TrashEntry} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			TrashEntryLocalServiceUtil.addTrashEntry(this);
 		}

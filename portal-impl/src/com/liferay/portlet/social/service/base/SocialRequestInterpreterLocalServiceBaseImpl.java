@@ -14,6 +14,8 @@
 
 package com.liferay.portlet.social.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
@@ -41,6 +43,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.social.service.SocialRequestInterpreterLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class SocialRequestInterpreterLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements SocialRequestInterpreterLocalService,
 		IdentifiableBean {
@@ -119,7 +122,7 @@ public abstract class SocialRequestInterpreterLocalServiceBaseImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = InfrastructureUtil.getDataSource();
 

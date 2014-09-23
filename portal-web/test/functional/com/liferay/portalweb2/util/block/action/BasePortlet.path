@@ -49,6 +49,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PORTLET_ORDER_SINGLE_COLUMN</td>
+	<td>portal/screenshots/home/sign_in_hello_world_portlet_order.png</td>
+	<td></td>
+</tr>
+<tr>
 	<td>OPTIONS_ICON</td>
 	<td>//div[contains(@class,'portlet-options')]/a</td>
 	<td></td>
@@ -56,6 +61,21 @@
 <tr>
 	<td>SPECIFIC_PORTLET_OPTIONS_ICON</td>
 	<td>//h1/span[contains(.,'${key_portletName}')]/../../menu/div[contains(@class,'portlet-options')]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SPECIFIC_PORTLET_BORDERLESS_BAR</td>
+	<td>//div[contains(.,'${key_portletName}') and contains(@class,'portlet-borderless')]//span[contains(@class,'portlet-actions')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SPECIFIC_PORTLET_BORDERLESS_OPTIONS_ICON</td>
+	<td>//div[contains(.,'${key_portletName}') and contains(@class,'portlet-borderless')]//span[contains(@class,'portlet-actions')]//a[contains(.,'Options')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SPECIFIC_PORTLET_BORDERLESS_REMOVE_ICON</td>
+	<td>//div[contains(.,'${key_portletName}') and contains(@class,'portlet-borderless')]//span[contains(@class,'portlet-actions')]//a[contains(.,'Remove')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -95,12 +115,12 @@
 </tr>
 <tr>
 	<td>ERROR_MESSAGE_1_COLUMN_1</td>
-	<td>xpath=(//div[contains(@id,'column-1')]/div[contains(@class,'alert') and contains(@class,'alert-error')])[1]</td>
+	<td>xpath=(//div[contains(@id,'column-1')]/div[contains(@class,'alert') and (contains(@class,'alert-error') or contains(@class,'alert-danger'))])[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ERROR_MESSAGE_1_COLUMN_2</td>
-	<td>xpath=(//div[contains(@id,'column-2')]/div[contains(@class,'alert') and contains(@class,'alert-error')])[1]</td>
+	<td>xpath=(//div[contains(@id,'column-2')]/div[contains(@class,'alert') and (contains(@class,'alert-error') or contains(@class,'alert-danger'))])[1]</td>
 	<td></td>
 </tr>
 <tr>
@@ -132,6 +152,11 @@
 <tr>
 	<td>OPTIONS_MENULIST_CONFIGURATION</td>
 	<td>//a[contains(@id,'_menu_configuration')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>OPTIONS_MENULIST_PREFERENCES</td>
+	<td>//a[contains(@id,'_menu_preferences')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -193,7 +218,7 @@
 </tr>
 <tr>
 	<td>PORTLET_CONFIGURATION_USE_CUSTOM_TITLE_CHECKBOX</td>
-	<td>//input[@id='_113_use-custom-titleCheckbox']</td>
+	<td>//input[@id='_113_use-custom-title']</td>
 	<td></td>
 </tr>
 <tr>

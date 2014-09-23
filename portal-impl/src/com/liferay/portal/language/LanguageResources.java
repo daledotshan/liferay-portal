@@ -230,9 +230,7 @@ public class LanguageResources {
 					_log.info("Loading " + name + " from " + url);
 				}
 
-				InputStream inputStream = url.openStream();
-
-				try {
+				try (InputStream inputStream = url.openStream()) {
 					Properties inputStreamProperties = PropertiesUtil.load(
 						inputStream, StringPool.UTF8);
 
@@ -243,9 +241,6 @@ public class LanguageResources {
 							"Loading " + url + " with " +
 								inputStreamProperties.size() + " values");
 					}
-				}
-				finally {
-					inputStream.close();
 				}
 			}
 		}
@@ -270,6 +265,32 @@ public class LanguageResources {
 
 	private static class LanguageResourcesBundle extends ResourceBundle {
 
+		@Override
+		public Enumeration<String> getKeys() {
+			Set<String> keySet = _languageMap.keySet();
+
+			if (parent == null) {
+				return Collections.enumeration(keySet);
+			}
+
+			return new ResourceBundleEnumeration(keySet, parent.getKeys());
+		}
+
+		@Override
+		public Locale getLocale() {
+			return _locale;
+		}
+
+		@Override
+		protected Object handleGetObject(String key) {
+			return _languageMap.get(key);
+		}
+
+		@Override
+		protected Set<String> handleKeySet() {
+			return _languageMap.keySet();
+		}
+
 		private LanguageResourcesBundle(Locale locale) {
 			_locale = locale;
 
@@ -284,32 +305,6 @@ public class LanguageResources {
 			if (superLocale != null) {
 				setParent(new LanguageResourcesBundle(superLocale));
 			}
-		}
-
-		@Override
-		protected Object handleGetObject(String key) {
-			return _languageMap.get(key);
-		}
-
-		@Override
-		public Enumeration<String> getKeys() {
-			Set<String> keySet = _languageMap.keySet();
-
-			if (parent == null) {
-				return Collections.enumeration(keySet);
-			}
-
-			return new ResourceBundleEnumeration(keySet, parent.getKeys());
-		}
-
-		@Override
-		protected Set<String> handleKeySet() {
-			return _languageMap.keySet();
-		}
-
-		@Override
-		public Locale getLocale() {
-			return _locale;
 		}
 
 		private Map<String, String> _languageMap;

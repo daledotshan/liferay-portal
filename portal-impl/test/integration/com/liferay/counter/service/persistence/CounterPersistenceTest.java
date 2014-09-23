@@ -17,7 +17,6 @@ package com.liferay.counter.service.persistence;
 import com.liferay.counter.NoSuchCounterException;
 import com.liferay.counter.model.Counter;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
@@ -25,60 +24,67 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.PersistenceIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(PersistenceIntegrationJUnitTestRunner.class)
 public class CounterPersistenceTest {
-	@After
-	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
-
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
 		}
 
-		_transactionalPersistenceAdvice.reset();
+		TemplateManagerUtil.init();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		Iterator<Counter> iterator = _counters.iterator();
+
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
+
+			iterator.remove();
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter counter = _persistence.create(pk);
 
@@ -105,13 +111,13 @@ public class CounterPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter newCounter = _persistence.create(pk);
 
-		newCounter.setCurrentId(ServiceTestUtil.nextLong());
+		newCounter.setCurrentId(RandomTestUtil.nextLong());
 
-		_persistence.update(newCounter);
+		_counters.add(_persistence.update(newCounter));
 
 		Counter existingCounter = _persistence.findByPrimaryKey(newCounter.getPrimaryKey());
 
@@ -131,7 +137,7 @@ public class CounterPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -153,7 +159,7 @@ public class CounterPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<Counter> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Counter", "name", true,
 			"currentId", true);
 	}
@@ -169,11 +175,91 @@ public class CounterPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter missingCounter = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingCounter);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		Counter newCounter1 = addCounter();
+		Counter newCounter2 = addCounter();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newCounter1.getPrimaryKey());
+		primaryKeys.add(newCounter2.getPrimaryKey());
+
+		Map<Serializable, Counter> counters = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, counters.size());
+		Assert.assertEquals(newCounter1,
+			counters.get(newCounter1.getPrimaryKey()));
+		Assert.assertEquals(newCounter2,
+			counters.get(newCounter2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		String pk1 = RandomTestUtil.randomString();
+
+		String pk2 = RandomTestUtil.randomString();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, Counter> counters = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(counters.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		Counter newCounter = addCounter();
+
+		String pk = RandomTestUtil.randomString();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newCounter.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, Counter> counters = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, counters.size());
+		Assert.assertEquals(newCounter, counters.get(newCounter.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, Counter> counters = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(counters.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		Counter newCounter = addCounter();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newCounter.getPrimaryKey());
+
+		Map<Serializable, Counter> counters = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, counters.size());
+		Assert.assertEquals(newCounter, counters.get(newCounter.getPrimaryKey()));
 	}
 
 	@Test
@@ -201,7 +287,7 @@ public class CounterPersistenceTest {
 				Counter.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("name",
-				ServiceTestUtil.randomString()));
+				RandomTestUtil.randomString()));
 
 		List<Counter> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -240,7 +326,7 @@ public class CounterPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("name"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("name",
-				new Object[] { ServiceTestUtil.randomString() }));
+				new Object[] { RandomTestUtil.randomString() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -248,18 +334,18 @@ public class CounterPersistenceTest {
 	}
 
 	protected Counter addCounter() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter counter = _persistence.create(pk);
 
-		counter.setCurrentId(ServiceTestUtil.nextLong());
+		counter.setCurrentId(RandomTestUtil.nextLong());
 
-		_persistence.update(counter);
+		_counters.add(_persistence.update(counter));
 
 		return counter;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(CounterPersistenceTest.class);
-	private CounterPersistence _persistence = (CounterPersistence)PortalBeanLocatorUtil.locate(CounterPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private List<Counter> _counters = new ArrayList<Counter>();
+	private CounterPersistence _persistence = CounterUtil.getPersistence();
 }

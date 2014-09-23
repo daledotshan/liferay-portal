@@ -36,10 +36,10 @@ PortletURL portletURL = renderResponse.createRenderURL();
 portletURL.setParameter("struts_action", "/trash/view");
 portletURL.setParameter("tabs1", tabs1);
 
-PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "recycle-bin"), portletURL.toString());
+PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "recycle-bin"), portletURL.toString());
 
 if (Validator.isNotNull(keywords)) {
-	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(pageContext, "search") + ": " + keywords, currentURL);
+	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "search") + ": " + keywords, currentURL);
 }
 %>
 
@@ -53,6 +53,10 @@ if (Validator.isNotNull(keywords)) {
 
 	<c:if test="<%= ree.getType() == RestoreEntryException.DUPLICATE %>">
 		<liferay-ui:message key="unable-to-move-this-item-to-the-selected-destination" />
+	</c:if>
+
+	<c:if test="<%= ree.getType() == RestoreEntryException.INVALID_CONTAINER %>">
+		<liferay-ui:message key="the-destination-you-selected-is-an-invalid-container.-please-select-a-different-destination" />
 	</c:if>
 </liferay-ui:error>
 
@@ -134,7 +138,7 @@ if (Validator.isNotNull(keywords)) {
 		searchContainer.setResults(results);
 
 		if ((searchContainer.getTotal() == 0) && Validator.isNotNull(searchTerms.getKeywords())) {
-			searchContainer.setEmptyResultsMessage(LanguageUtil.format(pageContext, "no-entries-were-found-that-matched-the-keywords-x", "<strong>" + HtmlUtil.escape(searchTerms.getKeywords()) + "</strong>", false));
+			searchContainer.setEmptyResultsMessage(LanguageUtil.format(request, "no-entries-were-found-that-matched-the-keywords-x", "<strong>" + HtmlUtil.escape(searchTerms.getKeywords()) + "</strong>", false));
 		}
 		%>
 
@@ -180,9 +184,10 @@ if (Validator.isNotNull(keywords)) {
 			name="name"
 		>
 			<liferay-ui:icon
+				iconCssClass="<%= trashRenderer.getIconCssClass() %>"
 				label="<%= true %>"
 				message="<%= HtmlUtil.escape(trashRenderer.getTitle(locale)) %>"
-				method="get" src="<%= trashRenderer.getIconPath(renderRequest) %>"
+				method="get"
 				url="<%= viewContentURLString %>"
 			/>
 
@@ -214,10 +219,10 @@ if (Validator.isNotNull(keywords)) {
 
 				<liferay-util:buffer var="rootEntryIcon">
 					<liferay-ui:icon
+						iconCssClass="<%= rootTrashRenderer.getIconCssClass() %>"
 						label="<%= true %>"
 						message="<%= HtmlUtil.escape(rootTrashRenderer.getTitle(locale)) %>"
 						method="get"
-						src="<%= rootTrashRenderer.getIconPath(renderRequest) %>"
 						url="<%= viewRootContentURLString %>"
 					/>
 				</liferay-util:buffer>
@@ -248,17 +253,19 @@ if (Validator.isNotNull(keywords)) {
 			<c:when test="<%= Validator.isNotNull(trashRenderer.renderActions(renderRequest, renderResponse)) %>">
 				<liferay-ui:search-container-column-jsp
 					align="right"
+					cssClass="entry-action"
 					path="<%= trashRenderer.renderActions(renderRequest, renderResponse) %>"
 				/>
 			</c:when>
 			<c:when test="<%= entry.getRootEntry() == null %>">
 				<liferay-ui:search-container-column-jsp
 					align="right"
+					cssClass="entry-action"
 					path="/html/portlet/trash/entry_action.jsp"
 				/>
 			</c:when>
 			<c:otherwise>
-				<liferay-ui:search-container-column-text align="right">
+				<liferay-ui:search-container-column-text align="right" cssClass="entry-action">
 
 					<%
 					request.removeAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
@@ -296,7 +303,6 @@ if (Validator.isNotNull(keywords)) {
 
 	<liferay-ui:breadcrumb
 		showCurrentGroup="<%= false %>"
-		showCurrentPortlet="<%= true %>"
 		showGuestGroup="<%= false %>"
 		showLayout="<%= false %>"
 		showParentGroups="<%= false %>"

@@ -31,8 +31,11 @@ AUI.add(
 		var Placeholders = A.Component.create(
 			{
 				EXTENDS: A.Plugin.Base,
+
 				NAME: 'placeholders',
+
 				NS: STR_PLACEHOLDER,
+
 				prototype: {
 					initializer: function(config) {
 						var instance = this;
@@ -45,7 +48,7 @@ AUI.add(
 							var placeholderInputs = formNode.all(SELECTOR_PLACEHOLDER_INPUTS);
 
 							placeholderInputs.each(
-								function(item, index, collection) {
+								function(item, index) {
 									if (!item.val()) {
 										if (item.attr(STR_TYPE) === STR_PASSWORD) {
 											instance._initializePasswordNode(item);
@@ -90,7 +93,7 @@ AUI.add(
 
 						placeholder.attr(STR_DATA_TYPE_PASSWORD_PLACEHOLDER, true);
 
-						field.placeAfter(placeholder);
+						field.placeBefore(placeholder);
 
 						field.hide();
 					},
@@ -103,7 +106,7 @@ AUI.add(
 						var placeholderInputs = formNode.all(SELECTOR_PLACEHOLDER_INPUTS);
 
 						placeholderInputs.each(
-							function(item, index, collection) {
+							function(item, index) {
 								if (item.val() == item.attr(STR_PLACEHOLDER)) {
 									item.val(STR_BLANK);
 								}
@@ -119,7 +122,7 @@ AUI.add(
 								if (currentTarget.hasAttribute(STR_DATA_TYPE_PASSWORD_PLACEHOLDER)) {
 									currentTarget.hide();
 
-									var passwordField = currentTarget.previous();
+									var passwordField = currentTarget.next();
 
 									passwordField.show();
 
@@ -137,7 +140,7 @@ AUI.add(
 								if (!value) {
 									currentTarget.hide();
 
-									currentTarget.next().show();
+									currentTarget.previous().show();
 								}
 							}
 						}

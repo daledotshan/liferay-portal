@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.PortalPreferences;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
@@ -42,8 +43,9 @@ import javax.portlet.PortletURL;
  */
 public class ArticleSearch extends SearchContainer<JournalArticle> {
 
-	static List<String> headerNames = new ArrayList<String>();
-	static Map<String, String> orderableHeaders = new HashMap<String, String>();
+	public static List<String> headerNames = new ArrayList<String>();
+	public static Map<String, String> orderableHeaders =
+		new HashMap<String, String>();
 
 	static {
 		headerNames.add("id");
@@ -53,6 +55,7 @@ public class ArticleSearch extends SearchContainer<JournalArticle> {
 		headerNames.add("modified-date");
 		headerNames.add("display-date");
 		headerNames.add("author");
+		headerNames.add("structure");
 		headerNames.add(StringPool.BLANK);
 
 		//orderableHeaders.put("id", "id");
@@ -82,8 +85,8 @@ public class ArticleSearch extends SearchContainer<JournalArticle> {
 		String portletName = portletConfig.getPortletName();
 
 		if (!portletName.equals(PortletKeys.JOURNAL)) {
-			displayTerms.setStatus("approved");
-			searchTerms.setStatus("approved");
+			displayTerms.setStatus(WorkflowConstants.STATUS_APPROVED);
+			searchTerms.setStatus(WorkflowConstants.STATUS_APPROVED);
 		}
 
 		iteratorURL.setParameter(
@@ -101,7 +104,8 @@ public class ArticleSearch extends SearchContainer<JournalArticle> {
 		iteratorURL.setParameter(
 			ArticleDisplayTerms.NAVIGATION, displayTerms.getNavigation());
 		iteratorURL.setParameter(
-			ArticleDisplayTerms.STATUS, displayTerms.getStatus());
+			ArticleDisplayTerms.STATUS,
+			String.valueOf(displayTerms.getStatus()));
 		iteratorURL.setParameter(
 			ArticleDisplayTerms.STRUCTURE_ID, displayTerms.getStructureId());
 		iteratorURL.setParameter(
@@ -139,7 +143,7 @@ public class ArticleSearch extends SearchContainer<JournalArticle> {
 					PortletKeys.JOURNAL, "articles-order-by-type", "asc");
 			}
 
-			OrderByComparator orderByComparator =
+			OrderByComparator<JournalArticle> orderByComparator =
 				JournalUtil.getArticleOrderByComparator(
 					orderByCol, orderByType);
 

@@ -88,7 +88,7 @@ public class DLFileEntryFinderImpl
 		DLFileEntryFinder.class.getName() + ".findByG_U_F";
 
 	@Override
-	public int countByExtraSettings() throws SystemException {
+	public int countByExtraSettings() {
 		Session session = null;
 
 		try {
@@ -122,8 +122,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int countByG_F(
-			long groupId, List<Long> folderIds, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -133,9 +133,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int countByG_M_R(
-			long groupId, DateRange dateRange, long repositoryId,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, DateRange dateRange, long repositoryId,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		Session session = null;
 
@@ -199,9 +198,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int countByG_R_F(
-			long groupId, List<Long> repositoryIds, List<Long> folderIds,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> repositoryIds, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doCountByG_U_R_F_M(
 			groupId, 0, repositoryIds, folderIds, null, queryDefinition, false);
@@ -209,9 +207,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int countByG_U_F_M(
-			long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -222,10 +219,9 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int countByG_U_R_F_M(
-			long groupId, long userId, List<Long> repositoryIds,
-			List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> repositoryIds,
+		List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doCountByG_U_R_F_M(
 			groupId, userId, repositoryIds, folderIds, mimeTypes,
@@ -234,9 +230,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int filterCountByG_U_F_M(
-			long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -247,10 +242,9 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int filterCountByG_U_R_F_M(
-			long groupId, long userId, List<Long> repositoryIds,
-			List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> repositoryIds,
+		List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doCountByG_U_R_F_M(
 			groupId, userId, repositoryIds, folderIds, mimeTypes,
@@ -258,7 +252,7 @@ public class DLFileEntryFinderImpl
 	}
 
 	@Override
-	public DLFileEntry fetchByAnyImageId(long imageId) throws SystemException {
+	public DLFileEntry fetchByAnyImageId(long imageId) {
 		Session session = null;
 
 		try {
@@ -269,6 +263,8 @@ public class DLFileEntryFinderImpl
 			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity(DLFileEntryImpl.TABLE_NAME, DLFileEntryImpl.class);
+
+			q.setMaxResults(1);
 
 			QueryPos qPos = QueryPos.getInstance(q);
 
@@ -295,8 +291,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int filterCountByG_F(
-			long groupId, List<Long> folderIds, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -306,9 +302,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public int filterCountByG_R_F(
-			long groupId, List<Long> repositoryIds, List<Long> folderIds,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> repositoryIds, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doCountByG_U_R_F_M(
 			groupId, 0, repositoryIds, folderIds, null, queryDefinition, true);
@@ -316,8 +311,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> filterFindByG_F(
-			long groupId, List<Long> folderIds, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -327,9 +322,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> filterFindByG_R_F(
-			long groupId, List<Long> repositoryIds, List<Long> folderIds,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> repositoryIds, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doFindByG_U_R_F_M(
 			groupId, 0, repositoryIds, folderIds, null, queryDefinition, true);
@@ -337,9 +331,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> filterFindByG_U_F_M(
-			long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -350,10 +343,9 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> filterFindByG_U_R_F_M(
-			long groupId, long userId, List<Long> repositoryIds,
-			List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> repositoryIds,
+		List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doFindByG_U_R_F_M(
 			groupId, userId, repositoryIds, folderIds, mimeTypes,
@@ -362,7 +354,7 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public DLFileEntry findByAnyImageId(long imageId)
-		throws NoSuchFileEntryException, SystemException {
+		throws NoSuchFileEntryException {
 
 		DLFileEntry dlFileEntry = fetchByAnyImageId(imageId);
 
@@ -376,8 +368,7 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> findByCompanyId(
-			long companyId, QueryDefinition queryDefinition)
-		throws SystemException {
+		long companyId, QueryDefinition<DLFileEntry> queryDefinition) {
 
 		Session session = null;
 
@@ -414,8 +405,7 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> findByDDMStructureIds(
-			long[] ddmStructureIds, int start, int end)
-		throws SystemException {
+		long[] ddmStructureIds, int start, int end) {
 
 		Session session = null;
 
@@ -452,9 +442,7 @@ public class DLFileEntryFinderImpl
 	}
 
 	@Override
-	public List<DLFileEntry> findByExtraSettings(int start, int end)
-		throws SystemException {
-
+	public List<DLFileEntry> findByExtraSettings(int start, int end) {
 		Session session = null;
 
 		try {
@@ -478,7 +466,7 @@ public class DLFileEntryFinderImpl
 	}
 
 	@Override
-	public List<DLFileEntry> findByMisversioned() throws SystemException {
+	public List<DLFileEntry> findByMisversioned() {
 		Session session = null;
 
 		try {
@@ -501,7 +489,7 @@ public class DLFileEntryFinderImpl
 	}
 
 	@Override
-	public List<DLFileEntry> findByNoAssets() throws SystemException {
+	public List<DLFileEntry> findByNoAssets() {
 		Session session = null;
 
 		try {
@@ -524,9 +512,7 @@ public class DLFileEntryFinderImpl
 	}
 
 	@Override
-	public List<DLFileEntry> findByOrphanedFileEntries()
-		throws SystemException {
-
+	public List<DLFileEntry> findByOrphanedFileEntries() {
 		Session session = null;
 
 		try {
@@ -550,8 +536,8 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> findByG_F(
-			long groupId, List<Long> folderIds, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -561,19 +547,29 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> findByG_R_F(
-			long groupId, List<Long> repositoryIds, List<Long> folderIds,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, List<Long> repositoryIds, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doFindByG_U_R_F_M(
 			groupId, 0, repositoryIds, folderIds, null, queryDefinition, false);
 	}
 
 	@Override
+	public List<DLFileEntry> findByG_U_F(
+		long groupId, long userId, List<Long> folderIds,
+		QueryDefinition<DLFileEntry> queryDefinition) {
+
+		List<Long> repositoryIds = Collections.emptyList();
+
+		return doFindByG_U_R_F_M(
+			groupId, userId, repositoryIds, folderIds, null, queryDefinition,
+			false);
+	}
+
+	@Override
 	public List<DLFileEntry> findByG_U_F_M(
-			long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		List<Long> repositoryIds = Collections.emptyList();
 
@@ -584,10 +580,9 @@ public class DLFileEntryFinderImpl
 
 	@Override
 	public List<DLFileEntry> findByG_U_R_F_M(
-			long groupId, long userId, List<Long> repositoryIds,
-			List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, List<Long> repositoryIds,
+		List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition) {
 
 		return doFindByG_U_R_F_M(
 			groupId, userId, repositoryIds, folderIds, mimeTypes,
@@ -595,10 +590,9 @@ public class DLFileEntryFinderImpl
 	}
 
 	protected int doCountByG_U_R_F_M(
-			long groupId, long userId, List<Long> repositoryIds,
-			List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition, boolean inlineSQLHelper)
-		throws SystemException {
+		long groupId, long userId, List<Long> repositoryIds,
+		List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition, boolean inlineSQLHelper) {
 
 		Session session = null;
 
@@ -665,10 +659,9 @@ public class DLFileEntryFinderImpl
 	}
 
 	protected List<DLFileEntry> doFindByG_U_R_F_M(
-			long groupId, long userId, List<Long> repositoryIds,
-			List<Long> folderIds, String[] mimeTypes,
-			QueryDefinition queryDefinition, boolean inlineSQLHelper)
-		throws SystemException {
+		long groupId, long userId, List<Long> repositoryIds,
+		List<Long> folderIds, String[] mimeTypes,
+		QueryDefinition<DLFileEntry> queryDefinition, boolean inlineSQLHelper) {
 
 		Session session = null;
 
@@ -750,7 +743,7 @@ public class DLFileEntryFinderImpl
 
 	protected String getFileEntriesSQL(
 		String id, long groupId, List<Long> repositoryIds, List<Long> folderIds,
-		String[] mimeTypes, QueryDefinition queryDefinition,
+		String[] mimeTypes, QueryDefinition<DLFileEntry> queryDefinition,
 		boolean inlineSQLHelper) {
 
 		String tableName = DLFileVersionImpl.TABLE_NAME;

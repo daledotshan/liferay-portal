@@ -15,12 +15,9 @@
 package com.liferay.portlet.announcements.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Role;
@@ -38,7 +35,9 @@ import com.liferay.portal.util.PortalUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Raymond Augé
@@ -46,7 +45,7 @@ import java.util.List;
 public class AnnouncementsUtil {
 
 	public static LinkedHashMap<Long, long[]> getAnnouncementScopes(long userId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		LinkedHashMap<Long, long[]> scopes = new LinkedHashMap<Long, long[]>();
 
@@ -114,13 +113,11 @@ public class AnnouncementsUtil {
 
 		// Role announcements
 
-		List<Role> roles = new UniqueList<Role>();
+		Set<Role> roles = new LinkedHashSet<Role>();
 
 		if (!groupsList.isEmpty()) {
-			roles = RoleLocalServiceUtil.getUserRelatedRoles(
-				userId, groupsList);
-
-			roles = ListUtil.copy(roles);
+			roles.addAll(
+				RoleLocalServiceUtil.getUserRelatedRoles(userId, groupsList));
 
 			for (Group group : groupsList) {
 				roles.addAll(
@@ -132,9 +129,7 @@ public class AnnouncementsUtil {
 			}
 		}
 		else {
-			roles = RoleLocalServiceUtil.getUserRoles(userId);
-
-			roles = ListUtil.copy(roles);
+			roles.addAll(RoleLocalServiceUtil.getUserRoles(userId));
 		}
 
 		List<Team> teams = TeamLocalServiceUtil.getUserTeams(userId);
@@ -185,7 +180,7 @@ public class AnnouncementsUtil {
 		return organizationIds;
 	}
 
-	private static long[] _getRoleIds(List<Role> roles) {
+	private static long[] _getRoleIds(Set<Role> roles) {
 		long[] roleIds = new long[roles.size()];
 
 		int i = 0;

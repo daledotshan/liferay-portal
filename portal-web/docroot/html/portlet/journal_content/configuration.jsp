@@ -62,15 +62,7 @@ catch (NoSuchArticleException nsae) {
 		<%
 		DDMStructure ddmStructure = DDMStructureLocalServiceUtil.fetchStructure(article.getGroupId(), PortalUtil.getClassNameId(JournalArticle.class), article.getStructureId(), true);
 
-		List<DDMTemplate> ddmTemplates = new ArrayList<DDMTemplate>();
-
-		if (ddmStructure != null) {
-			ddmTemplates.addAll(DDMTemplateLocalServiceUtil.getTemplates(ddmStructure.getGroupId(), PortalUtil.getClassNameId(DDMStructure.class), ddmStructure.getStructureId()));
-
-			if (article.getGroupId() != ddmStructure.getGroupId()) {
-				ddmTemplates.addAll(DDMTemplateLocalServiceUtil.getTemplates(article.getGroupId(), PortalUtil.getClassNameId(DDMStructure.class), ddmStructure.getStructureId()));
-			}
-		}
+		List<DDMTemplate> ddmTemplates = DDMTemplateLocalServiceUtil.getTemplates(article.getGroupId(), PortalUtil.getClassNameId(DDMStructure.class), ddmStructure.getStructureId(), true);
 
 		if (!ddmTemplates.isEmpty()) {
 			if (Validator.isNull(ddmTemplateKey)) {
@@ -117,7 +109,7 @@ catch (NoSuchArticleException nsae) {
 					<c:if test="<%= tableIteratorObj.isSmallImage() %>">
 						<br />
 
-						<img border="0" hspace="0" src="<%= Validator.isNotNull(tableIteratorObj.getSmallImageURL()) ? HtmlUtil.escapeHREF(tableIteratorObj.getSmallImageURL()) : themeDisplay.getPathImage() + "/journal/template?img_id=" + tableIteratorObj.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(tableIteratorObj.getSmallImageId()) %>" vspace="0" />
+						<img alt="" hspace="0" src="<%= Validator.isNotNull(tableIteratorObj.getSmallImageURL()) ? HtmlUtil.escapeHREF(tableIteratorObj.getSmallImageURL()) : themeDisplay.getPathImage() + "/journal/template?img_id=" + tableIteratorObj.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(tableIteratorObj.getSmallImageId()) %>" vspace="0" />
 					</c:if>
 				</liferay-ui:table-iterator>
 
@@ -226,17 +218,16 @@ catch (NoSuchArticleException nsae) {
 	<liferay-ui:search-iterator searchContainer="<%= searchContainer %>" />
 </aui:form>
 
-<aui:form action="<%= configurationActionURL %>" method="post" name="fm">
+<aui:form action="<%= configurationActionURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveConfiguration();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value='<%= configurationRenderURL + StringPool.AMPERSAND + renderResponse.getNamespace() + "cur" + cur %>' />
 	<aui:input name="preferences--groupId--" type="hidden" value="<%= articleGroupId %>" />
 	<aui:input name="preferences--articleId--" type="hidden" value="<%= articleId %>" />
 	<aui:input name="preferences--ddmTemplateKey--" type="hidden" value="<%= ddmTemplateKey %>" />
+	<aui:input name="preferences--extensions--" type="hidden" value="<%= extensions %>" />
 
 	<aui:fieldset>
-		<aui:field-wrapper label="portlet-id">
-			<liferay-ui:input-resource url="<%= portletResource %>" />
-		</aui:field-wrapper>
+		<aui:input name="portletId" type="resource" value="<%= portletResource %>" />
 	</aui:fieldset>
 
 	<aui:fieldset>
@@ -244,18 +235,40 @@ catch (NoSuchArticleException nsae) {
 			<aui:input name="preferences--showAvailableLocales--" type="checkbox" value="<%= showAvailableLocales %>" />
 		</aui:field-wrapper>
 
-		<aui:field-wrapper helpMessage='<%= !openOfficeServerEnabled ? "enabling-openoffice-integration-provides-document-conversion-functionality" : StringPool.BLANK %>' label="enable-conversion-to">
+		<%
+		List<KeyValuePair> currentExtensions = new ArrayList<KeyValuePair>();
 
-			<%
-			for (String conversion : conversions) {
-			%>
+		if (extensions == null) {
+			extensions = new String[0];
+		}
 
-				<aui:input checked="<%= ArrayUtil.contains(extensions, conversion) %>" disabled="<%= !openOfficeServerEnabled %>" id='<%= "extensions" + conversion %>' includeHiddenField="<%= false %>" inlineField="<%= true %>" label="<%= StringUtil.toUpperCase(conversion) %>" name="extensions" type="checkbox" value="<%= conversion %>" />
+		for (String extension : extensions) {
+			currentExtensions.add(new KeyValuePair(extension, StringUtil.toUpperCase(extension)));
+		}
 
-			<%
+		Arrays.sort(extensions);
+
+		List<KeyValuePair> availableExtensions = new ArrayList<KeyValuePair>();
+
+		for (String conversion : conversions) {
+			if (Arrays.binarySearch(extensions, conversion) < 0) {
+				availableExtensions.add(new KeyValuePair(conversion, StringUtil.toUpperCase(conversion)));
 			}
-			%>
+		}
 
+		availableExtensions = ListUtil.sort(availableExtensions, new KeyValuePairComparator(false, true));
+		%>
+
+		<aui:field-wrapper helpMessage='<%= !openOfficeServerEnabled ? "enabling-openoffice-integration-provides-document-conversion-functionality" : StringPool.BLANK %>' label="enable-conversion-to">
+			<liferay-ui:input-move-boxes
+				leftBoxName="currentExtensions"
+				leftList="<%= currentExtensions %>"
+				leftReorder="true"
+				leftTitle="current"
+				rightBoxName="availableExtensions"
+				rightList="<%= availableExtensions %>"
+				rightTitle="available"
+			/>
 		</aui:field-wrapper>
 
 		<aui:field-wrapper>
@@ -289,16 +302,28 @@ catch (NoSuchArticleException nsae) {
 
 			document.<portlet:namespace />fm.<portlet:namespace />groupId.value = articleGroupId;
 			document.<portlet:namespace />fm.<portlet:namespace />articleId.value = articleId;
-			document.<portlet:namespace />fm.<portlet:namespace />ddmTemplateKey.value = "";
+			document.<portlet:namespace />fm.<portlet:namespace />ddmTemplateKey.value = '';
 
 			A.one('.displaying-article-id-holder').show();
 			A.one('.displaying-help-message-holder').hide();
 
 			var displayArticleId = A.one('.displaying-article-id');
 
-			displayArticleId.set('innerHTML', Liferay.Util.escapeHTML(articleTitle) + ' (<%= UnicodeLanguageUtil.get(pageContext, "modified") %>)');
+			displayArticleId.html(A.Lang.String.escapeHTML(articleTitle) + ' (<%= UnicodeLanguageUtil.get(request, "modified") %>)');
+
 			displayArticleId.addClass('modified');
 		},
 		['aui-base']
+	);
+
+	Liferay.provide(
+		window,
+		'<portlet:namespace />saveConfiguration',
+		function() {
+			document.<portlet:namespace />fm.<portlet:namespace />extensions.value = Liferay.Util.listSelect(document.<portlet:namespace />fm.<portlet:namespace />currentExtensions);
+
+			submitForm(document.<portlet:namespace />fm);
+		},
+		['liferay-util-list-fields']
 	);
 </aui:script>

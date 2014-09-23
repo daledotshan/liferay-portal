@@ -14,12 +14,16 @@
 
 package com.liferay.portlet.asset.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -59,6 +63,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	implements AssetLinkLocalService, IdentifiableBean {
 	/*
@@ -72,12 +77,10 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param assetLink the asset link
 	 * @return the asset link that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public AssetLink addAssetLink(AssetLink assetLink)
-		throws SystemException {
+	public AssetLink addAssetLink(AssetLink assetLink) {
 		assetLink.setNew(true);
 
 		return assetLinkPersistence.update(assetLink);
@@ -100,12 +103,10 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param linkId the primary key of the asset link
 	 * @return the asset link that was removed
 	 * @throws PortalException if a asset link with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public AssetLink deleteAssetLink(long linkId)
-		throws PortalException, SystemException {
+	public AssetLink deleteAssetLink(long linkId) throws PortalException {
 		return assetLinkPersistence.remove(linkId);
 	}
 
@@ -114,12 +115,10 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param assetLink the asset link
 	 * @return the asset link that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public AssetLink deleteAssetLink(AssetLink assetLink)
-		throws SystemException {
+	public AssetLink deleteAssetLink(AssetLink assetLink) {
 		return assetLinkPersistence.remove(assetLink);
 	}
 
@@ -136,12 +135,9 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return assetLinkPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -156,12 +152,10 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return assetLinkPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end);
 	}
@@ -178,12 +172,10 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return assetLinkPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end, orderByComparator);
 	}
@@ -193,11 +185,9 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return assetLinkPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -207,17 +197,16 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return assetLinkPersistence.countWithDynamicQuery(dynamicQuery,
 			projection);
 	}
 
 	@Override
-	public AssetLink fetchAssetLink(long linkId) throws SystemException {
+	public AssetLink fetchAssetLink(long linkId) {
 		return assetLinkPersistence.fetchByPrimaryKey(linkId);
 	}
 
@@ -227,17 +216,46 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param linkId the primary key of the asset link
 	 * @return the asset link
 	 * @throws PortalException if a asset link with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public AssetLink getAssetLink(long linkId)
-		throws PortalException, SystemException {
+	public AssetLink getAssetLink(long linkId) throws PortalException {
 		return assetLinkPersistence.findByPrimaryKey(linkId);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(AssetLink.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("linkId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(AssetLink.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("linkId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return assetLinkLocalService.deleteAssetLink((AssetLink)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return assetLinkPersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -251,11 +269,9 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of asset links
 	 * @param end the upper bound of the range of asset links (not inclusive)
 	 * @return the range of asset links
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<AssetLink> getAssetLinks(int start, int end)
-		throws SystemException {
+	public List<AssetLink> getAssetLinks(int start, int end) {
 		return assetLinkPersistence.findAll(start, end);
 	}
 
@@ -263,10 +279,9 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * Returns the number of asset links.
 	 *
 	 * @return the number of asset links
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getAssetLinksCount() throws SystemException {
+	public int getAssetLinksCount() {
 		return assetLinkPersistence.countAll();
 	}
 
@@ -275,12 +290,10 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param assetLink the asset link
 	 * @return the asset link that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public AssetLink updateAssetLink(AssetLink assetLink)
-		throws SystemException {
+	public AssetLink updateAssetLink(AssetLink assetLink) {
 		return assetLinkPersistence.update(assetLink);
 	}
 
@@ -533,7 +546,7 @@ public abstract class AssetLinkLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = assetLinkPersistence.getDataSource();
 

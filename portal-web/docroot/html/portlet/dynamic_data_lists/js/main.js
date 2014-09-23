@@ -5,297 +5,22 @@ AUI.add(
 
 		var DateMath = A.DataType.DateMath;
 
+		var FormBuilder = Liferay.FormBuilder;
+
 		var Lang = A.Lang;
 
 		var EMPTY_FN = A.Lang.emptyFn;
 
-		var JSON = A.JSON;
+		var FIELDS_DISPLAY_INSTANCE_SEPARATOR = '_INSTANCE_';
 
-		var STR_DASH = '-';
+		var FIELDS_DISPLAY_NAME = '_fieldsDisplay';
+
+		var AJSON = A.JSON;
 
 		var STR_EMPTY = '';
 
-		var STR_SPACE = ' ';
-
-		var DLFileEntryCellEditor = A.Component.create(
-			{
-				NAME: 'document-library-file-entry-cell-editor',
-
-				EXTENDS: A.BaseCellEditor,
-
-				prototype: {
-					ELEMENT_TEMPLATE: '<input type="hidden" />',
-
-					initializer: function() {
-						var instance = this;
-
-						window[Liferay.Util.getPortletNamespace('166') + 'selectDocumentLibrary'] = A.bind('_selectFileEntry', instance);
-					},
-
-					getElementsValue: function() {
-						var instance = this;
-
-						return instance.get('value');
-					},
-
-					_defInitToolbarFn: function() {
-						var instance = this;
-
-						DLFileEntryCellEditor.superclass._defInitToolbarFn.apply(instance, arguments);
-
-						instance.toolbar.add(
-							{
-								label: Liferay.Language.get('choose'),
-								on: {
-									click: A.bind('_onClickChoose', instance)
-								}
-							},
-							1
-						);
-
-						instance.toolbar.add(
-							{
-								label: Liferay.Language.get('clear'),
-								on: {
-									click: A.bind('_onClickClear', instance)
-								}
-							},
-							2
-						);
-					},
-
-					_onClickChoose: function() {
-						var instance = this;
-
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getURLControlPanel());
-
-						portletURL.setDoAsGroupId(themeDisplay.getScopeGroupId());
-						portletURL.setParameter('groupId', themeDisplay.getScopeGroupId());
-						portletURL.setParameter('struts_action', '/dynamic_data_mapping/select_document_library');
-						portletURL.setPortletId('166');
-						portletURL.setWindowState('pop_up');
-
-						Liferay.Util.openWindow(
-							{
-								id: 'selectDocumentLibrary',
-								title: Liferay.Language.get('javax.portlet.title.20'),
-								uri: portletURL.toString()
-							}
-						);
-					},
-
-					_onClickClear: function() {
-						var instance = this;
-
-						instance.set('value', STR_EMPTY);
-					},
-
-					_selectFileEntry: function(url, uuid, groupId, title, version) {
-						var instance = this;
-
-						instance.set(
-							'value',
-							JSON.stringify(
-								{
-									groupId: groupId,
-									title: title,
-									uuid: uuid,
-									version: version
-								}
-							)
-						);
-					},
-
-					_syncFileLabel: function(title, url) {
-						var instance = this;
-
-						var contentBox = instance.get('contentBox');
-
-						var linkNode = contentBox.one('a');
-
-						if (!linkNode) {
-							linkNode = A.Node.create('<a></a>');
-
-							contentBox.prepend(linkNode);
-						}
-
-						linkNode.setAttribute('href', url);
-						linkNode.setContent(Liferay.Util.escapeHTML(title));
-					},
-
-					_uiSetValue: function(val) {
-						var instance = this;
-
-						if (val) {
-							SpreadSheet.Util.getFileEntry(
-								val,
-								function(fileEntry) {
-									var url = SpreadSheet.Util.getFileEntryURL(fileEntry);
-
-									instance._syncFileLabel(fileEntry.title, url);
-								}
-							);
-						}
-						else {
-							instance._syncFileLabel(STR_EMPTY, STR_EMPTY);
-
-							val = STR_EMPTY;
-						}
-
-						instance.elements.val(val);
-					}
-				}
-			}
-		);
-
-		var LinkToPageCellEditor = A.Component.create(
-			{
-				NAME: 'link-to-page-cell-editor',
-
-				EXTENDS: A.DropDownCellEditor,
-
-				prototype: {
-					OPT_GROUP_TEMPLATE: '<optgroup label="{label}">{options}</optgroup>',
-
-					renderUI: function(val) {
-						var instance = this;
-
-						var options = {};
-
-						LinkToPageCellEditor.superclass.renderUI.apply(instance, arguments);
-
-						A.io.request(
-							themeDisplay.getPathMain() + '/layouts_admin/get_layouts',
-							{
-								after: {
-									success: function() {
-										var	response = A.JSON.parse(this.get('responseData'));
-
-										if (response && response.layouts) {
-											instance._createOptionElements(response.layouts, options, STR_EMPTY);
-
-											instance.set('options', options);
-										}
-									}
-								},
-								data: {
-									cmd: 'getAll',
-									expandParentLayouts: true,
-									groupId: themeDisplay.getScopeGroupId(),
-									p_auth: Liferay.authToken,
-									paginate: false
-								}
-							}
-						);
-					},
-
-					_createOptions: function(val) {
-						var instance = this;
-
-						var privateOptions = [];
-						var publicOptions = [];
-
-						A.each(
-							val,
-							function(item, index, collection) {
-								var values = {
-									id: A.guid(),
-									label: index,
-									value: Liferay.Util.escapeHTML(JSON.stringify(item))
-								};
-
-								var optionsArray = publicOptions;
-
-								if (item.privateLayout) {
-									optionsArray = privateOptions;
-								}
-
-								optionsArray.push(
-									Lang.sub(instance.OPTION_TEMPLATE, values)
-								);
-							}
-						);
-
-						var optGroupTemplate = instance.OPT_GROUP_TEMPLATE;
-
-						var publicOptGroup = Lang.sub(
-							optGroupTemplate,
-							{
-								label: Liferay.Language.get('public-pages'),
-								options: publicOptions.join(STR_EMPTY)
-							}
-						);
-
-						var privateOptGroup = Lang.sub(
-							optGroupTemplate,
-							{
-								label: Liferay.Language.get('private-pages'),
-								options: privateOptions.join(STR_EMPTY)
-							}
-						);
-
-						var elements = instance.elements;
-
-						elements.setContent(publicOptGroup + privateOptGroup);
-
-						instance.options = elements.all('option');
-					},
-
-					_createOptionElements: function(layouts, options, prefix) {
-						var instance = this;
-
-						AArray.each(
-							layouts,
-							function(item, index, collection) {
-								options[prefix + item.name] = {
-									groupId: item.groupId,
-									layoutId: item.layoutId,
-									name: item.name,
-									privateLayout: item.privateLayout
-								};
-
-								if (item.hasChildren) {
-									instance._createOptionElements(
-										item.children.layouts,
-										options,
-										prefix + STR_DASH + STR_SPACE
-									);
-								}
-							}
-						);
-					},
-
-					_uiSetValue: function(val) {
-						var instance = this;
-
-						var options = instance.options;
-
-						if (options && options.size()) {
-							options.set('selected', false);
-
-							if (Lang.isValue(val)) {
-								var selLayout = SpreadSheet.Util.parseJSON(val);
-
-								options.each(
-									function(item, index, collection) {
-										var curLayout = SpreadSheet.Util.parseJSON(item.attr('value'));
-
-										if ((curLayout.groupId === selLayout.groupId) &&
-											(curLayout.layoutId === selLayout.layoutId) &&
-											(curLayout.privateLayout === selLayout.privateLayout)) {
-
-											item.set('selected', true);
-										}
-									}
-								);
-							}
-						}
-
-						return val;
-					}
-				}
-			}
-		);
+		var isArray = Lang.isArray;
+		var isNumber = Lang.isNumber;
 
 		var SpreadSheet = A.Component.create(
 			{
@@ -306,12 +31,12 @@ AUI.add(
 					},
 
 					recordsetId: {
-						validator: Lang.isNumber,
+						validator: isNumber,
 						value: 0
 					},
 
 					structure: {
-						validator: Lang.isArray,
+						validator: isArray,
 						value: []
 					}
 				},
@@ -333,7 +58,9 @@ AUI.add(
 					'checkbox': A.CheckboxCellEditor,
 					'ddm-date': A.DateCellEditor,
 					'ddm-decimal': A.TextCellEditor,
+					'ddm-documentlibrary': FormBuilder.CUSTOM_CELL_EDITORS['document-library-file-entry-cell-editor'],
 					'ddm-integer': A.TextCellEditor,
+					'ddm-link-to-page': FormBuilder.CUSTOM_CELL_EDITORS['link-to-page-cell-editor'],
 					'ddm-number': A.TextCellEditor,
 					'radio': A.RadioCellEditor,
 					'select': A.DropDownCellEditor,
@@ -347,6 +74,8 @@ AUI.add(
 
 						instance._setDataStableSort(instance.get('data'));
 
+						instance.set('scrollable', true);
+
 						instance.on('dataChange', instance._onDataChange);
 						instance.on('model:change', instance._onRecordUpdate);
 					},
@@ -359,7 +88,7 @@ AUI.add(
 
 						var keys = AArray.map(
 							columns,
-							function(item, index, collection) {
+							function(item, index) {
 								return item.key;
 							}
 						);
@@ -377,9 +106,9 @@ AUI.add(
 						Liferay.Service(
 							'/ddlrecordset/update-min-display-rows',
 							{
-								recordSetId: recordsetId,
 								minDisplayRows: minDisplayRows,
-								serviceContext: JSON.stringify(
+								recordSetId: recordsetId,
+								serviceContext: AJSON.stringify(
 									{
 										scopeGroupId: themeDisplay.getScopeGroupId(),
 										userId: themeDisplay.getUserId()
@@ -390,37 +119,72 @@ AUI.add(
 						);
 					},
 
+					_afterActiveCellIndexChange: function(event) {
+						var instance = this;
+
+						var activeCell = instance.get('activeCell');
+						var boundingBox = instance.get('boundingBox');
+
+						var scrollableElement = boundingBox.one('.table-x-scroller');
+
+						var tableHighlightBorder = instance.highlight.get('activeBorderWidth')[0];
+
+						var activeCellWidth = activeCell.outerWidth() + tableHighlightBorder;
+						var scrollableWidth = scrollableElement.outerWidth();
+
+						var activeCellOffsetLeft = activeCell.get('offsetLeft');
+						var scrollLeft = scrollableElement.get('scrollLeft');
+
+						var activeCellOffsetRight = activeCellOffsetLeft + activeCellWidth;
+
+						var scrollTo = scrollLeft;
+
+						if ((scrollLeft + scrollableWidth) < activeCellOffsetRight) {
+							scrollTo = activeCellOffsetRight - scrollableWidth;
+						}
+						else if (activeCellOffsetLeft < scrollLeft) {
+							scrollTo = activeCellOffsetLeft;
+						}
+
+						scrollableElement.set('scrollLeft', scrollTo);
+					},
+
 					_normalizeRecordData: function(record) {
 						var instance = this;
 
 						var structure = instance.get('structure');
 
+						var fieldsDisplayValues = [];
 						var normalized = {};
 
 						A.each(
 							structure,
-							function(item, index, collection) {
+							function(item, index) {
 								var type = item.type;
 								var value = record.get(item.name);
 
 								if (type === 'ddm-link-to-page') {
-									value = SpreadSheet.Util.parseJSON(value);
+									value = FormBuilder.Util.parseJSON(value);
 
 									delete value.name;
 
-									value = JSON.stringify(value);
+									value = AJSON.stringify(value);
 								}
 								else if ((type === 'radio') || (type === 'select')) {
-									if (!Lang.isArray(value)) {
+									if (!isArray(value)) {
 										value = AArray(value);
 									}
 
-									value = JSON.stringify(value);
+									value = AJSON.stringify(value);
 								}
 
 								normalized[item.name] = instance._normalizeValue(value);
+
+								fieldsDisplayValues.push(item.name + FIELDS_DISPLAY_INSTANCE_SEPARATOR + instance._randomString(8));
 							}
 						);
+
+						normalized[FIELDS_DISPLAY_NAME] = fieldsDisplayValues.join(',');
 
 						delete normalized.displayIndex;
 						delete normalized.recordId;
@@ -510,6 +274,14 @@ AUI.add(
 						}
 					},
 
+					_randomString: function(length) {
+						var random = Math.random();
+
+						var randomString = random.toString(36);
+
+						return randomString.substring(length);
+					},
+
 					_setDataStableSort: function(data) {
 						var instance = this;
 
@@ -550,11 +322,11 @@ AUI.add(
 					Liferay.Service(
 						'/ddlrecord/add-record',
 						{
+							displayIndex: displayIndex,
+							fieldsMap: AJSON.stringify(fieldsMap),
 							groupId: themeDisplay.getScopeGroupId(),
 							recordSetId: recordsetId,
-							displayIndex: displayIndex,
-							fieldsMap: JSON.stringify(fieldsMap),
-							serviceContext: JSON.stringify(
+							serviceContext: AJSON.stringify(
 								{
 									scopeGroupId: themeDisplay.getScopeGroupId(),
 									userId: themeDisplay.getUserId(),
@@ -571,7 +343,7 @@ AUI.add(
 
 					AArray.each(
 						columns,
-						function(item, index, collection) {
+						function(item, index) {
 							var dataType = item.dataType;
 							var name = item.name;
 							var type = item.type;
@@ -623,7 +395,7 @@ AUI.add(
 								config.inputFormatter = function(val) {
 									return AArray.map(
 										val,
-										function(item, index, collection) {
+										function(item, index) {
 											return item.getTime();
 										}
 									);
@@ -632,7 +404,7 @@ AUI.add(
 								config.outputFormatter = function(val) {
 									return AArray.map(
 										val,
-										function(item, index, collection) {
+										function(item, index) {
 											var value = Lang.toInt(item) || Date.now();
 
 											var date = new Date(value);
@@ -666,7 +438,7 @@ AUI.add(
 
 									var numberValue = STR_EMPTY;
 
-									if (Lang.isNumber(number)) {
+									if (isNumber(number)) {
 										numberValue = number;
 									}
 
@@ -678,7 +450,7 @@ AUI.add(
 
 									var value = A.DataType.Number.parse(data[name]);
 
-									if (!Lang.isNumber(value)) {
+									if (!isNumber(value)) {
 										value = STR_EMPTY;
 									}
 
@@ -693,7 +465,7 @@ AUI.add(
 									var value = data[name];
 
 									if (value !== STR_EMPTY) {
-										var fileData = SpreadSheet.Util.parseJSON(value);
+										var fileData = FormBuilder.Util.parseJSON(value);
 
 										if (fileData.title) {
 											label = fileData.title;
@@ -711,7 +483,7 @@ AUI.add(
 									var value = data[name];
 
 									if (value !== STR_EMPTY) {
-										var linkToPageData = SpreadSheet.Util.parseJSON(value);
+										var linkToPageData = FormBuilder.Util.parseJSON(value);
 
 										if (linkToPageData.name) {
 											label = linkToPageData.name;
@@ -735,7 +507,7 @@ AUI.add(
 
 									AArray.each(
 										value,
-										function(item1, index1, collection1) {
+										function(item1, index1) {
 											label.push(options[item1]);
 										}
 									);
@@ -789,7 +561,7 @@ AUI.add(
 
 					AArray.some(
 						structure,
-						function(item, index, collection) {
+						function(item, index) {
 							found = item;
 
 							return (found[attributeName] === attributeValue);
@@ -804,7 +576,7 @@ AUI.add(
 
 					AArray.each(
 						options,
-						function(item, index, collection) {
+						function(item, index) {
 							normalized[item.value] = item.label;
 						}
 					);
@@ -819,7 +591,7 @@ AUI.add(
 
 					AArray.each(
 						keys,
-						function(item, index, collection) {
+						function(item, index) {
 							recordModel[item] = STR_EMPTY;
 						}
 					);
@@ -835,11 +607,11 @@ AUI.add(
 					Liferay.Service(
 						'/ddlrecord/update-record',
 						{
-							recordId: recordId,
 							displayIndex: displayIndex,
-							fieldsMap: JSON.stringify(fieldsMap),
+							fieldsMap: AJSON.stringify(fieldsMap),
 							mergeFields: merge,
-							serviceContext: JSON.stringify(
+							recordId: recordId,
+							serviceContext: AJSON.stringify(
 								{
 									scopeGroupId: themeDisplay.getScopeGroupId(),
 									userId: themeDisplay.getUserId(),
@@ -852,54 +624,6 @@ AUI.add(
 				}
 			}
 		);
-
-		SpreadSheet.Util = {
-			getFileEntry: function(fileJSON, callback) {
-				var instance = this;
-
-				fileJSON = instance.parseJSON(fileJSON);
-
-				Liferay.Service(
-					'/dlapp/get-file-entry-by-uuid-and-group-id',
-					{
-						uuid: fileJSON.uuid,
-						groupId: fileJSON.groupId
-					},
-					callback
-				);
-			},
-
-			getFileEntryURL: function(fileEntry) {
-				var instance = this;
-
-				var buffer = [
-					themeDisplay.getPathContext(),
-					'documents',
-					fileEntry.groupId,
-					fileEntry.folderId,
-					encodeURIComponent(fileEntry.title)
-				];
-
-				return buffer.join('/');
-			},
-
-			parseJSON: function(value) {
-				var instance = this;
-
-				var data = {};
-
-				try {
-					data = JSON.parse(value);
-				}
-				catch (e) {
-				}
-
-				return data;
-			}
-		};
-
-		SpreadSheet.TYPE_EDITOR['ddm-documentlibrary'] = DLFileEntryCellEditor;
-		SpreadSheet.TYPE_EDITOR['ddm-link-to-page'] = LinkToPageCellEditor;
 
 		Liferay.SpreadSheet = SpreadSheet;
 
@@ -935,6 +659,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-arraysort', 'aui-datatable', 'datatable-sort', 'json', 'liferay-portlet-url', 'liferay-util-window']
+		requires: ['aui-arraysort', 'aui-datatable', 'datatable-sort', 'json', 'liferay-portlet-dynamic-data-mapping-custom-fields', 'liferay-portlet-url', 'liferay-util-window']
 	}
 );

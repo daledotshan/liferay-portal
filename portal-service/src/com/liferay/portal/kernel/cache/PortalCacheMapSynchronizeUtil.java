@@ -31,10 +31,10 @@ public class PortalCacheMapSynchronizeUtil {
 			new SynchronizeCacheListener<K, V>(map, synchronizer));
 	}
 
-	public static interface Synchronizer<K extends Serializable, V> {
+	public interface Synchronizer<K extends Serializable, V> {
 
 		public void onSynchronize(
-			Map<? extends K, ? extends V> map, K key, V value);
+			Map<? extends K, ? extends V> map, K key, V value, int timeToLive);
 
 	}
 
@@ -51,37 +51,37 @@ public class PortalCacheMapSynchronizeUtil {
 
 		@Override
 		public void notifyEntryEvicted(
-			PortalCache<K, V> portalCache, K key, V value) {
+			PortalCache<K, V> portalCache, K key, V value, int timeToLive) {
 
-			_synchronizer.onSynchronize(_map, key, value);
+			_synchronizer.onSynchronize(_map, key, value, timeToLive);
 		}
 
 		@Override
 		public void notifyEntryExpired(
-			PortalCache<K, V> portalCache, K key, V value) {
+			PortalCache<K, V> portalCache, K key, V value, int timeToLive) {
 
-			_synchronizer.onSynchronize(_map, key, value);
+			_synchronizer.onSynchronize(_map, key, value, timeToLive);
 		}
 
 		@Override
 		public void notifyEntryPut(
-			PortalCache<K, V> portalCache, K key, V value) {
+			PortalCache<K, V> portalCache, K key, V value, int timeToLive) {
 
-			_synchronizer.onSynchronize(_map, key, value);
+			_synchronizer.onSynchronize(_map, key, value, timeToLive);
 		}
 
 		@Override
 		public void notifyEntryRemoved(
-			PortalCache<K, V> portalCache, K key, V value) {
+			PortalCache<K, V> portalCache, K key, V value, int timeToLive) {
 
-			_synchronizer.onSynchronize(_map, key, value);
+			_synchronizer.onSynchronize(_map, key, value, timeToLive);
 		}
 
 		@Override
 		public void notifyEntryUpdated(
-			PortalCache<K, V> portalCache, K key, V value) {
+			PortalCache<K, V> portalCache, K key, V value, int timeToLive) {
 
-			_synchronizer.onSynchronize(_map, key, value);
+			_synchronizer.onSynchronize(_map, key, value, timeToLive);
 		}
 
 		@Override

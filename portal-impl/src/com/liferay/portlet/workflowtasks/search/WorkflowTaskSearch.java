@@ -33,8 +33,9 @@ import javax.portlet.PortletURL;
  */
 public class WorkflowTaskSearch extends SearchContainer<WorkflowTask> {
 
-	static List<String> headerNames = new ArrayList<String>();
-	static Map<String, String> orderableHeaders = new HashMap<String, String>();
+	public static List<String> headerNames = new ArrayList<String>();
+	public static Map<String, String> orderableHeaders =
+		new HashMap<String, String>();
 
 	static {
 		headerNames.add("task");
@@ -73,8 +74,8 @@ public class WorkflowTaskSearch extends SearchContainer<WorkflowTask> {
 		String orderByCol = ParamUtil.getString(portletRequest, "orderByCol");
 		String orderByType = ParamUtil.getString(portletRequest, "orderByType");
 
-		OrderByComparator orderByComparator = getOrderByComparator(
-			orderByCol, orderByType);
+		OrderByComparator<WorkflowTask> orderByComparator =
+			getOrderByComparator(orderByCol, orderByType);
 
 		setOrderableHeaders(orderableHeaders);
 		setOrderByCol(orderByCol);
@@ -82,7 +83,7 @@ public class WorkflowTaskSearch extends SearchContainer<WorkflowTask> {
 		setOrderByComparator(orderByComparator);
 	}
 
-	protected OrderByComparator getOrderByComparator(
+	protected OrderByComparator<WorkflowTask> getOrderByComparator(
 		String orderByCol, String orderByType) {
 
 		boolean orderByAsc = false;
@@ -91,7 +92,7 @@ public class WorkflowTaskSearch extends SearchContainer<WorkflowTask> {
 			orderByAsc = true;
 		}
 
-		OrderByComparator orderByComparator = null;
+		OrderByComparator<WorkflowTask> orderByComparator = null;
 
 		if (orderByCol.equals("name")) {
 			orderByComparator =

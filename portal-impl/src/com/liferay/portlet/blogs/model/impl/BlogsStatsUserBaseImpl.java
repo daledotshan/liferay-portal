@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.blogs.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.blogs.model.BlogsStatsUser;
 import com.liferay.portlet.blogs.service.BlogsStatsUserLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.blogs.service.BlogsStatsUserLocalServiceUtil;
  * @see com.liferay.portlet.blogs.model.BlogsStatsUser
  * @generated
  */
+@ProviderType
 public abstract class BlogsStatsUserBaseImpl extends BlogsStatsUserModelImpl
 	implements BlogsStatsUser {
 	/*
@@ -39,7 +40,7 @@ public abstract class BlogsStatsUserBaseImpl extends BlogsStatsUserModelImpl
 	 * Never modify or reference this class directly. All methods that expect a blogs stats user model instance should use the {@link BlogsStatsUser} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			BlogsStatsUserLocalServiceUtil.addBlogsStatsUser(this);
 		}

@@ -15,7 +15,6 @@
 package com.liferay.portlet.social.service.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -172,7 +171,9 @@ public class SocialActivityInterpreterLocalServiceImpl
 	 * asset type of the activity.
 	 * </p>
 	 *
+	 * @param  selector the context in which the activity interpreter is used
 	 * @param  activity the activity to be translated to human readable form
+	 * @param  serviceContext the service context to be applied
 	 * @return the activity feed that is a human readable form of the activity
 	 *         record or <code>null</code> if a compatible interpreter is not
 	 *         found
@@ -298,9 +299,7 @@ public class SocialActivityInterpreterLocalServiceImpl
 	}
 
 	@Override
-	public void updateActivitySet(long activityId)
-		throws PortalException, SystemException {
-
+	public void updateActivitySet(long activityId) throws PortalException {
 		if (!PropsValues.SOCIAL_ACTIVITY_SETS_BUNDLING_ENABLED) {
 			socialActivitySetLocalService.addActivitySet(activityId);
 

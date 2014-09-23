@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.shopping.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.shopping.model.ShoppingCategory;
 import com.liferay.portlet.shopping.service.ShoppingCategoryLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.shopping.service.ShoppingCategoryLocalServiceUtil;
  * @see com.liferay.portlet.shopping.model.ShoppingCategory
  * @generated
  */
+@ProviderType
 public abstract class ShoppingCategoryBaseImpl extends ShoppingCategoryModelImpl
 	implements ShoppingCategory {
 	/*
@@ -39,7 +40,7 @@ public abstract class ShoppingCategoryBaseImpl extends ShoppingCategoryModelImpl
 	 * Never modify or reference this class directly. All methods that expect a shopping category model instance should use the {@link ShoppingCategory} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ShoppingCategoryLocalServiceUtil.addShoppingCategory(this);
 		}

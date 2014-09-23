@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.util.Normalizer;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -110,15 +111,24 @@ public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 
 		friendlyURL = StringUtil.toLowerCase(friendlyURL);
 		friendlyURL = Normalizer.normalizeToAscii(friendlyURL);
-		friendlyURL = friendlyURL.replaceAll(
-			friendlyURLPattern.pattern(), StringPool.DASH);
-		friendlyURL = friendlyURL.replaceAll(
-			_friendlyURLHyphenPattern.pattern(), StringPool.DASH);
+
+		Matcher matcher = friendlyURLPattern.matcher(friendlyURL);
+
+		friendlyURL = matcher.replaceAll(StringPool.DASH);
+
+		matcher = _friendlyURLHyphenPattern.matcher(friendlyURL);
+
+		friendlyURL = matcher.replaceAll(StringPool.DASH);
 
 		return friendlyURL;
 	}
 
 	private static final char[] _REPLACE_CHARS;
+
+	private static Pattern _friendlyURLHyphenPattern = Pattern.compile(
+		"(-)\\1+");
+	private static Pattern _friendlyURLPattern = Pattern.compile(
+		"[^a-z0-9./_-]");
 
 	static {
 		char[] replaceChars = new char[] {
@@ -131,10 +141,5 @@ public class FriendlyURLNormalizerImpl implements FriendlyURLNormalizer {
 
 		_REPLACE_CHARS = replaceChars;
 	}
-
-	private static Pattern _friendlyURLHyphenPattern = Pattern.compile(
-		"(-)\\1+");
-	private static Pattern _friendlyURLPattern = Pattern.compile(
-		"[^a-z0-9./_-]");
 
 }

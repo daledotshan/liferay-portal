@@ -21,21 +21,20 @@ if (!useNamespace) {
 
 String baseType = GetterUtil.getString((String)request.getAttribute("aui:input:baseType"));
 String forLabel = namespace + GetterUtil.getString((String)request.getAttribute("aui:input:forLabel"));
-boolean wrappedField = GetterUtil.getBoolean(String.valueOf(request.getAttribute("aui:input:wrappedField")));
 
 if (Validator.isNull(label) && changesContext) {
 	StringBundler sb = new StringBundler(5);
 
-	sb.append(LanguageUtil.get(pageContext, title));
+	sb.append(LanguageUtil.get(request, title));
 	sb.append(StringPool.SPACE);
 	sb.append(StringPool.OPEN_PARENTHESIS);
-	sb.append(LanguageUtil.get(pageContext, "changing-the-value-of-this-field-will-reload-the-page"));
+	sb.append(LanguageUtil.get(request, "changing-the-value-of-this-field-will-reload-the-page"));
 	sb.append(StringPool.CLOSE_PARENTHESIS);
 
 	title = sb.toString();
 }
 else if (Validator.isNotNull(title)) {
-	title = LanguageUtil.get(pageContext, title);
+	title = LanguageUtil.get(request, title);
 }
 
 boolean checkboxField = baseType.equals("checkbox") || baseType.equals("boolean");
@@ -53,31 +52,34 @@ if (choiceField && Validator.isNull(inlineLabel)) {
 
 String addOnCssClass = StringPool.BLANK;
 
-if (helpTextCssClass.equals("add-on")) {
-	if (Validator.isNotNull(prefix)) {
-		addOnCssClass = addOnCssClass.concat("input-prepend ");
-	}
-
-	if (Validator.isNotNull(suffix)) {
-		addOnCssClass = addOnCssClass.concat("input-append");
-	}
+if (helpTextCssClass.equals("input-group-addon")) {
+	addOnCssClass = addOnCssClass.concat("input-group");
 }
 
-String controlGroupCssClass = "control-group";
-
-if (inlineField) {
-	controlGroupCssClass = controlGroupCssClass.concat(" control-group-inline");
-}
-
-if (Validator.isNotNull(inlineLabel)) {
-	controlGroupCssClass = controlGroupCssClass.concat(" form-inline");
-}
-
-if (Validator.isNotNull(wrapperCssClass)) {
-	controlGroupCssClass = controlGroupCssClass.concat(StringPool.SPACE).concat(wrapperCssClass);
-}
-
+String controlGroupCssClass = AUIUtil.buildControlGroupCss(inlineField, inlineLabel, wrapperCssClass, baseType);
 String baseTypeCssClass = TextFormatter.format(StringUtil.toLowerCase(baseType), TextFormatter.K);
+
 String fieldCssClass = AUIUtil.buildCss(AUIUtil.FIELD_PREFIX, disabled, first, last, cssClass);
+
+if (baseType.equals("email") || baseType.equals("password") || baseType.equals("text") || baseType.equals("textarea")) {
+	fieldCssClass += " form-control";
+}
+
+boolean useInputWrapper = true;
+
+String inputWrapperClass = controlGroupCssClass;
+
+if (choiceField) {
+	inputWrapperClass = baseTypeCssClass;
+
+	if (Validator.isNull(label)) {
+		useInputWrapper = false;
+	}
+}
+
+if (inputWrapperClass.equals("boolean")) {
+	inputWrapperClass = "checkbox";
+}
+
 String labelTag = AUIUtil.buildLabel(baseTypeCssClass, inlineField, showForLabel, forLabel);
 %>

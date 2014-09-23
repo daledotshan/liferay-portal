@@ -29,8 +29,10 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.MimeResponse;
@@ -76,16 +78,28 @@ public class PortletRequestModel implements Serializable {
 		else if (portletRequest instanceof ResourceRequest) {
 			_lifecycle = RenderRequest.RESOURCE_PHASE;
 		}
+		else {
+			_lifecycle = null;
+		}
+
+		String portletNamespace = null;
+		String actionURLString = null;
+		String renderURLString = null;
+		String renderURLExclusiveString = null;
+		String renderURLMaximizedString = null;
+		String renderURLMinimizedString = null;
+		String renderURLNormalString = null;
+		String renderURLPopUp = null;
 
 		if (portletResponse instanceof MimeResponse) {
 			MimeResponse mimeResponse = (MimeResponse)portletResponse;
 
-			_portletNamespace = mimeResponse.getNamespace();
+			portletNamespace = mimeResponse.getNamespace();
 
 			try {
 				PortletURL actionURL = mimeResponse.createActionURL();
 
-				_actionURL = actionURL.toString();
+				actionURLString = actionURL.toString();
 			}
 			catch (IllegalStateException ise) {
 				if (_log.isWarnEnabled()) {
@@ -96,12 +110,12 @@ public class PortletRequestModel implements Serializable {
 			try {
 				PortletURL renderURL = mimeResponse.createRenderURL();
 
-				_renderURL = renderURL.toString();
+				renderURLString = renderURL.toString();
 
 				try {
 					renderURL.setWindowState(LiferayWindowState.EXCLUSIVE);
 
-					_renderURLExclusive = renderURL.toString();
+					renderURLExclusiveString = renderURL.toString();
 				}
 				catch (WindowStateException wse) {
 				}
@@ -109,7 +123,7 @@ public class PortletRequestModel implements Serializable {
 				try {
 					renderURL.setWindowState(LiferayWindowState.MAXIMIZED);
 
-					_renderURLMaximized = renderURL.toString();
+					renderURLMaximizedString = renderURL.toString();
 				}
 				catch (WindowStateException wse) {
 				}
@@ -117,7 +131,7 @@ public class PortletRequestModel implements Serializable {
 				try {
 					renderURL.setWindowState(LiferayWindowState.MINIMIZED);
 
-					_renderURLMinimized = renderURL.toString();
+					renderURLMinimizedString = renderURL.toString();
 				}
 				catch (WindowStateException wse) {
 				}
@@ -125,7 +139,7 @@ public class PortletRequestModel implements Serializable {
 				try {
 					renderURL.setWindowState(LiferayWindowState.NORMAL);
 
-					_renderURLNormal = renderURL.toString();
+					renderURLNormalString = renderURL.toString();
 				}
 				catch (WindowStateException wse) {
 				}
@@ -133,7 +147,7 @@ public class PortletRequestModel implements Serializable {
 				try {
 					renderURL.setWindowState(LiferayWindowState.POP_UP);
 
-					_renderURLPopUp = renderURL.toString();
+					renderURLPopUp = renderURL.toString();
 				}
 				catch (WindowStateException wse) {
 				}
@@ -147,19 +161,34 @@ public class PortletRequestModel implements Serializable {
 			ResourceURL resourceURL = mimeResponse.createResourceURL();
 
 			String resourceURLString = HttpUtil.removeParameter(
-				resourceURL.toString(), _portletNamespace + "struts_action");
+				resourceURL.toString(), portletNamespace + "struts_action");
 
 			resourceURLString = HttpUtil.removeParameter(
-				resourceURLString, _portletNamespace + "redirect");
+				resourceURLString, portletNamespace + "redirect");
 
 			_resourceURL = resourceURL.toString();
 		}
+		else {
+			_resourceURL = null;
+		}
+
+		_portletNamespace = portletNamespace;
+		_actionURL = actionURLString;
+		_renderURL = renderURLString;
+		_renderURLExclusive = renderURLExclusiveString;
+		_renderURLMaximized = renderURLMaximizedString;
+		_renderURLMinimized = renderURLMinimizedString;
+		_renderURLNormal = renderURLNormalString;
+		_renderURLPopUp = renderURLPopUp;
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		if (themeDisplay != null) {
 			_themeDisplayModel = new ThemeDisplayModel(themeDisplay);
+		}
+		else {
+			_themeDisplayModel = null;
 		}
 
 		_parameters = new HashMap<String, String[]>(
@@ -303,6 +332,168 @@ public class PortletRequestModel implements Serializable {
 
 	public boolean isSecure() {
 		return _secure;
+	}
+
+	public Map<String, Object> toMap() {
+		Map<String, Object> portletRequestModelMap =
+			new HashMap<String, Object>();
+
+		portletRequestModelMap.put("container-type", "portlet");
+		portletRequestModelMap.put("container-namespace", _contextPath);
+		portletRequestModelMap.put("content-type", _contentType);
+		portletRequestModelMap.put("server-name", _serverName);
+		portletRequestModelMap.put("server-port", _serverPort);
+		portletRequestModelMap.put("secure", _secure);
+		portletRequestModelMap.put("auth-type", _authType);
+		portletRequestModelMap.put("remote-user", _remoteUser);
+		portletRequestModelMap.put("context-path", _contextPath);
+		portletRequestModelMap.put("locale", _locale);
+		portletRequestModelMap.put("portlet-mode", _portletMode);
+		portletRequestModelMap.put("portlet-session-id", _portletSessionId);
+		portletRequestModelMap.put("scheme", _scheme);
+		portletRequestModelMap.put("window-state", _windowState);
+		portletRequestModelMap.put("lifecycle", _lifecycle);
+
+		if (_portletNamespace != null) {
+			portletRequestModelMap.put("portlet-namespace", _portletNamespace);
+
+			if (_actionURL != null) {
+				portletRequestModelMap.put("action-url", "_actionURL");
+			}
+
+			if (_renderURL != null) {
+				portletRequestModelMap.put("render-url", _renderURL);
+
+				if (_renderURLExclusive != null) {
+					portletRequestModelMap.put(
+						"render-url-exclusive", _renderURLExclusive);
+				}
+
+				if (_renderURLMaximized != null) {
+					portletRequestModelMap.put(
+						"render-url-maximized", _renderURLMaximized);
+				}
+
+				if (_renderURLMinimized != null) {
+					portletRequestModelMap.put(
+						"render-url-minimized", _renderURLMinimized);
+				}
+
+				if (_renderURLNormal != null) {
+					portletRequestModelMap.put(
+						"render-url-normal", _renderURLNormal);
+				}
+
+				if (_renderURLPopUp != null) {
+					portletRequestModelMap.put(
+						"render-url-pop-up", _renderURLPopUp);
+				}
+			}
+
+			portletRequestModelMap.put("resource-url", _resourceURL);
+		}
+
+		if (_themeDisplayModel != null) {
+			Map<String, Object> themeDisplayModelMap =
+				new HashMap<String, Object>();
+
+			portletRequestModelMap.put("theme-display", themeDisplayModelMap);
+
+			themeDisplayModelMap.put(
+				"cdn-host", _themeDisplayModel.getCdnHost());
+			themeDisplayModelMap.put(
+				"company-id", _themeDisplayModel.getCompanyId());
+			themeDisplayModelMap.put(
+				"do-as-user-id", _themeDisplayModel.getDoAsUserId());
+			themeDisplayModelMap.put(
+				"i18n-language-id", _themeDisplayModel.getI18nLanguageId());
+			themeDisplayModelMap.put(
+				"i18n-path", _themeDisplayModel.getI18nPath());
+			themeDisplayModelMap.put(
+				"language-id", _themeDisplayModel.getLanguageId());
+			themeDisplayModelMap.put("locale", _themeDisplayModel.getLocale());
+			themeDisplayModelMap.put(
+				"path-context", _themeDisplayModel.getPathContext());
+			themeDisplayModelMap.put(
+				"path-friendly-url-private-group",
+				_themeDisplayModel.getPathFriendlyURLPrivateGroup());
+			themeDisplayModelMap.put(
+				"path-friendly-url-private-user",
+				_themeDisplayModel.getPathFriendlyURLPrivateUser());
+			themeDisplayModelMap.put(
+				"path-friendly-url-public",
+				_themeDisplayModel.getPathFriendlyURLPublic());
+			themeDisplayModelMap.put(
+				"path-image", _themeDisplayModel.getPathImage());
+			themeDisplayModelMap.put(
+				"path-main", _themeDisplayModel.getPathMain());
+			themeDisplayModelMap.put(
+				"path-theme-images", _themeDisplayModel.getPathThemeImages());
+			themeDisplayModelMap.put("plid", _themeDisplayModel.getPlid());
+			themeDisplayModelMap.put(
+				"portal-url", _themeDisplayModel.getPortalURL());
+			themeDisplayModelMap.put(
+				"real-user-id", _themeDisplayModel.getRealUserId());
+			themeDisplayModelMap.put(
+				"scope-group-id", _themeDisplayModel.getScopeGroupId());
+			themeDisplayModelMap.put("secure", _themeDisplayModel.isSecure());
+			themeDisplayModelMap.put(
+				"server-name", _themeDisplayModel.getServerName());
+			themeDisplayModelMap.put(
+				"server-port", _themeDisplayModel.getServerPort());
+			themeDisplayModelMap.put(
+				"time-zone", _themeDisplayModel.getTimeZone().getID());
+			themeDisplayModelMap.put(
+				"url-portal", _themeDisplayModel.getURLPortal());
+			themeDisplayModelMap.put("user-id", _themeDisplayModel.getUserId());
+
+			PortletDisplayModel portletDisplayModel =
+				_themeDisplayModel.getPortletDisplayModel();
+
+			if (portletDisplayModel != null) {
+				Map<String, Object> portletDisplayModelMap =
+					new HashMap<String, Object>();
+
+				themeDisplayModelMap.put(
+					"portlet-display", portletDisplayModelMap);
+
+				portletDisplayModelMap.put("id", portletDisplayModel.getId());
+				portletDisplayModelMap.put(
+					"instance-id", portletDisplayModel.getInstanceId());
+				portletDisplayModelMap.put(
+					"portlet-name", portletDisplayModel.getPortletName());
+				portletDisplayModelMap.put(
+					"resource-pk", portletDisplayModel.getResourcePK());
+				portletDisplayModelMap.put(
+					"root-portlet-id", portletDisplayModel.getRootPortletId());
+				portletDisplayModelMap.put(
+					"title", portletDisplayModel.getTitle());
+			}
+		}
+
+		portletRequestModelMap.put("parameters", _parameters);
+
+		_attributes = filterInvalidAttributes(_attributes);
+
+		portletRequestModelMap.put("attributes", _attributes);
+
+		Map<String, Object> portletSessionMap = new HashMap<String, Object>();
+
+		portletRequestModelMap.put("portlet-session", portletSessionMap);
+
+		_portletScopeSessioAttributes = filterInvalidAttributes(
+			_portletScopeSessioAttributes);
+
+		portletSessionMap.put(
+			"portlet-attributes", _portletScopeSessioAttributes);
+
+		_applicationScopeSessionAttributes = filterInvalidAttributes(
+			_applicationScopeSessionAttributes);
+
+		portletSessionMap.put(
+			"application-attributes", _applicationScopeSessionAttributes);
+
+		return portletRequestModelMap;
 	}
 
 	public String toXML() {
@@ -533,6 +724,51 @@ public class PortletRequestModel implements Serializable {
 	}
 
 	protected PortletRequestModel() {
+		_actionURL = null;
+		_authType = null;
+		_containerNamespace = null;
+		_contentType = null;
+		_contextPath = null;
+		_lifecycle = null;
+		_locale = null;
+		_parameters = null;
+		_portletMode = null;
+		_portletNamespace = null;
+		_portletSessionId = null;
+		_remoteUser = null;
+		_renderURL = null;
+		_renderURLExclusive = null;
+		_renderURLMaximized = null;
+		_renderURLMinimized = null;
+		_renderURLNormal = null;
+		_renderURLPopUp = null;
+		_resourceURL = null;
+		_scheme = null;
+		_secure = false;
+		_serverName = null;
+		_serverPort = 0;
+		_themeDisplayModel = null;
+		_windowState = null;
+	}
+
+	protected Map<String, Object> filterInvalidAttributes(
+		Map<String, Object> map) {
+
+		Set<Map.Entry<String, Object>> set = map.entrySet();
+
+		Iterator<Map.Entry<String, Object>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, Object> entry = iterator.next();
+
+			if (!_isValidAttributeName(entry.getKey()) ||
+				!_isValidAttributeValue(entry.getValue())) {
+
+				iterator.remove();
+			}
+		}
+
+		return map;
 	}
 
 	private static boolean _isValidAttributeName(String name) {
@@ -585,33 +821,33 @@ public class PortletRequestModel implements Serializable {
 
 	private static Log _log = LogFactoryUtil.getLog(PortletRequestModel.class);
 
-	private String _actionURL;
+	private final String _actionURL;
 	private Map<String, Object> _applicationScopeSessionAttributes;
 	private Map<String, Object> _attributes;
-	private String _authType;
-	private String _containerNamespace;
-	private String _contentType;
-	private String _contextPath;
-	private String _lifecycle;
-	private Locale _locale;
-	private Map<String, String[]> _parameters;
-	private PortletMode _portletMode;
-	private String _portletNamespace;
+	private final String _authType;
+	private final String _containerNamespace;
+	private final String _contentType;
+	private final String _contextPath;
+	private final String _lifecycle;
+	private final Locale _locale;
+	private final Map<String, String[]> _parameters;
+	private final PortletMode _portletMode;
+	private final String _portletNamespace;
 	private Map<String, Object> _portletScopeSessioAttributes;
-	private String _portletSessionId;
-	private String _remoteUser;
-	private String _renderURL;
-	private String _renderURLExclusive;
-	private String _renderURLMaximized;
-	private String _renderURLMinimized;
-	private String _renderURLNormal;
-	private String _renderURLPopUp;
-	private String _resourceURL;
-	private String _scheme;
-	private boolean _secure;
-	private String _serverName;
-	private int _serverPort;
-	private ThemeDisplayModel _themeDisplayModel;
-	private WindowState _windowState;
+	private final String _portletSessionId;
+	private final String _remoteUser;
+	private final String _renderURL;
+	private final String _renderURLExclusive;
+	private final String _renderURLMaximized;
+	private final String _renderURLMinimized;
+	private final String _renderURLNormal;
+	private final String _renderURLPopUp;
+	private final String _resourceURL;
+	private final String _scheme;
+	private final boolean _secure;
+	private final String _serverName;
+	private final int _serverPort;
+	private final ThemeDisplayModel _themeDisplayModel;
+	private final WindowState _windowState;
 
 }

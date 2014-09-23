@@ -21,17 +21,17 @@ import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.RandomTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 import com.liferay.portlet.trash.BaseTrashHandlerTestCase;
 import com.liferay.portlet.trash.util.TrashUtil;
 
@@ -125,12 +125,8 @@ public class DLFolderTrashHandlerTest extends BaseTrashHandlerTestCase {
 	protected BaseModel<?> addBaseModelWithWorkflow(long groupId, long folderId)
 		throws Exception {
 
-		String name = getSearchKeywords();
-
-		name += ServiceTestUtil.randomString(
-			_FOLDER_NAME_MAX_LENGTH - name.length());
-
-		Folder folder = DLAppTestUtil.addFolder(groupId, folderId, name);
+		Folder folder = DLAppTestUtil.addFolder(
+			groupId, folderId, getSearchKeywords());
 
 		return (DLFolder)folder.getModel();
 	}
@@ -180,7 +176,7 @@ public class DLFolderTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 		Folder folder = DLAppTestUtil.addFolder(
 			group.getGroupId(), parentBaseModelId,
-			ServiceTestUtil.randomString(_FOLDER_NAME_MAX_LENGTH));
+			RandomTestUtil.randomString(_FOLDER_NAME_MAX_LENGTH));
 
 		return (DLFolder)folder.getModel();
 	}
@@ -196,7 +192,7 @@ public class DLFolderTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 	@Override
 	protected String getSearchKeywords() {
-		return "Title";
+		return _FOLDER_NAME;
 	}
 
 	@Override
@@ -253,6 +249,8 @@ public class DLFolderTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 		return dlFolder;
 	}
+
+	private static final String _FOLDER_NAME = RandomTestUtil.randomString(100);
 
 	private static final int _FOLDER_NAME_MAX_LENGTH = 100;
 

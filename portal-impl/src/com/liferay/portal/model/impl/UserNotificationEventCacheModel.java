@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
@@ -32,6 +34,7 @@ import java.io.ObjectOutput;
  * @see UserNotificationEvent
  * @generated
  */
+@ProviderType
 public class UserNotificationEventCacheModel implements CacheModel<UserNotificationEvent>,
 	Externalizable, MVCCModel {
 	@Override
@@ -46,7 +49,7 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -62,12 +65,16 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 		sb.append(type);
 		sb.append(", timestamp=");
 		sb.append(timestamp);
+		sb.append(", deliveryType=");
+		sb.append(deliveryType);
 		sb.append(", deliverBy=");
 		sb.append(deliverBy);
 		sb.append(", delivered=");
 		sb.append(delivered);
 		sb.append(", payload=");
 		sb.append(payload);
+		sb.append(", actionRequired=");
+		sb.append(actionRequired);
 		sb.append(", archived=");
 		sb.append(archived);
 		sb.append("}");
@@ -100,6 +107,7 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 		}
 
 		userNotificationEventImpl.setTimestamp(timestamp);
+		userNotificationEventImpl.setDeliveryType(deliveryType);
 		userNotificationEventImpl.setDeliverBy(deliverBy);
 		userNotificationEventImpl.setDelivered(delivered);
 
@@ -110,6 +118,7 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 			userNotificationEventImpl.setPayload(payload);
 		}
 
+		userNotificationEventImpl.setActionRequired(actionRequired);
 		userNotificationEventImpl.setArchived(archived);
 
 		userNotificationEventImpl.resetOriginalValues();
@@ -126,9 +135,11 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 		userId = objectInput.readLong();
 		type = objectInput.readUTF();
 		timestamp = objectInput.readLong();
+		deliveryType = objectInput.readInt();
 		deliverBy = objectInput.readLong();
 		delivered = objectInput.readBoolean();
 		payload = objectInput.readUTF();
+		actionRequired = objectInput.readBoolean();
 		archived = objectInput.readBoolean();
 	}
 
@@ -156,6 +167,7 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 		}
 
 		objectOutput.writeLong(timestamp);
+		objectOutput.writeInt(deliveryType);
 		objectOutput.writeLong(deliverBy);
 		objectOutput.writeBoolean(delivered);
 
@@ -166,6 +178,7 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 			objectOutput.writeUTF(payload);
 		}
 
+		objectOutput.writeBoolean(actionRequired);
 		objectOutput.writeBoolean(archived);
 	}
 
@@ -176,8 +189,10 @@ public class UserNotificationEventCacheModel implements CacheModel<UserNotificat
 	public long userId;
 	public String type;
 	public long timestamp;
+	public int deliveryType;
 	public long deliverBy;
 	public boolean delivered;
 	public String payload;
+	public boolean actionRequired;
 	public boolean archived;
 }

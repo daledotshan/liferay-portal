@@ -17,13 +17,16 @@ package com.liferay.portlet.documentlibrary.service.permission;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.permission.BasePermissionTestCase;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.RandomTestUtil;
+import com.liferay.portal.util.test.RoleTestUtil;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,20 +63,30 @@ public class DLFileEntryPermissionTest extends BasePermissionTestCase {
 	protected void doSetUp() throws Exception {
 		_fileEntry = DLAppTestUtil.addFileEntry(
 			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			ServiceTestUtil.randomString());
+			RandomTestUtil.randomString());
 
 		Folder folder = DLAppTestUtil.addFolder(
 			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			ServiceTestUtil.randomString(), true);
+			RandomTestUtil.randomString(), true);
 
 		_subfileEntry = DLAppTestUtil.addFileEntry(
 			group.getGroupId(), folder.getFolderId(),
-			ServiceTestUtil.randomString());
+			RandomTestUtil.randomString());
 	}
 
 	@Override
 	protected String getResourceName() {
 		return DLPermission.RESOURCE_NAME;
+	}
+
+	@Override
+	protected void removePortletModelViewPermission() throws Exception {
+		super.removePortletModelViewPermission();
+
+		RoleTestUtil.removeResourcePermission(
+			RoleConstants.GUEST, getResourceName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(group.getGroupId()), ActionKeys.VIEW);
 	}
 
 	private FileEntry _fileEntry;

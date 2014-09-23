@@ -63,7 +63,7 @@ public class TextFormatter {
 
 	public static final int J = 9;
 
-	// formatId --> format-id
+	// formatId --> format-id, formatID --> format-i-d
 
 	public static final int K = 10;
 
@@ -83,9 +83,13 @@ public class TextFormatter {
 
 	public static final int O = 14;
 
-	// formatID --> format-id
+	// FormatID --> format-id
 
 	public static final int P = 15;
+
+	// FORMATId --> format-id
+
+	public static final int Q = 16;
 
 	public static String format(String s, int style) {
 		if (Validator.isNull(s)) {
@@ -141,6 +145,9 @@ public class TextFormatter {
 		}
 		else if (style == P) {
 			return _formatP(s);
+		}
+		else if (style == Q) {
+			return _formatQ(s);
 		}
 		else {
 			return s;
@@ -403,6 +410,29 @@ public class TextFormatter {
 	}
 
 	private static String _formatP(String s) {
+		StringBuilder sb = new StringBuilder(s.length() + s.length() / 2);
+
+		for (int i = 0; i < s.length() - 1; i++) {
+			char c = s.charAt(i);
+
+			if (Character.isUpperCase(c)) {
+				sb.append(Character.toLowerCase(c));
+			}
+			else {
+				sb.append(c);
+
+				if (Character.isUpperCase(s.charAt(i + 1))) {
+					sb.append(CharPool.DASH);
+				}
+			}
+		}
+
+		sb.append(Character.toLowerCase(s.charAt(s.length() - 1)));
+
+		return sb.toString();
+	}
+
+	private static String _formatQ(String s) {
 		StringBuilder sb = new StringBuilder(StringUtil.toLowerCase(s));
 
 		for (int i = 0; i < s.length(); i++) {
@@ -427,7 +457,7 @@ public class TextFormatter {
 
 	private static final String _STORAGE_SIZE_SUFFIX_GB = "GB";
 
-	private static final String _STORAGE_SIZE_SUFFIX_KB = "k";
+	private static final String _STORAGE_SIZE_SUFFIX_KB = "KB";
 
 	private static final String _STORAGE_SIZE_SUFFIX_MB = "MB";
 

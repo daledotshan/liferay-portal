@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.Shard;
 import com.liferay.portal.service.ShardLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ShardLocalServiceUtil;
  * @see com.liferay.portal.model.Shard
  * @generated
  */
+@ProviderType
 public abstract class ShardBaseImpl extends ShardModelImpl implements Shard {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -37,7 +39,7 @@ public abstract class ShardBaseImpl extends ShardModelImpl implements Shard {
 	 * Never modify or reference this class directly. All methods that expect a shard model instance should use the {@link Shard} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ShardLocalServiceUtil.addShard(this);
 		}

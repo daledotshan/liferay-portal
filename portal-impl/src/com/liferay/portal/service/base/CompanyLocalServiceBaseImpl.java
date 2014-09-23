@@ -14,12 +14,16 @@
 
 package com.liferay.portal.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -48,6 +52,8 @@ import com.liferay.portal.service.persistence.PasswordPolicyFinder;
 import com.liferay.portal.service.persistence.PasswordPolicyPersistence;
 import com.liferay.portal.service.persistence.PortalPreferencesPersistence;
 import com.liferay.portal.service.persistence.PortletPersistence;
+import com.liferay.portal.service.persistence.ResourcePermissionFinder;
+import com.liferay.portal.service.persistence.ResourcePermissionPersistence;
 import com.liferay.portal.service.persistence.RoleFinder;
 import com.liferay.portal.service.persistence.RolePersistence;
 import com.liferay.portal.service.persistence.ShardPersistence;
@@ -74,6 +80,7 @@ import javax.sql.DataSource;
  * @see com.liferay.portal.service.CompanyLocalServiceUtil
  * @generated
  */
+@ProviderType
 public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	implements CompanyLocalService, IdentifiableBean {
 	/*
@@ -87,11 +94,10 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param company the company
 	 * @return the company that was added
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public Company addCompany(Company company) throws SystemException {
+	public Company addCompany(Company company) {
 		company.setNew(true);
 
 		return companyPersistence.update(company);
@@ -114,12 +120,10 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param companyId the primary key of the company
 	 * @return the company that was removed
 	 * @throws PortalException if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public Company deleteCompany(long companyId)
-		throws PortalException, SystemException {
+	public Company deleteCompany(long companyId) throws PortalException {
 		return companyPersistence.remove(companyId);
 	}
 
@@ -128,11 +132,11 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param company the company
 	 * @return the company that was removed
-	 * @throws SystemException if a system exception occurred
+	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public Company deleteCompany(Company company) throws SystemException {
+	public Company deleteCompany(Company company) throws PortalException {
 		return companyPersistence.remove(company);
 	}
 
@@ -149,12 +153,9 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
 		return companyPersistence.findWithDynamicQuery(dynamicQuery);
 	}
 
@@ -169,12 +170,10 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of model instances
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @return the range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end)
-		throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end) {
 		return companyPersistence.findWithDynamicQuery(dynamicQuery, start, end);
 	}
 
@@ -190,12 +189,10 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param end the upper bound of the range of model instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching rows
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public List dynamicQuery(DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator) {
 		return companyPersistence.findWithDynamicQuery(dynamicQuery, start,
 			end, orderByComparator);
 	}
@@ -205,11 +202,9 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param dynamicQuery the dynamic query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery)
-		throws SystemException {
+	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
 		return companyPersistence.countWithDynamicQuery(dynamicQuery);
 	}
 
@@ -219,16 +214,15 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param dynamicQuery the dynamic query
 	 * @param projection the projection to apply to the query
 	 * @return the number of rows that match the dynamic query
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
-		Projection projection) throws SystemException {
+		Projection projection) {
 		return companyPersistence.countWithDynamicQuery(dynamicQuery, projection);
 	}
 
 	@Override
-	public Company fetchCompany(long companyId) throws SystemException {
+	public Company fetchCompany(long companyId) {
 		return companyPersistence.fetchByPrimaryKey(companyId);
 	}
 
@@ -238,17 +232,46 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param companyId the primary key of the company
 	 * @return the company
 	 * @throws PortalException if a company with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Company getCompany(long companyId)
-		throws PortalException, SystemException {
+	public Company getCompany(long companyId) throws PortalException {
 		return companyPersistence.findByPrimaryKey(companyId);
 	}
 
 	@Override
+	public ActionableDynamicQuery getActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
+
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.CompanyLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(Company.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("companyId");
+
+		return actionableDynamicQuery;
+	}
+
+	protected void initActionableDynamicQuery(
+		ActionableDynamicQuery actionableDynamicQuery) {
+		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.CompanyLocalServiceUtil.getService());
+		actionableDynamicQuery.setClass(Company.class);
+		actionableDynamicQuery.setClassLoader(getClassLoader());
+
+		actionableDynamicQuery.setPrimaryKeyPropertyName("companyId");
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException {
+		return companyLocalService.deleteCompany((Company)persistedModel);
+	}
+
+	@Override
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException, SystemException {
+		throws PortalException {
 		return companyPersistence.findByPrimaryKey(primaryKeyObj);
 	}
 
@@ -262,11 +285,9 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @param start the lower bound of the range of companies
 	 * @param end the upper bound of the range of companies (not inclusive)
 	 * @return the range of companies
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Company> getCompanies(int start, int end)
-		throws SystemException {
+	public List<Company> getCompanies(int start, int end) {
 		return companyPersistence.findAll(start, end);
 	}
 
@@ -274,10 +295,9 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * Returns the number of companies.
 	 *
 	 * @return the number of companies
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int getCompaniesCount() throws SystemException {
+	public int getCompaniesCount() {
 		return companyPersistence.countAll();
 	}
 
@@ -286,11 +306,10 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param company the company
 	 * @return the company that was updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
-	public Company updateCompany(Company company) throws SystemException {
+	public Company updateCompany(Company company) {
 		return companyPersistence.update(company);
 	}
 
@@ -1028,6 +1047,101 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
+	 * Returns the resource local service.
+	 *
+	 * @return the resource local service
+	 */
+	public com.liferay.portal.service.ResourceLocalService getResourceLocalService() {
+		return resourceLocalService;
+	}
+
+	/**
+	 * Sets the resource local service.
+	 *
+	 * @param resourceLocalService the resource local service
+	 */
+	public void setResourceLocalService(
+		com.liferay.portal.service.ResourceLocalService resourceLocalService) {
+		this.resourceLocalService = resourceLocalService;
+	}
+
+	/**
+	 * Returns the resource permission local service.
+	 *
+	 * @return the resource permission local service
+	 */
+	public com.liferay.portal.service.ResourcePermissionLocalService getResourcePermissionLocalService() {
+		return resourcePermissionLocalService;
+	}
+
+	/**
+	 * Sets the resource permission local service.
+	 *
+	 * @param resourcePermissionLocalService the resource permission local service
+	 */
+	public void setResourcePermissionLocalService(
+		com.liferay.portal.service.ResourcePermissionLocalService resourcePermissionLocalService) {
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
+	}
+
+	/**
+	 * Returns the resource permission remote service.
+	 *
+	 * @return the resource permission remote service
+	 */
+	public com.liferay.portal.service.ResourcePermissionService getResourcePermissionService() {
+		return resourcePermissionService;
+	}
+
+	/**
+	 * Sets the resource permission remote service.
+	 *
+	 * @param resourcePermissionService the resource permission remote service
+	 */
+	public void setResourcePermissionService(
+		com.liferay.portal.service.ResourcePermissionService resourcePermissionService) {
+		this.resourcePermissionService = resourcePermissionService;
+	}
+
+	/**
+	 * Returns the resource permission persistence.
+	 *
+	 * @return the resource permission persistence
+	 */
+	public ResourcePermissionPersistence getResourcePermissionPersistence() {
+		return resourcePermissionPersistence;
+	}
+
+	/**
+	 * Sets the resource permission persistence.
+	 *
+	 * @param resourcePermissionPersistence the resource permission persistence
+	 */
+	public void setResourcePermissionPersistence(
+		ResourcePermissionPersistence resourcePermissionPersistence) {
+		this.resourcePermissionPersistence = resourcePermissionPersistence;
+	}
+
+	/**
+	 * Returns the resource permission finder.
+	 *
+	 * @return the resource permission finder
+	 */
+	public ResourcePermissionFinder getResourcePermissionFinder() {
+		return resourcePermissionFinder;
+	}
+
+	/**
+	 * Sets the resource permission finder.
+	 *
+	 * @param resourcePermissionFinder the resource permission finder
+	 */
+	public void setResourcePermissionFinder(
+		ResourcePermissionFinder resourcePermissionFinder) {
+		this.resourcePermissionFinder = resourcePermissionFinder;
+	}
+
+	/**
 	 * Returns the role local service.
 	 *
 	 * @return the role local service
@@ -1293,7 +1407,7 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param sql the sql query
 	 */
-	protected void runSQL(String sql) throws SystemException {
+	protected void runSQL(String sql) {
 		try {
 			DataSource dataSource = companyPersistence.getDataSource();
 
@@ -1390,6 +1504,16 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected com.liferay.portal.service.PortletService portletService;
 	@BeanReference(type = PortletPersistence.class)
 	protected PortletPersistence portletPersistence;
+	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
+	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
+	@BeanReference(type = com.liferay.portal.service.ResourcePermissionLocalService.class)
+	protected com.liferay.portal.service.ResourcePermissionLocalService resourcePermissionLocalService;
+	@BeanReference(type = com.liferay.portal.service.ResourcePermissionService.class)
+	protected com.liferay.portal.service.ResourcePermissionService resourcePermissionService;
+	@BeanReference(type = ResourcePermissionPersistence.class)
+	protected ResourcePermissionPersistence resourcePermissionPersistence;
+	@BeanReference(type = ResourcePermissionFinder.class)
+	protected ResourcePermissionFinder resourcePermissionFinder;
 	@BeanReference(type = com.liferay.portal.service.RoleLocalService.class)
 	protected com.liferay.portal.service.RoleLocalService roleLocalService;
 	@BeanReference(type = com.liferay.portal.service.RoleService.class)

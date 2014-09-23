@@ -33,6 +33,11 @@ public class RandomUtilTest {
 		new CodeCoverageAssertor();
 
 	@Test
+	public void testConstructor() {
+		new RandomUtil();
+	}
+
+	@Test
 	public void testNext() {
 		RandomUtil.random = new PredictableRandom(_NUMBERS);
 
@@ -95,8 +100,8 @@ public class RandomUtilTest {
 			return value;
 		}
 
-		private int[] _values;
 		private int _index;
+		private int[] _values;
 
 	}
 

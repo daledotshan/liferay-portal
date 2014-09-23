@@ -14,10 +14,11 @@
 
 package com.liferay.portal.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -66,6 +67,7 @@ import java.util.TreeSet;
  * @generated
  */
 @JSON(strict = true)
+@ProviderType
 public class LayoutModelImpl extends BaseModelImpl<Layout>
 	implements LayoutModel {
 	/*
@@ -123,18 +125,18 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 	public static final boolean COLUMN_BITMASK_ENABLED = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
 				"value.object.column.bitmask.enabled.com.liferay.portal.model.Layout"),
 			true);
-	public static long COMPANYID_COLUMN_BITMASK = 1L;
-	public static long FRIENDLYURL_COLUMN_BITMASK = 2L;
-	public static long GROUPID_COLUMN_BITMASK = 4L;
-	public static long ICONIMAGEID_COLUMN_BITMASK = 8L;
-	public static long LAYOUTID_COLUMN_BITMASK = 16L;
-	public static long LAYOUTPROTOTYPEUUID_COLUMN_BITMASK = 32L;
-	public static long PARENTLAYOUTID_COLUMN_BITMASK = 64L;
-	public static long PRIVATELAYOUT_COLUMN_BITMASK = 128L;
-	public static long SOURCEPROTOTYPELAYOUTUUID_COLUMN_BITMASK = 256L;
-	public static long TYPE_COLUMN_BITMASK = 512L;
-	public static long UUID_COLUMN_BITMASK = 1024L;
-	public static long PRIORITY_COLUMN_BITMASK = 2048L;
+	public static final long COMPANYID_COLUMN_BITMASK = 1L;
+	public static final long FRIENDLYURL_COLUMN_BITMASK = 2L;
+	public static final long GROUPID_COLUMN_BITMASK = 4L;
+	public static final long ICONIMAGEID_COLUMN_BITMASK = 8L;
+	public static final long LAYOUTID_COLUMN_BITMASK = 16L;
+	public static final long LAYOUTPROTOTYPEUUID_COLUMN_BITMASK = 32L;
+	public static final long PARENTLAYOUTID_COLUMN_BITMASK = 64L;
+	public static final long PRIVATELAYOUT_COLUMN_BITMASK = 128L;
+	public static final long SOURCEPROTOTYPELAYOUTUUID_COLUMN_BITMASK = 256L;
+	public static final long TYPE_COLUMN_BITMASK = 512L;
+	public static final long UUID_COLUMN_BITMASK = 1024L;
+	public static final long PRIORITY_COLUMN_BITMASK = 2048L;
 
 	/**
 	 * Converts the soap model instance into a normal model instance.
@@ -580,7 +582,7 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -1570,19 +1572,28 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 			return StringPool.BLANK;
 		}
 
-		return LocalizationUtil.getDefaultLanguageId(xml);
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+		return LocalizationUtil.getDefaultLanguageId(xml, defaultLocale);
 	}
 
 	@Override
 	public void prepareLocalizedFieldsForImport() throws LocaleException {
-		prepareLocalizedFieldsForImport(null);
+		Locale defaultLocale = LocaleUtil.fromLanguageId(getDefaultLanguageId());
+
+		Locale[] availableLocales = LocaleUtil.fromLanguageIds(getAvailableLanguageIds());
+
+		Locale defaultImportLocale = LocalizationUtil.getDefaultImportLocale(Layout.class.getName(),
+				getPrimaryKey(), defaultLocale, availableLocales);
+
+		prepareLocalizedFieldsForImport(defaultImportLocale);
 	}
 
 	@Override
 	@SuppressWarnings("unused")
 	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
 		throws LocaleException {
-		Locale defaultLocale = LocaleUtil.getDefault();
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		String modelDefaultLanguageId = getDefaultLanguageId();
 
@@ -2193,8 +2204,10 @@ public class LayoutModelImpl extends BaseModelImpl<Layout>
 		return sb.toString();
 	}
 
-	private static ClassLoader _classLoader = Layout.class.getClassLoader();
-	private static Class<?>[] _escapedModelInterfaces = new Class[] { Layout.class };
+	private static final ClassLoader _classLoader = Layout.class.getClassLoader();
+	private static final Class<?>[] _escapedModelInterfaces = new Class[] {
+			Layout.class
+		};
 	private long _mvccVersion;
 	private String _uuid;
 	private String _originalUuid;

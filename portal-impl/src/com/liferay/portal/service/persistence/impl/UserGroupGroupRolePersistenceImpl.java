@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.persistence.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.NoSuchUserGroupGroupRoleException;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -23,18 +25,13 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.UserGroupGroupRole;
 import com.liferay.portal.model.impl.UserGroupGroupRoleImpl;
 import com.liferay.portal.model.impl.UserGroupGroupRoleModelImpl;
@@ -43,9 +40,11 @@ import com.liferay.portal.service.persistence.UserGroupGroupRolePersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The persistence implementation for the user group group role service.
@@ -59,6 +58,7 @@ import java.util.List;
  * @see UserGroupGroupRoleUtil
  * @generated
  */
+@ProviderType
 public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserGroupGroupRole>
 	implements UserGroupGroupRolePersistence {
 	/*
@@ -110,11 +110,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param userGroupId the user group ID
 	 * @return the matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findByUserGroupId(long userGroupId)
-		throws SystemException {
+	public List<UserGroupGroupRole> findByUserGroupId(long userGroupId) {
 		return findByUserGroupId(userGroupId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -130,11 +128,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param start the lower bound of the range of user group group roles
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @return the range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByUserGroupId(long userGroupId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByUserGroupId(userGroupId, start, end, null);
 	}
 
@@ -150,12 +147,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByUserGroupId(long userGroupId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end,
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -258,12 +254,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByUserGroupId_First(long userGroupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByUserGroupId_First(userGroupId,
 				orderByComparator);
 
@@ -289,11 +284,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param userGroupId the user group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByUserGroupId_First(long userGroupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		List<UserGroupGroupRole> list = findByUserGroupId(userGroupId, 0, 1,
 				orderByComparator);
 
@@ -311,12 +305,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByUserGroupId_Last(long userGroupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByUserGroupId_Last(userGroupId,
 				orderByComparator);
 
@@ -342,11 +335,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param userGroupId the user group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByUserGroupId_Last(long userGroupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		int count = countByUserGroupId(userGroupId);
 
 		if (count == 0) {
@@ -371,13 +363,12 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole[] findByUserGroupId_PrevAndNext(
 		UserGroupGroupRolePK userGroupGroupRolePK, long userGroupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = findByPrimaryKey(userGroupGroupRolePK);
 
 		Session session = null;
@@ -407,7 +398,8 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 
 	protected UserGroupGroupRole getByUserGroupId_PrevAndNext(Session session,
 		UserGroupGroupRole userGroupGroupRole, long userGroupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<UserGroupGroupRole> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -514,10 +506,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * Removes all the user group group roles where userGroupId = &#63; from the database.
 	 *
 	 * @param userGroupId the user group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUserGroupId(long userGroupId) throws SystemException {
+	public void removeByUserGroupId(long userGroupId) {
 		for (UserGroupGroupRole userGroupGroupRole : findByUserGroupId(
 				userGroupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(userGroupGroupRole);
@@ -529,10 +520,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param userGroupId the user group ID
 	 * @return the number of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUserGroupId(long userGroupId) throws SystemException {
+	public int countByUserGroupId(long userGroupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_USERGROUPID;
 
 		Object[] finderArgs = new Object[] { userGroupId };
@@ -605,11 +595,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param groupId the group ID
 	 * @return the matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findByGroupId(long groupId)
-		throws SystemException {
+	public List<UserGroupGroupRole> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -624,11 +612,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param start the lower bound of the range of user group group roles
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @return the range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByGroupId(long groupId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -644,11 +631,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByGroupId(long groupId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -751,12 +737,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByGroupId_First(groupId,
 				orderByComparator);
 
@@ -782,11 +767,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		List<UserGroupGroupRole> list = findByGroupId(groupId, 0, 1,
 				orderByComparator);
 
@@ -804,12 +788,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByGroupId_Last(groupId,
 				orderByComparator);
 
@@ -835,11 +818,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -864,13 +846,12 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole[] findByGroupId_PrevAndNext(
 		UserGroupGroupRolePK userGroupGroupRolePK, long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = findByPrimaryKey(userGroupGroupRolePK);
 
 		Session session = null;
@@ -900,7 +881,8 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 
 	protected UserGroupGroupRole getByGroupId_PrevAndNext(Session session,
 		UserGroupGroupRole userGroupGroupRole, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<UserGroupGroupRole> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1007,10 +989,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * Removes all the user group group roles where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (UserGroupGroupRole userGroupGroupRole : findByGroupId(groupId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(userGroupGroupRole);
@@ -1022,10 +1003,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -1098,11 +1078,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param roleId the role ID
 	 * @return the matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findByRoleId(long roleId)
-		throws SystemException {
+	public List<UserGroupGroupRole> findByRoleId(long roleId) {
 		return findByRoleId(roleId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1117,11 +1095,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param start the lower bound of the range of user group group roles
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @return the range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findByRoleId(long roleId, int start, int end)
-		throws SystemException {
+	public List<UserGroupGroupRole> findByRoleId(long roleId, int start, int end) {
 		return findByRoleId(roleId, start, end, null);
 	}
 
@@ -1137,11 +1113,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByRoleId(long roleId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1244,12 +1219,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByRoleId_First(long roleId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByRoleId_First(roleId,
 				orderByComparator);
 
@@ -1275,11 +1249,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param roleId the role ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByRoleId_First(long roleId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		List<UserGroupGroupRole> list = findByRoleId(roleId, 0, 1,
 				orderByComparator);
 
@@ -1297,12 +1270,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByRoleId_Last(long roleId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByRoleId_Last(roleId,
 				orderByComparator);
 
@@ -1328,11 +1300,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param roleId the role ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByRoleId_Last(long roleId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		int count = countByRoleId(roleId);
 
 		if (count == 0) {
@@ -1357,13 +1328,12 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole[] findByRoleId_PrevAndNext(
 		UserGroupGroupRolePK userGroupGroupRolePK, long roleId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = findByPrimaryKey(userGroupGroupRolePK);
 
 		Session session = null;
@@ -1393,7 +1363,8 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 
 	protected UserGroupGroupRole getByRoleId_PrevAndNext(Session session,
 		UserGroupGroupRole userGroupGroupRole, long roleId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<UserGroupGroupRole> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -1500,10 +1471,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * Removes all the user group group roles where roleId = &#63; from the database.
 	 *
 	 * @param roleId the role ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByRoleId(long roleId) throws SystemException {
+	public void removeByRoleId(long roleId) {
 		for (UserGroupGroupRole userGroupGroupRole : findByRoleId(roleId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(userGroupGroupRole);
@@ -1515,10 +1485,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param roleId the role ID
 	 * @return the number of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByRoleId(long roleId) throws SystemException {
+	public int countByRoleId(long roleId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_ROLEID;
 
 		Object[] finderArgs = new Object[] { roleId };
@@ -1592,11 +1561,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param userGroupId the user group ID
 	 * @param groupId the group ID
 	 * @return the matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findByU_G(long userGroupId, long groupId)
-		throws SystemException {
+	public List<UserGroupGroupRole> findByU_G(long userGroupId, long groupId) {
 		return findByU_G(userGroupId, groupId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -1613,11 +1580,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param start the lower bound of the range of user group group roles
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @return the range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByU_G(long userGroupId, long groupId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByU_G(userGroupId, groupId, start, end, null);
 	}
 
@@ -1634,12 +1600,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByU_G(long userGroupId, long groupId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end,
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1752,12 +1717,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByU_G_First(long userGroupId, long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByU_G_First(userGroupId,
 				groupId, orderByComparator);
 
@@ -1787,11 +1751,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByU_G_First(long userGroupId, long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		List<UserGroupGroupRole> list = findByU_G(userGroupId, groupId, 0, 1,
 				orderByComparator);
 
@@ -1810,12 +1773,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByU_G_Last(long userGroupId, long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByU_G_Last(userGroupId,
 				groupId, orderByComparator);
 
@@ -1845,11 +1807,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByU_G_Last(long userGroupId, long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		int count = countByU_G(userGroupId, groupId);
 
 		if (count == 0) {
@@ -1875,13 +1836,12 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole[] findByU_G_PrevAndNext(
 		UserGroupGroupRolePK userGroupGroupRolePK, long userGroupId,
-		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		long groupId, OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = findByPrimaryKey(userGroupGroupRolePK);
 
 		Session session = null;
@@ -1911,7 +1871,8 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 
 	protected UserGroupGroupRole getByU_G_PrevAndNext(Session session,
 		UserGroupGroupRole userGroupGroupRole, long userGroupId, long groupId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<UserGroupGroupRole> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2023,11 +1984,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param userGroupId the user group ID
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByU_G(long userGroupId, long groupId)
-		throws SystemException {
+	public void removeByU_G(long userGroupId, long groupId) {
 		for (UserGroupGroupRole userGroupGroupRole : findByU_G(userGroupId,
 				groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(userGroupGroupRole);
@@ -2040,11 +1999,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param userGroupId the user group ID
 	 * @param groupId the group ID
 	 * @return the number of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByU_G(long userGroupId, long groupId)
-		throws SystemException {
+	public int countByU_G(long userGroupId, long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_U_G;
 
 		Object[] finderArgs = new Object[] { userGroupId, groupId };
@@ -2123,11 +2080,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param groupId the group ID
 	 * @param roleId the role ID
 	 * @return the matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findByG_R(long groupId, long roleId)
-		throws SystemException {
+	public List<UserGroupGroupRole> findByG_R(long groupId, long roleId) {
 		return findByG_R(groupId, roleId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -2144,11 +2099,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param start the lower bound of the range of user group group roles
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @return the range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByG_R(long groupId, long roleId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByG_R(groupId, roleId, start, end, null);
 	}
 
@@ -2165,12 +2119,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findByG_R(long groupId, long roleId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end,
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2283,12 +2236,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByG_R_First(long groupId, long roleId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByG_R_First(groupId,
 				roleId, orderByComparator);
 
@@ -2318,11 +2270,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param roleId the role ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByG_R_First(long groupId, long roleId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		List<UserGroupGroupRole> list = findByG_R(groupId, roleId, 0, 1,
 				orderByComparator);
 
@@ -2341,12 +2292,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByG_R_Last(long groupId, long roleId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByG_R_Last(groupId,
 				roleId, orderByComparator);
 
@@ -2376,11 +2326,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param roleId the role ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user group group role, or <code>null</code> if a matching user group group role could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByG_R_Last(long groupId, long roleId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		int count = countByG_R(groupId, roleId);
 
 		if (count == 0) {
@@ -2406,13 +2355,12 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole[] findByG_R_PrevAndNext(
 		UserGroupGroupRolePK userGroupGroupRolePK, long groupId, long roleId,
-		OrderByComparator orderByComparator)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator)
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = findByPrimaryKey(userGroupGroupRolePK);
 
 		Session session = null;
@@ -2442,7 +2390,8 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 
 	protected UserGroupGroupRole getByG_R_PrevAndNext(Session session,
 		UserGroupGroupRole userGroupGroupRole, long groupId, long roleId,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<UserGroupGroupRole> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
@@ -2554,11 +2503,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param groupId the group ID
 	 * @param roleId the role ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_R(long groupId, long roleId)
-		throws SystemException {
+	public void removeByG_R(long groupId, long roleId) {
 		for (UserGroupGroupRole userGroupGroupRole : findByG_R(groupId, roleId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(userGroupGroupRole);
@@ -2571,10 +2518,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param groupId the group ID
 	 * @param roleId the role ID
 	 * @return the number of matching user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_R(long groupId, long roleId) throws SystemException {
+	public int countByG_R(long groupId, long roleId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_R;
 
 		Object[] finderArgs = new Object[] { groupId, roleId };
@@ -2733,11 +2679,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param userGroupGroupRolePK the primary key of the user group group role
 	 * @return the user group group role that was removed
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole remove(UserGroupGroupRolePK userGroupGroupRolePK)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		throws NoSuchUserGroupGroupRoleException {
 		return remove((Serializable)userGroupGroupRolePK);
 	}
 
@@ -2747,11 +2692,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param primaryKey the primary key of the user group group role
 	 * @return the user group group role that was removed
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole remove(Serializable primaryKey)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		throws NoSuchUserGroupGroupRoleException {
 		Session session = null;
 
 		try {
@@ -2784,7 +2728,7 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 
 	@Override
 	protected UserGroupGroupRole removeImpl(
-		UserGroupGroupRole userGroupGroupRole) throws SystemException {
+		UserGroupGroupRole userGroupGroupRole) {
 		userGroupGroupRole = toUnwrappedModel(userGroupGroupRole);
 
 		Session session = null;
@@ -2817,8 +2761,7 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 
 	@Override
 	public UserGroupGroupRole updateImpl(
-		com.liferay.portal.model.UserGroupGroupRole userGroupGroupRole)
-		throws SystemException {
+		com.liferay.portal.model.UserGroupGroupRole userGroupGroupRole) {
 		userGroupGroupRole = toUnwrappedModel(userGroupGroupRole);
 
 		boolean isNew = userGroupGroupRole.isNew();
@@ -2983,11 +2926,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param primaryKey the primary key of the user group group role
 	 * @return the user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		throws NoSuchUserGroupGroupRoleException {
 		UserGroupGroupRole userGroupGroupRole = fetchByPrimaryKey(primaryKey);
 
 		if (userGroupGroupRole == null) {
@@ -3008,12 +2950,11 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param userGroupGroupRolePK the primary key of the user group group role
 	 * @return the user group group role
 	 * @throws com.liferay.portal.NoSuchUserGroupGroupRoleException if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole findByPrimaryKey(
 		UserGroupGroupRolePK userGroupGroupRolePK)
-		throws NoSuchUserGroupGroupRoleException, SystemException {
+		throws NoSuchUserGroupGroupRoleException {
 		return findByPrimaryKey((Serializable)userGroupGroupRolePK);
 	}
 
@@ -3022,11 +2963,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param primaryKey the primary key of the user group group role
 	 * @return the user group group role, or <code>null</code> if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public UserGroupGroupRole fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public UserGroupGroupRole fetchByPrimaryKey(Serializable primaryKey) {
 		UserGroupGroupRole userGroupGroupRole = (UserGroupGroupRole)EntityCacheUtil.getResult(UserGroupGroupRoleModelImpl.ENTITY_CACHE_ENABLED,
 				UserGroupGroupRoleImpl.class, primaryKey);
 
@@ -3071,22 +3010,40 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 *
 	 * @param userGroupGroupRolePK the primary key of the user group group role
 	 * @return the user group group role, or <code>null</code> if a user group group role with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public UserGroupGroupRole fetchByPrimaryKey(
-		UserGroupGroupRolePK userGroupGroupRolePK) throws SystemException {
+		UserGroupGroupRolePK userGroupGroupRolePK) {
 		return fetchByPrimaryKey((Serializable)userGroupGroupRolePK);
+	}
+
+	@Override
+	public Map<Serializable, UserGroupGroupRole> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, UserGroupGroupRole> map = new HashMap<Serializable, UserGroupGroupRole>();
+
+		for (Serializable primaryKey : primaryKeys) {
+			UserGroupGroupRole userGroupGroupRole = fetchByPrimaryKey(primaryKey);
+
+			if (userGroupGroupRole != null) {
+				map.put(primaryKey, userGroupGroupRole);
+			}
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the user group group roles.
 	 *
 	 * @return the user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findAll() throws SystemException {
+	public List<UserGroupGroupRole> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -3100,11 +3057,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param start the lower bound of the range of user group group roles
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @return the range of user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<UserGroupGroupRole> findAll(int start, int end)
-		throws SystemException {
+	public List<UserGroupGroupRole> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -3119,11 +3074,10 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * @param end the upper bound of the range of user group group roles (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<UserGroupGroupRole> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<UserGroupGroupRole> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3205,10 +3159,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	/**
 	 * Removes all the user group group roles from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (UserGroupGroupRole userGroupGroupRole : findAll()) {
 			remove(userGroupGroupRole);
 		}
@@ -3218,10 +3171,9 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * Returns the number of user group group roles.
 	 *
 	 * @return the number of user group group roles
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -3256,25 +3208,6 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	 * Initializes the user group group role persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portal.model.UserGroupGroupRole")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<UserGroupGroupRole>> listenersList = new ArrayList<ModelListener<UserGroupGroupRole>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<UserGroupGroupRole>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -3292,8 +3225,8 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No UserGroupGroupRole exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No UserGroupGroupRole exists with the key {";
 	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
-	private static Log _log = LogFactoryUtil.getLog(UserGroupGroupRolePersistenceImpl.class);
-	private static UserGroupGroupRole _nullUserGroupGroupRole = new UserGroupGroupRoleImpl() {
+	private static final Log _log = LogFactoryUtil.getLog(UserGroupGroupRolePersistenceImpl.class);
+	private static final UserGroupGroupRole _nullUserGroupGroupRole = new UserGroupGroupRoleImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -3305,7 +3238,7 @@ public class UserGroupGroupRolePersistenceImpl extends BasePersistenceImpl<UserG
 			}
 		};
 
-	private static CacheModel<UserGroupGroupRole> _nullUserGroupGroupRoleCacheModel =
+	private static final CacheModel<UserGroupGroupRole> _nullUserGroupGroupRoleCacheModel =
 		new NullCacheModel();
 
 	private static class NullCacheModel implements CacheModel<UserGroupGroupRole>,

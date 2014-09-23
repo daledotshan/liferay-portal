@@ -15,7 +15,7 @@
 package com.liferay.portlet.bookmarks.trash;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
@@ -29,6 +29,7 @@ import com.liferay.portlet.bookmarks.service.BookmarksFolderLocalServiceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents the trash handler for bookmarks folder entity.
@@ -39,25 +40,25 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public ContainerModel getContainerModel(long containerModelId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return BookmarksFolderLocalServiceUtil.getFolder(containerModelId);
 	}
 
 	@Override
-	public String getContainerModelClassName() {
+	public String getContainerModelClassName(long classPK) {
 		return BookmarksFolder.class.getName();
 	}
 
 	@Override
-	public String getContainerModelName() {
+	public String getContainerModelName(long classPK) {
 		return "folder";
 	}
 
 	@Override
 	public List<ContainerModel> getContainerModels(
 			long classPK, long parentContainerModelId, int start, int end)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<BookmarksFolder> folders =
 			BookmarksFolderLocalServiceUtil.getFolders(
@@ -76,7 +77,7 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 	@Override
 	public int getContainerModelsCount(
 			long classPK, long parentContainerModelId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return BookmarksFolderLocalServiceUtil.getFoldersCount(
 			getGroupId(classPK), parentContainerModelId);
@@ -84,7 +85,7 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public List<ContainerModel> getParentContainerModels(long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<ContainerModel> containerModels = new ArrayList<ContainerModel>();
 
@@ -112,7 +113,19 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public String getRootContainerModelName() {
-		return "home";
+		return "folder";
+	}
+
+	@Override
+	public String getRootContainerModelTitle(
+		long containerModelId, Locale locale) {
+
+		return LanguageUtil.get(locale, "home");
+	}
+
+	@Override
+	public String getSubcontainerModelName() {
+		return "folder";
 	}
 
 	@Override
@@ -122,7 +135,7 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public int getTrashContainedModelsCount(long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		BookmarksFolder folder = BookmarksFolderLocalServiceUtil.getFolder(
 			classPK);
@@ -134,7 +147,7 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 	@Override
 	public List<TrashRenderer> getTrashContainedModelTrashRenderers(
 			long classPK, int start, int end)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
 
@@ -167,7 +180,7 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public int getTrashContainerModelsCount(long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		BookmarksFolder folder = BookmarksFolderLocalServiceUtil.getFolder(
 			classPK);
@@ -179,7 +192,7 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 	@Override
 	public List<TrashRenderer> getTrashContainerModelTrashRenderers(
 			long classPK, int start, int end)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
 
@@ -210,7 +223,6 @@ public abstract class BookmarksBaseTrashHandler extends BaseTrashHandler {
 		return true;
 	}
 
-	protected abstract long getGroupId(long classPK)
-		throws PortalException, SystemException;
+	protected abstract long getGroupId(long classPK) throws PortalException;
 
 }

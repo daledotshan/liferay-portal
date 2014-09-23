@@ -18,35 +18,60 @@
 	<td></td>
 	<td></td>
 </tr>
+<tr>
+	<td>SUCCESS_MESSAGE</td>
+	<td>//div[@class='portlet-body']/div[contains(@class,'alert') and contains(@class,'alert-success')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SUCCESS_MESSAGE_DOCUMENT_VIEW</td>
+	<td>//div[@class='view']//div[contains(@class,'alert') and contains(@class,'alert-success')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--TOOLBAR-->
 <tr>
 	<td>TOOLBAR_DOWNLOAD_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Download')]</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Download')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_EDIT_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Edit')]</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Edit')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_MOVE_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Move')]</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Move')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_CHECKOUT_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Checkout')]</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Checkout')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TOOLBAR_CANCEL_CHECKOUT_BUTTON</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Cancel Checkout')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TOOLBAR_CHECKIN_BUTTON</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Checkin')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_PERMISSIONS_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Permissions')]</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Permissions')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TOOLBAR_RECYCLE_BIN_BUTTON</td>
-	<td>//div[@id='_20_fileEntryToolbar']/div/button[contains(.,'Move to the Recycle Bin')]</td>
+	<td>//div[@id='_199_fileEntryToolbar']/div/button[contains(.,'Move to the Recycle Bin')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -83,6 +108,11 @@
 <tr>
 	<td>DOCUMENT_INFO_TAGS</td>
 	<td>//div[@class='document-info']/div[@class='lfr-asset-tags']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DOCUMENT_INFO_WORKFLOW_STATUS</td>
+	<td>//span[@class='workflow-status']/strong</td>
 	<td></td>
 </tr>
 <tr>
@@ -141,6 +171,33 @@
 	<td></td>
 	<td></td>
 </tr>
+<!--DOCUMENT_DETAILS-->
+<tr>
+	<td>DOCUMENT_DETAILS_VERSION</td>
+	<td>//h3[contains(@class,'version') and not(contains(@class,'icon-lock'))]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DOCUMENT_DETAILS_VERSION_LOCKED</td>
+	<td>//h3[contains(@class,'version') and contains(@class,'icon-lock')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--DOCUMENT_EXTRACTED_METADATA-->
+<tr>
+	<td>DOCUMENT_EXTRACTED_METADATA_FIELD</td>
+	<td>//div[@id='documentLibraryAssetMetadataPanelContent']/div/div/div/label[contains(.,'${key_metadataLabel}')]/../../div[contains(.,'${key_metadataData}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--VERSION_HISTORY_TABLE-->
 <tr>
 	<td>VERSION_HISTORY_TABLE_CHECKBOX</td>
@@ -154,7 +211,7 @@
 </tr>
 <tr>
 	<td>VERSION_HISTORY_TABLE_DATE</td>
-	<td>//td[contains(.,'ago')]</td>
+	<td>//td[contains(.,'Ago')]</td>
 	<td></td>
 </tr>
 <tr>

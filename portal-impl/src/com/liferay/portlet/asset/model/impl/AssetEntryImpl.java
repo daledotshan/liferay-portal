@@ -14,11 +14,9 @@
 
 package com.liferay.portlet.asset.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetRenderer;
@@ -64,25 +62,23 @@ public class AssetEntryImpl extends AssetEntryBaseImpl {
 	}
 
 	@Override
-	public List<AssetCategory> getCategories() throws SystemException {
+	public List<AssetCategory> getCategories() {
 		return AssetCategoryLocalServiceUtil.getEntryCategories(getEntryId());
 	}
 
 	@Override
-	public long[] getCategoryIds() throws SystemException {
-		return StringUtil.split(
-			ListUtil.toString(
-				getCategories(), AssetCategory.CATEGORY_ID_ACCESSOR), 0L);
+	public long[] getCategoryIds() {
+		return ListUtil.toLongArray(
+			getCategories(), AssetCategory.CATEGORY_ID_ACCESSOR);
 	}
 
 	@Override
-	public String[] getTagNames() throws SystemException {
-		return StringUtil.split(
-			ListUtil.toString(getTags(), AssetTag.NAME_ACCESSOR));
+	public String[] getTagNames() {
+		return ListUtil.toArray(getTags(), AssetTag.NAME_ACCESSOR);
 	}
 
 	@Override
-	public List<AssetTag> getTags() throws SystemException {
+	public List<AssetTag> getTags() {
 		return AssetTagLocalServiceUtil.getEntryTags(getEntryId());
 	}
 

@@ -16,6 +16,8 @@ package com.liferay.portal.kernel.cache;
 
 import java.io.Serializable;
 
+import java.util.List;
+
 /**
  * @author Shuyang Zhou
  */
@@ -32,8 +34,23 @@ public class PortalCacheWrapper<K extends Serializable, V>
 	}
 
 	@Override
+	public BootstrapLoader getBootstrapLoader() {
+		return portalCache.getBootstrapLoader();
+	}
+
+	@Override
+	public List<K> getKeys() {
+		return portalCache.getKeys();
+	}
+
+	@Override
 	public String getName() {
 		return portalCache.getName();
+	}
+
+	@Override
+	public PortalCacheManager<K, V> getPortalCacheManager() {
+		return portalCache.getPortalCacheManager();
 	}
 
 	public PortalCache<K, V> getWrappedPortalCache() {

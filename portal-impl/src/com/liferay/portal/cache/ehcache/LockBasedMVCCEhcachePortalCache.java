@@ -14,6 +14,8 @@
 
 package com.liferay.portal.cache.ehcache;
 
+import com.liferay.portal.cache.mvcc.MVCCPortalCache;
+import com.liferay.portal.kernel.cache.LowLevelCache;
 import com.liferay.portal.model.MVCCModel;
 
 import java.io.Serializable;
@@ -26,65 +28,78 @@ import net.sf.ehcache.Element;
  */
 public class LockBasedMVCCEhcachePortalCache
 		<K extends Serializable, V extends MVCCModel>
-	extends MVCCEhcachePortalCache<K, V> {
+	extends MVCCPortalCache<K, V> {
 
-	public LockBasedMVCCEhcachePortalCache(
-		EhcachePortalCache<K, V> ehcachePortalCache) {
+	public LockBasedMVCCEhcachePortalCache(LowLevelCache<K, V> lowLevelCache) {
+		super(lowLevelCache);
 
-		super(ehcachePortalCache);
+		if (!(lowLevelCache instanceof EhcachePortalCache)) {
+			throw new IllegalArgumentException(
+				"LowLevelCache is not a EhcachePortalCache");
+		}
+
+		EhcachePortalCache<?, ?> ehcachePortalCache =
+			(EhcachePortalCache<?, ?>)lowLevelCache;
+
+		_ehcache = ehcachePortalCache.ehcache;
 	}
 
 	@Override
 	public void remove(K key) {
-		Ehcache ehcache = getEhcache();
-
-		ehcache.acquireWriteLockOnKey(key);
+		_ehcache.acquireWriteLockOnKey(key);
 
 		try {
 			super.remove(key);
 		}
 		finally {
-			ehcache.releaseWriteLockOnKey(key);
+			_ehcache.releaseWriteLockOnKey(key);
 		}
 	}
 
 	@Override
-	protected void doPut(K key, V value, boolean quiet, int timeToLive) {
-		Element newElement = null;
-
-		if (timeToLive >= 0) {
-			newElement = new Element(key, value, timeToLive);
-		}
-		else {
-			newElement = new Element(key, value);
+	protected void doPut(K key, V value, int timeToLive, boolean quiet) {
+		if (key == null) {
+			throw new NullPointerException("Key is null");
 		}
 
-		Ehcache ehcache = getEhcache();
+		if (value == null) {
+			throw new NullPointerException("Value is null");
+		}
 
-		ehcache.acquireWriteLockOnKey(key);
+		if (timeToLive < 0) {
+			throw new IllegalArgumentException("Time to live is negative");
+		}
+
+		Element newElement = new Element(key, value);
+
+		if (timeToLive > 0) {
+			newElement.setTimeToLive(timeToLive);
+		}
+
+		_ehcache.acquireWriteLockOnKey(key);
 
 		try {
-			Element oldElement = ehcache.get(key);
+			Element oldElement = _ehcache.get(key);
 
 			if (oldElement == null) {
-				ehcache.put(newElement, quiet);
+				_ehcache.put(newElement, quiet);
 
 				return;
 			}
 
 			V oldValue = (V)oldElement.getObjectValue();
 
-			if ((oldValue != null) &&
-				(value.getMvccVersion() <= oldValue.getMvccVersion())) {
-
+			if (value.getMvccVersion() <= oldValue.getMvccVersion()) {
 				return;
 			}
 
-			ehcache.put(newElement, quiet);
+			_ehcache.put(newElement, quiet);
 		}
 		finally {
-			ehcache.releaseWriteLockOnKey(key);
+			_ehcache.releaseWriteLockOnKey(key);
 		}
 	}
+
+	private Ehcache _ehcache;
 
 }

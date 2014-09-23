@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.dynamicdatamapping.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUt
  * @see com.liferay.portlet.dynamicdatamapping.model.DDMStructure
  * @generated
  */
+@ProviderType
 public abstract class DDMStructureBaseImpl extends DDMStructureModelImpl
 	implements DDMStructure {
 	/*
@@ -39,7 +40,7 @@ public abstract class DDMStructureBaseImpl extends DDMStructureModelImpl
 	 * Never modify or reference this class directly. All methods that expect a d d m structure model instance should use the {@link DDMStructure} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			DDMStructureLocalServiceUtil.addDDMStructure(this);
 		}

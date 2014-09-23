@@ -16,9 +16,7 @@ package com.liferay.portal.kernel.resiliency.spi.agent.annotation;
 
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.NewClassLoaderJUnitTestRunner;
-import com.liferay.portal.kernel.util.ReflectionUtil;
-
-import java.lang.reflect.Field;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 
 import java.util.Map;
 
@@ -39,17 +37,20 @@ public class DistributedRegistryTest {
 		new CodeCoverageAssertor();
 
 	@Before
-	public void setUp() throws Exception {
-		_exactDirections = _getExactDirections();
-		_postfixDirections = _getPostfixDirections();
-		_prefixDirections = _getPrefixDirections();
+	public void setUp() {
+		_exactDirections = ReflectionTestUtil.getFieldValue(
+			DistributedRegistry.class, "_exactDirections");
+		_postfixDirections = ReflectionTestUtil.getFieldValue(
+			DistributedRegistry.class, "_postfixDirections");
+		_prefixDirections = ReflectionTestUtil.getFieldValue(
+			DistributedRegistry.class, "_prefixDirections");
 	}
 
 	@Test
 	public void testClassRegisterAndUnregister() {
 		DistributedRegistry.registerDistributed(ChildClass.class);
 
-		Assert.assertEquals(3, _exactDirections.size());
+		Assert.assertEquals(4, _exactDirections.size());
 		Assert.assertEquals(
 			Direction.REQUEST, _exactDirections.get(ChildClass.name1));
 		Assert.assertEquals(
@@ -95,6 +96,11 @@ public class DistributedRegistryTest {
 
 			Assert.assertSame(NullPointerException.class, throwable.getClass());
 		}
+	}
+
+	@Test
+	public void testConstructor() {
+		new DistributedRegistry();
 	}
 
 	@Test
@@ -278,33 +284,6 @@ public class DistributedRegistryTest {
 				"name3", null, MatchType.PREFIX));
 	}
 
-	private static Map<String, Direction> _getExactDirections()
-		throws Exception {
-
-		Field exactDirectionsField = ReflectionUtil.getDeclaredField(
-			DistributedRegistry.class, "_exactDirections");
-
-		return (Map<String, Direction>)exactDirectionsField.get(null);
-	}
-
-	private static Map<String, Direction> _getPostfixDirections()
-		throws Exception {
-
-		Field postfixDirectionsField = ReflectionUtil.getDeclaredField(
-			DistributedRegistry.class, "_postfixDirections");
-
-		return (Map<String, Direction>)postfixDirectionsField.get(null);
-	}
-
-	private static Map<String, Direction> _getPrefixDirections()
-		throws Exception {
-
-		Field prefixDirectionsField = ReflectionUtil.getDeclaredField(
-			DistributedRegistry.class, "_prefixDirections");
-
-		return (Map<String, Direction>)prefixDirectionsField.get(null);
-	}
-
 	private Map<String, Direction> _exactDirections;
 	private Map<String, Direction> _postfixDirections;
 	private Map<String, Direction> _prefixDirections;
@@ -333,7 +312,7 @@ public class DistributedRegistryTest {
 		public final String name13 = "name13";
 
 		@Distributed
-		static final String name14 = "name14";
+		public static final String name14 = "name14";
 	}
 
 	private static class ParentClass implements ParentInterface {
@@ -352,7 +331,7 @@ public class DistributedRegistryTest {
 		public static String name9 = "name9";
 	}
 
-	private static interface ParentInterface {
+	private interface ParentInterface {
 
 		@Distributed(direction = Direction.REQUEST, matchType = MatchType.EXACT)
 		public static final String name1 = "name1";

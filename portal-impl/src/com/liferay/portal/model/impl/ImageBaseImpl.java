@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.Image;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ImageLocalServiceUtil;
  * @see com.liferay.portal.model.Image
  * @generated
  */
+@ProviderType
 public abstract class ImageBaseImpl extends ImageModelImpl implements Image {
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -37,7 +39,7 @@ public abstract class ImageBaseImpl extends ImageModelImpl implements Image {
 	 * Never modify or reference this class directly. All methods that expect a image model instance should use the {@link Image} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ImageLocalServiceUtil.addImage(this);
 		}

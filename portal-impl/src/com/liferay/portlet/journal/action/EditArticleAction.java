@@ -16,15 +16,20 @@ package com.liferay.portlet.journal.action;
 
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.kernel.upload.LiferayFileItemException;
 import com.liferay.portal.kernel.upload.UploadException;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -33,7 +38,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.struts.PortletAction;
@@ -119,19 +123,21 @@ public class EditArticleAction extends PortletAction {
 		String oldUrlTitle = StringPool.BLANK;
 
 		try {
-			if (Validator.isNull(cmd)) {
-				UploadException uploadException =
-					(UploadException)actionRequest.getAttribute(
-						WebKeys.UPLOAD_EXCEPTION);
+			UploadException uploadException =
+				(UploadException)actionRequest.getAttribute(
+					WebKeys.UPLOAD_EXCEPTION);
 
-				if (uploadException != null) {
-					if (uploadException.isExceededSizeLimit()) {
-						throw new ArticleContentSizeException();
-					}
-
-					throw new PortalException(uploadException.getCause());
+			if (uploadException != null) {
+				if (uploadException.isExceededLiferayFileItemSizeLimit()) {
+					throw new LiferayFileItemException();
+				}
+				else if (uploadException.isExceededSizeLimit()) {
+					throw new ArticleContentSizeException();
 				}
 
+				throw new PortalException(uploadException.getCause());
+			}
+			else if (Validator.isNull(cmd)) {
 				return;
 			}
 			else if (cmd.equals(Constants.ADD) ||
@@ -285,6 +291,7 @@ public class EditArticleAction extends PortletAction {
 					 e instanceof ArticleTypeException ||
 					 e instanceof ArticleVersionException ||
 					 e instanceof DuplicateArticleIdException ||
+					 e instanceof LiferayFileItemException ||
 					 e instanceof StorageFieldRequiredException) {
 
 				SessionErrors.add(actionRequest, e.getClass());
@@ -359,12 +366,14 @@ public class EditArticleAction extends PortletAction {
 			if (moveToTrash) {
 				JournalArticle article =
 					JournalArticleServiceUtil.moveArticleToTrash(
-						themeDisplay.getScopeGroupId(), deleteArticleId);
+						themeDisplay.getScopeGroupId(),
+						HtmlUtil.unescape(deleteArticleId));
 
 				trashedModels.add(article);
 			}
 			else {
-				ActionUtil.deleteArticle(actionRequest, deleteArticleId);
+				ActionUtil.deleteArticle(
+					actionRequest, HtmlUtil.unescape(deleteArticleId));
 			}
 		}
 
@@ -388,7 +397,8 @@ public class EditArticleAction extends PortletAction {
 				ParamUtil.getString(actionRequest, "expireArticleIds"));
 
 			for (String expireArticleId : expireArticleIds) {
-				ActionUtil.expireArticle(actionRequest, expireArticleId);
+				ActionUtil.expireArticle(
+					actionRequest, HtmlUtil.unescape(expireArticleId));
 			}
 		}
 	}
@@ -487,6 +497,12 @@ public class EditArticleAction extends PortletAction {
 		UploadPortletRequest uploadPortletRequest =
 			PortalUtil.getUploadPortletRequest(actionRequest);
 
+		if (_log.isDebugEnabled()) {
+			_log.debug(
+				"Updating article " +
+					MapUtil.toString(uploadPortletRequest.getParameterMap()));
+		}
+
 		String cmd = ParamUtil.getString(uploadPortletRequest, Constants.CMD);
 
 		long groupId = ParamUtil.getLong(uploadPortletRequest, "groupId");
@@ -530,11 +546,6 @@ public class EditArticleAction extends PortletAction {
 				uploadPortletRequest, "description_" + toLanguageId);
 		}
 
-		String content = ParamUtil.getString(
-			uploadPortletRequest, "articleContent");
-
-		Map<String, byte[]> images = new HashMap<String, byte[]>();
-
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			JournalArticle.class.getName(), uploadPortletRequest);
 
@@ -555,8 +566,9 @@ public class EditArticleAction extends PortletAction {
 			ddmStructure, LocaleUtil.fromLanguageId(languageId),
 			serviceContext);
 
-		content = (String)contentAndImages[0];
-		images = (HashMap<String, byte[]>)contentAndImages[1];
+		String content = (String)contentAndImages[0];
+		Map<String, byte[]> images =
+			(HashMap<String, byte[]>)contentAndImages[1];
 
 		Boolean fileItemThresholdSizeExceeded =
 			(Boolean)uploadPortletRequest.getAttribute(
@@ -574,16 +586,7 @@ public class EditArticleAction extends PortletAction {
 		String layoutUuid = ParamUtil.getString(
 			uploadPortletRequest, "layoutUuid");
 
-		// The target page and the article must belong to the same group
-
-		Layout targetLayout =
-			LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(
-				layoutUuid, groupId, false);
-
-		if (targetLayout == null) {
-			targetLayout = LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(
-				layoutUuid, groupId, true);
-		}
+		Layout targetLayout = JournalUtil.getArticleLayout(layoutUuid, groupId);
 
 		if (targetLayout == null) {
 			layoutUuid = null;
@@ -784,5 +787,7 @@ public class EditArticleAction extends PortletAction {
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
 			portletResource, articleId, true);
 	}
+
+	private static Log _log = LogFactoryUtil.getLog(EditArticleAction.class);
 
 }

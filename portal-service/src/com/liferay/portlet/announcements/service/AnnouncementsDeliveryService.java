@@ -35,9 +35,9 @@ import com.liferay.portal.service.BaseService;
  * @see com.liferay.portlet.announcements.service.impl.AnnouncementsDeliveryServiceImpl
  * @generated
  */
-@ProviderType
 @AccessControlled
 @JSONWebService
+@ProviderType
 @Transactional(isolation = Isolation.PORTAL, rollbackFor =  {
 	PortalException.class, SystemException.class})
 public interface AnnouncementsDeliveryService extends BaseService {
@@ -64,6 +64,5 @@ public interface AnnouncementsDeliveryService extends BaseService {
 	public com.liferay.portlet.announcements.model.AnnouncementsDelivery updateDelivery(
 		long userId, java.lang.String type, boolean email, boolean sms,
 		boolean website)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
 }

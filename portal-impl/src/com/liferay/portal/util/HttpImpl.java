@@ -746,7 +746,19 @@ public class HttpImpl implements Http {
 				String value = StringPool.BLANK;
 
 				if (kvp.length > 1) {
-					value = decodeURL(kvp[1]);
+					try {
+						value = decodeURL(kvp[1]);
+					}
+					catch (IllegalArgumentException iae) {
+						if (_log.isInfoEnabled()) {
+							_log.info(
+								"Skipping parameter with key " + key +
+									" because of invalid value " + kvp[1],
+								iae);
+						}
+
+						continue;
+					}
 				}
 
 				List<String> values = tempParameterMap.get(key);
@@ -1088,7 +1100,17 @@ public class HttpImpl implements Http {
 
 				String redirect = param.substring(pos + 1);
 
-				redirect = decodeURL(redirect);
+				try {
+					redirect = decodeURL(redirect);
+				}
+				catch (IllegalArgumentException iae) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(
+							"Skipping undecodable parameter " + param, iae);
+					}
+
+					continue;
+				}
 
 				String newURL = shortenURL(redirect, count - 1);
 
@@ -1191,26 +1213,22 @@ public class HttpImpl implements Http {
 
 		URLConnection urlConnection = url.openConnection();
 
-		InputStream inputStream = urlConnection.getInputStream();
+		try (InputStream inputStream = urlConnection.getInputStream();
+			UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
+				new UnsyncByteArrayOutputStream()) {
 
-		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
-			new UnsyncByteArrayOutputStream();
+			byte[] bytes = new byte[512];
 
-		byte[] bytes = new byte[512];
-
-		for (int i = inputStream.read(bytes, 0, 512); i != -1;
+			for (int i = inputStream.read(bytes, 0, 512); i != -1;
 				i = inputStream.read(bytes, 0, 512)) {
 
-			unsyncByteArrayOutputStream.write(bytes, 0, i);
+				unsyncByteArrayOutputStream.write(bytes, 0, i);
+			}
+
+			xml = new String(
+				unsyncByteArrayOutputStream.unsafeGetByteArray(), 0,
+				unsyncByteArrayOutputStream.size());
 		}
-
-		xml = new String(
-			unsyncByteArrayOutputStream.unsafeGetByteArray(), 0,
-			unsyncByteArrayOutputStream.size());
-
-		inputStream.close();
-
-		unsyncByteArrayOutputStream.close();
 
 		return xml;
 	}
@@ -1542,20 +1560,20 @@ public class HttpImpl implements Http {
 							portletRequest, inputStream, contentLength,
 							progressId);
 
-					UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
-						new UnsyncByteArrayOutputStream(contentLength);
+					try (UnsyncByteArrayOutputStream
+							unsyncByteArrayOutputStream =
+								new UnsyncByteArrayOutputStream(
+									contentLength)) {
 
-					try {
 						progressInputStream.readAll(
 							unsyncByteArrayOutputStream);
+
+						bytes =
+							unsyncByteArrayOutputStream.unsafeGetByteArray();
 					}
 					finally {
 						progressInputStream.clearProgress();
 					}
-
-					bytes = unsyncByteArrayOutputStream.unsafeGetByteArray();
-
-					unsyncByteArrayOutputStream.close();
 				}
 				else {
 					bytes = FileUtil.getBytes(inputStream);

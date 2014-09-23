@@ -17,92 +17,116 @@
 <%@ include file="/html/taglib/init.jsp" %>
 
 <%
-String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_app_view_display_style") + StringPool.UNDERLINE;
-
 String displayStyle = (String)request.getAttribute("liferay-ui:app-view-display-style:displayStyle");
 String[] displayStyles = (String[])request.getAttribute("liferay-ui:app-view-display-style:displayStyles");
+PortletURL displayStyleURL = (PortletURL)request.getAttribute("liferay-ui:app-view-display-style:displayStyleURL");
 String eventName = (String)request.getAttribute("liferay-ui:app-view-display-style:eventName");
 Map<String, String> requestParams = (Map<String, String>)request.getAttribute("liferay-ui:app-view-display-style:requestParams");
 %>
 
 <c:if test="<%= displayStyles.length > 1 %>">
-	<div id="<portlet:namespace />displayStyleButtons">
-		<liferay-ui:icon-menu direction="down" icon='<%= "../aui/" + _getIcon(displayStyle) %>' message="" select="<%= true %>">
+	<span class="display-style-buttons-container" id="<portlet:namespace />displayStyleButtonsContainer">
+		<div class="display-style-buttons" id="<portlet:namespace />displayStyleButtons">
+			<aui:nav-item anchorCssClass="btn btn-default" dropdown="<%= true %>" iconCssClass='<%= "icon-" + _getIcon(displayStyle) %>'>
 
-			<%
-			for (int i = 0; i < displayStyles.length; i++) {
-				String dataStyle = displayStyles[i];
+				<%
+				for (String curDisplayStyle : displayStyles) {
+				%>
 
-				Map<String, Object> data = new HashMap<String, Object>();
+					<c:choose>
+						<c:when test="<%= displayStyleURL != null %>">
 
-				data.put("displayStyle", dataStyle);
-			%>
+							<%
+							displayStyleURL.setParameter("displayStyle", curDisplayStyle);
+							%>
 
-				<liferay-ui:icon data="<%= data %>" image='<%= "../aui/" + _getIcon(dataStyle) %>' message="<%= dataStyle %>" onClick='<%= randomNamespace + "onClickDisplayStyle(this);" %>' url="javascript:;" />
+							<aui:nav-item
+								href="<%= displayStyleURL.toString() %>"
+								iconCssClass='<%= "icon-" + _getIcon(curDisplayStyle) %>'
+								label="<%= curDisplayStyle %>"
+							/>
+						</c:when>
+						<c:otherwise>
 
-			<%
+							<%
+							Map<String, Object> data = new HashMap<String, Object>();
+
+							data.put("displayStyle", curDisplayStyle);
+							%>
+
+							<aui:nav-item
+								anchorData="<%= data %>"
+								href="javascript:;"
+								iconCssClass='<%= "icon-" + _getIcon(curDisplayStyle) %>'
+								label="<%= curDisplayStyle %>"
+							/>
+						</c:otherwise>
+					</c:choose>
+
+				<%
+				}
+				%>
+
+			</aui:nav-item>
+		</div>
+	</span>
+
+	<c:if test="<%= displayStyleURL == null %>">
+		<aui:script use="aui-base">
+			function changeDisplayStyle(displayStyle) {
+				var config = {};
+
+				<%
+				if (requestParams != null) {
+					Set<String> requestParamNames = requestParams.keySet();
+
+					for (String requestParamName : requestParamNames) {
+						String requestParamValue = requestParams.get(requestParamName);
+				%>
+
+						config['<portlet:namespace /><%= requestParamName %>'] = '<%= HtmlUtil.escapeJS(requestParamValue) %>';
+
+				<%
+					}
+				}
+				%>
+
+				config['<portlet:namespace />displayStyle'] = displayStyle;
+
+				Liferay.fire(
+					'<portlet:namespace />dataRequest',
+					{
+						requestParams: config,
+						src: Liferay.DL_ENTRIES_PAGINATOR
+					}
+				);
 			}
-			%>
 
-		</liferay-ui:icon-menu>
-	</div>
-</c:if>
+			var displayStyleButtonsMenu = A.one('#<portlet:namespace />displayStyleButtons .dropdown-menu');
 
-<c:if test="<%= displayStyles.length > 1 %>">
-	<aui:script use="aui-base">
-		function changeDisplayStyle(displayStyle) {
-			var config = {};
+			if (displayStyleButtonsMenu) {
+				displayStyleButtonsMenu.delegate(
+					'click',
+					function(event) {
+						var displayStyle = event.currentTarget.attr('data-displayStyle');
 
-			<%
-			if (requestParams != null) {
-				Set<String> requestParamNames = requestParams.keySet();
-
-				for (String requestParamName : requestParamNames) {
-					String requestParamValue = requestParams.get(requestParamName);
-			%>
-
-					config['<portlet:namespace /><%= requestParamName %>'] = '<%= HtmlUtil.escapeJS(requestParamValue) %>';
-
-			<%
-				}
-			}
-			%>
-
-			config['<portlet:namespace />displayStyle'] = displayStyle;
-			config['<portlet:namespace />saveDisplayStyle'] = true;
-
-			Liferay.fire(
-				'<portlet:namespace />dataRequest',
-				{
-					requestParams: config,
-					src: Liferay.DL_ENTRIES_PAGINATOR
-				}
-			);
-		}
-
-		Liferay.provide(
-			window,
-			'<%= randomNamespace %>onClickDisplayStyle',
-			function(link) {
-				var displayStyleItem = A.one(link);
-
-				var displayStyle = displayStyleItem.attr('data-displayStyle');
-
-				if (<%= requestParams != null %>) {
-					changeDisplayStyle(displayStyle);
-				}
-				else if (<%= eventName != null %>) {
-					Liferay.fire(
-						'<%= eventName %>',
-						{
-							displayStyle: displayStyle
+						if (<%= requestParams != null %>) {
+							changeDisplayStyle(displayStyle);
 						}
-					);
-				}
-			},
-			['aui-node']
-		);
-	</aui:script>
+						else if (<%= eventName != null %>) {
+							Liferay.fire(
+								'<%= eventName %>',
+								{
+									displayStyle: displayStyle
+								}
+							);
+						}
+					},
+					'li > a'
+				);
+			}
+		</aui:script>
+	</c:if>
 </c:if>
 
 <%!

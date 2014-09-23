@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.expando.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.expando.model.ExpandoValue;
 import com.liferay.portlet.expando.service.ExpandoValueLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.expando.service.ExpandoValueLocalServiceUtil;
  * @see com.liferay.portlet.expando.model.ExpandoValue
  * @generated
  */
+@ProviderType
 public abstract class ExpandoValueBaseImpl extends ExpandoValueModelImpl
 	implements ExpandoValue {
 	/*
@@ -39,7 +40,7 @@ public abstract class ExpandoValueBaseImpl extends ExpandoValueModelImpl
 	 * Never modify or reference this class directly. All methods that expect a expando value model instance should use the {@link ExpandoValue} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ExpandoValueLocalServiceUtil.addExpandoValue(this);
 		}

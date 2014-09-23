@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -42,6 +43,9 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author Zsolt Berentey
  */
+@OSGiBeanProperties(
+	portalPropertyPrefix = "auth.verifier.TunnelingServletAuthVerifier."
+)
 public class TunnelingServletAuthVerifier implements AuthVerifier {
 
 	@Override
@@ -72,15 +76,10 @@ public class TunnelingServletAuthVerifier implements AuthVerifier {
 
 			HttpServletResponse response = accessControlContext.getResponse();
 
-			try {
-				ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-					response.getOutputStream());
+			try (ObjectOutputStream objectOutputStream =
+					new ObjectOutputStream(response.getOutputStream())) {
 
 				objectOutputStream.writeObject(ae);
-
-				objectOutputStream.flush();
-
-				objectOutputStream.close();
 
 				authVerifierResult.setState(
 					AuthVerifierResult.State.INVALID_CREDENTIALS);

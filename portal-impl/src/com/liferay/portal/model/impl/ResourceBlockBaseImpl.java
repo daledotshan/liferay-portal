@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.ResourceBlock;
 import com.liferay.portal.service.ResourceBlockLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.ResourceBlockLocalServiceUtil;
  * @see com.liferay.portal.model.ResourceBlock
  * @generated
  */
+@ProviderType
 public abstract class ResourceBlockBaseImpl extends ResourceBlockModelImpl
 	implements ResourceBlock {
 	/*
@@ -38,7 +40,7 @@ public abstract class ResourceBlockBaseImpl extends ResourceBlockModelImpl
 	 * Never modify or reference this class directly. All methods that expect a resource block model instance should use the {@link ResourceBlock} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			ResourceBlockLocalServiceUtil.addResourceBlock(this);
 		}

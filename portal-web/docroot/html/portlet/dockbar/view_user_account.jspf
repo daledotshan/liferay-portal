@@ -25,7 +25,7 @@
 
 	<c:choose>
 		<c:when test="<%= BrowserSnifferUtil.isIe(request) && (BrowserSnifferUtil.getMajorVersion(request) < 9) %>">
-			<img alt="" class="user-avatar-image" src="<%= portraitURL %>" />
+			<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="user-portrait" />" class="user-avatar-image" src="<%= portraitURL %>" />
 		</c:when>
 		<c:otherwise>
 			<span class="user-avatar-image" style="background-image: url('<%= portraitURL %>');"></span>
@@ -46,7 +46,7 @@
 				String impersonatingUserLabel = "you-are-impersonating-the-guest-user";
 
 				if (themeDisplay.isSignedIn()) {
-					impersonatingUserLabel = LanguageUtil.format(pageContext, "you-are-impersonating-x", HtmlUtil.escape(user.getFullName()), false);
+					impersonatingUserLabel = LanguageUtil.format(request, "you-are-impersonating-x", HtmlUtil.escape(user.getFullName()), false);
 				}
 				%>
 
@@ -103,7 +103,7 @@
 						%>
 
 						<li class="my-sites-menu public-site">
-							<a href="<%= myProfileURL.toString() %>">
+							<a href="<%= HtmlUtil.escapeHREF(myProfileURL.toString()) %>">
 								<span class="site-name"><liferay-ui:message key="my-profile" /></span>
 
 								<span class="badge site-type"><liferay-ui:message key="public" /></span>
@@ -124,7 +124,7 @@
 						%>
 
 						<li class="my-sites-menu private-site">
-							<a href="<%= myDashboardURL %>">
+							<a href="<%= HtmlUtil.escapeHREF(myDashboardURL.toString()) %>">
 								<span class="site-name"><liferay-ui:message key="my-dashboard" /></span>
 
 								<span class="badge site-type"><liferay-ui:message key="private" /></span>

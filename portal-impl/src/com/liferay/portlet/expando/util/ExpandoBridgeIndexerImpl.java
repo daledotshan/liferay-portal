@@ -63,10 +63,10 @@ public class ExpandoBridgeIndexerImpl implements ExpandoBridgeIndexer {
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(FIELD_NAMESPACE);
-		sb.append(StringPool.FORWARD_SLASH);
+		sb.append(StringPool.DOUBLE_UNDERLINE);
 		sb.append(
 			StringUtil.toLowerCase(ExpandoTableConstants.DEFAULT_TABLE_NAME));
-		sb.append(StringPool.FORWARD_SLASH);
+		sb.append(StringPool.DOUBLE_UNDERLINE);
 		sb.append(columnName);
 
 		return sb.toString();
@@ -75,7 +75,7 @@ public class ExpandoBridgeIndexerImpl implements ExpandoBridgeIndexer {
 	protected void addAttribute(
 			Document document, ExpandoColumn expandoColumn,
 			List<ExpandoValue> expandoValues)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String fieldName = encodeFieldName(expandoColumn.getName());
 
@@ -207,8 +207,7 @@ public class ExpandoBridgeIndexerImpl implements ExpandoBridgeIndexer {
 	}
 
 	protected void doAddAttributes(
-			Document document, ExpandoBridge expandoBridge)
-		throws SystemException {
+		Document document, ExpandoBridge expandoBridge) {
 
 		List<ExpandoColumn> expandoColumns =
 			ExpandoColumnLocalServiceUtil.getDefaultTableColumns(

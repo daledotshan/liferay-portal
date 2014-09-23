@@ -40,6 +40,11 @@ public class IntrabandFactoryUtilTest {
 		new CodeCoverageAssertor();
 
 	@Test
+	public void testConstructor() {
+		new IntrabandFactoryUtil();
+	}
+
+	@Test
 	public void testCreateIntrabandClassNotFound() throws IOException {
 		System.setProperty(PropsKeys.INTRABAND_IMPL, "NoSuchClass");
 

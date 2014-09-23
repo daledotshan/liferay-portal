@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -49,10 +51,10 @@ import com.liferay.portal.service.PortletServiceUtil;
  * @see com.liferay.portal.service.PortletServiceUtil
  * @generated
  */
+@ProviderType
 public class PortletServiceHttp {
 	public static com.liferay.portal.kernel.json.JSONArray getWARPortlets(
-		HttpPrincipal httpPrincipal)
-		throws com.liferay.portal.kernel.exception.SystemException {
+		HttpPrincipal httpPrincipal) {
 		try {
 			MethodKey methodKey = new MethodKey(PortletServiceUtil.class,
 					"getWARPortlets", _getWARPortletsParameterTypes0);
@@ -80,8 +82,7 @@ public class PortletServiceHttp {
 	public static com.liferay.portal.model.Portlet updatePortlet(
 		HttpPrincipal httpPrincipal, long companyId,
 		java.lang.String portletId, java.lang.String roles, boolean active)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(PortletServiceUtil.class,
 					"updatePortlet", _updatePortletParameterTypes1);
@@ -97,10 +98,6 @@ public class PortletServiceHttp {
 			catch (Exception e) {
 				if (e instanceof com.liferay.portal.kernel.exception.PortalException) {
 					throw (com.liferay.portal.kernel.exception.PortalException)e;
-				}
-
-				if (e instanceof com.liferay.portal.kernel.exception.SystemException) {
-					throw (com.liferay.portal.kernel.exception.SystemException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);

@@ -20,12 +20,13 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import java.nio.file.Files;
 
 import java.security.ProtectionDomain;
 
@@ -45,7 +46,7 @@ public class WeavingClassLoader extends URLClassLoader {
 
 		_dumpDir = dumpDir;
 
-		_urlWeavingAdaptor = new URLWeavingAdaptor(urls, aspectClasses);
+		_urlWeavingAdapter = new URLWeavingAdapter(urls, aspectClasses);
 	}
 
 	@Override
@@ -61,14 +62,13 @@ public class WeavingClassLoader extends URLClassLoader {
 
 				// It may be a generated inner class
 
-				data = _urlWeavingAdaptor.removeGeneratedClassDate(name);
+				data = _urlWeavingAdapter.removeGeneratedClassDate(name);
 			}
 			else {
 				UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 					new UnsyncByteArrayOutputStream();
 
-				StreamUtil.transfer(
-					inputStream, unsyncByteArrayOutputStream, true);
+				StreamUtil.transfer(inputStream, unsyncByteArrayOutputStream);
 
 				data = unsyncByteArrayOutputStream.toByteArray();
 			}
@@ -80,7 +80,7 @@ public class WeavingClassLoader extends URLClassLoader {
 			byte[] oldData = data;
 
 			try {
-				data = _urlWeavingAdaptor.weaveClass(name, data, false);
+				data = _urlWeavingAdapter.weaveClass(name, data, false);
 			}
 			catch (AbortException ae) {
 				if (_log.isWarnEnabled()) {
@@ -99,12 +99,7 @@ public class WeavingClassLoader extends URLClassLoader {
 
 				dumpDir.mkdirs();
 
-				FileOutputStream fileOutputStream = new FileOutputStream(
-					dumpFile);
-
-				fileOutputStream.write(data);
-
-				fileOutputStream.close();
+				Files.write(dumpFile.toPath(), data);
 
 				if (_log.isInfoEnabled()) {
 					_log.info(
@@ -152,6 +147,6 @@ public class WeavingClassLoader extends URLClassLoader {
 	private static Log _log = LogFactoryUtil.getLog(WeavingClassLoader.class);
 
 	private File _dumpDir;
-	private URLWeavingAdaptor _urlWeavingAdaptor;
+	private URLWeavingAdapter _urlWeavingAdapter;
 
 }

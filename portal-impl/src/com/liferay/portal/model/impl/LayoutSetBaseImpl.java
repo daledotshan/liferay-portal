@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.LayoutSetLocalServiceUtil;
  * @see com.liferay.portal.model.LayoutSet
  * @generated
  */
+@ProviderType
 public abstract class LayoutSetBaseImpl extends LayoutSetModelImpl
 	implements LayoutSet {
 	/*
@@ -38,7 +40,7 @@ public abstract class LayoutSetBaseImpl extends LayoutSetModelImpl
 	 * Never modify or reference this class directly. All methods that expect a layout set model instance should use the {@link LayoutSet} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			LayoutSetLocalServiceUtil.addLayoutSet(this);
 		}

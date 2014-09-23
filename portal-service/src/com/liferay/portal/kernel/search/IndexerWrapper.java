@@ -105,8 +105,8 @@ public class IndexerWrapper implements Indexer {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getSummary(Document, Locale,
-	 *             String, PortletURL, PortletRequest, PortletResponse)}
+	 * @deprecated As of 7.0.0, replaced by {@link #getSummary(Document, String,
+	 *             PortletURL, PortletRequest, PortletResponse)}
 	 */
 	@Deprecated
 	@Override
@@ -120,14 +120,12 @@ public class IndexerWrapper implements Indexer {
 
 	@Override
 	public Summary getSummary(
-			Document document, Locale locale, String snippet,
-			PortletURL portletURL, PortletRequest portletRequest,
-			PortletResponse portletResponse)
+			Document document, String snippet, PortletURL portletURL,
+			PortletRequest portletRequest, PortletResponse portletResponse)
 		throws SearchException {
 
 		return _indexer.getSummary(
-			document, locale, snippet, portletURL, portletRequest,
-			portletResponse);
+			document, snippet, portletURL, portletRequest, portletResponse);
 	}
 
 	@Override
@@ -138,6 +136,11 @@ public class IndexerWrapper implements Indexer {
 
 		return _indexer.hasPermission(
 			permissionChecker, entryClassName, entryClassPK, actionId);
+	}
+
+	@Override
+	public boolean isCommitImmediately() {
+		return _indexer.isCommitImmediately();
 	}
 
 	@Override
@@ -230,6 +233,11 @@ public class IndexerWrapper implements Indexer {
 		IndexerPostProcessor indexerPostProcessor) {
 
 		_indexer.unregisterIndexerPostProcessor(indexerPostProcessor);
+	}
+
+	@Override
+	public void updateFullQuery(SearchContext searchContext) {
+		_indexer.updateFullQuery(searchContext);
 	}
 
 	private Indexer _indexer;

@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.LayoutFriendlyURL;
 import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
  * @see com.liferay.portal.model.LayoutFriendlyURL
  * @generated
  */
+@ProviderType
 public abstract class LayoutFriendlyURLBaseImpl
 	extends LayoutFriendlyURLModelImpl implements LayoutFriendlyURL {
 	/*
@@ -38,7 +40,7 @@ public abstract class LayoutFriendlyURLBaseImpl
 	 * Never modify or reference this class directly. All methods that expect a layout friendly u r l model instance should use the {@link LayoutFriendlyURL} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			LayoutFriendlyURLLocalServiceUtil.addLayoutFriendlyURL(this);
 		}

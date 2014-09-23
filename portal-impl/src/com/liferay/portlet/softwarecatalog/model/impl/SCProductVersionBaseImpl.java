@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.softwarecatalog.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portlet.softwarecatalog.model.SCProductVersion;
 import com.liferay.portlet.softwarecatalog.service.SCProductVersionLocalServiceUtil;
@@ -31,6 +31,7 @@ import com.liferay.portlet.softwarecatalog.service.SCProductVersionLocalServiceU
  * @see com.liferay.portlet.softwarecatalog.model.SCProductVersion
  * @generated
  */
+@ProviderType
 public abstract class SCProductVersionBaseImpl extends SCProductVersionModelImpl
 	implements SCProductVersion {
 	/*
@@ -39,7 +40,7 @@ public abstract class SCProductVersionBaseImpl extends SCProductVersionModelImpl
 	 * Never modify or reference this class directly. All methods that expect a s c product version model instance should use the {@link SCProductVersion} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			SCProductVersionLocalServiceUtil.addSCProductVersion(this);
 		}

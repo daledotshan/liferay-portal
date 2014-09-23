@@ -16,8 +16,9 @@ package com.liferay.portlet.documentlibrary.trash;
 
 import com.liferay.portal.InvalidRepositoryException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.repository.Repository;
+import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.trash.BaseTrashHandler;
@@ -27,7 +28,6 @@ import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.ContainerModel;
-import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.service.RepositoryServiceUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
@@ -36,6 +36,7 @@ import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Zsolt Berentey
@@ -44,7 +45,7 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public ContainerModel getContainerModel(long containerModelId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (containerModelId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			return null;
@@ -54,19 +55,19 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
-	public String getContainerModelClassName() {
+	public String getContainerModelClassName(long classPK) {
 		return DLFolder.class.getName();
 	}
 
 	@Override
-	public String getContainerModelName() {
+	public String getContainerModelName(long classPK) {
 		return "folder";
 	}
 
 	@Override
 	public List<ContainerModel> getContainerModels(
 			long classPK, long parentContainerModelId, int start, int end)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Repository repository = getRepository(classPK);
 
@@ -86,7 +87,7 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 	@Override
 	public int getContainerModelsCount(
 			long classPK, long parentContainerModelId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Repository repository = getRepository(classPK);
 
@@ -95,7 +96,7 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public List<ContainerModel> getParentContainerModels(long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<ContainerModel> containerModels = new ArrayList<ContainerModel>();
 
@@ -123,7 +124,14 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public String getRootContainerModelName() {
-		return "home";
+		return "folder";
+	}
+
+	@Override
+	public String getRootContainerModelTitle(
+		long containerModelId, Locale locale) {
+
+		return LanguageUtil.get(locale, "home");
 	}
 
 	@Override
@@ -133,7 +141,7 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public int getTrashContainedModelsCount(long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Repository repository = getRepository(classPK);
 
@@ -144,7 +152,7 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 	@Override
 	public List<TrashRenderer> getTrashContainedModelTrashRenderers(
 			long classPK, int start, int end)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
 
@@ -194,7 +202,7 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 
 	@Override
 	public int getTrashContainerModelsCount(long classPK)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Repository repository = getRepository(classPK);
 
@@ -205,7 +213,7 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 	@Override
 	public List<TrashRenderer> getTrashContainerModelTrashRenderers(
 			long classPK, int start, int end)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
 
@@ -234,13 +242,11 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 		return true;
 	}
 
-	protected DLFolder fetchDLFolder(long classPK)
-		throws PortalException, SystemException {
-
+	protected DLFolder fetchDLFolder(long classPK) throws PortalException {
 		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
 			classPK, 0, 0);
 
-		if (!(repository instanceof LiferayRepository)) {
+		if (!repository.isCapabilityProvided(TrashCapability.class)) {
 			return null;
 		}
 
@@ -249,13 +255,11 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 		return (DLFolder)folder.getModel();
 	}
 
-	protected DLFolder getDLFolder(long classPK)
-		throws PortalException, SystemException {
-
+	protected DLFolder getDLFolder(long classPK) throws PortalException {
 		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
 			classPK, 0, 0);
 
-		if (!(repository instanceof LiferayRepository)) {
+		if (!repository.isCapabilityProvided(TrashCapability.class)) {
 			throw new InvalidRepositoryException(
 				"Repository " + repository.getRepositoryId() +
 					" does not support trash operations");
@@ -267,6 +271,6 @@ public abstract class DLBaseTrashHandler extends BaseTrashHandler {
 	}
 
 	protected abstract Repository getRepository(long classPK)
-		throws PortalException, SystemException;
+		throws PortalException;
 
 }

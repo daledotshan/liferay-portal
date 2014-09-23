@@ -14,7 +14,8 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.exception.SystemException;
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.model.OrgLabor;
 import com.liferay.portal.service.OrgLaborLocalServiceUtil;
 
@@ -30,6 +31,7 @@ import com.liferay.portal.service.OrgLaborLocalServiceUtil;
  * @see com.liferay.portal.model.OrgLabor
  * @generated
  */
+@ProviderType
 public abstract class OrgLaborBaseImpl extends OrgLaborModelImpl
 	implements OrgLabor {
 	/*
@@ -38,7 +40,7 @@ public abstract class OrgLaborBaseImpl extends OrgLaborModelImpl
 	 * Never modify or reference this class directly. All methods that expect a org labor model instance should use the {@link OrgLabor} interface instead.
 	 */
 	@Override
-	public void persist() throws SystemException {
+	public void persist() {
 		if (this.isNew()) {
 			OrgLaborLocalServiceUtil.addOrgLabor(this);
 		}

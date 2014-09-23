@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.persistence.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.NoSuchReleaseException;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -23,11 +25,8 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -36,7 +35,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.Release;
 import com.liferay.portal.model.impl.ReleaseImpl;
 import com.liferay.portal.model.impl.ReleaseModelImpl;
@@ -44,9 +42,12 @@ import com.liferay.portal.service.persistence.ReleasePersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -61,6 +62,7 @@ import java.util.Set;
  * @see ReleaseUtil
  * @generated
  */
+@ProviderType
 public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	implements ReleasePersistence {
 	/*
@@ -98,11 +100,10 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param servletContextName the servlet context name
 	 * @return the matching release
 	 * @throws com.liferay.portal.NoSuchReleaseException if a matching release could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Release findByServletContextName(String servletContextName)
-		throws NoSuchReleaseException, SystemException {
+		throws NoSuchReleaseException {
 		Release release = fetchByServletContextName(servletContextName);
 
 		if (release == null) {
@@ -130,11 +131,9 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 *
 	 * @param servletContextName the servlet context name
 	 * @return the matching release, or <code>null</code> if a matching release could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Release fetchByServletContextName(String servletContextName)
-		throws SystemException {
+	public Release fetchByServletContextName(String servletContextName) {
 		return fetchByServletContextName(servletContextName, true);
 	}
 
@@ -144,11 +143,10 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param servletContextName the servlet context name
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching release, or <code>null</code> if a matching release could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Release fetchByServletContextName(String servletContextName,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { servletContextName };
 
 		Object result = null;
@@ -246,11 +244,10 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 *
 	 * @param servletContextName the servlet context name
 	 * @return the release that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Release removeByServletContextName(String servletContextName)
-		throws NoSuchReleaseException, SystemException {
+		throws NoSuchReleaseException {
 		Release release = findByServletContextName(servletContextName);
 
 		return remove(release);
@@ -261,11 +258,9 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 *
 	 * @param servletContextName the servlet context name
 	 * @return the number of matching releases
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByServletContextName(String servletContextName)
-		throws SystemException {
+	public int countByServletContextName(String servletContextName) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_SERVLETCONTEXTNAME;
 
 		Object[] finderArgs = new Object[] { servletContextName };
@@ -488,11 +483,9 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param releaseId the primary key of the release
 	 * @return the release that was removed
 	 * @throws com.liferay.portal.NoSuchReleaseException if a release with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Release remove(long releaseId)
-		throws NoSuchReleaseException, SystemException {
+	public Release remove(long releaseId) throws NoSuchReleaseException {
 		return remove((Serializable)releaseId);
 	}
 
@@ -502,11 +495,10 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param primaryKey the primary key of the release
 	 * @return the release that was removed
 	 * @throws com.liferay.portal.NoSuchReleaseException if a release with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Release remove(Serializable primaryKey)
-		throws NoSuchReleaseException, SystemException {
+		throws NoSuchReleaseException {
 		Session session = null;
 
 		try {
@@ -537,7 +529,7 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	}
 
 	@Override
-	protected Release removeImpl(Release release) throws SystemException {
+	protected Release removeImpl(Release release) {
 		release = toUnwrappedModel(release);
 
 		Session session = null;
@@ -569,8 +561,7 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	}
 
 	@Override
-	public Release updateImpl(com.liferay.portal.model.Release release)
-		throws SystemException {
+	public Release updateImpl(com.liferay.portal.model.Release release) {
 		release = toUnwrappedModel(release);
 
 		boolean isNew = release.isNew();
@@ -643,11 +634,10 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param primaryKey the primary key of the release
 	 * @return the release
 	 * @throws com.liferay.portal.NoSuchReleaseException if a release with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Release findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchReleaseException, SystemException {
+		throws NoSuchReleaseException {
 		Release release = fetchByPrimaryKey(primaryKey);
 
 		if (release == null) {
@@ -668,11 +658,10 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param releaseId the primary key of the release
 	 * @return the release
 	 * @throws com.liferay.portal.NoSuchReleaseException if a release with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Release findByPrimaryKey(long releaseId)
-		throws NoSuchReleaseException, SystemException {
+		throws NoSuchReleaseException {
 		return findByPrimaryKey((Serializable)releaseId);
 	}
 
@@ -681,11 +670,9 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 *
 	 * @param primaryKey the primary key of the release
 	 * @return the release, or <code>null</code> if a release with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Release fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public Release fetchByPrimaryKey(Serializable primaryKey) {
 		Release release = (Release)EntityCacheUtil.getResult(ReleaseModelImpl.ENTITY_CACHE_ENABLED,
 				ReleaseImpl.class, primaryKey);
 
@@ -728,21 +715,111 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 *
 	 * @param releaseId the primary key of the release
 	 * @return the release, or <code>null</code> if a release with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Release fetchByPrimaryKey(long releaseId) throws SystemException {
+	public Release fetchByPrimaryKey(long releaseId) {
 		return fetchByPrimaryKey((Serializable)releaseId);
+	}
+
+	@Override
+	public Map<Serializable, Release> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, Release> map = new HashMap<Serializable, Release>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			Release release = fetchByPrimaryKey(primaryKey);
+
+			if (release != null) {
+				map.put(primaryKey, release);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			Release release = (Release)EntityCacheUtil.getResult(ReleaseModelImpl.ENTITY_CACHE_ENABLED,
+					ReleaseImpl.class, primaryKey);
+
+			if (release == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, release);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_RELEASE_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (Release release : (List<Release>)q.list()) {
+				map.put(release.getPrimaryKeyObj(), release);
+
+				cacheResult(release);
+
+				uncachedPrimaryKeys.remove(release.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(ReleaseModelImpl.ENTITY_CACHE_ENABLED,
+					ReleaseImpl.class, primaryKey, _nullRelease);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the releases.
 	 *
 	 * @return the releases
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Release> findAll() throws SystemException {
+	public List<Release> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -756,10 +833,9 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param start the lower bound of the range of releases
 	 * @param end the upper bound of the range of releases (not inclusive)
 	 * @return the range of releases
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Release> findAll(int start, int end) throws SystemException {
+	public List<Release> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -774,11 +850,10 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * @param end the upper bound of the range of releases (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of releases
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Release> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator<Release> orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -860,10 +935,9 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	/**
 	 * Removes all the releases from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (Release release : findAll()) {
 			remove(release);
 		}
@@ -873,10 +947,9 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * Returns the number of releases.
 	 *
 	 * @return the number of releases
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -916,25 +989,6 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	 * Initializes the release persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.portal.util.PropsUtil.get(
-						"value.object.listener.com.liferay.portal.model.Release")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<Release>> listenersList = new ArrayList<ModelListener<Release>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<Release>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
@@ -945,6 +999,7 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	}
 
 	private static final String _SQL_SELECT_RELEASE = "SELECT release FROM Release release";
+	private static final String _SQL_SELECT_RELEASE_WHERE_PKS_IN = "SELECT release FROM Release release WHERE releaseId IN (";
 	private static final String _SQL_SELECT_RELEASE_WHERE = "SELECT release FROM Release release WHERE ";
 	private static final String _SQL_COUNT_RELEASE = "SELECT COUNT(release) FROM Release release";
 	private static final String _SQL_COUNT_RELEASE_WHERE = "SELECT COUNT(release) FROM Release release WHERE ";
@@ -952,11 +1007,11 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Release exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Release exists with the key {";
 	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
-	private static Log _log = LogFactoryUtil.getLog(ReleasePersistenceImpl.class);
-	private static Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
+	private static final Log _log = LogFactoryUtil.getLog(ReleasePersistenceImpl.class);
+	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"state"
 			});
-	private static Release _nullRelease = new ReleaseImpl() {
+	private static final Release _nullRelease = new ReleaseImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -968,7 +1023,7 @@ public class ReleasePersistenceImpl extends BasePersistenceImpl<Release>
 			}
 		};
 
-	private static CacheModel<Release> _nullReleaseCacheModel = new NullCacheModel();
+	private static final CacheModel<Release> _nullReleaseCacheModel = new NullCacheModel();
 
 	private static class NullCacheModel implements CacheModel<Release>,
 		MVCCModel {

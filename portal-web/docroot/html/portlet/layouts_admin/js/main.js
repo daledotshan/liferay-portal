@@ -31,6 +31,7 @@ AUI.add(
 					deleteMissingLayoutsNode: defaultConfig,
 					deletePortletDataNode: defaultConfig,
 					deletionsNode: defaultConfig,
+					exportLAR: defaultConfig,
 					form: defaultConfig,
 					incompleteProcessMessageNode: defaultConfig,
 					layoutSetSettingsNode: defaultConfig,
@@ -43,9 +44,9 @@ AUI.add(
 					ratingsNode: defaultConfig,
 					remoteAddressNode: defaultConfig,
 					remoteDeletePortletDataNode: defaultConfig,
-					remotePortNode: defaultConfig,
-					remotePathContextNode: defaultConfig,
 					remoteGroupIdNode: defaultConfig,
+					remotePathContextNode: defaultConfig,
+					remotePortNode: defaultConfig,
 					secureConnectionNode: defaultConfig,
 					setupNode: defaultConfig,
 					themeReferenceNode: defaultConfig,
@@ -64,6 +65,7 @@ AUI.add(
 
 						instance._bindUI();
 
+						instance._exportLAR = config.exportLAR;
 						instance._layoutsExportTreeOutput = instance.byId(config.pageTreeId + 'Output');
 
 						instance._initLabels();
@@ -261,6 +263,7 @@ AUI.add(
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('ok'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
@@ -270,18 +273,17 @@ AUI.add(
 															configurationDialog.hide();
 														}
 													},
-													label: Liferay.Language.get('ok'),
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															configurationDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -312,12 +314,12 @@ AUI.add(
 									dialog: {
 										bodyContent: contentNode,
 										centered: true,
-										height: 300,
 										modal: true,
 										render: instance.get('form'),
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('ok'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
@@ -327,18 +329,17 @@ AUI.add(
 															contentDialog.hide();
 														}
 													},
-													label: Liferay.Language.get('ok'),
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															contentDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -375,6 +376,7 @@ AUI.add(
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('ok'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
@@ -384,18 +386,17 @@ AUI.add(
 															contentOptionsDialog.hide();
 														}
 													},
-													label: Liferay.Language.get('ok'),
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															contentOptionsDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -432,6 +433,7 @@ AUI.add(
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('ok'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
@@ -441,18 +443,17 @@ AUI.add(
 															globalConfigurationDialog.hide();
 														}
 													},
-													label: Liferay.Language.get('ok'),
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															globalConfigurationDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -489,6 +490,7 @@ AUI.add(
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('ok'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
@@ -498,18 +500,17 @@ AUI.add(
 															globalContentDialog.hide();
 														}
 													},
-													label: Liferay.Language.get('ok'),
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															globalContentDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -546,6 +547,7 @@ AUI.add(
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('ok'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
@@ -557,18 +559,17 @@ AUI.add(
 															pagesDialog.hide();
 														}
 													},
-													label: Liferay.Language.get('ok'),
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															pagesDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -590,6 +591,8 @@ AUI.add(
 						var rangeDialog = instance._rangeDialog;
 
 						if (!rangeDialog) {
+							var updateDateRange = A.bind('_updateDateRange', instance);
+
 							var rangeNode = instance.byId('range');
 
 							rangeNode.show();
@@ -605,90 +608,21 @@ AUI.add(
 										toolbars: {
 											footer: [
 												{
-													on: {
-														click: function(event) {
-															event.domEvent.preventDefault();
-
-															var endsLater = true;
-															var endsInPast = true;
-															var startsInPast = true;
-
-															if (instance._isChecked('rangeDateRangeNode')) {
-																var startDatePicker = Liferay.component(instance.ns('startDateDatePicker'));
-																var startTimePicker = Liferay.component(instance.ns('startTimeTimePicker'));
-
-																var endDatePicker = Liferay.component(instance.ns('endDateDatePicker'));
-																var endTimePicker = Liferay.component(instance.ns('endTimeTimePicker'));
-
-																var startDate = startDatePicker.getDate();
-																var startTime = startTimePicker.getTime();
-
-																startDate.setHours(startTime.getHours());
-																startDate.setMinutes(startTime.getMinutes());
-																startDate.setSeconds(0);
-																startDate.setMilliseconds(0);
-
-																var endDate = endDatePicker.getDate();
-																var endTime = endTimePicker.getTime();
-
-																endDate.setHours(endTime.getHours());
-																endDate.setMinutes(endTime.getMinutes());
-																endDate.setSeconds(0);
-																endDate.setMilliseconds(0);
-
-																endsLater = ADate.isGreater(endDate, startDate);
-
-																var today = new Date();
-
-																endsInPast = ADate.isGreaterOrEqual(today, endDate);
-																startsInPast = ADate.isGreaterOrEqual(today, startDate);
-															}
-
-															if (endsLater && endsInPast && startsInPast) {
-																instance._reloadForm();
-
-																rangeDialog.hide();
-															}
-															else {
-																var message;
-
-																if (!endsLater) {
-																	message = Liferay.Language.get('end-date-must-be-greater-than-start-date');
-																}
-																else if (!endsInPast || !startsInPast) {
-																	message = Liferay.Language.get('selected-dates-cannot-be-in-the-future');
-																}
-
-																if (instance._notice) {
-																	instance._notice.remove();
-																}
-
-																instance._notice = new Liferay.Notice(
-																	{
-																		closeText: false,
-																		content: message + '<button type="button" class="close">&times;</button>',
-																		timeout: 10000,
-																		toggleText: false,
-																		type: 'warning'
-																	}
-																);
-
-																instance._notice.show();
-															}
-														}
-													},
 													label: Liferay.Language.get('ok'),
+													on: {
+														click: updateDateRange
+													},
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															rangeDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -696,6 +630,13 @@ AUI.add(
 									},
 									title: Liferay.Language.get('date-range')
 								}
+							);
+
+							rangeDialog.get('boundingBox').delegate(
+								'key',
+								updateDateRange,
+								'enter',
+								'input[type="text"]'
 							);
 
 							instance._rangeDialog = rangeDialog;
@@ -725,6 +666,7 @@ AUI.add(
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('ok'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
@@ -734,18 +676,17 @@ AUI.add(
 															remoteDialog.hide();
 														}
 													},
-													label: Liferay.Language.get('ok'),
 													primary: true
 												},
 												{
+													label: Liferay.Language.get('cancel'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															remoteDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('cancel')
+													}
 												}
 											]
 										},
@@ -775,21 +716,21 @@ AUI.add(
 								{
 									dialog: {
 										bodyContent: scheduledPublishingEventsNode,
-										height: 300,
 										centered: true,
+										height: 300,
 										modal: true,
 										render: instance.get('form'),
 										toolbars: {
 											footer: [
 												{
+													label: Liferay.Language.get('close'),
 													on: {
 														click: function(event) {
 															event.domEvent.preventDefault();
 
 															scheduledPublishingEventsDialog.hide();
 														}
-													},
-													label: Liferay.Language.get('close')
+													}
 												}
 											]
 										},
@@ -860,33 +801,41 @@ AUI.add(
 
 							var portletURL = Liferay.PortletURL.createURL(redirectNode.val());
 
-							portletURL.setParameter("struts_action", "/group_pages/edit_export_configuration");
-							portletURL.setParameter("cmd", cmdNode.val());
-							portletURL.setParameter("tabs2", "new-export-process");
-							portletURL.setParameter("exportNav", "custom");
+							portletURL.setParameter('cmd', cmdNode.val());
+
+							if (instance._exportLAR) {
+								portletURL.setParameter('struts_action', '/group_pages/edit_export_configuration');
+								portletURL.setParameter('tabs2', 'new-export-process');
+								portletURL.setParameter('exportConfigurationButtons', 'custom');
+							}
+							else {
+								portletURL.setParameter('struts_action', '/layouts_admin/edit_publish_configuration');
+								portletURL.setParameter('tabs2', 'new-publication-process');
+								portletURL.setParameter('publishConfigurationButtons', 'custom');
+							}
 
 							var groupIdNode = instance.byId('groupId');
 
 							if (groupIdNode) {
-								portletURL.setParameter("groupId", groupIdNode.val());
+								portletURL.setParameter('groupId', groupIdNode.val());
 							}
 
 							var liveGroupIdNode = instance.byId('liveGroupId');
 
 							if (liveGroupIdNode) {
-								portletURL.setParameter("liveGroupId", liveGroupIdNode.val());
+								portletURL.setParameter('liveGroupId', liveGroupIdNode.val());
 							}
 
 							var privateLayoutNode = instance.byId('privateLayout');
 
 							if (privateLayoutNode) {
-								portletURL.setParameter("privateLayout", privateLayoutNode.val());
+								portletURL.setParameter('privateLayout', privateLayoutNode.val());
 							}
 
 							var rootNodeNameNode = instance.byId('rootNodeName');
 
 							if (rootNodeNameNode) {
-								portletURL.setParameter("rootNodeName", rootNodeNameNode.val());
+								portletURL.setParameter('rootNodeName', rootNodeNameNode.val());
 							}
 
 							redirectNode.val(portletURL.toString());
@@ -1000,7 +949,7 @@ AUI.add(
 						);
 
 						if (selectedConfiguration.length === 0) {
-							instance.byId('PORTLET_CONFIGURATION_' + portletId + 'Checkbox').set('checked', false);
+							instance.byId('PORTLET_CONFIGURATION_' + portletId).attr('checked', false);
 
 							instance.byId('showChangeConfiguration_' + portletId).hide();
 						}
@@ -1028,7 +977,7 @@ AUI.add(
 						);
 
 						if (selectedContent.length === 0) {
-							instance.byId('PORTLET_DATA_' + portletId + 'Checkbox').set('checked', false);
+							instance.byId('PORTLET_DATA_' + portletId).attr('checked', false);
 
 							instance.byId('showChangeContent_' + portletId).hide();
 						}
@@ -1145,7 +1094,7 @@ AUI.add(
 						if (instance._layoutsExportTreeOutput) {
 							var layoutIdsInput = instance.byId('layoutIds');
 
-							var treeView = instance._layoutsExportTreeOutput.getData('treeInstance');
+							var treeView = instance._layoutsExportTreeOutput.getData('tree-view');
 
 							var rootNode = treeView.item(0);
 
@@ -1155,30 +1104,6 @@ AUI.add(
 								selectedPages.push(Liferay.Language.get('all-pages'));
 							}
 							else {
-								var layoutIds = [];
-
-								treeView.eachChildren(
-									function(item, index, collection) {
-										if (item.isChecked()) {
-											var match = REGEX_LAYOUT_ID.exec(item.get('id'));
-
-											if (match) {
-												layoutIds.push(
-													{
-														includeChildren: !item.hasChildNodes(),
-														plid: match[1]
-													}
-												);
-											}
-										}
-									},
-									true
-								);
-
-								if (layoutIdsInput) {
-									layoutIdsInput.val(A.JSON.stringify(layoutIds));
-								}
-
 								selectedPages.push(Liferay.Language.get('selected-pages'));
 							}
 						}
@@ -1261,6 +1186,83 @@ AUI.add(
 						}
 
 						instance._setLabels('remoteLink', 'selectedRemote', selectedRemote.join(', '));
+					},
+
+					_updateDateRange: function(event) {
+						var instance = this;
+
+						event.preventDefault();
+
+						var rangeDialog = instance._rangeDialog;
+
+						var endsLater = true;
+						var endsInPast = true;
+						var startsInPast = true;
+
+						if (instance._isChecked('rangeDateRangeNode')) {
+							var startDatePicker = Liferay.component(instance.ns('startDateDatePicker'));
+							var startTimePicker = Liferay.component(instance.ns('startTimeTimePicker'));
+
+							var endDatePicker = Liferay.component(instance.ns('endDateDatePicker'));
+							var endTimePicker = Liferay.component(instance.ns('endTimeTimePicker'));
+
+							var startDate = startDatePicker.getDate();
+							var startTime = startTimePicker.getTime();
+
+							startDate.setHours(startTime.getHours());
+							startDate.setMinutes(startTime.getMinutes());
+							startDate.setSeconds(0);
+							startDate.setMilliseconds(0);
+
+							var endDate = endDatePicker.getDate();
+							var endTime = endTimePicker.getTime();
+
+							endDate.setHours(endTime.getHours());
+							endDate.setMinutes(endTime.getMinutes());
+							endDate.setSeconds(0);
+							endDate.setMilliseconds(0);
+
+							endsLater = ADate.isGreater(endDate, startDate);
+
+							var today = new Date();
+
+							endsInPast = ADate.isGreaterOrEqual(today, endDate);
+							startsInPast = ADate.isGreaterOrEqual(today, startDate);
+						}
+
+						if (endsLater && endsInPast && startsInPast) {
+							instance._reloadForm();
+
+							A.all('.datepicker-popover, .timepicker-popover').hide();
+
+							rangeDialog.hide();
+						}
+						else {
+							var message;
+
+							if (!endsLater) {
+								message = Liferay.Language.get('end-date-must-be-greater-than-start-date');
+							}
+							else if (!endsInPast || !startsInPast) {
+								message = Liferay.Language.get('selected-dates-cannot-be-in-the-future');
+							}
+
+							if (instance._notice) {
+								instance._notice.remove();
+							}
+
+							instance._notice = new Liferay.Notice(
+								{
+									closeText: false,
+									content: message + '<button type="button" class="close">&times;</button>',
+									timeout: 10000,
+									toggleText: false,
+									type: 'warning'
+								}
+							);
+
+							instance._notice.show();
+						}
 					},
 
 					_updateincompleteProcessMessage: function(inProgress, content) {

@@ -25,10 +25,8 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.settings.Settings;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.messageboards.MBSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,43 +37,11 @@ import java.util.TreeMap;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
-import javax.portlet.PortletRequest;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class ConfigurationActionImpl extends SettingsConfigurationAction {
-
-	@Override
-	public void postProcess(
-		long companyId, PortletRequest portletRequest, Settings settings) {
-
-		MBSettings mbSettings = new MBSettings(settings);
-
-		removeDefaultValue(
-			portletRequest, settings, "emailFromAddress",
-			mbSettings.getEmailFromAddress());
-		removeDefaultValue(
-			portletRequest, settings, "emailFromName",
-			mbSettings.getEmailFromName());
-
-		String languageId = LocaleUtil.toLanguageId(
-			LocaleUtil.getSiteDefault());
-
-		removeDefaultValue(
-			portletRequest, settings, "emailMessageAddedBody_" + languageId,
-			mbSettings.getEmailMessageAddedBody());
-		removeDefaultValue(
-			portletRequest, settings, "emailMessageAddedSubject_" + languageId,
-			mbSettings.getEmailMessageAddedSubject());
-		removeDefaultValue(
-			portletRequest, settings, "emailMessageUpdatedBody_" + languageId,
-			mbSettings.getEmailMessageUpdatedBody());
-		removeDefaultValue(
-			portletRequest, settings,
-			"emailMessageUpdatedSubject_" + languageId,
-			mbSettings.getEmailMessageUpdatedSubject());
-	}
 
 	@Override
 	public void processAction(
@@ -86,8 +52,6 @@ public class ConfigurationActionImpl extends SettingsConfigurationAction {
 		validateEmail(actionRequest, "emailMessageAdded");
 		validateEmail(actionRequest, "emailMessageUpdated");
 		validateEmailFrom(actionRequest);
-		updateThreadPriorities(actionRequest);
-		updateUserRanks(actionRequest);
 
 		super.processAction(portletConfig, actionRequest, actionResponse);
 	}
@@ -103,9 +67,15 @@ public class ConfigurationActionImpl extends SettingsConfigurationAction {
 		return true;
 	}
 
-	protected void updateThreadPriorities(ActionRequest actionRequest)
-		throws Exception {
+	@Override
+	protected void updateMultiValuedKeys(ActionRequest actionRequest) {
+		super.updateMultiValuedKeys(actionRequest);
 
+		updateThreadPriorities(actionRequest);
+		updateUserRanks(actionRequest);
+	}
+
+	protected void updateThreadPriorities(ActionRequest actionRequest) {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
@@ -143,9 +113,7 @@ public class ConfigurationActionImpl extends SettingsConfigurationAction {
 		}
 	}
 
-	protected void updateUserRanks(ActionRequest actionRequest)
-		throws Exception {
-
+	protected void updateUserRanks(ActionRequest actionRequest) {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 

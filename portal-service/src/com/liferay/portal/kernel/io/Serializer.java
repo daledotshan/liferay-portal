@@ -238,7 +238,7 @@ public class Serializer {
 
 			objectOutputStream.writeObject(serializable);
 
-			objectOutputStream.close();
+			objectOutputStream.flush();
 		}
 		catch (IOException ioe) {
 			throw new RuntimeException(
@@ -357,30 +357,6 @@ public class Serializer {
 
 	protected static final int THREADLOCAL_BUFFER_SIZE_MIN = 16 * 1024;
 
-	static {
-		int threadLocalBufferCountLimit = GetterUtil.getInteger(
-			System.getProperty(
-				Serializer.class.getName() +
-					".thread.local.buffer.count.limit"));
-
-		if (threadLocalBufferCountLimit < THREADLOCAL_BUFFER_COUNT_MIN) {
-			threadLocalBufferCountLimit = THREADLOCAL_BUFFER_COUNT_MIN;
-		}
-
-		THREADLOCAL_BUFFER_COUNT_LIMIT = threadLocalBufferCountLimit;
-
-		int threadLocalBufferSizeLimit = GetterUtil.getInteger(
-			System.getProperty(
-				Serializer.class.getName() +
-					".thread.local.buffer.size.limit"));
-
-		if (threadLocalBufferSizeLimit < THREADLOCAL_BUFFER_SIZE_MIN) {
-			threadLocalBufferSizeLimit = THREADLOCAL_BUFFER_SIZE_MIN;
-		}
-
-		THREADLOCAL_BUFFER_SIZE_LIMIT = threadLocalBufferSizeLimit;
-	}
-
 	/**
 	 * Softens the local thread's pooled buffer memory.
 	 *
@@ -408,6 +384,30 @@ public class Serializer {
 
 	};
 
+	static {
+		int threadLocalBufferCountLimit = GetterUtil.getInteger(
+			System.getProperty(
+				Serializer.class.getName() +
+					".thread.local.buffer.count.limit"));
+
+		if (threadLocalBufferCountLimit < THREADLOCAL_BUFFER_COUNT_MIN) {
+			threadLocalBufferCountLimit = THREADLOCAL_BUFFER_COUNT_MIN;
+		}
+
+		THREADLOCAL_BUFFER_COUNT_LIMIT = threadLocalBufferCountLimit;
+
+		int threadLocalBufferSizeLimit = GetterUtil.getInteger(
+			System.getProperty(
+				Serializer.class.getName() +
+					".thread.local.buffer.size.limit"));
+
+		if (threadLocalBufferSizeLimit < THREADLOCAL_BUFFER_SIZE_MIN) {
+			threadLocalBufferSizeLimit = THREADLOCAL_BUFFER_SIZE_MIN;
+		}
+
+		THREADLOCAL_BUFFER_SIZE_LIMIT = threadLocalBufferSizeLimit;
+	}
+
 	protected byte[] buffer;
 	protected int index;
 
@@ -433,6 +433,22 @@ public class Serializer {
 	 * </p>
 	 */
 	protected static class BufferQueue {
+
+		public byte[] dequeue() {
+			if (headBufferNode == null) {
+				return new byte[THREADLOCAL_BUFFER_SIZE_MIN];
+			}
+
+			BufferNode bufferNode = headBufferNode;
+
+			headBufferNode = headBufferNode.next;
+
+			// Help GC
+
+			bufferNode.next = null;
+
+			return bufferNode.buffer;
+		}
 
 		public void enqueue(byte[] buffer) {
 			BufferNode bufferNode = new BufferNode(buffer);
@@ -489,22 +505,6 @@ public class Serializer {
 				currentBufferNode.buffer = null;
 				currentBufferNode.next = null;
 			}
-		}
-
-		public byte[] dequeue() {
-			if (headBufferNode == null) {
-				return new byte[THREADLOCAL_BUFFER_SIZE_MIN];
-			}
-
-			BufferNode bufferNode = headBufferNode;
-
-			headBufferNode = headBufferNode.next;
-
-			// Help GC
-
-			bufferNode.next = null;
-
-			return bufferNode.buffer;
 		}
 
 		protected int count;

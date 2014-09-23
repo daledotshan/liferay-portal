@@ -37,6 +37,7 @@ import javax.portlet.PortletURL;
 import javax.portlet.WindowState;
 
 import javax.servlet.ServletContext;
+import javax.servlet.jsp.PageContext;
 
 /**
  * @author Daniel Reuther
@@ -44,13 +45,17 @@ import javax.servlet.ServletContext;
 public class DummyVelocityTaglib implements VelocityTaglib {
 
 	@Override
-	public void actionURL(long plid, String portletName, String queryString)
+	public String actionURL(long plid, String portletName, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void actionURL(String portletName, String queryString)
+	public String actionURL(String portletName, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	/**
@@ -60,37 +65,45 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	 */
 	@Deprecated
 	@Override
-	public void actionURL(
+	public String actionURL(
 			String windowState, String portletMode, Boolean secure,
 			Boolean copyCurrentRenderParameters, Boolean escapeXml, String name,
 			long plid, long refererPlid, String portletName, Boolean anchor,
 			Boolean encrypt, long doAsUserId, Boolean portletConfiguration,
 			String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void actionURL(
+	public String actionURL(
 			String windowState, String portletMode, Boolean secure,
 			Boolean copyCurrentRenderParameters, Boolean escapeXml, String name,
 			long plid, long refererPlid, String portletName, Boolean anchor,
 			Boolean encrypt, long doAsGroupId, long doAsUserId,
 			Boolean portletConfiguration, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void actionURL(
+	public String actionURL(
 			String windowState, String portletMode, long plid,
 			String portletName, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void actionURL(
+	public String actionURL(
 			String windowState, String portletMode, String portletName,
 			String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
@@ -210,6 +223,11 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 
 	@Override
 	public MySitesTag getMySitesTag() throws Exception {
+		return null;
+	}
+
+	@Override
+	public PageContext getPageContext() {
 		return null;
 	}
 
@@ -413,14 +431,15 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 
 	@Override
 	public void language(
-			String formName, String formAction, String name, int displayStyle)
+			String formName, String formAction, String name,
+			String displayStyle)
 		throws Exception {
 	}
 
 	@Override
 	public void language(
 			String formName, String formAction, String name,
-			String[] languageIds, int displayStyle)
+			String[] languageIds, String displayStyle)
 		throws Exception {
 	}
 
@@ -457,11 +476,13 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	}
 
 	@Override
-	public void permissionsURL(
+	public String permissionsURL(
 			String redirect, String modelResource,
 			String modelResourceDescription, Object resourceGroupId,
 			String resourcePrimKey, String windowState, int[] roleTypes)
 		throws Exception {
+
+		return null;
 	}
 
 	/**
@@ -470,11 +491,13 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	 */
 	@Deprecated
 	@Override
-	public void permissionsURL(
+	public String permissionsURL(
 			String redirect, String modelResource,
 			String modelResourceDescription, String resourcePrimKey,
 			String windowState, int[] roleTypes)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
@@ -553,23 +576,29 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	}
 
 	@Override
-	public void renderURL(long plid, String portletName, String queryString)
+	public String renderURL(long plid, String portletName, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void renderURL(String portletName, String queryString)
+	public String renderURL(String portletName, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void renderURL(
+	public String renderURL(
 			String windowState, String portletMode, Boolean secure,
 			Boolean copyCurrentRenderParameters, Boolean escapeXml, long plid,
 			long refererPlid, String portletName, Boolean anchor,
 			Boolean encrypt, long doAsGroupId, long doAsUserId,
 			Boolean portletConfiguration, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	/**
@@ -579,26 +608,32 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	 */
 	@Deprecated
 	@Override
-	public void renderURL(
+	public String renderURL(
 			String windowState, String portletMode, Boolean secure,
 			Boolean copyCurrentRenderParameters, Boolean escapeXml, long plid,
 			String portletName, Boolean anchor, Boolean encrypt,
 			long doAsUserId, Boolean portletConfiguration, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void renderURL(
+	public String renderURL(
 			String windowState, String portletMode, long plid,
 			String portletName, String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
-	public void renderURL(
+	public String renderURL(
 			String windowState, String portletMode, String portletName,
 			String queryString)
 		throws Exception {
+
+		return null;
 	}
 
 	@Override
@@ -641,14 +676,11 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #stagingMenu}
+	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
+	@Deprecated
 	@Override
 	public void staging() throws Exception {
-	}
-
-	@Override
-	public void stagingMenu() throws Exception {
 	}
 
 	@Override

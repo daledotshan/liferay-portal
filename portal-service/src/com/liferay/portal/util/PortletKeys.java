@@ -19,8 +19,6 @@ package com.liferay.portal.util;
  */
 public class PortletKeys {
 
-	public static final String ACTIVITIES = "116";
-
 	public static final String ADMIN = "9";
 
 	public static final String ADMIN_INSTANCE = "135";
@@ -53,6 +51,8 @@ public class PortletKeys {
 
 	public static final String BOOKMARKS = "28";
 
+	public static final String BOOKMARKS_ADMIN = "198";
+
 	public static final String BREADCRUMB = "73";
 
 	public static final String CALENDAR = "8";
@@ -65,17 +65,17 @@ public class PortletKeys {
 
 	public static final String CONTROL_PANEL_MENU = "160";
 
-	public static final String CURRENCY_CONVERTER = "16";
-
-	public static final String DICTIONARY = "23";
-
 	public static final String DIRECTORY = "11";
 
 	public static final String DOCKBAR = "145";
 
 	public static final String DOCUMENT_LIBRARY = "20";
 
+	public static final String DOCUMENT_LIBRARY_ADMIN = "199";
+
 	public static final String DOCUMENT_LIBRARY_DISPLAY = "110";
+
+	public static final String DOCUMENT_SELECTOR = "200";
 
 	public static final String DYNAMIC_DATA_LIST_DISPLAY = "169";
 
@@ -97,11 +97,7 @@ public class PortletKeys {
 
 	public static final String HIGHEST_RATED_ASSETS = "194";
 
-	public static final String IFRAME = "48";
-
 	public static final String IMAGE_UPLOADER = "195";
-
-	public static final String INVITATION = "100";
 
 	public static final String JOURNAL = "15";
 
@@ -165,10 +161,6 @@ public class PortletKeys {
 	public static final String PASSWORD_POLICIES_ADMIN = "129";
 
 	public static final String PLUGINS_ADMIN = "132";
-
-	public static final String POLLS = "25";
-
-	public static final String POLLS_DISPLAY = "59";
 
 	public static final String PORTAL = "90";
 

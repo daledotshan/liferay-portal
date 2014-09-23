@@ -26,6 +26,7 @@ import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.asset.model.BaseAssetRenderer;
+import com.liferay.portlet.asset.model.DDMFieldReader;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecord;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion;
@@ -52,16 +53,22 @@ public class DDLRecordAssetRenderer extends BaseAssetRenderer {
 		_record = record;
 		_recordVersion = recordVersion;
 
-		try {
-			_recordSet = record.getRecordSet();
+		DDMStructure ddmStructure = null;
+		DDLRecordSet recordSet = null;
 
-			_ddmStructure = _recordSet.getDDMStructure();
+		try {
+			recordSet = record.getRecordSet();
+
+			ddmStructure = recordSet.getDDMStructure();
 		}
 		catch (Exception e) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(e, e);
 			}
 		}
+
+		_ddmStructure = ddmStructure;
+		_recordSet = recordSet;
 	}
 
 	@Override
@@ -72,6 +79,11 @@ public class DDLRecordAssetRenderer extends BaseAssetRenderer {
 	@Override
 	public long getClassPK() {
 		return _record.getRecordId();
+	}
+
+	@Override
+	public DDMFieldReader getDDMFieldReader() {
+		return new DDLRecordDDMFieldReader(_record);
 	}
 
 	@Override
@@ -174,9 +186,9 @@ public class DDLRecordAssetRenderer extends BaseAssetRenderer {
 	private static Log _log = LogFactoryUtil.getLog(
 		DDLRecordAssetRenderer.class);
 
-	private DDMStructure _ddmStructure;
-	private DDLRecord _record;
-	private DDLRecordSet _recordSet;
-	private DDLRecordVersion _recordVersion;
+	private final DDMStructure _ddmStructure;
+	private final DDLRecord _record;
+	private final DDLRecordSet _recordSet;
+	private final DDLRecordVersion _recordVersion;
 
 }
