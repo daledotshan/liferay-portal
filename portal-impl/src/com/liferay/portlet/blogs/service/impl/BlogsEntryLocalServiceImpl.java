@@ -335,39 +335,46 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		for (long companyId : companyIds) {
 			ShardUtil.pushCompanyService(companyId);
 
-			int count = blogsEntryPersistence.countByLtD_S(
-				now, WorkflowConstants.STATUS_SCHEDULED);
+			try {
+				int count = blogsEntryPersistence.countByLtD_S(
+					now, WorkflowConstants.STATUS_SCHEDULED);
 
-			if (count == 0) {
-				continue;
+				if (count == 0) {
+					continue;
+				}
+
+				List<BlogsEntry> entries = blogsEntryPersistence.findByLtD_S(
+					now, WorkflowConstants.STATUS_SCHEDULED);
+
+				for (BlogsEntry entry : entries) {
+					ServiceContext serviceContext = new ServiceContext();
+
+					String[] trackbacks = StringUtil.split(
+						entry.getTrackbacks());
+
+					serviceContext.setAttribute("trackbacks", trackbacks);
+
+					serviceContext.setCommand(Constants.UPDATE);
+
+					String layoutFullURL = PortalUtil.getLayoutFullURL(
+						entry.getGroupId(), PortletKeys.BLOGS);
+
+					serviceContext.setLayoutFullURL(layoutFullURL);
+
+					serviceContext.setScopeGroupId(entry.getGroupId());
+
+					blogsEntryLocalService.updateStatus(
+						entry.getStatusByUserId(), entry.getEntryId(),
+						WorkflowConstants.STATUS_APPROVED, serviceContext,
+						new HashMap<String, Serializable>());
+				}
 			}
-
-			List<BlogsEntry> entries = blogsEntryPersistence.findByLtD_S(
-				now, WorkflowConstants.STATUS_SCHEDULED);
-
-			for (BlogsEntry entry : entries) {
-				ServiceContext serviceContext = new ServiceContext();
-
-				String[] trackbacks = StringUtil.split(entry.getTrackbacks());
-
-				serviceContext.setAttribute("trackbacks", trackbacks);
-
-				serviceContext.setCommand(Constants.UPDATE);
-
-				String layoutFullURL = PortalUtil.getLayoutFullURL(
-					entry.getGroupId(), PortletKeys.BLOGS);
-
-				serviceContext.setLayoutFullURL(layoutFullURL);
-
-				serviceContext.setScopeGroupId(entry.getGroupId());
-
-				blogsEntryLocalService.updateStatus(
-					entry.getStatusByUserId(), entry.getEntryId(),
-					WorkflowConstants.STATUS_APPROVED, serviceContext,
-					new HashMap<String, Serializable>());
+			catch (Exception e) {
+				_log.error(e, e);
 			}
-
-			ShardUtil.popCompanyService();
+			finally {
+				ShardUtil.popCompanyService();
+			}
 		}
 	}
 

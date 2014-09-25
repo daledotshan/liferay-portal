@@ -167,19 +167,25 @@ public class AnnouncementsEntryLocalServiceImpl
 		for (long companyId : companyIds) {
 			ShardUtil.pushCompanyService(companyId);
 
-			List<AnnouncementsEntry> entries =
-				announcementsEntryFinder.findByDisplayDate(
-					now, _previousCheckDate);
+			try {
+				List<AnnouncementsEntry> entries =
+					announcementsEntryFinder.findByDisplayDate(
+						now, _previousCheckDate);
 
-			if (_log.isDebugEnabled()) {
-				_log.debug("Processing " + entries.size() + " entries");
+				if (_log.isDebugEnabled()) {
+					_log.debug("Processing " + entries.size() + " entries");
+				}
+
+				for (AnnouncementsEntry entry : entries) {
+					notifyUsers(entry);
+				}
 			}
-
-			for (AnnouncementsEntry entry : entries) {
-				notifyUsers(entry);
+			catch (Exception e) {
+				_log.error(e, e);
 			}
-
-			ShardUtil.popCompanyService();
+			finally {
+				ShardUtil.popCompanyService();
+			}
 		}
 
 		_previousCheckDate = now;
