@@ -282,6 +282,10 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 		ServletContextPool.put(_portalServletContextName, servletContext);
 
+		if (!_portalServletContextName.equals(_portalServletContextPath)) {
+			ServletContextPool.put(_portalServletContextPath, servletContext);
+		}
+
 		BeanLocatorImpl beanLocatorImpl = new BeanLocatorImpl(
 			portalClassLoader, applicationContext);
 
