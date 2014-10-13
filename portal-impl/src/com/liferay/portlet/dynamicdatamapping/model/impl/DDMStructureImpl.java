@@ -417,6 +417,7 @@ public class DDMStructureImpl extends DDMStructureBaseImpl {
 		super.setDefinition(definition);
 
 		_ddmForm = null;
+		_fullHierarchyDDMForm = null;
 	}
 
 	@Override

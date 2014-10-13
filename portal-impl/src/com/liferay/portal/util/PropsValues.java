@@ -940,6 +940,8 @@ public class PropsValues {
 
 	public static final boolean JSON_WEB_SERVICE_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.JSON_WEB_SERVICE_ENABLED));
 
+	public static final boolean JSONWS_WEB_SERVICE_API_DISCOVERABLE = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.JSONWS_WEB_SERVICE_API_DISCOVERABLE));
+
 	public static final String[] JSONWS_WEB_SERVICE_INVALID_HTTP_METHODS = PropsUtil.getArray(PropsKeys.JSONWS_WEB_SERVICE_INVALID_HTTP_METHODS);
 
 	public static final boolean JSONWS_WEB_SERVICE_STRICT_HTTP_METHOD = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.JSONWS_WEB_SERVICE_STRICT_HTTP_METHOD));
@@ -1281,8 +1283,6 @@ public class PropsValues {
 	public static final String NAVIGATION_DISPLAY_STYLE_DEFAULT = PropsUtil.get(PropsKeys.NAVIGATION_DISPLAY_STYLE_DEFAULT);
 
 	public static final String[] NAVIGATION_DISPLAY_STYLE_OPTIONS = PropsUtil.getArray(PropsKeys.NAVIGATION_DISPLAY_STYLE_OPTIONS);
-
-	public static final String NESTED_PORTLETS_LAYOUT_TEMPLATE_DEFAULT = PropsUtil.get(PropsKeys.NESTED_PORTLETS_LAYOUT_TEMPLATE_DEFAULT);
 
 	public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = PropsUtil.get(PropsKeys.NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
 
