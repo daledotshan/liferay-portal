@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.PortletFilterUtil;
 import com.liferay.portal.kernel.servlet.BufferCacheServletResponse;
-import com.liferay.portal.kernel.servlet.PluginContextListener;
 import com.liferay.portal.kernel.servlet.PortletServlet;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -234,15 +233,10 @@ public class InvokerPortletImpl implements InvokerPortlet {
 
 	@Override
 	public ClassLoader getPortletClassLoader() {
-		ClassLoader classLoader =
-			(ClassLoader)_liferayPortletContext.getAttribute(
-				PluginContextListener.PLUGIN_CLASS_LOADER);
+		ServletContext servletContext =
+			_liferayPortletContext.getServletContext();
 
-		if (classLoader == null) {
-			classLoader = ClassLoaderUtil.getPortalClassLoader();
-		}
-
-		return classLoader;
+		return servletContext.getClassLoader();
 	}
 
 	@Override
@@ -752,7 +746,8 @@ public class InvokerPortletImpl implements InvokerPortlet {
 		setPortletFilters();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(InvokerPortletImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		InvokerPortletImpl.class);
 
 	private List<ActionFilter> _actionFilters;
 	private boolean _checkAuthToken;
@@ -769,7 +764,7 @@ public class InvokerPortletImpl implements InvokerPortlet {
 		new ArrayList<ResourceFilter>();
 	private boolean _strutsBridgePortlet;
 	private boolean _strutsPortlet;
-	private List<PortletFilter> _systemPortletFilters =
+	private final List<PortletFilter> _systemPortletFilters =
 		new ArrayList<PortletFilter>();
 
 	private class PortletFilterServiceTrackerCustomizer<T extends PortletFilter>
@@ -831,7 +826,7 @@ public class InvokerPortletImpl implements InvokerPortlet {
 			portletFilter.destroy();
 		}
 
-		private PortletContext _portletContext;
+		private final PortletContext _portletContext;
 
 	}
 
