@@ -38,10 +38,12 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.Group;
 import com.liferay.portal.model.ModelHintsUtil;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
+import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.asset.AssetCategoryNameException;
 import com.liferay.portlet.asset.DuplicateCategoryException;
@@ -86,8 +88,20 @@ public class AssetCategoryLocalServiceImpl
 
 		// Category
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userPersistence.fetchByPrimaryKey(userId);
+
+		if (user == null) {
+			user = userPersistence.fetchByPrimaryKey(
+				serviceContext.getUserId());
+		}
+
 		long groupId = serviceContext.getScopeGroupId();
+
+		Group group = GroupLocalServiceUtil.getGroup(groupId);
+
+		if (user == null) {
+			user = userLocalService.getDefaultUser(group.getCompanyId());
+		}
 
 		String name = titleMap.get(LocaleUtil.getSiteDefault());
 
@@ -269,7 +283,7 @@ public class AssetCategoryLocalServiceImpl
 
 		// Entries
 
-		List<AssetEntry> entries = assetTagPersistence.getAssetEntries(
+		List<AssetEntry> entries = assetCategoryPersistence.getAssetEntries(
 			category.getCategoryId());
 
 		// Properties
