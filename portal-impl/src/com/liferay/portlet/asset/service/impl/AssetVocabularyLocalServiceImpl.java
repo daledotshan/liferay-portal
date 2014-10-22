@@ -112,8 +112,21 @@ public class AssetVocabularyLocalServiceImpl
 
 		// Vocabulary
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userPersistence.fetchByPrimaryKey(userId);
+
+		if (user == null) {
+			user = userPersistence.fetchByPrimaryKey(
+				serviceContext.getUserId());
+		}
+
 		long groupId = serviceContext.getScopeGroupId();
+
+		Group group = groupLocalService.getGroup(groupId);
+
+		if (user == null) {
+			user = userLocalService.getDefaultUser(group.getCompanyId());
+		}
+
 		String name = titleMap.get(LocaleUtil.getSiteDefault());
 
 		Date now = new Date();
