@@ -92,12 +92,12 @@ public class MessageSenderJob implements Job {
 				jobDataMap.getString(SchedulerEngine.STORAGE_TYPE));
 
 			if (PropsValues.CLUSTER_LINK_ENABLED &&
-				storageType.equals(StorageType.MEMORY_CLUSTERED)) {
+				(storageType == StorageType.MEMORY_CLUSTERED)) {
 
 				notifyClusterMember(jobKey, storageType);
 			}
 
-			if (storageType.equals(StorageType.PERSISTED)) {
+			if (storageType == StorageType.PERSISTED) {
 				Scheduler scheduler = jobExecutionContext.getScheduler();
 
 				scheduler.deleteJob(jobKey);
@@ -124,9 +124,10 @@ public class MessageSenderJob implements Job {
 		ClusterExecutorUtil.execute(clusterRequest);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(MessageSenderJob.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		MessageSenderJob.class);
 
-	private static MethodKey _deleteJobMethodKey = new MethodKey(
+	private static final MethodKey _deleteJobMethodKey = new MethodKey(
 		SchedulerEngineHelperUtil.class, "delete", String.class, String.class,
 		StorageType.class);
 
