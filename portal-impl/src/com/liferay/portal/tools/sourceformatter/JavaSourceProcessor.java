@@ -1113,7 +1113,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		newContent = formatJava(fileName, absolutePath, newContent);
 
-		return newContent;
+		return StringUtil.replace(newContent, "\n\n\n", "\n\n");
 	}
 
 	protected String fixDataAccessConnection(String className, String content) {

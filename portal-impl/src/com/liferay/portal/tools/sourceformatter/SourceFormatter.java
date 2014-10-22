@@ -129,10 +129,7 @@ public class SourceFormatter {
 	public Tuple format(String fileName) throws Exception {
 		SourceProcessor sourceProcessor = null;
 
-		if (fileName.endsWith(".testftl")) {
-			sourceProcessor = FTLSourceProcessor.class.newInstance();
-		}
-		else if (fileName.endsWith(".testjava")) {
+		if (fileName.endsWith(".testjava")) {
 			sourceProcessor = JavaSourceProcessor.class.newInstance();
 		}
 		else if (fileName.endsWith(".testsql")) {

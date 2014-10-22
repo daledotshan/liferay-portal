@@ -28,7 +28,7 @@ public class FTLSourceProcessor extends BaseSourceProcessor {
 			File file, String fileName, String absolutePath, String content)
 		throws Exception {
 
-		content = trimContent(content, false, false);
+		content = formatWhitespace(content, false, false);
 
 		return content;
 	}
