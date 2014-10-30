@@ -21,7 +21,9 @@ String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_input_
 
 boolean autoFocus = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:autoFocus"));
 boolean autoSize = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:autoSize"));
-Locale[] availableLocales = (Locale[])request.getAttribute("liferay-ui:input-localized:availableLocales");
+LayoutSet layoutSet = (LayoutSet)request.getAttribute(WebKeys.VIRTUAL_HOST_LAYOUT_SET);
+long groupId = layoutSet.getGroupId();
+Locale[] availableLocales = LanguageUtil.getAvailableLocales(groupId);
 String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-localized:cssClass"));
 String defaultLanguageId = (String)request.getAttribute("liferay-ui:input-localized:defaultLanguageId");
 boolean disabled = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:disabled"));
