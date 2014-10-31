@@ -94,6 +94,7 @@ import com.liferay.portal.security.auth.EmailAddressGenerator;
 import com.liferay.portal.security.auth.EmailAddressValidator;
 import com.liferay.portal.security.auth.FullNameGenerator;
 import com.liferay.portal.security.auth.FullNameValidator;
+import com.liferay.portal.security.auth.InterruptedPortletRequestWhitelistUtil;
 import com.liferay.portal.security.auth.ScreenNameGenerator;
 import com.liferay.portal.security.auth.ScreenNameValidator;
 import com.liferay.portal.security.lang.DoPrivilegedBean;
@@ -189,10 +190,10 @@ public class HookHotDeployListener
 		"company.settings.form.configuration",
 		"company.settings.form.identification",
 		"company.settings.form.miscellaneous", "company.settings.form.social",
-		"control.panel.entry.class.default", "convert.processes",
-		"default.landing.page.path", "default.regular.color.scheme.id",
-		"default.regular.theme.id", "default.wap.color.scheme.id",
-		"default.wap.theme.id", "dl.file.entry.drafts.enabled",
+		"control.panel.entry.class.default", "default.landing.page.path",
+		"default.regular.color.scheme.id", "default.regular.theme.id",
+		"default.wap.color.scheme.id", "default.wap.theme.id",
+		"dl.file.entry.drafts.enabled",
 		"dl.file.entry.open.in.ms.office.manual.check.in.required",
 		"dl.file.entry.processors", "dl.repository.impl",
 		"dl.store.antivirus.impl", "dl.store.impl", "dockbar.add.portlets",
@@ -2262,6 +2263,21 @@ public class HookHotDeployListener
 			AuthTokenWhitelistUtil.resetPortletInvocationWhitelistActions();
 		}
 
+		if (containsKey(
+				portalProperties, PORTLET_INTERRUPTED_REQUEST_WHITELIST)) {
+
+			InterruptedPortletRequestWhitelistUtil.
+				resetPortletInvocationWhitelist();
+		}
+
+		if (containsKey(
+				portalProperties,
+				PORTLET_INTERRUPTED_REQUEST_WHITELIST_ACTIONS)) {
+
+			InterruptedPortletRequestWhitelistUtil.
+				resetPortletInvocationWhitelistActions();
+		}
+
 		CacheUtil.clearCache();
 
 		JavaScriptBundleUtil.clearCache();
@@ -2392,7 +2408,7 @@ public class HookHotDeployListener
 		"company.settings.form.configuration",
 		"company.settings.form.identification",
 		"company.settings.form.miscellaneous", "company.settings.form.social",
-		"convert.processes", "dockbar.add.portlets", "journal.article.form.add",
+		"dockbar.add.portlets", "journal.article.form.add",
 		"journal.article.form.translate", "journal.article.form.update",
 		"layout.form.add", "layout.form.update", "layout.set.form.update",
 		"layout.static.portlets.all", "login.form.navigation.post",
@@ -2400,6 +2416,8 @@ public class HookHotDeployListener
 		"organizations.form.add.main", "organizations.form.add.miscellaneous",
 		"portlet.add.default.resource.check.whitelist",
 		"portlet.add.default.resource.check.whitelist.actions",
+		"portlet.interrupted.request.whitelist",
+		"portlet.interrupted.request.whitelist.actions",
 		"session.phishing.protected.attributes", "sites.form.add.advanced",
 		"sites.form.add.main", "sites.form.add.miscellaneous",
 		"sites.form.add.seo", "sites.form.update.advanced",
