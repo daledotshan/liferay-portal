@@ -703,9 +703,6 @@ public class DDMImpl implements DDM {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		jsonObject.put("alt", StringPool.BLANK);
-		jsonObject.put("data", StringPool.BLANK);
-
 		try {
 			byte[] bytes = getImageBytes(uploadRequest, fieldNameValue);
 
@@ -713,12 +710,16 @@ public class DDMImpl implements DDM {
 				jsonObject.put(
 					"alt", uploadRequest.getParameter(fieldNameValue + "Alt"));
 				jsonObject.put("data", UnicodeFormatter.bytesToHex(bytes));
+
+				return jsonObject.toString();
+			}
+			else {
+				return null;
 			}
 		}
 		catch (Exception e) {
+			return null;
 		}
-
-		return jsonObject.toString();
 	}
 
 	protected Set<Locale> getMergedAvailableLocales(
