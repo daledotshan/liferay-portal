@@ -41,12 +41,14 @@ public class GetSyncContextEvent extends BaseEvent {
 
 	@Override
 	protected void processRequest() throws Exception {
-		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
-			getSyncAccountId());
+		if ((Boolean)getParameterValue("checkState")) {
+			SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
+				getSyncAccountId());
 
-		syncAccount.setState(SyncAccount.STATE_CONNECTING);
+			syncAccount.setState(SyncAccount.STATE_CONNECTING);
 
-		SyncAccountService.update(syncAccount);
+			SyncAccountService.update(syncAccount);
+		}
 
 		super.processRequest();
 	}
@@ -54,6 +56,6 @@ public class GetSyncContextEvent extends BaseEvent {
 	private static final String _URL_PATH =
 		"/sync-web.syncdlobject/get-sync-context";
 
-	private Handler<Void> _handler;
+	private final Handler<Void> _handler;
 
 }
