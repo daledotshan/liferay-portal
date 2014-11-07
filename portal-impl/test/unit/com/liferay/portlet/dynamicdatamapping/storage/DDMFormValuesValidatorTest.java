@@ -202,7 +202,25 @@ public class DDMFormValuesValidatorTest extends BaseDDMTestCase {
 	public void testValidateDDMFormValuesWithoutDDMFormReference()
 		throws Exception {
 
-		DDMFormValues ddmFormValues = new DDMFormValues();
+		DDMFormValues ddmFormValues = new DDMFormValues(null);
+
+		DDMFormValuesValidatorUtil.validate(ddmFormValues);
+	}
+
+	@Test(expected = StorageFieldValueException.class)
+	public void testValidateDDMFormValuesWithSeparatorField() throws Exception {
+		DDMForm ddmForm = createDDMForm();
+
+		DDMFormField ddmFormField = createSeparatorDDMFormField(
+			"separator", false);
+
+		addDDMFormFields(ddmForm, ddmFormField);
+
+		DDMFormValues ddmFormValues = createDDMFormValues(ddmForm);
+
+		ddmFormValues.addDDMFormFieldValue(
+			createDDMFormFieldValue(
+				"separator", new UnlocalizedValue("separator value")));
 
 		DDMFormValuesValidatorUtil.validate(ddmFormValues);
 	}

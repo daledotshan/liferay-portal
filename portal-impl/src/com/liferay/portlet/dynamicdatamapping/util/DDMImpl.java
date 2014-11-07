@@ -559,6 +559,7 @@ public class DDMImpl implements DDM {
 
 		DDMFormValues ddmFormValues =
 			DDMFormValuesJSONDeserializerUtil.deserialize(
+				ddmStructure.getFullHierarchyDDMForm(),
 				serializedDDMFormValues);
 
 		return DDMFormValuesToFieldsConverterUtil.convert(
@@ -702,9 +703,6 @@ public class DDMImpl implements DDM {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		jsonObject.put("alt", StringPool.BLANK);
-		jsonObject.put("data", StringPool.BLANK);
-
 		try {
 			byte[] bytes = getImageBytes(uploadRequest, fieldNameValue);
 
@@ -712,12 +710,14 @@ public class DDMImpl implements DDM {
 				jsonObject.put(
 					"alt", uploadRequest.getParameter(fieldNameValue + "Alt"));
 				jsonObject.put("data", UnicodeFormatter.bytesToHex(bytes));
+
+				return jsonObject.toString();
 			}
 		}
 		catch (Exception e) {
 		}
 
-		return jsonObject.toString();
+		return null;
 	}
 
 	protected Set<Locale> getMergedAvailableLocales(
