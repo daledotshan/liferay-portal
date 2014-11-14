@@ -996,6 +996,10 @@
 				}
 			);
 
+			if (el.jquery) {
+				el = el[0];
+			}
+
 			if (!interacting && Util.inBrowserView(el)) {
 				A.one(el).focus();
 			}
@@ -1702,6 +1706,10 @@
 		'submitForm',
 		function(form, action, singleSubmit, validate) {
 			if (!Util._submitLocked) {
+				if (form.jquery) {
+					form = form[0];
+				}
+
 				Liferay.fire(
 					'submitForm',
 					{

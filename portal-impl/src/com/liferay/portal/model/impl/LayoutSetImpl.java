@@ -50,9 +50,6 @@ import java.io.IOException;
  */
 public class LayoutSetImpl extends LayoutSetBaseImpl {
 
-	public LayoutSetImpl() {
-	}
-
 	/**
 	 * Returns the layout set's color scheme.
 	 *
@@ -325,7 +322,7 @@ public class LayoutSetImpl extends LayoutSetBaseImpl {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(LayoutSetImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(LayoutSetImpl.class);
 
 	private UnicodeProperties _settingsProperties;
 

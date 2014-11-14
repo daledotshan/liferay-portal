@@ -333,6 +333,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				"while (", ") {\n", ";\n", "\n\n"
 			});
 
+		newContent = fixRedirectBackURL(newContent);
+
 		newContent = fixCompatClassImports(absolutePath, newContent);
 
 		if (_stripJSPImports && !_jspContents.isEmpty()) {
@@ -427,6 +429,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 			javaClassContent = javaClassContent.substring(1);
 
+			String javaClassName = matcher.group(2);
+
 			String beforeJavaClass = newContent.substring(
 				0, matcher.start() + 1);
 
@@ -434,12 +438,26 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				StringUtil.count(beforeJavaClass, "\n") + 1;
 
 			newContent = formatJavaTerms(
-				fileName, absolutePath, newContent, javaClassContent,
-				javaClassLineCount, null, null, null);
+				javaClassName, null, file, fileName, absolutePath, newContent,
+				javaClassContent, javaClassLineCount, null, null, null, null);
 		}
 
 		if (!content.equals(newContent)) {
 			_jspContents.put(fileName, newContent);
+		}
+
+		return newContent;
+	}
+
+	protected String fixRedirectBackURL(String content) {
+		Matcher matcher = _redirectBackURLPattern.matcher(content);
+
+		String newContent = content;
+
+		while (matcher.find()) {
+			newContent = StringUtil.replaceFirst(
+				newContent, matcher.group(),
+				matcher.group(1) + "\n\n" + matcher.group(2), matcher.start());
 		}
 
 		return newContent;
@@ -613,7 +631,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				}
 
 				if (trimmedPreviousLine.equals("%>") &&
-					Validator.isNotNull(line) &&  !trimmedLine.equals("-->")) {
+					Validator.isNotNull(line) && !trimmedLine.equals("-->")) {
 
 					sb.append("\n");
 				}
@@ -646,7 +664,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				if ((trimmedLine.startsWith("if (") ||
 					 trimmedLine.startsWith("else if (") ||
 					 trimmedLine.startsWith("while (")) &&
-					 trimmedLine.endsWith(") {")) {
+					trimmedLine.endsWith(") {")) {
 
 					checkIfClauseParentheses(trimmedLine, fileName, lineCount);
 				}
@@ -672,11 +690,11 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 								readAttributes = false;
 							}
 							else if (trimmedLine.endsWith(
-								StringPool.APOSTROPHE) &&
-								!trimmedLine.contains(StringPool.QUOTE)) {
+										StringPool.APOSTROPHE) &&
+									 !trimmedLine.contains(StringPool.QUOTE)) {
 
 								line = StringUtil.replace(
-									line, StringPool.APOSTROPHE, 
+									line, StringPool.APOSTROPHE,
 										StringPool.QUOTE);
 
 								readAttributes = false;
@@ -694,7 +712,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 									readAttributes = false;
 								}
 								else if (Validator.isNull(
-										   previousAttributeAndValue) &&
+											previousAttributeAndValue) &&
 										 (previousAttribute.compareTo(
 											 attribute) > 0)) {
 
@@ -780,7 +798,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 							line, StringPool.DOUBLE_SPACE, StringPool.SPACE);
 
 						trimmedLine = StringUtil.replaceLast(
-							trimmedLine, StringPool.DOUBLE_SPACE, 
+							trimmedLine, StringPool.DOUBLE_SPACE,
 							StringPool.SPACE);
 					}
 				}
@@ -1294,12 +1312,17 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 	private Pattern _importsPattern = Pattern.compile("page import=\"(.+)\"");
 	private Set<String> _includeFileNames = new HashSet<String>();
 	private Pattern _javaClassPattern = Pattern.compile(
-		"\n(private|protected|public).* class ([\\s\\S]*?)\n\\}\n");
+		"\n(private|protected|public).* class ([A-Za-z0-9]+) " +
+			"([\\s\\S]*?)\n\\}\n");
 	private Map<String, String> _jspContents = new HashMap<String, String>();
 	private Pattern _jspImportPattern = Pattern.compile(
 		"(<.*\n*page.import=\".*>\n*)+", Pattern.MULTILINE);
 	private Pattern _jspIncludeFilePattern = Pattern.compile("/.*[.]jsp[f]?");
 	private boolean _moveFrequentlyUsedImportsToCommonInit;
+	private Pattern _redirectBackURLPattern = Pattern.compile(
+		"(String redirect = ParamUtil\\.getString\\(request, \"redirect\".*" +
+			"\\);)\n(String backURL = ParamUtil\\.getString\\(request, \"" +
+				"backURL\", redirect\\);)");
 	private boolean _stripJSPImports = true;
 	private Pattern _taglibLanguageKeyPattern1 = Pattern.compile(
 		"(?:confirmation|label|(?:M|m)essage|message key|names|title)=\"[^A-Z" +
