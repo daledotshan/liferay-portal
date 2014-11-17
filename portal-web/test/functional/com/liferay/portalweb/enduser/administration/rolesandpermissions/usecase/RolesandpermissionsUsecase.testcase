@@ -1027,7 +1027,7 @@
 		</execute>
 
 		<execute macro="DDLRecord#populateFieldBoolean">
-			<var name="ddlRecordFieldData" value="true" />
+			<var name="ddlRecordFieldData" value="Yes" />
 			<var name="fieldFieldLabel" value="Employee" />
 			<var name="fieldName" value="Employee" />
 		</execute>
@@ -1044,7 +1044,7 @@
 			<var name="fieldName" value="Salary" />
 		</execute>
 
-		<execute macro="DDLRecord#populateFieldDocumentsAndMedia">
+		<execute macro="DDLRecord#populateFieldDocumentsAndMediaChooseFromDocumentLibrary">
 			<var name="ddlRecordFieldData" value="Document Title" />
 			<var name="document" value="Document_1.txt" />
 			<var name="fieldFieldLabel" value="Resume" />

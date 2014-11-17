@@ -59,6 +59,11 @@ public class DefaultDLEditFileEntryDisplayContext
 	}
 
 	@Override
+	public DLFilePicker getDLFilePicker(String onFilePickCallback) {
+		return null;
+	}
+
+	@Override
 	public long getMaximumUploadSize() {
 		long fileMaxSize = PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE);
 
@@ -144,7 +149,7 @@ public class DefaultDLEditFileEntryDisplayContext
 
 	@Override
 	public boolean isPublishButtonDisabled() {
-		if (_fileEntryDisplayContextHelper.isCheckedOutByMe() ||
+		if (_fileEntryDisplayContextHelper.isCheckedOutByOther() ||
 			(_fileVersionDisplayContextHelper.isPending() &&
 			 _dlPortletInstanceSettings.isEnableFileEntryDrafts())) {
 

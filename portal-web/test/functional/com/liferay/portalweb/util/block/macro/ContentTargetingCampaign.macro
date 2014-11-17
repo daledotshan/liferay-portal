@@ -330,7 +330,7 @@
 				<then>
 					<execute action="CPContenttargetingEditcampaign#assertTextEquals" locator-key1="CAMPAIGN_TRACKING_ACTIONS_PAGE_ALIAS_FIELD" value1="${pageAlias}" />
 					<execute action="CPContenttargetingEditcampaign#assertTextEquals" locator-key1="CAMPAIGN_TRACKING_ACTIONS_PAGE_FRIENDLY_URL_FIELD" value1="${pageFriendlyURL}" />
-					<execute action="CPContenttargetingEditcampaign#assertTextEquals" locator-key1="CAMPAIGN_TRACKING_ACTIONS_PAGE_TRACKING_ACTION" value1="view" />
+					<execute action="CPContenttargetingEditcampaign#assertTextEquals" locator-key1="CAMPAIGN_TRACKING_ACTIONS_PAGE_TRACKING_ACTION" value1="View" />
 				</then>
 				<elseif>
 					<equals arg1="${trackingAction}" arg2="Form" />
@@ -371,10 +371,8 @@
 	<command name="viewTrackingReportCP">
 		<var name="key_trackingAlias" value="${trackingAlias}" />
 
-		<execute action="CPContenttargetingCampaignReports#assertTextEquals" locator-key1="TRACKING_GRAPH_ALIAS_USER_SEGMENT" value1="${trackingAlias} (${userSegmentName})" />
 		<execute action="CPContenttargetingCampaignReports#assertTextEquals" locator-key1="TRACKING_REPORT_TABLE_ALIAS" value1="${trackingAlias}" />
 		<execute action="CPContenttargetingCampaignReports#assertTextEquals" locator-key1="TRACKING_REPORT_TABLE_EVENT" value1="${trackingEvent}" />
-		<execute action="CPContenttargetingCampaignReports#assertTextEquals" locator-key1="TRACKING_REPORT_TABLE_USER_SEGMENT" value1="${trackingUserSegment}" />
 		<execute action="CPContenttargetingCampaignReports#assertTextEquals" locator-key1="TRACKING_REPORT_TABLE_COUNT" value1="${trackingCount}" />
 	</command>
 </definition>

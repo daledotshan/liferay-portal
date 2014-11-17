@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.dynamicdatamapping.storage;
 
-import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.dynamicdatamapping.StorageException;
 import com.liferay.portlet.dynamicdatamapping.StorageFieldNameException;
@@ -67,8 +66,14 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 	}
 
 	protected boolean isNull(Value value) {
-		if ((value == null) || MapUtil.isEmpty(value.getValues())) {
+		if (value == null) {
 			return true;
+		}
+
+		for (Locale availableLocale : value.getAvailableLocales()) {
+			if (Validator.isNull(value.getString(availableLocale))) {
+				return true;
+			}
 		}
 
 		return false;
@@ -132,26 +137,31 @@ public class DDMFormValuesValidatorImpl implements DDMFormValuesValidator {
 			Locale defaultLocale, Value value)
 		throws StorageException {
 
-		if (isNull(value)) {
-			throw new StorageFieldValueException(
-				"No value defined for field " + ddmFormField.getName());
-		}
-
 		if (Validator.isNull(ddmFormField.getDataType())) {
-			throw new StorageFieldValueException(
-				"Value should not be set for field " +
-					ddmFormField.getName());
+			if (value != null) {
+				throw new StorageFieldValueException(
+					"Value should not be set for field " +
+						ddmFormField.getName());
+			}
 		}
+		else {
+			if ((value == null) ||
+				(ddmFormField.isRequired() && isNull(value))) {
 
-		if ((ddmFormField.isLocalizable() && !value.isLocalized()) ||
-			(!ddmFormField.isLocalizable() && value.isLocalized())) {
+				throw new StorageFieldValueException(
+					"No value defined for field " + ddmFormField.getName());
+			}
 
-			throw new StorageFieldValueException(
-				"Invalid value set for field " + ddmFormField.getName());
+			if ((ddmFormField.isLocalizable() && !value.isLocalized()) ||
+				(!ddmFormField.isLocalizable() && value.isLocalized())) {
+
+				throw new StorageFieldValueException(
+					"Invalid value set for field " + ddmFormField.getName());
+			}
+
+			validateDDMFormFieldValueLocales(
+				ddmFormField, availableLocales, defaultLocale, value);
 		}
-
-		validateDDMFormFieldValueLocales(
-			ddmFormField, availableLocales, defaultLocale, value);
 	}
 
 	protected void validateDDMFormFieldValueLocales(
