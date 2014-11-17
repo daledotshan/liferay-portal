@@ -200,7 +200,18 @@ public class WebDriverToSeleniumBridge
 			open(url);
 		}
 		else {
-			WebDriverHelper.click(this, locator);
+			WebElement webElement = getWebElement(locator);
+
+			try {
+				webElement.click();
+			}
+			catch (Exception e) {
+				if (!webElement.isDisplayed()) {
+					scrollWebElementIntoView(webElement);
+				}
+
+				webElement.click();
+			}
 		}
 	}
 
@@ -414,19 +425,24 @@ public class WebDriverToSeleniumBridge
 		String locatorOfObjectToBeDragged,
 		String locatorOfDragDestinationObject) {
 
-		int x = WebDriverHelper.getElementPositionCenterX(
-			this, locatorOfDragDestinationObject);
+		WebElement objectToBeDraggedWebElement = getWebElement(
+			locatorOfObjectToBeDragged);
 
-		x -= WebDriverHelper.getElementPositionCenterX(
-			this, locatorOfObjectToBeDragged);
+		WrapsDriver wrapsDriver = (WrapsDriver)objectToBeDraggedWebElement;
 
-		int y = WebDriverHelper.getElementPositionCenterY(
-			this, locatorOfDragDestinationObject);
+		WebDriver webDriver = wrapsDriver.getWrappedDriver();
 
-		y -= WebDriverHelper.getElementPositionCenterY(
-			this, locatorOfObjectToBeDragged);
+		Actions actions = new Actions(webDriver);
 
-		dragAndDrop(locatorOfObjectToBeDragged, x + "," + y);
+		WebElement dragDestinationObjectWebElement = getWebElement(
+			locatorOfDragDestinationObject);
+
+		actions.dragAndDrop(
+			objectToBeDraggedWebElement, dragDestinationObjectWebElement);
+
+		Action action = actions.build();
+
+		action.perform();
 	}
 
 	@Override
@@ -751,7 +767,17 @@ public class WebDriverToSeleniumBridge
 			return getHtmlNodeText(locator);
 		}
 
-		return WebDriverHelper.getText(this, locator, timeout);
+		WebElement webElement = getWebElement(locator, timeout);
+
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
+
+		String text = webElement.getText();
+
+		text = text.trim();
+
+		return text.replace("\n", " ");
 	}
 
 	@Override
@@ -887,7 +913,13 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public boolean isVisible(String locator) {
-		return WebDriverHelper.isVisible(this, locator);
+		WebElement webElement = getWebElement(locator, "1");
+
+		if (!webElement.isDisplayed()) {
+			scrollWebElementIntoView(webElement);
+		}
+
+		return webElement.isDisplayed();
 	}
 
 	@Override

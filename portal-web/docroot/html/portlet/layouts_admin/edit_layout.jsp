@@ -22,6 +22,7 @@ String closeRedirect = ParamUtil.getString(request, "closeRedirect");
 Group selGroup = (Group)request.getAttribute(WebKeys.GROUP);
 
 Group group = layoutsAdminDisplayContext.getGroup();
+Group liveGroup = layoutsAdminDisplayContext.getLiveGroup();
 
 Layout selLayout = layoutsAdminDisplayContext.getSelLayout();
 
@@ -131,7 +132,7 @@ boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
 
 <aui:form action='<%= HttpUtil.addParameter(editLayoutURL, "refererPlid", plid) %>' cssClass="edit-layout-form" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveLayout();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" />
-	<aui:input name="redirect" type="hidden" value='<%= HttpUtil.addParameter(redirectURL.toString(), liferayPortletResponse.getNamespace() + "selPlid", layoutsAdminDisplayContext.getSelPlid()) %>' />
+	<aui:input name="redirect" type="hidden" value='<%= HttpUtil.addNamespacedParameter(redirectURL.toString(), liferayPortletResponse.getNamespace(), "selPlid", layoutsAdminDisplayContext.getSelPlid()) %>' />
 	<aui:input name="closeRedirect" type="hidden" value="<%= closeRedirect %>" />
 	<aui:input name="groupId" type="hidden" value="<%= selGroup.getGroupId() %>" />
 	<aui:input name="liveGroupId" type="hidden" value="<%= layoutsAdminDisplayContext.getLiveGroupId() %>" />
@@ -332,28 +333,23 @@ boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
 </aui:form>
 
 <aui:script>
-	Liferay.provide(
-		window,
-		'<portlet:namespace />saveLayout',
-		function(action) {
-			var A = AUI();
+	function <portlet:namespace />saveLayout(action) {
+		action = action || '<%= Constants.UPDATE %>';
 
-			action = action || '<%= Constants.UPDATE %>';
+		var form = AUI.$(document.<portlet:namespace />fm);
 
-			if (action == '<%= Constants.DELETE %>') {
-				if (!confirm('<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-the-selected-page") %>')) {
-					return false;
-				}
-
-				document.<portlet:namespace />fm.<portlet:namespace />redirect.value = '<%= HttpUtil.setParameter(redirectURL.toString(), liferayPortletResponse.getNamespace() + "selPlid", selLayout.getParentPlid()) %>';
+		if (action == '<%= Constants.DELETE %>') {
+			if (!confirm('<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-the-selected-page") %>')) {
+				return false;
 			}
 
-			document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = action;
+			form.fm('redirect').val('<%= HttpUtil.setParameter(redirectURL.toString(), liferayPortletResponse.getNamespace() + "selPlid", selLayout.getParentPlid()) %>');
+		}
 
-			submitForm(document.<portlet:namespace />fm);
-		},
-		['aui-base']
-	);
+		form.fm('<%= Constants.CMD %>').val(action);
+
+		submitForm(form);
+	}
 </aui:script>
 
 <%!
