@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -248,7 +249,14 @@ public class DeleteAfterTestRunRule implements TestRule {
 				PersistedModelLocalServiceRegistryUtil.
 					getPersistedModelLocalService(fieldClass.getName());
 
-			for (Field field : fieldBag.getFields()) {
+			List<Field> fields = fieldBag.getFields();
+
+			ListIterator<Field> listIterator = fields.listIterator(
+				fields.size());
+
+			while (listIterator.hasPrevious()) {
+				Field field = listIterator.previous();
+
 				Object object = field.get(instance);
 
 				if (object == null) {
@@ -309,19 +317,20 @@ public class DeleteAfterTestRunRule implements TestRule {
 			return _fields;
 		}
 
-		private Class<?> _fieldClass;
-		private List<Field> _fields = new ArrayList<Field>();
+		private final Class<?> _fieldClass;
+		private final List<Field> _fields = new ArrayList<Field>();
 
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		DeleteAfterTestRunRule.class);
 
-	private static Set<Class<?>> _orderedClasses = new LinkedHashSet<Class<?>>(
-		Arrays.<Class<?>>asList(
-			User.class, Organization.class, Role.class, UserGroup.class,
-			Group.class, Company.class));
+	private static final Set<Class<?>> _orderedClasses =
+		new LinkedHashSet<Class<?>>(
+			Arrays.<Class<?>>asList(
+				User.class, Organization.class, Role.class, UserGroup.class,
+				Group.class, Company.class));
 
-	private Object _instance;
+	private final Object _instance;
 
 }

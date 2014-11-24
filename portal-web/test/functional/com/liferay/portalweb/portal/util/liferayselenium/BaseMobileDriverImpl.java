@@ -125,6 +125,11 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public void assertNoLiferayExceptions() throws Exception {
+		LiferaySeleniumHelper.assertNoLiferayExceptions();
+	}
+
+	@Override
 	public void assertNotAlert(String pattern) {
 		throw new UnsupportedOperationException();
 	}
@@ -142,8 +147,9 @@ public abstract class BaseMobileDriverImpl
 	@Override
 	public void assertNotPartialText(String locator, String pattern)
 		throws Exception {
-			throw new UnsupportedOperationException();
-		}
+
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public void assertNotSelectedLabel(String selectLocator, String pattern)

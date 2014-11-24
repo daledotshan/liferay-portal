@@ -24,16 +24,16 @@ import org.junit.Assert;
  */
 public class ConcurrentAssertUtil {
 
-	public static void caughtFailure(String message) {
+	public static void caughtFailure(Error error) {
 		Thread currentThread = Thread.currentThread();
 
 		if (currentThread != _thread) {
-			_concurrentFailureMessages.put(currentThread, message);
+			_concurrentFailures.put(currentThread, error);
 
 			_thread.interrupt();
 		}
 		else {
-			Assert.fail(message);
+			throw error;
 		}
 	}
 
@@ -41,18 +41,21 @@ public class ConcurrentAssertUtil {
 		_thread = null;
 
 		try {
-			for (Map.Entry<Thread, String> entry :
-					_concurrentFailureMessages.entrySet()) {
+			for (Map.Entry<Thread, Error> entry :
+					_concurrentFailures.entrySet()) {
 
 				Thread thread = entry.getKey();
+				Error error = entry.getValue();
 
 				Assert.fail(
 					"Thread " + thread + " caught concurrent failure: " +
-						entry.getValue());
+						error);
+
+				throw error;
 			}
 		}
 		finally {
-			_concurrentFailureMessages.clear();
+			_concurrentFailures.clear();
 		}
 	}
 
@@ -60,8 +63,8 @@ public class ConcurrentAssertUtil {
 		_thread = Thread.currentThread();
 	}
 
-	private static final Map<Thread, String> _concurrentFailureMessages =
-		new ConcurrentHashMap<Thread, String>();
+	private static final Map<Thread, Error> _concurrentFailures =
+		new ConcurrentHashMap<Thread, Error>();
 	private static volatile Thread _thread;
 
 }

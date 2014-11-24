@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.cluster.ClusterEventListener;
 import com.liferay.portal.kernel.cluster.ClusterExecutor;
 import com.liferay.portal.kernel.cluster.ClusterMasterExecutor;
 import com.liferay.portal.kernel.cluster.ClusterMasterTokenTransitionListener;
+import com.liferay.portal.kernel.cluster.ClusterNodeResponse;
 import com.liferay.portal.kernel.cluster.ClusterNodeResponses;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.concurrent.DefaultNoticeableFuture;
@@ -98,10 +99,13 @@ public class ClusterMasterExecutorImpl implements ClusterMasterExecutor {
 
 					@Override
 					protected T convert(
-						ClusterNodeResponses clusterNodeResponses) {
+							ClusterNodeResponses clusterNodeResponses)
+						throws Exception {
 
-						return (T)clusterNodeResponses.getClusterResponse(
-							address);
+						ClusterNodeResponse clusterNodeResponse =
+							clusterNodeResponses.getClusterResponse(address);
+
+						return (T)clusterNodeResponse.getResult();
 					}
 
 				};
@@ -147,7 +151,11 @@ public class ClusterMasterExecutorImpl implements ClusterMasterExecutor {
 
 	@Override
 	public boolean isMaster() {
-		return _master;
+		if (isEnabled()) {
+			return _master;
+		}
+
+		return true;
 	}
 
 	@Override
@@ -257,14 +265,14 @@ public class ClusterMasterExecutorImpl implements ClusterMasterExecutor {
 	private static final String _LOCK_CLASS_NAME =
 		ClusterMasterExecutorImpl.class.getName();
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		ClusterMasterExecutorImpl.class);
 
 	private static volatile boolean _master;
 
 	private ClusterEventListener _clusterEventListener;
 	private ClusterExecutor _clusterExecutor;
-	private Set<ClusterMasterTokenTransitionListener>
+	private final Set<ClusterMasterTokenTransitionListener>
 		_clusterMasterTokenTransitionListeners =
 			new HashSet<ClusterMasterTokenTransitionListener>();
 	private volatile boolean _enabled;
@@ -282,6 +290,7 @@ public class ClusterMasterExecutorImpl implements ClusterMasterExecutor {
 				_log.error("Unable to update the cluster master lock", e);
 			}
 		}
+
 	}
 
 }

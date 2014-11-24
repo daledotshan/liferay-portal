@@ -1060,10 +1060,10 @@ public class WikiPageDependentsTrashHandlerTest {
 			WikiPage parentPage, WikiPage page, WikiPage childPage,
 			WikiPage grandchildPage, WikiPage redirectPage) {
 
-			_childPage = childPage;
-			_grandchildPage = grandchildPage;
-			_page = page;
 			_parentPage = parentPage;
+			_page = page;
+			_grandchildPage = grandchildPage;
+			_childPage = childPage;
 			_redirectPage = redirectPage;
 		}
 
@@ -1099,11 +1099,11 @@ public class WikiPageDependentsTrashHandlerTest {
 			return _redirectPage.getResourcePrimKey();
 		}
 
-		private WikiPage _childPage;
-		private WikiPage _grandchildPage;
-		private WikiPage _page;
-		private WikiPage _parentPage;
-		private WikiPage _redirectPage;
+		private final WikiPage _childPage;
+		private final WikiPage _grandchildPage;
+		private final WikiPage _page;
+		private final WikiPage _parentPage;
+		private final WikiPage _redirectPage;
 
 	}
 
