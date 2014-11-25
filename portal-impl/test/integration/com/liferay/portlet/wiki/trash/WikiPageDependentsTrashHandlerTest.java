@@ -15,16 +15,15 @@
 package com.liferay.portlet.wiki.trash;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.DeleteAfterTestRun;
+import com.liferay.portal.test.MainServletTestRule;
 import com.liferay.portal.test.Sync;
-import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.SynchronousDestinationTestRule;
 import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.RandomTestUtil;
@@ -41,19 +40,21 @@ import com.liferay.portlet.wiki.util.test.WikiTestUtil;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Roberto Díaz
  */
-@ExecutionTestListeners(listeners = {
-	MainServletExecutionTestListener.class,
-	SynchronousDestinationExecutionTestListener.class
-})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 @Sync
 public class WikiPageDependentsTrashHandlerTest {
+
+	@ClassRule
+	public static final MainServletTestRule mainServletTestRule =
+		MainServletTestRule.INSTANCE;
 
 	@Before
 	public void setUp() throws Exception {
@@ -971,6 +972,10 @@ public class WikiPageDependentsTrashHandlerTest {
 			TrashVersionLocalServiceUtil.getTrashVersionsCount());
 	}
 
+	@Rule
+	public final SynchronousDestinationTestRule synchronousDestinationTestRule =
+		SynchronousDestinationTestRule.INSTANCE;
+
 	protected RelatedPages buildRelatedPages() throws Exception {
 		WikiPage parentPage = WikiTestUtil.addPage(
 			TestPropsValues.getUserId(), _group.getGroupId(), _node.getNodeId(),
@@ -1060,10 +1065,10 @@ public class WikiPageDependentsTrashHandlerTest {
 			WikiPage parentPage, WikiPage page, WikiPage childPage,
 			WikiPage grandchildPage, WikiPage redirectPage) {
 
-			_childPage = childPage;
-			_grandchildPage = grandchildPage;
-			_page = page;
 			_parentPage = parentPage;
+			_page = page;
+			_grandchildPage = grandchildPage;
+			_childPage = childPage;
 			_redirectPage = redirectPage;
 		}
 
@@ -1099,11 +1104,11 @@ public class WikiPageDependentsTrashHandlerTest {
 			return _redirectPage.getResourcePrimKey();
 		}
 
-		private WikiPage _childPage;
-		private WikiPage _grandchildPage;
-		private WikiPage _page;
-		private WikiPage _parentPage;
-		private WikiPage _redirectPage;
+		private final WikiPage _childPage;
+		private final WikiPage _grandchildPage;
+		private final WikiPage _page;
+		private final WikiPage _parentPage;
+		private final WikiPage _redirectPage;
 
 	}
 
