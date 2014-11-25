@@ -28,7 +28,9 @@ public class TLDSourceProcessor extends BaseSourceProcessor {
 			File file, String fileName, String absolutePath, String content)
 		throws Exception {
 
-		return trimContent(content, false);
+		content = formatWhitespace(content, false, false);
+
+		return content;
 	}
 
 	@Override

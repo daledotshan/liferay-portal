@@ -25,7 +25,7 @@
 </tr>
 <tr>
 	<td>NAME_FIELD</td>
-	<td>//input[@id='_199_name']</td>
+	<td>//input[@id='_20_name']</td>
 	<td></td>
 </tr>
 <tr>
@@ -235,7 +235,7 @@
 <!--FORM-->
 <tr>
 	<td>FORM_BUILDER</td>
-	<td>//div[@class='diagram-builder-drop-container']</td>
+	<td>//div[@class='property-builder-drop-container']</td>
 	<td></td>
 </tr>
 <tr>

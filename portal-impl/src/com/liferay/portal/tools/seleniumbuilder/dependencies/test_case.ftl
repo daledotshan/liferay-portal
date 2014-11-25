@@ -52,7 +52,7 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)}
 	<#assign void = variableContextStack.push("definitionScopeVariables")>
 
 	public ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)}() {
-		super();
+
 
 		currentTestCaseName = "${testCaseName?uncap_first}TestCase";
 		testCaseName = "${testCaseName?uncap_first}TestCase";
@@ -215,6 +215,9 @@ public class ${seleniumBuilderContext.getTestCaseSimpleClassName(testCaseName)}
 				</#if>
 
 				method${commandName}("${commandName}", false);
+
+				selenium.assertNoJavaScriptExceptions();
+				selenium.assertNoLiferayExceptions();
 
 				testPassed = true;
 			}
