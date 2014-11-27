@@ -804,7 +804,7 @@ public class LanguageImpl implements Language, Serializable {
 	}
 
 	private LanguageImpl(long companyId) {
-		String[] languageIds = PropsValues.LOCALES;
+		String[] languageIds = PropsValues.LOCALES_ENABLED;
 
 		if (companyId != CompanyConstants.SYSTEM) {
 			try {
