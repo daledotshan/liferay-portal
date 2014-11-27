@@ -16,8 +16,9 @@ package com.liferay.portal.cache.ehcache;
 
 import com.liferay.portal.cache.MockPortalCacheManager;
 import com.liferay.portal.cache.TestCacheListener;
+import com.liferay.portal.cache.TestCacheReplicator;
 import com.liferay.portal.kernel.cache.CacheListenerScope;
-import com.liferay.portal.kernel.cache.PortalCacheManager;
+import com.liferay.portal.kernel.cache.PortalCacheHelperUtil;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 
 import java.util.List;
@@ -31,12 +32,11 @@ import net.sf.ehcache.config.Configuration;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import org.testng.Assert;
 
 /**
  * @author Shuyang Zhou
@@ -44,8 +44,8 @@ import org.testng.Assert;
 public class EhcachePortalCacheTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -81,6 +81,10 @@ public class EhcachePortalCacheTest {
 		_defaultCacheListener = new TestCacheListener<String, String>();
 
 		_ehcachePortalCache.registerCacheListener(_defaultCacheListener);
+
+		_defaultCacheReplicator = new TestCacheReplicator<String, String>();
+
+		_ehcachePortalCache.registerCacheListener(_defaultCacheReplicator);
 	}
 
 	@After
@@ -111,6 +115,11 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertPut(_KEY_2, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
+
 		// Register 2
 
 		TestCacheListener<String, String> remoteCacheListener =
@@ -133,6 +142,11 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertUpdated(_KEY_2, _VALUE_1);
+
+		_defaultCacheReplicator.reset();
+
 		// Register 3
 
 		_ehcachePortalCache.registerCacheListener(
@@ -152,6 +166,11 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertUpdated(_KEY_2, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
+
 		// Unregister 1
 
 		_ehcachePortalCache.unregisterCacheListener(localCacheListener);
@@ -166,6 +185,11 @@ public class EhcachePortalCacheTest {
 		_defaultCacheListener.assertUpdated(_KEY_1, _VALUE_2);
 
 		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertUpdated(_KEY_1, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
 
 		// Unregister 2
 
@@ -183,6 +207,11 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertUpdated(_KEY_1, _VALUE_1);
+
+		_defaultCacheReplicator.reset();
+
 		// Unregister 3
 
 		_ehcachePortalCache.unregisterCacheListeners();
@@ -192,31 +221,23 @@ public class EhcachePortalCacheTest {
 		localCacheListener.assertActionsCount(0);
 		remoteCacheListener.assertActionsCount(0);
 		_defaultCacheListener.assertActionsCount(0);
+		_defaultCacheReplicator.assertActionsCount(0);
 	}
 
 	@Test
 	public void testGetKeys() {
-		_ehcachePortalCache.put(_KEY_2, _VALUE_2);
+		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
+		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
 
 		List<String> keys = _ehcachePortalCache.getKeys();
 
-		Assert.assertEquals(2, keys.size());
+		Assert.assertEquals(1, keys.size());
 		Assert.assertTrue(keys.contains(_KEY_1));
-		Assert.assertTrue(keys.contains(_KEY_2));
 	}
 
 	@Test
 	public void testGetName() {
 		Assert.assertEquals(_PORTAL_CACHE_NAME, _ehcachePortalCache.getName());
-	}
-
-	@Test
-	public void testGetPortalCacheManager() {
-		PortalCacheManager<String, String> portalCacheManager =
-			_ehcachePortalCache.getPortalCacheManager();
-
-		Assert.assertEquals(
-			_PORTAL_CACHE_MANAGER_NAME, portalCacheManager.getName());
 	}
 
 	@Test
@@ -236,6 +257,11 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertPut(_KEY_2, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
+
 		// Put 2
 
 		_ehcachePortalCache.put(_KEY_1, _VALUE_2);
@@ -248,14 +274,25 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertUpdated(_KEY_1, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
+
 		// Put 3
 
-		_ehcachePortalCache.putQuiet(_KEY_2, _VALUE_1);
+		PortalCacheHelperUtil.putWithoutReplicator(
+			_ehcachePortalCache, _KEY_2, _VALUE_1);
 
 		Assert.assertEquals(_VALUE_2, _ehcachePortalCache.get(_KEY_1));
 		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_2));
 
-		_defaultCacheListener.assertActionsCount(0);
+		_defaultCacheListener.assertActionsCount(1);
+		_defaultCacheListener.assertUpdated(_KEY_2, _VALUE_1);
+
+		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertActionsCount(0);
 
 		// Put 4
 
@@ -266,25 +303,28 @@ public class EhcachePortalCacheTest {
 		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_2));
 
 		_defaultCacheListener.assertActionsCount(0);
+		_defaultCacheReplicator.assertActionsCount(0);
 
 		// Put 5
 
 		_ehcachePortalCache.remove(_KEY_1);
-
-		_defaultCacheListener.assertActionsCount(1);
-		_defaultCacheListener.assertRemoved(_KEY_1, _VALUE_2);
-
-		_defaultCacheListener.reset();
 
 		Assert.assertNull(_ehcachePortalCache.putIfAbsent(_KEY_1, _VALUE_1));
 
 		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
 		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_2));
 
-		_defaultCacheListener.assertActionsCount(1);
+		_defaultCacheListener.assertActionsCount(2);
+		_defaultCacheListener.assertRemoved(_KEY_1, _VALUE_2);
 		_defaultCacheListener.assertPut(_KEY_1, _VALUE_1);
 
 		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertActionsCount(2);
+		_defaultCacheReplicator.assertRemoved(_KEY_1, _VALUE_2);
+		_defaultCacheReplicator.assertPut(_KEY_1, _VALUE_1);
+
+		_defaultCacheReplicator.reset();
 	}
 
 	@Test
@@ -304,13 +344,15 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertRemoved(_KEY_1, _VALUE_1);
+
+		_defaultCacheReplicator.reset();
+
 		// Remove 2
 
 		_ehcachePortalCache.put(_KEY_1, _VALUE_1);
 		_ehcachePortalCache.put(_KEY_2, _VALUE_2);
-
-		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
-		Assert.assertEquals(_VALUE_2, _ehcachePortalCache.get(_KEY_2));
 
 		_ehcachePortalCache.remove(_KEY_2);
 
@@ -324,23 +366,74 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(3);
+		_defaultCacheReplicator.assertPut(_KEY_1, _VALUE_1);
+		_defaultCacheReplicator.assertPut(_KEY_2, _VALUE_2);
+		_defaultCacheReplicator.assertRemoved(_KEY_2, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
+
 		// Remove 3
 
-		_ehcachePortalCache.put(_KEY_2, _VALUE_2);
+		PortalCacheHelperUtil.removeWithoutReplicator(
+			_ehcachePortalCache, _KEY_1);
 
-		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
-		Assert.assertEquals(_VALUE_2, _ehcachePortalCache.get(_KEY_2));
+		Assert.assertNull(_ehcachePortalCache.get(_KEY_1));
+		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
+
+		_defaultCacheListener.assertActionsCount(1);
+		_defaultCacheListener.assertRemoved(_KEY_1, _VALUE_1);
+
+		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertActionsCount(0);
+
+		// Remove 4
+
+		_ehcachePortalCache.put(_KEY_1, _VALUE_1);
+		_ehcachePortalCache.put(_KEY_2, _VALUE_2);
 
 		_ehcachePortalCache.removeAll();
 
 		Assert.assertNull(_ehcachePortalCache.get(_KEY_1));
 		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
 
-		_defaultCacheListener.assertActionsCount(2);
+		_defaultCacheListener.assertActionsCount(3);
+		_defaultCacheListener.assertPut(_KEY_1, _VALUE_1);
 		_defaultCacheListener.assertPut(_KEY_2, _VALUE_2);
 		_defaultCacheListener.assertRemoveAll();
 
 		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertActionsCount(3);
+		_defaultCacheReplicator.assertPut(_KEY_1, _VALUE_1);
+		_defaultCacheReplicator.assertPut(_KEY_2, _VALUE_2);
+		_defaultCacheReplicator.assertRemoveAll();
+
+		_defaultCacheReplicator.reset();
+
+		// Remove 5
+
+		_ehcachePortalCache.put(_KEY_1, _VALUE_1);
+		_ehcachePortalCache.put(_KEY_2, _VALUE_2);
+
+		PortalCacheHelperUtil.removeAllWithoutReplicator(_ehcachePortalCache);
+
+		Assert.assertNull(_ehcachePortalCache.get(_KEY_1));
+		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
+
+		_defaultCacheListener.assertActionsCount(3);
+		_defaultCacheListener.assertPut(_KEY_1, _VALUE_1);
+		_defaultCacheListener.assertPut(_KEY_2, _VALUE_2);
+		_defaultCacheListener.assertRemoveAll();
+
+		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertActionsCount(2);
+		_defaultCacheReplicator.assertPut(_KEY_1, _VALUE_1);
+		_defaultCacheReplicator.assertPut(_KEY_2, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
 	}
 
 	@Test
@@ -361,6 +454,11 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertUpdated(_KEY_1, _VALUE_2);
+
+		_defaultCacheReplicator.reset();
+
 		// Replace 2
 
 		Assert.assertNull(_ehcachePortalCache.replace(_KEY_2, _VALUE_2));
@@ -369,16 +467,36 @@ public class EhcachePortalCacheTest {
 		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
 
 		_defaultCacheListener.assertActionsCount(0);
+		_defaultCacheReplicator.assertActionsCount(0);
 
 		// Replace 3
 
-		Assert.assertFalse(
-			_ehcachePortalCache.replace(_KEY_1, _VALUE_1, _VALUE_2));
+		Assert.assertTrue(
+			_ehcachePortalCache.replace(_KEY_1, _VALUE_2, _VALUE_1));
 
-		Assert.assertEquals(_VALUE_2, _ehcachePortalCache.get(_KEY_1));
+		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
+		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
+
+		_defaultCacheListener.assertActionsCount(1);
+		_defaultCacheListener.assertUpdated(_KEY_1, _VALUE_1);
+
+		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertActionsCount(1);
+		_defaultCacheReplicator.assertUpdated(_KEY_1, _VALUE_1);
+
+		_defaultCacheReplicator.reset();
+
+		// Replace 4
+
+		Assert.assertFalse(
+			_ehcachePortalCache.replace(_KEY_1, _VALUE_2, _VALUE_1));
+
+		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
 		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
 
 		_defaultCacheListener.assertActionsCount(0);
+		_defaultCacheReplicator.assertActionsCount(0);
 	}
 
 	@Test
@@ -386,13 +504,13 @@ public class EhcachePortalCacheTest {
 		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
 		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
 
-		// Put
-
 		int timeToLive = 600;
 
-		_ehcachePortalCache.put(_KEY_2, _VALUE_2, timeToLive);
-
 		Ehcache ehcache = _ehcachePortalCache.ehcache;
+
+		// Put
+
+		_ehcachePortalCache.put(_KEY_2, _VALUE_2, timeToLive);
 
 		Element element = ehcache.get(_KEY_2);
 
@@ -403,6 +521,10 @@ public class EhcachePortalCacheTest {
 		_defaultCacheListener.assertPut(_KEY_2, _VALUE_2, timeToLive);
 
 		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertPut(_KEY_2, _VALUE_2, timeToLive);
+
+		_defaultCacheReplicator.reset();
 
 		// Put if absent
 
@@ -420,6 +542,10 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertPut(_KEY_2, _VALUE_2, timeToLive);
+
+		_defaultCacheReplicator.reset();
+
 		// Replace 1
 
 		ehcache.removeElement(element);
@@ -436,14 +562,15 @@ public class EhcachePortalCacheTest {
 
 		_defaultCacheListener.reset();
 
+		_defaultCacheReplicator.assertUpdated(_KEY_1, _VALUE_2, timeToLive);
+
+		_defaultCacheReplicator.reset();
+
 		// Replace 2
 
 		ehcache.removeElement(element);
 
 		_ehcachePortalCache.put(_KEY_1, _VALUE_1);
-
-		Assert.assertEquals(_VALUE_1, _ehcachePortalCache.get(_KEY_1));
-		Assert.assertNull(_ehcachePortalCache.get(_KEY_2));
 
 		_ehcachePortalCache.replace(_KEY_1, _VALUE_1, _VALUE_2, timeToLive);
 
@@ -457,6 +584,11 @@ public class EhcachePortalCacheTest {
 		_defaultCacheListener.assertUpdated(_KEY_1, _VALUE_2, timeToLive);
 
 		_defaultCacheListener.reset();
+
+		_defaultCacheReplicator.assertPut(_KEY_1, _VALUE_1);
+		_defaultCacheReplicator.assertUpdated(_KEY_1, _VALUE_2, timeToLive);
+
+		_defaultCacheReplicator.reset();
 	}
 
 	private static final String _KEY_1 = "KEY_1";
@@ -475,6 +607,7 @@ public class EhcachePortalCacheTest {
 	private static CacheManager _cacheManager;
 
 	private TestCacheListener<String, String> _defaultCacheListener;
+	private TestCacheReplicator<String, String> _defaultCacheReplicator;
 	private EhcachePortalCache<String, String> _ehcachePortalCache;
 
 }
