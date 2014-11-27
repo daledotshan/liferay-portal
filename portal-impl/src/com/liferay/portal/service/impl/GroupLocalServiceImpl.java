@@ -3413,9 +3413,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			String defaultLanguageId = typeSettingsProperties.getProperty(
 				"languageId", LocaleUtil.toLanguageId(LocaleUtil.getDefault()));
 
-			if (!Validator.equals(oldLanguageIds, newLanguageIds)) {
-				validateLanguageIds(defaultLanguageId, newLanguageIds);
+			validateLanguageIds(defaultLanguageId, newLanguageIds);
 
+			if (!Validator.equals(oldLanguageIds, newLanguageIds)) {
 				LanguageUtil.resetAvailableGroupLocales(groupId);
 			}
 		}
