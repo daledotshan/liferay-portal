@@ -62,6 +62,12 @@ public interface DDLRecordLocalService extends BaseLocalService,
 	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
 	public com.liferay.portlet.dynamicdatalists.model.DDLRecord addRecord(
 		long userId, long groupId, long recordSetId, int displayIndex,
+		com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues ddmFormValues,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
+	public com.liferay.portlet.dynamicdatalists.model.DDLRecord addRecord(
+		long userId, long groupId, long recordSetId, int displayIndex,
 		com.liferay.portlet.dynamicdatamapping.storage.Fields fields,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException;
@@ -174,20 +180,20 @@ public interface DDLRecordLocalService extends BaseLocalService,
 		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
 	* @param projection the projection to apply to the query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
@@ -288,10 +294,27 @@ public interface DDLRecordLocalService extends BaseLocalService,
 	public java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecord> getDDLRecords(
 		int start, int end);
 
+	/**
+	* Returns all the d d l records matching the UUID and company.
+	*
+	* @param uuid the UUID of the d d l records
+	* @param companyId the primary key of the company
+	* @return the matching d d l records, or an empty list if no matches were found
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecord> getDDLRecordsByUuidAndCompanyId(
 		java.lang.String uuid, long companyId);
 
+	/**
+	* Returns a range of d d l records matching the UUID and company.
+	*
+	* @param uuid the UUID of the d d l records
+	* @param companyId the primary key of the company
+	* @param start the lower bound of the range of d d l records
+	* @param end the upper bound of the range of d d l records (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the range of matching d d l records, or an empty list if no matches were found
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecord> getDDLRecordsByUuidAndCompanyId(
 		java.lang.String uuid, long companyId, int start, int end,
@@ -309,6 +332,12 @@ public interface DDLRecordLocalService extends BaseLocalService,
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext);
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link
+	DDLRecordVersionLocalServiceImpl#getLatestRecordVersion(
+	long)}
+	*/
+	@java.lang.Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion getLatestRecordVersion(
 		long recordId)
@@ -336,8 +365,8 @@ public interface DDLRecordLocalService extends BaseLocalService,
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersion(
-	long, String)}
+	DDLRecordVersionLocalServiceImpl#getRecordVersion(long,
+	String)}
 	*/
 	@java.lang.Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -347,8 +376,7 @@ public interface DDLRecordLocalService extends BaseLocalService,
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersion(
-	long)}
+	DDLRecordVersionLocalServiceImpl#getRecordVersion(long)}
 	*/
 	@java.lang.Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -358,8 +386,8 @@ public interface DDLRecordLocalService extends BaseLocalService,
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersions(
-	long, int, int, OrderByComparator)}
+	DDLRecordVersionLocalServiceImpl#getRecordVersions(long, int,
+	int, OrderByComparator)}
 	*/
 	@java.lang.Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -369,7 +397,7 @@ public interface DDLRecordLocalService extends BaseLocalService,
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersionsCount(
+	DDLRecordVersionLocalServiceImpl#getRecordVersionsCount(
 	long)}
 	*/
 	@java.lang.Deprecated
@@ -447,6 +475,12 @@ public interface DDLRecordLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException;
 
 	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
+	public com.liferay.portlet.dynamicdatalists.model.DDLRecord updateRecord(
+		long userId, long recordId, boolean majorVersion, int displayIndex,
+		com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues ddmFormValues,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
 	public com.liferay.portlet.dynamicdatalists.model.DDLRecord updateRecord(
 		long userId, long recordId, boolean majorVersion, int displayIndex,
 		com.liferay.portlet.dynamicdatamapping.storage.Fields fields,
