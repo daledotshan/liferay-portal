@@ -362,7 +362,8 @@ public class AssetPublisherImpl implements AssetPublisher {
 			if (Validator.equals(queryName, "assetCategories") &&
 				queryContains && queryAndOperator) {
 
-				assetCategoryIds = GetterUtil.getLongValues(queryValues);
+				assetCategoryIds = ArrayUtil.append(
+					assetCategoryIds, GetterUtil.getLongValues(queryValues));
 			}
 		}
 
