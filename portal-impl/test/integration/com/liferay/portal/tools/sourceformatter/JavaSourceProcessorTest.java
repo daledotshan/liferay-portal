@@ -27,8 +27,15 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testConstructorParameterOrder() throws Exception {
+		test(
+			"ConstructorParameterOrder.testjava",
+			"Constructor parameter order attribute:");
+	}
+
+	@Test
 	public void testExceedMaxLineLength() throws Exception {
-		test("ExceedMaxLineLength.testjava", "> 80:", 34);
+		test("ExceedMaxLineLength.testjava", "> 80:", 35);
 	}
 
 	@Test
@@ -56,7 +63,7 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 
 	@Test
 	public void testIncorrectClose() throws Exception {
-		test("IncorrectClose.testjava", "}:");
+		test("IncorrectClose.testjava");
 	}
 
 	@Test
@@ -166,6 +173,11 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testSortMethodsWithAnnotatedParameters() throws Exception {
+		test("SortMethodsWithAnnotatedParameters.testjava");
+	}
+
+	@Test
 	public void testStaticFinalLog() throws Exception {
 		test("StaticFinalLog.testjava");
 	}
@@ -176,8 +188,18 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testTruncateLongLines() throws Exception {
+		test("TruncateLongLines.testjava");
+	}
+
+	@Test
 	public void testUnusedImport() throws Exception {
 		test("UnusedImport.testjava");
+	}
+
+	@Test
+	public void testUnusedParameter() throws Exception {
+		test("UnusedParameter.testjava", "Unused parameter color:", 26);
 	}
 
 }
