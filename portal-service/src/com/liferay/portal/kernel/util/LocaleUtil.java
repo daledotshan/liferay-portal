@@ -217,7 +217,7 @@ public class LocaleUtil {
 
 		if (languageId == null) {
 			if (useDefault) {
-				return _locale;
+				return _getSiteDefault();
 			}
 			else {
 				return null;
