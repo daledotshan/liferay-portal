@@ -146,7 +146,7 @@ public class LocalizationImpl implements Localization {
 
 	@Override
 	public String getDefaultLanguageId(Document document) {
-		return getDefaultLanguageId(document, LocaleUtil.getDefault());
+		return getDefaultLanguageId(document, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
@@ -161,7 +161,7 @@ public class LocalizationImpl implements Localization {
 
 	@Override
 	public String getDefaultLanguageId(String xml) {
-		return getDefaultLanguageId(xml, LocaleUtil.getDefault());
+		return getDefaultLanguageId(xml, LocaleUtil.getSiteDefault());
 	}
 
 	@Override
