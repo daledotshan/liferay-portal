@@ -4,6 +4,10 @@
 	<set-up>
 		<execute macro="User#firstLoginPG" />
 
+		<execute macro="Portlet#shutdownServer" />
+
+		<execute macro="Portlet#startServer" />
+
 		<execute macro="Page#gotoCP">
 			<var name="portletName" value="Sites" />
 		</execute>
@@ -265,6 +269,66 @@
 			<var name="preview2Text" value="Default" />
 			<var name="viewUserSegmentSelected" value="Campaign Name" />
 		</execute>
+	</command>
+
+	<command name="CampaignDeleteMultiple" priority="5">
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#addCP">
+			<var name="campaignDescription" value="Campaign Description" />
+			<var name="campaignEndDate" value="1/1/2015" />
+			<var name="campaignEndTime" value="12:00 PM" />
+			<var name="campaignName" value="Campaign Name" />
+			<var name="campaignPriorityField" value="3" />
+			<var name="campaignStartDate" value="1/1/2014" />
+			<var name="campaignStartTime" value="12:00 AM" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#addCP">
+			<var name="campaignDescription" value="Campaign Description 2" />
+			<var name="campaignEndDate" value="1/1/2015" />
+			<var name="campaignEndTime" value="12:00 PM" />
+			<var name="campaignName" value="Campaign Name 2" />
+			<var name="campaignPriorityField" value="3" />
+			<var name="campaignStartDate" value="1/1/2014" />
+			<var name="campaignStartTime" value="12:00 AM" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#addCP">
+			<var name="campaignDescription" value="Campaign Description 3" />
+			<var name="campaignEndDate" value="1/1/2015" />
+			<var name="campaignEndTime" value="12:00 PM" />
+			<var name="campaignName" value="Campaign Name 3" />
+			<var name="campaignPriorityField" value="3" />
+			<var name="campaignStartDate" value="1/1/2014" />
+			<var name="campaignStartTime" value="12:00 AM" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#deleteAllCP" />
 	</command>
 
 	<command name="CampaignViewContentViewsReports" priority="5">
@@ -586,6 +650,86 @@
 			<var name="preview2Text" value="Default" />
 			<var name="viewDontDisplay" value="PREVIEW_2" />
 			<var name="viewUserSegmentSelected" value="Default" />
+		</execute>
+	</command>
+
+	<command name="CampaignViewStatusCP" priority="3">
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#addCP">
+			<var name="userSegmentDescription" value="User Segment Description" />
+			<var name="userSegmentName" value="User Segment Name" />
+		</execute>
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#addCP">
+			<var name="campaignDescription" value="Campaign Description Started" />
+			<var name="campaignEndDate" value="01/01/2015" />
+			<var name="campaignEndTime" value="12:00 PM" />
+			<var name="campaignName" value="Campaign Name Started" />
+			<var name="campaignPriorityField" value="3" />
+			<var name="campaignStartDate" value="01/01/2014" />
+			<var name="campaignStartTime" value="12:00 AM" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#addTrackingActionPageCP">
+			<var name="pageAlias" value="Page Alias" />
+			<var name="pageFriendlyURL" value="/test-page-name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#addCP">
+			<var name="campaignDescription" value="Campaign Description Finished" />
+			<var name="campaignEndDate" value="01/02/2013" />
+			<var name="campaignEndTime" value="12:00 PM" />
+			<var name="campaignName" value="Campaign Name Finished" />
+			<var name="campaignPriorityField" value="3" />
+			<var name="campaignStartDate" value="01/01/2013" />
+			<var name="campaignStartTime" value="12:00 AM" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#addTrackingActionPageCP">
+			<var name="pageAlias" value="Page Alias" />
+			<var name="pageFriendlyURL" value="/test-page-name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#viewCampaignCP">
+			<var name="campaignDescription" value="Campaign Description Started" />
+			<var name="campaignName" value="Campaign Name Started" />
+			<var name="campaignPriority" value="3" />
+			<var name="campaignStatus" value="Started" />
+		</execute>
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingCampaign#viewCampaignCP">
+			<var name="campaignDescription" value="Campaign Description Finished" />
+			<var name="campaignName" value="Campaign Name Finished" />
+			<var name="campaignPriority" value="3" />
+			<var name="campaignStatus" value="Finished" />
 		</execute>
 	</command>
 
@@ -1019,7 +1163,7 @@
 
 		<execute macro="Site#addBlankCP">
 			<var name="parentSiteName" value="Site Name" />
-			<var name="siteName" value="Child Site Name" />
+			<var name="siteName" value="Child SiteName" />
 		</execute>
 
 		<execute macro="Page#gotoCP">
@@ -1027,14 +1171,14 @@
 		</execute>
 
 		<execute macro="SitePage#addCP">
-			<var name="siteName" value="Child Site Name" />
+			<var name="siteName" value="Child SiteName" />
 			<var name="sitePageName" value="Page Name" />
 			<var name="sitePagePrivacy" value="Public" />
 		</execute>
 
 		<execute macro="Page#gotoConfigurationCP">
 			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Child Site Name" />
+			<var name="siteScopeName" value="Child SiteName" />
 		</execute>
 
 		<execute macro="ContentTargetingCampaign#addCP">
@@ -1052,7 +1196,7 @@
 
 		<execute macro="Page#gotoConfigurationCP">
 			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+			<var name="siteScopeName" value="Child SiteName" />
 		</execute>
 
 		<execute macro="ContentTargetingCampaign#viewCampaignCP">
@@ -1300,7 +1444,7 @@
 
 		<execute macro="Site#addBlankCP">
 			<var name="parentSiteName" value="Site Name" />
-			<var name="siteName" value="Child Site" />
+			<var name="siteName" value="Child SiteName" />
 		</execute>
 
 		<execute macro="Page#gotoConfigurationCP">
@@ -1321,7 +1465,7 @@
 
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Child Site" />
+			<var name="siteScopeName" value="Child SiteName" />
 		</execute>
 
 		<execute macro="WebContent#addWithCategoryCP">
@@ -1861,6 +2005,51 @@
 		</execute>
 	</command>
 
+	<command name="UserSegmentDeleteMultiple" priority="5">
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#addCP">
+			<var name="userSegmentDescription" value="User Segment Description" />
+			<var name="userSegmentName" value="User Segment Name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#addCP">
+			<var name="userSegmentDescription" value="User Segment Description 2" />
+			<var name="userSegmentName" value="User Segment Name 2" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#addCP">
+			<var name="userSegmentDescription" value="User Segment Description 3" />
+			<var name="userSegmentName" value="User Segment Name 3" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#saveCP" />
+
+		<execute macro="Page#gotoConfigurationCP">
+			<var name="portletName" value="Audience Targeting" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="ContentTargetingUserSegment#deleteAllCP" />
+	</command>
+
 	<command name="UserSegmentSimulateRulesViaSimulatorPG" priority="5">
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
@@ -1959,7 +2148,7 @@
 
 		<execute macro="ContentTargetingSimulator#viewUserSegmentsViaSimulatorPG">
 			<var name="viewUserSegmentMatched" value="Male User Segment Name" />
-			<var name="viewUserSegmentsOther" value="Female User Segment Name" />
+			<var name="viewUserSegmentOther" value="Female User Segment Name" />
 		</execute>
 
 		<execute macro="ContentTargetingSimulator#configureUserSegmentMatchedPG">
@@ -2201,8 +2390,8 @@
 		<execute action="Home#refresh" />
 
 		<execute macro="UserSegmentContentListPortlet#viewContent">
-			<var name="entryContent" value="Web Content Content" />
-			<var name="entryTitle" value="Web Content Title" />
+			<var name="viewEntryContentList" value="Web Content Content" />
+			<var name="viewEntryTitleList" value="Web Content Title" />
 		</execute>
 	</command>
 </definition>
