@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -89,6 +90,17 @@ public class VerifyJournal extends VerifyProcess {
 		verifyURLTitle();
 	}
 
+	protected void updateAttributeLocale(
+		Element element, String attributeName) {
+
+		String attributeValue = element.attributeValue(attributeName);
+
+		if (attributeValue == null) {
+			element.addAttribute(
+				attributeName, LocaleUtil.getSiteDefault().toString());
+		}
+	}
+
 	protected void updateDocumentLibraryElements(Element element) {
 		Element dynamicContentElement = element.element("dynamic-content");
 
@@ -141,6 +153,13 @@ public class VerifyJournal extends VerifyProcess {
 	}
 
 	protected void updateElement(long groupId, Element element) {
+		if (element.isRootElement()) {
+			updateAttributeLocale(element, "available-locales");
+			updateAttributeLocale(element, "default-locale");
+
+			return;
+		}
+
 		List<Element> dynamicElementElements = element.elements(
 			"dynamic-element");
 
@@ -259,9 +278,7 @@ public class VerifyJournal extends VerifyProcess {
 			con = DataAccess.getUpgradeOptimizedConnection();
 
 			ps = con.prepareStatement(
-				"select id_ from JournalArticle where (content like " +
-					"'%document_library%' or content like '%link_to_layout%')" +
-						" and DDMStructureKey != ''");
+				"select id_ from JournalArticle where DDMStructureKey != ''");
 
 			rs = ps.executeQuery();
 
@@ -274,6 +291,8 @@ public class VerifyJournal extends VerifyProcess {
 				Document document = SAXReaderUtil.read(article.getContent());
 
 				Element rootElement = document.getRootElement();
+
+				updateElement(article.getGroupId(), rootElement);
 
 				for (Element element : rootElement.elements()) {
 					updateElement(article.getGroupId(), element);
