@@ -54,6 +54,16 @@ public class DDLRecordLocalServiceUtil {
 
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord addRecord(
 		long userId, long groupId, long recordSetId, int displayIndex,
+		com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues ddmFormValues,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addRecord(userId, groupId, recordSetId, displayIndex,
+			ddmFormValues, serviceContext);
+	}
+
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord addRecord(
+		long userId, long groupId, long recordSetId, int displayIndex,
 		com.liferay.portlet.dynamicdatamapping.storage.Fields fields,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -194,10 +204,10 @@ public class DDLRecordLocalServiceUtil {
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public static long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery) {
@@ -205,11 +215,11 @@ public class DDLRecordLocalServiceUtil {
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
 	* @param projection the projection to apply to the query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public static long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
@@ -330,11 +340,28 @@ public class DDLRecordLocalServiceUtil {
 		return getService().getDDLRecords(start, end);
 	}
 
+	/**
+	* Returns all the d d l records matching the UUID and company.
+	*
+	* @param uuid the UUID of the d d l records
+	* @param companyId the primary key of the company
+	* @return the matching d d l records, or an empty list if no matches were found
+	*/
 	public static java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecord> getDDLRecordsByUuidAndCompanyId(
 		java.lang.String uuid, long companyId) {
 		return getService().getDDLRecordsByUuidAndCompanyId(uuid, companyId);
 	}
 
+	/**
+	* Returns a range of d d l records matching the UUID and company.
+	*
+	* @param uuid the UUID of the d d l records
+	* @param companyId the primary key of the company
+	* @param start the lower bound of the range of d d l records
+	* @param end the upper bound of the range of d d l records (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the range of matching d d l records, or an empty list if no matches were found
+	*/
 	public static java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecord> getDDLRecordsByUuidAndCompanyId(
 		java.lang.String uuid, long companyId, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.dynamicdatalists.model.DDLRecord> orderByComparator) {
@@ -357,6 +384,12 @@ public class DDLRecordLocalServiceUtil {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link
+	DDLRecordVersionLocalServiceImpl#getLatestRecordVersion(
+	long)}
+	*/
+	@Deprecated
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion getLatestRecordVersion(
 		long recordId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -391,8 +424,8 @@ public class DDLRecordLocalServiceUtil {
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersion(
-	long, String)}
+	DDLRecordVersionLocalServiceImpl#getRecordVersion(long,
+	String)}
 	*/
 	@Deprecated
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion getRecordVersion(
@@ -403,8 +436,7 @@ public class DDLRecordLocalServiceUtil {
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersion(
-	long)}
+	DDLRecordVersionLocalServiceImpl#getRecordVersion(long)}
 	*/
 	@Deprecated
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion getRecordVersion(
@@ -415,8 +447,8 @@ public class DDLRecordLocalServiceUtil {
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersions(
-	long, int, int, OrderByComparator)}
+	DDLRecordVersionLocalServiceImpl#getRecordVersions(long, int,
+	int, OrderByComparator)}
 	*/
 	@Deprecated
 	public static java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion> getRecordVersions(
@@ -428,7 +460,7 @@ public class DDLRecordLocalServiceUtil {
 
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link
-	com.liferay.portlet.dynamicdatalists.service.impl.DDLRecordVersionLocalServiceImpl#getRecordVersionsCount(
+	DDLRecordVersionLocalServiceImpl#getRecordVersionsCount(
 	long)}
 	*/
 	@Deprecated
@@ -528,6 +560,16 @@ public class DDLRecordLocalServiceUtil {
 		return getService()
 				   .updateRecord(userId, recordId, displayIndex, fieldsMap,
 			mergeFields, serviceContext);
+	}
+
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord updateRecord(
+		long userId, long recordId, boolean majorVersion, int displayIndex,
+		com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues ddmFormValues,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateRecord(userId, recordId, majorVersion, displayIndex,
+			ddmFormValues, serviceContext);
 	}
 
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord updateRecord(
