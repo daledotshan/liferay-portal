@@ -30,11 +30,14 @@ import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.model.Group;
+import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ResourceLocalServiceUtil;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
@@ -60,7 +63,6 @@ import com.liferay.portlet.journal.util.comparator.ArticleVersionComparator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -86,18 +88,36 @@ public class VerifyJournal extends VerifyProcess {
 		verifyOracleNewLine();
 		verifyPermissionsAndAssets();
 		verifySearch();
+		verifyTitle();
 		verifyTree();
 		verifyURLTitle();
 	}
 
-	protected void updateAttributeLocale(
-		Element element, String attributeName) {
+	protected void updateAttributeLocale(long groupId, Element element,
+		String attributeName) throws PortalException {
 
 		String attributeValue = element.attributeValue(attributeName);
 
 		if (attributeValue == null) {
-			element.addAttribute(
-				attributeName, LocaleUtil.getSiteDefault().toString());
+
+			Group group = GroupLocalServiceUtil.getGroup(groupId);
+
+			UnicodeProperties typeSettings = group.getTypeSettingsProperties();
+
+			boolean inheritLocales = Boolean.parseBoolean(
+				typeSettings.getProperty("inheritLocales"));
+
+			if (attributeName.equals("available-locales") && !inheritLocales) {
+
+				element.addAttribute(
+					attributeName, typeSettings.getProperty("locales"));
+			}
+			else if (attributeName.equals("default-locale") ||
+					attributeName.equals("language-id")) {
+
+				element.addAttribute(
+					attributeName, typeSettings.getProperty("languageId"));
+			}
 		}
 	}
 
@@ -128,6 +148,17 @@ public class VerifyJournal extends VerifyProcess {
 		node.setText(path + StringPool.SLASH + dlFileEntry.getUuid());
 	}
 
+	protected void updateDynamicContent(
+		long groupId, Element dynamicElement) throws PortalException {
+
+		List<Element> dynamicContents = dynamicElement.elements(
+			"dynamic-content");
+
+		for (Element dynamicContent : dynamicContents) {
+			updateAttributeLocale(groupId, dynamicContent, "language-id");
+		}
+	}
+
 	protected void updateDynamicElements(List<Element> dynamicElements)
 		throws PortalException {
 
@@ -152,10 +183,12 @@ public class VerifyJournal extends VerifyProcess {
 		}
 	}
 
-	protected void updateElement(long groupId, Element element) {
+	protected void updateElement(
+		long groupId, Element element) throws PortalException {
+
 		if (element.isRootElement()) {
-			updateAttributeLocale(element, "available-locales");
-			updateAttributeLocale(element, "default-locale");
+			updateAttributeLocale(groupId, element, "available-locales");
+			updateAttributeLocale(groupId, element, "default-locale");
 
 			return;
 		}
@@ -166,6 +199,8 @@ public class VerifyJournal extends VerifyProcess {
 		for (Element dynamicElementElement : dynamicElementElements) {
 			updateElement(groupId, dynamicElementElement);
 		}
+
+		updateDynamicContent(groupId, element);
 
 		String type = element.attributeValue("type");
 
