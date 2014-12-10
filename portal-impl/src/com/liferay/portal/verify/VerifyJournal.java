@@ -27,13 +27,20 @@ import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.model.Company;
+import com.liferay.portal.model.Group;
+import com.liferay.portal.service.CompanyLocalServiceUtil;
+import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ResourceLocalServiceUtil;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
@@ -42,11 +49,14 @@ import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureException;
+import com.liferay.portlet.dynamicdatamapping.util.DDMFieldsCounter;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleConstants;
+import com.liferay.portlet.journal.model.JournalArticleImage;
 import com.liferay.portlet.journal.model.JournalArticleResource;
 import com.liferay.portlet.journal.model.JournalContentSearch;
 import com.liferay.portlet.journal.model.JournalFolder;
+import com.liferay.portlet.journal.service.JournalArticleImageLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalArticleResourceLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalContentSearchLocalServiceUtil;
@@ -76,23 +86,88 @@ public class VerifyJournal extends VerifyProcess {
 	@Override
 	protected void doVerify() throws Exception {
 		verifyContent();
-		verifyCreateDate();
+		verifyCreateAndModifiedDates();
+		verifyDynamicElements();
 		updateFolderAssets();
 		verifyOracleNewLine();
 		verifyPermissionsAndAssets();
 		verifySearch();
+		verifyTitleAndDescription();
 		verifyTree();
 		verifyURLTitle();
 	}
 
-	protected void updateDocumentLibraryElements(Element element) {
-		List<Element> dynamicElementElements = element.elements(
-			"dynamic-element");
+	protected String getDefaultLocale(long groupId, long companyId)
+		throws Exception {
 
-		for (Element dynamicElementElement : dynamicElementElements) {
-			updateDocumentLibraryElements(dynamicElementElement);
+		Group group = GroupLocalServiceUtil.getGroup(groupId);
+		UnicodeProperties typeSettings = group.getTypeSettingsProperties();
+
+		boolean inheritLocales = Boolean.parseBoolean(
+			typeSettings.getProperty("inheritLocales", "true"));
+
+		Company company = CompanyLocalServiceUtil.getCompany(companyId);
+		String defaultLocale = company.getLocale().toString();
+
+		if (inheritLocales) {
+			return defaultLocale;
 		}
+		else {
+			return typeSettings.getProperty("languageId", defaultLocale);
+		}
+	}
 
+	protected boolean isNotLocaleFormattedXML(String xml) throws Exception {
+		if (xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>") ||
+			xml.startsWith("<?xml version=\'1.0\' encoding=\'UTF-8\'?>")) {
+
+			Document document = SAXReaderUtil.read(xml);
+
+			Element rootElement = document.getRootElement();
+
+			if (Validator.isNull(
+					rootElement.attributeValue("default-locale"))) {
+
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+
+	protected void updateAttributeLocale(
+			long groupId, long companyId, Element element, String attributeName)
+		throws Exception {
+
+		String attributeValue = element.attributeValue(attributeName);
+
+		if (Validator.isNull(attributeValue)) {
+			element.addAttribute(
+				attributeName, getDefaultLocale(groupId, companyId));
+		}
+	}
+
+	protected void updateContent(long groupId, long companyId, Element element)
+		throws Exception {
+
+		if (element.isDynamicElement()) {
+			List<Element> dynamicContents = element.elements("dynamic-content");
+
+			for (Element dynamicContent : dynamicContents) {
+				updateAttributeLocale(
+					groupId, companyId, dynamicContent, "language-id");
+			}
+		}
+		else if (element.getName().equals("static-content")) {
+			updateAttributeLocale(groupId, companyId, element, "language-id");
+		}
+	}
+
+	protected void updateDocumentLibraryElements(Element element) {
 		Element dynamicContentElement = element.element("dynamic-content");
 
 		String path = dynamicContentElement.getStringValue();
@@ -117,6 +192,54 @@ public class VerifyJournal extends VerifyProcess {
 		Node node = dynamicContentElement.node(0);
 
 		node.setText(path + StringPool.SLASH + dlFileEntry.getUuid());
+	}
+
+	protected void updateDynamicElements(List<Element> dynamicElements)
+		throws PortalException {
+
+		DDMFieldsCounter ddmFieldsCounter = new DDMFieldsCounter();
+
+		for (Element dynamicElement : dynamicElements) {
+			updateDynamicElements(dynamicElement.elements("dynamic-element"));
+
+			String name = dynamicElement.attributeValue("name");
+
+			int index = ddmFieldsCounter.get(name);
+
+			dynamicElement.addAttribute("index", String.valueOf(index));
+
+			String type = dynamicElement.attributeValue("type");
+
+			if (type.equals("image")) {
+				updateImageElement(dynamicElement, name, index);
+			}
+
+			ddmFieldsCounter.incrementKey(name);
+		}
+	}
+
+	protected void updateElement(long groupId, long companyId, Element element)
+		throws Exception {
+
+		if (element.isDynamicElement()) {
+			List<Element> dynamicElementElements = element.elements(
+				element.getName());
+
+			for (Element dynamicElementElement : dynamicElementElements) {
+				updateElement(groupId, companyId, dynamicElementElement);
+			}
+		}
+
+		updateContent(groupId, companyId, element);
+
+		String type = element.attributeValue("type");
+
+		if (type.equals("document_library")) {
+			updateDocumentLibraryElements(element);
+		}
+		else if (type.equals("link_to_layout")) {
+			updateLinkToLayoutElements(groupId, element);
+		}
 	}
 
 	protected void updateFolderAssets() throws Exception {
@@ -147,20 +270,55 @@ public class VerifyJournal extends VerifyProcess {
 		}
 	}
 
+	protected void updateImageElement(Element element, String name, int index)
+		throws PortalException {
+
+		Element dynamicContentElement = element.element("dynamic-content");
+
+		long articleImageId = GetterUtil.getLong(
+			dynamicContentElement.attributeValue("id"));
+
+		JournalArticleImage articleImage =
+			JournalArticleImageLocalServiceUtil.getArticleImage(articleImageId);
+
+		articleImage.setElName(name + StringPool.UNDERLINE + index);
+
+		JournalArticleImageLocalServiceUtil.updateJournalArticleImage(
+			articleImage);
+	}
+
 	protected void updateLinkToLayoutElements(long groupId, Element element) {
-		List<Element> dynamicElementElements = element.elements(
-			"dynamic-element");
-
-		for (Element dynamicElementElement : dynamicElementElements) {
-			updateLinkToLayoutElements(groupId, dynamicElementElement);
-		}
-
 		Element dynamicContentElement = element.element("dynamic-content");
 
 		Node node = dynamicContentElement.node(0);
 
-		node.setText(
-			dynamicContentElement.getStringValue() + StringPool.AT + groupId);
+		String text = node.getText();
+
+		if (!text.isEmpty() && !text.endsWith(StringPool.AT + groupId)) {
+			node.setText(
+				dynamicContentElement.getStringValue() + StringPool.AT +
+					groupId);
+		}
+	}
+
+	protected void updateRootElement(
+			long groupId, long companyId, Element element)
+		throws Exception {
+
+		if (element.isRootElement()) {
+			updateAttributeLocale(
+				groupId, companyId, element, "available-locales");
+
+			updateAttributeLocale(
+				groupId, companyId, element, "default-locale");
+		}
+		else {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Tried to add \"available-locales\" and" +
+						"\"default-locale\" attributes to a non root element.");
+			}
+		}
 	}
 
 	protected void updateURLTitle(
@@ -205,14 +363,20 @@ public class VerifyJournal extends VerifyProcess {
 			con = DataAccess.getUpgradeOptimizedConnection();
 
 			ps = con.prepareStatement(
-				"select id_ from JournalArticle where (content like " +
-					"'%document_library%' or content like '%link_to_layout%')" +
-						" and structureId != ''");
+				"select id_, groupId, companyId from JournalArticle");
 
 			rs = ps.executeQuery();
 
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Verifying Journal, please wait. It depends on " +
+						"amount of contents.");
+			}
+
 			while (rs.next()) {
 				long id = rs.getLong("id_");
+				long groupId = rs.getLong("groupId");
+				long companyId = rs.getLong("companyId");
 
 				JournalArticle article =
 					JournalArticleLocalServiceUtil.getArticle(id);
@@ -221,16 +385,10 @@ public class VerifyJournal extends VerifyProcess {
 
 				Element rootElement = document.getRootElement();
 
-				for (Element element : rootElement.elements()) {
-					String type = element.attributeValue("type");
+				updateRootElement(groupId, companyId, rootElement);
 
-					if (type.equals("document_library")) {
-						updateDocumentLibraryElements(element);
-					}
-					else if (type.equals("link_to_layout")) {
-						updateLinkToLayoutElements(
-							article.getGroupId(), element);
-					}
+				for (Element element : rootElement.elements()) {
+					updateElement(groupId, companyId, element);
 				}
 
 				article.setContent(document.asXML());
@@ -293,7 +451,7 @@ public class VerifyJournal extends VerifyProcess {
 		}
 	}
 
-	protected void verifyCreateDate() throws Exception {
+	protected void verifyCreateAndModifiedDates() throws Exception {
 		ActionableDynamicQuery actionableDynamicQuery =
 			JournalArticleResourceLocalServiceUtil.getActionableDynamicQuery();
 
@@ -306,6 +464,7 @@ public class VerifyJournal extends VerifyProcess {
 						(JournalArticleResource)object;
 
 					verifyCreateDate(articleResource);
+					verifyModifiedDate(articleResource);
 				}
 
 			});
@@ -313,7 +472,7 @@ public class VerifyJournal extends VerifyProcess {
 		actionableDynamicQuery.performActions();
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Create dates verified for articles");
+			_log.debug("Create and modified dates verified for articles");
 		}
 	}
 
@@ -339,6 +498,79 @@ public class VerifyJournal extends VerifyProcess {
 				JournalArticleLocalServiceUtil.updateJournalArticle(article);
 			}
 		}
+	}
+
+	protected void verifyDynamicElements() throws PortalException {
+		ActionableDynamicQuery actionableDynamicQuery =
+			JournalArticleLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod() {
+
+				@Override
+				public void performAction(Object object) {
+					JournalArticle article = (JournalArticle)object;
+
+					try {
+						verifyDynamicElements(article);
+					}
+					catch (Exception e) {
+						_log.error(
+							"Unable to update content for article " +
+								article.getId(),
+							e);
+					}
+				}
+
+			});
+
+		actionableDynamicQuery.performActions();
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Dynamic elements verified for articles");
+		}
+	}
+
+	protected void verifyDynamicElements(JournalArticle article)
+		throws Exception {
+
+		Document document = SAXReaderUtil.read(article.getContent());
+
+		Element rootElement = document.getRootElement();
+
+		updateDynamicElements(rootElement.elements("dynamic-element"));
+
+		article.setContent(document.asXML());
+
+		JournalArticleLocalServiceUtil.updateJournalArticle(article);
+	}
+
+	protected void verifyModifiedDate(JournalArticleResource articleResource) {
+		JournalArticle article =
+			JournalArticleLocalServiceUtil.fetchLatestArticle(
+				articleResource.getResourcePrimKey(),
+				WorkflowConstants.STATUS_APPROVED, true);
+
+		if (article == null) {
+			return;
+		}
+
+		AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
+			articleResource.getGroupId(), articleResource.getUuid());
+
+		if (assetEntry == null) {
+			return;
+		}
+
+		Date modifiedDate = article.getModifiedDate();
+
+		if (modifiedDate.equals(assetEntry.getModifiedDate())) {
+			return;
+		}
+
+		article.setModifiedDate(assetEntry.getModifiedDate());
+
+		JournalArticleLocalServiceUtil.updateJournalArticle(article);
 	}
 
 	protected void verifyOracleNewLine() throws Exception {
@@ -478,8 +710,8 @@ public class VerifyJournal extends VerifyProcess {
 						article.getId());
 			}
 
-			article.setStructureId(StringPool.BLANK);
-			article.setTemplateId(StringPool.BLANK);
+			article.setDDMStructureKey(StringPool.BLANK);
+			article.setDDMTemplateKey(StringPool.BLANK);
 
 			JournalArticleLocalServiceUtil.updateJournalArticle(article);
 		}
@@ -510,6 +742,57 @@ public class VerifyJournal extends VerifyProcess {
 				String portletId = rs.getString("portletId");
 
 				verifyContentSearch(groupId, portletId);
+			}
+		}
+		finally {
+			DataAccess.cleanUp(con, ps, rs);
+		}
+	}
+
+	protected void verifyTitleAndDescription() throws Exception {
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			ps = con.prepareStatement(
+				"select id_, groupId, companyId from JournalArticle");
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				long id = rs.getLong("id_");
+				long groupId = rs.getLong("groupId");
+				long companyId = rs.getLong("companyId");
+
+				JournalArticle article =
+					JournalArticleLocalServiceUtil.getArticle(id);
+
+				String languageId = getDefaultLocale(groupId, companyId);
+				String title = article.getTitle();
+
+				if (isNotLocaleFormattedXML(title)) {
+					article.setTitle(
+						LocalizationUtil.updateLocalization(
+							title, "Title", article.getTitle(languageId),
+							languageId, languageId));
+				}
+
+				String description = article.getDescription();
+
+				if (Validator.isNotNull(description) &&
+					isNotLocaleFormattedXML(description)) {
+
+					article.setDescription(
+						LocalizationUtil.updateLocalization(
+							description, "Description",
+							article.getDescription(languageId), languageId,
+							languageId));
+				}
+
+				JournalArticleLocalServiceUtil.updateJournalArticle(article);
 			}
 		}
 		finally {
