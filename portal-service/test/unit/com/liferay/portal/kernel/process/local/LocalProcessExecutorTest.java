@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.process.local;
 
+import com.liferay.portal.kernel.concurrent.NoticeableFuture;
 import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.log.Log;
@@ -53,6 +54,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.io.WriteAbortedException;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Constructor;
@@ -96,7 +98,7 @@ import org.junit.Test;
 public class LocalProcessExecutorTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
+	public static final CodeCoverageAssertor codeCoverageAssertor =
 		new CodeCoverageAssertor() {
 
 			@Override
@@ -732,9 +734,82 @@ public class LocalProcessExecutorTest {
 
 			Throwable throwable = ee.getCause();
 
+			Assert.assertSame(ProcessException.class, throwable.getClass());
 			Assert.assertEquals(
 				DummyExceptionProcessCallable.class.getName(),
 				throwable.getMessage());
+		}
+
+		RuntimeExceptionProcessCallable runtimeExceptionProcessCallable =
+			new RuntimeExceptionProcessCallable();
+
+		processChannel =
+			_localProcessExecutor.execute(
+				_createJPDAProcessConfig(_JPDA_OPTIONS1),
+				runtimeExceptionProcessCallable);
+
+		future = processChannel.getProcessNoticeableFuture();
+
+		try {
+			future.get();
+
+			Assert.fail();
+		}
+		catch (ExecutionException ee) {
+			Assert.assertFalse(future.isCancelled());
+			Assert.assertTrue(future.isDone());
+
+			Throwable throwable = ee.getCause();
+
+			Assert.assertSame(ProcessException.class, throwable.getClass());
+
+			throwable = throwable.getCause();
+
+			Assert.assertSame(RuntimeException.class, throwable.getClass());
+			Assert.assertEquals(
+				RuntimeExceptionProcessCallable.class.getName(),
+				throwable.getMessage());
+		}
+	}
+
+	@Test
+	public void testExceptionPipingBackProcessCallable() throws Exception {
+		ExceptionPipingBackProcessCallable exceptionPipingBackProcessCallable =
+			new ExceptionPipingBackProcessCallable();
+
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
+			LocalProcessExecutor.class.getName(), Level.SEVERE);
+
+		try {
+			ProcessChannel<Serializable> processChannel =
+				_localProcessExecutor.execute(
+					_createJPDAProcessConfig(_JPDA_OPTIONS1),
+					exceptionPipingBackProcessCallable);
+
+			NoticeableFuture<Serializable> noticeableFuture =
+				processChannel.getProcessNoticeableFuture();
+
+			Assert.assertNull(noticeableFuture.get());
+
+			List<LogRecord> logRecords = captureHandler.getLogRecords();
+
+			Assert.assertEquals(1, logRecords.size());
+
+			LogRecord logRecord = logRecords.get(0);
+
+			Assert.assertEquals(
+				"Unable to invoke generic process callable",
+				logRecord.getMessage());
+
+			Throwable throwable = logRecord.getThrown();
+
+			Assert.assertSame(ProcessException.class, throwable.getClass());
+			Assert.assertEquals(
+				DummyExceptionProcessCallable.class.getName(),
+				throwable.getMessage());
+		}
+		finally {
+			captureHandler.close();
 		}
 	}
 
@@ -873,14 +948,12 @@ public class LocalProcessExecutorTest {
 
 	@Test
 	public void testLeadingLog() throws Exception {
-		CaptureHandler captureHandler = null;
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
+			LocalProcessExecutor.class.getName(), Level.WARNING);
 
 		try {
 
 			// Warn level
-
-			captureHandler = JDKLoggerTestUtil.configureJDKLogger(
-				LocalProcessExecutor.class.getName(), Level.WARNING);
 
 			List<LogRecord> logRecords = captureHandler.getLogRecords();
 
@@ -965,9 +1038,7 @@ public class LocalProcessExecutorTest {
 			Assert.assertEquals(0, logRecords.size());
 		}
 		finally {
-			if (captureHandler != null) {
-				captureHandler.close();
-			}
+			captureHandler.close();
 		}
 	}
 
@@ -1219,6 +1290,55 @@ public class LocalProcessExecutorTest {
 			catch (CancellationException ce) {
 				Assert.assertTrue(future.isCancelled());
 				Assert.assertTrue(future.isDone());
+			}
+		}
+		finally {
+			captureHandler.close();
+		}
+	}
+
+	@Test
+	public void testUnserializablePipingBackProcessCallable() throws Exception {
+		UnserializablePipingBackProcessCallable
+			unserializablePipingBackProcessCallable =
+				new UnserializablePipingBackProcessCallable();
+
+		CaptureHandler captureHandler = JDKLoggerTestUtil.configureJDKLogger(
+			LocalProcessExecutor.class.getName(), Level.SEVERE);
+
+		try {
+			ProcessChannel<Serializable> processChannel =
+				_localProcessExecutor.execute(
+					_createJPDAProcessConfig(_JPDA_OPTIONS1),
+					unserializablePipingBackProcessCallable);
+
+			NoticeableFuture<Serializable> noticeableFuture =
+				processChannel.getProcessNoticeableFuture();
+
+			try {
+				noticeableFuture.get();
+
+				Assert.fail();
+			}
+			catch (ExecutionException ee) {
+				Throwable cause = ee.getCause();
+
+				List<LogRecord> logRecords = captureHandler.getLogRecords();
+
+				Assert.assertEquals(1, logRecords.size());
+
+				LogRecord logRecord = logRecords.get(0);
+
+				Assert.assertEquals(
+					"Abort subprocess piping", logRecord.getMessage());
+				Assert.assertSame(cause, logRecord.getThrown());
+				Assert.assertSame(
+					WriteAbortedException.class, cause.getClass());
+
+				cause = cause.getCause();
+
+				Assert.assertSame(
+					NotSerializableException.class, cause.getClass());
 			}
 		}
 		finally {
@@ -1901,6 +2021,29 @@ public class LocalProcessExecutorTest {
 
 	}
 
+	private static class ExceptionPipingBackProcessCallable
+		implements ProcessCallable<Serializable> {
+
+		@Override
+		public Serializable call() throws ProcessException {
+			ProcessOutputStream processOutputStream =
+				ProcessContext.getProcessOutputStream();
+
+			try {
+				processOutputStream.writeProcessCallable(
+					new DummyExceptionProcessCallable());
+			}
+			catch (IOException ioe) {
+				throw new ProcessException(ioe);
+			}
+
+			return null;
+		}
+
+		private static final long serialVersionUID = 1L;
+
+	}
+
 	private static class InterruptProcessCallable
 		implements ProcessCallable<Serializable> {
 
@@ -2193,6 +2336,26 @@ public class LocalProcessExecutorTest {
 
 	}
 
+	private static class RuntimeExceptionProcessCallable
+		implements ProcessCallable<Serializable> {
+
+		@Override
+		public Serializable call() {
+			throw new RuntimeException(
+				RuntimeExceptionProcessCallable.class.getName());
+		}
+
+		@Override
+		public String toString() {
+			Class<?> clazz = getClass();
+
+			return clazz.getSimpleName();
+		}
+
+		private static final long serialVersionUID = 1L;
+
+	}
+
 	private static class ServerThread extends Thread {
 
 		public static void exit(Socket socket) throws Exception {
@@ -2367,6 +2530,29 @@ public class LocalProcessExecutorTest {
 
 		private boolean _failToShutdown;
 		private Thread _thread;
+
+	}
+
+	private static class UnserializablePipingBackProcessCallable
+		implements ProcessCallable<Serializable> {
+
+		@Override
+		public Serializable call() throws ProcessException {
+			ProcessOutputStream processOutputStream =
+				ProcessContext.getProcessOutputStream();
+
+			try {
+				processOutputStream.writeProcessCallable(
+					new UnserializableProcessCallable());
+			}
+			catch (IOException ioe) {
+				throw new ProcessException(ioe);
+			}
+
+			return null;
+		}
+
+		private static final long serialVersionUID = 1L;
 
 	}
 
