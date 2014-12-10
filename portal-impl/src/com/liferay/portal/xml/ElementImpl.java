@@ -494,6 +494,13 @@ public class ElementImpl extends BranchImpl implements Element {
 	}
 
 	@Override
+	public boolean isDynamicElement() {
+		String elementName = _element.getName();
+
+		return elementName.equals("dynamic-element");
+	}
+
+	@Override
 	public boolean isRootElement() {
 		return _element.isRootElement();
 	}

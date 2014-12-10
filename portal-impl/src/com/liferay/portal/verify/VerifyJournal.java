@@ -27,16 +27,19 @@ import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
-import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ResourceLocalServiceUtil;
 import com.liferay.portal.util.PortalInstances;
@@ -63,6 +66,7 @@ import com.liferay.portlet.journal.util.comparator.ArticleVersionComparator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -88,36 +92,78 @@ public class VerifyJournal extends VerifyProcess {
 		verifyOracleNewLine();
 		verifyPermissionsAndAssets();
 		verifySearch();
-		verifyTitle();
+		verifyTitleAndDescription();
 		verifyTree();
 		verifyURLTitle();
 	}
 
-	protected void updateAttributeLocale(long groupId, Element element,
-		String attributeName) throws PortalException {
+	protected String getDefaultLocale(long groupId, long companyId)
+		throws Exception {
+
+		Group group = GroupLocalServiceUtil.getGroup(groupId);
+		UnicodeProperties typeSettings = group.getTypeSettingsProperties();
+
+		boolean inheritLocales = Boolean.parseBoolean(
+			typeSettings.getProperty("inheritLocales", "true"));
+
+		Company company = CompanyLocalServiceUtil.getCompany(companyId);
+		String defaultLocale = company.getLocale().toString();
+
+		if (inheritLocales) {
+			return defaultLocale;
+		}
+		else {
+			return typeSettings.getProperty("languageId", defaultLocale);
+		}
+	}
+
+	protected boolean isNotLocaleFormattedXML(String xml) throws Exception {
+		if (xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>") ||
+			xml.startsWith("<?xml version=\'1.0\' encoding=\'UTF-8\'?>")) {
+
+			Document document = SAXReaderUtil.read(xml);
+
+			Element rootElement = document.getRootElement();
+
+			if (Validator.isNull(
+					rootElement.attributeValue("default-locale"))) {
+
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
+	}
+
+	protected void updateAttributeLocale(
+			long groupId, long companyId, Element element, String attributeName)
+		throws Exception {
 
 		String attributeValue = element.attributeValue(attributeName);
 
-		if (attributeValue == null) {
+		if (Validator.isNull(attributeValue)) {
+			element.addAttribute(
+				attributeName, getDefaultLocale(groupId, companyId));
+		}
+	}
 
-			Group group = GroupLocalServiceUtil.getGroup(groupId);
+	protected void updateContent(long groupId, long companyId, Element element)
+		throws Exception {
 
-			UnicodeProperties typeSettings = group.getTypeSettingsProperties();
+		if (element.isDynamicElement()) {
+			List<Element> dynamicContents = element.elements("dynamic-content");
 
-			boolean inheritLocales = Boolean.parseBoolean(
-				typeSettings.getProperty("inheritLocales"));
-
-			if (attributeName.equals("available-locales") && !inheritLocales) {
-
-				element.addAttribute(
-					attributeName, typeSettings.getProperty("locales"));
+			for (Element dynamicContent : dynamicContents) {
+				updateAttributeLocale(
+					groupId, companyId, dynamicContent, "language-id");
 			}
-			else if (attributeName.equals("default-locale") ||
-					attributeName.equals("language-id")) {
-
-				element.addAttribute(
-					attributeName, typeSettings.getProperty("languageId"));
-			}
+		}
+		else if (element.getName().equals("static-content")) {
+			updateAttributeLocale(groupId, companyId, element, "language-id");
 		}
 	}
 
@@ -148,17 +194,6 @@ public class VerifyJournal extends VerifyProcess {
 		node.setText(path + StringPool.SLASH + dlFileEntry.getUuid());
 	}
 
-	protected void updateDynamicContent(
-		long groupId, Element dynamicElement) throws PortalException {
-
-		List<Element> dynamicContents = dynamicElement.elements(
-			"dynamic-content");
-
-		for (Element dynamicContent : dynamicContents) {
-			updateAttributeLocale(groupId, dynamicContent, "language-id");
-		}
-	}
-
 	protected void updateDynamicElements(List<Element> dynamicElements)
 		throws PortalException {
 
@@ -183,24 +218,19 @@ public class VerifyJournal extends VerifyProcess {
 		}
 	}
 
-	protected void updateElement(
-		long groupId, Element element) throws PortalException {
+	protected void updateElement(long groupId, long companyId, Element element)
+		throws Exception {
 
-		if (element.isRootElement()) {
-			updateAttributeLocale(groupId, element, "available-locales");
-			updateAttributeLocale(groupId, element, "default-locale");
+		if (element.isDynamicElement()) {
+			List<Element> dynamicElementElements = element.elements(
+				element.getName());
 
-			return;
+			for (Element dynamicElementElement : dynamicElementElements) {
+				updateElement(groupId, companyId, dynamicElementElement);
+			}
 		}
 
-		List<Element> dynamicElementElements = element.elements(
-			"dynamic-element");
-
-		for (Element dynamicElementElement : dynamicElementElements) {
-			updateElement(groupId, dynamicElementElement);
-		}
-
-		updateDynamicContent(groupId, element);
+		updateContent(groupId, companyId, element);
 
 		String type = element.attributeValue("type");
 
@@ -271,6 +301,26 @@ public class VerifyJournal extends VerifyProcess {
 		}
 	}
 
+	protected void updateRootElement(
+			long groupId, long companyId, Element element)
+		throws Exception {
+
+		if (element.isRootElement()) {
+			updateAttributeLocale(
+				groupId, companyId, element, "available-locales");
+
+			updateAttributeLocale(
+				groupId, companyId, element, "default-locale");
+		}
+		else {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Tried to add \"available-locales\" and" +
+						"\"default-locale\" attributes to a non root element.");
+			}
+		}
+	}
+
 	protected void updateURLTitle(
 			long groupId, String articleId, String urlTitle)
 		throws Exception {
@@ -313,12 +363,20 @@ public class VerifyJournal extends VerifyProcess {
 			con = DataAccess.getUpgradeOptimizedConnection();
 
 			ps = con.prepareStatement(
-				"select id_ from JournalArticle where DDMStructureKey != ''");
+				"select id_, groupId, companyId from JournalArticle");
 
 			rs = ps.executeQuery();
 
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Verifying Journal, please wait. It depends on " +
+						"amount of contents.");
+			}
+
 			while (rs.next()) {
 				long id = rs.getLong("id_");
+				long groupId = rs.getLong("groupId");
+				long companyId = rs.getLong("companyId");
 
 				JournalArticle article =
 					JournalArticleLocalServiceUtil.getArticle(id);
@@ -327,10 +385,10 @@ public class VerifyJournal extends VerifyProcess {
 
 				Element rootElement = document.getRootElement();
 
-				updateElement(article.getGroupId(), rootElement);
+				updateRootElement(groupId, companyId, rootElement);
 
 				for (Element element : rootElement.elements()) {
-					updateElement(article.getGroupId(), element);
+					updateElement(groupId, companyId, element);
 				}
 
 				article.setContent(document.asXML());
@@ -684,6 +742,57 @@ public class VerifyJournal extends VerifyProcess {
 				String portletId = rs.getString("portletId");
 
 				verifyContentSearch(groupId, portletId);
+			}
+		}
+		finally {
+			DataAccess.cleanUp(con, ps, rs);
+		}
+	}
+
+	protected void verifyTitleAndDescription() throws Exception {
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			ps = con.prepareStatement(
+				"select id_, groupId, companyId from JournalArticle");
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				long id = rs.getLong("id_");
+				long groupId = rs.getLong("groupId");
+				long companyId = rs.getLong("companyId");
+
+				JournalArticle article =
+					JournalArticleLocalServiceUtil.getArticle(id);
+
+				String languageId = getDefaultLocale(groupId, companyId);
+				String title = article.getTitle();
+
+				if (isNotLocaleFormattedXML(title)) {
+					article.setTitle(
+						LocalizationUtil.updateLocalization(
+							title, "Title", article.getTitle(languageId),
+							languageId, languageId));
+				}
+
+				String description = article.getDescription();
+
+				if (Validator.isNotNull(description) &&
+					isNotLocaleFormattedXML(description)) {
+
+					article.setDescription(
+						LocalizationUtil.updateLocalization(
+							description, "Description",
+							article.getDescription(languageId), languageId,
+							languageId));
+				}
+
+				JournalArticleLocalServiceUtil.updateJournalArticle(article);
 			}
 		}
 		finally {
