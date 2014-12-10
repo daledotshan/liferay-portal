@@ -155,6 +155,8 @@ public interface Element extends Branch {
 
 	public boolean hasMixedContent();
 
+	public boolean isDynamicElement();
+
 	public boolean isRootElement();
 
 	public boolean isTextOnly();
