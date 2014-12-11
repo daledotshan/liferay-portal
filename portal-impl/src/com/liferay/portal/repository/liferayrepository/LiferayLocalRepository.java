@@ -155,8 +155,32 @@ public class LiferayLocalRepository
 	}
 
 	@Override
+	public void checkInFileEntry(
+		long userId, long fileEntryId, boolean major, String changeLog,
+		ServiceContext serviceContext) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void checkInFileEntry(
+		long userId, long fileEntryId, String lockUuid,
+		ServiceContext serviceContext) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public FileEntry copyFileEntry(
+		long userId, long groupId, long fileEntryId, long destFolderId,
+		ServiceContext serviceContext) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void deleteAll() throws PortalException {
-		dlFolderLocalService.deleteAll(getGroupId());
+		dlFolderLocalService.deleteAllByRepository(getRepositoryId());
 	}
 
 	@Override
@@ -212,7 +236,8 @@ public class LiferayLocalRepository
 
 	@Override
 	public Folder getFolder(long folderId) throws PortalException {
-		DLFolder dlFolder = dlFolderLocalService.getFolder(folderId);
+		DLFolder dlFolder = dlFolderLocalService.getFolder(
+			toFolderId(folderId));
 
 		return new LiferayFolder(dlFolder);
 	}
@@ -229,12 +254,13 @@ public class LiferayLocalRepository
 
 	@Override
 	public List<FileEntry> getRepositoryFileEntries(
-		long rootFolderId, int start, int end,
+		long userId, long rootFolderId, int start, int end,
 		OrderByComparator<FileEntry> obc) {
 
 		List<DLFileEntry> dlFileEntries =
 			dlFileEntryLocalService.getGroupFileEntries(
-				getGroupId(), 0, rootFolderId, start, end,
+				getGroupId(), 0, getRepositoryId(), toFolderId(rootFolderId),
+				start, end,
 				DLFileEntryOrderByComparator.getOrderByComparator(obc));
 
 		return RepositoryModelUtil.toFileEntries(dlFileEntries);
@@ -259,9 +285,18 @@ public class LiferayLocalRepository
 		throws PortalException {
 
 		DLFolder dlFolder = dlFolderLocalService.moveFolder(
-			userId, folderId, parentFolderId, serviceContext);
+			userId, toFolderId(folderId), toFolderId(parentFolderId),
+			serviceContext);
 
 		return new LiferayFolder(dlFolder);
+	}
+
+	@Override
+	public void revertFileEntry(
+		long userId, long fileEntryId, String version,
+		ServiceContext serviceContext) {
+
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -335,12 +370,12 @@ public class LiferayLocalRepository
 			serviceContext, "defaultFileEntryTypeId");
 		SortedArrayList<Long> fileEntryTypeIds = getLongList(
 			serviceContext, "dlFileEntryTypesSearchContainerPrimaryKeys");
-		boolean overrideFileEntryTypes = ParamUtil.getBoolean(
-			serviceContext, "overrideFileEntryTypes");
+		int restrictionType = ParamUtil.getInteger(
+			serviceContext, "restrictionType");
 
 		DLFolder dlFolder = dlFolderLocalService.updateFolder(
 			toFolderId(folderId), toFolderId(parentFolderId), name, description,
-			defaultFileEntryTypeId, fileEntryTypeIds, overrideFileEntryTypes,
+			defaultFileEntryTypeId, fileEntryTypeIds, restrictionType,
 			serviceContext);
 
 		return new LiferayFolder(dlFolder);
