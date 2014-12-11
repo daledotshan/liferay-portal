@@ -322,6 +322,19 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 	}
 
 	@Override
+	public void registerExtraPackages() {
+		BundleContext bundleContext = _framework.getBundleContext();
+
+		Map<String, List<URL>> extraPackageMap = getExtraPackageMap();
+
+		Dictionary<String, Object> properties = new Hashtable<>();
+
+		properties.put("jsp.compiler.resource.map", "portal.extra.packages");
+
+		bundleContext.registerService(Map.class, extraPackageMap, properties);
+	}
+
+	@Override
 	public void setBundleStartLevel(long bundleId, int startLevel)
 		throws PortalException {
 
@@ -650,26 +663,13 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		Jar jar = null;
 
 		try {
-			URLConnection urlConnection = url.openConnection();
-
-			String fileName = url.getFile();
-
-			if (urlConnection instanceof JarURLConnection) {
-				JarURLConnection jarURLConnection =
-					(JarURLConnection)urlConnection;
-
-				URL jarFileURL = jarURLConnection.getJarFileURL();
-
-				fileName = jarFileURL.getFile();
-			}
-
-			File file = new File(fileName);
+			File file = _getJarFile(url);
 
 			if (!file.exists() || !file.canRead()) {
 				return manifest;
 			}
 
-			fileName = file.getName();
+			String fileName = file.getName();
 
 			analyzer.setJar(new Jar(fileName, file));
 
@@ -789,6 +789,34 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		}
 
 		return interfaces;
+	}
+
+	private File _getJarFile(URL url) throws IOException {
+		URLConnection urlConnection = url.openConnection();
+
+		String fileName = url.getFile();
+
+		if (urlConnection instanceof JarURLConnection) {
+			JarURLConnection jarURLConnection = (JarURLConnection)urlConnection;
+
+			URL jarFileURL = jarURLConnection.getJarFileURL();
+
+			fileName = jarFileURL.getFile();
+		}
+		else if (Validator.equals(url.getProtocol(), "zip")) {
+
+			// Weblogic use a custom zip protocol to represent JAR files
+
+			fileName = url.getFile();
+
+			int index = fileName.indexOf('!');
+
+			if (index > 0) {
+				fileName = fileName.substring(0, index);
+			}
+		}
+
+		return new File(fileName);
 	}
 
 	private String _getSystemPackagesExtra() {
@@ -1275,11 +1303,12 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		frameworkWiring.refreshBundles(refreshBundles, frameworkListener);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ModuleFrameworkImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ModuleFrameworkImpl.class);
 
-	private Pattern _bundleSymbolicNamePattern = Pattern.compile(
+	private final Pattern _bundleSymbolicNamePattern = Pattern.compile(
 		"(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
-	private Lock _extraPackageLock = new ReentrantLock();
+	private final Lock _extraPackageLock = new ReentrantLock();
 	private Map<String, List<URL>> _extraPackageMap;
 	private List<URL> _extraPackageURLs;
 	private Framework _framework;
@@ -1329,8 +1358,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			}
 		}
 
-		private List<Bundle> _lazyActivationBundles;
-		private List<Bundle> _startBundles;
+		private final List<Bundle> _lazyActivationBundles;
+		private final List<Bundle> _startBundles;
 
 	}
 
