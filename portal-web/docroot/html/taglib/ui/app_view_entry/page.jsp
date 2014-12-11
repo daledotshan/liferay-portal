@@ -368,7 +368,6 @@ if (showLinkTitle) {
 		<div class="app-view-entry app-view-entry-taglib display-<%= displayStyle %> entry-display-style <%= cssClass %>" <%= AUIUtil.buildData(data) %>>
 			<liferay-ui:icon
 				cssClass='<%= showCheckbox ? "pull-left app-view-entry app-view-entry-taglib entry-display-style selectable" : "pull-left app-view-entry app-view-entry-taglib entry-display-style" %>'
-				data="<%= data %>"
 				iconCssClass="<%= iconCssClass %>"
 				label="<%= true %>"
 				linkCssClass="entry-link"
