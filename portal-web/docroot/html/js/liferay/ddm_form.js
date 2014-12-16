@@ -146,9 +146,20 @@ AUI.add(
 				field.addTarget(instance);
 
 				var translationManager = instance.get('translationManager');
+				var parent = instance.get('parent');
 
 				if (translationManager) {
 					translationManager.addTarget(field);
+				}
+				else if (parent) {
+					var translationManager = parent.get('translationManager');
+
+					if (translationManager) {
+						translationManager.addTarget(field);
+
+						field.removeTarget(instance);
+						field.addTarget(parent);
+					}
 				}
 
 				return field;
