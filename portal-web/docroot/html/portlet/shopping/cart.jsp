@@ -112,7 +112,7 @@ boolean minQuantityMultiple = PrefsPropsUtil.getBoolean(company.getCompanyId(), 
 	<portlet:param name="struts_action" value="/shopping/cart" />
 </portlet:actionURL>
 
-<aui:form action="<%= cartURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveCart();" %>'>
+<aui:form action="<%= cartURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "updateCart();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 	<aui:input name="itemIds" type="hidden" />
@@ -471,16 +471,7 @@ boolean minQuantityMultiple = PrefsPropsUtil.getBoolean(company.getCompanyId(), 
 		<aui:input label="coupon-code" name="couponCodes" size="30" style="text-transform: uppercase;" type="text" value="<%= cart.getCouponCodes() %>" />
 
 		<c:if test="<%= coupon != null %>">
-			<portlet:renderURL var="viewCouponURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-				<portlet:param name="struts_action" value="/shopping/view_coupon" />
-				<portlet:param name="couponId" value="<%= String.valueOf(coupon.getCouponId()) %>" />
-			</portlet:renderURL>
-
-			<%
-			String taglibOpenCouponWindow = "var viewCouponWindow = window.open('" + viewCouponURL + "', 'viewCoupon', 'directories=no,height=200,location=no,menubar=no,resizable=no,scrollbars=yes,status=no,toolbar=no,width=280'); void(''); viewCouponWindow.focus();";
-			%>
-
-			<aui:a href='<%= "javascript:" + taglibOpenCouponWindow %>' label='<%= "(" + LanguageUtil.get(request, "description") + ")" %>' style="font-size: xx-small;" />
+			<aui:a href="javascript:;" label='<%= "(" + LanguageUtil.get(request, "description") + ")" %>' onClick='<%= renderResponse.getNamespace() + "viewCoupon();" %>' style="font-size: xx-small;" />
 
 			<aui:field-wrapper label="coupon-discount">
 				<div class="alert alert-danger">
@@ -524,6 +515,23 @@ boolean minQuantityMultiple = PrefsPropsUtil.getBoolean(company.getCompanyId(), 
 		<aui:button disabled="<%= items.isEmpty() %>" onClick='<%= renderResponse.getNamespace() + "checkout();" %>' type="submit" value="checkout" />
 	</aui:button-row>
 </aui:form>
+
+<aui:script>
+	function <portlet:namespace />viewCoupon() {
+		Liferay.Util.openWindow(
+			{
+				dialog: {
+					height: 200,
+					width: 280
+				},
+				id: '<portlet:namespace />viewCoupon',
+				refreshWindow: window,
+				title: '<%= UnicodeLanguageUtil.get(request, "coupon") %>',
+				uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/shopping/view_coupon" /><portlet:param name="couponId" value="<%= String.valueOf(coupon.getCouponId()) %>" /></portlet:renderURL>'
+			}
+		);
+	}
+</aui:script>
 
 <%!
 private static int _getMaxQuantity(ShoppingItemPrice[] itemPrices) {
