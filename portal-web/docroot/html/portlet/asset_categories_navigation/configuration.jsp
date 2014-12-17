@@ -16,9 +16,9 @@
 
 <%@ include file="/html/portlet/asset_categories_navigation/init.jsp" %>
 
-<liferay-portlet:actionURL portletConfiguration="true" var="configurationActionURL" />
+<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="configurationActionURL" />
 
-<liferay-portlet:renderURL portletConfiguration="true" var="configurationRenderURL" />
+<liferay-portlet:renderURL portletConfiguration="<%= true %>" var="configurationRenderURL" />
 
 <aui:form action="<%= configurationActionURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveConfiguration();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
@@ -26,58 +26,20 @@
 
 	<aui:fieldset>
 		<aui:select label="vocabularies" name="preferences--allAssetVocabularies--">
-			<aui:option label="all" selected="<%= allAssetVocabularies %>" value="<%= true %>" />
-			<aui:option label="filter[action]" selected="<%= !allAssetVocabularies %>" value="<%= false %>" />
+			<aui:option label="all" selected="<%= assetCategoriesNavigationDisplayContext.isAllAssetVocabularies() %>" value="<%= true %>" />
+			<aui:option label="filter[action]" selected="<%= !assetCategoriesNavigationDisplayContext.isAllAssetVocabularies() %>" value="<%= false %>" />
 		</aui:select>
 
 		<aui:input name="preferences--assetVocabularyIds--" type="hidden" />
 
-		<%
-		Set<Long> availableAssetVocabularyIdsSet = SetUtil.fromArray(availableAssetVocabularyIds);
-
-		// Left list
-
-		List<KeyValuePair> typesLeftList = new ArrayList<KeyValuePair>();
-
-		for (long assetVocabularyId : assetVocabularyIds) {
-			try {
-				AssetVocabulary assetVocabulary = AssetVocabularyLocalServiceUtil.getVocabulary(assetVocabularyId);
-
-				assetVocabulary = assetVocabulary.toEscapedModel();
-
-				typesLeftList.add(new KeyValuePair(String.valueOf(assetVocabularyId), _getTitle(assetVocabulary, themeDisplay)));
-			}
-			catch (NoSuchVocabularyException nsve) {
-			}
-		}
-
-		// Right list
-
-		List<KeyValuePair> typesRightList = new ArrayList<KeyValuePair>();
-
-		Arrays.sort(assetVocabularyIds);
-
-		for (long assetVocabularyId : availableAssetVocabularyIdsSet) {
-			if (Arrays.binarySearch(assetVocabularyIds, assetVocabularyId) < 0) {
-				AssetVocabulary assetVocabulary = AssetVocabularyLocalServiceUtil.getVocabulary(assetVocabularyId);
-
-				assetVocabulary = assetVocabulary.toEscapedModel();
-
-				typesRightList.add(new KeyValuePair(String.valueOf(assetVocabularyId), _getTitle(assetVocabulary, themeDisplay)));
-			}
-		}
-
-		typesRightList = ListUtil.sort(typesRightList, new KeyValuePairComparator(false, true));
-		%>
-
-		<div class="<%= allAssetVocabularies ? "hide" : "" %>" id="<portlet:namespace />assetVocabulariesBoxes">
+		<div class="<%= assetCategoriesNavigationDisplayContext.isAllAssetVocabularies() ? "hide" : "" %>" id="<portlet:namespace />assetVocabulariesBoxes">
 			<liferay-ui:input-move-boxes
 				leftBoxName="currentAssetVocabularyIds"
-				leftList="<%= typesLeftList %>"
+				leftList="<%= assetCategoriesNavigationDisplayContext.getCurrentVocabularyNames() %>"
 				leftReorder="true"
 				leftTitle="current"
 				rightBoxName="availableAssetVocabularyIds"
-				rightList="<%= typesRightList %>"
+				rightList="<%= assetCategoriesNavigationDisplayContext.getAvailableVocabularyNames() %>"
 				rightTitle="available"
 			/>
 		</div>
@@ -90,8 +52,8 @@
 
 			<liferay-ui:ddm-template-selector
 				classNameId="<%= PortalUtil.getClassNameId(templateHandler.getClassName()) %>"
-				displayStyle="<%= displayStyle %>"
-				displayStyleGroupId="<%= displayStyleGroupId %>"
+				displayStyle="<%= assetCategoriesNavigationDisplayContext.getDisplayStyle() %>"
+				displayStyleGroupId="<%= assetCategoriesNavigationDisplayContext.getDisplayStyleGroupId() %>"
 				refreshURL="<%= configurationRenderURL %>"
 				showEmptyOption="<%= true %>"
 			/>
@@ -104,30 +66,13 @@
 </aui:form>
 
 <aui:script>
-	Liferay.provide(
-		window,
-		'<portlet:namespace />saveConfiguration',
-		function() {
-			if (document.<portlet:namespace />fm.<portlet:namespace />assetVocabularyIds) {
-				document.<portlet:namespace />fm.<portlet:namespace />assetVocabularyIds.value = Liferay.Util.listSelect(document.<portlet:namespace />fm.<portlet:namespace />currentAssetVocabularyIds);
-			}
+	function <portlet:namespace />saveConfiguration() {
+		var form = AUI.$(document.<portlet:namespace />fm);
 
-			submitForm(document.<portlet:namespace />fm);
-		},
-		['liferay-util-list-fields']
-	);
+		form.fm('assetVocabularyIds').val(Liferay.Util.listSelect(form.fm('currentAssetVocabularyIds')));
+
+		submitForm(form);
+	}
 
 	Liferay.Util.toggleSelectBox('<portlet:namespace />allAssetVocabularies', 'false', '<portlet:namespace />assetVocabulariesBoxes');
 </aui:script>
-
-<%!
-private String _getTitle(AssetVocabulary assetVocabulary, ThemeDisplay themeDisplay) {
-	String title = assetVocabulary.getTitle(themeDisplay.getLanguageId());
-
-	if (assetVocabulary.getGroupId() == themeDisplay.getCompanyGroupId()) {
-		title += " (" + LanguageUtil.get(themeDisplay.getLocale(), "global") + ")";
-	}
-
-	return title;
-}
-%>
