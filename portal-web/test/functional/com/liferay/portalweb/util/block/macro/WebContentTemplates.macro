@@ -99,6 +99,21 @@
 		<execute action="CPWebcontentTemplatesAddtemplate#selectFrame" />
 		<execute action="CPWebcontentTemplatesAddtemplate#selectFrame" locator-key1="TEMPLATES_IFRAME" />
 		<execute action="CPWebcontentTemplates#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
+
+		<if>
+			<isset var="addRoleViewPermissions" />
+			<then>
+				<var name="key_templateName" value="${templateName}" />
+
+				<execute action="CPWebcontentTemplates#click" locator-key1="TEMPLATE_TABLE_ACTIONS" />
+				<execute action="CPWebcontentTemplates#assertClick" locator-key1="TEMPLATE_MENULIST_PERMISSIONS" value1="Permissions" />
+
+				<execute macro="PermissionsInline#addOrRemoveViewPermissionFromAllRoles">
+					<var name="addOrRemoveViewPermission" value="Add" />
+					<var name="roleList" value="${addRoleViewPermissions}" />
+				</execute>
+			</then>
+		</if>
 	</command>
 
 	<command name="addField">
@@ -165,7 +180,7 @@
 		<execute action="CPWebcontentTemplates#type" locator-key1="SEARCH_FIELD" value1="${templateName}" />
 		<execute action="CPWebcontentTemplates#assertClick" locator-key1="SEARCH_BUTTON" value1="Search" />
 		<execute action="CPWebcontentTemplates#click" locator-key1="TEMPLATE_TABLE_ACTIONS" />
-		<execute action="CPWebcontentTemplates#assertClick" locator-key1="TEMPLATE_MENULIST_DELETE" value1="Delete" />
+		<execute action="CPWebcontentTemplates#assertClickNoError" locator-key1="TEMPLATE_MENULIST_DELETE" value1="Delete" />
 		<execute action="CPWebcontentTemplates#confirm" locator-key1="CONFIRMATION" value1="Are you sure you want to delete this? It will be deleted immediately." />
 
 		<if>
