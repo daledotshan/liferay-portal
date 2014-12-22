@@ -14,18 +14,25 @@
 
 package com.liferay.portal.repository.liferayrepository;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.DocumentRepository;
+import com.liferay.portal.kernel.repository.LocalRepository;
+import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.RepositoryFactory;
 import com.liferay.portal.kernel.repository.capabilities.BulkOperationCapability;
 import com.liferay.portal.kernel.repository.capabilities.SyncCapability;
 import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
+import com.liferay.portal.kernel.repository.capabilities.WorkflowCapability;
+import com.liferay.portal.kernel.repository.model.FileContentReference;
+import com.liferay.portal.kernel.repository.model.ModelValidator;
 import com.liferay.portal.kernel.repository.registry.BaseRepositoryDefiner;
 import com.liferay.portal.kernel.repository.registry.CapabilityRegistry;
-import com.liferay.portal.kernel.repository.registry.RepositoryEventRegistry;
 import com.liferay.portal.kernel.repository.registry.RepositoryFactoryRegistry;
+import com.liferay.portal.kernel.repository.util.ModelValidatorUtil;
 import com.liferay.portal.repository.capabilities.LiferayBulkOperationCapability;
 import com.liferay.portal.repository.capabilities.LiferaySyncCapability;
 import com.liferay.portal.repository.capabilities.LiferayTrashCapability;
+import com.liferay.portal.repository.capabilities.LiferayWorkflowCapability;
 
 /**
  * @author Adolfo Pérez
@@ -58,17 +65,10 @@ public class LiferayRepositoryDefiner extends BaseRepositoryDefiner {
 			BulkOperationCapability.class, bulkOperationCapability);
 
 		capabilityRegistry.addSupportedCapability(
-			SyncCapability.class, _liferaySyncCapability);
-	}
-
-	@Override
-	public void registerRepositoryEventListeners(
-		RepositoryEventRegistry repositoryEventRegistry) {
-
-		_liferaySyncCapability.registerRepositoryEventListeners(
-			repositoryEventRegistry);
-		_liferayTrashCapability.registerRepositoryEventListeners(
-			repositoryEventRegistry);
+			SyncCapability.class,
+			new LiferaySyncCapability(bulkOperationCapability));
+		capabilityRegistry.addSupportedCapability(
+			WorkflowCapability.class, _liferayWorkflowCapability);
 	}
 
 	@Override
@@ -79,13 +79,54 @@ public class LiferayRepositoryDefiner extends BaseRepositoryDefiner {
 	}
 
 	public void setRepositoryFactory(RepositoryFactory repositoryFactory) {
-		_repositoryFactory = repositoryFactory;
+		_repositoryFactory = new LiferayRepositoryFactoryWrapper(
+			repositoryFactory);
 	}
 
-	private LiferaySyncCapability _liferaySyncCapability =
-		new LiferaySyncCapability();
-	private LiferayTrashCapability _liferayTrashCapability =
+	private final LiferayTrashCapability _liferayTrashCapability =
 		new LiferayTrashCapability();
+	private final LiferayWorkflowCapability _liferayWorkflowCapability =
+		new LiferayWorkflowCapability();
 	private RepositoryFactory _repositoryFactory;
+
+	private class LiferayRepositoryFactoryWrapper implements RepositoryFactory {
+
+		public LiferayRepositoryFactoryWrapper(
+			RepositoryFactory repositoryFactory) {
+
+			_repositoryFactory = repositoryFactory;
+		}
+
+		@Override
+		public LocalRepository createLocalRepository(long repositoryId)
+			throws PortalException {
+
+			LocalRepository localRepository =
+				_repositoryFactory.createLocalRepository(repositoryId);
+
+			ModelValidator<FileContentReference> modelValidator =
+				ModelValidatorUtil.getDefaultDLFileEntryModelValidator();
+
+			return new ModelValidatorLocalRepositoryWrapper(
+				localRepository, modelValidator);
+		}
+
+		@Override
+		public Repository createRepository(long repositoryId)
+			throws PortalException {
+
+			Repository repository = _repositoryFactory.createRepository(
+				repositoryId);
+
+			ModelValidator<FileContentReference> modelValidator =
+				ModelValidatorUtil.getDefaultDLFileEntryModelValidator();
+
+			return new ModelValidatorRepositoryWrapper(
+				repository, modelValidator);
+		}
+
+		private final RepositoryFactory _repositoryFactory;
+
+	}
 
 }

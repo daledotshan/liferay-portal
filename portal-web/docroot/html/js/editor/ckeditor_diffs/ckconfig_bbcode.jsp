@@ -68,26 +68,36 @@ response.setContentType(ContentTypes.TEXT_JAVASCRIPT);
 	].join(',');
 
 	config.toolbar_bbcode = [
-		['Bold', 'Italic', 'Underline', 'Strike', '-', 'Link', 'Unlink'],
-		['Image', 'Smiley', '-', 'TextColor', '-', 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
-		['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'Blockquote', '-', 'Code'],
+		['Bold', 'Italic', 'Underline', 'Strike'],
+		['TextColor'],
+		['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+		['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'Code'],
 		'/',
-		['Font', 'FontSize', '-', 'Format', '-', 'Undo', 'Redo', '-', 'Source'],
+		['Format', 'Font', 'FontSize'],
+		['Link', 'Unlink'],
+		['Image', '-', 'Smiley'],
+		'/',
+		['Cut', 'Copy', 'Paste', '-', 'SelectAll', '-', 'Undo', 'Redo'],
+		['Source'],
 		['A11YBtn']
 	];
 
 	config.toolbar_phone = [
 		['Bold', 'Italic', 'Underline'],
 		['NumberedList', 'BulletedList'],
-		['Image', 'Link', 'Unlink']
+		['Link', 'Unlink'],
+		['Image'],
+		['Source']
 	];
 
 	config.toolbar_tablet = [
 		['Bold', 'Italic', 'Underline', 'Strike'],
-		['NumberedList', 'BulletedList'],
-		['Image', 'Link', 'Unlink'],
 		['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
-		['Styles', 'FontSize']
+		['NumberedList', 'BulletedList'],
+		['Styles', 'FontSize'],
+		['Link', 'Unlink'],
+		['Image'],
+		['Source']
 	];
 
 	config.bodyClass = 'html-editor <%= HtmlUtil.escapeJS(cssClasses) %>';
