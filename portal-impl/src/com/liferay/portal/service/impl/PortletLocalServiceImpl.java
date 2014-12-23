@@ -16,6 +16,8 @@ package com.liferay.portal.service.impl;
 
 import com.liferay.portal.PortletIdException;
 import com.liferay.portal.kernel.cluster.Clusterable;
+import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.ConfigurationFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.image.SpriteProcessor;
@@ -1081,6 +1083,32 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 		return portletsPool;
 	}
 
+	private String _getTriggerValue(Portlet portlet, String propertyKey) {
+		PortletApp portletApp = portlet.getPortletApp();
+
+		ServletContext servletContext = portletApp.getServletContext();
+
+		ClassLoader classLoader = servletContext.getClassLoader();
+
+		Configuration configuration = _propertiesConfigurations.get(
+			classLoader);
+
+		if (configuration == null) {
+			String propertyFileName = "portal";
+
+			if (portletApp.isWARFile()) {
+				propertyFileName = "portlet";
+			}
+
+			configuration = ConfigurationFactoryUtil.getConfiguration(
+				classLoader, propertyFileName);
+
+			_propertiesConfigurations.put(classLoader, configuration);
+		}
+
+		return configuration.get(propertyKey);
+	}
+
 	private void _readLiferayDisplay(
 		String servletContextName, Element element,
 		PortletCategory portletCategory, Set<String> portletIds) {
@@ -1302,8 +1330,9 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 					"property-key");
 
 				if (propertyKeyElement != null) {
-					schedulerEntry.setPropertyKey(
-						propertyKeyElement.getTextTrim());
+					schedulerEntry.setTriggerValue(
+						_getTriggerValue(
+							portletModel, propertyKeyElement.getTextTrim()));
 				}
 				else {
 					schedulerEntry.setTriggerValue(
@@ -1317,8 +1346,9 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 					"property-key");
 
 				if (propertyKeyElement != null) {
-					schedulerEntry.setPropertyKey(
-						propertyKeyElement.getTextTrim());
+					schedulerEntry.setTriggerValue(
+						_getTriggerValue(
+							portletModel, propertyKeyElement.getTextTrim()));
 				}
 				else {
 					Element simpleTriggerValueElement = simpleElement.element(
@@ -2407,16 +2437,19 @@ public class PortletLocalServiceImpl extends PortletLocalServiceBaseImpl {
 			PortletConstants.INSTANCE_SEPARATOR.length() +
 				PortletConstants.USER_SEPARATOR.length() + 39;
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortletLocalServiceImpl.class);
 
-	private static Map<Long, Map<String, Portlet>> _companyPortletsPool =
+	private static final Map<Long, Map<String, Portlet>> _companyPortletsPool =
 		new ConcurrentHashMap<Long, Map<String, Portlet>>();
-	private static Map<String, PortletApp> _portletAppsPool =
+	private static final Map<String, PortletApp> _portletAppsPool =
 		new ConcurrentHashMap<String, PortletApp>();
-	private static Map<String, String> _portletIdsByStrutsPath =
+	private static final Map<String, String> _portletIdsByStrutsPath =
 		new ConcurrentHashMap<String, String>();
-	private static Map<String, Portlet> _portletsPool =
+	private static final Map<String, Portlet> _portletsPool =
 		new ConcurrentHashMap<String, Portlet>();
+	private static final Map<ClassLoader, Configuration>
+		_propertiesConfigurations =
+			new ConcurrentHashMap<ClassLoader, Configuration>();
 
 }

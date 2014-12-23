@@ -154,10 +154,10 @@ public class DDLRecordVersionLocalServiceWrapper
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	@Override
 	public long dynamicQueryCount(
@@ -166,11 +166,11 @@ public class DDLRecordVersionLocalServiceWrapper
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
 	* @param projection the projection to apply to the query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	@Override
 	public long dynamicQueryCount(
@@ -240,6 +240,13 @@ public class DDLRecordVersionLocalServiceWrapper
 	@Override
 	public int getDDLRecordVersionsCount() {
 		return _ddlRecordVersionLocalService.getDDLRecordVersionsCount();
+	}
+
+	@Override
+	public com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion getLatestRecordVersion(
+		long recordId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _ddlRecordVersionLocalService.getLatestRecordVersion(recordId);
 	}
 
 	@Override
