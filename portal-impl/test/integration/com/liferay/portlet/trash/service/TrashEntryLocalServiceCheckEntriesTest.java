@@ -16,7 +16,8 @@ package com.liferay.portlet.trash.service;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.repository.util.RepositoryTrashUtil;
+import com.liferay.portal.kernel.test.AggregateTestRule;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -32,10 +33,10 @@ import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.StagingLocalServiceUtil;
 import com.liferay.portal.test.DeleteAfterTestRun;
+import com.liferay.portal.test.LiferayIntegrationTestRule;
+import com.liferay.portal.test.MainServletTestRule;
 import com.liferay.portal.test.Sync;
-import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
-import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.SynchronousDestinationTestRule;
 import com.liferay.portal.util.test.CompanyTestUtil;
 import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.LayoutTestUtil;
@@ -45,7 +46,6 @@ import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portal.util.test.UserTestUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 import com.liferay.portlet.trash.model.TrashEntry;
 import com.liferay.portlet.trash.util.TrashUtil;
@@ -57,21 +57,23 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * @author Sampsa Sohlman
  * @author Shuyang Zhou
  */
-@ExecutionTestListeners(
-	listeners = {
-		MainServletExecutionTestListener.class,
-		SynchronousDestinationExecutionTestListener.class
-	})
-@RunWith(LiferayIntegrationJUnitTestRunner.class)
 @Sync
 public class TrashEntryLocalServiceCheckEntriesTest {
+
+	@ClassRule
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -224,15 +226,15 @@ public class TrashEntryLocalServiceCheckEntriesTest {
 
 		User user = UserTestUtil.getAdminUser(fileEntry.getCompanyId());
 
-		DLAppLocalServiceUtil.moveFileEntryToTrash(
-			user.getUserId(), fileEntry.getFileEntryId());
+		RepositoryTrashUtil.moveFileEntryToTrash(
+			user.getUserId(), fileEntry.getRepositoryId(),
+			fileEntry.getFileEntryId());
 
 		if (expired) {
 			int maxAge = TrashUtil.getMaxAge(group);
 
-			TrashEntry trashEntry =
-				TrashEntryLocalServiceUtil.getEntry(
-					DLFileEntry.class.getName(), fileEntry.getFileEntryId());
+			TrashEntry trashEntry = TrashEntryLocalServiceUtil.getEntry(
+				DLFileEntry.class.getName(), fileEntry.getFileEntryId());
 
 			Date createDate = trashEntry.getCreateDate();
 
@@ -248,8 +250,8 @@ public class TrashEntryLocalServiceCheckEntriesTest {
 		User user = UserTestUtil.getAdminUser(companyId);
 
 		Group group = GroupTestUtil.addGroup(
-			companyId, user.getUserId(), GroupConstants.DEFAULT_PARENT_GROUP_ID,
-			RandomTestUtil.randomString(), "This is a test group.");
+			companyId, user.getUserId(),
+			GroupConstants.DEFAULT_PARENT_GROUP_ID);
 
 		_groups.add(group);
 

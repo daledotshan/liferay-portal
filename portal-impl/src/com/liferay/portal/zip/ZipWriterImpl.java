@@ -14,8 +14,8 @@
 
 package com.liferay.portal.zip;
 
+import com.liferay.portal.kernel.io.unsync.UnsyncBufferedOutputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
-import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.memory.DeleteFileFinalizeAction;
@@ -30,7 +30,6 @@ import de.schlichtherle.io.ArchiveDetector;
 import de.schlichtherle.io.ArchiveException;
 import de.schlichtherle.io.DefaultArchiveDetector;
 import de.schlichtherle.io.File;
-import de.schlichtherle.io.FileInputStream;
 import de.schlichtherle.io.FileOutputStream;
 import de.schlichtherle.io.archive.zip.ZipDriver;
 
@@ -51,12 +50,13 @@ public class ZipWriterImpl implements ZipWriter {
 		_file.mkdir();
 
 		FinalizeManager.register(
-			_file, new DeleteFileFinalizeAction(_file.getAbsolutePath()),
+			_file.getDelegate(),
+			new DeleteFileFinalizeAction(_file.getAbsolutePath()),
 			FinalizeManager.PHANTOM_REFERENCE_FACTORY);
 	}
 
 	public ZipWriterImpl(java.io.File file) {
-		_file = new File(file);
+		_file = new File(file.getAbsolutePath());
 
 		_file.mkdir();
 	}
@@ -88,8 +88,9 @@ public class ZipWriterImpl implements ZipWriter {
 
 		FileUtil.mkdirs(getPath());
 
-		try (OutputStream outputStream = new FileOutputStream(
-				new File(getPath() + StringPool.SLASH + name))) {
+		try (OutputStream outputStream = new UnsyncBufferedOutputStream(
+				new FileOutputStream(
+					new File(getPath() + StringPool.SLASH + name)))) {
 
 			File.cat(inputStream, outputStream);
 		}
@@ -97,30 +98,27 @@ public class ZipWriterImpl implements ZipWriter {
 
 	@Override
 	public void addEntry(String name, String s) throws IOException {
+		if (s == null) {
+			return;
+		}
+
 		addEntry(name, s.getBytes(StringPool.UTF8));
 	}
 
 	@Override
 	public void addEntry(String name, StringBuilder sb) throws IOException {
+		if (sb == null) {
+			return;
+		}
+
 		addEntry(name, sb.toString());
 	}
 
 	@Override
 	public byte[] finish() throws IOException {
-		UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
-			new UnsyncByteArrayOutputStream();
+		java.io.File file = getFile();
 
-		InputStream inputStream = new FileInputStream(_file);
-
-		try {
-			File.cat(inputStream, unsyncByteArrayOutputStream);
-		}
-		finally {
-			unsyncByteArrayOutputStream.close();
-			inputStream.close();
-		}
-
-		return unsyncByteArrayOutputStream.toByteArray();
+		return FileUtil.getBytes(file);
 	}
 
 	@Override
@@ -140,7 +138,7 @@ public class ZipWriterImpl implements ZipWriter {
 		return _file.getPath();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ZipWriterImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(ZipWriterImpl.class);
 
 	static {
 		File.setDefaultArchiveDetector(
@@ -149,6 +147,6 @@ public class ZipWriterImpl implements ZipWriter {
 				new ZipDriver()));
 	}
 
-	private File _file;
+	private final File _file;
 
 }

@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liferay.sync.engine.documentlibrary.event.Event;
 import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
-import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.service.SyncFileService;
 import com.liferay.sync.engine.session.Session;
 import com.liferay.sync.engine.session.SessionManager;
+import com.liferay.sync.engine.util.ConnectionRetryUtil;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,58 +51,7 @@ public class BaseJSONHandler extends BaseHandler {
 	}
 
 	@Override
-	public Void handleResponse(HttpResponse httpResponse) {
-		try {
-			StatusLine statusLine = httpResponse.getStatusLine();
-
-			if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-				String response = getResponseString(httpResponse);
-
-				if (handlePortalException(getException(response))) {
-					return null;
-				}
-
-				_logger.error("Status code {}", statusLine.getStatusCode());
-
-				throw new HttpResponseException(
-					statusLine.getStatusCode(), statusLine.getReasonPhrase());
-			}
-
-			doHandleResponse(httpResponse);
-		}
-		catch (Exception e) {
-			handleException(e);
-		}
-
-		return null;
-	}
-
-	@Override
-	protected void doHandleResponse(HttpResponse httpResponse)
-		throws Exception {
-
-		Header header = httpResponse.getFirstHeader("Sync-JWT");
-
-		if (header != null) {
-			Session session = SessionManager.getSession(getSyncAccountId());
-
-			session.setToken(header.getValue());
-		}
-
-		String response = getResponseString(httpResponse);
-
-		if (handlePortalException(getException(response))) {
-			return;
-		}
-
-		if (_logger.isTraceEnabled()) {
-			_logger.trace("Handling response {}", response);
-		}
-
-		processResponse(response);
-	}
-
-	protected String getException(String response) {
+	public String getException(String response) {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		JsonNode responseJsonNode = null;
@@ -142,20 +91,15 @@ public class BaseJSONHandler extends BaseHandler {
 		return typeJsonNode.asText();
 	}
 
-	protected String getResponseString(HttpResponse httpResponse)
-		throws Exception {
-
-		HttpEntity httpEntity = httpResponse.getEntity();
-
-		return EntityUtils.toString(httpEntity);
-	}
-
-	protected boolean handlePortalException(String exception) throws Exception {
+	@Override
+	public boolean handlePortalException(String exception) throws Exception {
 		if (exception.equals("")) {
 			return false;
 		}
 
-		if (_logger.isDebugEnabled()) {
+		if (!ConnectionRetryUtil.retryInProgress(getSyncAccountId()) &&
+			_logger.isDebugEnabled()) {
+
 			_logger.debug("Handling exception {}", exception);
 		}
 
@@ -216,33 +160,24 @@ public class BaseJSONHandler extends BaseHandler {
 		else if (exception.equals(
 					"com.liferay.sync.SyncServicesUnavailableException")) {
 
-			SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
-				getSyncAccountId());
-
-			syncAccount.setState(SyncAccount.STATE_DISCONNECTED);
-			syncAccount.setUiEvent(
+			retryServerConnection(
 				SyncAccount.UI_EVENT_SYNC_SERVICES_NOT_ACTIVE);
+		}
+		else if (exception.equals(
+					"com.liferay.sync.SyncSiteUnavailableException")) {
 
-			SyncAccountService.update(syncAccount);
-
-			retryServerConnection();
+			handleSiteDeactivatedException();
 		}
 		else if (exception.equals(
 					"com.liferay.portal.kernel.jsonwebservice." +
 						"NoSuchJSONWebServiceException") ||
 				 exception.equals("java.lang.RuntimeException")) {
 
-			SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
-				getSyncAccountId());
-
-			syncAccount.setState(SyncAccount.STATE_DISCONNECTED);
-			syncAccount.setUiEvent(SyncAccount.UI_EVENT_SYNC_WEB_MISSING);
-
-			SyncAccountService.update(syncAccount);
-
-			retryServerConnection();
+			retryServerConnection(SyncAccount.UI_EVENT_SYNC_WEB_MISSING);
 		}
-		else if (exception.equals("java.lang.SecurityException")) {
+		else if (exception.equals("Authenticated access required") ||
+				 exception.equals("java.lang.SecurityException")) {
+
 			throw new HttpResponseException(
 				HttpStatus.SC_UNAUTHORIZED, "Authenticated access required");
 		}
@@ -258,10 +193,67 @@ public class BaseJSONHandler extends BaseHandler {
 		return true;
 	}
 
-	protected void processResponse(String response) throws Exception {
+	@Override
+	public Void handleResponse(HttpResponse httpResponse) {
+		try {
+			StatusLine statusLine = httpResponse.getStatusLine();
+
+			if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+				String response = getResponseString(httpResponse);
+
+				if (handlePortalException(getException(response))) {
+					return null;
+				}
+
+				_logger.error("Status code {}", statusLine.getStatusCode());
+
+				throw new HttpResponseException(
+					statusLine.getStatusCode(), statusLine.getReasonPhrase());
+			}
+
+			doHandleResponse(httpResponse);
+		}
+		catch (Exception e) {
+			handleException(e);
+		}
+
+		return null;
 	}
 
-	private static Logger _logger = LoggerFactory.getLogger(
+	@Override
+	protected void doHandleResponse(HttpResponse httpResponse)
+		throws Exception {
+
+		Header header = httpResponse.getFirstHeader("Sync-JWT");
+
+		if (header != null) {
+			Session session = SessionManager.getSession(getSyncAccountId());
+
+			session.setToken(header.getValue());
+		}
+
+		String response = getResponseString(httpResponse);
+
+		if (handlePortalException(getException(response))) {
+			return;
+		}
+
+		if (_logger.isTraceEnabled()) {
+			_logger.trace("Handling response {}", response);
+		}
+
+		processResponse(response);
+	}
+
+	protected String getResponseString(HttpResponse httpResponse)
+		throws Exception {
+
+		HttpEntity httpEntity = httpResponse.getEntity();
+
+		return EntityUtils.toString(httpEntity);
+	}
+
+	private static final Logger _logger = LoggerFactory.getLogger(
 		BaseJSONHandler.class);
 
 }

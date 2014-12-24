@@ -29,6 +29,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 
@@ -39,6 +40,7 @@ import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -52,10 +54,7 @@ import org.slf4j.LoggerFactory;
 public class FileUtil {
 
 	public static String getChecksum(Path filePath) throws IOException {
-		if (!Files.exists(filePath) ||
-			(Files.size(filePath) >
-				PropsValues.SYNC_FILE_CHECKSUM_THRESHOLD_SIZE)) {
-
+		if (!isValidChecksum(filePath)) {
 			return "";
 		}
 
@@ -137,17 +136,21 @@ public class FileUtil {
 	public static String getSanitizedFileName(String title, String extension) {
 		String fileName = title.replace("/", "_");
 
-		if ((extension != null) && !extension.equals("") &&
-			!fileName.endsWith("." + extension)) {
+		if ((extension != null) && !extension.equals("")) {
+			int x = fileName.lastIndexOf(".");
 
-			fileName += "." + extension;
+			if ((x == -1) ||
+				!extension.equalsIgnoreCase(fileName.substring(x + 1))) {
+
+				fileName += "." + extension;
+			}
 		}
 
 		if (fileName.length() > 255) {
 			int x = fileName.length() - 1;
 
 			if ((extension != null) && !extension.equals("")) {
-				x = fileName.lastIndexOf("." + extension);
+				x = fileName.lastIndexOf(".");
 			}
 
 			int y = x - (fileName.length() - 255);
@@ -186,12 +189,25 @@ public class FileUtil {
 		return !checksum.equals(syncFile.getChecksum());
 	}
 
-	public static boolean isIgnoredFilePath(Path filePath) throws Exception {
+	public static boolean isHidden(Path filePath) {
+		if (!Files.exists(filePath)) {
+			return false;
+		}
+
+		try {
+			return Files.isHidden(filePath);
+		}
+		catch (IOException ioe) {
+			return false;
+		}
+	}
+
+	public static boolean isIgnoredFilePath(Path filePath) {
 		String fileName = String.valueOf(filePath.getFileName());
 
 		if (_syncFileIgnoreNames.contains(fileName) ||
-			(PropsValues.SYNC_FILE_IGNORE_HIDDEN &&
-			 Files.isHidden(filePath)) ||
+			(!Files.isDirectory(filePath) && fileName.startsWith("~$")) ||
+			(PropsValues.SYNC_FILE_IGNORE_HIDDEN && isHidden(filePath)) ||
 			Files.isSymbolicLink(filePath) || fileName.endsWith(".lnk")) {
 
 			return true;
@@ -210,6 +226,17 @@ public class FileUtil {
 		}
 
 		return false;
+	}
+
+	public static boolean isValidChecksum(Path filePath) throws IOException {
+		if (Files.notExists(filePath) ||
+			(Files.size(filePath) >
+				PropsValues.SYNC_FILE_CHECKSUM_THRESHOLD_SIZE)) {
+
+			return false;
+		}
+
+		return true;
 	}
 
 	public static boolean isValidFileName(String fileName) {
@@ -247,6 +274,19 @@ public class FileUtil {
 		return true;
 	}
 
+	public static void moveFile(Path sourceFilePath, Path targetFilePath) {
+		checkFilePath(sourceFilePath);
+
+		try {
+			Files.move(
+				sourceFilePath, targetFilePath,
+				StandardCopyOption.REPLACE_EXISTING);
+		}
+		catch (Exception e) {
+			_logger.error(e.getMessage(), e);
+		}
+	}
+
 	public static void writeFileKey(Path filePath, String fileKey) {
 		if (!OSDetector.isWindows()) {
 			return;
@@ -265,6 +305,25 @@ public class FileUtil {
 		try {
 			userDefinedFileAttributeView.write(
 				"fileKey", _CHARSET.encode(CharBuffer.wrap(fileKey)));
+		}
+		catch (Exception e) {
+			_logger.error(e.getMessage(), e);
+		}
+	}
+
+	protected static void checkFilePath(Path filePath) {
+		try {
+			while (true) {
+				long size1 = FileUtils.sizeOf(filePath.toFile());
+
+				Thread.sleep(1000);
+
+				long size2 = FileUtils.sizeOf(filePath.toFile());
+
+				if (size1 == size2) {
+					break;
+				}
+			}
 		}
 		catch (Exception e) {
 			_logger.error(e.getMessage(), e);
