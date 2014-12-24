@@ -407,6 +407,7 @@ public class ResourceActionsImpl implements ResourceActions {
 			if (layoutManagerActions == null) {
 				layoutManagerActions = new LinkedHashSet<String>();
 
+				checkPortletActions(name, layoutManagerActions);
 				checkPortletLayoutManagerActions(layoutManagerActions);
 
 				_portletResourceLayoutManagerActions.put(
