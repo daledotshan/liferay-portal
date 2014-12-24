@@ -407,6 +407,7 @@ public class ResourceActionsImpl implements ResourceActions {
 			if (layoutManagerActions == null) {
 				layoutManagerActions = new LinkedHashSet<String>();
 
+				checkPortletActions(name, layoutManagerActions);
 				checkPortletLayoutManagerActions(layoutManagerActions);
 
 				_portletResourceLayoutManagerActions.put(
@@ -1155,7 +1156,8 @@ public class ResourceActionsImpl implements ResourceActions {
 		Role.class.getName(), User.class.getName(), UserGroup.class.getName()
 	};
 
-	private static Log _log = LogFactoryUtil.getLog(ResourceActionsImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ResourceActionsImpl.class);
 
 	private Map<String, Set<String>> _modelPortletResources;
 	private Map<String, Set<String>> _modelResourceActions;
