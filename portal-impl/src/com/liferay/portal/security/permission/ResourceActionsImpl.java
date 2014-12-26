@@ -732,6 +732,12 @@ public class ResourceActionsImpl implements ResourceActions {
 	}
 
 	protected void checkPortletLayoutManagerActions(Set<String> actions) {
+		if (!actions.contains(ActionKeys.ACCESS_IN_CONTROL_PANEL) &&
+			!actions.contains(ActionKeys.ADD_TO_PAGE)) {
+
+				actions.add(ActionKeys.ADD_TO_PAGE);
+			}
+
 		if (!actions.contains(ActionKeys.CONFIGURATION)) {
 			actions.add(ActionKeys.CONFIGURATION);
 		}
@@ -1155,7 +1161,8 @@ public class ResourceActionsImpl implements ResourceActions {
 		Role.class.getName(), User.class.getName(), UserGroup.class.getName()
 	};
 
-	private static Log _log = LogFactoryUtil.getLog(ResourceActionsImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ResourceActionsImpl.class);
 
 	private Map<String, Set<String>> _modelPortletResources;
 	private Map<String, Set<String>> _modelResourceActions;
