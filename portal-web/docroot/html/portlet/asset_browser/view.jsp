@@ -76,7 +76,6 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 
 			<liferay-ui:search-container-row
 				className="com.liferay.portlet.asset.model.AssetEntry"
-				escapedModel="<%= true %>"
 				modelVar="assetEntry"
 			>
 
