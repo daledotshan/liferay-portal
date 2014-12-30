@@ -20,10 +20,9 @@ import com.liferay.portlet.dynamicdatamapping.BaseDDMTestCase;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.testng.Assert;
 
 /**
  * @author Marcellus Tavares
@@ -53,7 +52,7 @@ public class DDMFormValuesTest extends BaseDDMTestCase {
 		Assert.assertEquals(3, ddmFormFieldValues.size());
 	}
 
-	private final String _FIELD_NAME = StringUtil.randomString();
+	private static final String _FIELD_NAME = StringUtil.randomString();
 
 	private DDMFormValues _ddmFormValues;
 
