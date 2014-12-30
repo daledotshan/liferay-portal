@@ -178,47 +178,6 @@ public class AddDefaultLayoutSetPrototypesAction
 		preferences.put("portletSetupUseCustomTitle", Boolean.TRUE.toString());
 
 		updatePortletSetup(layout, portletId, preferences);
-
-		// News layout
-
-		layout = addLayout(layoutSet, "news", "/news", "2_columns_iii");
-
-		portletId = addPortletId(layout, PortletKeys.RSS, "column-1");
-
-		preferences = new HashMap<String, String>();
-
-		preferences.put("expandedEntriesPerFeed", "3");
-
-		for (Locale locale : locales) {
-			preferences.put(
-				"portletSetupTitle_" + locale,
-				LanguageUtil.get(locale, "technology-news"));
-		}
-
-		preferences.put("portletSetupUseCustomTitle", Boolean.TRUE.toString());
-		preferences.put(
-			"urls", "http://partners.userland.com/nytRss/technology.xml");
-
-		updatePortletSetup(layout, portletId, preferences);
-
-		portletId = addPortletId(layout, PortletKeys.RSS, "column-2");
-
-		preferences = new HashMap<String, String>();
-
-		preferences.put("expandedEntriesPerFeed", "0");
-
-		for (Locale locale : locales) {
-			preferences.put(
-				"portletSetupTitle_" + locale,
-				LanguageUtil.get(locale, "liferay-news"));
-		}
-
-		preferences.put("portletSetupUseCustomTitle", Boolean.TRUE.toString());
-		preferences.put(
-			"urls", "http://www.liferay.com/en/about-us/news/-/blogs/rss");
-		preferences.put("titles", "Liferay Press Releases");
-
-		updatePortletSetup(layout, portletId, preferences);
 	}
 
 	protected void addPublicSite(
@@ -276,8 +235,6 @@ public class AddDefaultLayoutSetPrototypesAction
 		layout = addLayout(layoutSet, "wiki", "/wiki", "2_columns_iii");
 
 		addPortletId(layout, PortletKeys.WIKI, "column-1");
-		addPortletId(
-			layout, PortletKeys.ASSET_CATEGORIES_NAVIGATION, "column-2");
 		addPortletId(layout, PortletKeys.TAGS_CLOUD, "column-2");
 	}
 

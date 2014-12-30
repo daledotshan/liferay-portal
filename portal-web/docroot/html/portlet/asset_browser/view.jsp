@@ -64,12 +64,18 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 			%>
 
 			<liferay-ui:search-container-results>
-				<%@ include file="/html/portlet/asset_publisher/asset_search_results.jspf" %>
+				<c:choose>
+					<c:when test="<%= PropsValues.ASSET_BROWSER_SEARCH_WITH_DATABASE %>">
+						<%@ include file="/html/portlet/asset_publisher/asset_search_results_database.jspf" %>
+					</c:when>
+					<c:otherwise>
+						<%@ include file="/html/portlet/asset_publisher/asset_search_results_index.jspf" %>
+					</c:otherwise>
+				</c:choose>
 			</liferay-ui:search-container-results>
 
 			<liferay-ui:search-container-row
 				className="com.liferay.portlet.asset.model.AssetEntry"
-				escapedModel="<%= true %>"
 				modelVar="assetEntry"
 			>
 
@@ -125,6 +131,6 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 	</aui:form>
 </div>
 
-<aui:script use="aui-base">
+<aui:script>
 	Liferay.Util.selectEntityHandler('#<portlet:namespace />selectAssetFm', '<%= HtmlUtil.escapeJS(eventName) %>');
 </aui:script>
