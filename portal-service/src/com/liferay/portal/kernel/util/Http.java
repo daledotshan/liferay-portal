@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.net.URL;
 
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
-import javax.portlet.PortletRequest;
 import javax.portlet.RenderRequest;
 
 import javax.servlet.http.Cookie;
@@ -176,6 +176,14 @@ public interface Http {
 	public byte[] URLtoByteArray(String location, boolean post)
 		throws IOException;
 
+	public InputStream URLtoInputStream(Http.Options options)
+		throws IOException;
+
+	public InputStream URLtoInputStream(String location) throws IOException;
+
+	public InputStream URLtoInputStream(String location, boolean post)
+		throws IOException;
+
 	public String URLtoString(Http.Options options) throws IOException;
 
 	public String URLtoString(String location) throws IOException;
@@ -228,11 +236,11 @@ public interface Http {
 			return _username;
 		}
 
-		private String _host;
-		private String _password;
-		private int _port;
-		private String _realm;
-		private String _username;
+		private final String _host;
+		private final String _password;
+		private final int _port;
+		private final String _realm;
+		private final String _username;
 
 	}
 
@@ -256,8 +264,8 @@ public interface Http {
 			return _contentType;
 		}
 
-		private String _charset;
-		private String _content;
+		private final String _charset;
+		private final String _content;
 		private String _contentType;
 
 	}
@@ -295,11 +303,11 @@ public interface Http {
 			return _value;
 		}
 
-		private String _charSet;
+		private final String _charSet;
 		private String _contentType;
-		private String _fileName;
-		private String _name;
-		private byte[] _value;
+		private final String _fileName;
+		private final String _name;
+		private final byte[] _value;
 
 	}
 
@@ -382,14 +390,6 @@ public interface Http {
 
 		public Map<String, String> getParts() {
 			return _parts;
-		}
-
-		public PortletRequest getPortletRequest() {
-			return _portletRequest;
-		}
-
-		public String getProgressId() {
-			return _progressId;
 		}
 
 		public Response getResponse() {
@@ -516,10 +516,6 @@ public interface Http {
 			_parts = parts;
 		}
 
-		public void setPortletRequest(PortletRequest portletRequest) {
-			_portletRequest = portletRequest;
-		}
-
 		public void setPost(boolean post) {
 			if (post) {
 				_method = Method.POST;
@@ -527,10 +523,6 @@ public interface Http {
 			else {
 				_method = Method.GET;
 			}
-		}
-
-		public void setProgressId(String progressId) {
-			_progressId = progressId;
 		}
 
 		public void setPut(boolean put) {
@@ -555,8 +547,6 @@ public interface Http {
 		private String _location;
 		private Method _method = Method.GET;
 		private Map<String, String> _parts;
-		private PortletRequest _portletRequest;
-		private String _progressId;
 		private Response _response = new Response();
 
 	}
@@ -573,6 +563,10 @@ public interface Http {
 
 		public int getContentLength() {
 			return _contentLength;
+		}
+
+		public long getContentLengthLong() {
+			return _contentLengthLong;
 		}
 
 		public String getContentType() {
@@ -604,6 +598,10 @@ public interface Http {
 			_contentLength = contentLength;
 		}
 
+		public void setContentLengthLong(long contentLengthLong) {
+			_contentLengthLong = contentLengthLong;
+		}
+
 		public void setContentType(String contentType) {
 			_contentType = contentType;
 		}
@@ -621,6 +619,7 @@ public interface Http {
 		}
 
 		private int _contentLength = -1;
+		private long _contentLengthLong = -1;
 		private String _contentType;
 		private Map<String, String> _headers;
 		private String _redirect;
