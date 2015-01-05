@@ -49,6 +49,7 @@ page import="com.liferay.portlet.documentlibrary.context.DLConfigurationDisplayC
 page import="com.liferay.portlet.documentlibrary.context.DLEditFileEntryDisplayContext" %><%@
 page import="com.liferay.portlet.documentlibrary.context.DLEditFileEntryDisplayContextUtil" %><%@
 page import="com.liferay.portlet.documentlibrary.context.DLEntryListDisplayContext" %><%@
+page import="com.liferay.portlet.documentlibrary.context.DLFilePicker" %><%@
 page import="com.liferay.portlet.documentlibrary.context.DLViewFileVersionDisplayContext" %><%@
 page import="com.liferay.portlet.documentlibrary.context.DLViewFileVersionDisplayContextUtil" %><%@
 page import="com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata" %><%@
@@ -82,9 +83,7 @@ page import="com.liferay.portlet.dynamicdatamapping.search.StructureSearchTerms"
 page import="com.liferay.portlet.dynamicdatamapping.service.DDMStorageLinkLocalServiceUtil" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.storage.StorageEngineUtil" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.util.DDMXSDUtil" %><%@
-page import="com.liferay.portlet.dynamicdatamapping.util.comparator.StructureStructureKeyComparator" %><%@
-page import="com.liferay.portlet.journal.search.FileEntryDisplayTerms" %><%@
-page import="com.liferay.portlet.journal.search.FileEntrySearch" %>
+page import="com.liferay.portlet.dynamicdatamapping.util.comparator.StructureStructureKeyComparator" %>
 
 <%
 PortalPreferences portalPreferences = PortletPreferencesFactoryUtil.getPortalPreferences(liferayPortletRequest);

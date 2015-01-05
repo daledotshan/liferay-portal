@@ -47,7 +47,7 @@ import com.liferay.portal.model.Team;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.UserGroupConstants;
-import com.liferay.portal.security.ldap.LDAPUserGroupTransactionThreadLocal;
+import com.liferay.portal.security.exportimport.UserGroupImportTransactionThreadLocal;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.UserGroupLocalServiceBaseImpl;
@@ -78,8 +78,8 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	/**
 	 * Adds the user groups to the group.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  userGroupIds the primary keys of the user groups
+	 * @param groupId the primary key of the group
+	 * @param userGroupIds the primary keys of the user groups
 	 */
 	@Override
 	public void addGroupUserGroups(long groupId, long[] userGroupIds) {
@@ -91,8 +91,8 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	/**
 	 * Adds the user groups to the team.
 	 *
-	 * @param  teamId the primary key of the team
-	 * @param  userGroupIds the primary keys of the user groups
+	 * @param teamId the primary key of the team
+	 * @param userGroupIds the primary keys of the user groups
 	 */
 	@Override
 	public void addTeamUserGroups(long teamId, long[] userGroupIds) {
@@ -189,7 +189,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		userGroup.setName(name);
 		userGroup.setDescription(description);
 		userGroup.setAddedByLDAPImport(
-			LDAPUserGroupTransactionThreadLocal.isOriginatesFromLDAP());
+			UserGroupImportTransactionThreadLocal.isOriginatesFromImport());
 		userGroup.setExpandoBridgeAttributes(serviceContext);
 
 		userGroupPersistence.update(userGroup);
@@ -199,9 +199,10 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		groupLocalService.addGroup(
 			userId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
 			UserGroup.class.getName(), userGroup.getUserGroupId(),
-			GroupConstants.DEFAULT_LIVE_GROUP_ID, String.valueOf(userGroupId),
-			null, 0, true, GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null,
-			false, true, null);
+			GroupConstants.DEFAULT_LIVE_GROUP_ID,
+			getLocalizationMap(String.valueOf(userGroupId)), null, 0, true,
+			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null, false, true,
+			null);
 
 		// Resources
 
@@ -227,7 +228,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 * This method is called from {@link #deleteUserGroup(UserGroup)}.
 	 * </p>
 	 *
-	 * @param  userId the primary key of the user
+	 * @param userId the primary key of the user
 	 */
 	@Override
 	public void clearUserUserGroups(long userId) {
@@ -869,8 +870,8 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	/**
 	 * Removes the user groups from the group.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  userGroupIds the primary keys of the user groups
+	 * @param groupId the primary key of the group
+	 * @param userGroupIds the primary keys of the user groups
 	 */
 	@Override
 	public void unsetGroupUserGroups(long groupId, long[] userGroupIds) {
@@ -891,8 +892,8 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	/**
 	 * Removes the user groups from the team.
 	 *
-	 * @param  teamId the primary key of the team
-	 * @param  userGroupIds the primary keys of the user groups
+	 * @param teamId the primary key of the team
+	 * @param userGroupIds the primary keys of the user groups
 	 */
 	@Override
 	public void unsetTeamUserGroups(long teamId, long[] userGroupIds) {

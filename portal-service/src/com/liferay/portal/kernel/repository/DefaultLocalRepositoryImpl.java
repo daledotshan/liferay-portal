@@ -75,6 +75,36 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public void checkInFileEntry(
+			long userId, long fileEntryId, boolean major, String changeLog,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		_repository.checkInFileEntry(
+			userId, fileEntryId, major, changeLog, serviceContext);
+	}
+
+	@Override
+	public void checkInFileEntry(
+			long userId, long fileEntryId, String lockUuid,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		_repository.checkInFileEntry(
+			userId, fileEntryId, lockUuid, serviceContext);
+	}
+
+	@Override
+	public FileEntry copyFileEntry(
+			long userId, long groupId, long fileEntryId, long destFolderId,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		return _repository.copyFileEntry(
+			userId, groupId, fileEntryId, destFolderId, serviceContext);
+	}
+
+	@Override
 	public void deleteAll() {
 		throw new UnsupportedOperationException();
 	}
@@ -132,12 +162,12 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 
 	@Override
 	public List<FileEntry> getRepositoryFileEntries(
-			long rootFolderId, int start, int end,
+			long userId, long rootFolderId, int start, int end,
 			OrderByComparator<FileEntry> obc)
 		throws PortalException {
 
 		return _repository.getRepositoryFileEntries(
-			0, rootFolderId, start, end, obc);
+			userId, rootFolderId, start, end, obc);
 	}
 
 	@Override
@@ -168,6 +198,20 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public void revertFileEntry(
+			long userId, long fileEntryId, String version,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		_repository.revertFileEntry(
+			userId, fileEntryId, version, serviceContext);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	@Override
 	public void updateAsset(
 		long userId, FileEntry fileEntry, FileVersion fileVersion,
@@ -204,6 +248,6 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 		throw new UnsupportedOperationException();
 	}
 
-	private Repository _repository;
+	private final Repository _repository;
 
 }

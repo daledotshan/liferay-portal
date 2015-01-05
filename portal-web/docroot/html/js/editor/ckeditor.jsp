@@ -17,6 +17,8 @@
 <%@ include file="/html/taglib/init.jsp" %>
 
 <%
+LiferayPortletResponse liferayPortletResponse = (LiferayPortletResponse)portletResponse;
+
 String portletId = portletDisplay.getRootPortletId();
 
 String mainPath = themeDisplay.getPathMain();
@@ -75,6 +77,12 @@ String onFocusMethod = (String)request.getAttribute("liferay-ui:input-editor:onF
 
 if (Validator.isNotNull(onFocusMethod)) {
 	onFocusMethod = namespace + onFocusMethod;
+}
+
+String onInitMethod = (String)request.getAttribute("liferay-ui:input-editor:onInitMethod");
+
+if (Validator.isNotNull(onInitMethod)) {
+	onInitMethod = namespace + onInitMethod;
 }
 
 boolean resizable = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-editor:resizable"));
@@ -300,25 +308,28 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 		);
 	</c:if>
 
-	var createEditor = function() {
+	var currentToolbarSet;
+
+	var initialToolbarSet = '<%= TextFormatter.format(HtmlUtil.escapeJS(toolbarSet), TextFormatter.M) %>';
+
+	function getToolbarSet(toolbarSet) {
 		var Util = Liferay.Util;
 
+		if (Util.isPhone()) {
+			toolbarSet = 'phone';
+		}
+		else if (Util.isTablet()) {
+			toolbarSet = 'tablet';
+		}
+
+		return toolbarSet;
+	}
+
+	var createEditor = function() {
 		var editorNode = A.one('#<%= name %>');
 
-		editorNode.setAttribute('contenteditable', true);
-
+		editorNode.attr('contenteditable', true);
 		editorNode.addClass('lfr-editable');
-
-		function getToolbarSet(toolbarSet) {
-			if (Util.isPhone()) {
-				toolbarSet = 'phone';
-			}
-			else if (Util.isTablet()) {
-				toolbarSet = 'tablet';
-			}
-
-			return toolbarSet;
-		}
 
 		function initData() {
 			<c:if test="<%= Validator.isNotNull(initMethod) && !(inlineEdit && Validator.isNotNull(inlineEditSaveURL)) %>">
@@ -339,8 +350,14 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 
 			window['<%= name %>']._setStyles();
 
+			<c:if test="<%= Validator.isNotNull(onInitMethod) %>">
+				window['<%= HtmlUtil.escapeJS(namespace + onInitMethod) %>']();
+			</c:if>
+
 			window['<%= name %>'].instanceReady = true;
 		}
+
+		currentToolbarSet = getToolbarSet(initialToolbarSet);
 
 		<c:choose>
 			<c:when test="<%= inlineEdit %>">
@@ -373,9 +390,23 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 						%>
 
 						filebrowserBrowseUrl: '<%= documentSelectorURL %>',
-						filebrowserImageBrowseUrl: '<%= documentSelectorURL %>&Type=image',
-						filebrowserImageBrowseLinkUrl: '<%= documentSelectorURL %>&Type=image',
-						filebrowserFlashBrowseUrl: '<%= documentSelectorURL %>&Type=flash',
+
+						<%
+						PortletURL imageDocumentSelectorURL = PortletURLUtil.clone(documentSelectorURL, liferayPortletResponse);
+
+						imageDocumentSelectorURL.setParameter("type", "image");
+						%>
+
+						filebrowserImageBrowseUrl: '<%= imageDocumentSelectorURL %>',
+						filebrowserImageBrowseLinkUrl: '<%= imageDocumentSelectorURL %>',
+
+						<%
+						PortletURL flashDocumentSelectorURL = PortletURLUtil.clone(documentSelectorURL, liferayPortletResponse);
+
+						flashDocumentSelectorURL.setParameter("type", "flash");
+						%>
+
+						filebrowserFlashBrowseUrl: '<%= flashDocumentSelectorURL %>',
 					</c:when>
 					<c:otherwise>
 						filebrowserBrowseUrl: '',
@@ -386,7 +417,7 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 				</c:choose>
 
 				filebrowserUploadUrl: null,
-				toolbar: getToolbarSet('<%= TextFormatter.format(HtmlUtil.escapeJS(toolbarSet), TextFormatter.M) %>')
+				toolbar: currentToolbarSet
 			}
 		);
 
@@ -512,65 +543,60 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 		if (toolbarSet.equals("creole")) {
 		%>
 
-			Liferay.provide(
-				window,
-				'<%= name %>creoleDialogHandlers',
-				function(event) {
-					var A = AUI();
+		window['<%= name %>creoleDialogHandlers'] = function(event) {
+			var A = AUI();
 
-					var MODIFIED = 'modified';
+			var MODIFIED = 'modified';
 
-					var SELECTOR_HBOX_FIRST = '.cke_dialog_ui_hbox_first';
+			var SELECTOR_HBOX_FIRST = '.cke_dialog_ui_hbox_first';
 
-					var dialog = event.data.definition.dialog;
+			var dialog = event.data.definition.dialog;
 
-					if (dialog.getName() == 'image') {
-						var lockButton = A.one('.cke_btn_locked');
+			if (dialog.getName() == 'image') {
+				var lockButton = A.one('.cke_btn_locked');
 
-						if (lockButton) {
-							var imageProperties = lockButton.ancestor(SELECTOR_HBOX_FIRST);
+				if (lockButton) {
+					var imageProperties = lockButton.ancestor(SELECTOR_HBOX_FIRST);
 
-							if (imageProperties) {
-								imageProperties.hide();
+					if (imageProperties) {
+						imageProperties.hide();
+					}
+				}
+
+				var imagePreviewBox = A.one('.ImagePreviewBox');
+
+				if (imagePreviewBox) {
+					imagePreviewBox.setStyle('width', 410);
+				}
+			}
+			else if (dialog.getName() == 'cellProperties') {
+				var containerNode = A.one('#' + dialog.getElement('cellType').$.id);
+
+				if (!containerNode.getData(MODIFIED)) {
+					containerNode.one(SELECTOR_HBOX_FIRST).hide();
+
+					containerNode.one('.cke_dialog_ui_hbox_child').hide();
+
+					var cellTypeWrapper = containerNode.one('.cke_dialog_ui_hbox_last');
+
+					cellTypeWrapper.replaceClass('cke_dialog_ui_hbox_last', 'cke_dialog_ui_hbox_first');
+
+					cellTypeWrapper.setStyle('width', '100%');
+
+					cellTypeWrapper.all('tr').each(
+						function(item, index, collection) {
+							if (index > 0) {
+								item.hide();
 							}
 						}
+					);
 
-						var imagePreviewBox = A.one('.ImagePreviewBox');
+					containerNode.setData(MODIFIED, true);
+				}
+			}
+		},
 
-						if (imagePreviewBox) {
-							imagePreviewBox.setStyle('width', 410);
-						}
-					}
-					else if (dialog.getName() == 'cellProperties') {
-						var containerNode = A.one('#' + dialog.getElement('cellType').$.id);
-
-						if (!containerNode.getData(MODIFIED)) {
-							containerNode.one(SELECTOR_HBOX_FIRST).hide();
-
-							containerNode.one('.cke_dialog_ui_hbox_child').hide();
-
-							var cellTypeWrapper = containerNode.one('.cke_dialog_ui_hbox_last');
-
-							cellTypeWrapper.replaceClass('cke_dialog_ui_hbox_last', 'cke_dialog_ui_hbox_first');
-
-							cellTypeWrapper.setStyle('width', '100%');
-
-							cellTypeWrapper.all('tr').each(
-								function(item, index, collection) {
-									if (index > 0) {
-										item.hide();
-									}
-								}
-							);
-
-							containerNode.setData(MODIFIED, true);
-						}
-					}
-				},
-				['aui-base']
-			);
-
-			ckEditor.on('dialogShow', window['<%= name %>creoleDialogHandlers']);
+		ckEditor.on('dialogShow', window['<%= name %>creoleDialogHandlers']);
 
 		<%
 		}
@@ -602,6 +628,38 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 		}
 	};
 
+	<c:if test="<%= !(inlineEdit && Validator.isNotNull(inlineEditSaveURL)) %>">
+		A.getWin().on(
+			'resize',
+			A.debounce(
+				function() {
+					if (currentToolbarSet != getToolbarSet(initialToolbarSet)) {
+						var ckeditorInstance = CKEDITOR.instances['<%= name %>'];
+
+						if (ckeditorInstance) {
+							var currentDialog = CKEDITOR.dialog.getCurrent();
+
+							if (currentDialog) {
+								currentDialog.hide();
+							}
+
+							ckeditorInstance.destroy();
+
+							ckeditorInstance = null;
+
+							var editorNode = A.one('#<%= name %>');
+
+							editorNode.removeAttribute('contenteditable');
+							editorNode.removeClass('lfr-editable');
+
+							createEditor();
+						}
+					}
+				},
+				250
+			)
+		);
+	</c:if>
 </aui:script>
 
 <%!
