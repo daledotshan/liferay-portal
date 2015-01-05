@@ -343,6 +343,8 @@
 				</licenses>
 				<comments>
 					This includes modifications to remove extraneous logging.
+					Removed antlr.* because it with the Groovy compiler. See
+					LPS-51450.
 				</comments>
 			</library>
 			<library>
@@ -526,7 +528,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/junit.jar</file-name>
-				<version>4.11</version>
+				<version>4.12 B3</version>
 				<project-name>JUnit</project-name>
 				<project-url>http://www.junit.org/index.htm</project-url>
 				<licenses>
@@ -610,7 +612,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/objenesis.jar</file-name>
-				<version>1.2</version>
+				<version>2.1</version>
 				<project-name>Objenesis</project-name>
 				<project-url>http://code.google.com/p/objenesis</project-url>
 				<licenses>
@@ -657,6 +659,30 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/development/pmd-core.jar</file-name>
+				<version>5.2.3</version>
+				<project-name>PMD</project-name>
+				<project-url>http://pmd.sourceforge.net</project-url>
+				<licenses>
+					<license>
+						<license-name>BSD Style License</license-name>
+						<license-url>http://pmd.sourceforge.net/license.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/pmd-java.jar</file-name>
+				<version>5.2.3</version>
+				<project-name>PMD</project-name>
+				<project-url>http://pmd.sourceforge.net</project-url>
+				<licenses>
+					<license>
+						<license-name>BSD Style License</license-name>
+						<license-url>http://pmd.sourceforge.net/license.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/development/postgresql.jar</file-name>
 				<version>9.1-901 JDBC 3</version>
 				<project-name>PostgreSQL JDBC Driver</project-name>
@@ -669,8 +695,68 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/development/powermock-mockito.jar</file-name>
-				<version>1.5.5</version>
+				<file-name>lib/development/powermock-api.jar</file-name>
+				<version>1.5.6</version>
+				<project-name>Powermock</project-name>
+				<project-url>http://code.google.com/p/powermock</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/powermock-api-support.jar</file-name>
+				<version>1.5.6</version>
+				<project-name>Powermock</project-name>
+				<project-url>http://code.google.com/p/powermock</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/powermock-core.jar</file-name>
+				<version>1.5.6</version>
+				<project-name>Powermock</project-name>
+				<project-url>http://code.google.com/p/powermock</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/powermock-module-junit4.jar</file-name>
+				<version>1.5.6</version>
+				<project-name>Powermock</project-name>
+				<project-url>http://code.google.com/p/powermock</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/powermock-module-junit4-common.jar</file-name>
+				<version>1.5.6</version>
+				<project-name>Powermock</project-name>
+				<project-url>http://code.google.com/p/powermock</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/powermock-reflect.jar</file-name>
+				<version>1.5.6</version>
 				<project-name>Powermock</project-name>
 				<project-url>http://code.google.com/p/powermock</project-url>
 				<licenses>
@@ -717,6 +803,18 @@
 					<license>
 						<license-name>LGPL 2.1</license-name>
 						<license-url>http://www.gnu.org/licenses/lgpl-2.1.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/saxon.jar</file-name>
+				<version>9.1.0.8</version>
+				<project-name>Saxon-B</project-name>
+				<project-url>http://saxon.sourceforge.net</project-url>
+				<licenses>
+					<license>
+						<license-name>MPL 1.0</license-name>
+						<license-url>http://www.mozilla.org/MPL/1.0</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -957,9 +1055,9 @@
 			</library>
 			<library>
 				<file-name>lib/portal/alloy-taglib.jar</file-name>
-				<version>c7d93123fbef5c</version>
-				<project-name>Alloy</project-name>
-				<project-url>http://alloy.liferay.com</project-url>
+				<version>1.1.1</version>
+				<project-name>Alloy TagLibs</project-name>
+				<project-url>https://github.com/liferay/alloy-taglibs</project-url>
 				<licenses>
 					<license>
 						<license-name>LGPL 2.1</license-name>
@@ -1863,7 +1961,19 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/hibernate3.jar</file-name>
+				<file-name>lib/portal/hibernate-commons-annotations.jar</file-name>
+				<version>3.2.0</version>
+				<project-name>Hibernate</project-name>
+				<project-url>http://www.hibernate.org</project-url>
+				<licenses>
+					<license>
+						<license-name>LGPL 2.1</license-name>
+						<license-url>http://www.gnu.org/licenses/lgpl-2.1.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/portal/hibernate-core.jar</file-name>
 				<version>3.6.10</version>
 				<project-name>Hibernate</project-name>
 				<project-url>http://www.hibernate.org</project-url>
@@ -2405,7 +2515,7 @@
 			</library>
 			<library>
 				<file-name>lib/portal/jodd.jar</file-name>
-				<version>3.6.1</version>
+				<version>3.6.4-SNAPSHOT</version>
 				<project-name>Jodd</project-name>
 				<project-url>http://jodd.org</project-url>
 				<licenses>
@@ -2871,6 +2981,18 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/portal/monte-cc.jar</file-name>
+				<version>0.7.7</version>
+				<project-name>Monte Media Library</project-name>
+				<project-url>http://www.randelshofer.ch/monte</project-url>
+				<licenses>
+					<license>
+						<license-name>LGPL 3.0</license-name>
+						<license-url>https://www.gnu.org/licenses/lgpl-3.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/portal/msnm.jar</file-name>
 				<version>1.2.2</version>
 				<project-name>JMSN - Open source MSN messenger clone</project-name>
@@ -2911,7 +3033,7 @@
 				<file-name>lib/portal/netty-all.jar</file-name>
 				<version>4.0.23</version>
 				<project-name>Netty</project-name>
-				<project-url>http://netty.io/</project-url>
+				<project-url>http://netty.io</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -3921,8 +4043,8 @@
 				<project-url>http://www.xuggle.com</project-url>
 				<licenses>
 					<license>
-						<license-name>LGPL 3</license-name>
-						<license-url>http://www.gnu.org/licenses/lgpl.html</license-url>
+						<license-name>LGPL 3.0</license-name>
+						<license-url>https://www.gnu.org/licenses/lgpl-3.0</license-url>
 					</license>
 				</licenses>
 			</library>

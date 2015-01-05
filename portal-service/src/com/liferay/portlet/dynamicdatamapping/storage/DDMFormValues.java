@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.dynamicdatamapping.storage;
 
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 
 import java.util.ArrayList;
@@ -29,10 +30,38 @@ import java.util.Set;
  */
 public class DDMFormValues {
 
+	public DDMFormValues(DDMForm ddmForm) {
+		_ddmForm = ddmForm;
+	}
+
 	public void addDDMFormFieldValue(DDMFormFieldValue ddmFormFieldValue) {
 		ddmFormFieldValue.setDDMFormValues(this);
 
 		_ddmFormFieldValues.add(ddmFormFieldValue);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DDMFormValues)) {
+			return false;
+		}
+
+		DDMFormValues ddmFormValues = (DDMFormValues)obj;
+
+		if (Validator.equals(
+				_availableLocales, ddmFormValues._availableLocales) &&
+			Validator.equals(_defaultLocale, ddmFormValues._defaultLocale) &&
+			Validator.equals(
+				_ddmFormFieldValues, ddmFormValues._ddmFormFieldValues)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public Set<Locale> getAvailableLocales() {
@@ -76,10 +105,6 @@ public class DDMFormValues {
 		_availableLocales = availableLocales;
 	}
 
-	public void setDDMForm(DDMForm ddmForm) {
-		_ddmForm = ddmForm;
-	}
-
 	public void setDDMFormFieldValues(
 		List<DDMFormFieldValue> ddmFormFieldValues) {
 
@@ -95,7 +120,7 @@ public class DDMFormValues {
 	}
 
 	private Set<Locale> _availableLocales;
-	private DDMForm _ddmForm;
+	private final DDMForm _ddmForm;
 	private List<DDMFormFieldValue> _ddmFormFieldValues =
 		new ArrayList<DDMFormFieldValue>();
 	private Locale _defaultLocale;

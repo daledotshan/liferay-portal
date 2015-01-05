@@ -72,12 +72,18 @@ public class MembershipPolicyTestUtil {
 
 	public static Group addGroup() throws Exception {
 		String name = RandomTestUtil.randomString();
+
+		Map<Locale, String> nameMap = new HashMap<Locale, String>();
+
+		nameMap.put(LocaleUtil.getDefault(), name);
+
 		String friendlyURL =
 			StringPool.SLASH + FriendlyURLNormalizerUtil.normalize(name);
 
 		return GroupServiceUtil.addGroup(
 			GroupConstants.DEFAULT_PARENT_GROUP_ID,
-			GroupConstants.DEFAULT_LIVE_GROUP_ID, name, "This is a test group",
+			GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap,
+			RandomTestUtil.randomLocaleStringMap(),
 			GroupConstants.TYPE_SITE_OPEN, true,
 			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, friendlyURL, true,
 			true, populateServiceContext(Group.class, true));
@@ -181,15 +187,13 @@ public class MembershipPolicyTestUtil {
 		int birthdayYear = 1970;
 		String jobTitle = StringPool.BLANK;
 		String smsSn =
-			"UserServiceTestSmsSn." + RandomTestUtil.nextInt() +
-				"@liferay.com";
+			"UserServiceTestSmsSn." + RandomTestUtil.nextInt() + "@liferay.com";
 		String aimSn = RandomTestUtil.randomString();
 		String facebookSn = RandomTestUtil.randomString();
 		String icqSn = RandomTestUtil.randomString();
 		String jabberSn = RandomTestUtil.randomString();
 		String msnSn =
-			"UserServiceTestMsnSn." + RandomTestUtil.nextInt() +
-				"@liferay.com";
+			"UserServiceTestMsnSn." + RandomTestUtil.nextInt() + "@liferay.com";
 		String mySpaceSn = RandomTestUtil.randomString();
 		String skypeSn = RandomTestUtil.randomString();
 		String twitterSn = RandomTestUtil.randomString();

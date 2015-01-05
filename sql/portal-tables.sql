@@ -133,6 +133,7 @@ create table AssetEntry (
 	classPK LONG,
 	classUuid VARCHAR(75) null,
 	classTypeId LONG,
+	listable BOOLEAN,
 	visible BOOLEAN,
 	startDate DATE null,
 	endDate DATE null,
@@ -217,7 +218,7 @@ create table BackgroundTask (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	name VARCHAR(75) null,
+	name VARCHAR(255) null,
 	servletContextNames VARCHAR(255) null,
 	taskExecutorClassName VARCHAR(200) null,
 	taskContextMap TEXT null,
@@ -245,6 +246,8 @@ create table BlogsEntry (
 	allowPingbacks BOOLEAN,
 	allowTrackbacks BOOLEAN,
 	trackbacks TEXT null,
+	coverImageFileEntryId LONG,
+	coverImageURL VARCHAR(75) null,
 	smallImage BOOLEAN,
 	smallImageFileEntryId LONG,
 	smallImageId LONG,
@@ -265,49 +268,6 @@ create table BlogsStatsUser (
 	ratingsTotalEntries INTEGER,
 	ratingsTotalScore DOUBLE,
 	ratingsAverageScore DOUBLE
-);
-
-create table BookmarksEntry (
-	uuid_ VARCHAR(75) null,
-	entryId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	resourceBlockId LONG,
-	folderId LONG,
-	treePath STRING null,
-	name VARCHAR(255) null,
-	url STRING null,
-	description STRING null,
-	visits INTEGER,
-	priority INTEGER,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table BookmarksFolder (
-	uuid_ VARCHAR(75) null,
-	folderId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	resourceBlockId LONG,
-	parentFolderId LONG,
-	treePath STRING null,
-	name VARCHAR(75) null,
-	description STRING null,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
 );
 
 create table BrowserTracker (
@@ -521,6 +481,7 @@ create table DDMStructure (
 	parentStructureId LONG,
 	classNameId LONG,
 	structureKey VARCHAR(75) null,
+	version VARCHAR(75) null,
 	name STRING null,
 	description STRING null,
 	definition TEXT null,
@@ -535,6 +496,22 @@ create table DDMStructureLink (
 	structureId LONG
 );
 
+create table DDMStructureVersion (
+	structureVersionId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	structureId LONG,
+	version VARCHAR(75) null,
+	name STRING null,
+	description STRING null,
+	definition TEXT null,
+	storageType VARCHAR(75) null,
+	type_ INTEGER
+);
+
 create table DDMTemplate (
 	uuid_ VARCHAR(75) null,
 	templateId LONG not null primary key,
@@ -547,6 +524,7 @@ create table DDMTemplate (
 	classNameId LONG,
 	classPK LONG,
 	templateKey VARCHAR(75) null,
+	version VARCHAR(75) null,
 	name STRING null,
 	description STRING null,
 	type_ VARCHAR(75) null,
@@ -557,6 +535,21 @@ create table DDMTemplate (
 	smallImage BOOLEAN,
 	smallImageId LONG,
 	smallImageURL VARCHAR(75) null
+);
+
+create table DDMTemplateVersion (
+	templateVersionId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	templateId LONG,
+	version VARCHAR(75) null,
+	name STRING null,
+	description STRING null,
+	language VARCHAR(75) null,
+	script TEXT null
 );
 
 create table DLContent (
@@ -711,12 +704,12 @@ create table DLFolder (
 	mountPoint BOOLEAN,
 	parentFolderId LONG,
 	treePath STRING null,
-	name VARCHAR(100) null,
+	name VARCHAR(255) null,
 	description STRING null,
 	lastPostDate DATE null,
 	defaultFileEntryTypeId LONG,
 	hidden_ BOOLEAN,
-	overrideFileEntryTypes BOOLEAN,
+	restrictionType INTEGER,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -813,7 +806,8 @@ create table Group_ (
 	parentGroupId LONG,
 	liveGroupId LONG,
 	treePath STRING null,
-	name VARCHAR(150) null,
+	groupKey VARCHAR(150) null,
+	name STRING null,
 	description STRING null,
 	type_ INTEGER,
 	typeSettings TEXT null,
@@ -822,6 +816,7 @@ create table Group_ (
 	friendlyURL VARCHAR(255) null,
 	site BOOLEAN,
 	remoteStagingGroupCount INTEGER,
+	inheritContent BOOLEAN,
 	active_ BOOLEAN
 );
 
@@ -873,9 +868,8 @@ create table JournalArticle (
 	urlTitle VARCHAR(150) null,
 	description TEXT null,
 	content TEXT null,
-	type_ VARCHAR(75) null,
-	structureId VARCHAR(75) null,
-	templateId VARCHAR(75) null,
+	DDMStructureKey VARCHAR(75) null,
+	DDMTemplateKey VARCHAR(75) null,
 	layoutUuid VARCHAR(75) null,
 	displayDate DATE null,
 	expirationDate DATE null,
@@ -930,10 +924,9 @@ create table JournalFeed (
 	feedId VARCHAR(75) null,
 	name VARCHAR(75) null,
 	description STRING null,
-	type_ VARCHAR(75) null,
-	structureId VARCHAR(75) null,
-	templateId VARCHAR(75) null,
-	rendererTemplateId VARCHAR(75) null,
+	DDMStructureKey VARCHAR(75) null,
+	DDMTemplateKey VARCHAR(75) null,
+	DDMRendererTemplateKey VARCHAR(75) null,
 	delta INTEGER,
 	orderByCol VARCHAR(75) null,
 	orderByType VARCHAR(75) null,
@@ -1006,7 +999,7 @@ create table Layout (
 
 create table LayoutBranch (
 	mvccVersion LONG default 0,
-	LayoutBranchId LONG not null primary key,
+	layoutBranchId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
 	userId LONG,
