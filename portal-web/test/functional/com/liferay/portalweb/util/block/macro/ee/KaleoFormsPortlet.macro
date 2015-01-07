@@ -234,7 +234,7 @@
 
 		<execute action="PGKaleoforms#assertClick" locator-key1="SUBMIT_NEW_MENULIST_PROCESS" value1="${kfProcessName}" />
 
-		<execute action="PGKaleoformsSubmitnew#assertTextEquals" locator-key1="NEW_PROCESS_TITLE" value1="New ${kfProcessName}" />
+		<execute action="PGKaleoformsSubmitnew#assertTextEquals" locator-key1="NEW_PROCESS_NAME" value1="New ${kfProcessName}" />
 	</command>
 
 	<command name="updateProcessDueDate">
@@ -325,6 +325,12 @@
 		<execute action="PGKaleoformsSubmitnew#assertTextEquals" locator-key1="NEW_PROCESS_FIELDS_TEXT_BOX_FIELD" value1="${kfProcessFieldData}" />
 	</command>
 
+	<command name="viewInboxProcessName">
+		<var name="key_kfProcessName" value="${kfProcessName}" />
+
+		<execute action="PGKaleoformsInboxProcess#assertTextEquals" locator-key1="PROCESS_NAME" value1="${workflowTask}: ${kfProcessName}" />
+	</command>
+
 	<command name="viewMyCompletedRequests">
 		<execute action="PGKaleoforms#assertClick" locator-key1="MY_COMPLETED_REQUESTS" value1="My Completed Requests" />
 
@@ -334,6 +340,7 @@
 		<execute action="PGKaleoforms#assertTextEquals" locator-key1="MY_COMPLETED_REQUESTS_TABLE_STATUS" value1="Approved" />
 		<execute action="PGKaleoforms#assertElementPresent" locator-key1="MY_COMPLETED_REQUESTS_TABLE_LAST_ACTIVITY_DATE" />
 		<execute action="PGKaleoforms#assertElementPresent" locator-key1="MY_COMPLETED_REQUESTS_TABLE_END_DATE" />
+		<execute action="PGKaleoforms#assertElementNotPresent" locator-key1="MY_COMPLETED_REQUESTS_TABLE_EXTRA_COLUMN" />
 		<execute action="PGKaleoforms#assertClick" locator-key1="MY_COMPLETED_REQUESTS_TABLE_NAME" value1="${kfProcessName}" />
 
 		<execute action="PGKaleoformsMycompletedrequestsProcess#assertTextEquals" locator-key1="WORKFLOW_STATUS" value1="State Approved" />
@@ -374,9 +381,15 @@
 		<execute action="PGKaleoformsMycompletedrequestsProcess#assertElementNotPresent" locator-key1="CURRENT_ENTRY_FIELD" />\
 	</command>
 
+	<command name="viewMyCompletedRequestsProcessName">
+		<var name="key_kfProcessName" value="${kfProcessName}" />
+
+		<execute action="PGKaleoformsMycompletedrequestsProcess#assertTextEquals" locator-key1="PROCESS_NAME" value1="${workflowDefinitionTitle}: ${kfProcessName}" />
+	</command>
+
 	<command name="viewMyCompletedRequestsTasks">
 		<execute action="PGKaleoformsMycompletedrequestsProcess#assertTextEquals" locator-key1="TASKS_TABLE_REVIEW_TASK" value1="Review" />
-		<execute action="PGKaleoformsMycompletedrequestsProcess#assertTextEquals" locator-key1="TASKS_TABLE_REVEIW_COMPLETED" value1="Yes" />
+		<execute action="PGKaleoformsMycompletedrequestsProcess#assertTextEquals" locator-key1="TASKS_TABLE_REVIEW_COMPLETED" value1="Yes" />
 	</command>
 
 	<command name="viewMyPendingRequests">
@@ -403,7 +416,7 @@
 
 	<command name="viewMyPendingRequestsTasksRejected">
 		<execute action="PGKaleoformsMypendingrequestsProcess#assertTextEquals" locator-key1="TASKS_TABLE_UPDATE_TASK" value1="Update" />
-		<execute action="PGKaleoformsMypendingrequestsProcess#assertTextEquals" locator-key1="TASKS_TABLE_REVEIW_COMPLETED" value1="No" />
+		<execute action="PGKaleoformsMypendingrequestsProcess#assertTextEquals" locator-key1="TASKS_TABLE_REVIEW_COMPLETED" value1="No" />
 	</command>
 
 	<command name="viewNoCompletedRequests">
@@ -418,12 +431,6 @@
 	<command name="viewNoTasks">
 		<execute action="PGKaleoforms#assertTextEquals" locator-key1="ASSIGNED_TO_ME_INFO_MESSAGE" value1="There are no tasks." />
 		<execute action="PGKaleoforms#assertTextEquals" locator-key1="ASSIGNED_TO_MY_ROLES_INFO_MESSAGE" value1="There are no tasks." />
-	</command>
-
-	<command name="viewPG">
-		<execute action="PGKaleoforms#assertTextEquals" locator-key1="TITLE" value1="Kaleo Forms" />
-		<execute action="PGKaleoforms#assertElementPresent" locator-key1="OPTIONS_ICON" />
-		<execute action="PGKaleoforms#assertTextEquals" locator-key1="INBOX" value1="Inbox" />
 	</command>
 
 	<command name="viewProcessDueDate">

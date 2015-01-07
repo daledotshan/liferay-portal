@@ -535,8 +535,9 @@
 		<column name="parentGroupId" type="long" />
 		<column name="liveGroupId" type="long" />
 		<column name="treePath" type="String" />
-		<column name="name" type="String" />
-		<column name="description" type="String" />
+		<column name="groupKey" type="String" />
+		<column name="name" type="String" localized="true" />
+		<column name="description" type="String" localized="true" />
 		<column name="type" type="int" />
 		<column name="typeSettings" type="String" />
 		<column name="manualMembership" type="boolean" />
@@ -544,6 +545,7 @@
 		<column name="friendlyURL" type="String" />
 		<column name="site" type="boolean" />
 		<column name="remoteStagingGroupCount" type="int" />
+		<column name="inheritContent" type="boolean" />
 		<column name="active" type="boolean" />
 
 		<!-- Relationships -->
@@ -575,9 +577,9 @@
 			<finder-column name="companyId" />
 			<finder-column name="parentGroupId" />
 		</finder>
-		<finder name="C_N" return-type="Group" unique="true">
+		<finder name="C_GK" return-type="Group" unique="true">
 			<finder-column name="companyId" />
-			<finder-column name="name" />
+			<finder-column name="groupKey" />
 		</finder>
 		<finder name="C_F" return-type="Group" unique="true">
 			<finder-column name="companyId" />
@@ -611,16 +613,22 @@
 			<finder-column name="parentGroupId" />
 			<finder-column name="site" />
 		</finder>
-		<finder name="C_L_N" return-type="Group" unique="true">
+		<finder name="C_L_GK" return-type="Group" unique="true">
 			<finder-column name="companyId" />
 			<finder-column name="liveGroupId" />
-			<finder-column name="name" />
+			<finder-column name="groupKey" />
 		</finder>
-		<finder name="C_C_L_N" return-type="Group" unique="true">
+		<finder name="C_C_L_GK" return-type="Group" unique="true">
 			<finder-column name="companyId" />
 			<finder-column name="classNameId" />
 			<finder-column name="liveGroupId" />
-			<finder-column name="name" />
+			<finder-column name="groupKey" />
+		</finder>
+		<finder name="C_P_S_I" return-type="Collection">
+			<finder-column name="companyId" />
+			<finder-column name="parentGroupId" />
+			<finder-column name="site" />
+			<finder-column name="inheritContent" />
 		</finder>
 
 		<!-- References -->
@@ -832,7 +840,7 @@
 
 		<!-- PK fields -->
 
-		<column name="LayoutBranchId" type="long" primary="true" />
+		<column name="layoutBranchId" type="long" primary="true" />
 
 		<!-- Group instance -->
 
@@ -1203,6 +1211,7 @@
 		<!-- References -->
 
 		<reference package-path="com.liferay.portal" entity="Image" />
+		<reference package-path="com.liferay.portal" entity="Layout" />
 		<reference package-path="com.liferay.portal" entity="LayoutBranch" />
 		<reference package-path="com.liferay.portal" entity="LayoutRevision" />
 		<reference package-path="com.liferay.portal" entity="LayoutSet" />
@@ -3139,6 +3148,7 @@
 		<!-- References -->
 
 		<reference package-path="com.liferay.portal" entity="Company" />
+		<reference package-path="com.liferay.portal" entity="Group" />
 		<reference package-path="com.liferay.portal" entity="LayoutSet" />
 	</entity>
 	<entity name="WebDAVProps" local-service="true" remote-service="false">
@@ -3363,7 +3373,8 @@
 		<exception>EmailAddress</exception>
 		<exception>ExpiredLock</exception>
 		<exception>GroupFriendlyURL</exception>
-		<exception>GroupName</exception>
+		<exception>GroupInheritContent</exception>
+		<exception>GroupKey</exception>
 		<exception>GroupParent</exception>
 		<exception>ImageType</exception>
 		<exception>InvalidLock</exception>

@@ -474,28 +474,32 @@ public class ImageToolImpl implements ImageTool {
 		RenderedImage renderedImage = null;
 
 		try {
-			boolean firstImageReader = true;
-
 			imageInputStream = ImageIO.createImageInputStream(
 				new ByteArrayInputStream(bytes));
 
 			Iterator<ImageReader> iterator = ImageIO.getImageReaders(
 				imageInputStream);
 
-			while (iterator.hasNext()) {
+			while ((renderedImage == null) && iterator.hasNext()) {
 				ImageReader imageReader = iterator.next();
 
 				imageReaders.offer(imageReader);
 
-				if (firstImageReader) {
+				try {
 					imageReader.setInput(imageInputStream);
 
 					renderedImage = imageReader.read(0);
-
-					formatName = imageReader.getFormatName();
-
-					firstImageReader = false;
 				}
+				catch (IOException ioe) {
+					continue;
+				}
+
+				formatName = StringUtil.toLowerCase(
+					imageReader.getFormatName());
+			}
+
+			if (renderedImage == null) {
+				throw new IOException("Unsupported image type");
 			}
 		}
 		finally {
@@ -509,8 +513,6 @@ public class ImageToolImpl implements ImageTool {
 				imageInputStream.close();
 			}
 		}
-
-		formatName = StringUtil.toLowerCase(formatName);
 
 		String type = TYPE_JPEG;
 
@@ -557,7 +559,7 @@ public class ImageToolImpl implements ImageTool {
 
 		double factor = (double)width / imageWidth;
 
-		int scaledHeight = (int)(factor * imageHeight);
+		int scaledHeight = (int)Math.round(factor * imageHeight);
 		int scaledWidth = width;
 
 		return doScale(renderedImage, scaledHeight, scaledWidth);
@@ -585,8 +587,8 @@ public class ImageToolImpl implements ImageTool {
 		double factor = Math.min(
 			(double)maxHeight / imageHeight, (double)maxWidth / imageWidth);
 
-		int scaledHeight = Math.max(1, (int)(factor * imageHeight));
-		int scaledWidth = Math.max(1, (int)(factor * imageWidth));
+		int scaledHeight = Math.max(1, (int)Math.round(factor * imageHeight));
+		int scaledWidth = Math.max(1, (int)Math.round(factor * imageWidth));
 
 		return doScale(renderedImage, scaledHeight, scaledWidth);
 	}

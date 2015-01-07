@@ -1158,11 +1158,15 @@ public class ArrayUtil {
 	}
 
 	public static boolean[] remove(boolean[] array, boolean value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Boolean> list = new ArrayList<Boolean>();
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Boolean(array[i]));
+				list.add(array[i]);
 			}
 		}
 
@@ -1170,6 +1174,10 @@ public class ArrayUtil {
 	}
 
 	public static byte[] remove(byte[] array, byte value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Byte> list = new ArrayList<Byte>();
 
 		for (int i = 0; i < array.length; i++) {
@@ -1182,6 +1190,10 @@ public class ArrayUtil {
 	}
 
 	public static char[] remove(char[] array, char value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Character> list = new ArrayList<Character>();
 
 		for (int i = 0; i < array.length; i++) {
@@ -1194,6 +1206,10 @@ public class ArrayUtil {
 	}
 
 	public static double[] remove(double[] array, double value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Double> list = new ArrayList<Double>();
 
 		for (int i = 0; i < array.length; i++) {
@@ -1206,6 +1222,10 @@ public class ArrayUtil {
 	}
 
 	public static float[] remove(float[] array, float value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Float> list = new ArrayList<Float>();
 
 		for (int i = 0; i < array.length; i++) {
@@ -1218,6 +1238,10 @@ public class ArrayUtil {
 	}
 
 	public static int[] remove(int[] array, int value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Integer> list = new ArrayList<Integer>();
 
 		for (int i = 0; i < array.length; i++) {
@@ -1230,6 +1254,10 @@ public class ArrayUtil {
 	}
 
 	public static long[] remove(long[] array, long value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Long> list = new ArrayList<Long>();
 
 		for (int i = 0; i < array.length; i++) {
@@ -1242,6 +1270,10 @@ public class ArrayUtil {
 	}
 
 	public static short[] remove(short[] array, short value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<Short> list = new ArrayList<Short>();
 
 		for (int i = 0; i < array.length; i++) {
@@ -1254,6 +1286,10 @@ public class ArrayUtil {
 	}
 
 	public static String[] remove(String[] array, String value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
 		List<String> list = new ArrayList<String>();
 
 		for (String s : array) {
@@ -1646,14 +1682,16 @@ public class ArrayUtil {
 		return aArray;
 	}
 
-	public static double[] toDoubleArray(Collection<Double> collection) {
+	public static double[] toDoubleArray(
+		Collection<? extends Number> collection) {
+
 		double[] newArray = new double[collection.size()];
 
 		if (collection instanceof List) {
-			List<Double> list = (List<Double>)collection;
+			List<Number> list = (List<Number>)collection;
 
 			for (int i = 0; i < list.size(); i++) {
-				Double value = list.get(i);
+				Number value = list.get(i);
 
 				newArray[i] = value.doubleValue();
 			}
@@ -1661,10 +1699,10 @@ public class ArrayUtil {
 		else {
 			int i = 0;
 
-			Iterator<Double> iterator = collection.iterator();
+			Iterator<? extends Number> iterator = collection.iterator();
 
 			while (iterator.hasNext()) {
-				Double value = iterator.next();
+				Number value = iterator.next();
 
 				newArray[i++] = value.doubleValue();
 			}
@@ -1673,14 +1711,16 @@ public class ArrayUtil {
 		return newArray;
 	}
 
-	public static float[] toFloatArray(Collection<Float> collection) {
+	public static float[] toFloatArray(
+		Collection<? extends Number> collection) {
+
 		float[] newArray = new float[collection.size()];
 
 		if (collection instanceof List) {
-			List<Float> list = (List<Float>)collection;
+			List<Number> list = (List<Number>)collection;
 
 			for (int i = 0; i < list.size(); i++) {
-				Float value = list.get(i);
+				Number value = list.get(i);
 
 				newArray[i] = value.floatValue();
 			}
@@ -1688,10 +1728,10 @@ public class ArrayUtil {
 		else {
 			int i = 0;
 
-			Iterator<Float> iterator = collection.iterator();
+			Iterator<? extends Number> iterator = collection.iterator();
 
 			while (iterator.hasNext()) {
-				Float value = iterator.next();
+				Number value = iterator.next();
 
 				newArray[i++] = value.floatValue();
 			}
@@ -1700,14 +1740,14 @@ public class ArrayUtil {
 		return newArray;
 	}
 
-	public static int[] toIntArray(Collection<Integer> collection) {
+	public static int[] toIntArray(Collection<? extends Number> collection) {
 		int[] newArray = new int[collection.size()];
 
 		if (collection instanceof List) {
-			List<Integer> list = (List<Integer>)collection;
+			List<Number> list = (List<Number>)collection;
 
 			for (int i = 0; i < list.size(); i++) {
-				Integer value = list.get(i);
+				Number value = list.get(i);
 
 				newArray[i] = value.intValue();
 			}
@@ -1715,10 +1755,10 @@ public class ArrayUtil {
 		else {
 			int i = 0;
 
-			Iterator<Integer> iterator = collection.iterator();
+			Iterator<? extends Number> iterator = collection.iterator();
 
 			while (iterator.hasNext()) {
-				Integer value = iterator.next();
+				Number value = iterator.next();
 
 				newArray[i++] = value.intValue();
 			}
@@ -1727,14 +1767,14 @@ public class ArrayUtil {
 		return newArray;
 	}
 
-	public static long[] toLongArray(Collection<Long> collection) {
+	public static long[] toLongArray(Collection<? extends Number> collection) {
 		long[] newArray = new long[collection.size()];
 
 		if (collection instanceof List) {
-			List<Long> list = (List<Long>)collection;
+			List<Number> list = (List<Number>)collection;
 
 			for (int i = 0; i < list.size(); i++) {
-				Long value = list.get(i);
+				Number value = list.get(i);
 
 				newArray[i] = value.longValue();
 			}
@@ -1742,10 +1782,10 @@ public class ArrayUtil {
 		else {
 			int i = 0;
 
-			Iterator<Long> iterator = collection.iterator();
+			Iterator<? extends Number> iterator = collection.iterator();
 
 			while (iterator.hasNext()) {
-				Long value = iterator.next();
+				Number value = iterator.next();
 
 				newArray[i++] = value.longValue();
 			}
