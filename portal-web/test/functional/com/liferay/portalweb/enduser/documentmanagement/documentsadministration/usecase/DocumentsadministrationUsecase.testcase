@@ -226,7 +226,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="DMDocument#editSavePG">
+		<execute macro="DMDocument#editPublishPG">
 			<var name="dmDocumentTagName" value="tag1" />
 			<var name="dmDocumentTitle" value="Document_1.doc" />
 			<var name="dmDocumentTitleEdit" value="Document1" />
@@ -236,7 +236,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="DMDocument#editSavePG">
+		<execute macro="DMDocument#editPublishPG">
 			<var name="dmDocumentTagName" value="tag2" />
 			<var name="dmDocumentTitle" value="Document1" />
 		</execute>
@@ -307,7 +307,7 @@
 			</then>
 		</while>
 
-		<execute action="PGDocumentsandmediaEditdocument#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
+		<execute action="PGDocumentsandmediaEditdocument#assertClick" locator-key1="PUBLISH_BUTTON" value1="Publish" />
 
 		<execute action="PGDocumentsandmediaDocument#assertTextEquals" locator-key1="DOCUMENT_INFO_VERSION" value1="Version PWC" />
 
@@ -370,7 +370,7 @@
 		</execute>
 
 		<execute macro="DMDocument#viewCP">
-			<var name="dmDocumentSize" value="0k" />
+			<var name="dmDocumentSize" value="0KB" />
 			<var name="dmDocumentTitle" value="Zero Document File" />
 		</execute>
 
@@ -457,6 +457,107 @@
 			<var name="commentBody" value="The is comment #2" />
 			<var name="dmDocumentTitle" value="Zero Document File" />
 		</execute>
+	</command>
+
+	<command name="ConfigureXugglerVideoPreviewSizePG" priority="5">
+		<property name="custom.properties" value="dl.file.entry.preview.video.width=0$${line.separator}dl.file.entry.preview.video.height=0" />
+
+		<var name="videoGenerationTimeCounter" value="0" />
+		<var name="videoGenerationTimeMaxWaitTime" value="6" />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Server Administration" />
+		</execute>
+
+		<execute macro="ServerAdministration#configureExternalServices">
+			<var name="installXuggler" value="true" />
+			<var name="xugglerJarFile" value="Linux 64-bit JVM (with GNU libc v6) (xuggle-xuggler-arch-x86_64-pc-linux-gnu.jar)" />
+		</execute>
+
+		<execute macro="Portlet#shutdownServer" />
+
+		<execute macro="Portlet#startServer" />
+
+		<execute macro="Page#openURL" />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Server Administration" />
+		</execute>
+
+		<execute macro="ServerAdministration#configureExternalServices">
+			<var name="enableXuggler" value="true" />
+		</execute>
+
+		<execute macro="Page#addPG">
+			<var name="pageName" value="Documents and Media Page" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Documents and Media Page" />
+		</execute>
+
+		<execute macro="DMDocument#addPG">
+			<var name="dmDocumentDescription" value="DM Document Description" />
+			<var name="dmDocumentFile" value="Document_1.mp4" />
+			<var name="dmDocumentTitle" value="${dmDocumentFile}" />
+		</execute>
+
+		<execute action="Home#pause" locator1="180000" />
+
+		<execute macro="DMDocument#gotoPG">
+			<var name="dmDocumentTitle" value="Document_1.mp4" />
+		</execute>
+
+		<while>
+			<and>
+				<not>
+					<equals arg1="${videoGenerationTimeCounter}" arg2="${videoGenerationTimeMaxWaitTime}" />
+				</not>
+				<condition action="PGDocumentsandmediaDocument#isElementPresent" locator-key1="INFO_MESSAGE" />
+			</and>
+			<then>
+				<var name="videoGenerationTimeCounter" value="${videoGenerationTimeCounter?increment()}" />
+
+				<execute action="Home#pause" locator1="30000" />
+
+				<execute macro="Page#gotoPG">
+					<var name="pageName" value="Documents and Media Page" />
+				</execute>
+
+				<execute macro="DMDocument#gotoPG">
+					<var name="dmDocumentTitle" value="Document_1.mp4" />
+				</execute>
+			</then>
+		</while>
+
+		<var attribute="poster" locator="//video" name="videoPreviewThumbnailLink" />
+
+		<execute action="Home#open" locator1="${videoPreviewThumbnailLink}" />
+		<execute action="Home#pause" locator1="1000" />
+
+		<var name="key_videoGenerationThumbnailResolution" value="640" />
+
+		<execute action="PGDocumentsandmediaVideoGenerationThumbnail#assertElementNotPresent" locator-key1="VIDEO_GENERATION_THUMBNAIL_RESOLUTION" />
+
+		<var name="key_videoGenerationThumbnailResolution" value="360" />
+
+		<execute action="PGDocumentsandmediaVideoGenerationThumbnail#assertElementNotPresent" locator-key1="VIDEO_GENERATION_THUMBNAIL_RESOLUTION" />
+
+		<var name="key_videoGenerationThumbnailResolution" value="1280" />
+
+		<execute action="PGDocumentsandmediaVideoGenerationThumbnail#assertElementPresent" locator-key1="VIDEO_GENERATION_THUMBNAIL_RESOLUTION" />
+
+		<var name="key_videoGenerationThumbnailResolution" value="720" />
+
+		<execute action="PGDocumentsandmediaVideoGenerationThumbnail#assertElementPresent" locator-key1="VIDEO_GENERATION_THUMBNAIL_RESOLUTION" />
 	</command>
 
 	<command name="ImportDocumentWithDBStore" priority="5">
@@ -575,6 +676,76 @@
 		<execute action="PGDocumentsandmedia#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="moved to the Recycle Bin. Undo" />
 
 		<execute macro="DMDocument#viewDefaultCP" />
+	</command>
+
+	<command name="ViewFileCategoryAndTags" priority="4">
+		<var name="categoryDescription" value="Category Description" />
+		<var name="categoryName" value="Category Name" />
+		<var name="dmDocumentDescription" value="Document Description" />
+		<var name="dmDocumentFile" value="Document_1.doc" />
+		<var name="dmDocumentTitle" value="Document Title" />
+		<var name="pageName" value="Documents and Media Page" />
+		<var name="tagNameList" value="tag1,tag2" />
+
+		<execute macro="Page#addPG">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Categories" />
+		</execute>
+
+		<execute macro="Category#addCP">
+			<var name="categoryDescription" value="${categoryDescription}" />
+			<var name="categoryName" value="Category Name" />
+			<var name="vocabularyName" value="Topic" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="DMDocument#addPG">
+			<var name="categoryName" value="${categoryName}" />
+			<var name="dmDocumentDescription" value="${dmDocumentDescription}" />
+			<var name="dmDocumentFile" value="${dmDocumentFile}" />
+			<var name="dmDocumentTitle" value="${dmDocumentTitle}" />
+			<var name="tagNameList" value="${tagNameList}" />
+		</execute>
+
+		<var name="key_dmDocumentTitle" value="${dmDocumentTitle}" />
+
+		<execute action="PGDocumentsandmedia#assertClick" locator-key1="ENTRY_ICON_DOCUMENT_TITLE" value1="${dmDocumentTitle}" />
+
+		<execute action="PGDocumentsandmediaDocument#assertClick" locator-key1="TOOLBAR_EDIT_BUTTON" value1="Edit" />
+
+		<var name="key_categoryName" value="${categoryName}" />
+
+		<execute action="PGDocumentsandmediaEditdocument#assertTextEquals" locator-key1="CATEGORIZATION_VOCABULARY_TAG" value1="${categoryName}" />
+
+		<for list="${tagNameList}" param="tagName">
+			<var name="key_categoryTag" value="${tagName}" />
+			<execute action="PGDocumentsandmediaEditdocument#assertTextEquals" locator-key1="CATEGORIZATION_TAG" value1="${tagName}" />
+		</for>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="${pageName}" />
+		</execute>
+
+		<execute macro="DMDocument#viewPG">
+			<var name="categoryName" value="${categoryName}" />
+			<var name="dmDocumentDescription" value="${dmDocumentDescription}" />
+			<var name="dmDocumentTitle" value="${dmDocumentTitle}" />
+			<var name="tagNameList" value="${tagNameList}" />
+		</execute>
 	</command>
 
 	<command name="ViewPortletAfterRenamingDocumentWithDuplicateTitlePG" priority="5">

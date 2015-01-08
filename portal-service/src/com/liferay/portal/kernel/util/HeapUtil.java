@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.util;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.process.OutputProcessor;
 import com.liferay.portal.kernel.process.ProcessUtil;
 
 import java.lang.management.ManagementFactory;
@@ -31,24 +32,26 @@ import java.util.concurrent.Future;
 public class HeapUtil {
 
 	public static int getProcessId() {
-		if (!_supported) {
+		if (!_SUPPORTED) {
 			throw new IllegalStateException(
 				HeapUtil.class.getName() + " does not support the current JVM");
 		}
 
-		return _processId;
+		return _PROCESS_ID;
 	}
 
-	public static Future<ObjectValuePair<Void, Void>> heapDump(
-		boolean live, boolean binary, String file) {
+	public static <O, E> Future<ObjectValuePair<O, E>> heapDump(
+		boolean live, boolean binary, String file,
+		OutputProcessor<O, E> outputProcessor) {
 
-		return heapDump(_processId, live, binary, file);
+		return heapDump(_PROCESS_ID, live, binary, file, outputProcessor);
 	}
 
-	public static Future<ObjectValuePair<Void, Void>> heapDump(
-		int processId, boolean live, boolean binary, String file) {
+	public static <O, E> Future<ObjectValuePair<O, E>> heapDump(
+		int processId, boolean live, boolean binary, String file,
+		OutputProcessor<O, E> outputProcessor) {
 
-		if (!_supported) {
+		if (!_SUPPORTED) {
 			throw new IllegalStateException(
 				HeapUtil.class.getName() + " does not support the current JVM");
 		}
@@ -75,8 +78,7 @@ public class HeapUtil {
 		arguments.add(String.valueOf(processId));
 
 		try {
-			return ProcessUtil.execute(
-				ProcessUtil.LOGGING_OUTPUT_PROCESSOR, arguments);
+			return ProcessUtil.execute(outputProcessor, arguments);
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Unable to perform heap dump", e);
@@ -84,7 +86,7 @@ public class HeapUtil {
 	}
 
 	public static boolean isSupported() {
-		return _supported;
+		return _SUPPORTED;
 	}
 
 	private static void _checkJMap(int processId) throws Exception {
@@ -151,10 +153,11 @@ public class HeapUtil {
 		return pid;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(HeapUtil.class);
+	private static final int _PROCESS_ID;
 
-	private static int _processId;
-	private static boolean _supported;
+	private static final boolean _SUPPORTED;
+
+	private static final Log _log = LogFactoryUtil.getLog(HeapUtil.class);
 
 	static {
 		int processId = -1;
@@ -180,8 +183,8 @@ public class HeapUtil {
 				HeapUtil.class.getName() + " is only supported on Oracle JVMs");
 		}
 
-		_processId = processId;
-		_supported = supported;
+		_PROCESS_ID = processId;
+		_SUPPORTED = supported;
 	}
 
 }

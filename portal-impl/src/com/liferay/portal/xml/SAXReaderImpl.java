@@ -500,6 +500,136 @@ public class SAXReaderImpl implements SAXReader {
 	}
 
 	@Override
+	public Document readTrusted(File file) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(File file, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(InputStream is) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(InputStream is, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(Reader reader) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(Reader reader, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(String xml) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(String xml, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(String xml, XMLSchema xmlSchema) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(URL url) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrusted(URL url, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrustedURL(String url) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readTrustedURL(String url, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(File file) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(File file, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(InputStream is) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(InputStream is, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(Reader reader) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(Reader reader, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(String xml) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(String xml, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(String xml, XMLSchema xmlSchema) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(URL url) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrusted(URL url, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrustedURL(String url) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Document readUntrustedURL(String url, boolean validate) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Document readURL(String url)
 		throws DocumentException, MalformedURLException {
 
@@ -640,10 +770,11 @@ public class SAXReaderImpl implements SAXReader {
 	private static final String _PROPERTY_SCHEMA_SOURCE =
 		"http://java.sun.com/xml/jaxp/properties/schemaSource";
 
-	private static Log _log = LogFactoryUtil.getLog(SAXReaderImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(SAXReaderImpl.class);
 
-	private static SAXReaderImpl _instance = new SAXReaderImpl();
+	private static final SAXReaderImpl _instance = new SAXReaderImpl();
 
-	private DocumentFactory _documentFactory = DocumentFactory.getInstance();
+	private final DocumentFactory _documentFactory =
+		DocumentFactory.getInstance();
 
 }

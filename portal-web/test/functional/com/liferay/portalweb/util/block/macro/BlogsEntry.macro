@@ -195,9 +195,7 @@
 		<execute action="CPBlogsAdd#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
 
 		<execute action="CPBlogsEdit#assertTextEquals" locator-key1="TITLE_FIELD" value1="${entryTitle}" />
-		<execute action="CPBlogsEdit#selectFrame" locator-key1="CONTENT_FIELD" />
 		<execute action="CPBlogsEdit#assertTextPresent" locator-key1="CONTENT_FIELD" value1="${entryContent}" />
-		<execute action="CPBlogsEdit#selectFrame" value1="relative=top" />
 	</command>
 
 	<command name="addDraftPG">
@@ -265,6 +263,8 @@
 		<if>
 			<equals arg1="${entryAddRelatedAsset}" arg2="true" />
 			<then>
+				<execute action="PGBlogsAdd#assertClick" locator-key1="SETTINGS_TAB" value1="Settings" />
+
 				<execute macro="BlogsEntry#addRelatedAssetPG">
 					<var name="assetTitle" value="${assetTitle}" />
 					<var name="assetType" value="${assetType}" />
@@ -275,6 +275,7 @@
 		<if>
 			<equals arg1="${viewableBy}" arg2="true" />
 			<then>
+				<execute action="PGBlogsAdd#click" locator-key1="SETTINGS_TAB" />
 				<execute action="PGBlogsAdd#select" locator-key1="PERMISSIONS_VIEWABLE_BY_DROPDOWN" value1="${viewableBySelection}" />
 			</then>
 		</if>
@@ -455,6 +456,7 @@
 		<execute action="CPBlogs#assertClick" locator-key1="ENTRY_MENULIST_EDIT" value1="Edit" />
 
 		<execute action="CPBlogsEdit#assertElementPresent" locator-key1="CONTENT_FIELD" />
+		<execute action="CPBlogsEdit#assertClick" locator-key1="SETTINGS_TAB" value1="Settings" />
 
 		<if>
 			<condition action="CPBlogsEdit#isElementNotPresent" locator-key1="CATEGORIZATION_TAGS_ADD_BUTTON" />
@@ -544,10 +546,21 @@
 	</command>
 
 	<command name="addWithWorkflowCP">
-		<execute action="CPBlogs#click" locator-key1="ADD_ENTRY" />
+		<execute action="CPBlogs#assertClick" locator-key1="ADD_ENTRY" value1="Add" />
 
 		<execute action="CPBlogsAdd#type" locator-key1="TITLE_FIELD" value1="${entryTitle}" />
+
+		<if>
+			<isset var="entrySubtitle" />
+			<then>
+				<execute macro="BlogsEntry#entryAddSubtitleCmdCP">
+					<var name="entrySubtitle" value="Blogs Entry Subtitle" />
+				</execute>
+			</then>
+		</if>
+
 		<execute action="CPBlogsAdd#type" locator-key1="CONTENT_FIELD" value1="${entryContent}" />
+		<execute action="CPBlogsAdd#pause" locator1="1000" />
 		<execute action="CPBlogsAdd#assertClick" locator-key1="SUBMIT_FOR_PUBLICATION_BUTTON" value1="Submit for Publication" />
 
 		<var name="key_entryTitle" value="${entryTitle}" />
