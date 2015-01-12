@@ -17,8 +17,10 @@ package com.liferay.portlet.dynamicdatamapping.storage;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
@@ -56,9 +58,9 @@ public class Field implements Serializable {
 		Map<Locale, List<Serializable>> valuesMap, Locale defaultLocale) {
 
 		_ddmStructureId = ddmStructureId;
-		_defaultLocale = defaultLocale;
 		_name = name;
 		_valuesMap = valuesMap;
+		_defaultLocale = defaultLocale;
 	}
 
 	public Field(long ddmStructureId, String name, Serializable value) {
@@ -209,11 +211,22 @@ public class Field implements Serializable {
 		return _valuesMap;
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = HashUtil.hash(0, _ddmStructureId);
+
+		hash = HashUtil.hash(hash, _name);
+
+		return HashUtil.hash(hash, _valuesMap);
+	}
+
 	public boolean isPrivate() {
 		try {
-			DDMStructure ddmStructure = getDDMStructure();
+			if (_name.startsWith(StringPool.UNDERLINE)) {
+				return true;
+			}
 
-			return ddmStructure.isFieldPrivate(_name);
+			return false;
 		}
 		catch (Exception e) {
 			return false;
@@ -221,6 +234,10 @@ public class Field implements Serializable {
 	}
 
 	public boolean isRepeatable() throws PortalException {
+		if (isPrivate()) {
+			return false;
+		}
+
 		DDMStructure ddmStructure = getDDMStructure();
 
 		return ddmStructure.isFieldRepeatable(_name);
@@ -302,7 +319,7 @@ public class Field implements Serializable {
 		return values;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(Field.class);
+	private static final Log _log = LogFactoryUtil.getLog(Field.class);
 
 	private long _ddmStructureId;
 	private Locale _defaultLocale;

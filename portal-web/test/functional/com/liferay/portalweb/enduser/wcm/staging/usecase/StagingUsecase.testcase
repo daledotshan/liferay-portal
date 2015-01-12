@@ -60,6 +60,10 @@
 			<var name="wikiPageTitle" value="Wiki Page Title" />
 		</execute>
 
+		<execute macro="WikiPage#gotoPG">
+			<var name="wikiPageTitle" value="Wiki Page Title" />
+		</execute>
+
 		<execute macro="WikiPage#addAttachmentViaPageDetailsPG">
 			<var name="attachmentFileName" value="Document_1.jpg" />
 			<var name="wikiPageTitle" value="Wiki Page Title" />
@@ -82,7 +86,7 @@
 		</execute>
 
 		<execute macro="WikiPage#gotoPG">
-			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+			<var name="wikiPageTitle" value="Wiki Page Title" />
 		</execute>
 
 		<execute macro="WikiPage#viewAttachmentPG">
@@ -98,7 +102,7 @@
 		</execute>
 
 		<execute macro="WikiPage#gotoPG">
-			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+			<var name="wikiPageTitle" value="Wiki Page Title" />
 		</execute>
 
 		<execute macro="WikiPage#viewAttachmentPG">
@@ -233,7 +237,7 @@
 		</execute>
 	</command>
 
-	<command known-issues="LPS-49023" name="EditPublishTemplate" priority="4">
+	<command name="EditPublishTemplate" priority="4">
 		<execute macro="Page#gotoConfigurationCP">
 			<var name="portletName" value="Site Settings" />
 			<var name="siteName" value="Site Name" />
@@ -629,7 +633,6 @@
 		<execute macro="Staging#publishToLiveNow">
 			<var name="applicationName" value="Sites Directory" />
 			<var name="markAsReadyForPublication" value="true" />
-			<var name="uncheckApplication" value="true" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1099,7 +1102,7 @@
 		</execute>
 	</command>
 
-	<command known-issues="LPS-49227" name="StagingDemoLocalLive1" priority="5">
+	<command name="StagingDemoLocalLive1" priority="5">
 		<var name="pageName" value="Staging Test Page" />
 		<var name="roleName" value="Staging Admin" />
 		<var name="siteName" value="${siteName}" />
@@ -1330,12 +1333,6 @@
 			<var name="pageStaging" value="true" />
 			<var name="siteName" value="${siteName}" />
 			<var name="siteURL" value="true" />
-		</execute>
-
-		<execute macro="Portlet#dragAndDropPortletToColumnPG">
-			<var name="columnNumberFrom" value="2" />
-			<var name="columnNumberTo" value="1" />
-			<var name="portletName" value="Polls Display" />
 		</execute>
 
 		<execute macro="Page#editPageLayoutColumn">
@@ -2592,7 +2589,7 @@
 		<execute macro="DMDocument#viewStagingDetailsPG" />
 	</command>
 
-	<command known-issues="LPS-44150" name="StagingOnlyApprovedPublishToLive" priority="5">
+	<command name="StagingOnlyApprovedPublishToLive" priority="5">
 		<property name="web.plugins.includes" value="kaleo-web" />
 
 		<execute macro="Page#gotoPG">
@@ -3727,7 +3724,6 @@
 		<execute macro="Staging#configurePublishToLive">
 			<var name="applicationName" value="Documents and Media" />
 			<var name="checkPageName" value="Test Page 1,Test Page 2" />
-			<var name="uncheckApplication" value="true" />
 			<var name="uncheckContentNameList" value="Blogs" />
 		</execute>
 
@@ -3989,12 +3985,19 @@
 	</command>
 
 	<command name="ViewPageOrderWithStaging" priority="4">
+		<execute macro="Page#openURL">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
 		<execute macro="Page#gotoConfigurationCP">
 			<var name="portletName" value="Site Settings" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="Staging#activateStagingCP">
-			<var name="siteName" value="Liferay" />
+			<var name="siteName" value="${siteName}" />
 		</execute>
 
 		<execute macro="Page#gotoCP">
@@ -4002,7 +4005,7 @@
 		</execute>
 
 		<execute macro="SitePage#addCP">
-			<var name="siteName" value="Liferay" />
+			<var name="siteName" value="${siteName}" />
 			<var name="sitePageName" value="Test Page 1" />
 			<var name="sitePagePrivacy" value="Public" />
 		</execute>
@@ -4012,29 +4015,31 @@
 		</execute>
 
 		<execute macro="SitePage#addCP">
-			<var name="siteName" value="Liferay" />
+			<var name="siteName" value="${siteName}" />
 			<var name="sitePageName" value="Test Page 2" />
 			<var name="sitePagePrivacy" value="Public" />
 		</execute>
 
 		<execute macro="Page#gotoPagesCP">
 			<var name="portletName" value="Site Pages" />
+			<var name="siteScopeName" value="${siteName}" />
 		</execute>
 
 		<execute macro="SitePage#viewPagesOrderCP">
-			<var name="pageName1" value="Welcome" />
+			<var name="pageName1" value="Staging Test Page" />
 			<var name="pageName2" value="Test Page 1" />
 			<var name="pageName3" value="Test Page 2" />
 		</execute>
 
 		<execute macro="Staging#publishToLiveNow" />
 
-		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Welcome" />
+		<execute macro="Page#openURL">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="Page#viewPageOrderStagingLivePG">
-			<var name="pageName1" value="Welcome" />
+			<var name="pageName1" value="Staging Test Page" />
 			<var name="pageName2" value="Test Page 1" />
 			<var name="pageName3" value="Test Page 2" />
 		</execute>

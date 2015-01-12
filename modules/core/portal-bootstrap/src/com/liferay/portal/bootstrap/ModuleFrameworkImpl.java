@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
@@ -42,6 +43,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.module.framework.ModuleFramework;
 import com.liferay.portal.security.auth.PrincipalException;
@@ -76,7 +78,6 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -319,6 +320,20 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 			_registerServletContext(servletContext);
 		}
+	}
+
+	@Override
+	public void registerExtraPackages() {
+		BundleContext bundleContext = _framework.getBundleContext();
+
+		Map<String, List<URL>> extraPackageMap = getExtraPackageMap();
+
+		Dictionary<String, Object> properties =
+			new HashMapDictionary<String, Object>();
+
+		properties.put("jsp.compiler.resource.map", "portal.extra.packages");
+
+		bundleContext.registerService(Map.class, extraPackageMap, properties);
 	}
 
 	@Override
@@ -650,26 +665,13 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		Jar jar = null;
 
 		try {
-			URLConnection urlConnection = url.openConnection();
-
-			String fileName = url.getFile();
-
-			if (urlConnection instanceof JarURLConnection) {
-				JarURLConnection jarURLConnection =
-					(JarURLConnection)urlConnection;
-
-				URL jarFileURL = jarURLConnection.getJarFileURL();
-
-				fileName = jarFileURL.getFile();
-			}
-
-			File file = new File(fileName);
+			File file = _getJarFile(url);
 
 			if (!file.exists() || !file.canRead()) {
 				return manifest;
 			}
 
-			fileName = file.getName();
+			String fileName = file.getName();
 
 			analyzer.setJar(new Jar(fileName, file));
 
@@ -725,6 +727,17 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		if ((permissionChecker == null) || !permissionChecker.isOmniadmin()) {
 			throw new PrincipalException();
 		}
+	}
+
+	/**
+	 * @see com.liferay.portal.kernel.util.HttpUtil#decodePath
+	 */
+	private String _decodePath(String path) {
+		path = StringUtil.replace(path, StringPool.SLASH, _TEMP_SLASH);
+		path = URLCodec.decodeURL(path, StringPool.UTF8);
+		path = StringUtil.replace(path, _TEMP_SLASH, StringPool.SLASH);
+
+		return path;
 	}
 
 	private String _getFelixFileInstallDir() {
@@ -789,6 +802,44 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		}
 
 		return interfaces;
+	}
+
+	private File _getJarFile(URL url) throws IOException {
+		URLConnection urlConnection = url.openConnection();
+
+		String fileName = url.getFile();
+
+		if (urlConnection instanceof JarURLConnection) {
+			JarURLConnection jarURLConnection = (JarURLConnection)urlConnection;
+
+			URL jarFileURL = jarURLConnection.getJarFileURL();
+
+			fileName = jarFileURL.getFile();
+		}
+		else if (Validator.equals(url.getProtocol(), "zip")) {
+
+			// Weblogic use a custom zip protocol to represent JAR files
+
+			fileName = url.getFile();
+
+			int index = fileName.indexOf('!');
+
+			if (index > 0) {
+				fileName = fileName.substring(0, index);
+			}
+		}
+
+		return new File(fileName);
+	}
+
+	private String _getLiferayLibPortalDir() {
+		String liferayLibPortalDir = PropsValues.LIFERAY_LIB_PORTAL_DIR;
+
+		if (liferayLibPortalDir.startsWith(StringPool.SLASH)) {
+			liferayLibPortalDir = liferayLibPortalDir.substring(1);
+		}
+
+		return liferayLibPortalDir;
 	}
 
 	private String _getSystemPackagesExtra() {
@@ -1104,9 +1155,9 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			Constants.BUNDLE_SYMBOLICNAME);
 
 		if (Validator.isNull(bundleSymbolicName)) {
-			String urlString = url.toString();
+			String urlString = _decodePath(url.toString());
 
-			if (urlString.contains(PropsValues.LIFERAY_LIB_PORTAL_DIR)) {
+			if (urlString.contains(_getLiferayLibPortalDir())) {
 				manifest = _calculateManifest(url, manifest);
 
 				attributes = manifest.getMainAttributes();
@@ -1221,7 +1272,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			return;
 		}
 
-		Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		HashMapDictionary<String, Object> properties =
+			new HashMapDictionary<String, Object>();
 
 		Map<String, Object> osgiBeanProperties =
 			OSGiBeanProperties.Convert.fromObject(bean);
@@ -1241,7 +1293,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 	private void _registerServletContext(ServletContext servletContext) {
 		BundleContext bundleContext = _framework.getBundleContext();
 
-		Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		Dictionary<String, Object> properties =
+			new HashMapDictionary<String, Object>();
 
 		properties.put(
 			ServicePropsKeys.BEAN_ID, ServletContext.class.getName());
@@ -1275,11 +1328,14 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		frameworkWiring.refreshBundles(refreshBundles, frameworkListener);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ModuleFrameworkImpl.class);
+	private static final String _TEMP_SLASH = "_LIFERAY_TEMP_SLASH_";
 
-	private Pattern _bundleSymbolicNamePattern = Pattern.compile(
+	private static final Log _log = LogFactoryUtil.getLog(
+		ModuleFrameworkImpl.class);
+
+	private final Pattern _bundleSymbolicNamePattern = Pattern.compile(
 		"(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
-	private Lock _extraPackageLock = new ReentrantLock();
+	private final Lock _extraPackageLock = new ReentrantLock();
 	private Map<String, List<URL>> _extraPackageMap;
 	private List<URL> _extraPackageURLs;
 	private Framework _framework;
@@ -1329,8 +1385,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			}
 		}
 
-		private List<Bundle> _lazyActivationBundles;
-		private List<Bundle> _startBundles;
+		private final List<Bundle> _lazyActivationBundles;
+		private final List<Bundle> _startBundles;
 
 	}
 

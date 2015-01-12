@@ -607,7 +607,8 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #renamePage(long, String,
 	 *             String, ServiceContext)}
-	 **/
+	 */
+	@Deprecated
 	@Override
 	public void movePage(
 			long nodeId, String title, String newTitle,

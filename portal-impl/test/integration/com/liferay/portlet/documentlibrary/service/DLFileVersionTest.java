@@ -18,14 +18,14 @@ import com.liferay.portal.events.AddDefaultDocumentLibraryStructuresAction;
 import com.liferay.portal.kernel.events.SimpleAction;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.test.AggregateTestRule;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
-import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.LiferayIntegrationTestRule;
+import com.liferay.portal.test.MainServletTestRule;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.test.ServiceContextTestUtil;
 import com.liferay.portal.util.test.TestPropsValues;
@@ -53,15 +53,20 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * @author Preston Crary
  */
-@ExecutionTestListeners(listeners = {MainServletExecutionTestListener.class})
-@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class DLFileVersionTest extends BaseDLAppTestCase {
+
+	@ClassRule
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
 
 	@Before
 	@Override
@@ -81,9 +86,11 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 					group.getGroupId()));
 
 		for (DLFileEntryType dlFileEntryType : dlFileEntryTypes) {
-			String name = dlFileEntryType.getName(LocaleUtil.getSiteDefault());
+			String fileEntryTypeKey = dlFileEntryType.getFileEntryTypeKey();
 
-			if (name.equals(DLFileEntryTypeConstants.NAME_CONTRACT)) {
+			if (fileEntryTypeKey.equals(
+					DLFileEntryTypeConstants.FILE_ENTRY_TYPE_KEY_CONTRACT)) {
+
 				_contractDLFileEntryTypeId =
 					dlFileEntryType.getFileEntryTypeId();
 			}
@@ -271,10 +278,6 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 		List<String> fieldsDisplayValues = new ArrayList<String>();
 
 		for (String fieldName : fieldNames) {
-			if (ddmStructure.isFieldPrivate(fieldName)) {
-				continue;
-			}
-
 			fieldsDisplayValues.add(
 				fieldName + DDMImpl.INSTANCE_SEPARATOR +
 				StringUtil.randomString());
@@ -315,10 +318,6 @@ public class DLFileVersionTest extends BaseDLAppTestCase {
 			Set<String> fieldNames = ddmStructure.getFieldNames();
 
 			for (String fieldName : fieldNames) {
-				if (ddmStructure.isFieldPrivate(fieldName)) {
-					continue;
-				}
-
 				Field field = createField(ddmStructure, fieldName);
 
 				fields.put(field);

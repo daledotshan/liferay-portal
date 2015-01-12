@@ -14,8 +14,13 @@
 
 package com.liferay.sync.engine;
 
-import com.liferay.sync.engine.documentlibrary.event.DownloadFileEvent;
+import com.j256.ormlite.support.ConnectionSource;
+
 import com.liferay.sync.engine.documentlibrary.event.GetSyncDLObjectUpdateEvent;
+import com.liferay.sync.engine.documentlibrary.util.BatchDownloadEvent;
+import com.liferay.sync.engine.documentlibrary.util.BatchEventManager;
+import com.liferay.sync.engine.documentlibrary.util.FileEventUtil;
+import com.liferay.sync.engine.documentlibrary.util.ServerEventUtil;
 import com.liferay.sync.engine.filesystem.SyncSiteWatchEventListener;
 import com.liferay.sync.engine.filesystem.SyncWatchEventProcessor;
 import com.liferay.sync.engine.filesystem.WatchEventListener;
@@ -23,16 +28,16 @@ import com.liferay.sync.engine.filesystem.Watcher;
 import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.model.SyncSite;
-import com.liferay.sync.engine.model.SyncWatchEvent;
 import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.service.SyncFileService;
-import com.liferay.sync.engine.service.SyncPropService;
 import com.liferay.sync.engine.service.SyncSiteService;
 import com.liferay.sync.engine.service.SyncWatchEventService;
+import com.liferay.sync.engine.service.persistence.SyncAccountPersistence;
 import com.liferay.sync.engine.upgrade.util.UpgradeUtil;
+import com.liferay.sync.engine.util.ConnectionRetryUtil;
+import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.LoggerUtil;
 import com.liferay.sync.engine.util.PropsValues;
-import com.liferay.sync.engine.util.SyncClientUpdater;
 import com.liferay.sync.engine.util.SyncEngineUtil;
 
 import java.io.IOException;
@@ -45,6 +50,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +60,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SyncEngine {
 
-	public synchronized static void cancelSyncAccountTasks(long syncAccountId)
+	public static synchronized void cancelSyncAccountTasks(long syncAccountId)
 		throws Exception {
 
 		if (!_running) {
@@ -79,17 +87,26 @@ public class SyncEngine {
 
 		watcher.close();
 
-		ScheduledFuture<?> scheduledFuture =
+		ScheduledFuture<?> localEventsScheduledFuture =
 			(ScheduledFuture<?>)syncAccountTasks[1];
 
-		scheduledFuture.cancel(false);
+		localEventsScheduledFuture.cancel(true);
+
+		ScheduledFuture<?> remoteEventsScheduledFuture =
+			(ScheduledFuture<?>)syncAccountTasks[2];
+
+		remoteEventsScheduledFuture.cancel(true);
 	}
 
-	public synchronized static boolean isRunning() {
+	public static ExecutorService getEventProcessorExecutorService() {
+		return _eventProcessorExecutorService;
+	}
+
+	public static synchronized boolean isRunning() {
 		return _running;
 	}
 
-	public synchronized static void scheduleSyncAccountTasks(
+	public static synchronized void scheduleSyncAccountTasks(
 		final long syncAccountId) {
 
 		Runnable runnable = new Runnable() {
@@ -109,7 +126,7 @@ public class SyncEngine {
 		_executorService.execute(runnable);
 	}
 
-	public synchronized static void start() {
+	public static synchronized void start() {
 		if (_running) {
 			return;
 		}
@@ -122,7 +139,7 @@ public class SyncEngine {
 		}
 	}
 
-	public synchronized static void stop() {
+	public static synchronized void stop() {
 		if (!_running) {
 			return;
 		}
@@ -144,11 +161,22 @@ public class SyncEngine {
 
 		SyncWatchEventService.deleteSyncWatchEvents(syncAccountId);
 
-		SyncAccount syncAccount = SyncAccountService.synchronizeSyncAccount(
-			syncAccountId, 0);
+		SyncAccount syncAccount = ServerEventUtil.synchronizeSyncAccount(
+			syncAccountId);
 
-		if (syncAccount.getState() == SyncAccount.STATE_CONNECTED) {
-			SyncSiteService.synchronizeSyncSites(syncAccountId);
+		Path dataFilePath = FileUtil.getFilePath(
+			syncAccount.getFilePathName(), ".data");
+
+		if (Files.exists(dataFilePath)) {
+			FileUtils.cleanDirectory(dataFilePath.toFile());
+		}
+
+		if (!ConnectionRetryUtil.retryInProgress(syncAccountId)) {
+			syncAccount.setState(SyncAccount.STATE_CONNECTED);
+
+			SyncAccountService.update(syncAccount);
+
+			ServerEventUtil.synchronizeSyncSites(syncAccountId);
 		}
 
 		Path filePath = Paths.get(syncAccount.getFilePathName());
@@ -156,20 +184,23 @@ public class SyncEngine {
 		SyncWatchEventProcessor syncWatchEventProcessor =
 			new SyncWatchEventProcessor(syncAccountId);
 
-		_syncWatchEventProcessorExecutorService.scheduleAtFixedRate(
-			syncWatchEventProcessor, 0, 3, TimeUnit.SECONDS);
+		ScheduledFuture<?> scheduledFuture =
+			_localEventsScheduledExecutorService.scheduleAtFixedRate(
+				syncWatchEventProcessor, 0, 3, TimeUnit.SECONDS);
 
 		WatchEventListener watchEventListener = new SyncSiteWatchEventListener(
 			syncAccountId);
-
-		synchronizeSyncFiles(filePath, syncAccountId, watchEventListener);
 
 		Watcher watcher = new Watcher(filePath, true, watchEventListener);
 
 		_executorService.execute(watcher);
 
+		if (!ConnectionRetryUtil.retryInProgress(syncAccountId)) {
+			synchronizeSyncFiles(filePath, syncAccountId, watchEventListener);
+		}
+
 		scheduleGetSyncDLObjectUpdateEvent(
-			syncAccount, syncWatchEventProcessor, watcher);
+			syncAccount, syncWatchEventProcessor, scheduledFuture, watcher);
 	}
 
 	protected static void doStart() throws Exception {
@@ -183,16 +214,6 @@ public class SyncEngine {
 		_logger.info("Starting {}", PropsValues.SYNC_PRODUCT_NAME);
 
 		UpgradeUtil.upgrade();
-
-		SyncClientUpdater.scheduleAutoUpdateChecker(
-			SyncPropService.getInteger("updateCheckInterval", 1440));
-
-		List<SyncAccount> syncAccounts = SyncAccountService.findAll();
-
-		if (syncAccounts.isEmpty()) {
-			SyncEngineUtil.fireSyncEngineStateChanged(
-				SyncEngineUtil.SYNC_ENGINE_NOT_CONFIGURED);
-		}
 
 		for (long activeSyncAccountId :
 				SyncAccountService.getActiveSyncAccountIds()) {
@@ -214,9 +235,18 @@ public class SyncEngine {
 			cancelSyncAccountTasks(syncAccountId);
 		}
 
-		_syncWatchEventProcessorExecutorService.shutdown();
+		_eventProcessorExecutorService.shutdownNow();
+		_executorService.shutdownNow();
+		_localEventsScheduledExecutorService.shutdownNow();
+		_remoteEventsScheduledExecutorService.shutdownNow();
 
-		SyncClientUpdater.cancelAutoUpdateChecker();
+		SyncAccountPersistence syncAccountPersistence =
+			SyncAccountService.getSyncAccountPersistence();
+
+		ConnectionSource connectionSource =
+			syncAccountPersistence.getConnectionSource();
+
+		connectionSource.closeQuietly();
 
 		SyncEngineUtil.fireSyncEngineStateChanged(
 			SyncEngineUtil.SYNC_ENGINE_STATE_STOPPED);
@@ -279,46 +309,13 @@ public class SyncEngine {
 				continue;
 			}
 
-			watchEventListener.watchEvent(
-				SyncWatchEvent.EVENT_TYPE_DELETE,
-				Paths.get(deletedSyncFile.getFilePathName()));
-		}
-	}
-
-	protected static void retryFileTransfers(long syncAccountId) {
-		List<SyncFile> downloadingSyncFiles = SyncFileService.findSyncFiles(
-			syncAccountId, SyncFile.UI_EVENT_DOWNLOADING);
-
-		for (SyncFile downloadingSyncFile : downloadingSyncFiles) {
-			Map<String, Object> parameters = new HashMap<String, Object>();
-
-			parameters.put("patch", false);
-			parameters.put("syncFile", downloadingSyncFile);
-
-			DownloadFileEvent downloadFileEvent = new DownloadFileEvent(
-				syncAccountId, parameters);
-
-			downloadFileEvent.run();
-		}
-
-		List<SyncFile> uploadingSyncFiles = SyncFileService.findSyncFiles(
-			syncAccountId, SyncFile.UI_EVENT_UPLOADING);
-
-		for (SyncFile uploadingSyncFile : uploadingSyncFiles) {
-			if (uploadingSyncFile.getTypePK() > 0) {
-
-				// Reset the checksum and let the engine retry the upload
-
-				uploadingSyncFile.setChecksum("");
-
-				SyncFileService.update(uploadingSyncFile);
+			if (deletedSyncFile.isFolder()) {
+				FileEventUtil.deleteFolder(
+					deletedSyncFile.getSyncAccountId(), deletedSyncFile);
 			}
 			else {
-
-				// If the file does not exist on the portal yet, delete the
-				// database entry and let the engine recreate it.
-
-				SyncFileService.deleteSyncFile(uploadingSyncFile, false);
+				FileEventUtil.deleteFile(
+					deletedSyncFile.getSyncAccountId(), deletedSyncFile);
 			}
 		}
 	}
@@ -326,12 +323,21 @@ public class SyncEngine {
 	protected static void scheduleGetSyncDLObjectUpdateEvent(
 		final SyncAccount syncAccount,
 		final SyncWatchEventProcessor syncWatchEventProcessor,
-		Watcher watcher) {
+		ScheduledFuture<?> localEventsScheduledFuture, Watcher watcher) {
 
 		Runnable runnable = new Runnable() {
 
 			@Override
 			public void run() {
+				try {
+					doRun();
+				}
+				catch (Exception e) {
+					_logger.error(e.getMessage(), e);
+				}
+			}
+
+			protected void doRun() {
 				SyncAccount updatedSyncAccount =
 					SyncAccountService.fetchSyncAccount(
 						syncAccount.getSyncAccountId());
@@ -346,7 +352,7 @@ public class SyncEngine {
 				Set<Long> syncSiteIds = SyncSiteService.getActiveSyncSiteIds(
 					syncAccount.getSyncAccountId());
 
-				for (long syncSiteId : syncSiteIds) {
+				for (long syncSiteId : new HashSet<Long>(syncSiteIds)) {
 					SyncSite syncSite = SyncSiteService.fetchSyncSite(
 						syncSiteId);
 
@@ -363,17 +369,25 @@ public class SyncEngine {
 
 					getSyncDLObjectUpdateEvent.run();
 				}
+
+				BatchDownloadEvent batchDownloadEvent =
+					BatchEventManager.getBatchDownloadEvent(
+						syncAccount.getSyncAccountId());
+
+				batchDownloadEvent.fireBatchEvent();
 			}
 
 		};
 
-		ScheduledFuture<?> scheduledFuture =
-			_eventScheduledExecutorService.scheduleAtFixedRate(
+		ScheduledFuture<?> remoteEventsScheduledFuture =
+			_remoteEventsScheduledExecutorService.scheduleAtFixedRate(
 				runnable, 0, syncAccount.getPollInterval(), TimeUnit.SECONDS);
 
 		_syncAccountTasks.put(
 			syncAccount.getSyncAccountId(),
-			new Object[] {watcher, scheduledFuture});
+			new Object[] {
+				watcher, localEventsScheduledFuture, remoteEventsScheduledFuture
+			});
 	}
 
 	protected static void synchronizeSyncFiles(
@@ -383,20 +397,24 @@ public class SyncEngine {
 
 		fireDeleteEvents(filePath, watchEventListener);
 
-		retryFileTransfers(syncAccountId);
+		FileEventUtil.retryFileTransfers(syncAccountId);
 	}
 
-	private static Logger _logger = LoggerFactory.getLogger(SyncEngine.class);
+	private static final Logger _logger = LoggerFactory.getLogger(
+		SyncEngine.class);
 
-	private static ScheduledExecutorService _eventScheduledExecutorService =
-		Executors.newScheduledThreadPool(5);
-	private static ExecutorService _executorService =
+	private static final ExecutorService _eventProcessorExecutorService =
+		Executors.newFixedThreadPool(5);
+	private static final ExecutorService _executorService =
 		Executors.newCachedThreadPool();
-	private static boolean _running;
-	private static Map<Long, Object[]> _syncAccountTasks =
-		new HashMap<Long, Object[]>();
-	private static ScheduledExecutorService
-		_syncWatchEventProcessorExecutorService =
+	private static final ScheduledExecutorService
+		_localEventsScheduledExecutorService = Executors.newScheduledThreadPool(
+			5);
+	private static final ScheduledExecutorService
+		_remoteEventsScheduledExecutorService =
 			Executors.newScheduledThreadPool(5);
+	private static boolean _running;
+	private static final Map<Long, Object[]> _syncAccountTasks =
+		new HashMap<Long, Object[]>();
 
 }

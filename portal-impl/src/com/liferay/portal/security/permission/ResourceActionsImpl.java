@@ -614,7 +614,9 @@ public class ResourceActionsImpl implements ResourceActions {
 		InputStream inputStream = classLoader.getResourceAsStream(source);
 
 		if (inputStream == null) {
-			if (_log.isWarnEnabled() && !source.endsWith("-ext.xml")) {
+			if (_log.isWarnEnabled() && !source.endsWith("-ext.xml") &&
+				!source.startsWith("META-INF/")) {
+
 				_log.warn("Cannot load " + source);
 			}
 
@@ -1155,7 +1157,8 @@ public class ResourceActionsImpl implements ResourceActions {
 		Role.class.getName(), User.class.getName(), UserGroup.class.getName()
 	};
 
-	private static Log _log = LogFactoryUtil.getLog(ResourceActionsImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ResourceActionsImpl.class);
 
 	private Map<String, Set<String>> _modelPortletResources;
 	private Map<String, Set<String>> _modelResourceActions;
