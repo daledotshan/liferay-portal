@@ -44,8 +44,8 @@
 	<td>Document Type</td>
 </tr>
 <tr>
-	<td>SAVE_BUTTON</td>
-	<td>//button[contains(.,'Save')]</td>
+	<td>PUBLISH_BUTTON</td>
+	<td>//button[contains(.,'Publish')]</td>
 	<td>Publish</td>
 </tr>
 <tr>
@@ -57,6 +57,32 @@
 	<td>CANCEL_CHECKOUT_BUTTON</td>
 	<td>//button[contains(.,'Cancel Checkout')]</td>
 	<td>Cancel Checkout</td>
+</tr>
+<tr>
+	<td>CANCEL_BUTTON</td>
+	<td>//a[contains(@class,'btn-cancel')]</td>
+	<td>Cancel</td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--CATEGORIZATION-->
+<tr>
+	<td>CATEGORIZATION_TAG</td>
+	<td>//span[@class='textboxlistentry-content']/span[contains(.,'${key_categoryTag}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORIZATION_TOPIC_SELECT_BUTTON</td>
+	<td>//button[contains(.,'Select')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CATEGORIZATION_VOCABULARY_TAG</td>
+	<td>//span[contains(@class,'textboxlistentry-content')]//span[contains(.,'${key_categoryName}')]</td>
+	<td></td>
 </tr>
 </tbody>
 </table>

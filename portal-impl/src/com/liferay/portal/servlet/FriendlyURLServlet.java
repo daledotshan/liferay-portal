@@ -188,7 +188,11 @@ public class FriendlyURLServlet extends HttpServlet {
 			requestURI = requestURI.substring(0, pos);
 		}
 
-		return requestURI.substring(_friendlyURLPathPrefix.length());
+		String pathProxy = PortalUtil.getPathProxy();
+
+		pos = _friendlyURLPathPrefix.length() - pathProxy.length();
+
+		return requestURI.substring(pos);
 	}
 
 	protected Object[] getRedirect(
@@ -396,7 +400,8 @@ public class FriendlyURLServlet extends HttpServlet {
 		return locale;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(FriendlyURLServlet.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		FriendlyURLServlet.class);
 
 	private String _friendlyURLPathPrefix;
 	private boolean _private;
