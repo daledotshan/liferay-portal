@@ -15,6 +15,7 @@
 package com.liferay.portal.notifications;
 
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
+import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.notifications.Channel;
 import com.liferay.portal.kernel.notifications.ChannelException;
@@ -61,6 +62,25 @@ public class ChannelHubManagerImpl implements ChannelHubManager {
 		ChannelHub channelHub = getChannelHub(companyId);
 
 		channelHub.confirmDelivery(userId, notificationEventUuids, archive);
+
+		if (!ClusterInvokeThreadLocal.isEnabled()) {
+			return;
+		}
+
+		MethodHandler methodHandler = new MethodHandler(
+			_confirmDeliveryMethodKey, companyId, userId,
+			notificationEventUuids, archive);
+
+		ClusterRequest clusterRequest = ClusterRequest.createMulticastRequest(
+			methodHandler, true);
+
+		try {
+			ClusterExecutorUtil.execute(clusterRequest);
+		}
+		catch (Exception e) {
+			throw new ChannelException(
+				"Unable to confirm delivery of event across cluster", e);
+		}
 	}
 
 	@Override
@@ -77,9 +97,9 @@ public class ChannelHubManagerImpl implements ChannelHubManager {
 			boolean archive)
 		throws ChannelException {
 
-		ChannelHub channelHub = getChannelHub(companyId);
-
-		channelHub.confirmDelivery(userId, notificationEventUuid, archive);
+		confirmDelivery(
+			companyId, userId, Collections.singleton(notificationEventUuid),
+			archive);
 	}
 
 	@Override
@@ -132,6 +152,24 @@ public class ChannelHubManagerImpl implements ChannelHubManager {
 		ChannelHub channelHub = getChannelHub(companyId);
 
 		channelHub.destroyChannel(userId);
+
+		if (!ClusterInvokeThreadLocal.isEnabled()) {
+			return;
+		}
+
+		MethodHandler methodHandler = new MethodHandler(
+			_destroyChannelMethodKey, companyId, userId);
+
+		ClusterRequest clusterRequest = ClusterRequest.createMulticastRequest(
+			methodHandler, true);
+
+		try {
+			ClusterExecutorUtil.execute(clusterRequest);
+		}
+		catch (Exception e) {
+			throw new ChannelException(
+				"Unable to destroy channel across cluster", e);
+		}
 	}
 
 	@Override
@@ -308,11 +346,17 @@ public class ChannelHubManagerImpl implements ChannelHubManager {
 	}
 
 	@Override
-	public void sendClusterNotificationEvent(
+	public void sendNotificationEvent(
 			long companyId, long userId, NotificationEvent notificationEvent)
 		throws ChannelException {
 
-		sendNotificationEvent(companyId, userId, notificationEvent);
+		ChannelHub channelHub = getChannelHub(companyId);
+
+		channelHub.sendNotificationEvent(userId, notificationEvent);
+
+		if (!ClusterInvokeThreadLocal.isEnabled()) {
+			return;
+		}
 
 		MethodHandler methodHandler = new MethodHandler(
 			_storeNotificationEventMethodKey, companyId, userId,
@@ -327,16 +371,6 @@ public class ChannelHubManagerImpl implements ChannelHubManager {
 		catch (Exception e) {
 			throw new ChannelException("Unable to notify cluster of event", e);
 		}
-	}
-
-	@Override
-	public void sendNotificationEvent(
-			long companyId, long userId, NotificationEvent notificationEvent)
-		throws ChannelException {
-
-		ChannelHub channelHub = getChannelHub(companyId);
-
-		channelHub.sendNotificationEvent(userId, notificationEvent);
 	}
 
 	@Override
@@ -374,13 +408,21 @@ public class ChannelHubManagerImpl implements ChannelHubManager {
 		channelHub.unregisterChannelListener(userId, channelListener);
 	}
 
+	private static final MethodKey _confirmDeliveryMethodKey =
+		new MethodKey(
+			ChannelHubManagerUtil.class, "confirmDelivery", long.class,
+			long.class, Collection.class, boolean.class);
+	private static final MethodKey _destroyChannelMethodKey =
+		new MethodKey(
+			ChannelHubManagerUtil.class, "destroyChannel", long.class,
+			long.class);
 	private static final MethodKey _storeNotificationEventMethodKey =
 		new MethodKey(
 			ChannelHubManagerUtil.class, "storeNotificationEvent", long.class,
 			long.class, NotificationEvent.class);
 
 	private ChannelHub _channelHub;
-	private ConcurrentMap<Long, ChannelHub> _channelHubs =
+	private final ConcurrentMap<Long, ChannelHub> _channelHubs =
 		new ConcurrentHashMap<Long, ChannelHub>();
 
 }

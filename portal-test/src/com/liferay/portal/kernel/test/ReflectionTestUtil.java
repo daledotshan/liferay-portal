@@ -14,15 +14,11 @@
 
 package com.liferay.portal.kernel.test;
 
-import static com.liferay.portal.kernel.util.ReflectionUtil.getDeclaredField;
-import static com.liferay.portal.kernel.util.ReflectionUtil.getDeclaredMethod;
-
 import com.liferay.portal.kernel.util.ReflectionUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import java.util.Arrays;
 
@@ -69,7 +65,7 @@ public class ReflectionTestUtil {
 
 			field.setAccessible(true);
 
-			_unfinalField(field);
+			ReflectionUtil.unfinalField(field);
 
 			return field;
 		}
@@ -85,7 +81,7 @@ public class ReflectionTestUtil {
 
 				field.setAccessible(true);
 
-				_unfinalField(field);
+				ReflectionUtil.unfinalField(field);
 
 				return field;
 			}
@@ -230,18 +226,19 @@ public class ReflectionTestUtil {
 			Constructor<T> constructor = enumClass.getDeclaredConstructor(
 				parameterTypes);
 
-			Method acquireConstructorAccessorMethod = getDeclaredMethod(
-				Constructor.class, "acquireConstructorAccessor");
+			Method acquireConstructorAccessorMethod =
+				ReflectionUtil.getDeclaredMethod(
+					Constructor.class, "acquireConstructorAccessor");
 
 			acquireConstructorAccessorMethod.invoke(constructor);
 
-			Field constructorAccessorField = getDeclaredField(
+			Field constructorAccessorField = ReflectionUtil.getDeclaredField(
 				Constructor.class, "constructorAccessor");
 
 			Object constructorAccessor = constructorAccessorField.get(
 				constructor);
 
-			Method newInstanceMethod = getDeclaredMethod(
+			Method newInstanceMethod = ReflectionUtil.getDeclaredMethod(
 				constructorAccessor.getClass(), "newInstance", Object[].class);
 
 			Object[] parameters = null;
@@ -338,15 +335,6 @@ public class ReflectionTestUtil {
 		}
 
 		return null;
-	}
-
-	private static void _unfinalField(Field field) throws Exception {
-		int modifiers = field.getModifiers();
-
-		Field modifiersField = ReflectionUtil.getDeclaredField(
-			Field.class, "modifiers");
-
-		modifiersField.setInt(field, modifiers & ~Modifier.FINAL);
 	}
 
 }

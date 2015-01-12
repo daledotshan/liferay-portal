@@ -151,10 +151,10 @@ public class DDLRecordVersionLocalServiceUtil {
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public static long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery) {
@@ -162,11 +162,11 @@ public class DDLRecordVersionLocalServiceUtil {
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
 	* @param projection the projection to apply to the query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public static long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
@@ -228,6 +228,12 @@ public class DDLRecordVersionLocalServiceUtil {
 	*/
 	public static int getDDLRecordVersionsCount() {
 		return getService().getDDLRecordVersionsCount();
+	}
+
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion getLatestRecordVersion(
+		long recordId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getLatestRecordVersion(recordId);
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
