@@ -249,57 +249,6 @@ public class Creole10Parser]]></replacevalue>
 		<ant dir="../sql" target="build-db" />
 	</target>
 
-	<target name="build-freemarker-jar">
-		<get
-			dest="freemarker-2.3.17-sources.zip"
-			src="http://search.maven.org/remotecontent?filepath=org/freemarker/freemarker/2.3.17/freemarker-2.3.17-sources.jar"
-		/>
-
-		<tstamp>
-			<format property="tstamp.value" pattern="yyyyMMddkkmmssSSS" />
-		</tstamp>
-
-		<unzip
-			dest="${tstamp.value}"
-			src="freemarker-2.3.17-sources.zip"
-		>
-			<patternset>
-				<include name="**/DebugBreak.java" />
-				<include name="**/EnvironmentSuspendedEvent.java" />
-				<include name="**/DebuggerServer.java" />
-				<include name="**/DebuggerService.java" />
-				<include name="**/RmiDebuggedEnvironmentImpl.java" />
-				<include name="**/RmiDebuggerImpl.java" />
-				<include name="**/RmiDebuggerService.java" />
-			</patternset>
-		</unzip>
-
-		<delete file="freemarker-2.3.17-sources.zip" />
-
-		<patch
-			dir="${tstamp.value}"
-			patchfile="${project.dir}/lib/portal/freemarker/LPS-35775.patch"
-			strip="1"
-		/>
-
-		<antcall target="compile-java">
-			<param name="javac.classpathref" value="project.classpath" />
-			<param name="javac.destdir" value="${tstamp.value}" />
-			<param name="javac.srcdir" value="${tstamp.value}" />
-		</antcall>
-
-		<get
-			dest="${project.dir}/lib/portal/freemarker.jar.new"
-			src="http://search.maven.org/remotecontent?filepath=org/freemarker/freemarker/2.3.17/freemarker-2.3.17.jar"
-		/>
-
-		<jar destfile="${project.dir}/lib/portal/freemarker.jar.new" update="true">
-			<zipfileset dir="${tstamp.value}" includes="**/*.class" />
-		</jar>
-
-		<delete dir="${tstamp.value}" />
-	</target>
-
 	<target name="build-icu4j-jar">
 		<tstamp>
 			<format property="tstamp.value" pattern="yyyyMMddkkmmssSSS" />
@@ -601,6 +550,22 @@ public class Creole10Parser]]></replacevalue>
 		<delete dir="${tstamp.value}" />
 	</target>
 
+	<target name="build-selenium">
+		<ant dir="../portal-web" target="build-selenium" />
+	</target>
+
+	<target name="build-selenium-action">
+		<ant dir="../portal-web" target="build-selenium-action" />
+	</target>
+
+	<target name="build-selenium-block">
+		<ant dir="../portal-web" target="build-selenium-block" />
+	</target>
+
+	<target name="build-selenium-function">
+		<ant dir="../portal-web" target="build-selenium-function" />
+	</target>
+
 	<target name="build-selenium-java-jar">
 		<get
 			dest="selenium-firefox-driver-2.42.2-sources.jar"
@@ -644,36 +609,12 @@ public class Creole10Parser]]></replacevalue>
 		<delete dir="${tstamp.value}" />
 	</target>
 
-	<target name="build-selenium-old">
-		<ant dir="../portal-web" target="build-selenium-old" />
+	<target name="build-selenium-macro">
+		<ant dir="../portal-web" target="build-selenium-macro" />
 	</target>
 
-	<target name="build-selenium-new">
-		<ant dir="../portal-web" target="build-selenium-new" />
-	</target>
-
-	<target name="build-selenium-new-action">
-		<ant dir="../portal-web" target="build-selenium-new-action" />
-	</target>
-
-	<target name="build-selenium-new-block">
-		<ant dir="../portal-web" target="build-selenium-new-block" />
-	</target>
-
-	<target name="build-selenium-new-function">
-		<ant dir="../portal-web" target="build-selenium-new-function" />
-	</target>
-
-	<target name="build-selenium-new-macro">
-		<ant dir="../portal-web" target="build-selenium-new-macro" />
-	</target>
-
-	<target name="build-selenium-new-path">
-		<ant dir="../portal-web" target="build-selenium-new-path" />
-	</target>
-
-	<target name="build-selenium-new-test-case">
-		<ant dir="../portal-web" target="build-selenium-new-test-case" />
+	<target name="build-selenium-path">
+		<ant dir="../portal-web" target="build-selenium-path" />
 	</target>
 
 	<target name="build-selenium-server-jar">
@@ -836,6 +777,10 @@ public class Creole10Parser]]></replacevalue>
 		<delete dir="${tstamp.value}" />
 	</target>
 
+	<target name="build-selenium-test-case">
+		<ant dir="../portal-web" target="build-selenium-test-case" />
+	</target>
+
 	<target name="build-service">
 		<java
 			classname="com.liferay.portal.tools.servicebuilder.ServiceBuilder"
@@ -916,12 +861,6 @@ public class Creole10Parser]]></replacevalue>
 	<target name="build-service-portlet-blogs">
 		<antcall target="build-service">
 			<param name="service.file" value="${basedir}/src/com/liferay/portlet/blogs/service.xml" />
-		</antcall>
-	</target>
-
-	<target name="build-service-portlet-bookmarks">
-		<antcall target="build-service">
-			<param name="service.file" value="${basedir}/src/com/liferay/portlet/bookmarks/service.xml" />
 		</antcall>
 	</target>
 
@@ -1019,7 +958,6 @@ public class Creole10Parser]]></replacevalue>
 		<antcall target="build-service-portlet-announcements" />
 		<antcall target="build-service-portlet-asset" />
 		<antcall target="build-service-portlet-blogs" />
-		<antcall target="build-service-portlet-bookmarks" />
 		<antcall target="build-service-portlet-calendar" />
 		<antcall target="build-service-portlet-documentlibrary" />
 		<antcall target="build-service-portlet-dynamicdatalists" />
@@ -1215,12 +1153,6 @@ public class Creole10Parser]]></replacevalue>
 		</antcall>
 	</target>
 
-	<target name="build-wsdd-portlet-bookmarks">
-		<antcall target="build-wsdd">
-			<param name="service.file" value="${basedir}/src/com/liferay/portlet/bookmarks/service.xml" />
-		</antcall>
-	</target>
-
 	<target name="build-wsdd-portlet-calendar">
 		<antcall target="build-wsdd">
 			<param name="service.file" value="${basedir}/src/com/liferay/portlet/calendar/service.xml" />
@@ -1315,7 +1247,6 @@ public class Creole10Parser]]></replacevalue>
 		<antcall target="build-wsdd-portlet-announcements" />
 		<antcall target="build-wsdd-portlet-asset" />
 		<antcall target="build-wsdd-portlet-blogs" />
-		<antcall target="build-wsdd-portlet-bookmarks" />
 		<antcall target="build-wsdd-portlet-documentlibrary" />
 		<antcall target="build-wsdd-portlet-dynamicdatalists" />
 		<antcall target="build-wsdd-portlet-dynamicdatamapping" />

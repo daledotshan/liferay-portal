@@ -138,6 +138,7 @@ public class MailboxUtil {
 				}
 			}
 		}
+
 	}
 
 	private static class ReceiptStub implements Delayed {
@@ -173,6 +174,11 @@ public class MailboxUtil {
 
 		public long getReceipt() {
 			return _receipt;
+		}
+
+		@Override
+		public int hashCode() {
+			return (int)_receipt;
 		}
 
 		private final long _expireTime;

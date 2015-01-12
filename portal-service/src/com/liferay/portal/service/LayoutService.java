@@ -518,7 +518,8 @@ public interface LayoutService extends BaseService {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portal.model.Layout> getLayouts(
 		long groupId, boolean privateLayout, long parentLayoutId,
-		boolean incomplete, int start, int end);
+		boolean incomplete, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getLayoutsCount(long groupId, boolean privateLayout,
@@ -896,7 +897,7 @@ public interface LayoutService extends BaseService {
 	found, or if the layout parameters were invalid
 	* @deprecated As of 6.2.0, replaced by {@link #updateLayout(long, boolean,
 	long, long, Map, Map, Map, Map, Map, String, boolean, Map,
-	Boolean, byte[], ServiceContext)}
+	boolean, byte[], ServiceContext)}
 	*/
 	@java.lang.Deprecated
 	public com.liferay.portal.model.Layout updateLayout(long groupId,

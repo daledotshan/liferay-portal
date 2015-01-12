@@ -41,7 +41,6 @@ import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.dynamicdatamapping.NoSuchTemplateException;
@@ -111,6 +110,12 @@ public class DDMImpl implements DDM {
 
 		if (refererPortletName == null) {
 			refererPortletName = serviceContext.getPortletId();
+
+			if (refererPortletName == null) {
+				throw new IllegalArgumentException(
+					"Service context must have values for either " +
+						"the referer portlet nme or portlet preference IDs");
+			}
 		}
 
 		return DDMDisplayRegistryUtil.getDDMDisplay(refererPortletName);
@@ -235,7 +240,7 @@ public class DDMImpl implements DDM {
 				ddmStructure.getFieldProperty(fieldName, "localizable"), true);
 
 			if (!localizable && translating &&
-				!ddmStructure.isFieldPrivate(fieldName)) {
+				!fieldName.startsWith(StringPool.UNDERLINE)) {
 
 				continue;
 			}
@@ -451,7 +456,7 @@ public class DDMImpl implements DDM {
 
 		Locale defaultLocale = LocaleUtil.fromLanguageId(defaultLanguageId);
 
-		if (ddmStructure.isFieldPrivate(fieldName)) {
+		if (fieldName.startsWith(StringPool.UNDERLINE)) {
 			locale = LocaleUtil.getSiteDefault();
 
 			defaultLocale = LocaleUtil.getSiteDefault();
@@ -527,7 +532,7 @@ public class DDMImpl implements DDM {
 				fieldNamespace + FIELDS_DISPLAY_NAME));
 
 		List<String> privateFieldNames = ListUtil.fromArray(
-			PropsValues.DYNAMIC_DATA_MAPPING_STRUCTURE_PRIVATE_FIELD_NAMES);
+			new String[] {FIELDS_DISPLAY_NAME});
 
 		List<String> fieldNames = new ArrayList<String>();
 
@@ -559,6 +564,7 @@ public class DDMImpl implements DDM {
 
 		DDMFormValues ddmFormValues =
 			DDMFormValuesJSONDeserializerUtil.deserialize(
+				ddmStructure.getFullHierarchyDDMForm(),
 				serializedDDMFormValues);
 
 		return DDMFormValuesToFieldsConverterUtil.convert(

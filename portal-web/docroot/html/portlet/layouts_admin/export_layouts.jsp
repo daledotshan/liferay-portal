@@ -25,6 +25,11 @@ if (Validator.isNull(cmd)) {
 	cmd = Constants.EXPORT;
 }
 
+if (liveGroup == null) {
+	liveGroup = group;
+	liveGroupId = groupId;
+}
+
 String exportConfigurationButtons = ParamUtil.getString(request, "exportConfigurationButtons", "custom");
 
 long exportImportConfigurationId = 0;
@@ -71,7 +76,22 @@ else {
 String treeId = "layoutsExportTree" + liveGroupId + privateLayout;
 
 if (!cmd.equals(Constants.UPDATE)) {
-	selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(SessionTreeJSClicks.getOpenNodes(request, treeId + "SelectedNode"), ','));
+	String openNodes = SessionTreeJSClicks.getOpenNodes(request, treeId + "SelectedNode");
+
+	if (openNodes == null) {
+		List<Layout> liveGroupLayouts = LayoutLocalServiceUtil.getLayouts(liveGroupId, privateLayout, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+		selectedLayoutIds = new long[liveGroupLayouts.size()];
+
+		for (int i = 0; i < liveGroupLayouts.size(); i++) {
+			Layout liveGroupLayout = liveGroupLayouts.get(i);
+
+			selectedLayoutIds[i] = liveGroupLayout.getLayoutId();
+		}
+	}
+	else {
+		selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(openNodes, ','));
+	}
 }
 
 PortletURL portletURL = renderResponse.createRenderURL();
@@ -103,6 +123,8 @@ if (!cmd.equals(Constants.ADD)) {
 
 <portlet:renderURL var="backURL">
 	<portlet:param name="struts_action" value="/layouts_admin/edit_layout_set" />
+	<portlet:param name="tabs1" value='<%= privateLayout ? "my-dashboard" : "my-profile" %>' />
+	<portlet:param name="groupId" value="<%= String.valueOf(groupId) %>" />
 </portlet:renderURL>
 
 <liferay-ui:header

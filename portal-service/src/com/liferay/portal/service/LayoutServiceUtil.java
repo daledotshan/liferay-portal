@@ -607,7 +607,8 @@ public class LayoutServiceUtil {
 
 	public static java.util.List<com.liferay.portal.model.Layout> getLayouts(
 		long groupId, boolean privateLayout, long parentLayoutId,
-		boolean incomplete, int start, int end) {
+		boolean incomplete, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .getLayouts(groupId, privateLayout, parentLayoutId,
 			incomplete, start, end);
@@ -1062,7 +1063,7 @@ public class LayoutServiceUtil {
 	found, or if the layout parameters were invalid
 	* @deprecated As of 6.2.0, replaced by {@link #updateLayout(long, boolean,
 	long, long, Map, Map, Map, Map, Map, String, boolean, Map,
-	Boolean, byte[], ServiceContext)}
+	boolean, byte[], ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.model.Layout updateLayout(long groupId,

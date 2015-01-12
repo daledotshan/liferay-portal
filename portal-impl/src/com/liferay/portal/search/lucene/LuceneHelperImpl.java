@@ -15,7 +15,6 @@
 package com.liferay.portal.search.lucene;
 
 import com.liferay.portal.kernel.cluster.Address;
-import com.liferay.portal.kernel.cluster.BaseClusterResponseCallback;
 import com.liferay.portal.kernel.cluster.ClusterEvent;
 import com.liferay.portal.kernel.cluster.ClusterEventListener;
 import com.liferay.portal.kernel.cluster.ClusterEventType;
@@ -23,8 +22,11 @@ import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
 import com.liferay.portal.kernel.cluster.ClusterLink;
 import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.cluster.ClusterNodeResponse;
+import com.liferay.portal.kernel.cluster.ClusterNodeResponses;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
+import com.liferay.portal.kernel.cluster.ClusterResponseCallback;
 import com.liferay.portal.kernel.cluster.FutureClusterResponses;
+import com.liferay.portal.kernel.concurrent.BaseFutureListener;
 import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.executor.PortalExecutorManagerUtil;
@@ -41,7 +43,6 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -77,8 +78,8 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.lucene.analysis.Analyzer;
@@ -813,15 +814,6 @@ public class LuceneHelperImpl implements LuceneHelper {
 		}
 
 		BooleanQuery.setMaxClauseCount(_LUCENE_BOOLEAN_QUERY_CLAUSE_MAX_SIZE);
-
-		if (StringUtil.equalsIgnoreCase(
-				Http.HTTPS, PropsValues.WEB_SERVER_PROTOCOL)) {
-
-			_protocol = Http.HTTPS;
-		}
-		else {
-			_protocol = Http.HTTP;
-		}
 	}
 
 	private ObjectValuePair<String, URL>
@@ -873,7 +865,7 @@ public class LuceneHelperImpl implements LuceneHelper {
 			fileName = fileName.concat("lucene/dump");
 
 			URL url = new URL(
-				_protocol, inetAddress.getHostAddress(),
+				clusterNode.getPortalProtocol(), inetAddress.getHostAddress(),
 				inetSocketAddress.getPort(), fileName);
 
 			String transientToken = (String)clusterNodeResponse.getResult();
@@ -896,12 +888,12 @@ public class LuceneHelperImpl implements LuceneHelper {
 
 			termQuery.extractTerms(terms);
 
-			float boost = termQuery.getBoost();
-
 			for (Term term : terms) {
 				String termValue = term.text();
 
-				if (like) {
+				if (like &&
+					Validator.equals(term.field(), queryParser.getField())) {
+
 					termValue = termValue.toLowerCase(queryParser.getLocale());
 
 					term = term.createTerm(
@@ -914,7 +906,7 @@ public class LuceneHelperImpl implements LuceneHelper {
 					query = new TermQuery(term);
 				}
 
-				query.setBoost(boost);
+				query.setBoost(termQuery.getBoost());
 
 				boolean included = false;
 
@@ -960,7 +952,7 @@ public class LuceneHelperImpl implements LuceneHelper {
 	}
 
 	private void _loadIndexFromCluster(
-		IndexAccessor indexAccessor, long localLastGeneration) {
+		final IndexAccessor indexAccessor, long localLastGeneration) {
 
 		List<Address> clusterNodeAddresses =
 			ClusterExecutorUtil.getClusterNodeAddresses();
@@ -982,10 +974,27 @@ public class LuceneHelperImpl implements LuceneHelper {
 				_getLastGenerationMethodKey, indexAccessor.getCompanyId()),
 			true);
 
-		ClusterExecutorUtil.execute(
-			clusterRequest,
-			new LoadIndexClusterResponseCallback(
-				indexAccessor, clusterNodeAddressesCount, localLastGeneration));
+		FutureClusterResponses futureClusterResponses =
+			ClusterExecutorUtil.execute(
+				clusterRequest,
+				new LoadIndexClusterResponseCallback(
+					indexAccessor, clusterNodeAddressesCount,
+					localLastGeneration));
+
+		futureClusterResponses.addFutureListener(
+			new BaseFutureListener<ClusterNodeResponses>() {
+
+				@Override
+				public void completeWithException(
+					Future<ClusterNodeResponses> future, Throwable throwable) {
+
+					_log.error(
+						"Unable to load index for company " +
+							indexAccessor.getCompanyId(),
+						throwable);
+				}
+
+			});
 	}
 
 	private static final long _CLUSTER_LINK_NODE_BOOTUP_RESPONSE_TIMEOUT =
@@ -1008,7 +1017,6 @@ public class LuceneHelperImpl implements LuceneHelper {
 		new ConcurrentHashMap<Long, IndexAccessor>();
 	private LoadIndexClusterEventListener _loadIndexClusterEventListener;
 	private ThreadPoolExecutor _luceneIndexThreadPoolExecutor;
-	private String _protocol;
 	private Version _version;
 
 	private static class ShutdownSyncJob implements Runnable {
@@ -1088,7 +1096,7 @@ public class LuceneHelperImpl implements LuceneHelper {
 	}
 
 	private class LoadIndexClusterResponseCallback
-		extends BaseClusterResponseCallback {
+		implements ClusterResponseCallback {
 
 		public LoadIndexClusterResponseCallback(
 			IndexAccessor indexAccessor, int clusterNodeAddressesCount,
@@ -1200,13 +1208,6 @@ public class LuceneHelperImpl implements LuceneHelper {
 					}
 				}
 			}
-		}
-
-		@Override
-		public void processTimeoutException(TimeoutException timeoutException) {
-			_log.error(
-				"Unable to load index for company " + _companyId,
-				timeoutException);
 		}
 
 		private int _clusterNodeAddressesCount;

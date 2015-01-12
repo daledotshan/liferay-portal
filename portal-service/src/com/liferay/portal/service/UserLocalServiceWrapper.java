@@ -983,10 +983,10 @@ public class UserLocalServiceWrapper implements UserLocalService,
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	@Override
 	public long dynamicQueryCount(
@@ -995,11 +995,11 @@ public class UserLocalServiceWrapper implements UserLocalService,
 	}
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
 	* @param projection the projection to apply to the query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	@Override
 	public long dynamicQueryCount(
@@ -1526,7 +1526,7 @@ public class UserLocalServiceWrapper implements UserLocalService,
 	* @throws PortalException if a user with the primary key could not be
 	found
 	* @deprecated As of 7.0.0, replaced by {@link #getSocialUsers(long, int,
-	boolean, int, int, OrderByComparator)}
+	String, int, int, OrderByComparator)}
 	*/
 	@Deprecated
 	@Override
@@ -2236,6 +2236,19 @@ public class UserLocalServiceWrapper implements UserLocalService,
 			start, end, sort);
 	}
 
+	@Override
+	public com.liferay.portal.kernel.search.Hits search(long companyId,
+		java.lang.String firstName, java.lang.String middleName,
+		java.lang.String lastName, java.lang.String screenName,
+		java.lang.String emailAddress, int status,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		boolean andSearch, int start, int end,
+		com.liferay.portal.kernel.search.Sort[] sorts) {
+		return _userLocalService.search(companyId, firstName, middleName,
+			lastName, screenName, emailAddress, status, params, andSearch,
+			start, end, sorts);
+	}
+
 	/**
 	* Returns an ordered range of all the users who match the keywords and
 	* status, without using the indexer. It is preferable to use the indexed
@@ -2314,6 +2327,15 @@ public class UserLocalServiceWrapper implements UserLocalService,
 		int start, int end, com.liferay.portal.kernel.search.Sort sort) {
 		return _userLocalService.search(companyId, keywords, status, params,
 			start, end, sort);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.search.Hits search(long companyId,
+		java.lang.String keywords, int status,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		int start, int end, com.liferay.portal.kernel.search.Sort[] sorts) {
+		return _userLocalService.search(companyId, keywords, status, params,
+			start, end, sorts);
 	}
 
 	/**
@@ -2409,12 +2431,36 @@ public class UserLocalServiceWrapper implements UserLocalService,
 
 	@Override
 	public com.liferay.portal.kernel.search.BaseModelSearchResult<com.liferay.portal.model.User> searchUsers(
+		long companyId, java.lang.String firstName,
+		java.lang.String middleName, java.lang.String lastName,
+		java.lang.String screenName, java.lang.String emailAddress, int status,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		boolean andSearch, int start, int end,
+		com.liferay.portal.kernel.search.Sort[] sorts)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _userLocalService.searchUsers(companyId, firstName, middleName,
+			lastName, screenName, emailAddress, status, params, andSearch,
+			start, end, sorts);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.search.BaseModelSearchResult<com.liferay.portal.model.User> searchUsers(
 		long companyId, java.lang.String keywords, int status,
 		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
 		int start, int end, com.liferay.portal.kernel.search.Sort sort)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _userLocalService.searchUsers(companyId, keywords, status,
 			params, start, end, sort);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.search.BaseModelSearchResult<com.liferay.portal.model.User> searchUsers(
+		long companyId, java.lang.String keywords, int status,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		int start, int end, com.liferay.portal.kernel.search.Sort[] sorts)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _userLocalService.searchUsers(companyId, keywords, status,
+			params, start, end, sorts);
 	}
 
 	/**
@@ -3212,11 +3258,11 @@ public class UserLocalServiceWrapper implements UserLocalService,
 	found or if the new information was invalid
 	* @deprecated As of 7.0.0, replaced by {@link #updateUser(long, String,
 	String, String, boolean, String, String, String, String,
-	long, String, String, String, String, String, String, String,
-	String, int, int, boolean, int, int, int, String, String,
-	String, String, String, String, String, String, String,
-	String, String, long[], long[], long[], java.util.List,
-	long[], boolean, byte[], ServiceContext)}
+	long, String, boolean, byte[], String, String, String,
+	String, String, String, String, int, int, boolean, int, int,
+	int, String, String, String, String, String, String, String,
+	String, String, String, String, long[], long[], long[],
+	java.util.List, long[], ServiceContext)}
 	*/
 	@Deprecated
 	@Override

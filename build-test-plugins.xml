@@ -3,6 +3,15 @@
 <project name="portal-test-plugins" basedir="." default="test" xmlns:antelope="antlib:ise.antelope.tasks">
 	<import file="build-test.xml" />
 
+	<target name="deploy-extra-apps">
+		<fail message="Please set the property ${extra.apps.zip.file.name}" unless="extra.apps.zip.file.name" />
+
+		<unzip
+			dest="${liferay.home}/deploy"
+			src="${extra.apps.zip.file.name}"
+		/>
+	</target>
+
 	<target name="deploy-simple-server-plugins">
 		<if>
 			<equals arg1="${app.server.type}" arg2="jboss" />
@@ -69,6 +78,13 @@ app.server.tomcat.dir=${app.server.parent.dir}/tomcat-7.0.27</echo>
 					<else>
 						<delete file="${lp.plugins.dir}/${plugin.types}/@{plugin}/docroot/WEB-INF/src/portlet-ext.properties" />
 					</else>
+				</if>
+
+				<if>
+					<equals arg1="@{plugin}" arg2="so-portlet" />
+					<then>
+						<echo file="${lp.plugins.dir}/${plugin.types}/@{plugin}/overwrite/META-INF/custom_jsps/html/portlet/dockbar/license_warning.jsp" />
+					</then>
 				</if>
 			</sequential>
 		</for>
