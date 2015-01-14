@@ -120,6 +120,10 @@ public class IconTag extends IncludeTag {
 		_onClick = onClick;
 	}
 
+	public void setSingleSubmit(boolean singleSubmit) {
+		_singleSubmit = singleSubmit;
+	}
+
 	public void setSrc(String src) {
 		_src = src;
 	}
@@ -413,7 +417,9 @@ public class IconTag extends IncludeTag {
 			sb.append(onClick);
 			sb.append("submitForm(document.hrefFm, '");
 			sb.append(getUrl());
-			sb.append("')");
+			sb.append("', ");
+			sb.append(_singleSubmit);
+			sb.append(")");
 
 			onClick = sb.toString();
 		}
@@ -585,6 +591,7 @@ public class IconTag extends IncludeTag {
 		request.setAttribute("liferay-ui:icon:message", getProcessedMessage());
 		request.setAttribute("liferay-ui:icon:method", getMethod());
 		request.setAttribute("liferay-ui:icon:onClick", getOnClick());
+		request.setAttribute("liferay-ui:icon:singleSubmit", _singleSubmit);
 		request.setAttribute("liferay-ui:icon:src", getSrc());
 		request.setAttribute("liferay-ui:icon:srcHover", getSrcHover());
 		request.setAttribute("liferay-ui:icon:target", _target);
@@ -616,6 +623,7 @@ public class IconTag extends IncludeTag {
 	private String _message;
 	private String _method;
 	private String _onClick;
+	private boolean _singleSubmit = true;
 	private String _src;
 	private String _srcHover;
 	private String _target = "_self";

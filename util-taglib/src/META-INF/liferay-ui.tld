@@ -1509,6 +1509,12 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<description>Sets whether to allow submitting form multiple times.</description>
+			<name>singleSubmit</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<description>Sets the location of the image file to use in the icon.</description>
 			<name>src</name>
 			<required>false</required>
