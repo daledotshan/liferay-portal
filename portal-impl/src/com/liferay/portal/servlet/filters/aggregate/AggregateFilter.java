@@ -40,6 +40,7 @@ import com.liferay.portal.servlet.filters.IgnoreModuleRequestFilter;
 import com.liferay.portal.servlet.filters.dynamiccss.DynamicCSSUtil;
 import com.liferay.portal.util.AggregateUtil;
 import com.liferay.portal.util.JavaScriptBundleUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -170,6 +171,14 @@ public class AggregateFilter extends IgnoreModuleRequestFilter {
 
 					String baseURL = _BASE_URL.concat(
 						importDirServletPaths.getResourcePath());
+
+					String portalContextPath = PortalUtil.getPathContext();
+
+					if (!portalContextPath.isEmpty() &&
+						!baseURL.startsWith(portalContextPath)) {
+
+						baseURL = portalContextPath.concat(baseURL);
+					}
 
 					if (!baseURL.endsWith(StringPool.SLASH)) {
 						baseURL += StringPool.SLASH;

@@ -326,11 +326,18 @@ public class ComboServlet extends HttpServlet {
 					}
 
 					String baseURL = StringPool.BLANK;
+					String portalContextPath = PortalUtil.getPathContext();
 
 					int slashIndex = resourcePath.lastIndexOf(CharPool.SLASH);
 
 					if (slashIndex != -1) {
 						baseURL = resourcePath.substring(0, slashIndex + 1);
+					}
+
+					if (!portalContextPath.isEmpty() &&
+						!baseURL.startsWith(portalContextPath)) {
+
+						baseURL = portalContextPath.concat(baseURL);
 					}
 
 					stringFileContent = AggregateUtil.updateRelativeURLs(
