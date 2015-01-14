@@ -34,9 +34,6 @@ import java.util.List;
  */
 public class WikiNodeImpl extends WikiNodeBaseImpl {
 
-	public WikiNodeImpl() {
-	}
-
 	@Override
 	public Folder addAttachmentsFolder() throws PortalException {
 		if (_attachmentsFolderId !=
@@ -87,9 +84,9 @@ public class WikiNodeImpl extends WikiNodeBaseImpl {
 
 		try {
 			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-				getUserId(), repository.getRepositoryId(),
+				repository.getRepositoryId(),
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-				String.valueOf(getNodeId()), serviceContext);
+				String.valueOf(getNodeId()));
 
 			_attachmentsFolderId = folder.getFolderId();
 		}

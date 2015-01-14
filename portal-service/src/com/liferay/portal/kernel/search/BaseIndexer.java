@@ -188,9 +188,18 @@ public abstract class BaseIndexer implements Indexer {
 			SearchPermissionChecker searchPermissionChecker =
 				SearchEngineUtil.getSearchPermissionChecker();
 
+			long[] groupIds = searchContext.getGroupIds();
+
+			long groupId = GetterUtil.getLong(
+				searchContext.getAttribute("groupId"));
+
+			if (groupId > 0) {
+				groupIds = new long[] {groupId};
+			}
+
 			facetQuery =
 				(BooleanQuery)searchPermissionChecker.getPermissionQuery(
-					searchContext.getCompanyId(), searchContext.getGroupIds(),
+					searchContext.getCompanyId(), groupIds,
 					searchContext.getUserId(), className, facetQuery,
 					searchContext);
 		}
@@ -1069,7 +1078,14 @@ public abstract class BaseIndexer implements Indexer {
 
 		multiValueFacet.setFieldName(Field.TREE_PATH);
 		multiValueFacet.setStatic(true);
-		multiValueFacet.setValues(searchContext.getFolderIds());
+
+		long[] folderIds = searchContext.getFolderIds();
+
+		if (ArrayUtil.isNotEmpty(folderIds)) {
+			folderIds = ArrayUtil.remove(folderIds, _DEFAULT_FOLDER_ID);
+
+			multiValueFacet.setValues(folderIds);
+		}
 
 		searchContext.addFacet(multiValueFacet);
 	}
@@ -1205,9 +1221,8 @@ public abstract class BaseIndexer implements Indexer {
 			selectedFieldNames.add(defaultLocalizedSelectedFieldName);
 
 			for (String languageId : languageIds) {
-				String localizedFieldName =
-					LocalizationUtil.getLocalizedName(
-						defaultLocalizedSelectedFieldName, languageId);
+				String localizedFieldName = LocalizationUtil.getLocalizedName(
+					defaultLocalizedSelectedFieldName, languageId);
 
 				selectedFieldNames.add(localizedFieldName);
 			}
@@ -1842,12 +1857,14 @@ public abstract class BaseIndexer implements Indexer {
 		_stagingAware = stagingAware;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(BaseIndexer.class);
+	private static final long _DEFAULT_FOLDER_ID = 0L;
+
+	private static final Log _log = LogFactoryUtil.getLog(BaseIndexer.class);
 
 	private boolean _commitImmediately;
 	private String[] _defaultSelectedFieldNames;
 	private String[] _defaultSelectedLocalizedFieldNames;
-	private Document _document = new DocumentImpl();
+	private final Document _document = new DocumentImpl();
 	private boolean _filterSearch;
 	private boolean _indexerEnabled = true;
 	private IndexerPostProcessor[] _indexerPostProcessors =

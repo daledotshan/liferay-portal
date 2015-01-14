@@ -101,11 +101,11 @@ public class SampleSQLBuilder {
 
 		// Generic
 
-		Reader reader = generateSQL();
-
 		File tempDir = new File(_outputDir, "temp");
 
 		tempDir.mkdirs();
+
+		Reader reader = generateSQL();
 
 		try {
 
@@ -248,13 +248,12 @@ public class SampleSQLBuilder {
 			String tableName = entry.getKey();
 			StringBundler sb = entry.getValue();
 
-			if (sb.index() == 0) {
-				continue;
+			if (sb.index() > 0) {
+				String insertSQL = db.buildSQL(sb.toString());
+
+				writeToInsertSQLFile(
+					dir, tableName, insertSQLWriters, insertSQL);
 			}
-
-			String insertSQL = db.buildSQL(sb.toString());
-
-			writeToInsertSQLFile(dir, tableName, insertSQLWriters, insertSQL);
 
 			try (Writer insertSQLWriter = insertSQLWriters.remove(tableName)) {
 				insertSQLWriter.write(";\n");
@@ -450,12 +449,12 @@ public class SampleSQLBuilder {
 
 	private static final int _WRITER_BUFFER_SIZE = 16 * 1024;
 
-	private String[] _csvFileNames;
-	private DataFactory _dataFactory;
-	private String _dbType;
+	private final String[] _csvFileNames;
+	private final DataFactory _dataFactory;
+	private final String _dbType;
 	private volatile Exception _freemarkerException;
-	private int _optimizeBufferSize;
-	private String _outputDir;
-	private String _script;
+	private final int _optimizeBufferSize;
+	private final String _outputDir;
+	private final String _script;
 
 }

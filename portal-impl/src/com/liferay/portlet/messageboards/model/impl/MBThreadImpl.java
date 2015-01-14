@@ -42,9 +42,6 @@ import java.util.Set;
  */
 public class MBThreadImpl extends MBThreadBaseImpl {
 
-	public MBThreadImpl() {
-	}
-
 	@Override
 	public Folder addAttachmentsFolder() throws PortalException {
 		if (_attachmentsFolderId !=
@@ -98,9 +95,9 @@ public class MBThreadImpl extends MBThreadBaseImpl {
 
 		try {
 			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-				getUserId(), repository.getRepositoryId(),
+				repository.getRepositoryId(),
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-				String.valueOf(getThreadId()), serviceContext);
+				String.valueOf(getThreadId()));
 
 			_attachmentsFolderId = folder.getFolderId();
 		}

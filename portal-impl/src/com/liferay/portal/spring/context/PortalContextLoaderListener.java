@@ -64,7 +64,6 @@ import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebAppPool;
 import com.liferay.portlet.PortletContextBagPool;
-import com.liferay.portlet.wiki.util.WikiCacheUtil;
 
 import java.beans.PropertyDescriptor;
 
@@ -266,7 +265,6 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 			EntityCacheUtil.clearLocalCache();
 			PermissionCacheUtil.clearCache();
 			TemplateResourceLoaderUtil.clearCache();
-			WikiCacheUtil.clearCache(0);
 
 			ServletContextPool.clear();
 
@@ -322,6 +320,8 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 			ModuleFrameworkUtilAdapter.registerContext(applicationContext);
 
+			ModuleFrameworkUtilAdapter.registerExtraPackages();
+
 			ModuleFrameworkUtilAdapter.startRuntime();
 		}
 		catch (Exception e) {
@@ -357,7 +357,7 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 	private static final Field _FILTERED_PROPERTY_DESCRIPTORS_CACHE_FIELD;
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortalContextLoaderListener.class);
 
 	private static String _portalServletContextName = StringPool.BLANK;

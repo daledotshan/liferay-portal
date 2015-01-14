@@ -17,6 +17,10 @@ package com.liferay.sync.engine.session;
 import com.btr.proxy.search.ProxySearch;
 
 import com.liferay.sync.engine.documentlibrary.handler.Handler;
+import com.liferay.sync.engine.util.PropsValues;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 import java.net.ProxySelector;
 import java.net.URL;
@@ -30,7 +34,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -38,6 +46,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -75,6 +84,8 @@ public class Session {
 
 		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 
+		httpClientBuilder.disableAutomaticRetries();
+
 		CredentialsProvider credentialsProvider =
 			new BasicCredentialsProvider();
 
@@ -83,6 +94,14 @@ public class Session {
 			new UsernamePasswordCredentials(login, password));
 
 		httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+
+		RequestConfig.Builder builder = RequestConfig.custom();
+
+		builder.setConnectTimeout(PropsValues.SYNC_HTTP_CONNECTION_TIMEOUT);
+		builder.setSocketTimeout(PropsValues.SYNC_HTTP_SOCKET_TIMEOUT);
+		builder.setStaleConnectionCheckEnabled(false);
+
+		httpClientBuilder.setDefaultRequestConfig(builder.build());
 
 		httpClientBuilder.setMaxConnPerRoute(maxConnections);
 		httpClientBuilder.setMaxConnTotal(maxConnections);
@@ -113,6 +132,24 @@ public class Session {
 		_httpHost = new HttpHost(
 			url.getHost(), url.getPort(), url.getProtocol());
 		_token = null;
+
+		Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				_downloadRate = _downloadedBytes.get();
+
+				_downloadedBytes.set(0);
+
+				_uploadRate = _uploadedBytes.get();
+
+				_uploadedBytes.set(0);
+			}
+
+		};
+
+		_scheduledExecutorService.scheduleAtFixedRate(
+			runnable, 0, 1000, TimeUnit.MILLISECONDS);
 	}
 
 	public HttpResponse execute(HttpRequest httpRequest) throws Exception {
@@ -248,8 +285,24 @@ public class Session {
 		return _basicHttpContext;
 	}
 
+	public int getDownloadRate() {
+		return _downloadRate;
+	}
+
 	public ExecutorService getExecutorService() {
 		return _executorService;
+	}
+
+	public int getUploadRate() {
+		return _uploadRate;
+	}
+
+	public void incrementDownloadedBytes(int bytes) {
+		_downloadedBytes.getAndAdd(bytes);
+	}
+
+	public void incrementUploadedBytes(int bytes) {
+		_uploadedBytes.getAndAdd(bytes);
 	}
 
 	public void setToken(String token) {
@@ -299,7 +352,25 @@ public class Session {
 		throws Exception {
 
 		return new FileBody(
-			filePath.toFile(), ContentType.create(mimeType), fileName);
+			filePath.toFile(), ContentType.create(mimeType), fileName) {
+
+			@Override
+			public void writeTo(OutputStream out) throws IOException {
+				CountingOutputStream output = new CountingOutputStream(out) {
+
+					@Override
+					protected void beforeWrite(int n) {
+						incrementUploadedBytes(n);
+
+						super.beforeWrite(n);
+					}
+
+				};
+
+				super.writeTo(output);
+			}
+
+		};
 	}
 
 	private HttpRoutePlanner _getHttpRoutePlanner() {
@@ -343,19 +414,26 @@ public class Session {
 			String.valueOf(value),
 			ContentType.create(
 				ContentType.TEXT_PLAIN.getMimeType(),
-				Charset.defaultCharset()));
+				Charset.forName("UTF-8")));
 	}
 
-	private static Logger _logger = LoggerFactory.getLogger(Session.class);
+	private static final Logger _logger = LoggerFactory.getLogger(
+		Session.class);
 
 	private static HttpRoutePlanner _httpRoutePlanner;
-	private static String _token;
+	private static final ScheduledExecutorService _scheduledExecutorService =
+		Executors.newSingleThreadScheduledExecutor();
 
 	private BasicHttpContext _basicHttpContext;
-	private ExecutorService _executorService;
-	private HttpClient _httpClient;
-	private HttpHost _httpHost;
-	private Set<String> _ignoredParameterKeys = new HashSet<String>(
+	private final AtomicInteger _downloadedBytes = new AtomicInteger(0);
+	private volatile int _downloadRate;
+	private final ExecutorService _executorService;
+	private final HttpClient _httpClient;
+	private final HttpHost _httpHost;
+	private final Set<String> _ignoredParameterKeys = new HashSet<String>(
 		Arrays.asList("filePath", "syncFile", "syncSite", "uiEvent"));
+	private String _token;
+	private final AtomicInteger _uploadedBytes = new AtomicInteger(0);
+	private volatile int _uploadRate;
 
 }

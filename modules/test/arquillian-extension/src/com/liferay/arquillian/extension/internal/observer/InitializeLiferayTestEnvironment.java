@@ -16,7 +16,6 @@ package com.liferay.arquillian.extension.internal.observer;
 
 import com.liferay.arquillian.extension.internal.descriptor.SpringDescriptor;
 import com.liferay.arquillian.extension.internal.event.LiferayContextCreatedEvent;
-import com.liferay.portal.test.jdbc.ResetDatabaseUtilDataSource;
 import com.liferay.portal.util.InitUtil;
 
 import java.util.ArrayList;
@@ -37,12 +36,9 @@ public class InitializeLiferayTestEnvironment {
 	public void beforeClass(@Observes BeforeClass beforeClass) {
 		System.setProperty("catalina.base", ".");
 
-		ResetDatabaseUtilDataSource.initialize();
-
 		List<String> configLocations = getConfigLocations();
 
-		InitUtil.initWithSpringAndModuleFramework(
-			false, configLocations, false);
+		InitUtil.initWithSpring(configLocations, true);
 
 		if (System.getProperty("external-properties") == null) {
 			System.setProperty("external-properties", "portal-test.properties");

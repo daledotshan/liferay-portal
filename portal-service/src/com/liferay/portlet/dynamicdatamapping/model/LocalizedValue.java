@@ -34,6 +34,16 @@ public class LocalizedValue implements Value {
 		setDefaultLocale(defaultLocale);
 	}
 
+	public LocalizedValue(LocalizedValue localizedValue) {
+		_defaultLocale = localizedValue._defaultLocale;
+
+		Map<Locale, String> values = localizedValue._values;
+
+		for (Map.Entry<Locale, String> entry : values.entrySet()) {
+			addString(entry.getKey(), entry.getValue());
+		}
+	}
+
 	@Override
 	public void addString(Locale locale, String value) {
 		_values.put(locale, value);
@@ -76,6 +86,6 @@ public class LocalizedValue implements Value {
 	}
 
 	private Locale _defaultLocale;
-	private Map<Locale, String> _values = new HashMap<Locale, String>();
+	private final Map<Locale, String> _values = new HashMap<Locale, String>();
 
 }

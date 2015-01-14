@@ -19,6 +19,7 @@
 <%@ page import="com.liferay.portal.DuplicateGroupException" %><%@
 page import="com.liferay.portal.DuplicateTeamException" %><%@
 page import="com.liferay.portal.GroupFriendlyURLException" %><%@
+page import="com.liferay.portal.GroupInheritContentException" %><%@
 page import="com.liferay.portal.GroupNameException" %><%@
 page import="com.liferay.portal.GroupParentException" %><%@
 page import="com.liferay.portal.LayoutSetVirtualHostException" %><%@
@@ -58,8 +59,7 @@ page import="com.liferay.portlet.sitesadmin.search.UserGroupTeamChecker" %><%@
 page import="com.liferay.portlet.sitesadmin.search.UserTeamChecker" %><%@
 page import="com.liferay.portlet.usergroupsadmin.search.UserGroupChecker" %><%@
 page import="com.liferay.portlet.usergroupsadmin.search.UserGroupGroupChecker" %><%@
-page import="com.liferay.portlet.usersadmin.search.OrganizationGroupChecker" %><%@
-page import="com.liferay.portlet.usersadmin.util.UsersAdmin" %>
+page import="com.liferay.portlet.usersadmin.search.OrganizationGroupChecker" %>
 
 <%
 boolean filterManageableGroups = true;

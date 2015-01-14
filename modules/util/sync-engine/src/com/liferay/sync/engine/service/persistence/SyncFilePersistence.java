@@ -16,6 +16,7 @@ package com.liferay.sync.engine.service.persistence;
 
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.stmt.Where;
 
 import com.liferay.sync.engine.model.SyncFile;
@@ -35,6 +36,22 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 
 	public SyncFilePersistence() throws SQLException {
 		super(SyncFile.class);
+	}
+
+	public long countByS_U(long syncAccountId, int uiEvent)
+		throws SQLException {
+
+		QueryBuilder<SyncFile, Long> queryBuilder = queryBuilder();
+
+		Where<SyncFile, Long> where = queryBuilder.where();
+
+		where.eq("syncAccountId", syncAccountId);
+
+		where.and();
+
+		where.eq("uiEvent", uiEvent);
+
+		return where.countOf();
 	}
 
 	public long countByUIEvent(int uiEvent) throws SQLException {
@@ -99,6 +116,12 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 		return syncFiles.get(0);
 	}
 
+	public List<SyncFile> findBySyncAccountId(long syncAccountId)
+		throws SQLException {
+
+		return queryForEq("syncAccountId", syncAccountId);
+	}
+
 	public List<SyncFile> findByF_L(String filePathName, long localSyncTime)
 		throws SQLException {
 
@@ -125,6 +148,28 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 		return query(queryBuilder.prepare());
 	}
 
+	public List<SyncFile> findByP_S(long parentFolderId, long syncAccountId)
+		throws SQLException {
+
+		Map<String, Object> fieldValues = new HashMap<String, Object>();
+
+		fieldValues.put("parentFolderId", parentFolderId);
+		fieldValues.put("syncAccountId", syncAccountId);
+
+		return queryForFieldValues(fieldValues);
+	}
+
+	public List<SyncFile> findByR_S(long repositoryId, long syncAccountId)
+		throws SQLException {
+
+		Map<String, Object> fieldValues = new HashMap<String, Object>();
+
+		fieldValues.put("repositoryId", repositoryId);
+		fieldValues.put("syncAccountId", syncAccountId);
+
+		return queryForFieldValues(fieldValues);
+	}
+
 	public List<SyncFile> findByS_U(long syncAccountId, int uiEvent)
 		throws SQLException {
 
@@ -136,10 +181,22 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 		return queryForFieldValues(fieldValues);
 	}
 
-	public List<SyncFile> findBySyncAccountId(long syncAccountId)
+	public void updateByFilePathName(
+			String filePathName, int state, int uiEvent)
 		throws SQLException {
 
-		return queryForEq("syncAccountId", syncAccountId);
+		UpdateBuilder<SyncFile, Long> updateBuilder = updateBuilder();
+
+		Where<SyncFile, Long> where = updateBuilder.where();
+
+		filePathName = StringUtils.replace(filePathName, "\\", "\\\\");
+
+		where.like("filePathName", new SelectArg(filePathName + "%"));
+
+		updateBuilder.updateColumnValue("state", state);
+		updateBuilder.updateColumnValue("uiEvent", uiEvent);
+
+		updateBuilder.update();
 	}
 
 }

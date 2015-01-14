@@ -1,5 +1,58 @@
+alter table AssetEntry add listable BOOLEAN;
+
+COMMIT_TRANSACTION;
+
+update AssetEntry set listable = TRUE;
+
 alter table BlogsEntry add subtitle STRING null;
+alter table BlogsEntry add coverImageFileEntryId LONG;
+alter table BlogsEntry add coverImageURL STRING null;
 alter table BlogsEntry add smallImageFileEntryId LONG;
+
+alter table DDMStructure add version VARCHAR(75) null;
+
+update DDMStructure set version = '1.0';
+
+create table DDMStructureVersion (
+	structureVersionId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	structureId LONG,
+	version VARCHAR(75) null,
+	name STRING null,
+	description STRING null,
+	definition TEXT null,
+	storageType VARCHAR(75) null,
+	type_ INTEGER
+);
+
+alter table DDMTemplate add version VARCHAR(75) null;
+
+update DDMTemplate set version = '1.0';
+
+create table DDMTemplateVersion (
+	templateVersionId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	templateId LONG,
+	version VARCHAR(75) null,
+	name STRING null,
+	description STRING null,
+	language VARCHAR(75) null,
+	script TEXT null
+);
+
+alter table DLFolder add restrictionType INTEGER;
+
+update DLFolder set restrictionType = 1 where overrideFileEntryTypes = 1;
+
+alter table DLFolder drop column overrideFileEntryTypes;
 
 create table ExportImportConfiguration (
 	mvccVersion LONG default 0,
@@ -19,6 +72,8 @@ create table ExportImportConfiguration (
 	statusByUserName VARCHAR(75) null,
 	statusDate DATE null
 );
+
+alter table Group_ add inheritContent BOOLEAN;
 
 alter table JournalFolder add restrictionType INTEGER;
 

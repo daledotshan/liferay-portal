@@ -71,6 +71,10 @@ public abstract class BaseCapabilityProvider implements CapabilityProvider {
 		_supportedCapabilities.put(capabilityClass, capability);
 	}
 
+	protected Map<Class<? extends Capability>, Capability> getCapabilities() {
+		return _supportedCapabilities;
+	}
+
 	protected <S extends Capability> S getInternalCapability(
 		Class<S> capabilityClass) {
 
@@ -79,9 +83,9 @@ public abstract class BaseCapabilityProvider implements CapabilityProvider {
 
 	protected abstract String getProviderKey();
 
-	private Set<Class<? extends Capability>> _exportedCapabilityClasses =
+	private final Set<Class<? extends Capability>> _exportedCapabilityClasses =
 		new HashSet<>();
-	private Map<Class<? extends Capability>, Capability>
+	private final Map<Class<? extends Capability>, Capability>
 		_supportedCapabilities = new HashMap<>();
 
 }

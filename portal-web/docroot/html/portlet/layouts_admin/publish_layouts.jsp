@@ -106,7 +106,24 @@ catch (NoSuchLayoutException nsle) {
 
 treeId = treeId + privateLayout + layoutSetBranchId;
 
-long[] selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(SessionTreeJSClicks.getOpenNodes(request, treeId + "SelectedNode"), ','));
+long[] selectedLayoutIds = null;
+
+String openNodes = SessionTreeJSClicks.getOpenNodes(request, treeId + "SelectedNode");
+
+if (openNodes == null) {
+	List<Layout> stagingGroupLayouts = LayoutLocalServiceUtil.getLayouts(stagingGroupId, privateLayout, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+	selectedLayoutIds = new long[stagingGroupLayouts.size()];
+
+	for (int i = 0; i < stagingGroupLayouts.size(); i++) {
+		Layout stagingGroupLayout = stagingGroupLayouts.get(i);
+
+		selectedLayoutIds[i] = stagingGroupLayout.getLayoutId();
+	}
+}
+else {
+	selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(openNodes, ','));
+}
 
 UnicodeProperties liveGroupTypeSettings = liveGroup.getTypeSettingsProperties();
 
@@ -401,28 +418,15 @@ else {
 </liferay-ui:tabs>
 
 <aui:script>
-	Liferay.provide(
-		window,
-		'<portlet:namespace />publishPages',
-		function() {
-			if (confirm('<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-" + publishActionKey + "-these-pages") %>')) {
-				var A = AUI();
+	function <portlet:namespace />publishPages() {
+		var form = AUI.$(document.<portlet:namespace />exportPagesFm);
 
-				var allContentRadioChecked = A.one('#<portlet:namespace />allContent').attr('checked');
+		if (form.fm('allContent').prop('checked')) {
+			form.fm('<%= PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT %>').val(true);
+		}
 
-				if (allContentRadioChecked) {
-					var selectedContents = A.one('#<portlet:namespace />selectContents');
-
-					var portletDataControlDefault = A.one('#<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT %>');
-
-					portletDataControlDefault.val(true);
-				}
-
-				submitForm(document.<portlet:namespace />exportPagesFm);
-			}
-		},
-		['aui-base']
-	);
+		submitForm(form);
+	}
 
 	Liferay.Util.toggleRadio('<portlet:namespace />allApplications', '<portlet:namespace />showChangeGlobalConfiguration', ['<portlet:namespace />selectApplications']);
 	Liferay.Util.toggleRadio('<portlet:namespace />allContent', '<portlet:namespace />showChangeGlobalContent', ['<portlet:namespace />selectContents']);
@@ -469,9 +473,9 @@ else {
 			ratingsNode: '#<%= PortletDataHandlerKeys.RATINGS %>',
 			remoteAddressNode: '#<portlet:namespace />remoteAddress',
 			remoteDeletePortletDataNode: '#remoteDeletePortletData',
-			remotePortNode: '#<portlet:namespace />remotePort',
-			remotePathContextNode: '#<portlet:namespace />remotePathContext',
 			remoteGroupIdNode: '#<portlet:namespace />remoteGroupId',
+			remotePathContextNode: '#<portlet:namespace />remotePathContext',
+			remotePortNode: '#<portlet:namespace />remotePort',
 			secureConnectionNode: '#secureConnection',
 			setupNode: '#<%= PortletDataHandlerKeys.PORTLET_SETUP_ALL %>',
 			themeReferenceNode: '#<%= PortletDataHandlerKeys.THEME_REFERENCE %>',
