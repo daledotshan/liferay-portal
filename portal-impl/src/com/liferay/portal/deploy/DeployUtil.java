@@ -136,7 +136,7 @@ public class DeployUtil {
 			FileUtils.touch(contextXml);
 		}
 		else {
-			Map<String, String> filterMap = new HashMap<String, String>();
+			Map<String, String> filterMap = new HashMap<>();
 
 			filterMap.put("context", context);
 
@@ -284,8 +284,8 @@ public class DeployUtil {
 		return FileUtil.getAbsolutePath(file);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(DeployUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(DeployUtil.class);
 
-	private static DeployUtil _instance = new DeployUtil();
+	private static final DeployUtil _instance = new DeployUtil();
 
 }

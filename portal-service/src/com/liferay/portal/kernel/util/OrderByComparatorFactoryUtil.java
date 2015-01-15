@@ -181,10 +181,10 @@ public class OrderByComparatorFactoryUtil {
 		private static final String _ORDER_BY_DESC = " DESC";
 
 		private static Map<Class<?>, Object> _primitiveObjects =
-			new HashMap<Class<?>, Object>();
+			new HashMap<>();
 
 		static {
-			_primitiveObjects.put(boolean.class, new Boolean(true));
+			_primitiveObjects.put(boolean.class, Boolean.TRUE);
 			_primitiveObjects.put(byte.class, new Byte("0"));
 			_primitiveObjects.put(char.class, new Character('0'));
 			_primitiveObjects.put(double.class, new Double(0));

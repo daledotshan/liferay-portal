@@ -169,7 +169,7 @@ public class LanguageResources {
 		if (_configNames.length > 0) {
 			String localeName = locale.toString();
 
-			languageMap = new HashMap<String, String>();
+			languageMap = new HashMap<>();
 
 			for (String name : _configNames) {
 				StringBundler sb = new StringBundler(4);
@@ -250,7 +250,7 @@ public class LanguageResources {
 			oldLanguageMap = _languageMaps.get(locale);
 		}
 
-		Map<String, String> newLanguageMap = new HashMap<String, String>();
+		Map<String, String> newLanguageMap = new HashMap<>();
 
 		if (oldLanguageMap != null) {
 			newLanguageMap.putAll(oldLanguageMap);
@@ -263,7 +263,20 @@ public class LanguageResources {
 		return oldLanguageMap;
 	}
 
-	private LanguageResources() {
+	private static final Log _log = LogFactoryUtil.getLog(
+		LanguageResources.class);
+
+	private static final Locale _blankLocale = new Locale(StringPool.BLANK);
+	private static String[] _configNames;
+	private static final Map<Locale, Map<String, String>> _languageMaps =
+		new ConcurrentHashMap<>(64);
+	private static final Locale _nullLocale = new Locale(StringPool.BLANK);
+	private static final ServiceTracker<ResourceBundle, ResourceBundle>
+		_serviceTracker;
+	private static final Map<Locale, Locale> _superLocales =
+		new ConcurrentHashMap<>();
+
+	static {
 		Registry registry = RegistryUtil.getRegistry();
 
 		Filter languageResourceFilter = registry.getFilter(
@@ -276,18 +289,6 @@ public class LanguageResources {
 
 		_serviceTracker.open();
 	}
-
-	private static Log _log = LogFactoryUtil.getLog(LanguageResources.class);
-
-	private static Locale _blankLocale = new Locale(StringPool.BLANK);
-	private static String[] _configNames;
-	private static Map<Locale, Map<String, String>> _languageMaps =
-		new ConcurrentHashMap<Locale, Map<String, String>>(64);
-	private static Locale _nullLocale = new Locale(StringPool.BLANK);
-	private static ServiceTracker<ResourceBundle, ResourceBundle>
-		_serviceTracker;
-	private static Map<Locale, Locale> _superLocales =
-		new ConcurrentHashMap<Locale, Locale>();
 
 	private static class LanguageResourcesBundle extends ResourceBundle {
 
@@ -320,11 +321,13 @@ public class LanguageResources {
 		private LanguageResourcesBundle(Locale locale) {
 			_locale = locale;
 
-			_languageMap = _languageMaps.get(locale);
+			Map<String, String> languageMap = _languageMaps.get(locale);
 
-			if (_languageMap == null) {
-				_languageMap = _loadLocale(locale);
+			if (languageMap == null) {
+				languageMap = _loadLocale(locale);
 			}
+
+			_languageMap = languageMap;
 
 			Locale superLocale = getSuperLocale(locale);
 
@@ -333,8 +336,8 @@ public class LanguageResources {
 			}
 		}
 
-		private Map<String, String> _languageMap;
-		private Locale _locale;
+		private final Map<String, String> _languageMap;
+		private final Locale _locale;
 
 	}
 
@@ -352,7 +355,7 @@ public class LanguageResources {
 
 			String languageId = GetterUtil.getString(
 				serviceReference.getProperty("language.id"), StringPool.BLANK);
-			Map<String, String> languageMap = new HashMap<String, String>();
+			Map<String, String> languageMap = new HashMap<>();
 			Locale locale = null;
 
 			if (Validator.isNotNull(languageId)) {
@@ -412,8 +415,8 @@ public class LanguageResources {
 			_putLanguageMap(locale, languageMap);
 		}
 
-		private Map<ServiceReference<?>, Map<String, String>> _oldLanguageMaps =
-			new HashMap<>();
+		private final Map<ServiceReference<?>, Map<String, String>>
+			_oldLanguageMaps = new HashMap<>();
 
 	}
 

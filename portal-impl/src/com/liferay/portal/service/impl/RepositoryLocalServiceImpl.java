@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.InvalidRepositoryIdException;
 import com.liferay.portal.kernel.repository.LocalRepository;
-import com.liferay.portal.kernel.repository.RepositoryException;
 import com.liferay.portal.kernel.repository.RepositoryFactoryUtil;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -139,7 +138,7 @@ public class RepositoryLocalServiceImpl
 			repositoryPersistence.findByPrimaryKey(repositoryId);
 		}
 		catch (NoSuchRepositoryException nsre) {
-			throw new RepositoryException(nsre.getMessage());
+			throw new InvalidRepositoryIdException(nsre.getMessage());
 		}
 	}
 
@@ -211,8 +210,8 @@ public class RepositoryLocalServiceImpl
 		List<Repository> repositories = repositoryPersistence.findByGroupId(
 			groupId);
 
-		List<LocalRepository> localRepositories =
-			new ArrayList<LocalRepository>(repositories.size() + 1);
+		List<LocalRepository> localRepositories = new ArrayList<>(
+			repositories.size() + 1);
 
 		for (Repository repository : repositories) {
 			localRepositories.add(
@@ -447,12 +446,12 @@ public class RepositoryLocalServiceImpl
 		return repositoryId;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		RepositoryLocalServiceImpl.class);
 
-	private Map<Long, LocalRepository> _localRepositoriesByRepositoryId =
-		new ConcurrentHashMap<Long, LocalRepository>();
-	private Map<Long, com.liferay.portal.kernel.repository.Repository>
+	private final Map<Long, LocalRepository> _localRepositoriesByRepositoryId =
+		new ConcurrentHashMap<>();
+	private final Map<Long, com.liferay.portal.kernel.repository.Repository>
 		_repositoriesByRepositoryId = new ConcurrentHashMap
 			<Long, com.liferay.portal.kernel.repository.Repository>();
 

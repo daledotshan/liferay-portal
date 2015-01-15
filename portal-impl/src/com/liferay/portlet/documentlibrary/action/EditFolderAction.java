@@ -105,7 +105,7 @@ public class EditFolderAction extends PortletAction {
 			else if (cmd.equals(Constants.UNSUBSCRIBE)) {
 				unsubscribeFolder(actionRequest);
 			}
-			else if (cmd.equals("deleteExpiredTemporaryFiles")) {
+			else if (cmd.equals("deleteExpiredTemporaryFileEntries")) {
 				deleteExpiredTemporaryFileEntries(actionRequest);
 			}
 			else if (cmd.equals("updateWorkflowDefinitions")) {
@@ -209,7 +209,7 @@ public class EditFolderAction extends PortletAction {
 				ParamUtil.getString(actionRequest, "folderIds"), 0L);
 		}
 
-		List<TrashedModel> trashedModels = new ArrayList<TrashedModel>();
+		List<TrashedModel> trashedModels = new ArrayList<>();
 
 		for (long deleteFolderId : deleteFolderIds) {
 			if (moveToTrash) {

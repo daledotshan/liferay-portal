@@ -369,17 +369,13 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 	}
 
 	protected void destroyProcess(String processIdentity) {
-		synchronized (DLPreviewableProcessor.class) {
-			Future<?> future = futures.get(processIdentity);
+		Future<?> future = futures.remove(processIdentity);
 
-			if (future != null) {
-				future.cancel(true);
+		if (future != null) {
+			future.cancel(true);
 
-				futures.remove(processIdentity);
-
-				if (_log.isInfoEnabled()) {
-					_log.info("Cancellation requested for " + processIdentity);
-				}
+			if (_log.isInfoEnabled()) {
+				_log.info("Cancellation requested for " + processIdentity);
 			}
 		}
 	}
@@ -1284,8 +1280,7 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 			fileVersion, renderedImage, THUMBNAIL_INDEX_CUSTOM_2);
 	}
 
-	protected Map<String, Future<?>> futures =
-		new ConcurrentHashMap<String, Future<?>>();
+	protected Map<String, Future<?>> futures = new ConcurrentHashMap<>();
 
 	private static Log _log = LogFactoryUtil.getLog(
 		DLPreviewableProcessor.class);

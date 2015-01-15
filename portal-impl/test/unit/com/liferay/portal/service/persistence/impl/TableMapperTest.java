@@ -34,10 +34,12 @@ import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.BaseModelListener;
 import com.liferay.portal.model.ModelListener;
+import com.liferay.portal.util.PropsImpl;
 
 import java.io.Serializable;
 
@@ -49,8 +51,10 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -65,7 +69,7 @@ import org.junit.Test;
 public class TableMapperTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
+	public static final CodeCoverageAssertor codeCoverageAssertor =
 		new CodeCoverageAssertor() {
 
 			@Override
@@ -90,6 +94,8 @@ public class TableMapperTest {
 		MultiVMPoolUtil multiVMPoolUtil = new MultiVMPoolUtil();
 
 		multiVMPoolUtil.setMultiVMPool(new MockMultiVMPool());
+
+		PropsUtil.setProps(new PropsImpl());
 
 		SqlUpdateFactoryUtil sqlUpdateFactoryUtil = new SqlUpdateFactoryUtil();
 
@@ -438,8 +444,7 @@ public class TableMapperTest {
 		MockDeleteLeftPrimaryKeyTableMappingsSqlUpdate
 			mockDeleteLeftPrimaryKeyTableMappingsSqlUpdate =
 				(MockDeleteLeftPrimaryKeyTableMappingsSqlUpdate)
-					_tableMapperImpl.
-						deleteLeftPrimaryKeyTableMappingsSqlUpdate;
+					_tableMapperImpl.deleteLeftPrimaryKeyTableMappingsSqlUpdate;
 
 		mockDeleteLeftPrimaryKeyTableMappingsSqlUpdate.setDatabaseError(true);
 
@@ -991,9 +996,8 @@ public class TableMapperTest {
 
 		long leftPrimaryKey = 1;
 
-		List<Right> rights =
-			_tableMapperImpl.getRightBaseModels(
-				leftPrimaryKey, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+		List<Right> rights = _tableMapperImpl.getRightBaseModels(
+			leftPrimaryKey, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
 		Assert.assertSame(Collections.emptyList(), rights);
 
@@ -1311,6 +1315,32 @@ public class TableMapperTest {
 		Assert.assertTrue(tableMappers.isEmpty());
 	}
 
+	@Test
+	public void testTableMapperFactoryCacheless() {
+		Set<String> cachelessMappingTableNames =
+			TableMapperFactory.cachelessMappingTableNames;
+
+		ReflectionTestUtil.setFieldValue(
+			TableMapperFactory.class, "cachelessMappingTableNames",
+			new HashSet<String>() {
+
+				@Override
+				public boolean contains(Object o) {
+					return true;
+				}
+
+			});
+
+		try {
+			testTableMapperFactory();
+		}
+		finally {
+			ReflectionTestUtil.setFieldValue(
+				TableMapperFactory.class, "cachelessMappingTableNames",
+				cachelessMappingTableNames);
+		}
+	}
+
 	protected void testDestroy(TableMapper<?, ?> tableMapper) {
 		MockMultiVMPool mockMultiVMPool =
 			(MockMultiVMPool)MultiVMPoolUtil.getMultiVMPool();
@@ -1359,7 +1389,7 @@ public class TableMapperTest {
 	private DataSource _dataSource;
 	private MockBasePersistence<Left> _leftBasePersistence;
 	private String _leftColumnName = "leftId";
-	private Map<Long, long[]> _mappingStore = new HashMap<Long, long[]>();
+	private Map<Long, long[]> _mappingStore = new HashMap<>();
 	private MockBasePersistence<Right> _rightBasePersistence;
 	private String _rightColumnName = "rightId";
 	private TableMapperImpl<Left, Right> _tableMapperImpl;
@@ -1485,8 +1515,7 @@ public class TableMapperTest {
 			_listeners.remove(listener);
 		}
 
-		private List<ModelListener<T>> _listeners =
-			new ArrayList<ModelListener<T>>();
+		private List<ModelListener<T>> _listeners = new ArrayList<>();
 		private boolean _noSuchModelException;
 
 	}
@@ -1665,7 +1694,7 @@ public class TableMapperTest {
 
 			Long rightPrimaryKey = (Long)params[0];
 
-			List<Long> leftPrimaryKeysList = new ArrayList<Long>();
+			List<Long> leftPrimaryKeysList = new ArrayList<>();
 
 			for (Map.Entry<Long, long[]> entry : _mappingStore.entrySet()) {
 				long[] rightPrimaryKeys = entry.getValue();
@@ -1719,7 +1748,7 @@ public class TableMapperTest {
 				return Collections.emptyList();
 			}
 
-			List<Long> rightPrimaryKeysList = new ArrayList<Long>(
+			List<Long> rightPrimaryKeysList = new ArrayList<>(
 				rightPrimaryKeys.length);
 
 			for (long rightPrimaryKey : rightPrimaryKeys) {
@@ -1762,6 +1791,7 @@ public class TableMapperTest {
 		}
 
 		private int _counter;
+
 	}
 
 	private class MockMultiVMPool implements MultiVMPool {
@@ -1811,8 +1841,7 @@ public class TableMapperTest {
 			_portalCaches.remove(name);
 		}
 
-		private Map<String, PortalCache<?, ?>> _portalCaches =
-			new HashMap<String, PortalCache<?, ?>>();
+		private Map<String, PortalCache<?, ?>> _portalCaches = new HashMap<>();
 
 	}
 

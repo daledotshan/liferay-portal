@@ -26,14 +26,13 @@ long[] mergeTagIds = StringUtil.split(ParamUtil.getString(renderRequest, "mergeT
 	title="merge-tags"
 />
 
-<portlet:actionURL var="mergeURL">
-	<portlet:param name="struts_action" value="/asset_tag_admin/merge_tag" />
-	<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.MERGE %>" />
-	<portlet:param name="redirect" value="<%= redirect %>" />
-</portlet:actionURL>
+<portlet:actionURL name="mergeTag" var="mergeURL" />
 
-<aui:form action="<%= mergeURL %>" name="fm" onSubmit="event.preventDefault();">
+<aui:form action="<%= mergeURL %>" method="post" name="fm" onSubmit="event.preventDefault();">
+	<aui:input name="mvcPath" type="hidden" value="/html/portlet/asset_tag_admin/merge_tag.jsp" />
+	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="mergeTagIds" type="hidden" />
+
 	<div class="merge-tags">
 		<span class="merge-tags-label">
 		   <liferay-ui:message key="tags-to-merge" />
@@ -75,10 +74,6 @@ long[] mergeTagIds = StringUtil.split(ParamUtil.getString(renderRequest, "mergeT
 
 		</aui:select>
 	</div>
-
-	<c:if test="<%= PropsValues.ASSET_TAG_PROPERTIES_ENABLED %>">
-		<aui:input name="overrideTagsProperties" type="checkbox" />
-	</c:if>
 
 	<aui:button-row>
 		<aui:button type="submit" value="merge" />

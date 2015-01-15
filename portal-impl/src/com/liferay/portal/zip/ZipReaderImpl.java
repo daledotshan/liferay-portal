@@ -75,7 +75,7 @@ public class ZipReaderImpl implements ZipReader {
 
 	@Override
 	public List<String> getEntries() {
-		List<String> folderEntries = new ArrayList<String>();
+		List<String> folderEntries = new ArrayList<>();
 
 		File[] files = (File[])_zipFile.listFiles();
 
@@ -162,7 +162,7 @@ public class ZipReaderImpl implements ZipReader {
 			return Collections.emptyList();
 		}
 
-		List<String> folderEntries = new ArrayList<String>();
+		List<String> folderEntries = new ArrayList<>();
 
 		File directory = new File(_zipFile.getPath() + StringPool.SLASH + path);
 
@@ -196,7 +196,7 @@ public class ZipReaderImpl implements ZipReader {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ZipReaderImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(ZipReaderImpl.class);
 
 	static {
 		File.setDefaultArchiveDetector(
@@ -205,6 +205,6 @@ public class ZipReaderImpl implements ZipReader {
 				new ZipDriver()));
 	}
 
-	private File _zipFile;
+	private final File _zipFile;
 
 }

@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.util.RepositoryTrashUtil;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
@@ -232,8 +233,11 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		DLAppLocalServiceUtil.moveFileEntryFromTrash(
-			userId, classPK, containerModelId, serviceContext);
+		Repository repository = getRepository(classPK);
+
+		RepositoryTrashUtil.moveFileEntryFromTrash(
+			userId, repository.getRepositoryId(), classPK, containerModelId,
+			serviceContext);
 	}
 
 	@Override
@@ -254,7 +258,8 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 			return;
 		}
 
-		DLAppLocalServiceUtil.restoreFileEntryFromTrash(userId, classPK);
+		RepositoryTrashUtil.restoreFileEntryFromTrash(
+			userId, dlFileEntry.getRepositoryId(), classPK);
 	}
 
 	@Override
@@ -293,6 +298,20 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 			originalFileName = DLUtil.getSanitizedFileName(
 				newName, dlFileEntry.getExtension());
 			originalTitle = newName;
+		}
+
+		DLFolder duplicateDLFolder = DLFolderLocalServiceUtil.fetchFolder(
+			dlFileEntry.getGroupId(), containerModelId, originalTitle);
+
+		if (duplicateDLFolder != null) {
+			RestoreEntryException ree = new RestoreEntryException(
+				RestoreEntryException.DUPLICATE);
+
+			ree.setDuplicateEntryId(duplicateDLFolder.getFolderId());
+			ree.setOldName(duplicateDLFolder.getName());
+			ree.setTrashEntryId(entryId);
+
+			throw ree;
 		}
 
 		DLFileEntry duplicateDLFileEntry =

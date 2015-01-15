@@ -48,7 +48,7 @@ public class MultiValueServiceTrackerBucketFactory<SR, TS>
 		return new ListServiceTrackerBucket();
 	}
 
-	private Comparator<ServiceReference<SR>> _comparator;
+	private final Comparator<ServiceReference<SR>> _comparator;
 
 	private class ListServiceTrackerBucket
 		implements ServiceTrackerBucket<SR, TS, List<TS>> {
@@ -82,8 +82,7 @@ public class MultiValueServiceTrackerBucketFactory<SR, TS>
 		}
 
 		protected void rebuild() {
-			_services = new ArrayList<TS>(
-				_serviceReferenceServiceTuples.size());
+			_services = new ArrayList<>(_serviceReferenceServiceTuples.size());
 
 			for (
 				ServiceReferenceServiceTuple<SR, TS>
@@ -101,14 +100,13 @@ public class MultiValueServiceTrackerBucketFactory<SR, TS>
 				serviceReferenceServiceTupleComparator =
 					new ServiceReferenceServiceTupleComparator<>(_comparator);
 
-			_serviceReferenceServiceTuples =
-				new TreeSet<ServiceReferenceServiceTuple<SR, TS>>(
-					serviceReferenceServiceTupleComparator);
+			_serviceReferenceServiceTuples = new TreeSet<>(
+				serviceReferenceServiceTupleComparator);
 		}
 
-		private Set<ServiceReferenceServiceTuple<SR, TS>>
+		private final Set<ServiceReferenceServiceTuple<SR, TS>>
 			_serviceReferenceServiceTuples;
-		private List<TS> _services = new ArrayList<TS>();
+		private List<TS> _services = new ArrayList<>();
 
 	}
 

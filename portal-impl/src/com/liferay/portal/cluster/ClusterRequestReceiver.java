@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.cluster.Address;
 import com.liferay.portal.kernel.cluster.ClusterException;
 import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
 import com.liferay.portal.kernel.cluster.ClusterMessageType;
+import com.liferay.portal.kernel.cluster.ClusterNode;
 import com.liferay.portal.kernel.cluster.ClusterNodeResponse;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.cluster.FutureClusterResponses;
@@ -31,7 +32,6 @@ import com.liferay.portal.kernel.util.MethodHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import org.jgroups.Channel;
 import org.jgroups.Message;
@@ -44,25 +44,11 @@ import org.jgroups.View;
 public class ClusterRequestReceiver extends BaseReceiver {
 
 	public ClusterRequestReceiver(ClusterExecutorImpl clusterExecutorImpl) {
-		_countDownLatch = new CountDownLatch(1);
 		_clusterExecutorImpl = clusterExecutorImpl;
 	}
 
-	public void openLatch() {
-		_countDownLatch.countDown();
-	}
-
 	@Override
-	public void receive(Message message) {
-		try {
-			_countDownLatch.await();
-		}
-		catch (InterruptedException ie) {
-			_log.error(
-				"Latch opened prematurely by interruption. Dependence may " +
-					"not be ready.");
-		}
-
+	protected void doReceive(Message message) {
 		Object obj = message.getObject();
 
 		if (obj == null) {
@@ -111,28 +97,9 @@ public class ClusterRequestReceiver extends BaseReceiver {
 	}
 
 	@Override
-	public void viewAccepted(View view) {
-		super.viewAccepted(view);
-
-		if (_lastView == null) {
-			_lastView = view;
-
-			return;
-		}
-
-		List<Address> departAddresses = getDepartAddresses(view);
-		List<Address> newAddresses = getNewAddresses(view);
-
-		_lastView = view;
-
-		try {
-			_countDownLatch.await();
-		}
-		catch (InterruptedException ie) {
-			_log.error(
-				"Latch opened prematurely by interruption. Dependence may " +
-					"not be ready.");
-		}
+	protected void doViewAccepted(View oldView, View newView) {
+		List<Address> departAddresses = getDepartAddresses(oldView, newView);
+		List<Address> newAddresses = getNewAddresses(oldView, newView);
 
 		if (!newAddresses.isEmpty()) {
 			_clusterExecutorImpl.sendNotifyRequest();
@@ -143,12 +110,13 @@ public class ClusterRequestReceiver extends BaseReceiver {
 		}
 	}
 
-	protected List<Address> getDepartAddresses(View view) {
-		List<org.jgroups.Address> currentJGroupsAddresses = view.getMembers();
-		List<org.jgroups.Address> lastJGroupsAddresses = _lastView.getMembers();
+	protected List<Address> getDepartAddresses(View oldView, View newView) {
+		List<org.jgroups.Address> currentJGroupsAddresses =
+			newView.getMembers();
+		List<org.jgroups.Address> lastJGroupsAddresses = oldView.getMembers();
 
-		List<org.jgroups.Address> departJGroupsAddresses =
-			new ArrayList<org.jgroups.Address>(lastJGroupsAddresses);
+		List<org.jgroups.Address> departJGroupsAddresses = new ArrayList<>(
+			lastJGroupsAddresses);
 
 		departJGroupsAddresses.removeAll(currentJGroupsAddresses);
 
@@ -156,7 +124,7 @@ public class ClusterRequestReceiver extends BaseReceiver {
 			return Collections.emptyList();
 		}
 
-		List<Address> departAddresses = new ArrayList<Address>(
+		List<Address> departAddresses = new ArrayList<>(
 			departJGroupsAddresses.size());
 
 		for (org.jgroups.Address departJGroupsAddress :
@@ -170,12 +138,13 @@ public class ClusterRequestReceiver extends BaseReceiver {
 		return departAddresses;
 	}
 
-	protected List<Address> getNewAddresses(View view) {
-		List<org.jgroups.Address> currentJGroupsAddresses = view.getMembers();
-		List<org.jgroups.Address> lastJGroupsAddresses = _lastView.getMembers();
+	protected List<Address> getNewAddresses(View oldView, View newView) {
+		List<org.jgroups.Address> currentJGroupsAddresses =
+			newView.getMembers();
+		List<org.jgroups.Address> lastJGroupsAddresses = oldView.getMembers();
 
-		List<org.jgroups.Address> newJGroupsAddresses =
-			new ArrayList<org.jgroups.Address>(currentJGroupsAddresses);
+		List<org.jgroups.Address> newJGroupsAddresses = new ArrayList<>(
+			currentJGroupsAddresses);
 
 		newJGroupsAddresses.removeAll(lastJGroupsAddresses);
 
@@ -183,7 +152,7 @@ public class ClusterRequestReceiver extends BaseReceiver {
 			return Collections.emptyList();
 		}
 
-		List<Address> newAddresses = new ArrayList<Address>(
+		List<Address> newAddresses = new ArrayList<>(
 			newJGroupsAddresses.size());
 
 		for (org.jgroups.Address newJGroupsAddress : newJGroupsAddresses) {
@@ -295,12 +264,19 @@ public class ClusterRequestReceiver extends BaseReceiver {
 			return;
 		}
 
-		if (futureClusterResponses.expectsReply(sourceAddress)) {
+		ClusterNode clusterNode = clusterNodeResponse.getClusterNode();
+
+		if (futureClusterResponses.expectsReply(
+				clusterNode.getClusterNodeId())) {
+
 			futureClusterResponses.addClusterNodeResponse(clusterNodeResponse);
 		}
 		else {
 			if (_log.isWarnEnabled()) {
-				_log.warn("Unknown uuid " + uuid + " from " + sourceAddress);
+				_log.warn(
+					"Unexpected cluster node ID " +
+						clusterNode.getClusterNodeId() +
+							" for response container with UUID " + uuid);
 			}
 		}
 	}
@@ -321,11 +297,9 @@ public class ClusterRequestReceiver extends BaseReceiver {
 		return false;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		ClusterRequestReceiver.class);
 
-	private ClusterExecutorImpl _clusterExecutorImpl;
-	private CountDownLatch _countDownLatch;
-	private volatile View _lastView;
+	private final ClusterExecutorImpl _clusterExecutorImpl;
 
 }
