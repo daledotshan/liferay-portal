@@ -84,22 +84,26 @@ public class AssetCategoryServiceImpl extends AssetCategoryServiceBaseImpl {
 			getUserId(), title, vocabularyId, serviceContext);
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, Replaced by {@link #deleteCategories(long[],
-	 *             ServiceContext)}
-	 */
-	@Deprecated
 	@Override
 	public void deleteCategories(long[] categoryIds) throws PortalException {
-		deleteCategories(categoryIds, null);
+		for (long categoryId : categoryIds) {
+			AssetCategoryPermission.check(
+				getPermissionChecker(), categoryId, ActionKeys.DELETE);
+		}
+
+		assetCategoryLocalService.deleteCategories(categoryIds);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, Replaced by {@link #deleteCategories(long[])}
+	 */
+	@Deprecated
 	@Override
 	public List<AssetCategory> deleteCategories(
 			long[] categoryIds, ServiceContext serviceContext)
 		throws PortalException {
 
-		List<AssetCategory> failedCategories = new ArrayList<AssetCategory>();
+		List<AssetCategory> failedCategories = new ArrayList<>();
 
 		for (long categoryId : categoryIds) {
 			try {

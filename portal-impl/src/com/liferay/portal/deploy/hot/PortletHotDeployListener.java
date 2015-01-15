@@ -413,7 +413,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			return;
 		}
 
-		Set<String> portletIds = new HashSet<String>();
+		Set<String> portletIds = new HashSet<>();
 
 		if (portlets != null) {
 			if (_log.isInfoEnabled()) {
@@ -632,12 +632,11 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 	private static final String _JNDI_JDBC_LIFERAY_POOL =
 		_JNDI_JDBC + "/LiferayPool";
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortletHotDeployListener.class);
 
-	private static Map<String, Boolean> _dataSourceBindStates =
-		new HashMap<String, Boolean>();
-	private static Map<String, List<Portlet>> _portlets =
-		new HashMap<String, List<Portlet>>();
+	private static final Map<String, Boolean> _dataSourceBindStates =
+		new HashMap<>();
+	private static final Map<String, List<Portlet>> _portlets = new HashMap<>();
 
 }

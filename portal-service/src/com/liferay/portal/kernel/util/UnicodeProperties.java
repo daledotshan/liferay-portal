@@ -44,12 +44,9 @@ import java.util.TreeSet;
 public class UnicodeProperties extends HashMap<String, String> {
 
 	public UnicodeProperties() {
-		super();
 	}
 
 	public UnicodeProperties(boolean safe) {
-		super();
-
 		_safe = safe;
 	}
 
@@ -188,7 +185,7 @@ public class UnicodeProperties extends HashMap<String, String> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder(_length);
 
-		Set<String> keys = new TreeSet<String>(keySet());
+		Set<String> keys = new TreeSet<>(keySet());
 
 		for (String key : keys) {
 			String value = get(key);

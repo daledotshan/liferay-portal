@@ -46,6 +46,7 @@ import com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil;
 import com.liferay.portlet.asset.util.comparator.AssetRendererFactoryTypeNameComparator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,8 +169,7 @@ public class InputAssetLinksDisplayContext {
 	}
 
 	public List<Map<String, Object>> getSelectorEntries() throws Exception {
-		List<Map<String, Object>> selectorEntries =
-			new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> selectorEntries = new ArrayList<>();
 
 		for (AssetRendererFactory assetRendererFactory :
 				getAssetRendererFactories()) {
@@ -179,8 +179,7 @@ public class InputAssetLinksDisplayContext {
 					_getSelectorEntries(assetRendererFactory));
 			}
 			else {
-				Map<String, Object> selectorEntry =
-					new HashMap<String, Object>();
+				Map<String, Object> selectorEntry = new HashMap<>();
 
 				selectorEntry.put(
 					"data", _geSelectorEntryData(assetRendererFactory));
@@ -202,7 +201,7 @@ public class InputAssetLinksDisplayContext {
 	}
 
 	private List<AssetLink> _createAssetLinks() throws PortalException {
-		List<AssetLink> assetLinks = new ArrayList<AssetLink>();
+		List<AssetLink> assetLinks = new ArrayList<>();
 
 		String assetLinksSearchContainerPrimaryKeys = ParamUtil.getString(
 			_request, "assetLinksSearchContainerPrimaryKeys");
@@ -262,7 +261,7 @@ public class InputAssetLinksDisplayContext {
 			AssetRendererFactory assetRendererFactory)
 		throws Exception {
 
-		Map<String, Object> selectorEntryData = new HashMap<String, Object>();
+		Map<String, Object> selectorEntryData = new HashMap<>();
 
 		selectorEntryData.put(
 			"href",
@@ -353,14 +352,13 @@ public class InputAssetLinksDisplayContext {
 				_themeDisplay.getLocale());
 
 		if (classTypes.isEmpty()) {
-			return null;
+			return Collections.emptyList();
 		}
 
-		List<Map<String, Object>> selectorEntries =
-			new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> selectorEntries = new ArrayList<>();
 
 		for (ClassType classType : classTypes) {
-			Map<String, Object> selectorEntry = new HashMap<String, Object>();
+			Map<String, Object> selectorEntry = new HashMap<>();
 
 			selectorEntry.put(
 				"data",
@@ -385,7 +383,7 @@ public class InputAssetLinksDisplayContext {
 			AssetRendererFactory assetRendererFactory, ClassType classType)
 		throws Exception {
 
-		Map<String, Object> selectorEntryData = new HashMap<String, Object>();
+		Map<String, Object> selectorEntryData = new HashMap<>();
 
 		PortletURL portletURL = _getAssetBrowserPortletURL(
 			assetRendererFactory);

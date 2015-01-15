@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -18,16 +17,16 @@ package com.liferay.portal.service.persistence.impl;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.test.AggregateTestRule;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.log.CaptureAppender;
 import com.liferay.portal.log.Log4JLoggerTestUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
-import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.LiferayIntegrationTestRule;
+import com.liferay.portal.test.MainServletTestRule;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portlet.asset.model.AssetCategory;
@@ -52,18 +51,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * @author Shuyang Zhou
  */
-@ExecutionTestListeners(listeners = {MainServletExecutionTestListener.class})
-@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class PersistenceNestedSetsTreeManagerTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			CodeCoverageAssertor.INSTANCE, new LiferayIntegrationTestRule(),
+			MainServletTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -626,17 +624,15 @@ public class PersistenceNestedSetsTreeManagerTest {
 	protected void assertGetAncestors(
 		AssetCategory assetCategory, AssetCategory... ancestorAssetCategories) {
 
-		List<AssetCategory> expectedAssetCategories =
-			new ArrayList<AssetCategory>(
-				Arrays.asList(ancestorAssetCategories));
+		List<AssetCategory> expectedAssetCategories = new ArrayList<>(
+			Arrays.asList(ancestorAssetCategories));
 
 		expectedAssetCategories.add(assetCategory);
 
 		Collections.sort(expectedAssetCategories);
 
-		List<AssetCategory> actualAssetCategories =
-			new ArrayList<AssetCategory>(
-				_nestedSetsTreeManager.getAncestors(assetCategory));
+		List<AssetCategory> actualAssetCategories = new ArrayList<>(
+			_nestedSetsTreeManager.getAncestors(assetCategory));
 
 		Collections.sort(actualAssetCategories);
 
@@ -646,16 +642,15 @@ public class PersistenceNestedSetsTreeManagerTest {
 	protected void assertGetDescendants(
 		AssetCategory assetCategory, AssetCategory... childAssetCategories) {
 
-		List<AssetCategory> expectedAssetCategories =
-			new ArrayList<AssetCategory>(Arrays.asList(childAssetCategories));
+		List<AssetCategory> expectedAssetCategories = new ArrayList<>(
+			Arrays.asList(childAssetCategories));
 
 		expectedAssetCategories.add(assetCategory);
 
 		Collections.sort(expectedAssetCategories);
 
-		List<AssetCategory> actualAssetCategories =
-			new ArrayList<AssetCategory>(
-				_nestedSetsTreeManager.getDescendants(assetCategory));
+		List<AssetCategory> actualAssetCategories = new ArrayList<>(
+			_nestedSetsTreeManager.getDescendants(assetCategory));
 
 		Collections.sort(actualAssetCategories);
 

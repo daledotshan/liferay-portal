@@ -207,7 +207,7 @@ public class EditExportConfigurationAction extends PortletAction {
 					actionRequest, "deleteExportImportConfigurationIds"), 0L);
 		}
 
-		List<TrashedModel> trashedModels = new ArrayList<TrashedModel>();
+		List<TrashedModel> trashedModels = new ArrayList<>();
 
 		for (long deleteExportImportConfigurationId :
 				deleteExportImportConfigurationIds) {
@@ -271,7 +271,7 @@ public class EditExportConfigurationAction extends PortletAction {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		EditExportConfigurationAction.class);
 
 }

@@ -58,7 +58,7 @@ public class ResultRow
 		_primaryKey = primaryKey;
 		_pos = pos;
 		_bold = bold;
-		_searchEntries = new ArrayList<SearchEntry>();
+		_searchEntries = new ArrayList<>();
 	}
 
 	@Override
@@ -532,7 +532,7 @@ public class ResultRow
 	@Override
 	public Object getParameter(String param) {
 		if (_params == null) {
-			_params = new HashMap<String, Object>();
+			_params = new HashMap<>();
 		}
 
 		return _params.get(param);
@@ -601,7 +601,7 @@ public class ResultRow
 	@Override
 	public void setParameter(String param, Object value) {
 		if (_params == null) {
-			_params = new HashMap<String, Object>();
+			_params = new HashMap<>();
 		}
 
 		_params.put(param, value);
@@ -633,11 +633,11 @@ public class ResultRow
 	private Map<String, Object> _data;
 	private Object _obj;
 	private Map<String, Object> _params;
-	private int _pos;
+	private final int _pos;
 	private String _primaryKey;
 	private boolean _restricted;
 	private String _rowId;
-	private List<SearchEntry> _searchEntries;
+	private final List<SearchEntry> _searchEntries;
 	private boolean _skip;
 
 }

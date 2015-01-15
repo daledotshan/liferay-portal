@@ -17,7 +17,6 @@ package com.liferay.portal.cluster;
 import com.liferay.portal.kernel.cluster.Address;
 import com.liferay.portal.kernel.cluster.ClusterLink;
 import com.liferay.portal.kernel.cluster.Priority;
-import com.liferay.portal.kernel.cluster.messaging.ClusterForwardMessageListener;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Message;
@@ -64,7 +63,7 @@ public class ClusterLinkImpl extends ClusterBase implements ClusterLink {
 			return Collections.emptyList();
 		}
 
-		List<Address> addresses = new ArrayList<Address>(
+		List<Address> addresses = new ArrayList<>(
 			_localTransportAddresses.size());
 
 		for (org.jgroups.Address address : _localTransportAddresses) {
@@ -83,6 +82,30 @@ public class ClusterLinkImpl extends ClusterBase implements ClusterLink {
 		JChannel jChannel = getChannel(priority);
 
 		return getAddresses(jChannel);
+	}
+
+	@Override
+	public void initialize() {
+		if (!isEnabled()) {
+			return;
+		}
+
+		try {
+			initChannels();
+		}
+		catch (Exception e) {
+			if (_log.isErrorEnabled()) {
+				_log.error("Unable to initialize channels", e);
+			}
+
+			throw new IllegalStateException(e);
+		}
+
+		for (JChannel jChannel : _transportJChannels) {
+			BaseReceiver baseReceiver = (BaseReceiver)jChannel.getReceiver();
+
+			baseReceiver.openLatch();
+		}
 	}
 
 	@Override
@@ -122,12 +145,6 @@ public class ClusterLinkImpl extends ClusterBase implements ClusterLink {
 		}
 	}
 
-	public void setClusterForwardMessageListener(
-		ClusterForwardMessageListener clusterForwardMessageListener) {
-
-		_clusterForwardMessageListener = clusterForwardMessageListener;
-	}
-
 	protected JChannel getChannel(Priority priority) {
 		int channelIndex =
 			priority.ordinal() * _channelCount / MAX_CHANNEL_COUNT;
@@ -141,7 +158,6 @@ public class ClusterLinkImpl extends ClusterBase implements ClusterLink {
 		return _transportJChannels.get(channelIndex);
 	}
 
-	@Override
 	protected void initChannels() throws Exception {
 		Properties transportProperties = PropsUtil.getProperties(
 			PropsKeys.CLUSTER_LINK_CHANNEL_PROPERTIES_TRANSPORT, true);
@@ -153,11 +169,10 @@ public class ClusterLinkImpl extends ClusterBase implements ClusterLink {
 				"Channel count must be between 1 and " + MAX_CHANNEL_COUNT);
 		}
 
-		_localTransportAddresses = new ArrayList<org.jgroups.Address>(
-			_channelCount);
-		_transportJChannels = new ArrayList<JChannel>(_channelCount);
+		_localTransportAddresses = new ArrayList<>(_channelCount);
+		_transportJChannels = new ArrayList<>(_channelCount);
 
-		List<String> keys = new ArrayList<String>(_channelCount);
+		List<String> keys = new ArrayList<>(_channelCount);
 
 		for (Object key : transportProperties.keySet()) {
 			keys.add((String)key);
@@ -171,10 +186,8 @@ public class ClusterLinkImpl extends ClusterBase implements ClusterLink {
 			String value = transportProperties.getProperty(customName);
 
 			JChannel jChannel = createJChannel(
-				value,
-				new ClusterForwardReceiver(
-					_localTransportAddresses, _clusterForwardMessageListener),
-					_LIFERAY_TRANSPORT_CHANNEL + i);
+				value, new ClusterForwardReceiver(_localTransportAddresses),
+				_LIFERAY_TRANSPORT_CHANNEL + i);
 
 			_localTransportAddresses.add(jChannel.getAddress());
 			_transportJChannels.add(jChannel);
@@ -187,7 +200,6 @@ public class ClusterLinkImpl extends ClusterBase implements ClusterLink {
 	private static Log _log = LogFactoryUtil.getLog(ClusterLinkImpl.class);
 
 	private int _channelCount;
-	private ClusterForwardMessageListener _clusterForwardMessageListener;
 	private List<org.jgroups.Address> _localTransportAddresses;
 	private List<JChannel> _transportJChannels;
 

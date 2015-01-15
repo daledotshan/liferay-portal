@@ -39,7 +39,7 @@ public class SearchEngineInitializer implements Runnable {
 
 	public SearchEngineInitializer(long companyId) {
 		_companyId = companyId;
-		_usedSearchEngineIds = new HashSet<String>();
+		_usedSearchEngineIds = new HashSet<>();
 	}
 
 	public Set<String> getUsedSearchEngineIds() {
@@ -119,7 +119,7 @@ public class SearchEngineInitializer implements Runnable {
 					continue;
 				}
 
-				Set<String> searchEngineIds = new HashSet<String>();
+				Set<String> searchEngineIds = new HashSet<>();
 
 				for (Indexer indexer : indexers) {
 					String searchEngineId = indexer.getSearchEngineId();
@@ -172,11 +172,11 @@ public class SearchEngineInitializer implements Runnable {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		SearchEngineInitializer.class);
 
-	private long _companyId;
+	private final long _companyId;
 	private boolean _finished;
-	private Set<String> _usedSearchEngineIds;
+	private final Set<String> _usedSearchEngineIds;
 
 }

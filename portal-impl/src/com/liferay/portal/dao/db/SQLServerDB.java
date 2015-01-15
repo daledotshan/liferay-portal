@@ -62,7 +62,7 @@ public class SQLServerDB extends BaseDB {
 
 	@Override
 	public List<Index> getIndexes(Connection con) throws SQLException {
-		List<Index> indexes = new ArrayList<Index>();
+		List<Index> indexes = new ArrayList<>();
 
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -223,6 +223,6 @@ public class SQLServerDB extends BaseDB {
 
 	private static final boolean _SUPPORTS_ALTER_COLUMN_TYPE = false;
 
-	private static SQLServerDB _instance = new SQLServerDB();
+	private static final SQLServerDB _instance = new SQLServerDB();
 
 }

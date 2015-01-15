@@ -400,7 +400,7 @@ public class MBMessageStagedModelDataHandler
 		}
 
 		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
-			new ArrayList<ObjectValuePair<String, InputStream>>();
+			new ArrayList<>();
 
 		List<Element> attachmentElements =
 			portletDataContext.getReferenceDataElements(
@@ -457,7 +457,7 @@ public class MBMessageStagedModelDataHandler
 		return inputStreamOVPs;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		MBMessageStagedModelDataHandler.class);
 
 }

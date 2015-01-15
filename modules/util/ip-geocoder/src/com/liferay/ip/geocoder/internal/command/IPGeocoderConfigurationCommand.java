@@ -14,10 +14,11 @@
 
 package com.liferay.ip.geocoder.internal.command;
 
+import com.liferay.portal.kernel.util.HashMapDictionary;
+
 import java.io.IOException;
 
 import java.util.Dictionary;
-import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
 
@@ -72,7 +73,7 @@ public class IPGeocoderConfigurationCommand {
 		Dictionary<String, Object> properties = configuration.getProperties();
 
 		if (properties == null) {
-			properties = new Hashtable<String, Object>();
+			properties = new HashMapDictionary<String, Object>();
 		}
 
 		properties.put(key, value);
@@ -80,7 +81,7 @@ public class IPGeocoderConfigurationCommand {
 		configuration.update(properties);
 	}
 
-	private static Logger _logger = Logger.getLogger(
+	private static final Logger _logger = Logger.getLogger(
 		IPGeocoderConfigurationCommand.class);
 
 	private ConfigurationAdmin _configurationAdmin;

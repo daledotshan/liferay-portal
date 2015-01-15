@@ -16,6 +16,7 @@ package com.liferay.portal.util;
 
 import com.liferay.mail.model.FileAttachment;
 import com.liferay.mail.service.MailServiceUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -40,18 +41,21 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.ResourceAction;
 import com.liferay.portal.model.Subscription;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserNotificationDeliveryConstants;
+import com.liferay.portal.security.permission.ActionKeys;
+import com.liferay.portal.security.permission.BaseModelPermissionCheckerUtil;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.GroupLocalServiceUtil;
+import com.liferay.portal.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.SubscriptionLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.UserNotificationEventLocalServiceUtil;
-import com.liferay.portal.service.permission.SubscriptionPermissionUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,6 +79,7 @@ import javax.mail.internet.InternetAddress;
  * @author Mate Thurzo
  * @author Raymond Augé
  * @author Sergio González
+ * @author Roberto Díaz
  */
 public class SubscriptionSender implements Serializable {
 
@@ -88,7 +93,7 @@ public class SubscriptionSender implements Serializable {
 		}
 
 		if (fileAttachments == null) {
-			fileAttachments = new ArrayList<FileAttachment>();
+			fileAttachments = new ArrayList<>();
 		}
 
 		FileAttachment attachment = new FileAttachment(file, fileName);
@@ -426,18 +431,59 @@ public class SubscriptionSender implements Serializable {
 			User user)
 		throws Exception {
 
+		if (subscription.getClassName() == null) {
+			return false;
+		}
+
 		PermissionChecker permissionChecker =
 			PermissionCheckerFactoryUtil.create(user);
 
-		return SubscriptionPermissionUtil.contains(
-			permissionChecker, subscription.getClassName(),
-			subscription.getClassPK(), className, classPK);
+		Boolean hasPermission = null;
+
+		if (Validator.isNotNull(className)) {
+			hasPermission =
+				BaseModelPermissionCheckerUtil.containsBaseModelPermission(
+					permissionChecker, groupId, className, classPK,
+					ActionKeys.VIEW);
+
+			if ((hasPermission == null) || !hasPermission) {
+				return false;
+			}
+		}
+
+		hasPermission = hasSubscribePermission(permissionChecker, subscription);
+
+		if ((hasPermission == null) || !hasPermission) {
+			return false;
+		}
+
+		return true;
 	}
 
 	protected boolean hasPermission(Subscription subscription, User user)
 		throws Exception {
 
 		return hasPermission(subscription, _className, _classPK, user);
+	}
+
+	/**
+	 * @throws PortalException
+	 */
+	protected Boolean hasSubscribePermission(
+			PermissionChecker permissionChecker, Subscription subscription)
+		throws PortalException {
+
+		ResourceAction resourceAction =
+			ResourceActionLocalServiceUtil.fetchResourceAction(
+				subscription.getClassName(), ActionKeys.SUBSCRIBE);
+
+		if (resourceAction != null) {
+			return BaseModelPermissionCheckerUtil.containsBaseModelPermission(
+				permissionChecker, groupId, subscription.getClassName(),
+				subscription.getClassPK(), ActionKeys.SUBSCRIBE);
+		}
+
+		return Boolean.TRUE;
 	}
 
 	protected void notifyPersistedSubscriber(Subscription subscription)
@@ -517,7 +563,7 @@ public class SubscriptionSender implements Serializable {
 					user.getEmailAddress(), user.getFullName());
 
 				if (_bulkAddresses == null) {
-					_bulkAddresses = new ArrayList<InternetAddress>();
+					_bulkAddresses = new ArrayList<>();
 				}
 
 				_bulkAddresses.add(bulkAddress);
@@ -809,8 +855,7 @@ public class SubscriptionSender implements Serializable {
 	protected String body;
 	protected boolean bulk;
 	protected long companyId;
-	protected List<FileAttachment> fileAttachments =
-		new ArrayList<FileAttachment>();
+	protected List<FileAttachment> fileAttachments = new ArrayList<>();
 	protected String fromAddress;
 	protected String fromName;
 	protected long groupId;
@@ -860,8 +905,7 @@ public class SubscriptionSender implements Serializable {
 	private transient ClassLoader _classLoader;
 	private String _className;
 	private long _classPK;
-	private Map<String, EscapableObject<String>> _context =
-		new HashMap<String, EscapableObject<String>>();
+	private Map<String, EscapableObject<String>> _context = new HashMap<>();
 	private String _contextUserPrefix;
 	private String _entryTitle;
 	private String _entryURL;
@@ -871,9 +915,9 @@ public class SubscriptionSender implements Serializable {
 	private long _notificationClassNameId;
 	private int _notificationType;
 	private List<ObjectValuePair<String, Long>> _persistestedSubscribersOVPs =
-		new ArrayList<ObjectValuePair<String, Long>>();
+		new ArrayList<>();
 	private List<ObjectValuePair<String, String>> _runtimeSubscribersOVPs =
-		new ArrayList<ObjectValuePair<String, String>>();
-	private Set<String> _sentEmailAddresses = new HashSet<String>();
+		new ArrayList<>();
+	private Set<String> _sentEmailAddresses = new HashSet<>();
 
 }

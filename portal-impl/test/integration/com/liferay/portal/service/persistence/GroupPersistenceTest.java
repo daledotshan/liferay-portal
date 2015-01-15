@@ -21,10 +21,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.template.TemplateException;
-import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.test.AggregateTestRule;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -34,19 +31,16 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.impl.GroupModelImpl;
 import com.liferay.portal.service.GroupLocalServiceUtil;
+import com.liferay.portal.test.LiferayIntegrationTestRule;
+import com.liferay.portal.test.PersistenceTestRule;
 import com.liferay.portal.test.TransactionalTestRule;
-import com.liferay.portal.test.runners.PersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-
-import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
@@ -60,22 +54,11 @@ import java.util.Set;
 /**
  * @generated
  */
-@RunWith(PersistenceIntegrationJUnitTestRunner.class)
 public class GroupPersistenceTest {
-	@ClassRule
-	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
-
-	@BeforeClass
-	public static void setupClass() throws TemplateException {
-		try {
-			DBUpgrader.upgrade();
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
-
-		TemplateManagerUtil.init();
-	}
+	@Rule
+	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+			PersistenceTestRule.INSTANCE,
+			new TransactionalTestRule(Propagation.REQUIRED));
 
 	@After
 	public void tearDown() throws Exception {
@@ -139,6 +122,8 @@ public class GroupPersistenceTest {
 
 		newGroup.setTreePath(RandomTestUtil.randomString());
 
+		newGroup.setGroupKey(RandomTestUtil.randomString());
+
 		newGroup.setName(RandomTestUtil.randomString());
 
 		newGroup.setDescription(RandomTestUtil.randomString());
@@ -156,6 +141,8 @@ public class GroupPersistenceTest {
 		newGroup.setSite(RandomTestUtil.randomBoolean());
 
 		newGroup.setRemoteStagingGroupCount(RandomTestUtil.nextInt());
+
+		newGroup.setInheritContent(RandomTestUtil.randomBoolean());
 
 		newGroup.setActive(RandomTestUtil.randomBoolean());
 
@@ -179,6 +166,7 @@ public class GroupPersistenceTest {
 		Assert.assertEquals(existingGroup.getLiveGroupId(),
 			newGroup.getLiveGroupId());
 		Assert.assertEquals(existingGroup.getTreePath(), newGroup.getTreePath());
+		Assert.assertEquals(existingGroup.getGroupKey(), newGroup.getGroupKey());
 		Assert.assertEquals(existingGroup.getName(), newGroup.getName());
 		Assert.assertEquals(existingGroup.getDescription(),
 			newGroup.getDescription());
@@ -194,6 +182,8 @@ public class GroupPersistenceTest {
 		Assert.assertEquals(existingGroup.getSite(), newGroup.getSite());
 		Assert.assertEquals(existingGroup.getRemoteStagingGroupCount(),
 			newGroup.getRemoteStagingGroupCount());
+		Assert.assertEquals(existingGroup.getInheritContent(),
+			newGroup.getInheritContent());
 		Assert.assertEquals(existingGroup.getActive(), newGroup.getActive());
 	}
 
@@ -292,13 +282,13 @@ public class GroupPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_N() {
+	public void testCountByC_GK() {
 		try {
-			_persistence.countByC_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByC_GK(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_N(0L, StringPool.NULL);
+			_persistence.countByC_GK(0L, StringPool.NULL);
 
-			_persistence.countByC_N(0L, (String)null);
+			_persistence.countByC_GK(0L, (String)null);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -398,14 +388,14 @@ public class GroupPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_L_N() {
+	public void testCountByC_L_GK() {
 		try {
-			_persistence.countByC_L_N(RandomTestUtil.nextLong(),
+			_persistence.countByC_L_GK(RandomTestUtil.nextLong(),
 				RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_L_N(0L, 0L, StringPool.NULL);
+			_persistence.countByC_L_GK(0L, 0L, StringPool.NULL);
 
-			_persistence.countByC_L_N(0L, 0L, (String)null);
+			_persistence.countByC_L_GK(0L, 0L, (String)null);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -413,15 +403,30 @@ public class GroupPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_C_L_N() {
+	public void testCountByC_C_L_GK() {
 		try {
-			_persistence.countByC_C_L_N(RandomTestUtil.nextLong(),
+			_persistence.countByC_C_L_GK(RandomTestUtil.nextLong(),
 				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
 				StringPool.BLANK);
 
-			_persistence.countByC_C_L_N(0L, 0L, 0L, StringPool.NULL);
+			_persistence.countByC_C_L_GK(0L, 0L, 0L, StringPool.NULL);
 
-			_persistence.countByC_C_L_N(0L, 0L, 0L, (String)null);
+			_persistence.countByC_C_L_GK(0L, 0L, 0L, (String)null);
+		}
+		catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void testCountByC_P_S_I() {
+		try {
+			_persistence.countByC_P_S_I(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean(),
+				RandomTestUtil.randomBoolean());
+
+			_persistence.countByC_P_S_I(0L, 0L, RandomTestUtil.randomBoolean(),
+				RandomTestUtil.randomBoolean());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -466,10 +471,11 @@ public class GroupPersistenceTest {
 			true, "uuid", true, "groupId", true, "companyId", true,
 			"creatorUserId", true, "classNameId", true, "classPK", true,
 			"parentGroupId", true, "liveGroupId", true, "treePath", true,
-			"name", true, "description", true, "type", true, "typeSettings",
-			true, "manualMembership", true, "membershipRestriction", true,
-			"friendlyURL", true, "site", true, "remoteStagingGroupCount", true,
-			"active", true);
+			"groupKey", true, "name", true, "description", true, "type", true,
+			"typeSettings", true, "manualMembership", true,
+			"membershipRestriction", true, "friendlyURL", true, "site", true,
+			"remoteStagingGroupCount", true, "inheritContent", true, "active",
+			true);
 	}
 
 	@Test
@@ -684,8 +690,9 @@ public class GroupPersistenceTest {
 
 		Assert.assertEquals(existingGroupModelImpl.getCompanyId(),
 			existingGroupModelImpl.getOriginalCompanyId());
-		Assert.assertTrue(Validator.equals(existingGroupModelImpl.getName(),
-				existingGroupModelImpl.getOriginalName()));
+		Assert.assertTrue(Validator.equals(
+				existingGroupModelImpl.getGroupKey(),
+				existingGroupModelImpl.getOriginalGroupKey()));
 
 		Assert.assertEquals(existingGroupModelImpl.getCompanyId(),
 			existingGroupModelImpl.getOriginalCompanyId());
@@ -704,8 +711,9 @@ public class GroupPersistenceTest {
 			existingGroupModelImpl.getOriginalCompanyId());
 		Assert.assertEquals(existingGroupModelImpl.getLiveGroupId(),
 			existingGroupModelImpl.getOriginalLiveGroupId());
-		Assert.assertTrue(Validator.equals(existingGroupModelImpl.getName(),
-				existingGroupModelImpl.getOriginalName()));
+		Assert.assertTrue(Validator.equals(
+				existingGroupModelImpl.getGroupKey(),
+				existingGroupModelImpl.getOriginalGroupKey()));
 
 		Assert.assertEquals(existingGroupModelImpl.getCompanyId(),
 			existingGroupModelImpl.getOriginalCompanyId());
@@ -713,8 +721,9 @@ public class GroupPersistenceTest {
 			existingGroupModelImpl.getOriginalClassNameId());
 		Assert.assertEquals(existingGroupModelImpl.getLiveGroupId(),
 			existingGroupModelImpl.getOriginalLiveGroupId());
-		Assert.assertTrue(Validator.equals(existingGroupModelImpl.getName(),
-				existingGroupModelImpl.getOriginalName()));
+		Assert.assertTrue(Validator.equals(
+				existingGroupModelImpl.getGroupKey(),
+				existingGroupModelImpl.getOriginalGroupKey()));
 	}
 
 	protected Group addGroup() throws Exception {
@@ -740,6 +749,8 @@ public class GroupPersistenceTest {
 
 		group.setTreePath(RandomTestUtil.randomString());
 
+		group.setGroupKey(RandomTestUtil.randomString());
+
 		group.setName(RandomTestUtil.randomString());
 
 		group.setDescription(RandomTestUtil.randomString());
@@ -758,6 +769,8 @@ public class GroupPersistenceTest {
 
 		group.setRemoteStagingGroupCount(RandomTestUtil.nextInt());
 
+		group.setInheritContent(RandomTestUtil.randomBoolean());
+
 		group.setActive(RandomTestUtil.randomBoolean());
 
 		_groups.add(_persistence.update(group));
@@ -765,7 +778,6 @@ public class GroupPersistenceTest {
 		return group;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(GroupPersistenceTest.class);
 	private List<Group> _groups = new ArrayList<Group>();
 	private GroupPersistence _persistence = GroupUtil.getPersistence();
 }
