@@ -34,9 +34,11 @@ import com.liferay.portal.kernel.nio.intraband.proxy.annotation.Proxy;
 import com.liferay.portal.kernel.nio.intraband.rpc.RPCResponse;
 import com.liferay.portal.kernel.nio.intraband.test.MockIntraband;
 import com.liferay.portal.kernel.nio.intraband.test.MockRegistrationReference;
+import com.liferay.portal.kernel.test.AggregateTestRule;
 import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
+import com.liferay.portal.kernel.test.NewEnv;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -52,8 +54,8 @@ import com.liferay.portal.nio.intraband.proxy.IntrabandProxyUtil.MethodsBag;
 import com.liferay.portal.nio.intraband.proxy.IntrabandProxyUtil.TemplateSkeleton;
 import com.liferay.portal.nio.intraband.proxy.IntrabandProxyUtil.TemplateStub;
 import com.liferay.portal.test.AdviseWith;
+import com.liferay.portal.test.AspectJNewEnvTestRule;
 import com.liferay.portal.test.aspects.ReflectionUtilAdvice;
-import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
 import com.liferay.portal.util.FileImpl;
 import com.liferay.portal.util.PropsValues;
 
@@ -98,8 +100,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -120,12 +122,13 @@ import org.objectweb.asm.tree.VarInsnNode;
 /**
  * @author Shuyang Zhou
  */
-@RunWith(AspectJMockingNewClassLoaderJUnitTestRunner.class)
 public class IntrabandProxyUtilTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			CodeCoverageAssertor.INSTANCE, AspectJNewEnvTestRule.INSTANCE);
 
 	@Before
 	public void setUp() {
@@ -331,12 +334,14 @@ public class IntrabandProxyUtilTest {
 		Assert.assertEquals("doStuff2-()V", proxyMethodSignatures[1]);
 	}
 
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testGenerateSkeletonClassFunction() throws Exception {
 		_doTestGenerateSkeletonClassFunction(TestGenerateInterface1.class);
 		_doTestGenerateSkeletonClassFunction(TestGenerateInterface2.class);
 	}
 
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testGenerateSkeletonClassStructure() throws Exception {
 		_doTestGenerateSkeletonClassStructure(TestGenerateInterface1.class);
@@ -345,6 +350,7 @@ public class IntrabandProxyUtilTest {
 		_doTestGenerateSkeletonClassStructure(TestGenerateClass2.class);
 	}
 
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testGenerateStubClassFunction() throws Exception {
 
@@ -498,6 +504,7 @@ public class IntrabandProxyUtilTest {
 		}
 	}
 
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testGenerateStubClassStructure() throws Exception {
 		_doTestGenerateStubClassStructure(
@@ -547,6 +554,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	@AdviseWith(adviceClasses = {ReflectionUtilAdvice.class})
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testInitializationFailure() throws ClassNotFoundException {
 		Throwable throwable = new Throwable();
@@ -983,6 +991,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	@AdviseWith(adviceClasses = {DisableProxyClassesDump.class})
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testToClassProxyClassesDumpDisabled()
 		throws FileNotFoundException {
@@ -991,6 +1000,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	@AdviseWith(adviceClasses = {EnableProxyClassesDump.class})
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testToClassProxyClassesDumpEnabled()
 		throws FileNotFoundException {
@@ -1208,8 +1218,7 @@ public class IntrabandProxyUtilTest {
 		Assert.assertEquals(name, methodNode.name);
 		Assert.assertEquals(desc, methodNode.desc);
 
-		List<String> exceptions = new ArrayList<String>(
-			exceptionClasses.length);
+		List<String> exceptions = new ArrayList<>(exceptionClasses.length);
 
 		for (Class<?> exceptionClass : exceptionClasses) {
 			exceptions.add(Type.getInternalName(exceptionClass));
@@ -1239,7 +1248,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	private String[] _buildProxyMethodSignatures(Class<?> clazz) {
-		List<Method> proxyMethods = new ArrayList<Method>();
+		List<Method> proxyMethods = new ArrayList<>();
 
 		for (Method method : ReflectionUtil.getVisibleMethods(clazz)) {
 			if (method.getAnnotation(Proxy.class) != null) {
@@ -2323,7 +2332,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	private List<Method> _getCopiedMethods(Class<?> clazz) {
-		List<Method> emptyMethods = new ArrayList<Method>();
+		List<Method> emptyMethods = new ArrayList<>();
 
 		for (Method method : ReflectionUtil.getVisibleMethods(clazz)) {
 			String name = method.getName();
@@ -2341,7 +2350,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	private List<Method> _getEmptyMethods(Class<?> clazz) {
-		List<Method> emptyMethods = new ArrayList<Method>();
+		List<Method> emptyMethods = new ArrayList<>();
 
 		for (Method method : ReflectionUtil.getVisibleMethods(clazz)) {
 			if (Modifier.isAbstract(method.getModifiers()) &&
@@ -2356,7 +2365,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	private List<Method> _getIdMethods(Class<?> clazz) {
-		List<Method> idMethods = new ArrayList<Method>();
+		List<Method> idMethods = new ArrayList<>();
 
 		for (Method method : ReflectionUtil.getVisibleMethods(clazz)) {
 			if (method.getAnnotation(Id.class) != null) {
@@ -2368,7 +2377,7 @@ public class IntrabandProxyUtilTest {
 	}
 
 	private List<Method> _getProxyMethods(Class<?> clazz) {
-		List<Method> proxyMethods = new ArrayList<Method>();
+		List<Method> proxyMethods = new ArrayList<>();
 
 		for (Method method : ReflectionUtil.getVisibleMethods(clazz)) {
 			if (method.getAnnotation(Proxy.class) != null) {
@@ -2409,14 +2418,11 @@ public class IntrabandProxyUtilTest {
 		return classNode;
 	}
 
-	private static Map<Class<?>, Class<?>> _autoboxingMap =
-		new HashMap<Class<?>, Class<?>>();
+	private static Map<Class<?>, Class<?>> _autoboxingMap = new HashMap<>();
 	private static ClassLoader _classLoader =
 		IntrabandProxyUtilTest.class.getClassLoader();
-	private static Map<Class<?>, Object> _defaultValueMap =
-		new HashMap<Class<?>, Object>();
-	private static Map<Class<?>, Object> _sampleValueMap =
-		new HashMap<Class<?>, Object>();
+	private static Map<Class<?>, Object> _defaultValueMap = new HashMap<>();
+	private static Map<Class<?>, Object> _sampleValueMap = new HashMap<>();
 	private static Type[] _types = {
 		Type.BOOLEAN_TYPE, Type.BYTE_TYPE, Type.CHAR_TYPE, Type.DOUBLE_TYPE,
 		Type.FLOAT_TYPE, Type.INT_TYPE, Type.LONG_TYPE, Type.SHORT_TYPE,
@@ -2783,6 +2789,7 @@ public class IntrabandProxyUtilTest {
 
 		@Id
 		public abstract String getId2();
+
 	}
 
 	private interface TestProxyMethodsInterface {

@@ -188,7 +188,7 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 			TemplateHandlerRegistryUtil.getTemplateHandlers();
 
 		List<TemplateHandler> portletDisplayTemplateHandlers =
-			new ArrayList<TemplateHandler>();
+			new ArrayList<>();
 
 		for (TemplateHandler templateHandler : templateHandlers) {
 			if (templateHandler instanceof BasePortletDisplayTemplateHandler) {
@@ -219,7 +219,7 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 		String language) {
 
 		Map<String, TemplateVariableGroup> templateVariableGroups =
-			new LinkedHashMap<String, TemplateVariableGroup>();
+			new LinkedHashMap<>();
 
 		TemplateVariableGroup fieldsTemplateVariableGroup =
 			new TemplateVariableGroup("fields");
@@ -283,7 +283,7 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 			long ddmTemplateId, List<?> entries)
 		throws Exception {
 
-		Map<String, Object> contextObjects = new HashMap<String, Object>();
+		Map<String, Object> contextObjects = new HashMap<>();
 
 		return renderDDMTemplate(
 			request, response, ddmTemplateId, entries, contextObjects);
@@ -338,6 +338,9 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 
 		DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(
 			ddmTemplateId);
+
+		contextObjects.put(
+			TemplateConstants.CLASS_NAME_ID, ddmTemplate.getClassNameId());
 
 		String language = ddmTemplate.getLanguage();
 
@@ -469,7 +472,7 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 	private Map<String, Object> _getPortletPreferences(
 		RenderRequest renderRequest) {
 
-		Map<String, Object> contextObjects = new HashMap<String, Object>();
+		Map<String, Object> contextObjects = new HashMap<>();
 
 		PortletPreferences portletPreferences = renderRequest.getPreferences();
 
@@ -517,10 +520,10 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortletDisplayTemplateImpl.class);
 
-	private Transformer _transformer = new Transformer(
+	private final Transformer _transformer = new Transformer(
 		PropsKeys.DYNAMIC_DATA_LISTS_ERROR_TEMPLATE, true);
 
 }

@@ -15,7 +15,7 @@
 package com.liferay.portalweb.portal.util.liferayselenium;
 
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portalweb.portal.util.TestPropsValues;
+import com.liferay.portalweb.util.TestPropsValues;
 
 import io.appium.java_client.MobileDriver;
 
@@ -34,6 +34,8 @@ public abstract class BaseMobileDriverImpl
 		String projectDirName, String browserURL, MobileDriver mobileDriver) {
 
 		super(mobileDriver);
+
+		_projectDirName = projectDirName;
 	}
 
 	@Override
@@ -125,6 +127,16 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public void assertNoJavaScriptExceptions() throws Exception {
+		LiferaySeleniumHelper.assertNoJavaScriptExceptions();
+	}
+
+	@Override
+	public void assertNoLiferayExceptions() throws Exception {
+		LiferaySeleniumHelper.assertNoLiferayExceptions();
+	}
+
+	@Override
 	public void assertNotAlert(String pattern) {
 		throw new UnsupportedOperationException();
 	}
@@ -142,8 +154,9 @@ public abstract class BaseMobileDriverImpl
 	@Override
 	public void assertNotPartialText(String locator, String pattern)
 		throws Exception {
-			throw new UnsupportedOperationException();
-		}
+
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public void assertNotSelectedLabel(String selectLocator, String pattern)
@@ -799,7 +812,7 @@ public abstract class BaseMobileDriverImpl
 		"portal-web//test//functional//com//liferay//portalweb//dependencies//";
 	private String _outputDirName = TestPropsValues.OUTPUT_DIR_NAME;
 	private String _primaryTestSuiteName;
-	private String _projectDirName;
+	private final String _projectDirName;
 	private String _sikuliImagesDirName =
 		_dependenciesDirName + "sikuli//linux//";
 

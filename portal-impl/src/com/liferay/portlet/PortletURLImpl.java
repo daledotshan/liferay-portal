@@ -96,49 +96,7 @@ public class PortletURLImpl
 		HttpServletRequest request, String portletId, long plid,
 		String lifecycle) {
 
-		_request = request;
-		_portletId = portletId;
-		_plid = plid;
-		_lifecycle = lifecycle;
-		_parametersIncludedInPath = new LinkedHashSet<String>();
-		_params = new LinkedHashMap<String, String[]>();
-		_removePublicRenderParameters = new LinkedHashMap<String, String[]>();
-		_secure = PortalUtil.isSecure(request);
-		_wsrp = ParamUtil.getBoolean(request, "wsrp");
-
-		Portlet portlet = getPortlet();
-
-		if (portlet != null) {
-			Set<String> autopropagatedParameters =
-				portlet.getAutopropagatedParameters();
-
-			for (String autopropagatedParameter : autopropagatedParameters) {
-				if (PortalUtil.isReservedParameter(autopropagatedParameter)) {
-					continue;
-				}
-
-				String value = request.getParameter(autopropagatedParameter);
-
-				if (value != null) {
-					setParameter(autopropagatedParameter, value);
-				}
-			}
-
-			PortletApp portletApp = portlet.getPortletApp();
-
-			_escapeXml = MapUtil.getBoolean(
-				portletApp.getContainerRuntimeOptions(),
-				LiferayPortletConfig.RUNTIME_OPTION_ESCAPE_XML,
-				PropsValues.PORTLET_URL_ESCAPE_XML);
-		}
-
-		Layout layout = (Layout)request.getAttribute(WebKeys.LAYOUT);
-
-		if ((layout != null) && (layout.getPlid() == _plid) &&
-			(layout instanceof VirtualLayout)) {
-
-			_layout = layout;
-		}
+		this(request, portletId, null, plid, lifecycle);
 	}
 
 	public PortletURLImpl(
@@ -146,10 +104,8 @@ public class PortletURLImpl
 		String lifecycle) {
 
 		this(
-			PortalUtil.getHttpServletRequest(portletRequest), portletId, plid,
-			lifecycle);
-
-		_portletRequest = portletRequest;
+			PortalUtil.getHttpServletRequest(portletRequest), portletId,
+			portletRequest, plid, lifecycle);
 	}
 
 	@Override
@@ -298,7 +254,7 @@ public class PortletURLImpl
 			return _reservedParameters;
 		}
 
-		_reservedParameters = new LinkedHashMap<String, String>();
+		_reservedParameters = new LinkedHashMap<>();
 
 		_reservedParameters.put("p_p_id", _portletId);
 
@@ -595,8 +551,7 @@ public class PortletURLImpl
 			throw new IllegalArgumentException();
 		}
 		else {
-			Map<String, String[]> newParams =
-				new LinkedHashMap<String, String[]>();
+			Map<String, String[]> newParams = new LinkedHashMap<>();
 
 			for (Map.Entry<String, String[]> entry : params.entrySet()) {
 				try {
@@ -756,6 +711,56 @@ public class PortletURLImpl
 		}
 
 		writer.write(toString);
+	}
+
+	protected PortletURLImpl(
+		HttpServletRequest request, String portletId,
+		PortletRequest portletRequest, long plid, String lifecycle) {
+
+		_request = request;
+		_portletId = portletId;
+		_portletRequest = portletRequest;
+		_plid = plid;
+		_lifecycle = lifecycle;
+		_parametersIncludedInPath = new LinkedHashSet<>();
+		_params = new LinkedHashMap<>();
+		_removePublicRenderParameters = new LinkedHashMap<>();
+		_secure = PortalUtil.isSecure(request);
+		_wsrp = ParamUtil.getBoolean(request, "wsrp");
+
+		Portlet portlet = getPortlet();
+
+		if (portlet != null) {
+			Set<String> autopropagatedParameters =
+				portlet.getAutopropagatedParameters();
+
+			for (String autopropagatedParameter : autopropagatedParameters) {
+				if (PortalUtil.isReservedParameter(autopropagatedParameter)) {
+					continue;
+				}
+
+				String value = request.getParameter(autopropagatedParameter);
+
+				if (value != null) {
+					setParameter(autopropagatedParameter, value);
+				}
+			}
+
+			PortletApp portletApp = portlet.getPortletApp();
+
+			_escapeXml = MapUtil.getBoolean(
+				portletApp.getContainerRuntimeOptions(),
+				LiferayPortletConfig.RUNTIME_OPTION_ESCAPE_XML,
+				PropsValues.PORTLET_URL_ESCAPE_XML);
+		}
+
+		Layout layout = (Layout)request.getAttribute(WebKeys.LAYOUT);
+
+		if ((layout != null) && (layout.getPlid() == _plid) &&
+			(layout instanceof VirtualLayout)) {
+
+			_layout = layout;
+		}
 	}
 
 	protected void addPortalAuthToken(StringBundler sb, Key key) {
@@ -1449,6 +1454,7 @@ public class PortletURLImpl
 
 			return generateToString();
 		}
+
 	}
 
 }

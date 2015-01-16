@@ -57,6 +57,7 @@ import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.LayoutURLUtil;
 import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -86,6 +87,7 @@ import com.liferay.portlet.messageboards.model.MBThreadConstants;
 import com.liferay.portlet.messageboards.model.impl.MBCategoryImpl;
 import com.liferay.portlet.messageboards.model.impl.MBMessageDisplayImpl;
 import com.liferay.portlet.messageboards.service.base.MBMessageLocalServiceBaseImpl;
+import com.liferay.portlet.messageboards.service.permission.MBPermission;
 import com.liferay.portlet.messageboards.social.MBActivityKeys;
 import com.liferay.portlet.messageboards.util.MBSubscriptionSender;
 import com.liferay.portlet.messageboards.util.MBUtil;
@@ -1436,7 +1438,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
 			Collections.emptyList();
-		List<String> existingFiles = new ArrayList<String>();
+		List<String> existingFiles = new ArrayList<>();
 		double priority = 0.0;
 		boolean allowPingbacks = false;
 
@@ -1554,6 +1556,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 					moveMessageAttachmentToTrash(
 						userId, messageId, fileEntry.getTitle());
 				}
+			}
+			else {
+				deleteMessageAttachments(message.getMessageId());
 			}
 		}
 
@@ -1870,7 +1875,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 					message.getMessageId();
 		}
 
-		String layoutURL = getLayoutURL(
+		String layoutURL = LayoutURLUtil.getLayoutURL(
 			message.getGroupId(), PortletKeys.MESSAGE_BOARDS, serviceContext);
 
 		if (Validator.isNotNull(layoutURL)) {
@@ -1903,7 +1908,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 	}
 
 	protected void notifyDiscussionSubscribers(
-		MBMessage message, ServiceContext serviceContext) {
+			MBMessage message, ServiceContext serviceContext)
+		throws PortalException {
 
 		if (!PrefsPropsUtil.getBoolean(
 				message.getCompanyId(),
@@ -1911,6 +1917,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 			return;
 		}
+
+		MBDiscussion mbDiscussion =
+			mbDiscussionLocalService.getThreadDiscussion(message.getThreadId());
 
 		String contentURL = (String)serviceContext.getAttribute("contentURL");
 
@@ -1938,8 +1947,8 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		subscriptionSender.setBody(body);
 		subscriptionSender.setCompanyId(message.getCompanyId());
-		subscriptionSender.setClassName(message.getModelClassName());
-		subscriptionSender.setClassPK(message.getMessageId());
+		subscriptionSender.setClassName(MBDiscussion.class.getName());
+		subscriptionSender.setClassPK(mbDiscussion.getDiscussionId());
 		subscriptionSender.setContextAttribute(
 			"[$COMMENTS_BODY$]", message.getBody(true), false);
 		subscriptionSender.setContextAttributes(
@@ -2039,7 +2048,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			categoryName += " - " + group.getDescriptiveName();
 		}
 
-		List<Long> categoryIds = new ArrayList<Long>();
+		List<Long> categoryIds = new ArrayList<>();
 
 		categoryIds.add(message.getCategoryId());
 
@@ -2119,7 +2128,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		}
 
 		SubscriptionSender subscriptionSenderPrototype =
-			new MBSubscriptionSender();
+			new MBSubscriptionSender(MBPermission.RESOURCE_NAME);
 
 		subscriptionSenderPrototype.setBulk(
 			PropsValues.MESSAGE_BOARDS_EMAIL_BULK);
@@ -2242,8 +2251,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			long userId, MBMessage message, ServiceContext serviceContext)
 		throws PortalException {
 
-		Map<String, Serializable> workflowContext =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> workflowContext = new HashMap<>();
 
 		workflowContext.put(
 			WorkflowConstants.CONTEXT_URL,

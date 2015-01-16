@@ -390,8 +390,7 @@ public class AnnouncementsEntryLocalServiceImpl
 
 		long teamId = 0;
 
-		LinkedHashMap<String, Object> params =
-			new LinkedHashMap<String, Object>();
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
 
 		params.put("announcementsDeliveryEmailOrSms", entry.getType());
 
@@ -399,7 +398,7 @@ public class AnnouncementsEntryLocalServiceImpl
 			if (className.equals(Group.class.getName())) {
 				Group group = groupPersistence.findByPrimaryKey(classPK);
 
-				toName = group.getName();
+				toName = group.getDescriptiveName();
 
 				params.put("inherit", Boolean.TRUE);
 				params.put("usersGroups", classPK);

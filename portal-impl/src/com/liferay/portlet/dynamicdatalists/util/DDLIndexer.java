@@ -97,6 +97,8 @@ public class DDLIndexer extends BaseIndexer {
 		if (recordSetId > 0) {
 			contextQuery.addRequiredTerm("recordSetId", recordSetId);
 		}
+
+		addSearchClassTypeIds(contextQuery, searchContext);
 	}
 
 	@Override
@@ -124,6 +126,8 @@ public class DDLIndexer extends BaseIndexer {
 
 		DDLRecordVersion recordVersion = record.getRecordVersion();
 
+		document.addKeyword(
+			Field.CLASS_TYPE_ID, recordVersion.getRecordSetId());
 		document.addKeyword(Field.STATUS, recordVersion.getStatus());
 		document.addKeyword(Field.VERSION, recordVersion.getVersion());
 
@@ -292,8 +296,7 @@ public class DDLIndexer extends BaseIndexer {
 				DDLRecordSetConstants.SCOPE_DYNAMIC_DATA_LISTS, startRecordId,
 				endRecordId);
 
-		Collection<Document> documents = new ArrayList<Document>(
-			records.size());
+		Collection<Document> documents = new ArrayList<>(records.size());
 
 		for (DDLRecord record : records) {
 			Document document = getDocument(record);

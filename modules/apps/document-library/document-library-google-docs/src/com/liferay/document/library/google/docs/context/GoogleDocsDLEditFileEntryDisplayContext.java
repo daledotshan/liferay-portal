@@ -17,8 +17,12 @@ package com.liferay.document.library.google.docs.context;
 import com.liferay.document.library.google.docs.util.GoogleDocsConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.theme.PortletDisplay;
+import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.documentlibrary.context.BaseDLEditFileEntryDisplayContext;
 import com.liferay.portlet.documentlibrary.context.DLEditFileEntryDisplayContext;
+import com.liferay.portlet.documentlibrary.context.DLFilePicker;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 
@@ -51,6 +55,17 @@ public class GoogleDocsDLEditFileEntryDisplayContext
 		super(
 			_UUID, parentDLEditFileEntryDisplayContext, request, response,
 			fileEntry);
+	}
+
+	@Override
+	public DLFilePicker getDLFilePicker(String onFilePickCallback) {
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
+
+		return new GoogleDocsDLFilePicker(
+			portletDisplay.getNamespace(), onFilePickCallback, themeDisplay);
 	}
 
 	@Override

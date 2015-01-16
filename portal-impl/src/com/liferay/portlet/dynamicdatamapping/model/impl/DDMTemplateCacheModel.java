@@ -16,6 +16,7 @@ package com.liferay.portlet.dynamicdatamapping.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.CacheModel;
@@ -40,8 +41,32 @@ import java.util.Date;
 public class DDMTemplateCacheModel implements CacheModel<DDMTemplate>,
 	Externalizable {
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof DDMTemplateCacheModel)) {
+			return false;
+		}
+
+		DDMTemplateCacheModel ddmTemplateCacheModel = (DDMTemplateCacheModel)obj;
+
+		if (templateId == ddmTemplateCacheModel.templateId) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return HashUtil.hash(0, templateId);
+	}
+
+	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(43);
+		StringBundler sb = new StringBundler(45);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -65,6 +90,8 @@ public class DDMTemplateCacheModel implements CacheModel<DDMTemplate>,
 		sb.append(classPK);
 		sb.append(", templateKey=");
 		sb.append(templateKey);
+		sb.append(", version=");
+		sb.append(version);
 		sb.append(", name=");
 		sb.append(name);
 		sb.append(", description=");
@@ -135,6 +162,13 @@ public class DDMTemplateCacheModel implements CacheModel<DDMTemplate>,
 		}
 		else {
 			ddmTemplateImpl.setTemplateKey(templateKey);
+		}
+
+		if (version == null) {
+			ddmTemplateImpl.setVersion(StringPool.BLANK);
+		}
+		else {
+			ddmTemplateImpl.setVersion(version);
 		}
 
 		if (name == null) {
@@ -208,6 +242,7 @@ public class DDMTemplateCacheModel implements CacheModel<DDMTemplate>,
 		classNameId = objectInput.readLong();
 		classPK = objectInput.readLong();
 		templateKey = objectInput.readUTF();
+		version = objectInput.readUTF();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
 		type = objectInput.readUTF();
@@ -252,6 +287,13 @@ public class DDMTemplateCacheModel implements CacheModel<DDMTemplate>,
 		}
 		else {
 			objectOutput.writeUTF(templateKey);
+		}
+
+		if (version == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(version);
 		}
 
 		if (name == null) {
@@ -319,6 +361,7 @@ public class DDMTemplateCacheModel implements CacheModel<DDMTemplate>,
 	public long classNameId;
 	public long classPK;
 	public String templateKey;
+	public String version;
 	public String name;
 	public String description;
 	public String type;

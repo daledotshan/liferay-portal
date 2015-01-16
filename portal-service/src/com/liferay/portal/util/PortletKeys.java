@@ -35,11 +35,7 @@ public class PortletKeys {
 
 	public static final String ASSET_CATEGORIES_ADMIN = "147";
 
-	public static final String ASSET_CATEGORIES_NAVIGATION = "122";
-
 	public static final String ASSET_PUBLISHER = "101";
-
-	public static final String ASSET_TAGS_NAVIGATION = "141";
 
 	public static final String BACKGROUND_TASK = "189";
 
@@ -48,10 +44,6 @@ public class PortletKeys {
 	public static final String BLOGS_ADMIN = "161";
 
 	public static final String BLOGS_AGGREGATOR = "115";
-
-	public static final String BOOKMARKS = "28";
-
-	public static final String BOOKMARKS_ADMIN = "198";
 
 	public static final String BREADCRUMB = "73";
 
@@ -75,7 +67,8 @@ public class PortletKeys {
 
 	public static final String DOCUMENT_LIBRARY_DISPLAY = "110";
 
-	public static final String DOCUMENT_SELECTOR = "200";
+	public static final String DOCUMENT_SELECTOR =
+		"200_WAR_documentselectorweb";
 
 	public static final String DYNAMIC_DATA_LIST_DISPLAY = "169";
 
@@ -100,10 +93,6 @@ public class PortletKeys {
 	public static final String IMAGE_UPLOADER = "195";
 
 	public static final String JOURNAL = "15";
-
-	public static final String JOURNAL_CONTENT = "56";
-
-	public static final String JOURNAL_CONTENT_LIST = "62";
 
 	public static final String JOURNAL_CONTENT_SEARCH = "77";
 
@@ -152,7 +141,8 @@ public class PortletKeys {
 
 	public static final String NAVIGATION = "71";
 
-	public static final String NESTED_PORTLETS = "118";
+	public static final String NESTED_PORTLETS =
+		"com_liferay_nested_portlets_web_portlet_NestedPortletsPortlet";
 
 	public static final String PAGE_COMMENTS = "107";
 
@@ -202,8 +192,6 @@ public class PortletKeys {
 
 	public static final String ROLES_ADMIN = "128";
 
-	public static final String RSS = "39";
-
 	public static final String SEARCH = "3";
 
 	public static final String SHOPPING = "34";
@@ -238,22 +226,7 @@ public class PortletKeys {
 
 	public static final String TAGS_ADMIN = "99";
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #ASSET_CATEGORIES_NAVIGATION}
-	 */
-	@Deprecated
-	public static final String TAGS_CATEGORIES_NAVIGATION =
-		ASSET_CATEGORIES_NAVIGATION;
-
-	public static final String TAGS_CLOUD = "148";
-
 	public static final String TAGS_COMPILER = "103";
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #ASSET_TAGS_NAVIGATION}
-	 */
-	@Deprecated
-	public static final String TAGS_ENTRIES_NAVIGATION = ASSET_TAGS_NAVIGATION;
 
 	public static final String TRANSLATOR = "26";
 

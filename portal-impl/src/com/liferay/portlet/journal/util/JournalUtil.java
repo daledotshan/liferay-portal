@@ -170,10 +170,6 @@ public class JournalUtil {
 
 		addReservedEl(
 			rootElement, tokens,
-			JournalStructureConstants.RESERVED_ARTICLE_TYPE, article.getType());
-
-		addReservedEl(
-			rootElement, tokens,
 			JournalStructureConstants.RESERVED_ARTICLE_CREATE_DATE,
 			article.getCreateDate());
 
@@ -318,7 +314,7 @@ public class JournalUtil {
 		else {
 			portletURL.setParameter("struts_action", "/journal/view");
 
-			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<>();
 
 			data.put("direction-right", Boolean.TRUE.toString());
 			data.put(
@@ -341,7 +337,7 @@ public class JournalUtil {
 			portletURL.setParameter(
 				"folderId", String.valueOf(ancestorFolder.getFolderId()));
 
-			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<>();
 
 			data.put("direction-right", Boolean.TRUE.toString());
 			data.put("folder-id", ancestorFolder.getFolderId());
@@ -358,7 +354,7 @@ public class JournalUtil {
 
 			JournalFolder unescapedFolder = folder.toUnescapedModel();
 
-			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<>();
 
 			data.put("direction-right", Boolean.TRUE.toString());
 			data.put("folder-id", folder.getFolderId());
@@ -507,18 +503,6 @@ public class JournalUtil {
 			new UnsyncStringReader(targetArticleDisplay.getContent()));
 	}
 
-	public static String doTransform(
-			ThemeDisplay themeDisplay, Map<String, String> tokens,
-			String viewMode, String languageId, Document document,
-			PortletRequestModel portletRequestModel, String script,
-			String langType)
-		throws Exception {
-
-		return _transformer.doTransform(
-			themeDisplay, tokens, viewMode, languageId, document,
-			portletRequestModel, script, langType);
-	}
-
 	public static String formatVM(String vm) {
 		return vm;
 	}
@@ -619,8 +603,7 @@ public class JournalUtil {
 		List<com.liferay.portal.kernel.search.Document> documents =
 			hits.toList();
 
-		List<JournalArticle> articles = new ArrayList<JournalArticle>(
-			documents.size());
+		List<JournalArticle> articles = new ArrayList<>(documents.size());
 
 		for (com.liferay.portal.kernel.search.Document document : documents) {
 			String articleId = document.get(Field.ARTICLE_ID);
@@ -675,7 +658,7 @@ public class JournalUtil {
 			}
 		}
 
-		List<DiffVersion> diffVersions = new ArrayList<DiffVersion>();
+		List<DiffVersion> diffVersions = new ArrayList<>();
 
 		for (JournalArticle article : articles) {
 			DiffVersion diffVersion = new DiffVersion(
@@ -931,8 +914,7 @@ public class JournalUtil {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Map<String, String> definitionTerms =
-			new LinkedHashMap<String, String>();
+		Map<String, String> definitionTerms = new LinkedHashMap<>();
 
 		definitionTerms.put(
 			"[$ARTICLE_CONTENT]",
@@ -966,7 +948,8 @@ public class JournalUtil {
 		definitionTerms.put("[$PORTAL_URL$]", company.getVirtualHostname());
 
 		definitionTerms.put(
-			"[$PORTLET_NAME$]", PortalUtil.getPortletTitle(portletRequest));
+			"[$PORTLET_NAME$]",
+			HtmlUtil.escape(PortalUtil.getPortletTitle(portletRequest)));
 		definitionTerms.put(
 			"[$TO_ADDRESS$]",
 			LanguageUtil.get(
@@ -1178,7 +1161,7 @@ public class JournalUtil {
 			ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		Map<String, String> tokens = new HashMap<String, String>();
+		Map<String, String> tokens = new HashMap<>();
 
 		if (themeDisplay != null) {
 			_populateTokens(tokens, articleGroupId, themeDisplay);
@@ -1243,7 +1226,7 @@ public class JournalUtil {
 			boolean recursive)
 		throws PortalException {
 
-		List<Long> ancestorFolderIds = new ArrayList<Long>();
+		List<Long> ancestorFolderIds = new ArrayList<>();
 
 		if (folderId != JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			JournalFolder folder = JournalFolderLocalServiceUtil.getFolder(
@@ -1512,9 +1495,21 @@ public class JournalUtil {
 			String langType)
 		throws Exception {
 
+		return transform(
+			themeDisplay, tokens, viewMode, languageId, document,
+			portletRequestModel, script, langType, false);
+	}
+
+	public static String transform(
+			ThemeDisplay themeDisplay, Map<String, String> tokens,
+			String viewMode, String languageId, Document document,
+			PortletRequestModel portletRequestModel, String script,
+			String langType, boolean propagateException)
+		throws Exception {
+
 		return _transformer.transform(
 			themeDisplay, tokens, viewMode, languageId, document,
-			portletRequestModel, script, langType);
+			portletRequestModel, script, langType, propagateException);
 	}
 
 	private static void _addElementOptions(
@@ -1744,7 +1739,7 @@ public class JournalUtil {
 	private static void _populateCustomTokens(Map<String, String> tokens) {
 		if (_customTokens == null) {
 			synchronized (JournalUtil.class) {
-				_customTokens = new HashMap<String, String>();
+				_customTokens = new HashMap<>();
 
 				for (String customToken :
 						PropsValues.JOURNAL_ARTICLE_CUSTOM_TOKENS) {

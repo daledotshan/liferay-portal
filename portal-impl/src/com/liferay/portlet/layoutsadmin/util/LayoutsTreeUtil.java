@@ -128,7 +128,7 @@ public class LayoutsTreeUtil {
 			String treeId)
 		throws Exception {
 
-		List<LayoutTreeNode> layoutTreeNodes = new ArrayList<LayoutTreeNode>();
+		List<LayoutTreeNode> layoutTreeNodes = new ArrayList<>();
 
 		List<Layout> ancestorLayouts = _getAncestorLayouts(request);
 
@@ -402,6 +402,7 @@ public class LayoutsTreeUtil {
 	private static class LayoutTreeNodes implements Iterable<LayoutTreeNode> {
 
 		public LayoutTreeNodes() {
+			_layoutTreeNodesList = new ArrayList<>();
 		}
 
 		public LayoutTreeNodes(
@@ -431,8 +432,7 @@ public class LayoutsTreeUtil {
 			return _layoutTreeNodesList.iterator();
 		}
 
-		private List<LayoutTreeNode> _layoutTreeNodesList =
-			new ArrayList<LayoutTreeNode>();
+		private final List<LayoutTreeNode> _layoutTreeNodesList;
 		private int _total;
 
 	}

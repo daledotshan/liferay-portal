@@ -295,8 +295,6 @@ public class EditLayoutsAction extends PortletAction {
 			else if (e instanceof SystemException) {
 				SessionErrors.add(actionRequest, e.getClass(), e);
 
-				redirect = ParamUtil.getString(actionRequest, "pagesRedirect");
-
 				sendRedirect(
 					portletConfig, actionRequest, actionResponse, redirect,
 					closeRedirect);
@@ -927,12 +925,22 @@ public class EditLayoutsAction extends PortletAction {
 
 				Layout copyLayout = null;
 
+				String layoutTemplateId = ParamUtil.getString(
+					uploadPortletRequest, "layoutTemplateId",
+					PropsValues.DEFAULT_LAYOUT_TEMPLATE_ID);
+
 				if (copyLayoutId > 0) {
 					try {
 						copyLayout = LayoutLocalServiceUtil.getLayout(
 							groupId, privateLayout, copyLayoutId);
 
 						if (copyLayout.isTypePortlet()) {
+							LayoutTypePortlet copyLayoutTypePortlet =
+								(LayoutTypePortlet)copyLayout.getLayoutType();
+
+							layoutTemplateId =
+								copyLayoutTypePortlet.getLayoutTemplateId();
+
 							typeSettingsProperties =
 								copyLayout.getTypeSettingsProperties();
 						}
@@ -949,10 +957,6 @@ public class EditLayoutsAction extends PortletAction {
 
 				LayoutTypePortlet layoutTypePortlet =
 					(LayoutTypePortlet)layout.getLayoutType();
-
-				String layoutTemplateId = ParamUtil.getString(
-					uploadPortletRequest, "layoutTemplateId",
-					PropsValues.DEFAULT_LAYOUT_TEMPLATE_ID);
 
 				layoutTypePortlet.setLayoutTemplateId(
 					themeDisplay.getUserId(), layoutTemplateId);
@@ -1024,6 +1028,8 @@ public class EditLayoutsAction extends PortletAction {
 						if (copyLayout.isTypePortlet()) {
 							layoutTypeSettingsProperties =
 								copyLayout.getTypeSettingsProperties();
+
+							ActionUtil.removePortletIds(actionRequest, layout);
 
 							ActionUtil.copyPreferences(
 								actionRequest, layout, copyLayout);

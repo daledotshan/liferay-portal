@@ -31,8 +31,10 @@ import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.documentlibrary.context.BaseDLViewFileVersionDisplayContext;
 import com.liferay.portlet.documentlibrary.context.DLUIItemKeys;
 import com.liferay.portlet.documentlibrary.context.DLViewFileVersionDisplayContext;
-import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import java.util.Iterator;
 import java.util.List;
@@ -51,9 +53,12 @@ public class GoogleDocsDLViewFileVersionDisplayContext
 	public GoogleDocsDLViewFileVersionDisplayContext(
 		DLViewFileVersionDisplayContext parentDLDisplayContext,
 		HttpServletRequest request, HttpServletResponse response,
-		FileVersion fileVersion) {
+		FileVersion fileVersion,
+		GoogleDocsMetadataHelper googleDocsMetadataHelper) {
 
 		super(_UUID, parentDLDisplayContext, request, response, fileVersion);
+
+		_googleDocsMetadataHelper = googleDocsMetadataHelper;
 	}
 
 	@Override
@@ -88,7 +93,7 @@ public class GoogleDocsDLViewFileVersionDisplayContext
 		URLMenuItem urlMenuItem = _insertEditInGoogleURLUIItem(
 			new URLMenuItem(), menuItems);
 
-		urlMenuItem.setTarget("_blank");
+		urlMenuItem.setMethod("GET");
 
 		return menuItems;
 	}
@@ -102,6 +107,26 @@ public class GoogleDocsDLViewFileVersionDisplayContext
 		_insertEditInGoogleURLUIItem(new URLToolbarItem(), toolbarItems);
 
 		return toolbarItems;
+	}
+
+	@Override
+	public void renderPreview(
+			HttpServletRequest request, HttpServletResponse response)
+		throws IOException {
+
+		PrintWriter printWriter = response.getWriter();
+
+		if (!_googleDocsMetadataHelper.containsField(
+				GoogleDocsConstants.DDM_FIELD_NAME_EMBEDDABLE_URL)) {
+
+			return;
+		}
+
+		printWriter.format(
+			"<iframe frameborder=\"0\" height=\"300\" src=\"%s\" " +
+				"width=\"100%%\"></iframe>",
+			_googleDocsMetadataHelper.getFieldValue(
+				GoogleDocsConstants.DDM_FIELD_NAME_EMBEDDABLE_URL));
 	}
 
 	private int _getIndex(List<? extends UIItem> uiItems, String key) {
@@ -119,6 +144,12 @@ public class GoogleDocsDLViewFileVersionDisplayContext
 	private <T extends URLUIItem> T _insertEditInGoogleURLUIItem(
 		T urlUIItem, List<? super T> urlUIItems) {
 
+		if (!_googleDocsMetadataHelper.containsField(
+				GoogleDocsConstants.DDM_FIELD_NAME_URL)) {
+
+			return urlUIItem;
+		}
+
 		int index = _getIndex(
 			(List<? extends UIItem>)urlUIItems, DLUIItemKeys.EDIT);
 
@@ -127,7 +158,7 @@ public class GoogleDocsDLViewFileVersionDisplayContext
 		}
 
 		urlUIItem.setIcon("icon-edit");
-		urlUIItem.setKey(GoogleDocsMenuItemKeys.EDIT_IN_GOOGLE);
+		urlUIItem.setKey(GoogleDocsUIItemKeys.EDIT_IN_GOOGLE);
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -142,13 +173,8 @@ public class GoogleDocsDLViewFileVersionDisplayContext
 
 		urlUIItem.setTarget("_blank");
 
-		DLFileVersion dlFileVersion = (DLFileVersion)fileVersion.getModel();
-
-		GoogleDocsMetadataHelper googleDocsMetadataHelper =
-			new GoogleDocsMetadataHelper(dlFileVersion);
-
-		String editURL = googleDocsMetadataHelper.getFieldValue(
-			GoogleDocsConstants.DDM_FIELD_NAME_EDIT_URL);
+		String editURL = _googleDocsMetadataHelper.getFieldValue(
+			GoogleDocsConstants.DDM_FIELD_NAME_URL);
 
 		urlUIItem.setURL(editURL);
 
@@ -172,5 +198,7 @@ public class GoogleDocsDLViewFileVersionDisplayContext
 
 	private static final UUID _UUID = UUID.fromString(
 		"7B61EA79-83AE-4FFD-A77A-1D47E06EBBE9");
+
+	private GoogleDocsMetadataHelper _googleDocsMetadataHelper;
 
 }

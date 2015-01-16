@@ -36,6 +36,10 @@
 	<div class="<%= inputWrapperClass %>">
 </c:if>
 
+<%
+boolean choiceField = checkboxField || radioField;
+%>
+
 <c:if test='<%= !type.equals("assetCategories") && !type.equals("hidden") && Validator.isNotNull(label) %>'>
 	<label <%= labelTag %>>
 		<c:if test='<%= !choiceField && !inlineLabel.equals("right") %>'>
@@ -71,6 +75,7 @@
 	</c:when>
 	<c:when test="<%= (model != null) && Validator.isNull(type) %>">
 		<liferay-ui:input-field
+			autoComplete='<%= GetterUtil.getBoolean(dynamicAttributes.get("autocomplete"), true) %>'
 			autoFocus="<%= autoFocus %>"
 			bean="<%= bean %>"
 			cssClass="<%= fieldCssClass %>"
@@ -111,7 +116,7 @@
 				checked = ArrayUtil.contains(requestValues, valueString);
 			}
 			else {
-				checked = Validator.isNotNull(ParamUtil.getString(request, name));
+				checked = ParamUtil.getBoolean(request, name, checked);
 			}
 		}
 		%>
@@ -192,7 +197,7 @@
 			<c:when test='<%= localized && (type.equals("editor") || type.equals("text") || type.equals("textarea")) %>'>
 				<liferay-ui:input-localized
 					autoFocus="<%= autoFocus %>"
-					availableLocales="<%= LanguageUtil.getAvailableLocales() %>"
+					availableLocales="<%= LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId()) %>"
 					cssClass="<%= fieldCssClass %>"
 					defaultLanguageId="<%= defaultLanguageId %>"
 					disabled="<%= disabled %>"
@@ -206,6 +211,16 @@
 					placeholder="<%= placeholder %>"
 					type='<%= type.equals("text") ? "input" : type %>'
 					xml="<%= valueString %>"
+				/>
+			</c:when>
+			<c:when test='<%= type.equals("editor") %>'>
+				<liferay-ui:input-editor
+					contents="<%= valueString %>"
+					contentsLanguageId="<%= languageId %>"
+					cssClass="<%= cssClass %>"
+					editorImpl="ckeditor"
+					name="<%= fieldParam %>"
+					toolbarSet="simple"
 				/>
 			</c:when>
 			<c:when test='<%= type.equals("textarea") %>'>

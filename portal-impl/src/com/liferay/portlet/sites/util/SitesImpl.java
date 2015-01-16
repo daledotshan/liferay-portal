@@ -18,6 +18,7 @@ import com.liferay.portal.RequiredLayoutException;
 import com.liferay.portal.events.EventsProcessorUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.portal.kernel.lar.UserIdStrategy;
 import com.liferay.portal.kernel.log.Log;
@@ -134,9 +135,8 @@ public class SitesImpl implements Sites {
 		UnicodeProperties settingsProperties =
 			layoutSet.getSettingsProperties();
 
-		String mergeFailFriendlyURLLayouts =
-			settingsProperties.getProperty(
-				MERGE_FAIL_FRIENDLY_URL_LAYOUTS, StringPool.BLANK);
+		String mergeFailFriendlyURLLayouts = settingsProperties.getProperty(
+			MERGE_FAIL_FRIENDLY_URL_LAYOUTS, StringPool.BLANK);
 
 		mergeFailFriendlyURLLayouts = StringUtil.add(
 			mergeFailFriendlyURLLayouts, layout.getUuid());
@@ -564,20 +564,25 @@ public class SitesImpl implements Sites {
 
 		LayoutSet layoutSet = layoutSetPrototype.getLayoutSet();
 
+		List<Layout> layoutSetPrototypeLayouts =
+			LayoutLocalServiceUtil.getLayouts(
+				layoutSet.getGroupId(), layoutSet.isPrivateLayout());
+
 		Map<String, String[]> parameterMap = getLayoutSetPrototypeParameters(
 			serviceContext);
 
 		return LayoutLocalServiceUtil.exportLayoutsAsFile(
-			layoutSet.getGroupId(), layoutSet.isPrivateLayout(), null,
+			layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
+			ExportImportHelperUtil.getLayoutIds(layoutSetPrototypeLayouts),
 			parameterMap, null, null);
 	}
 
 	@Override
-	public Long[] filterGroups(List<Group> groups, String[] names) {
-		List<Long> groupIds = new ArrayList<Long>();
+	public Long[] filterGroups(List<Group> groups, String[] groupKeys) {
+		List<Long> groupIds = new ArrayList<>();
 
 		for (Group group : groups) {
-			if (!ArrayUtil.contains(names, group.getName())) {
+			if (!ArrayUtil.contains(groupKeys, group.getGroupKey())) {
 				groupIds.add(group.getGroupId());
 			}
 		}
@@ -616,8 +621,7 @@ public class SitesImpl implements Sites {
 	public Map<String, String[]> getLayoutSetPrototypeParameters(
 		ServiceContext serviceContext) {
 
-		Map<String, String[]> parameterMap =
-			new LinkedHashMap<String, String[]>();
+		Map<String, String[]> parameterMap = new LinkedHashMap<>();
 
 		parameterMap.put(
 			PortletDataHandlerKeys.DATA_STRATEGY,
@@ -752,7 +756,7 @@ public class SitesImpl implements Sites {
 			MERGE_FAIL_FRIENDLY_URL_LAYOUTS);
 
 		if (Validator.isNotNull(uuids)) {
-			List<Layout> layouts = new ArrayList<Layout>();
+			List<Layout> layouts = new ArrayList<>();
 
 			for (String uuid : StringUtil.split(uuids)) {
 				Layout layout =
@@ -1407,10 +1411,9 @@ public class SitesImpl implements Sites {
 			GroupLocalServiceUtil.addGroup(
 				userId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
 				Layout.class.getName(), targetLayout.getPlid(),
-				GroupConstants.DEFAULT_LIVE_GROUP_ID,
-				targetLayout.getName(languageId), null, 0, true,
-				GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null, false,
-				true, null);
+				GroupConstants.DEFAULT_LIVE_GROUP_ID, targetLayout.getNameMap(),
+				null, 0, true, GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION,
+				null, false, true, null);
 		}
 
 		String portletTitle = PortalUtil.getPortletTitle(
@@ -1628,7 +1631,7 @@ public class SitesImpl implements Sites {
 	 * its linked layout set when it is first accessed.
 	 * </p>
 	 *
-	 * @param  layoutSet the site having its timestamp reset
+	 * @param layoutSet the site having its timestamp reset
 	 */
 	protected void doResetPrototype(LayoutSet layoutSet) {
 		UnicodeProperties settingsProperties =
@@ -1645,8 +1648,7 @@ public class SitesImpl implements Sites {
 	protected Map<String, String[]> getLayoutSetPrototypesParameters(
 		boolean importData) {
 
-		Map<String, String[]> parameterMap =
-			new LinkedHashMap<String, String[]>();
+		Map<String, String[]> parameterMap = new LinkedHashMap<>();
 
 		parameterMap.put(
 			PortletDataHandlerKeys.DELETE_MISSING_LAYOUTS,
@@ -1753,7 +1755,7 @@ public class SitesImpl implements Sites {
 
 		File cacheFile = new File(sb.toString());
 
-		if (cacheFile.exists()) {
+		if (cacheFile.exists() && !importData) {
 			Date modifiedDate = layoutSetPrototype.getModifiedDate();
 
 			if (cacheFile.lastModified() >= modifiedDate.getTime()) {
@@ -1770,9 +1772,14 @@ public class SitesImpl implements Sites {
 		boolean newFile = false;
 
 		if (file == null) {
+			List<Layout> layoutSetPrototypeLayouts =
+				LayoutLocalServiceUtil.getLayouts(
+					layoutSetPrototype.getGroupId(), true);
+
 			file = LayoutLocalServiceUtil.exportLayoutsAsFile(
-				layoutSetPrototype.getGroupId(), true, null, parameterMap, null,
-				null);
+				layoutSetPrototype.getGroupId(), true,
+				ExportImportHelperUtil.getLayoutIds(layoutSetPrototypeLayouts),
+				parameterMap, null, null);
 
 			newFile = true;
 		}

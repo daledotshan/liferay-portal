@@ -400,10 +400,10 @@ public class OrganizationServiceUtil {
 	}
 
 	/**
-	* Returns all the organizations associated with the user.
+	* Returns all the organizations directly associated with the user.
 	*
 	* @param userId the primary key of the user
-	* @return the organizations associated with the user
+	* @return the organizations directly associated with the user
 	* @throws PortalException if a user with the primary key could not be found
 	*/
 	public static java.util.List<com.liferay.portal.model.Organization> getUserOrganizations(
@@ -499,8 +499,8 @@ public class OrganizationServiceUtil {
 	the new information was invalid
 	* @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
 	long, String, String, long, long, int, String, boolean,
+	byte[], boolean, java.util.List, java.util.List,
 	java.util.List, java.util.List, java.util.List,
-	java.util.List, java.util.List, boolean, byte[],
 	ServiceContext)}
 	*/
 	@Deprecated
@@ -644,8 +644,8 @@ public class OrganizationServiceUtil {
 	the new information was invalid
 	* @deprecated As of 7.0.0, replaced by {@link #updateOrganization(long,
 	long, String, String, long, long, int, String, boolean,
+	byte[], boolean, java.util.List, java.util.List,
 	java.util.List, java.util.List, java.util.List,
-	java.util.List, java.util.List, boolean, byte[],
 	ServiceContext)}
 	*/
 	@Deprecated

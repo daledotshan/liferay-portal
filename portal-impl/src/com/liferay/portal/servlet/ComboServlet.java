@@ -125,7 +125,7 @@ public class ComboServlet extends HttpServlet {
 			HttpServletRequest request, HttpServletResponse response)
 		throws Exception {
 
-		Set<String> modulePathsSet = new LinkedHashSet<String>();
+		Set<String> modulePathsSet = new LinkedHashSet<>();
 
 		Map<String, String[]> parameterMap = HttpUtil.getParameterMap(
 			request.getQueryString());
@@ -185,6 +185,10 @@ public class ComboServlet extends HttpServlet {
 				PortalUtil.isRightToLeft(request)) {
 
 				modulePathsString += ".rtl";
+			}
+			else if (minifierType.equals("js")) {
+				modulePathsString +=
+					StringPool.POUND + LanguageUtil.getLanguageId(request);
 			}
 
 			bytesArray = _bytesArrayPortalCache.get(modulePathsString);

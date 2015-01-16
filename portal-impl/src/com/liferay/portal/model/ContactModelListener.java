@@ -15,10 +15,11 @@
 package com.liferay.portal.model;
 
 import com.liferay.portal.ModelListenerException;
-import com.liferay.portal.security.ldap.LDAPUserTransactionThreadLocal;
-import com.liferay.portal.security.ldap.PortalLDAPExporterUtil;
+import com.liferay.portal.security.exportimport.UserExporterUtil;
+import com.liferay.portal.security.exportimport.UserImportTransactionThreadLocal;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
+import com.liferay.portal.service.UserLocalServiceUtil;
 
 import java.io.Serializable;
 
@@ -52,7 +53,13 @@ public class ContactModelListener extends BaseModelListener<Contact> {
 	}
 
 	protected void exportToLDAP(Contact contact) throws Exception {
-		if (LDAPUserTransactionThreadLocal.isOriginatesFromLDAP()) {
+		if (UserImportTransactionThreadLocal.isOriginatesFromImport()) {
+			return;
+		}
+
+		User user = UserLocalServiceUtil.fetchUser(contact.getUserId());
+
+		if ((user == null) || user.isDefaultUser()) {
 			return;
 		}
 
@@ -66,7 +73,7 @@ public class ContactModelListener extends BaseModelListener<Contact> {
 				serviceContext.getExpandoBridgeAttributes();
 		}
 
-		PortalLDAPExporterUtil.exportToLDAP(contact, expandoBridgeAttributes);
+		UserExporterUtil.exportUser(contact, expandoBridgeAttributes);
 	}
 
 }
