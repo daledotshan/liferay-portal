@@ -250,7 +250,7 @@ public class ResourceBlockLocalServiceImpl
 		List<ResourceAction> resourceActions =
 			resourceActionLocalService.getResourceActions(name);
 
-		List<String> actionIds = new ArrayList<String>();
+		List<String> actionIds = new ArrayList<>();
 
 		for (ResourceAction resourceAction : resourceActions) {
 			if ((actionIdsLong & resourceAction.getBitwiseValue()) ==
@@ -409,7 +409,7 @@ public class ResourceBlockLocalServiceImpl
 	 * the database or deletes the resource block if the reference count reaches
 	 * zero.
 	 *
-	 * @param  resourceBlockId the primary key of the resource block
+	 * @param resourceBlockId the primary key of the resource block
 	 */
 	@Override
 	@Transactional(
@@ -464,7 +464,7 @@ public class ResourceBlockLocalServiceImpl
 	 * the database or deletes the resource block if the reference count reaches
 	 * zero.
 	 *
-	 * @param  resourceBlock the resource block
+	 * @param resourceBlock the resource block
 	 */
 	@Override
 	@Transactional(
@@ -734,11 +734,6 @@ public class ResourceBlockLocalServiceImpl
 			updateCompanyScopeResourceTypePermissions(
 				companyId, name, roleId, actionIdsLong, operator);
 
-		List<ResourceBlock> resourceBlocks = resourceBlockPersistence.findByC_N(
-			companyId, name);
-
-		updatePermissions(resourceBlocks, roleId, actionIdsLong, operator);
-
 		PermissionCacheUtil.clearCache();
 	}
 
@@ -750,11 +745,6 @@ public class ResourceBlockLocalServiceImpl
 		resourceTypePermissionLocalService.
 			updateGroupScopeResourceTypePermissions(
 				companyId, groupId, name, roleId, actionIdsLong, operator);
-
-		List<ResourceBlock> resourceBlocks =
-			resourceBlockPersistence.findByC_G_N(companyId, groupId, name);
-
-		updatePermissions(resourceBlocks, roleId, actionIdsLong, operator);
 
 		PermissionCacheUtil.clearCache();
 	}
@@ -1043,18 +1033,15 @@ public class ResourceBlockLocalServiceImpl
 	}
 
 	private static final String _DELETE_RESOURCE_BLOCK =
-		ResourceBlockLocalServiceImpl.class.getName() +
-			".deleteResourceBlock";
+		ResourceBlockLocalServiceImpl.class.getName() + ".deleteResourceBlock";
 
 	private static final String _RELEASE_RESOURCE_BLOCK =
-		ResourceBlockLocalServiceImpl.class.getName() +
-			".releaseResourceBlock";
+		ResourceBlockLocalServiceImpl.class.getName() + ".releaseResourceBlock";
 
 	private static final String _RETAIN_RESOURCE_BLOCK =
-		ResourceBlockLocalServiceImpl.class.getName() +
-			".retainResourceBlock";
+		ResourceBlockLocalServiceImpl.class.getName() + ".retainResourceBlock";
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		ResourceBlockLocalServiceImpl.class);
 
 }

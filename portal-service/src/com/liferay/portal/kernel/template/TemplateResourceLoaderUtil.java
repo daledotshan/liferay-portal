@@ -149,8 +149,7 @@ public class TemplateResourceLoaderUtil {
 		return templateResourceLoader;
 	}
 
-	private static Map<String, TemplateResourceLoader>
-		_templateResourceLoaders =
-			new ConcurrentHashMap<String, TemplateResourceLoader>();
+	private static final Map<String, TemplateResourceLoader>
+		_templateResourceLoaders = new ConcurrentHashMap<>();
 
 }

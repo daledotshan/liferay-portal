@@ -118,8 +118,7 @@ public class BasicRegistryImpl implements Registry {
 			String className, String filterString)
 		throws Exception {
 
-		List<ServiceReference<T>> serviceReferences =
-			new ArrayList<ServiceReference<T>>();
+		List<ServiceReference<T>> serviceReferences = new ArrayList<>();
 
 		Filter filter = new BasicFilter(filterString);
 
@@ -147,7 +146,7 @@ public class BasicRegistryImpl implements Registry {
 	public <T> T[] getServices(String className, String filterString)
 		throws Exception {
 
-		List<T> services = new ArrayList<T>();
+		List<T> services = new ArrayList<>();
 
 		Filter filter = new BasicFilter(filterString);
 
@@ -246,7 +245,7 @@ public class BasicRegistryImpl implements Registry {
 			throw new IllegalArgumentException();
 		}
 
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 
 		properties.put("objectClass", classNames);
 
@@ -432,11 +431,11 @@ public class BasicRegistryImpl implements Registry {
 		}
 	}
 
-	private AtomicLong _serviceIdCounter = new AtomicLong();
-	private Map<ServiceReference<?>, Object> _services =
-		new ConcurrentSkipListMap<ServiceReference<?>, Object>();
-	private Map<ServiceTracker<?, ?>, Filter> _serviceTrackers =
-		new ConcurrentHashMap<ServiceTracker<?, ?>, Filter>();
+	private final AtomicLong _serviceIdCounter = new AtomicLong();
+	private final Map<ServiceReference<?>, Object> _services =
+		new ConcurrentSkipListMap<>();
+	private final Map<ServiceTracker<?, ?>, Filter> _serviceTrackers =
+		new ConcurrentHashMap<>();
 
 	private class BasicFilter implements Filter {
 
@@ -482,7 +481,7 @@ public class BasicRegistryImpl implements Registry {
 			_properties.put("service.id", id);
 			_properties.put("service.ranking", ranking);
 
-			List<String> classNames = new ArrayList<String>();
+			List<String> classNames = new ArrayList<>();
 
 			classNames.add(className);
 			classNames.addAll(StringPlus.asList(properties.get("objectClass")));
@@ -600,7 +599,8 @@ public class BasicRegistryImpl implements Registry {
 			return stringBuilder.toString();
 		}
 
-		private Map<String, Object> _properties = new LowerCaseKeyTreeMap();
+		private final Map<String, Object> _properties =
+			new LowerCaseKeyTreeMap();
 
 	}
 
@@ -632,7 +632,7 @@ public class BasicRegistryImpl implements Registry {
 			_removedService(_basicServiceReference);
 		}
 
-		private BasicServiceReference<S> _basicServiceReference;
+		private final BasicServiceReference<S> _basicServiceReference;
 
 	}
 
@@ -846,18 +846,14 @@ public class BasicRegistryImpl implements Registry {
 
 		private volatile CountDownLatch _countDownLatch = new CountDownLatch(1);
 		private Filter _filter;
-		private ServiceTrackerCustomizer<S, T> _serviceTrackerCustomizer;
-		private AtomicInteger _stateCounter = new AtomicInteger();
-		private NavigableMap<ServiceReference<S>, T> _trackedServices =
-			new ConcurrentSkipListMap<ServiceReference<S>, T>();
+		private final ServiceTrackerCustomizer<S, T> _serviceTrackerCustomizer;
+		private final AtomicInteger _stateCounter = new AtomicInteger();
+		private final NavigableMap<ServiceReference<S>, T> _trackedServices =
+			new ConcurrentSkipListMap<>();
 
 	}
 
 	private class LowerCaseKeyTreeMap extends TreeMap<String, Object> {
-
-		public LowerCaseKeyTreeMap() {
-			super();
-		}
 
 		@Override
 		public Object put(String key, Object value) {

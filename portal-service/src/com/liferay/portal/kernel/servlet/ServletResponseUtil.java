@@ -77,7 +77,7 @@ public class ServletResponseUtil {
 					rangeString);
 		}
 
-		List<Range> ranges = new ArrayList<Range>();
+		List<Range> ranges = new ArrayList<>();
 
 		String[] rangeFields = StringUtil.split(rangeString.substring(6));
 
@@ -563,7 +563,8 @@ public class ServletResponseUtil {
 		}
 
 		if (contentLength > 0) {
-			response.setContentLength((int)contentLength);
+			response.setHeader(
+				HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
 		}
 
 		response.flushBuffer();
@@ -742,6 +743,7 @@ public class ServletResponseUtil {
 	private static final String _RANGE_REGEX =
 		"^bytes=\\d*-\\d*(,\\s?\\d*-\\d*)*$";
 
-	private static Log _log = LogFactoryUtil.getLog(ServletResponseUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ServletResponseUtil.class);
 
 }

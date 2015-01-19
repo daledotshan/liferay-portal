@@ -61,7 +61,7 @@ public class CreoleWikiEngine implements WikiEngine {
 	public Map<String, Boolean> getOutgoingLinks(WikiPage page)
 		throws PageContentException {
 
-		Map<String, Boolean> outgoingLinks = new HashMap<String, Boolean>();
+		Map<String, Boolean> outgoingLinks = new HashMap<>();
 
 		LinkNodeCollectorVisitor linkNodeCollectorVisitor =
 			new LinkNodeCollectorVisitor();
@@ -140,6 +140,7 @@ public class CreoleWikiEngine implements WikiEngine {
 		return creole10Parser.getWikiPageNode();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(CreoleWikiEngine.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		CreoleWikiEngine.class);
 
 }

@@ -401,8 +401,7 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 				null, null, null, 0, max);
 		}
 
-		LinkedHashMap<String, Object> params =
-			new LinkedHashMap<String, Object>();
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
 
 		List<Organization> userOrganizations =
 			organizationLocalService.getUserOrganizations(
@@ -560,10 +559,10 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	}
 
 	/**
-	 * Returns all the organizations associated with the user.
+	 * Returns all the organizations directly associated with the user.
 	 *
 	 * @param  userId the primary key of the user
-	 * @return the organizations associated with the user
+	 * @return the organizations directly associated with the user
 	 * @throws PortalException if a user with the primary key could not be found
 	 */
 	@Override
@@ -670,8 +669,8 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 *             the new information was invalid
 	 * @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
 	 *             long, String, String, long, long, int, String, boolean,
+	 *             byte[], boolean, java.util.List, java.util.List,
 	 *             java.util.List, java.util.List, java.util.List,
-	 *             java.util.List, java.util.List, boolean, byte[],
 	 *             ServiceContext)}
 	 */
 	@Deprecated
@@ -877,8 +876,8 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 	 *             the new information was invalid
 	 * @deprecated As of 7.0.0, replaced by {@link #updateOrganization(long,
 	 *             long, String, String, long, long, int, String, boolean,
+	 *             byte[], boolean, java.util.List, java.util.List,
 	 *             java.util.List, java.util.List, java.util.List,
-	 *             java.util.List, java.util.List, boolean, byte[],
 	 *             ServiceContext)}
 	 */
 	@Deprecated

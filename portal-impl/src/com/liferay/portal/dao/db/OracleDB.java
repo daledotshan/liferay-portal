@@ -102,7 +102,7 @@ public class OracleDB extends BaseDB {
 
 	@Override
 	public List<Index> getIndexes(Connection con) throws SQLException {
-		List<Index> indexes = new ArrayList<Index>();
+		List<Index> indexes = new ArrayList<>();
 
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -305,9 +305,9 @@ public class OracleDB extends BaseDB {
 
 	private static final boolean _SUPPORTS_INLINE_DISTINCT = false;
 
-	private static OracleDB _instance = new OracleDB();
+	private static final OracleDB _instance = new OracleDB();
 
-	private static Pattern _varcharPattern = Pattern.compile(
+	private static final Pattern _varcharPattern = Pattern.compile(
 		"VARCHAR\\((\\d+)\\)");
 
 }

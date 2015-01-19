@@ -82,7 +82,6 @@ import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutBranch;
 import com.liferay.portal.model.LayoutRevision;
-import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.Lock;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.StagedModel;
@@ -102,7 +101,6 @@ import com.liferay.portal.service.LayoutBranchLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutRevisionLocalServiceUtil;
 import com.liferay.portal.service.LayoutServiceUtil;
-import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.LockLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
@@ -207,9 +205,9 @@ public class StagingImpl implements Staging {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link StagingLocalServiceUtil#
-	 *             checkDefaultLayoutSetBranches(long, Group, boolean, boolean,
-	 *             boolean, ServiceContext))}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             StagingLocalServiceUtil#checkDefaultLayoutSetBranches(long,
+	 *             Group, boolean, boolean, boolean, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -388,7 +386,7 @@ public class StagingImpl implements Staging {
 			UnicodeProperties typeSettingsProperties =
 				layout.getTypeSettingsProperties();
 
-			Set<String> keys = new HashSet<String>();
+			Set<String> keys = new HashSet<>();
 
 			for (String key : typeSettingsProperties.keySet()) {
 				if (key.startsWith("last-import-")) {
@@ -862,16 +860,6 @@ public class StagingImpl implements Staging {
 				locale, "please-import-a-lar-file-for-the-current-portlet");
 			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
 		}
-		else if (e instanceof RemoteExportException) {
-			RemoteExportException ree = (RemoteExportException)e;
-
-			if (ree.getType() == RemoteExportException.NO_LAYOUTS) {
-				errorMessage = LanguageUtil.get(
-					locale, "no-pages-are-selected-for-export");
-			}
-
-			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
-		}
 		else {
 			errorMessage = e.getLocalizedMessage();
 			errorType = ServletResponseConstants.SC_FILE_CUSTOM_EXCEPTION;
@@ -1016,8 +1004,7 @@ public class StagingImpl implements Staging {
 
 	@Override
 	public Map<String, String[]> getStagingParameters() {
-		Map<String, String[]> parameterMap =
-			new LinkedHashMap<String, String[]>();
+		Map<String, String[]> parameterMap = new LinkedHashMap<>();
 
 		parameterMap.put(
 			PortletDataHandlerKeys.DATA_STRATEGY,
@@ -1080,9 +1067,8 @@ public class StagingImpl implements Staging {
 	public Map<String, String[]> getStagingParameters(
 		PortletRequest portletRequest) {
 
-		Map<String, String[]> parameterMap =
-			new LinkedHashMap<String, String[]>(
-				portletRequest.getParameterMap());
+		Map<String, String[]> parameterMap = new LinkedHashMap<>(
+			portletRequest.getParameterMap());
 
 		if (!parameterMap.containsKey(PortletDataHandlerKeys.DATA_STRATEGY)) {
 			parameterMap.put(
@@ -1325,7 +1311,7 @@ public class StagingImpl implements Staging {
 
 		Layout layout = LayoutLocalServiceUtil.getLayout(plid);
 
-		List<Layout> layouts = new ArrayList<Layout>();
+		List<Layout> layouts = new ArrayList<>();
 
 		layouts.add(layout);
 
@@ -1350,8 +1336,7 @@ public class StagingImpl implements Staging {
 			long userId, ExportImportConfiguration exportImportConfiguration)
 		throws PortalException {
 
-		Map<String, Serializable> taskContextMap =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> taskContextMap = new HashMap<>();
 
 		taskContextMap.put(Constants.CMD, Constants.PUBLISH_TO_LIVE);
 		taskContextMap.put(
@@ -1431,8 +1416,12 @@ public class StagingImpl implements Staging {
 			Date startDate, Date endDate)
 		throws PortalException {
 
+		List<Layout> sourceGroupLayouts = LayoutLocalServiceUtil.getLayouts(
+			sourceGroupId, privateLayout);
+
 		publishLayouts(
-			userId, sourceGroupId, targetGroupId, privateLayout, (long[])null,
+			userId, sourceGroupId, targetGroupId, privateLayout,
+			ExportImportHelperUtil.getLayoutIds(sourceGroupLayouts),
 			parameterMap, startDate, endDate);
 	}
 
@@ -1757,55 +1746,34 @@ public class StagingImpl implements Staging {
 		layout.setTypeSettingsProperties(typeSettingsProperties);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             ExportImportDateUtil#updateLastPublishDate(long, boolean,
+	 *             DateRange, Date)}
+	 */
+	@Deprecated
 	@Override
 	public void updateLastPublishDate(
 			long groupId, boolean privateLayout, Date lastPublishDate)
 		throws PortalException {
 
-		if (lastPublishDate == null) {
-			lastPublishDate = new Date();
-		}
-
-		LayoutSet layoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
-			groupId, privateLayout);
-
-		UnicodeProperties settingsProperties =
-			layoutSet.getSettingsProperties();
-
-		settingsProperties.setProperty(
-			"last-publish-date", String.valueOf(lastPublishDate.getTime()));
-
-		LayoutSetLocalServiceUtil.updateSettings(
-			layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
-			settingsProperties.toString());
+		ExportImportDateUtil.updateLastPublishDate(
+			groupId, privateLayout, null, lastPublishDate);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             ExportImportDateUtil#updateLastPublishDate(String,
+	 *             PortletPreferences, DateRange, Date)}
+	 */
+	@Deprecated
 	@Override
 	public void updateLastPublishDate(
 		String portletId, PortletPreferences portletPreferences,
 		Date lastPublishDate) {
 
-		if (lastPublishDate == null) {
-			lastPublishDate = new Date();
-		}
-
-		try {
-			portletPreferences.setValue(
-				"last-publish-date", String.valueOf(lastPublishDate.getTime()));
-
-			portletPreferences.store();
-		}
-		catch (UnsupportedOperationException uoe) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"Not updating the portlet setup for " + portletId +
-						" because no setup was returned for the current " +
-							"page");
-			}
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
+		ExportImportDateUtil.updateLastPublishDate(
+			portletId, portletPreferences, null, lastPublishDate);
 	}
 
 	@Override
@@ -1832,9 +1800,13 @@ public class StagingImpl implements Staging {
 			portletRequest, liveGroup, "branchingPublic");
 		boolean branchingPrivate = getBoolean(
 			portletRequest, liveGroup, "branchingPrivate");
+		boolean forceDisable = ParamUtil.getBoolean(
+			portletRequest, "forceDisable");
 
 		ServiceContext serviceContext =
 			ServiceContextThreadLocal.getServiceContext();
+
+		serviceContext.setAttribute("forceDisable", forceDisable);
 
 		if (stagingType == StagingConstants.TYPE_NOT_STAGED) {
 			if (liveGroup.hasStagingGroup() || liveGroup.isStagedRemotely()) {
@@ -1941,8 +1913,7 @@ public class StagingImpl implements Staging {
 			boolean secureConnection, boolean remotePrivateLayout)
 		throws PortalException {
 
-		Map<String, Serializable> taskContextMap =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> taskContextMap = new HashMap<>();
 
 		taskContextMap.put(Constants.CMD, Constants.PUBLISH_TO_REMOTE);
 		taskContextMap.put(
@@ -2436,6 +2407,6 @@ public class StagingImpl implements Staging {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(StagingImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(StagingImpl.class);
 
 }

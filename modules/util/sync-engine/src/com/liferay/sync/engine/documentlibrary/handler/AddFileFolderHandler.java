@@ -35,7 +35,7 @@ public class AddFileFolderHandler extends BaseJSONHandler {
 	}
 
 	@Override
-	protected boolean handlePortalException(String exception) throws Exception {
+	public boolean handlePortalException(String exception) throws Exception {
 		if (exception.equals(
 				"com.liferay.sync.SyncDLObjectChecksumException")) {
 
@@ -55,7 +55,7 @@ public class AddFileFolderHandler extends BaseJSONHandler {
 	}
 
 	@Override
-	protected void processResponse(String response) throws Exception {
+	public void processResponse(String response) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		SyncFile remoteSyncFile = objectMapper.readValue(
@@ -84,7 +84,7 @@ public class AddFileFolderHandler extends BaseJSONHandler {
 		SyncFileService.update(localSyncFile);
 	}
 
-	private static Logger _logger = LoggerFactory.getLogger(
+	private static final Logger _logger = LoggerFactory.getLogger(
 		AddFileFolderHandler.class);
 
 }

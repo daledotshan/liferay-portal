@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
-import com.liferay.portal.kernel.servlet.PluginContextListener;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
@@ -266,9 +265,7 @@ public class RuntimePageImpl implements RuntimePage {
 				pluginServletContextName);
 
 			if (pluginServletContext != null) {
-				pluginClassLoader =
-					(ClassLoader)pluginServletContext.getAttribute(
-						PluginContextListener.PLUGIN_CLASS_LOADER);
+				pluginClassLoader = pluginServletContext.getClassLoader();
 			}
 		}
 
@@ -379,8 +376,7 @@ public class RuntimePageImpl implements RuntimePage {
 
 		Lock lock = null;
 
-		Map<String, StringBundler> contentsMap =
-			new HashMap<String, StringBundler>();
+		Map<String, StringBundler> contentsMap = new HashMap<>();
 
 		Map<Integer, List<PortletRenderer>> portletRenderersMap =
 			processor.getPortletRenderers();
@@ -521,9 +517,8 @@ public class RuntimePageImpl implements RuntimePage {
 			PortalExecutorManagerUtil.getPortalExecutor(
 				RuntimePageImpl.class.getName());
 
-		Map<Future<StringBundler>, PortletRenderer> futures =
-			new HashMap<Future<StringBundler>, PortletRenderer>(
-				portletRenderers.size());
+		Map<Future<StringBundler>, PortletRenderer> futures = new HashMap<>(
+			portletRenderers.size());
 
 		for (PortletRenderer portletRenderer : portletRenderers) {
 			if (_log.isDebugEnabled()) {
@@ -676,7 +671,8 @@ public class RuntimePageImpl implements RuntimePage {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(RuntimePageImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		RuntimePageImpl.class);
 
 	private int _waitTime = Integer.MAX_VALUE;
 
