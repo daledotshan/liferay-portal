@@ -131,7 +131,7 @@ public class ActionCommandCache {
 			return actionCommands;
 		}
 
-		actionCommands = new ArrayList<ActionCommand>();
+		actionCommands = new ArrayList<>();
 
 		String[] actionCommandNames = StringUtil.split(actionCommandChain);
 
@@ -160,14 +160,15 @@ public class ActionCommandCache {
 
 	private static final String _ACTION_COMMAND_POSTFIX = "ActionCommand";
 
-	private static Log _log = LogFactoryUtil.getLog(ActionCommandCache.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ActionCommandCache.class);
 
-	private Map<String, ActionCommand> _actionCommandCache =
-		new ConcurrentHashMap<String, ActionCommand>();
-	private Map<String, List<ActionCommand>> _actionCommandChainCache =
-		new ConcurrentHashMap<String, List<ActionCommand>>();
-	private String _packagePrefix;
-	private ServiceTracker<ActionCommand, ActionCommand> _serviceTracker;
+	private final Map<String, ActionCommand> _actionCommandCache =
+		new ConcurrentHashMap<>();
+	private final Map<String, List<ActionCommand>> _actionCommandChainCache =
+		new ConcurrentHashMap<>();
+	private final String _packagePrefix;
+	private final ServiceTracker<ActionCommand, ActionCommand> _serviceTracker;
 
 	private class ActionCommandServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer<ActionCommand, ActionCommand> {

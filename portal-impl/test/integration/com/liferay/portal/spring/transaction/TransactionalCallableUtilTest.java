@@ -16,25 +16,30 @@ package com.liferay.portal.spring.transaction;
 
 import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.util.PwdGenerator;
 import com.liferay.portal.model.ClassName;
 import com.liferay.portal.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.service.persistence.ClassNameUtil;
-import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
-import com.liferay.util.PwdGenerator;
+import com.liferay.portal.test.LiferayIntegrationTestRule;
 
 import java.util.concurrent.Callable;
 
 import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.transaction.interceptor.TransactionAttribute;
 
 /**
  * @author Shuyang Zhou
  */
-@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class TransactionalCallableUtilTest {
+
+	@ClassRule
+	@Rule
+	public static final LiferayIntegrationTestRule liferayIntegrationTestRule =
+		new LiferayIntegrationTestRule();
 
 	@Test
 	public void testCommit() throws Throwable {
@@ -110,7 +115,7 @@ public class TransactionalCallableUtilTest {
 		}
 	}
 
-	private TransactionAttribute _transactionAttribute =
+	private final TransactionAttribute _transactionAttribute =
 		TransactionAttributeBuilder.build(
 			Propagation.REQUIRED, new Class<?>[] {Exception.class});
 

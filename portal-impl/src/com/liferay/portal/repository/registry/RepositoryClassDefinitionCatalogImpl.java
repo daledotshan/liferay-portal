@@ -121,19 +121,6 @@ public class RepositoryClassDefinitionCatalogImpl
 		unregisterRepositoryDefiner(className);
 	}
 
-	protected RepositoryClassDefinition createRepositoryClassDefinition(
-		RepositoryDefiner repositoryDefiner) {
-
-		RepositoryClassDefinition repositoryClassDefinition =
-			new RepositoryClassDefinition(repositoryDefiner);
-
-		repositoryDefiner.registerRepositoryFactory(repositoryClassDefinition);
-		repositoryDefiner.registerRepositoryEventListeners(
-			repositoryClassDefinition);
-
-		return repositoryClassDefinition;
-	}
-
 	protected ServiceRegistration<RepositoryDefiner>
 		registerRepositoryDefiner(
 			RepositoryDefiner repositoryDefiner) {
@@ -150,15 +137,14 @@ public class RepositoryClassDefinitionCatalogImpl
 		_repositoryClassDefinitions.remove(className);
 	}
 
-	private Set<String> _externalRepositoriesClassNames =
-		new ConcurrentHashSet<String>();
+	private final Set<String> _externalRepositoriesClassNames =
+		new ConcurrentHashSet<>();
 	private RepositoryFactory _legacyExternalRepositoryFactory;
-	private Map<String, RepositoryClassDefinition> _repositoryClassDefinitions =
-		new ConcurrentHashMap<String, RepositoryClassDefinition>();
+	private final Map<String, RepositoryClassDefinition>
+		_repositoryClassDefinitions = new ConcurrentHashMap<>();
 	private List<RepositoryDefiner> _repositoryDefiners;
-	private StringServiceRegistrationMap<RepositoryDefiner>
-		_serviceRegistrations =
-			new StringServiceRegistrationMap<RepositoryDefiner>();
+	private final StringServiceRegistrationMap<RepositoryDefiner>
+		_serviceRegistrations = new StringServiceRegistrationMap<>();
 	private ServiceTracker<RepositoryDefiner, RepositoryDefiner>
 		_serviceTracker;
 
@@ -182,7 +168,9 @@ public class RepositoryClassDefinitionCatalogImpl
 			}
 
 			_repositoryClassDefinitions.put(
-				className, createRepositoryClassDefinition(repositoryDefiner));
+				className,
+				RepositoryClassDefinition.fromRepositoryDefiner(
+					repositoryDefiner));
 
 			return repositoryDefiner;
 		}
@@ -203,7 +191,8 @@ public class RepositoryClassDefinitionCatalogImpl
 
 			_repositoryClassDefinitions.put(
 				repositoryDefiner.getClassName(),
-				createRepositoryClassDefinition(repositoryDefiner));
+				RepositoryClassDefinition.fromRepositoryDefiner(
+					repositoryDefiner));
 		}
 
 		@Override

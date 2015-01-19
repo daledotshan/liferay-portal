@@ -38,8 +38,8 @@ import org.junit.Test;
 public class BigEndianCodecTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Test
 	public void testBoolean() {
@@ -278,6 +278,6 @@ public class BigEndianCodecTest {
 
 	private static final int _COUNT = 1024;
 
-	private Random _random = new Random();
+	private final Random _random = new Random();
 
 }

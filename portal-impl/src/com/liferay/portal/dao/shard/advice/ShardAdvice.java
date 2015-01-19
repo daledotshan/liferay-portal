@@ -60,7 +60,7 @@ public class ShardAdvice {
 	public String getCompanyShardName(
 		String webId, String virtualHostname, String mx, String shardName) {
 
-		Map<String, String> shardParams = new HashMap<String, String>();
+		Map<String, String> shardParams = new HashMap<>();
 
 		shardParams.put("webId", webId);
 		shardParams.put("mx", mx);
@@ -195,7 +195,7 @@ public class ShardAdvice {
 		return shardName;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ShardAdvice.class);
+	private static final Log _log = LogFactoryUtil.getLog(ShardAdvice.class);
 
 	private static final ThreadLocal<Stack<String>> _companyServiceStack =
 		new ThreadLocal<Stack<String>>();

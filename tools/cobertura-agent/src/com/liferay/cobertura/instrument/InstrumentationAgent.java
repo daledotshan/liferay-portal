@@ -30,6 +30,7 @@ import net.sourceforge.cobertura.coveragedata.CoverageData;
 import net.sourceforge.cobertura.coveragedata.CoverageDataFileHandler;
 import net.sourceforge.cobertura.coveragedata.LineData;
 import net.sourceforge.cobertura.coveragedata.ProjectData;
+import net.sourceforge.cobertura.coveragedata.TouchCollector;
 
 /**
  * @author Shuyang Zhou
@@ -43,11 +44,12 @@ public class InstrumentationAgent {
 			return;
 		}
 
-		File dataFile = CoverageDataFileHandler.getDefaultDataFile();
+		_instrumentation.removeTransformer(_coberturaClassFileTransformer);
+
+		_coberturaClassFileTransformer = null;
 
 		try {
-			ProjectData projectData = ProjectDataUtil.captureProjectData(
-				dataFile, _lockFile);
+			ProjectData projectData = ProjectDataUtil.captureProjectData();
 
 			for (Class<?> clazz : classes) {
 				ClassData classData = projectData.getClassData(clazz.getName());
@@ -74,20 +76,14 @@ public class InstrumentationAgent {
 			}
 		}
 		finally {
-			System.clearProperty("cobertura.parent.dynamically.instrumented");
 			System.clearProperty("junit.code.coverage");
 
 			_dynamicallyInstrumented = false;
 
-			_instrumentation.removeTransformer(_coberturaClassFileTransformer);
-
-			_coberturaClassFileTransformer = null;
-
 			if (_originalClassDefinitions != null) {
 				try {
-					List<ClassDefinition> classDefinitions =
-						new ArrayList<ClassDefinition>(
-							_originalClassDefinitions.size());
+					List<ClassDefinition> classDefinitions = new ArrayList<>(
+						_originalClassDefinitions.size());
 
 					for (int i = 0; i < _originalClassDefinitions.size(); i++) {
 						OriginalClassDefinition originalClassDefinition =
@@ -133,14 +129,14 @@ public class InstrumentationAgent {
 
 		if (_coberturaClassFileTransformer == null) {
 			_coberturaClassFileTransformer = new CoberturaClassFileTransformer(
-				includes, excludes, _lockFile);
+				includes, excludes);
 		}
 
 		_instrumentation.addTransformer(_coberturaClassFileTransformer, true);
 
 		Class<?>[] allLoadedClasses =_instrumentation.getAllLoadedClasses();
 
-		List<Class<?>> modifiableClasses = new ArrayList<Class<?>>();
+		List<Class<?>> modifiableClasses = new ArrayList<>();
 
 		for (Class<?> loadedClass : allLoadedClasses) {
 			if (_instrumentation.isModifiableClass(loadedClass)) {
@@ -154,40 +150,25 @@ public class InstrumentationAgent {
 			}
 		}
 
-		if (!modifiableClasses.isEmpty()) {
-			_instrumentation.retransformClasses(
-				modifiableClasses.toArray(
-					new Class<?>[modifiableClasses.size()]));
-		}
+		// See LPS-52161
+
+		modifiableClasses.add(TouchCollector.class);
+
+		_instrumentation.retransformClasses(
+			modifiableClasses.toArray(new Class<?>[modifiableClasses.size()]));
 
 		_dynamicallyInstrumented = true;
 		_originalClassDefinitions = null;
 
-		System.setProperty("cobertura.parent.dynamically.instrumented", "true");
 		System.setProperty("junit.code.coverage", "true");
 	}
 
-	public static void initialize() {
-		ProjectDataUtil.addShutdownHook(
-			new Runnable() {
-
-				@Override
-				public void run() {
-					File dataFile =
-						CoverageDataFileHandler.getDefaultDataFile();
-
-					ProjectData projectData =
-						ProjectDataUtil.collectProjectData();
-
-					ProjectDataUtil.mergeSave(dataFile, _lockFile, projectData);
-				}
-
-			}
-		);
+	public static File getLockFile() {
+		return _lockFile;
 	}
 
-	public static boolean isStaticallyInstrumented() {
-		return _staticallyInstrumented;
+	public static void initialize() {
+		ProjectDataUtil.addMergeHook();
 	}
 
 	public static synchronized void premain(
@@ -198,22 +179,23 @@ public class InstrumentationAgent {
 		String[] includes = arguments[0].split(",");
 		String[] excludes = arguments[1].split(",");
 
-		boolean coberturaParentDynamicallyInstrumented = Boolean.getBoolean(
-			"cobertura.parent.dynamically.instrumented");
-		boolean junitCodeCoverage = Boolean.getBoolean("junit.code.coverage");
-
-		// A subprocess is only considered as statically instrumented when it is
-		// configured as such and its parent is not dynamically instrumented
-
-		_staticallyInstrumented =
-			!coberturaParentDynamicallyInstrumented && junitCodeCoverage;
-
-		if (junitCodeCoverage) {
-			CoberturaClassFileTransformer coberturaClassFileTransformer =
-				new CoberturaClassFileTransformer(
-					includes, excludes, _lockFile);
+		if (Boolean.getBoolean("junit.code.coverage")) {
+			final CoberturaClassFileTransformer coberturaClassFileTransformer =
+				new CoberturaClassFileTransformer(includes, excludes);
 
 			instrumentation.addTransformer(coberturaClassFileTransformer);
+
+			Runtime runtime = Runtime.getRuntime();
+
+			runtime.addShutdownHook(
+				new Thread() {
+
+					@Override
+					public void run() {
+						ProjectDataUtil.runMergeHooks();
+					}
+
+				});
 		}
 		else if (instrumentation.isRedefineClassesSupported() &&
 				 instrumentation.isRetransformClassesSupported()) {
@@ -266,8 +248,7 @@ public class InstrumentationAgent {
 		}
 
 		if (_originalClassDefinitions == null) {
-			_originalClassDefinitions =
-				new ArrayList<OriginalClassDefinition>();
+			_originalClassDefinitions = new ArrayList<>();
 		}
 
 		OriginalClassDefinition originalClassDefinition =
@@ -279,7 +260,7 @@ public class InstrumentationAgent {
 	private static void _assertClassDataCoverage(
 		Class<?> clazz, ClassData classData) {
 
-		if (clazz.isSynthetic()) {
+		if (clazz.isInterface() || clazz.isSynthetic()) {
 			return;
 		}
 
@@ -330,9 +311,8 @@ public class InstrumentationAgent {
 	private static String[] _excludes;
 	private static String[] _includes;
 	private static Instrumentation _instrumentation;
-	private static File _lockFile;
+	private static final File _lockFile;
 	private static List<OriginalClassDefinition> _originalClassDefinitions;
-	private static boolean _staticallyInstrumented;
 
 	static {
 		File dataFile = CoverageDataFileHandler.getDefaultDataFile();

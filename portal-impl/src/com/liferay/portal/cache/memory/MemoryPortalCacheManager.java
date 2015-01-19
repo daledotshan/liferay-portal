@@ -40,6 +40,19 @@ import java.util.concurrent.ConcurrentMap;
 public class MemoryPortalCacheManager<K extends Serializable, V>
 	extends AbstractPortalCacheManager<K, V> {
 
+	public static <K extends Serializable, V> MemoryPortalCacheManager<K, V>
+		createMemoryPortalCacheManager(String name) {
+
+		MemoryPortalCacheManager<K, V> memoryPortalCacheManager =
+			new MemoryPortalCacheManager<K, V>();
+
+		memoryPortalCacheManager.setName(name);
+
+		memoryPortalCacheManager.afterPropertiesSet();
+
+		return memoryPortalCacheManager;
+	}
+
 	@Override
 	public String getName() {
 		return _name;
@@ -131,8 +144,7 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 					ClusterLinkCallbackFactory.INSTANCE, new Properties());
 
 			Map<CallbackConfiguration, CacheListenerScope>
-				cacheListenerConfigurations =
-					new HashMap<CallbackConfiguration, CacheListenerScope>();
+				cacheListenerConfigurations = new HashMap<>();
 
 			cacheListenerConfigurations.put(
 				cacheListenerConfiguration, CacheListenerScope.ALL);
@@ -157,9 +169,8 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 			throw new NullPointerException("Name is null");
 		}
 
-		_memoryPortalCaches =
-			new ConcurrentHashMap<String, MemoryPortalCache<K, V>>(
-				_cacheManagerInitialCapacity);
+		_memoryPortalCaches = new ConcurrentHashMap<>(
+			_cacheManagerInitialCapacity);
 
 		aggregatedCacheManagerListener.init();
 	}
