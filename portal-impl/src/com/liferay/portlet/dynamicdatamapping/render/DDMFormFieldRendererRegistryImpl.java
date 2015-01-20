@@ -75,11 +75,11 @@ public class DDMFormFieldRendererRegistryImpl
 		_serviceRegistrations.put(ddmFormFieldRenderer, serviceRegistration);
 	}
 
-	private Map<String, List<DDMFormFieldRenderer>> _ddmFormFieldRenderersMap =
-		new HashMap<String, List<DDMFormFieldRenderer>>();
-	private ServiceRegistrationMap<DDMFormFieldRenderer> _serviceRegistrations =
-		new ServiceRegistrationMap<DDMFormFieldRenderer>();
-	private ServiceTracker<DDMFormFieldRenderer, DDMFormFieldRenderer>
+	private final Map<String, List<DDMFormFieldRenderer>>
+		_ddmFormFieldRenderersMap = new HashMap<>();
+	private final ServiceRegistrationMap<DDMFormFieldRenderer>
+		_serviceRegistrations = new ServiceRegistrationMap<>();
+	private final ServiceTracker<DDMFormFieldRenderer, DDMFormFieldRenderer>
 		_serviceTracker;
 
 	private class DDMFormFieldRendererServiceTrackerCustomizer
@@ -103,8 +103,7 @@ public class DDMFormFieldRendererRegistryImpl
 					_ddmFormFieldRenderersMap.get(supportedDDMFormFieldType);
 
 				if (ddmFormFieldRenderers == null) {
-					ddmFormFieldRenderers =
-						new ArrayList<DDMFormFieldRenderer>();
+					ddmFormFieldRenderers = new ArrayList<>();
 
 					_ddmFormFieldRenderersMap.put(
 						supportedDDMFormFieldType, ddmFormFieldRenderers);

@@ -15,6 +15,7 @@
 package com.liferay.portal.xml;
 
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.security.xml.SecureXMLFactoryProviderUtil;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -47,16 +48,16 @@ public class StAXReaderUtil {
 	}
 
 	private static XMLInputFactory _createXMLInputFactory() {
-		XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+		XMLInputFactory xmlInputFactory =
+			SecureXMLFactoryProviderUtil.newXMLInputFactory();
 
 		xmlInputFactory.setProperty(
 			XMLInputFactory.IS_COALESCING, Boolean.TRUE);
-		xmlInputFactory.setProperty(
-			XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
 
 		return xmlInputFactory;
 	}
 
-	private static XMLInputFactory _xmlInputFactory = _createXMLInputFactory();
+	private static final XMLInputFactory _xmlInputFactory =
+		_createXMLInputFactory();
 
 }

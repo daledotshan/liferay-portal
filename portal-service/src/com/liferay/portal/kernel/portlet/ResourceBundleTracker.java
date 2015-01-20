@@ -93,7 +93,7 @@ public class ResourceBundleTracker implements Closeable {
 	public void register(String languageId, ResourceBundle resourceBundle) {
 		Registry registry = RegistryUtil.getRegistry();
 
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 
 		properties.put("javax.portlet.name", _portletId);
 		properties.put("language.id", languageId);
@@ -114,12 +114,13 @@ public class ResourceBundleTracker implements Closeable {
 		}
 	}
 
-	private String _portletId;
-	private Map<String, ResourceBundle> _resourceBundles =
-		new ConcurrentHashMap<String, ResourceBundle>();
-	private StringServiceRegistrationMap<ResourceBundle> _serviceRegistrations =
-		new StringServiceRegistrationMap<ResourceBundle>();
-	private ServiceTracker<ResourceBundle, ResourceBundle> _serviceTracker;
+	private final String _portletId;
+	private final Map<String, ResourceBundle> _resourceBundles =
+		new ConcurrentHashMap<>();
+	private final StringServiceRegistrationMap<ResourceBundle>
+		_serviceRegistrations = new StringServiceRegistrationMap<>();
+	private final ServiceTracker<ResourceBundle, ResourceBundle>
+		_serviceTracker;
 
 	private class ResourceBundleServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer<ResourceBundle, ResourceBundle> {

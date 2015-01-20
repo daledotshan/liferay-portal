@@ -172,7 +172,7 @@ public class AssetCategoryIndexer extends BaseIndexer {
 
 		document.addKeyword(Field.ASSET_CATEGORY_ID, category.getCategoryId());
 
-		List<AssetCategory> categories = new ArrayList<AssetCategory>(1);
+		List<AssetCategory> categories = new ArrayList<>(1);
 
 		categories.add(category);
 
@@ -265,6 +265,7 @@ public class AssetCategoryIndexer extends BaseIndexer {
 		actionableDynamicQuery.performActions();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(AssetCategoryIndexer.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		AssetCategoryIndexer.class);
 
 }

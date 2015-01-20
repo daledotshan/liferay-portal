@@ -58,8 +58,8 @@ import org.springframework.mock.web.MockServletContext;
 public class AcceptorServletTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Before
 	public void setUp() {
@@ -177,16 +177,13 @@ public class AcceptorServletTest {
 		Assert.assertNull(_recordSPIAgent._exception);
 		Assert.assertTrue(_mockHttpSession.isInvalid());
 
-		CaptureHandler captureHandler = null;
-
-		try {
+		try (CaptureHandler captureHandler =
+				JDKLoggerTestUtil.configureJDKLogger(
+					AcceptorServlet.class.getName(), Level.SEVERE)) {
 
 			// IOException on prepare request
 
 			_recordSPIAgent.setIOExceptionOnPrepareRequest(true);
-
-			captureHandler = JDKLoggerTestUtil.configureJDKLogger(
-				AcceptorServlet.class.getName(), Level.SEVERE);
 
 			List<LogRecord> logRecords = captureHandler.getLogRecords();
 
@@ -239,11 +236,6 @@ public class AcceptorServletTest {
 			Assert.assertEquals(
 				"RuntimeException on prepare request", throwable.getMessage());
 		}
-		finally {
-			if (captureHandler != null) {
-				captureHandler.close();
-			}
-		}
 
 		// Unable to forward
 
@@ -265,9 +257,9 @@ public class AcceptorServletTest {
 		Assert.assertTrue(_mockHttpSession.isInvalid());
 	}
 
-	private MockHttpSession _mockHttpSession = new MockHttpSession();
+	private final MockHttpSession _mockHttpSession = new MockHttpSession();
 	private String _pathContext = StringPool.BLANK;
-	private RecordSPIAgent _recordSPIAgent = new RecordSPIAgent();
+	private final RecordSPIAgent _recordSPIAgent = new RecordSPIAgent();
 
 	private class RecordSPIAgent extends MockSPIAgent {
 

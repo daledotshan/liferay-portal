@@ -173,9 +173,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 		}
 	}
 
-	public LayoutImpl() {
-	}
-
 	/**
 	 * Returns all layouts that are direct or indirect children of the current
 	 * layout.
@@ -185,7 +182,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public List<Layout> getAllChildren() {
-		List<Layout> layouts = new ArrayList<Layout>();
+		List<Layout> layouts = new ArrayList<>();
 
 		for (Layout layout : getChildren()) {
 			layouts.add(layout);
@@ -263,7 +260,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public List<Layout> getAncestors() throws PortalException {
-		List<Layout> layouts = new ArrayList<Layout>();
+		List<Layout> layouts = new ArrayList<>();
 
 		Layout layout = this;
 
@@ -442,7 +439,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public Map<Locale, String> getFriendlyURLMap() {
-		Map<Locale, String> friendlyURLMap = new HashMap<Locale, String>();
+		Map<Locale, String> friendlyURLMap = new HashMap<>();
 
 		List<LayoutFriendlyURL> layoutFriendlyURLs =
 			LayoutFriendlyURLLocalServiceUtil.getLayoutFriendlyURLs(getPlid());
@@ -460,9 +457,29 @@ public class LayoutImpl extends LayoutBaseImpl {
 	public String getFriendlyURLsXML() {
 		Map<Locale, String> friendlyURLMap = getFriendlyURLMap();
 
+		String value = friendlyURLMap.get(LocaleUtil.getSiteDefault());
+
+		if (Validator.isNull(value)) {
+			Layout layout = this;
+
+			try {
+				LayoutFriendlyURL layoutFriendlyURL =
+					LayoutFriendlyURLLocalServiceUtil.getLayoutFriendlyURL(
+						layout.getPlid(),
+						LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()));
+
+				String defaultFriendlyURL = layoutFriendlyURL.getFriendlyURL();
+
+				friendlyURLMap.put(
+					LocaleUtil.getSiteDefault(), defaultFriendlyURL);
+			}
+			catch (Exception e) {
+			}
+		}
+
 		return LocalizationUtil.updateLocalization(
 			friendlyURLMap, StringPool.BLANK, "FriendlyURL",
-			LocaleUtil.toLanguageId(LocaleUtil.getDefault()));
+			LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()));
 	}
 
 	/**
@@ -1285,7 +1302,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 		return url;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(LayoutImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(LayoutImpl.class);
 
 	private static String[] _friendlyURLKeywords;
 
