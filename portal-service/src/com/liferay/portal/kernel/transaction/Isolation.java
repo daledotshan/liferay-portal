@@ -44,8 +44,7 @@ public enum Isolation {
 		return _value;
 	}
 
-	private static Map<Integer, Isolation> _isolations =
-		new HashMap<Integer, Isolation>();
+	private static final Map<Integer, Isolation> _isolations = new HashMap<>();
 
 	static {
 		for (Isolation isolation : EnumSet.allOf(Isolation.class)) {
@@ -53,6 +52,6 @@ public enum Isolation {
 		}
 	}
 
-	private int _value;
+	private final int _value;
 
 }

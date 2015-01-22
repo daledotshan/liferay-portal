@@ -49,7 +49,7 @@ public class MessageValuesThreadLocal {
 		Map<String, Object> messageValues = _messageValuesThreadLocal.get();
 
 		if (messageValues == null) {
-			messageValues = new HashMap<String, Object>();
+			messageValues = new HashMap<>();
 
 			_messageValuesThreadLocal.set(messageValues);
 		}
@@ -57,8 +57,9 @@ public class MessageValuesThreadLocal {
 		messageValues.put(key, value);
 	}
 
-	private static ThreadLocal<Map<String, Object>> _messageValuesThreadLocal =
-		new AutoResetThreadLocal<Map<String, Object>>(
-			MessageValuesThreadLocal.class.getName());
+	private static final ThreadLocal<Map<String, Object>>
+		_messageValuesThreadLocal =
+			new AutoResetThreadLocal<Map<String, Object>>(
+				MessageValuesThreadLocal.class.getName());
 
 }

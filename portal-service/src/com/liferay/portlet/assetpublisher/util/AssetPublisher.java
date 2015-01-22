@@ -55,9 +55,6 @@ public interface AssetPublisher {
 			int assetEntryOrder)
 		throws Exception;
 
-	public void addRecentFolderId(
-		PortletRequest portletRequest, String className, long classPK);
-
 	public void addSelection(
 			PortletRequest portletRequest,
 			PortletPreferences portletPreferences, String portletId)
@@ -78,6 +75,12 @@ public interface AssetPublisher {
 
 	public long[] getAssetCategoryIds(PortletPreferences portletPreferences)
 		throws Exception;
+
+	public List<AssetEntry> getAssetEntries(
+		long[] groupIds, long[] classNameIds, String keywords, String userName,
+		String title, String description, boolean advancedSearch,
+		boolean andOperator, int start, int end, String orderByCol1,
+		String orderByCol2, String orderByType1, String orderByType2);
 
 	public List<AssetEntry> getAssetEntries(
 			PortletPreferences portletPreferences, Layout layout,
@@ -129,6 +132,11 @@ public interface AssetPublisher {
 			String[] assetEntryXmls, boolean deleteMissingAssetEntries,
 			boolean checkPermission)
 		throws Exception;
+
+	public int getAssetEntriesCount(
+		long[] groupIds, long[] classNameIds, String keywords, String userName,
+		String title, String description, boolean advancedSearch,
+		boolean andOperator, int start, int end);
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
@@ -198,9 +206,6 @@ public interface AssetPublisher {
 		PortletPreferences portletPreferences, long scopeGroupId,
 		Layout layout);
 
-	public long getRecentFolderId(
-		PortletRequest portletRequest, String className);
-
 	public String getScopeId(Group group, long scopeGroupId)
 		throws PortalException;
 
@@ -232,9 +237,6 @@ public interface AssetPublisher {
 	public void removeAndStoreSelection(
 			List<String> assetEntryUuids, PortletPreferences portletPreferences)
 		throws Exception;
-
-	public void removeRecentFolderId(
-		PortletRequest portletRequest, String className, long classPK);
 
 	public void subscribe(
 			PermissionChecker permissionChecker, long groupId, long plid,

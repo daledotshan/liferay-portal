@@ -15,13 +15,14 @@
 package com.liferay.portal.repository.capabilities;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.repository.LocalRepository;
+import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.capabilities.BulkOperationCapability;
 import com.liferay.portal.kernel.repository.capabilities.SyncCapability;
+import com.liferay.portal.kernel.repository.event.RepositoryEventAware;
 import com.liferay.portal.kernel.repository.event.RepositoryEventListener;
 import com.liferay.portal.kernel.repository.event.RepositoryEventType;
 import com.liferay.portal.kernel.repository.event.TrashRepositoryEventType;
@@ -32,17 +33,16 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.repository.model.RepositoryModelOperation;
 import com.liferay.portal.kernel.repository.registry.RepositoryEventRegistry;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
-import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.repository.liferayrepository.LiferaySyncLocalRepositoryWrapper;
+import com.liferay.portal.repository.liferayrepository.LiferaySyncRepositoryWrapper;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
+import com.liferay.portal.repository.util.RepositoryWrapperAware;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.model.DLSyncConstants;
 import com.liferay.portlet.documentlibrary.model.DLSyncEvent;
 import com.liferay.portlet.documentlibrary.service.DLSyncEventLocalServiceUtil;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,133 +51,78 @@ import java.util.concurrent.Callable;
 /**
  * @author Adolfo Pérez
  */
-public class LiferaySyncCapability implements SyncCapability {
+public class LiferaySyncCapability
+	implements RepositoryEventAware, RepositoryWrapperAware, SyncCapability {
 
-	@Override
-	public void addFileEntry(FileEntry fileEntry) throws PortalException {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_ADD, fileEntry);
+	public LiferaySyncCapability(
+		BulkOperationCapability bulkOperationCapability) {
+
+		_bulkOperationCapability = bulkOperationCapability;
 	}
 
 	@Override
-	public void addFolder(Folder folder) {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_ADD, folder);
+	public void destroyDocumentRepository() throws PortalException {
+		_bulkOperationCapability.execute(new DeleteRepositoryModelOperation());
 	}
 
 	@Override
-	public void deleteFileEntry(FileEntry fileEntry) throws PortalException {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_DELETE, fileEntry);
-	}
-
-	@Override
-	public void deleteFolder(Folder folder) {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_DELETE, folder);
-	}
-
-	@Override
-	public void destroyLocalRepository(LocalRepository localRepository)
-		throws PortalException {
-
-		if (!localRepository.isCapabilityProvided(
-				BulkOperationCapability.class)) {
-
-			return;
-		}
-
-		BulkOperationCapability bulkOperationCapability =
-			localRepository.getCapability(BulkOperationCapability.class);
-
-		bulkOperationCapability.execute(new DeleteRepositoryModelOperation());
-	}
-
-	@Override
-	public void moveFileEntry(FileEntry fileEntry) throws PortalException {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_MOVE, fileEntry);
-	}
-
-	@Override
-	public void moveFolder(Folder folder) {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_MOVE, folder);
-	}
-
 	public void registerRepositoryEventListeners(
 		RepositoryEventRegistry repositoryEventRegistry) {
 
-		registerRepositoryEventListener(
-			repositoryEventRegistry, RepositoryEventType.Add.class,
-			Folder.class, "addFolder");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, RepositoryEventType.Update.class,
-			FileEntry.class, "updateFileEntry");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, RepositoryEventType.Update.class,
-			Folder.class, "updateFolder");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, RepositoryEventType.Delete.class,
-			FileEntry.class, "deleteFileEntry");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, RepositoryEventType.Delete.class,
-			Folder.class, "deleteFolder");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, RepositoryEventType.Move.class,
-			FileEntry.class, "moveFileEntry");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, RepositoryEventType.Move.class,
-			Folder.class, "moveFolder");
-		registerRepositoryEventListener(
-			repositoryEventRegistry,
-			TrashRepositoryEventType.EntryTrashed.class, FileEntry.class,
-			"trashFileEntry");
-		registerRepositoryEventListener(
-			repositoryEventRegistry,
+		repositoryEventRegistry.registerRepositoryEventListener(
+			RepositoryEventType.Add.class, Folder.class,
+			ADD_FOLDER_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			RepositoryEventType.Delete.class, FileEntry.class,
+			DELETE_FILE_ENTRY_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			RepositoryEventType.Delete.class, Folder.class,
+			DELETE_FOLDER_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			RepositoryEventType.Move.class, FileEntry.class,
+			MOVE_FILE_ENTRY_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			RepositoryEventType.Move.class, Folder.class,
+			MOVE_FOLDER_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
 			TrashRepositoryEventType.EntryRestored.class, FileEntry.class,
-			"restoreFileEntry");
-		registerRepositoryEventListener(
-			repositoryEventRegistry,
+			RESTORE_FILE_ENTRY_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
 			TrashRepositoryEventType.EntryRestored.class, Folder.class,
-			"restoreFolder");
-		registerRepositoryEventListener(
-			repositoryEventRegistry,
+			RESTORE_FOLDER_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			TrashRepositoryEventType.EntryTrashed.class, FileEntry.class,
+			TRASH_FILE_ENTRY_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
 			TrashRepositoryEventType.EntryTrashed.class, Folder.class,
-			"trashFolder");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, WorkflowRepositoryEventType.Add.class,
-			FileEntry.class, "addFileEntry");
-		registerRepositoryEventListener(
-			repositoryEventRegistry, WorkflowRepositoryEventType.Update.class,
-			FileEntry.class, "updateFileEntry");
+			TRASH_FOLDER_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			RepositoryEventType.Update.class, FileEntry.class,
+			UPDATE_FILE_ENTRY_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			RepositoryEventType.Update.class, Folder.class,
+			UPDATE_FOLDER_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			WorkflowRepositoryEventType.Add.class, FileEntry.class,
+			WORKFLOW_ADD_FILE_ENTRY_EVENT_LISTENER);
+		repositoryEventRegistry.registerRepositoryEventListener(
+			WorkflowRepositoryEventType.Update.class, FileEntry.class,
+			WORKFLOW_UPDATE_FILE_ENTRY_EVENT_LISTENER);
 	}
 
 	@Override
-	public void restoreFileEntry(FileEntry fileEntry) throws PortalException {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_RESTORE, fileEntry);
+	public LocalRepository wrapLocalRepository(
+		LocalRepository localRepository) {
+
+		return new LiferaySyncLocalRepositoryWrapper(localRepository, this);
 	}
 
 	@Override
-	public void restoreFolder(Folder folder) {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_RESTORE, folder);
+	public Repository wrapRepository(Repository repository) {
+		return new LiferaySyncRepositoryWrapper(repository, this);
 	}
 
-	@Override
-	public void trashFileEntry(FileEntry fileEntry) throws PortalException {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_TRASH, fileEntry);
-	}
-
-	@Override
-	public void trashFolder(Folder folder) {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_TRASH, folder);
-	}
-
-	@Override
-	public void updateFileEntry(FileEntry fileEntry) throws PortalException {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_UPDATE, fileEntry);
-	}
-
-	@Override
-	public void updateFolder(Folder folder) {
-		registerDLSyncEventCallback(DLSyncConstants.EVENT_UPDATE, folder);
-	}
-
-	protected boolean isStagingGroup(long groupId) {
+	protected static boolean isStagingGroup(long groupId) {
 		try {
 			Group group = GroupLocalServiceUtil.getGroup(groupId);
 
@@ -188,9 +133,8 @@ public class LiferaySyncCapability implements SyncCapability {
 		}
 	}
 
-	protected void registerDLSyncEventCallback(
-			String event, FileEntry fileEntry)
-		throws PortalException {
+	protected static void registerDLSyncEventCallback(
+		String event, FileEntry fileEntry) {
 
 		if (isStagingGroup(fileEntry.getGroupId()) ||
 			!(fileEntry instanceof LiferayFileEntry)) {
@@ -198,21 +142,13 @@ public class LiferaySyncCapability implements SyncCapability {
 			return;
 		}
 
-		if (!event.equals(DLSyncConstants.EVENT_DELETE) &&
-			!event.equals(DLSyncConstants.EVENT_TRASH)) {
-
-			FileVersion fileVersion = fileEntry.getFileVersion();
-
-			if (!fileVersion.isApproved()) {
-				return;
-			}
-		}
-
 		registerDLSyncEventCallback(
 			event, DLSyncConstants.TYPE_FILE, fileEntry.getFileEntryId());
 	}
 
-	protected void registerDLSyncEventCallback(String event, Folder folder) {
+	protected static void registerDLSyncEventCallback(
+		String event, Folder folder) {
+
 		if (isStagingGroup(folder.getGroupId()) ||
 			!(folder instanceof LiferayFolder)) {
 
@@ -223,7 +159,7 @@ public class LiferaySyncCapability implements SyncCapability {
 			event, DLSyncConstants.TYPE_FOLDER, folder.getFolderId());
 	}
 
-	protected void registerDLSyncEventCallback(
+	protected static void registerDLSyncEventCallback(
 		final String event, final String type, final long typePK) {
 
 		DLSyncEvent dlSyncEvent = DLSyncEventLocalServiceUtil.addDLSyncEvent(
@@ -258,27 +194,120 @@ public class LiferaySyncCapability implements SyncCapability {
 		);
 	}
 
-	protected <S extends RepositoryEventType, T>
-		void registerRepositoryEventListener(
-			RepositoryEventRegistry repositoryEventRegistry,
-			Class<S> repositoryEventTypeClass, Class<T> modelClass,
-			String methodName) {
+	private static final RepositoryEventListener
+		<RepositoryEventType.Add, Folder> ADD_FOLDER_EVENT_LISTENER =
+			new SyncFolderRepositoryEventListener<>(DLSyncConstants.EVENT_ADD);
 
-		RepositoryEventListener<S, T> repositoryEventListener =
-			new MethodKeyRepositoryEventListener<S, T>(
-				new MethodKey(
-					LiferaySyncCapability.class, methodName, modelClass));
+	private static final RepositoryEventListener
+		<RepositoryEventType.Delete, FileEntry>
+			DELETE_FILE_ENTRY_EVENT_LISTENER =
+				new SyncFileEntryRepositoryEventListener<>(
+					DLSyncConstants.EVENT_DELETE);
 
-		repositoryEventRegistry.registerRepositoryEventListener(
-			repositoryEventTypeClass, modelClass, repositoryEventListener);
+	private static final RepositoryEventListener
+		<RepositoryEventType.Delete, Folder> DELETE_FOLDER_EVENT_LISTENER =
+			new SyncFolderRepositoryEventListener<>(
+				DLSyncConstants.EVENT_DELETE);
+
+	private static final RepositoryEventListener
+		<RepositoryEventType.Move, FileEntry> MOVE_FILE_ENTRY_EVENT_LISTENER =
+			new SyncFileEntryRepositoryEventListener<>(
+				DLSyncConstants.EVENT_MOVE);
+
+	private static final RepositoryEventListener
+		<RepositoryEventType.Move, Folder> MOVE_FOLDER_EVENT_LISTENER =
+			new SyncFolderRepositoryEventListener<>(DLSyncConstants.EVENT_MOVE);
+
+	private static final RepositoryEventListener
+		<TrashRepositoryEventType.EntryRestored, FileEntry>
+			RESTORE_FILE_ENTRY_EVENT_LISTENER =
+				new SyncFileEntryRepositoryEventListener<>(
+					DLSyncConstants.EVENT_RESTORE);
+
+	private static final RepositoryEventListener
+		<TrashRepositoryEventType.EntryRestored, Folder>
+			RESTORE_FOLDER_EVENT_LISTENER =
+				new SyncFolderRepositoryEventListener<>(
+					DLSyncConstants.EVENT_RESTORE);
+
+	private static final RepositoryEventListener
+		<TrashRepositoryEventType.EntryTrashed, FileEntry>
+			TRASH_FILE_ENTRY_EVENT_LISTENER =
+				new SyncFileEntryRepositoryEventListener<>(
+					DLSyncConstants.EVENT_TRASH);
+
+	private static final RepositoryEventListener
+		<TrashRepositoryEventType.EntryTrashed, Folder>
+			TRASH_FOLDER_EVENT_LISTENER =
+				new SyncFolderRepositoryEventListener<>(
+					DLSyncConstants.EVENT_TRASH);
+
+	private static final RepositoryEventListener
+		<RepositoryEventType.Update, FileEntry>
+			UPDATE_FILE_ENTRY_EVENT_LISTENER =
+				new SyncFileEntryRepositoryEventListener<>(
+					DLSyncConstants.EVENT_UPDATE);
+
+	private static final RepositoryEventListener
+		<RepositoryEventType.Update, Folder> UPDATE_FOLDER_EVENT_LISTENER =
+			new SyncFolderRepositoryEventListener<>(
+				DLSyncConstants.EVENT_UPDATE);
+
+	private static final RepositoryEventListener
+		<WorkflowRepositoryEventType.Add, FileEntry>
+			WORKFLOW_ADD_FILE_ENTRY_EVENT_LISTENER =
+				new SyncFileEntryRepositoryEventListener<>(
+					DLSyncConstants.EVENT_ADD);
+
+	private static final RepositoryEventListener
+		<WorkflowRepositoryEventType.Update, FileEntry>
+			WORKFLOW_UPDATE_FILE_ENTRY_EVENT_LISTENER =
+				new SyncFileEntryRepositoryEventListener<>(
+					DLSyncConstants.EVENT_UPDATE);
+
+	private final BulkOperationCapability _bulkOperationCapability;
+
+	private static class SyncFileEntryRepositoryEventListener
+			<S extends RepositoryEventType>
+		implements RepositoryEventListener<S, FileEntry> {
+
+		public SyncFileEntryRepositoryEventListener(String syncEvent) {
+			_syncEvent = syncEvent;
+		}
+
+		@Override
+		public void execute(FileEntry fileEntry) {
+			registerDLSyncEventCallback(_syncEvent, fileEntry);
+		}
+
+		private final String _syncEvent;
+
+	}
+
+	private static class SyncFolderRepositoryEventListener
+			<S extends RepositoryEventType>
+		implements RepositoryEventListener<S, Folder> {
+
+		public SyncFolderRepositoryEventListener(String syncEvent) {
+			_syncEvent = syncEvent;
+		}
+
+		@Override
+		public void execute(Folder folder) {
+			registerDLSyncEventCallback(_syncEvent, folder);
+		}
+
+		private final String _syncEvent;
+
 	}
 
 	private class DeleteRepositoryModelOperation
 		implements RepositoryModelOperation {
 
 		@Override
-		public void execute(FileEntry fileEntry) throws PortalException {
-			deleteFileEntry(fileEntry);
+		public void execute(FileEntry fileEntry) {
+			registerDLSyncEventCallback(
+				DLSyncConstants.EVENT_DELETE, fileEntry);
 		}
 
 		@Override
@@ -287,38 +316,8 @@ public class LiferaySyncCapability implements SyncCapability {
 
 		@Override
 		public void execute(Folder folder) {
-			deleteFolder(folder);
+			registerDLSyncEventCallback(DLSyncConstants.EVENT_DELETE, folder);
 		}
-
-	}
-
-	private class MethodKeyRepositoryEventListener
-			<S extends RepositoryEventType, T>
-		implements RepositoryEventListener<S, T> {
-
-		public MethodKeyRepositoryEventListener(MethodKey methodKey) {
-			_methodKey = methodKey;
-		}
-
-		@Override
-		public void execute(T target) {
-			try {
-				Method method = _methodKey.getMethod();
-
-				method.invoke(LiferaySyncCapability.this, target);
-			}
-			catch (IllegalAccessException iae) {
-				throw new SystemException(iae);
-			}
-			catch (InvocationTargetException ite) {
-				throw new SystemException(ite);
-			}
-			catch (NoSuchMethodException nsme) {
-				throw new SystemException(nsme);
-			}
-		}
-
-		private MethodKey _methodKey;
 
 	}
 

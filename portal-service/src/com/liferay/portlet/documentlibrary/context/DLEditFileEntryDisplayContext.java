@@ -22,6 +22,9 @@ import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
  */
 public interface DLEditFileEntryDisplayContext extends DLDisplayContext {
 
+	public DLFilePicker getDLFilePicker(String onFilePickCallback)
+		throws PortalException;
+
 	public long getMaximumUploadSize() throws PortalException;
 
 	public String getPublishButtonLabel() throws PortalException;
@@ -45,6 +48,8 @@ public interface DLEditFileEntryDisplayContext extends DLDisplayContext {
 	public boolean isDDMStructureVisible(DDMStructure ddmStructure)
 		throws PortalException;
 
+	public boolean isFolderSelectionVisible() throws PortalException;
+
 	public boolean isPublishButtonDisabled() throws PortalException;
 
 	public boolean isPublishButtonVisible() throws PortalException;
@@ -52,5 +57,7 @@ public interface DLEditFileEntryDisplayContext extends DLDisplayContext {
 	public boolean isSaveButtonDisabled() throws PortalException;
 
 	public boolean isSaveButtonVisible() throws PortalException;
+
+	public boolean isVersionInfoVisible() throws PortalException;
 
 }

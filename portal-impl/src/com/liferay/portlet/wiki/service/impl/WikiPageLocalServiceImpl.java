@@ -57,6 +57,7 @@ import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.util.LayoutURLUtil;
 import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -983,7 +984,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	public List<WikiPage> getIncomingLinks(long nodeId, String title)
 		throws PortalException {
 
-		Set<WikiPage> links = new HashSet<WikiPage>();
+		Set<WikiPage> links = new HashSet<>();
 
 		List<WikiPage> pages = wikiPagePersistence.findByN_H(nodeId, true);
 
@@ -1098,7 +1099,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		WikiPage page = getPage(nodeId, title);
 
-		Map<String, WikiPage> pages = new LinkedHashMap<String, WikiPage>();
+		Map<String, WikiPage> pages = new LinkedHashMap<>();
 
 		Map<String, Boolean> links = WikiCacheUtil.getOutgoingLinks(page);
 
@@ -1633,7 +1634,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		pageVersions = ListUtil.sort(pageVersions, new PageVersionComparator());
 
 		List<ObjectValuePair<Long, Integer>> pageVersionStatusOVPs =
-			new ArrayList<ObjectValuePair<Long, Integer>>();
+			new ArrayList<>();
 
 		if ((pageVersions != null) && !pageVersions.isEmpty()) {
 			pageVersionStatusOVPs = getPageVersionStatuses(pageVersions);
@@ -1793,8 +1794,8 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
 
 		extraDataJSONObject.put("fileEntryId", fileEntry.getFileEntryId());
-		extraDataJSONObject.put("fileEntryTitle", TrashUtil.getOriginalTitle(
-			fileEntry.getTitle()));
+		extraDataJSONObject.put(
+			"fileEntryTitle", TrashUtil.getOriginalTitle(fileEntry.getTitle()));
 		extraDataJSONObject.put("title", page.getTitle());
 		extraDataJSONObject.put("version", page.getVersion());
 
@@ -2488,7 +2489,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			return StringPool.BLANK;
 		}
 
-		String layoutFullURL = getLayoutURL(
+		String layoutFullURL = LayoutURLUtil.getLayoutURL(
 			page.getGroupId(), PortletKeys.WIKI, serviceContext);
 
 		if (Validator.isNotNull(layoutFullURL)) {
@@ -2527,7 +2528,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			}
 
 			ObjectValuePair<Long, Integer> pageVersionStatusOVP =
-				new ObjectValuePair<Long, Integer>(page.getPageId(), status);
+				new ObjectValuePair<>(page.getPageId(), status);
 
 			pageVersionStatusOVPs.add(pageVersionStatusOVP);
 		}
@@ -2816,15 +2817,11 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 			int status = versionPageOldStatus;
 
-			if (versionPageOldStatus ==
-					WorkflowConstants.STATUS_PENDING) {
-
+			if (versionPageOldStatus == WorkflowConstants.STATUS_PENDING) {
 				status = WorkflowConstants.STATUS_DRAFT;
 			}
 
-			if (versionPageOldStatus !=
-					WorkflowConstants.STATUS_APPROVED) {
-
+			if (versionPageOldStatus != WorkflowConstants.STATUS_APPROVED) {
 				trashVersionLocalService.addTrashVersion(
 					trashEntryId, WikiPage.class.getName(),
 					versionPage.getPageId(), status, null);
@@ -3150,8 +3147,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			long userId, WikiPage page, ServiceContext serviceContext)
 		throws PortalException {
 
-		Map<String, Serializable> workflowContext =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> workflowContext = new HashMap<>();
 
 		workflowContext.put(
 			WorkflowConstants.CONTEXT_COMMAND, serviceContext.getCommand());
