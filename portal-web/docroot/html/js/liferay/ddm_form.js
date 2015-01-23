@@ -145,7 +145,7 @@ AUI.add(
 
 				field.addTarget(instance);
 
-				var translationManager = instance.get('translationManager');
+				var translationManager = Liferay.component(instance.get('portletNamespace') + 'translationManager');
 
 				if (translationManager) {
 					translationManager.addTarget(field);
@@ -608,9 +608,7 @@ AUI.add(
 					updateTranslationsDefaultValue: function() {
 						var instance = this;
 
-						var parent = instance.get('parent');
-
-						var translationManager = parent.get('translationManager');
+						var translationManager = Liferay.component(instance.get('portletNamespace') + 'translationManager');
 
 						var localizationMap = instance.get('localizationMap');
 
