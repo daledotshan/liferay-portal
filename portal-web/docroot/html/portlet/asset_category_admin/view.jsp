@@ -29,7 +29,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "vocabul
 		<aui:nav cssClass="navbar-nav">
 			<c:if test="<%= AssetPermission.contains(permissionChecker, themeDisplay.getSiteGroupId(), ActionKeys.ADD_VOCABULARY) %>">
 				<portlet:renderURL var="addVocabularyURL">
-					<portlet:param name="struts_action" value="/asset_category_admin/edit_vocabulary" />
+					<portlet:param name="mvcPath" value="/html/portlet/asset_category_admin/edit_vocabulary.jsp" />
 					<portlet:param name="redirect" value="<%= currentURL %>" />
 				</portlet:renderURL>
 
@@ -95,7 +95,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "vocabul
 			modelVar="vocabulary"
 		>
 			<portlet:renderURL var="rowURL">
-				<portlet:param name="struts_action" value="/asset_category_admin/view_categories" />
+				<portlet:param name="mvcPath" value="/html/portlet/asset_category_admin/view_categories.jsp" />
 				<portlet:param name="redirect" value="<%= currentURL %>" />
 				<portlet:param name="vocabularyId" value="<%= String.valueOf(vocabulary.getVocabularyId()) %>" />
 			</portlet:renderURL>
@@ -181,30 +181,32 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "vocabul
 	</liferay-ui:search-container>
 </aui:form>
 
-<aui:script use="aui-base,liferay-util-list-fields">
-	A.one('#<portlet:namespace /><%= searchContainerReference.getId() %>SearchContainer').delegate(
-		'click',
-		function() {
-			var hide = (Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
+<aui:script sandbox="<%= true %>">
+	var Util = Liferay.Util;
 
-			A.one('#<portlet:namespace />vocabulariesActionsButton').toggle(!hide);
-		},
-		'input[type=checkbox]'
+	var form = $(document.<portlet:namespace />fm);
+
+	$('#<portlet:namespace /><%= searchContainerReference.getId() %>SearchContainer').on(
+		'click',
+		'input[type=checkbox]',
+		function() {
+			var hide = (Util.listCheckedExcept(form, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
+
+			$('#<portlet:namespace />vocabulariesActionsButton').toggleClass('hide', hide);
+		}
 	);
 
-	A.one('#<portlet:namespace />deleteSelectedVocabularies').on(
+	$('#<portlet:namespace />deleteSelectedVocabularies').on(
 		'click',
 		function() {
 			if (confirm('<liferay-ui:message key="are-you-sure-you-want-to-delete-this" />')) {
-				<portlet:actionURL var="deleteURL">
-					<portlet:param name="struts_action" value="/asset_category_admin/edit_vocabulary" />
-					<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE %>" />
+				<portlet:actionURL name="deleteVocabulary" var="deleteVocabularyURL">
 					<portlet:param name="redirect" value="<%= currentURL %>" />
 				</portlet:actionURL>
 
-				document.<portlet:namespace />fm.<portlet:namespace />deleteVocabularyIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
+				form.fm('deleteVocabularyIds').val(Util.listCheckedExcept(form, '<portlet:namespace />allRowIds'));
 
-				submitForm(document.<portlet:namespace />fm, '<%= deleteURL %>');
+				submitForm(form, '<%= deleteVocabularyURL %>');
 			}
 		}
 	);

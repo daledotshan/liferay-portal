@@ -32,7 +32,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
-import com.liferay.portal.kernel.util.InstancePool;
+import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -135,14 +135,13 @@ public class WikiUtil {
 	public static List<WikiPage> filterOrphans(List<WikiPage> pages)
 		throws PortalException {
 
-		List<Map<String, Boolean>> pageTitles =
-			new ArrayList<Map<String, Boolean>>();
+		List<Map<String, Boolean>> pageTitles = new ArrayList<>();
 
 		for (WikiPage page : pages) {
 			pageTitles.add(WikiCacheUtil.getOutgoingLinks(page));
 		}
 
-		Set<WikiPage> notOrphans = new HashSet<WikiPage>();
+		Set<WikiPage> notOrphans = new HashSet<>();
 
 		for (WikiPage page : pages) {
 			for (Map<String, Boolean> pageTitle : pageTitles) {
@@ -158,7 +157,7 @@ public class WikiUtil {
 			}
 		}
 
-		List<WikiPage> orphans = new ArrayList<WikiPage>();
+		List<WikiPage> orphans = new ArrayList<>();
 
 		for (WikiPage page : pages) {
 			if (!notOrphans.contains(page)) {
@@ -213,7 +212,7 @@ public class WikiUtil {
 			}
 		}
 
-		List<DiffVersion> diffVersions = new ArrayList<DiffVersion>();
+		List<DiffVersion> diffVersions = new ArrayList<>();
 
 		for (WikiPage page : pages) {
 			String extraInfo = StringPool.BLANK;
@@ -237,13 +236,12 @@ public class WikiUtil {
 	}
 
 	public static Map<String, String> getEmailFromDefinitionTerms(
-		RenderRequest request, String emailFromAddress, String emailFromName) {
+		RenderRequest request) {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Map<String, String> definitionTerms =
-			new LinkedHashMap<String, String>();
+		Map<String, String> definitionTerms = new LinkedHashMap<>();
 
 		definitionTerms.put(
 			"[$COMPANY_ID$]",
@@ -270,7 +268,8 @@ public class WikiUtil {
 			LanguageUtil.get(
 				themeDisplay.getLocale(), "the-user-who-added-the-page"));
 		definitionTerms.put(
-			"[$PORTLET_NAME$]", PortalUtil.getPortletTitle(request));
+			"[$PORTLET_NAME$]",
+			HtmlUtil.escape(PortalUtil.getPortletTitle(request)));
 		definitionTerms.put(
 			"[$SITE_NAME$]",
 			LanguageUtil.get(
@@ -286,8 +285,7 @@ public class WikiUtil {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Map<String, String> definitionTerms =
-			new LinkedHashMap<String, String>();
+		Map<String, String> definitionTerms = new LinkedHashMap<>();
 
 		definitionTerms.put(
 			"[$COMPANY_ID$]",
@@ -360,7 +358,8 @@ public class WikiUtil {
 		definitionTerms.put("[$PORTAL_URL$]", company.getVirtualHostname());
 
 		definitionTerms.put(
-			"[$PORTLET_NAME$]", PortalUtil.getPortletTitle(request));
+			"[$PORTLET_NAME$]",
+			HtmlUtil.escape(PortalUtil.getPortletTitle(request)));
 		definitionTerms.put(
 			"[$SITE_NAME$]",
 			LanguageUtil.get(
@@ -380,7 +379,7 @@ public class WikiUtil {
 	}
 
 	public static List<Object> getEntries(Hits hits) {
-		List<Object> entries = new ArrayList<Object>();
+		List<Object> entries = new ArrayList<>();
 
 		for (Document document : hits.getDocs()) {
 			String entryClassName = GetterUtil.getString(
@@ -522,7 +521,7 @@ public class WikiUtil {
 	}
 
 	public static List<String> getNodeNames(List<WikiNode> nodes) {
-		List<String> nodeNames = new ArrayList<String>(nodes.size());
+		List<String> nodeNames = new ArrayList<>(nodes.size());
 
 		for (WikiNode node : nodes) {
 			nodeNames.add(node.getName());
@@ -588,7 +587,7 @@ public class WikiUtil {
 
 		nodes = ListUtil.copy(nodes);
 
-		List<WikiNode> orderedNodes = new ArrayList<WikiNode>(nodes.size());
+		List<WikiNode> orderedNodes = new ArrayList<>(nodes.size());
 
 		for (String visibleNodeName : visibleNodeNames) {
 			for (WikiNode node : nodes) {
@@ -716,28 +715,25 @@ public class WikiUtil {
 			}
 
 			try {
-				String engineClass = PropsUtil.get(
+				String engineClassName = PropsUtil.get(
 					PropsKeys.WIKI_FORMATS_ENGINE, new Filter(format));
 
-				if (engineClass == null) {
+				if (engineClassName == null) {
 					throw new WikiFormatException(format);
 				}
 
-				if (!InstancePool.contains(engineClass)) {
-					engine = (WikiEngine)InstancePool.get(engineClass);
+				Class<?> clazz = getClass();
 
-					engine.setMainConfiguration(
-						_readConfigurationFile(
-							PropsKeys.WIKI_FORMATS_CONFIGURATION_MAIN, format));
+				engine = (WikiEngine)InstanceFactory.newInstance(
+					clazz.getClassLoader(), engineClassName);
 
-					engine.setInterWikiConfiguration(
-						_readConfigurationFile(
-							PropsKeys.WIKI_FORMATS_CONFIGURATION_INTERWIKI,
-							format));
-				}
-				else {
-					engine = (WikiEngine)InstancePool.get(engineClass);
-				}
+				engine.setInterWikiConfiguration(
+					_readConfigurationFile(
+						PropsKeys.WIKI_FORMATS_CONFIGURATION_INTERWIKI,
+						format));
+				engine.setMainConfiguration(
+					_readConfigurationFile(
+						PropsKeys.WIKI_FORMATS_CONFIGURATION_MAIN, format));
 
 				_engines.put(format, engine);
 
@@ -812,17 +808,16 @@ public class WikiUtil {
 		StringPool.PLUS, StringPool.QUESTION, StringPool.SLASH
 	};
 
-	private static Log _log = LogFactoryUtil.getLog(WikiUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(WikiUtil.class);
 
-	private static WikiUtil _instance = new WikiUtil();
+	private static final WikiUtil _instance = new WikiUtil();
 
-	private static Pattern _editPageURLPattern = Pattern.compile(
+	private static final Pattern _editPageURLPattern = Pattern.compile(
 		"\\[\\$BEGIN_PAGE_TITLE_EDIT\\$\\](.*?)" +
 			"\\[\\$END_PAGE_TITLE_EDIT\\$\\]");
-	private static Pattern _viewPageURLPattern = Pattern.compile(
+	private static final Pattern _viewPageURLPattern = Pattern.compile(
 		"\\[\\$BEGIN_PAGE_TITLE\\$\\](.*?)\\[\\$END_PAGE_TITLE\\$\\]");
 
-	private Map<String, WikiEngine> _engines =
-		new ConcurrentHashMap<String, WikiEngine>();
+	private final Map<String, WikiEngine> _engines = new ConcurrentHashMap<>();
 
 }

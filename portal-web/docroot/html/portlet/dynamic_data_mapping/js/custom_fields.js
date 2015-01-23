@@ -32,7 +32,7 @@ AUI.add(
 						'<div>';
 
 		var TPL_GEOLOCATION = '<div class="field-labels-inline">' +
-									'<input type="button" value="' + A.Escape.html(Liferay.Language.get('geolocate')) + '" />' +
+									'<img src="' + themeDisplay.getPathThemeImages() + '/common/geolocation.png" title="' + A.Escape.html(Liferay.Language.get('geolocate')) + '" />' +
 								'<div>';
 
 		var TPL_LINK_TO_PAGE = '<div class="lfr-ddm-link-to-page">' +
@@ -151,7 +151,7 @@ AUI.add(
 						portletURL.setParameter('refererPortletName', '167');
 						portletURL.setParameter('struts_action', '/document_selector/view');
 						portletURL.setParameter('tabs1Names', 'documents');
-						portletURL.setPortletId('200');
+						portletURL.setPortletId(Liferay.PortletKeys.DOCUMENT_SELECTOR);
 						portletURL.setWindowState('pop_up');
 
 						Liferay.Util.selectEntity(
@@ -192,6 +192,21 @@ AUI.add(
 								}
 							)
 						);
+					},
+
+					_syncElementsFocus: function() {
+						var instance = this;
+
+						var boundingBox = instance.toolbar.get('boundingBox');
+
+						var button = boundingBox.one('button');
+
+						if (button) {
+							button.focus();
+						}
+						else {
+							DLFileEntryCellEditor.superclass._syncElementsFocus.apply(instance, arguments);
+						}
 					},
 
 					_syncFileLabel: function(title, url) {
@@ -929,7 +944,18 @@ AUI.add(
 										attributeName: attributeName,
 										editor: new A.DateCellEditor(
 											{
-												dateFormat: '%m/%d/%Y'
+												dateFormat: '%m/%d/%Y',
+												inputFormatter: function(val) {
+													var instance = this;
+
+													var value = STR_BLANK;
+
+													if (val && val.length) {
+														value = instance.formatDate(val[0]);
+													}
+
+													return value;
+												}
 											}
 										),
 										name: Liferay.Language.get('predefined-value')
@@ -1043,16 +1069,32 @@ AUI.add(
 
 					fieldNamespace: {
 						value: 'ddm'
+					},
+
+					localizable: {
+						setter: booleanParse,
+						value: false
 					}
 				},
 
-				EXTENDS: A.FormBuilderTextField,
+				EXTENDS: A.FormBuilderField,
 
 				NAME: 'ddm-geolocation',
 
 				prototype: {
 					getHTML: function() {
 						return TPL_GEOLOCATION;
+					},
+
+					getPropertyModel: function() {
+						var instance = this;
+
+						return AArray.filter(
+							DDMGeolocationField.superclass.getPropertyModel.apply(instance, arguments),
+							function(item, index) {
+								return item.attributeName !== 'predefinedValue';
+							}
+						);
 					}
 				}
 			}

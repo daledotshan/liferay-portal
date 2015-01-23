@@ -16,6 +16,7 @@ package com.liferay.portal.spring.context;
 
 import com.liferay.portal.bean.BeanLocatorImpl;
 import com.liferay.portal.cache.ehcache.ClearEhcacheThreadUtil;
+import com.liferay.portal.dao.orm.hibernate.FieldInterceptionHelperUtil;
 import com.liferay.portal.deploy.hot.IndexerPostProcessorRegistry;
 import com.liferay.portal.deploy.hot.SchedulerEntryRegistry;
 import com.liferay.portal.deploy.hot.ServiceWrapperRegistry;
@@ -39,7 +40,6 @@ import com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.template.TemplateResourceLoaderUtil;
-import com.liferay.portal.kernel.util.CharBufferPool;
 import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.ClearThreadLocalUtil;
 import com.liferay.portal.kernel.util.ClearTimerThreadUtil;
@@ -64,7 +64,6 @@ import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebAppPool;
 import com.liferay.portlet.PortletContextBagPool;
-import com.liferay.portlet.wiki.util.WikiCacheUtil;
 
 import java.beans.PropertyDescriptor;
 
@@ -195,6 +194,8 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 		ReferenceRegistry.releaseReferences();
 
+		FieldInterceptionHelperUtil.initialize();
+
 		InitUtil.init();
 
 		final ServletContext servletContext =
@@ -223,7 +224,6 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 		ClassPathUtil.initializeClassPaths(servletContext);
 
 		CacheRegistryUtil.clear();
-		CharBufferPool.cleanUp();
 		PortletContextBagPool.clear();
 		WebAppPool.clear();
 
@@ -266,7 +266,6 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 			EntityCacheUtil.clearLocalCache();
 			PermissionCacheUtil.clearCache();
 			TemplateResourceLoaderUtil.clearCache();
-			WikiCacheUtil.clearCache(0);
 
 			ServletContextPool.clear();
 
@@ -322,6 +321,8 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 			ModuleFrameworkUtilAdapter.registerContext(applicationContext);
 
+			ModuleFrameworkUtilAdapter.registerExtraPackages();
+
 			ModuleFrameworkUtilAdapter.startRuntime();
 		}
 		catch (Exception e) {
@@ -357,7 +358,7 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 	private static final Field _FILTERED_PROPERTY_DESCRIPTORS_CACHE_FIELD;
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortalContextLoaderListener.class);
 
 	private static String _portalServletContextName = StringPool.BLANK;

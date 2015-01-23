@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -45,10 +46,11 @@ import com.liferay.portal.util.PropsValues;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -64,6 +66,10 @@ public class UserIndexer extends BaseIndexer {
 	public static final String[] CLASS_NAMES = {User.class.getName()};
 
 	public static final String PORTLET_ID = PortletKeys.USERS_ADMIN;
+
+	public static long getUserId(Document document) {
+		return GetterUtil.getLong(document.get(Field.USER_ID));
+	}
 
 	public UserIndexer() {
 		setCommitImmediately(true);
@@ -246,8 +252,7 @@ public class UserIndexer extends BaseIndexer {
 
 		document.addKeyword(
 			"ancestorOrganizationIds",
-			getAncestorOrganizationIds(
-				user.getUserId(), user.getOrganizationIds()));
+			getAncestorOrganizationIds(user.getOrganizationIds()));
 		document.addText("emailAddress", user.getEmailAddress());
 		document.addText("firstName", user.getFirstName());
 		document.addText("fullName", user.getFullName());
@@ -327,8 +332,7 @@ public class UserIndexer extends BaseIndexer {
 		else if (obj instanceof long[]) {
 			long[] userIds = (long[])obj;
 
-			Map<Long, Collection<Document>> documentsMap =
-				new HashMap<Long, Collection<Document>>();
+			Map<Long, Collection<Document>> documentsMap = new HashMap<>();
 
 			for (long userId : userIds) {
 				User user = UserLocalServiceUtil.getUserById(userId);
@@ -344,7 +348,7 @@ public class UserIndexer extends BaseIndexer {
 				Collection<Document> documents = documentsMap.get(companyId);
 
 				if (documents == null) {
-					documents = new ArrayList<Document>();
+					documents = new ArrayList<>();
 
 					documentsMap.put(companyId, documents);
 				}
@@ -404,30 +408,23 @@ public class UserIndexer extends BaseIndexer {
 		reindexUsers(companyId);
 	}
 
-	protected long[] getAncestorOrganizationIds(
-			long userId, long[] organizationIds)
+	protected long[] getAncestorOrganizationIds(long[] organizationIds)
 		throws Exception {
 
-		List<Organization> ancestorOrganizations =
-			new ArrayList<Organization>();
+		Set<Long> ancestorOrganizationIds = new HashSet<>();
 
 		for (long organizationId : organizationIds) {
 			Organization organization =
 				OrganizationLocalServiceUtil.getOrganization(organizationId);
 
-			ancestorOrganizations.addAll(organization.getAncestors());
+			for (long ancestorOrganizationId :
+					organization.getAncestorOrganizationIds()) {
+
+				ancestorOrganizationIds.add(ancestorOrganizationId);
+			}
 		}
 
-		long[] ancestorOrganizationIds = new long[ancestorOrganizations.size()];
-
-		for (int i = 0; i < ancestorOrganizations.size(); i++) {
-			Organization ancestorOrganization = ancestorOrganizations.get(i);
-
-			ancestorOrganizationIds[i] =
-				ancestorOrganization.getOrganizationId();
-		}
-
-		return ancestorOrganizationIds;
+		return ArrayUtil.toLongArray(ancestorOrganizationIds);
 	}
 
 	@Override

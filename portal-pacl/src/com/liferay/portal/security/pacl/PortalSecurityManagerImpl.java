@@ -216,6 +216,10 @@ public class PortalSecurityManagerImpl extends SecurityManager
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	@Override
 	public void checkMemberAccess(Class<?> clazz, int accessibility) {
 		if (clazz == null) {
@@ -486,7 +490,7 @@ public class PortalSecurityManagerImpl extends SecurityManager
 	}
 
 	protected void initPACLImpl(Class<?> clazz, Object pacl) throws Exception {
-		Field field = clazz.getDeclaredField("_pacl");
+		Field field = ReflectionUtil.getDeclaredField(clazz, "_pacl");
 
 		synchronized (field) {
 			field.setAccessible(true);
@@ -537,7 +541,7 @@ public class PortalSecurityManagerImpl extends SecurityManager
 			TemplateContextHelper.class, new DoTemplateContextHelperPACL());
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortalSecurityManagerImpl.class.getName());
 
 	private static final ThreadLocal<ClassLoader>
@@ -636,8 +640,8 @@ public class PortalSecurityManagerImpl extends SecurityManager
 			return newReferencedBean;
 		}
 
-		private static Map<Object, Object> _doPrivilegedBeans =
-			new IdentityHashMap<Object, Object>();
+		private static final Map<Object, Object> _doPrivilegedBeans =
+			new IdentityHashMap<>();
 
 	}
 
@@ -735,7 +739,8 @@ public class PortalSecurityManagerImpl extends SecurityManager
 			);
 		}
 
-		private ClassLoaderUtil.PACL _noPacl = new ClassLoaderUtil.NoPACL();
+		private final ClassLoaderUtil.PACL _noPacl =
+			new ClassLoaderUtil.NoPACL();
 
 	}
 
@@ -1301,8 +1306,7 @@ public class PortalSecurityManagerImpl extends SecurityManager
 					PortletClassLoaderUtil.getClassLoader(), _classes));
 		}
 
-		private static Map<String, Class<?>> _classes =
-			new HashMap<String, Class<?>>();
+		private static final Map<String, Class<?>> _classes = new HashMap<>();
 
 		static {
 			for (String className :

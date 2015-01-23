@@ -50,6 +50,8 @@ public interface WebKeys {
 	@Distributed(direction = Direction.REQUEST)
 	public static final String CURRENT_URL = "CURRENT_URL";
 
+	public static final String DOCUMENT_LIBRARY_FOLDER = "DOCUMENT_LIBRARY_FOLDER";
+
 	public static final String EXTEND_SESSION = "EXTEND_SESSION";
 
 	public static final String FILE_ITEM_THRESHOLD_SIZE_EXCEEDED = "FILE_ITEM_THRESHOLD_SIZE_EXCEEDED";
@@ -144,6 +146,8 @@ public interface WebKeys {
 	public static final String PORTLET_SESSION = "PORTLET_SESSION";
 
 	public static final String PORTLET_SESSION_ATTRIBUTES = "PORTLET_SESSION_ATTRIBUTES_";
+
+	public static final String PRIVATE_LAYOUT = "PRIVATE_LAYOUT";
 
 	public static final String REDIRECT = "REDIRECT";
 

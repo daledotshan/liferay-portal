@@ -33,8 +33,8 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
+import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
@@ -185,7 +185,8 @@ public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 
 		if (Validator.isNotNull(article.getLayoutUuid())) {
 			String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
-				GroupLocalServiceUtil.getGroup(article.getGroupId()), false,
+				LayoutSetLocalServiceUtil.getLayoutSet(
+					article.getGroupId(), false),
 				themeDisplay);
 
 			return groupFriendlyURL.concat(
@@ -225,6 +226,7 @@ public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 		return sb.toString();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(PortalOpenSearchImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		PortalOpenSearchImpl.class);
 
 }

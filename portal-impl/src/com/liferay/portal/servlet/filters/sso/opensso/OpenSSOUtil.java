@@ -88,7 +88,7 @@ public class OpenSSOUtil {
 	private Map<String, String> _getAttributes(
 		HttpServletRequest request, String serviceUrl) {
 
-		Map<String, String> nameValues = new HashMap<String, String>();
+		Map<String, String> nameValues = new HashMap<>();
 
 		String url = serviceUrl.concat(_GET_ATTRIBUTES);
 
@@ -171,7 +171,7 @@ public class OpenSSOUtil {
 			return cookieNames;
 		}
 
-		List<String> cookieNamesList = new ArrayList<String>();
+		List<String> cookieNamesList = new ArrayList<>();
 
 		try {
 			String cookieName = null;
@@ -432,11 +432,11 @@ public class OpenSSOUtil {
 
 	private static final String _VALIDATE_TOKEN = "/identity/isTokenValid";
 
-	private static Log _log = LogFactoryUtil.getLog(OpenSSOUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(OpenSSOUtil.class);
 
-	private static OpenSSOUtil _instance = new OpenSSOUtil();
+	private static final OpenSSOUtil _instance = new OpenSSOUtil();
 
-	private Map<String, String[]> _cookieNamesMap =
-		new ConcurrentHashMap<String, String[]>();
+	private final Map<String, String[]> _cookieNamesMap =
+		new ConcurrentHashMap<>();
 
 }

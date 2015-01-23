@@ -14,7 +14,7 @@
 
 package com.liferay.iframe.web.portlet;
 
-import com.liferay.iframe.web.upgrade.IFrameUpgrade;
+import com.liferay.iframe.web.upgrade.IFrameWebUpgrade;
 import com.liferay.iframe.web.util.IFrameUtil;
 import com.liferay.iframe.web.util.IFrameWebKeys;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -44,8 +44,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @author Raymond Augé
  * @author Peter Fellwock
-*/
-
+ */
 @Component(
 	immediate = true,
 	property = {
@@ -90,9 +89,7 @@ public class IFramePortlet extends MVCPortlet {
 		if (Validator.isNull(src) || src.equals(Http.HTTP_WITH_SLASH) ||
 			src.equals(Http.HTTPS_WITH_SLASH)) {
 
-			include(
-				"/html/portal/portlet_not_setup.jsp", renderRequest,
-				renderResponse);
+			include("/portlet_not_setup.jsp", renderRequest, renderResponse);
 		}
 		else {
 			super.doView(renderRequest, renderResponse);
@@ -136,7 +133,7 @@ public class IFramePortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
-	protected void setIFrameUpgrade(IFrameUpgrade iFrameUpgrade) {
+	protected void setIFrameWebUpgrade(IFrameWebUpgrade iFrameWebUpgrade) {
 	}
 
 	protected String transformSrc(
@@ -183,6 +180,6 @@ public class IFramePortlet extends MVCPortlet {
 		return src;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(IFramePortlet.class);
+	private static final Log _log = LogFactoryUtil.getLog(IFramePortlet.class);
 
 }

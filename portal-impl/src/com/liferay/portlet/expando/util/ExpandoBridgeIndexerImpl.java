@@ -217,7 +217,7 @@ public class ExpandoBridgeIndexerImpl implements ExpandoBridgeIndexer {
 			return;
 		}
 
-		List<ExpandoColumn> indexedColumns = new ArrayList<ExpandoColumn>();
+		List<ExpandoColumn> indexedColumns = new ArrayList<>();
 
 		for (ExpandoColumn expandoColumn : expandoColumns) {
 			UnicodeProperties properties =
@@ -254,7 +254,7 @@ public class ExpandoBridgeIndexerImpl implements ExpandoBridgeIndexer {
 
 	protected static final String FIELD_NAMESPACE = "expando";
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		ExpandoBridgeIndexerImpl.class);
 
 }

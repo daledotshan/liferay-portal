@@ -127,8 +127,8 @@ public class CacheTemplateResource implements TemplateResource {
 	}
 
 	private long _lastModified = System.currentTimeMillis();
-	private AtomicReference<String> _templateContent =
-		new AtomicReference<String>();
+	private final AtomicReference<String> _templateContent =
+		new AtomicReference<>();
 	private TemplateResource _templateResource;
 
 }

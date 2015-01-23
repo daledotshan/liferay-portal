@@ -64,8 +64,8 @@ import org.junit.Test;
 public class JMXProxyUtilTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Before
 	public void setUp() throws Exception {
@@ -720,7 +720,7 @@ public class JMXProxyUtilTest {
 				ProcessCallable<V> processCallable) {
 
 				DefaultNoticeableFuture<V> defaultNoticeableFuture =
-					new DefaultNoticeableFuture<V>();
+					new DefaultNoticeableFuture<>();
 
 				try {
 					defaultNoticeableFuture.set(processCallable.call());

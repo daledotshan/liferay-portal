@@ -68,9 +68,8 @@ public class StagingUtil {
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             com.liferay.portal.service.StagingLocalServiceUtil#
-	 *             checkDefaultLayoutSetBranches(long, Group, boolean, boolean,
-	 *             boolean, ServiceContext))}
+	 *             com.liferay.portal.service.StagingLocalServiceUtil#checkDefaultLayoutSetBranches(
+	 *             long, Group, boolean, boolean, boolean, ServiceContext)}
 	 */
 	@Deprecated
 	public static void checkDefaultLayoutSetBranches(
@@ -548,6 +547,13 @@ public class StagingUtil {
 			layoutElement, layout, portletDataContext);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             com.liferay.portal.kernel.lar.ExportImportDateUtil#updateLastPublishDate(
+	 *             long, boolean, com.liferay.portal.kernel.util.DateRange,
+	 *             Date)}
+	 */
+	@Deprecated
 	public static void updateLastPublishDate(
 			long sourceGroupId, boolean privateLayout, Date lastPublishDate)
 		throws PortalException {
@@ -556,6 +562,13 @@ public class StagingUtil {
 			sourceGroupId, privateLayout, lastPublishDate);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             com.liferay.portal.kernel.lar.ExportImportDateUtil#updateLastPublishDate(
+	 *             String, PortletPreferences,
+	 *             com.liferay.portal.kernel.util.DateRange, Date)}
+	 */
+	@Deprecated
 	public static void updateLastPublishDate(
 			String portletId, PortletPreferences portletPreferences,
 			Date lastPublishDate)
