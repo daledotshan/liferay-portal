@@ -147,7 +147,7 @@ AUI.add(
 
 				var translationManager = Liferay.component(instance.get('portletNamespace') + 'translationManager');
 
-				if (translationManager) {
+				if (translationManager && field.get('fields').length == 0) {
 					translationManager.addTarget(field);
 				}
 
