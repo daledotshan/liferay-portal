@@ -78,7 +78,7 @@ public class XSLTemplate implements Template {
 		catch (TransformerConfigurationException tce) {
 		}
 
-		_context = new HashMap<String, Object>();
+		_context = new HashMap<>();
 	}
 
 	@Override
@@ -242,12 +242,12 @@ public class XSLTemplate implements Template {
 		}
 	}
 
-	private Map<String, Object> _context;
+	private final Map<String, Object> _context;
 	private TemplateResource _errorTemplateResource;
-	private TemplateContextHelper _templateContextHelper;
+	private final TemplateContextHelper _templateContextHelper;
 	private TransformerFactory _transformerFactory;
 	private StreamSource _xmlStreamSource;
-	private XSLTemplateResource _xslTemplateResource;
+	private final XSLTemplateResource _xslTemplateResource;
 
 	private class TransformerPrivilegedExceptionAction
 		implements PrivilegedExceptionAction<Transformer> {
@@ -264,7 +264,7 @@ public class XSLTemplate implements Template {
 			return _transformerFactory.newTransformer(_scriptSource);
 		}
 
-		private StreamSource _scriptSource;
+		private final StreamSource _scriptSource;
 		private TransformerFactory _transformerFactory;
 
 	}

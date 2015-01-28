@@ -16,7 +16,7 @@ package com.liferay.portal.repository.capabilities;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.LocalRepository;
-import com.liferay.portal.kernel.repository.capabilities.SyncCapability;
+import com.liferay.portal.kernel.repository.capabilities.CapabilityProvider;
 import com.liferay.portal.kernel.repository.event.RepositoryEventTrigger;
 import com.liferay.portal.kernel.repository.event.RepositoryEventType;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -38,10 +38,10 @@ public class CapabilityLocalRepository
 	implements LocalRepository {
 
 	public CapabilityLocalRepository(
-		LocalRepository localRepository,
+		LocalRepository localRepository, CapabilityProvider capabilityProvider,
 		RepositoryEventTrigger repositoryEventTrigger) {
 
-		super(localRepository);
+		super(localRepository, capabilityProvider);
 
 		_repositoryEventTrigger = repositoryEventTrigger;
 	}
@@ -102,19 +102,63 @@ public class CapabilityLocalRepository
 	}
 
 	@Override
+	public void checkInFileEntry(
+			long userId, long fileEntryId, boolean major, String changeLog,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		LocalRepository localRepository = getRepository();
+
+		localRepository.checkInFileEntry(
+			userId, fileEntryId, major, changeLog, serviceContext);
+
+		FileEntry fileEntry = localRepository.getFileEntry(fileEntryId);
+
+		_repositoryEventTrigger.trigger(
+			RepositoryEventType.Update.class, FileEntry.class, fileEntry);
+	}
+
+	@Override
+	public void checkInFileEntry(
+			long userId, long fileEntryId, String lockUuid,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		LocalRepository localRepository = getRepository();
+
+		localRepository.checkInFileEntry(
+			userId, fileEntryId, lockUuid, serviceContext);
+
+		FileEntry fileEntry = localRepository.getFileEntry(fileEntryId);
+
+		_repositoryEventTrigger.trigger(
+			RepositoryEventType.Update.class, FileEntry.class, fileEntry);
+	}
+
+	@Override
+	public FileEntry copyFileEntry(
+			long userId, long groupId, long fileEntryId, long destFolderId,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		LocalRepository localRepository = getRepository();
+
+		FileEntry fileEntry = localRepository.copyFileEntry(
+			userId, groupId, fileEntryId, destFolderId, serviceContext);
+
+		_repositoryEventTrigger.trigger(
+			RepositoryEventType.Add.class, FileEntry.class, fileEntry);
+
+		return fileEntry;
+	}
+
+	@Override
 	public void deleteAll() throws PortalException {
 		LocalRepository localRepository = getRepository();
 
 		_repositoryEventTrigger.trigger(
 			RepositoryEventType.Delete.class, LocalRepository.class,
 			localRepository);
-
-		SyncCapability syncCapability = getInternalCapability(
-			SyncCapability.class);
-
-		if (syncCapability != null) {
-			syncCapability.destroyLocalRepository(this);
-		}
 
 		localRepository.deleteAll();
 	}
@@ -181,12 +225,12 @@ public class CapabilityLocalRepository
 
 	@Override
 	public List<FileEntry> getRepositoryFileEntries(
-			long rootFolderId, int start, int end,
+			long userId, long rootFolderId, int start, int end,
 			OrderByComparator<FileEntry> obc)
 		throws PortalException {
 
 		return getRepository().getRepositoryFileEntries(
-			rootFolderId, start, end, obc);
+			userId, rootFolderId, start, end, obc);
 	}
 
 	@Override
@@ -228,6 +272,27 @@ public class CapabilityLocalRepository
 		return folder;
 	}
 
+	@Override
+	public void revertFileEntry(
+			long userId, long fileEntryId, String version,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		LocalRepository localRepository = getRepository();
+
+		localRepository.revertFileEntry(
+			userId, fileEntryId, version, serviceContext);
+
+		FileEntry fileEntry = getFileEntry(fileEntryId);
+
+		_repositoryEventTrigger.trigger(
+			RepositoryEventType.Update.class, FileEntry.class, fileEntry);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public void updateAsset(
 			long userId, FileEntry fileEntry, FileVersion fileVersion,
@@ -296,6 +361,6 @@ public class CapabilityLocalRepository
 		return folder;
 	}
 
-	private RepositoryEventTrigger _repositoryEventTrigger;
+	private final RepositoryEventTrigger _repositoryEventTrigger;
 
 }

@@ -64,7 +64,9 @@ public class DDMTemplateWrapper implements DDMTemplate,
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
+		attributes.put("sourceClassNameId", getSourceClassNameId());
 		attributes.put("templateKey", getTemplateKey());
+		attributes.put("version", getVersion());
 		attributes.put("name", getName());
 		attributes.put("description", getDescription());
 		attributes.put("type", getType());
@@ -141,10 +143,22 @@ public class DDMTemplateWrapper implements DDMTemplate,
 			setClassPK(classPK);
 		}
 
+		Long sourceClassNameId = (Long)attributes.get("sourceClassNameId");
+
+		if (sourceClassNameId != null) {
+			setSourceClassNameId(sourceClassNameId);
+		}
+
 		String templateKey = (String)attributes.get("templateKey");
 
 		if (templateKey != null) {
 			setTemplateKey(templateKey);
+		}
+
+		String version = (String)attributes.get("version");
+
+		if (version != null) {
+			setVersion(version);
 		}
 
 		String name = (String)attributes.get("name");
@@ -551,6 +565,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	}
 
 	/**
+	* Returns the source class name ID of this d d m template.
+	*
+	* @return the source class name ID of this d d m template
+	*/
+	@Override
+	public long getSourceClassNameId() {
+		return _ddmTemplate.getSourceClassNameId();
+	}
+
+	/**
 	* Returns the template ID of this d d m template.
 	*
 	* @return the template ID of this d d m template
@@ -624,6 +648,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public java.lang.String getUuid() {
 		return _ddmTemplate.getUuid();
+	}
+
+	/**
+	* Returns the version of this d d m template.
+	*
+	* @return the version of this d d m template
+	*/
+	@Override
+	public java.lang.String getVersion() {
+		return _ddmTemplate.getVersion();
 	}
 
 	/**
@@ -1011,6 +1045,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	}
 
 	/**
+	* Sets the source class name ID of this d d m template.
+	*
+	* @param sourceClassNameId the source class name ID of this d d m template
+	*/
+	@Override
+	public void setSourceClassNameId(long sourceClassNameId) {
+		_ddmTemplate.setSourceClassNameId(sourceClassNameId);
+	}
+
+	/**
 	* Sets the template ID of this d d m template.
 	*
 	* @param templateId the template ID of this d d m template
@@ -1078,6 +1122,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public void setUuid(java.lang.String uuid) {
 		_ddmTemplate.setUuid(uuid);
+	}
+
+	/**
+	* Sets the version of this d d m template.
+	*
+	* @param version the version of this d d m template
+	*/
+	@Override
+	public void setVersion(java.lang.String version) {
+		_ddmTemplate.setVersion(version);
 	}
 
 	@Override

@@ -20,12 +20,13 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PwdGenerator;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.ldap.PortalLDAPImporterUtil;
+import com.liferay.portal.security.exportimport.UserImporterUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.servlet.filters.sso.opensso.OpenSSOUtil;
@@ -33,7 +34,6 @@ import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.util.PwdGenerator;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -159,11 +159,11 @@ public class OpenSSOAutoLogin extends BaseAutoLogin {
 					PropsValues.COMPANY_SECURITY_AUTH_TYPE);
 
 				if (authType.equals(CompanyConstants.AUTH_TYPE_SN)) {
-					user = PortalLDAPImporterUtil.importLDAPUser(
+					user = UserImporterUtil.importUser(
 						companyId, StringPool.BLANK, screenName);
 				}
 				else {
-					user = PortalLDAPImporterUtil.importLDAPUser(
+					user = UserImporterUtil.importUser(
 						companyId, emailAddress, StringPool.BLANK);
 				}
 			}
@@ -229,6 +229,7 @@ public class OpenSSOAutoLogin extends BaseAutoLogin {
 		return credentials;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(OpenSSOAutoLogin.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		OpenSSOAutoLogin.class);
 
 }

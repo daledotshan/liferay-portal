@@ -147,7 +147,7 @@ public class WorkflowHandlerRegistryUtil {
 			status = WorkflowConstants.STATUS_APPROVED;
 		}
 
-		workflowContext = new HashMap<String, Serializable>(workflowContext);
+		workflowContext = new HashMap<>(workflowContext);
 
 		workflowContext.put(
 			WorkflowConstants.CONTEXT_COMPANY_ID, String.valueOf(companyId));
@@ -312,20 +312,20 @@ public class WorkflowHandlerRegistryUtil {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		WorkflowHandlerRegistryUtil.class);
 
-	private static WorkflowHandlerRegistryUtil _instance =
+	private static final WorkflowHandlerRegistryUtil _instance =
 		new WorkflowHandlerRegistryUtil();
 
-	private Map<String, WorkflowHandler<?>> _scopeableWorkflowHandlerMap =
-		new ConcurrentSkipListMap<String, WorkflowHandler<?>>();
-	private ServiceRegistrationMap<WorkflowHandler<?>> _serviceRegistrations =
-		new ServiceRegistrationMap<WorkflowHandler<?>>();
-	private ServiceTracker<WorkflowHandler<?>, WorkflowHandler<?>>
+	private final Map<String, WorkflowHandler<?>> _scopeableWorkflowHandlerMap =
+		new ConcurrentSkipListMap<>();
+	private final ServiceRegistrationMap<WorkflowHandler<?>>
+		_serviceRegistrations = new ServiceRegistrationMap<>();
+	private final ServiceTracker<WorkflowHandler<?>, WorkflowHandler<?>>
 		_serviceTracker;
-	private Map<String, WorkflowHandler<?>> _workflowHandlerMap =
-		new TreeMap<String, WorkflowHandler<?>>();
+	private final Map<String, WorkflowHandler<?>> _workflowHandlerMap =
+		new TreeMap<>();
 
 	private class WorkflowHandlerServiceTrackerCustomizer
 		implements

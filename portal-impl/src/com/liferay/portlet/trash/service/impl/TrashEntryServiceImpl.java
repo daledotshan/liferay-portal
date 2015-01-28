@@ -68,6 +68,12 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 		PermissionChecker permissionChecker = getPermissionChecker();
 
 		for (TrashEntry entry : entries) {
+			entry = trashEntryPersistence.fetchByPrimaryKey(entry.getEntryId());
+
+			if (entry == null) {
+				continue;
+			}
+
 			try {
 				TrashHandler trashHandler =
 					TrashHandlerRegistryUtil.getTrashHandler(
@@ -218,7 +224,7 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 		List<TrashEntry> entries = trashEntryPersistence.findByGroupId(
 			groupId, 0, end + PropsValues.TRASH_SEARCH_LIMIT, obc);
 
-		List<TrashEntry> filteredEntries = new ArrayList<TrashEntry>();
+		List<TrashEntry> filteredEntries = new ArrayList<>();
 
 		PermissionChecker permissionChecker = getPermissionChecker();
 
@@ -481,7 +487,7 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 		trashHandler.deleteTrashEntry(entry.getClassPK());
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		TrashEntryServiceImpl.class);
 
 }

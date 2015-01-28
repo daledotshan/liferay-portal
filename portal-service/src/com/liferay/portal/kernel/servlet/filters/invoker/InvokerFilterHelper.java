@@ -16,7 +16,6 @@ package com.liferay.portal.kernel.servlet.filters.invoker;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.servlet.PluginContextListener;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
@@ -238,16 +237,7 @@ public class InvokerFilterHelper {
 	}
 
 	protected ClassLoader getPluginClassLoader(ServletContext servletContext) {
-		ClassLoader classLoader = (ClassLoader)servletContext.getAttribute(
-			PluginContextListener.PLUGIN_CLASS_LOADER);
-
-		if (classLoader != null) {
-			return classLoader;
-		}
-
-		Thread currentThread = Thread.currentThread();
-
-		return currentThread.getContextClassLoader();
+		return servletContext.getClassLoader();
 	}
 
 	protected void initFilter(
@@ -310,8 +300,7 @@ public class InvokerFilterHelper {
 			String filterName = filterElement.elementText("filter-name");
 			String filterClassName = filterElement.elementText("filter-class");
 
-			Map<String, String> initParameterMap =
-				new HashMap<String, String>();
+			Map<String, String> initParameterMap = new HashMap<>();
 
 			List<Element> initParamElements = filterElement.elements(
 				"init-param");
@@ -333,7 +322,7 @@ public class InvokerFilterHelper {
 		for (Element filterMappingElement : filterMappingElements) {
 			String filterName = filterMappingElement.elementText("filter-name");
 
-			List<String> urlPatterns = new ArrayList<String>();
+			List<String> urlPatterns = new ArrayList<>();
 
 			List<Element> urlPatternElements = filterMappingElement.elements(
 				"url-pattern");
@@ -342,7 +331,7 @@ public class InvokerFilterHelper {
 				urlPatterns.add(urlPatternElement.getTextTrim());
 			}
 
-			List<String> dispatchers = new ArrayList<String>(4);
+			List<String> dispatchers = new ArrayList<>(4);
 
 			List<Element> dispatcherElements = filterMappingElement.elements(
 				"dispatcher");
@@ -360,8 +349,7 @@ public class InvokerFilterHelper {
 
 	protected void registerFilterMapping(
 		String filterName, List<String> urlPatterns, List<String> dispatchers,
-		String positionFilterName,
-		boolean after) {
+		String positionFilterName, boolean after) {
 
 		Filter filter = getFilter(filterName);
 
@@ -385,15 +373,14 @@ public class InvokerFilterHelper {
 		registerFilterMapping(filterMapping, positionFilterName, after);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(InvokerFilterHelper.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		InvokerFilterHelper.class);
 
-	private Map<String, FilterConfig> _filterConfigs =
-		new HashMap<String, FilterConfig>();
-	private List<FilterMapping> _filterMappings =
-		new CopyOnWriteArrayList<FilterMapping>();
-	private Map<String, Filter> _filters = new HashMap<String, Filter>();
-	private List<InvokerFilter> _invokerFilters =
-		new ArrayList<InvokerFilter>();
+	private final Map<String, FilterConfig> _filterConfigs = new HashMap<>();
+	private final List<FilterMapping> _filterMappings =
+		new CopyOnWriteArrayList<>();
+	private final Map<String, Filter> _filters = new HashMap<>();
+	private final List<InvokerFilter> _invokerFilters = new ArrayList<>();
 	private ServiceTracker<Filter, FilterMapping> _serviceTracker;
 
 	private class FilterServiceTrackerCustomizer
@@ -429,8 +416,7 @@ public class InvokerFilterHelper {
 				after = true;
 			}
 
-			Map<String, String> initParameterMap =
-				new HashMap<String, String>();
+			Map<String, String> initParameterMap = new HashMap<>();
 
 			Map<String, Object> properties = serviceReference.getProperties();
 
