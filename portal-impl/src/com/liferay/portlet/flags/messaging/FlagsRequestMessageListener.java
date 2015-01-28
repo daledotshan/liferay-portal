@@ -168,9 +168,9 @@ public class FlagsRequestMessageListener extends BaseMessageListener {
 	protected Set<User> getRecipients(long companyId, long groupId)
 		throws PortalException {
 
-		Set<User> recipients = new LinkedHashSet<User>();
+		Set<User> recipients = new LinkedHashSet<>();
 
-		List<String> roleNames = new ArrayList<String>();
+		List<String> roleNames = new ArrayList<>();
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
@@ -250,7 +250,7 @@ public class FlagsRequestMessageListener extends BaseMessageListener {
 		subscriptionSender.flushNotificationsAsync();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		FlagsRequestMessageListener.class);
 
 }

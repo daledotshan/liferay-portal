@@ -38,9 +38,22 @@ public class AsyncBroker<K, V> {
 			_defaultNoticeableFutures);
 	}
 
-	public NoticeableFuture<V> post(final K key) {
+	public NoticeableFuture<V> post(K key) {
 		DefaultNoticeableFuture<V> defaultNoticeableFuture =
-			new DefaultNoticeableFuture<V>();
+			new DefaultNoticeableFuture<>();
+
+		NoticeableFuture<V> previousNoticeableFuture = post(
+			key, defaultNoticeableFuture);
+
+		if (previousNoticeableFuture == null) {
+			return defaultNoticeableFuture;
+		}
+
+		return previousNoticeableFuture;
+	}
+
+	public NoticeableFuture<V> post(
+		final K key, final DefaultNoticeableFuture<V> defaultNoticeableFuture) {
 
 		DefaultNoticeableFuture<V> previousDefaultNoticeableFuture =
 			_defaultNoticeableFutures.putIfAbsent(key, defaultNoticeableFuture);
@@ -54,7 +67,8 @@ public class AsyncBroker<K, V> {
 
 				@Override
 				public void complete(Future<V> future) {
-					_defaultNoticeableFutures.remove(key);
+					_defaultNoticeableFutures.remove(
+						key, defaultNoticeableFuture);
 				}
 
 			});
@@ -65,7 +79,7 @@ public class AsyncBroker<K, V> {
 				FinalizeManager.PHANTOM_REFERENCE_FACTORY);
 		}
 
-		return defaultNoticeableFuture;
+		return null;
 	}
 
 	public NoticeableFuture<V> take(K key) {
@@ -100,7 +114,7 @@ public class AsyncBroker<K, V> {
 
 	private static final Field _REFERENT_FIELD;
 
-	private static Log _log = LogFactoryUtil.getLog(AsyncBroker.class);
+	private static final Log _log = LogFactoryUtil.getLog(AsyncBroker.class);
 
 	static {
 		Field referentField = null;
@@ -123,9 +137,8 @@ public class AsyncBroker<K, V> {
 	}
 
 	private final ConcurrentMap<K, DefaultNoticeableFuture<V>>
-		_defaultNoticeableFutures =
-			new ConcurrentReferenceValueHashMap<K, DefaultNoticeableFuture<V>>(
-				FinalizeManager.WEAK_REFERENCE_FACTORY);
+		_defaultNoticeableFutures = new ConcurrentReferenceValueHashMap<>(
+			FinalizeManager.WEAK_REFERENCE_FACTORY);
 
 	private static class CancellationFinalizeAction implements FinalizeAction {
 

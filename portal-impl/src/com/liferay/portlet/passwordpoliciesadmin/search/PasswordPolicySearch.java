@@ -42,9 +42,8 @@ public class PasswordPolicySearch extends SearchContainer<PasswordPolicy> {
 	public static final String EMPTY_RESULTS_MESSAGE =
 		"no-password-policies-were-found";
 
-	public static List<String> headerNames = new ArrayList<String>();
-	public static Map<String, String> orderableHeaders =
-		new HashMap<String, String>();
+	public static List<String> headerNames = new ArrayList<>();
+	public static Map<String, String> orderableHeaders = new HashMap<>();
 
 	static {
 		headerNames.add("name");
@@ -111,6 +110,7 @@ public class PasswordPolicySearch extends SearchContainer<PasswordPolicy> {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(PasswordPolicySearch.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		PasswordPolicySearch.class);
 
 }

@@ -96,7 +96,7 @@ public class EhcacheCallbackFactory implements CallbackFactory {
 						cacheEventListener);
 			}
 
-			return new EhcacheCacheListenerAdapter<K, V>(cacheEventListener);
+			return new EhcacheCacheListenerAdapter<>(cacheEventListener);
 		}
 		catch (Exception e) {
 			_log.error(
@@ -163,7 +163,7 @@ public class EhcacheCallbackFactory implements CallbackFactory {
 	private EhcacheCallbackFactory() {
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		EhcacheCallbackFactory.class);
 
 }

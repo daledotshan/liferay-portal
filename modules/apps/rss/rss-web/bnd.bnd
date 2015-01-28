@@ -1,0 +1,7 @@
+Bundle-Name: Liferay RSS Web
+Bundle-SymbolicName: com.liferay.rss.web
+Bundle-Version: 1.0.0
+Include-Resource:\
+	classes,\
+	META-INF/resources=src/META-INF/resources,\
+	@../../../../util-taglib/util-taglib.jar

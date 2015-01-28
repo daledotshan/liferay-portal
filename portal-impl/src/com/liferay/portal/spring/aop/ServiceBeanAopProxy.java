@@ -74,9 +74,8 @@ public class ServiceBeanAopProxy
 			proxyInterfaces, SpringProxy.class);
 
 		ArrayList<MethodInterceptor> classLevelMethodInterceptors =
-			new ArrayList<MethodInterceptor>();
-		ArrayList<MethodInterceptor> fullMethodInterceptors =
-			new ArrayList<MethodInterceptor>();
+			new ArrayList<>();
+		ArrayList<MethodInterceptor> fullMethodInterceptors = new ArrayList<>();
 
 		while (true) {
 			if (!(methodInterceptor instanceof ChainableMethodAdvice)) {
@@ -190,8 +189,8 @@ public class ServiceBeanAopProxy
 	private List<MethodInterceptor> _getMethodInterceptors(
 		ServiceBeanMethodInvocation serviceBeanMethodInvocation) {
 
-		List<MethodInterceptor> methodInterceptors =
-			new ArrayList<MethodInterceptor>(_fullMethodInterceptors);
+		List<MethodInterceptor> methodInterceptors = new ArrayList<>(
+			_fullMethodInterceptors);
 
 		if (!_mergeSpringMethodInterceptors) {
 			return methodInterceptors;
@@ -253,16 +252,17 @@ public class ServiceBeanAopProxy
 			methodInterceptorsBag.getMergedMethodInterceptors());
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ServiceBeanAopProxy.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ServiceBeanAopProxy.class);
 
-	private static PACL _pacl = new NoPACL();
+	private static final PACL _pacl = new NoPACL();
 
-	private AdvisedSupport _advisedSupport;
-	private AdvisorChainFactory _advisorChainFactory;
+	private final AdvisedSupport _advisedSupport;
+	private final AdvisorChainFactory _advisorChainFactory;
 	private final List<MethodInterceptor> _classLevelMethodInterceptors;
 	private final List<MethodInterceptor> _fullMethodInterceptors;
-	private boolean _mergeSpringMethodInterceptors;
-	private ServiceBeanAopCacheManager _serviceBeanAopCacheManager;
+	private final boolean _mergeSpringMethodInterceptors;
+	private final ServiceBeanAopCacheManager _serviceBeanAopCacheManager;
 
 	private static class NoPACL implements PACL {
 

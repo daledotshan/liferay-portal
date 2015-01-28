@@ -32,7 +32,7 @@ import org.springframework.expression.EvaluationContext;
 public class ExpandoValueBeanResolver implements BeanResolver {
 
 	public ExpandoValueBeanResolver(List<ExpandoValue> expandoValues) {
-		_expandoValues = new HashMap<String, ExpandoValue>();
+		_expandoValues = new HashMap<>();
 
 		try {
 			for (ExpandoValue expandoValue : expandoValues) {
@@ -51,9 +51,9 @@ public class ExpandoValueBeanResolver implements BeanResolver {
 		return _expandoValues.get(beanName);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		ExpandoValueBeanResolver.class);
 
-	private Map<String, ExpandoValue> _expandoValues;
+	private final Map<String, ExpandoValue> _expandoValues;
 
 }

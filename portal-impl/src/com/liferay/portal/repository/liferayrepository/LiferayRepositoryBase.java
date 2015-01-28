@@ -75,8 +75,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 		this.dlFolderLocalService = dlFolderLocalService;
 		this.dlFolderService = dlFolderService;
 		this.resourceLocalService = resourceLocalService;
-		_repositoryId = repositoryId;
 		_groupId = groupId;
+		_repositoryId = repositoryId;
 		_dlFolderId = dlFolderId;
 	}
 
@@ -143,7 +143,7 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 			ServiceContext serviceContext, long fileEntryTypeId)
 		throws PortalException {
 
-		HashMap<String, Fields> fieldsMap = new HashMap<String, Fields>();
+		HashMap<String, Fields> fieldsMap = new HashMap<>();
 
 		if (fileEntryTypeId <= 0) {
 			return fieldsMap;
@@ -181,12 +181,12 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 		String value = ParamUtil.getString(serviceContext, name);
 
 		if (value == null) {
-			return new SortedArrayList<Long>();
+			return new SortedArrayList<>();
 		}
 
 		long[] longArray = StringUtil.split(value, 0L);
 
-		SortedArrayList<Long> longList = new SortedArrayList<Long>();
+		SortedArrayList<Long> longList = new SortedArrayList<>();
 
 		for (long longValue : longArray) {
 			longList.add(longValue);
@@ -214,7 +214,7 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 	}
 
 	protected List<Long> toFolderIds(List<Long> folderIds) {
-		List<Long> toFolderIds = new ArrayList<Long>(folderIds.size());
+		List<Long> toFolderIds = new ArrayList<>(folderIds.size());
 
 		for (long folderId : folderIds) {
 			toFolderIds.add(toFolderId(folderId));
@@ -235,8 +235,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 	protected RepositoryService repositoryService;
 	protected ResourceLocalService resourceLocalService;
 
-	private long _dlFolderId;
+	private final long _dlFolderId;
 	private long _groupId;
-	private long _repositoryId;
+	private final long _repositoryId;
 
 }

@@ -71,7 +71,7 @@ public class JSONRPCResponse implements JSONSerializable {
 
 	@Override
 	public String toJSONString() {
-		Map<String, Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<>();
 
 		if (_error != null) {
 			response.put("error", _error);
@@ -112,8 +112,8 @@ public class JSONRPCResponse implements JSONSerializable {
 			return _message;
 		}
 
-		private int _code;
-		private String _message;
+		private final int _code;
+		private final String _message;
 
 	}
 
