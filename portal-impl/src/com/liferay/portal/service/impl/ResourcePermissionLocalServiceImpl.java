@@ -42,7 +42,6 @@ import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.base.ResourcePermissionLocalServiceBaseImpl;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.ResourcePermissionsThreadLocal;
 import com.liferay.util.dao.orm.CustomSQLUtil;
@@ -161,11 +160,11 @@ public class ResourcePermissionLocalServiceImpl
 	 * permissions to view all blog posts.
 	 * </p>
 	 *
-	 * @param  resourceName the resource's name, which can be either a class
-	 *         name or a portlet ID
-	 * @param  roleName the role's name
-	 * @param  scope the scope
-	 * @param  resourceActionBitwiseValue the bitwise IDs of the actions
+	 * @param resourceName the resource's name, which can be either a class name
+	 *        or a portlet ID
+	 * @param roleName the role's name
+	 * @param scope the scope
+	 * @param resourceActionBitwiseValue the bitwise IDs of the actions
 	 */
 	@Override
 	public void addResourcePermissions(
@@ -324,6 +323,14 @@ public class ResourcePermissionLocalServiceImpl
 	}
 
 	@Override
+	public ResourcePermission fetchResourcePermission(
+		long companyId, String name, int scope, String primKey, long roleId) {
+
+		return resourcePermissionPersistence.fetchByC_N_S_P_R(
+			companyId, name, scope, primKey, roleId);
+	}
+
+	@Override
 	public Map<Long, Set<String>> getAvailableResourcePermissionActionIds(
 		long companyId, String name, int scope, String primKey,
 		Collection<String> actionIds) {
@@ -335,16 +342,15 @@ public class ResourcePermissionLocalServiceImpl
 		List<ResourcePermission> resourcePermissions = getResourcePermissions(
 			companyId, name, scope, primKey);
 
-		Map<Long, Set<String>> roleIdsToActionIds =
-			new HashMap<Long, Set<String>>(resourcePermissions.size());
+		Map<Long, Set<String>> roleIdsToActionIds = new HashMap<>(
+			resourcePermissions.size());
 
 		for (ResourcePermission resourcePermission : resourcePermissions) {
 			if (resourcePermission.getActionIds() == 0) {
 				continue;
 			}
 
-			Set<String> availableActionIds = new HashSet<String>(
-				actionIds.size());
+			Set<String> availableActionIds = new HashSet<>(actionIds.size());
 
 			for (String actionId : actionIds) {
 				if (resourcePermission.hasActionId(actionId)) {
@@ -391,8 +397,7 @@ public class ResourcePermissionLocalServiceImpl
 			return Collections.emptyList();
 		}
 
-		List<String> availableActionIds = new ArrayList<String>(
-			actionIds.size());
+		List<String> availableActionIds = new ArrayList<>(actionIds.size());
 
 		for (String actionId : actionIds) {
 			ResourceAction resourceAction =
@@ -408,8 +413,8 @@ public class ResourcePermissionLocalServiceImpl
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             #getAvailableResourcePermissionActionIds(
-	 *             long, String, int, String, Collection)}
+	 *             #getAvailableResourcePermissionActionIds(long, String, int,
+	 *             String, Collection)}
 	 */
 	@Deprecated
 	@Override
@@ -883,10 +888,10 @@ public class ResourcePermissionLocalServiceImpl
 		if (fromRole.getType() != toRole.getType()) {
 			throw new PortalException("Role types are mismatched");
 		}
-		else if (PortalUtil.isSystemRole(toRole.getName())) {
+		else if (toRole.isSystem()) {
 			throw new PortalException("Cannot move permissions to system role");
 		}
-		else if (PortalUtil.isSystemRole(fromRole.getName())) {
+		else if (fromRole.isSystem()) {
 			throw new PortalException(
 				"Cannot move permissions from system role");
 		}

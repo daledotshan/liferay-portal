@@ -33,7 +33,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/asset_category_admin/view_categories");
+portletURL.setParameter("mvcPath", "/html/portlet/asset_category_admin/view_categories.jsp");
 portletURL.setParameter("redirect", currentURL);
 portletURL.setParameter("categoryId", String.valueOf(categoryId));
 portletURL.setParameter("vocabularyId", String.valueOf(vocabularyId));
@@ -61,7 +61,7 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(vocabulary, category, request, rende
 		<aui:nav cssClass="navbar-nav">
 			<c:if test="<%= AssetPermission.contains(permissionChecker, themeDisplay.getSiteGroupId(), ActionKeys.ADD_CATEGORY) %>">
 				<portlet:renderURL var="addCategoryURL">
-					<portlet:param name="struts_action" value="/asset_category_admin/edit_category" />
+					<portlet:param name="mvcPath" value="/html/portlet/asset_category_admin/edit_category.jsp" />
 					<portlet:param name="redirect" value="<%= currentURL %>" />
 					<portlet:param name="parentCategoryId" value="<%= String.valueOf(categoryId) %>" />
 					<portlet:param name="vocabularyId" value="<%= String.valueOf(vocabularyId) %>" />
@@ -118,7 +118,7 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(vocabulary, category, request, rende
 			modelVar="curCategory"
 		>
 			<portlet:renderURL var="rowURL">
-				<portlet:param name="struts_action" value="/asset_category_admin/view_categories" />
+				<portlet:param name="mvcPath" value="/html/portlet/asset_category_admin/view_categories.jsp" />
 				<portlet:param name="redirect" value="<%= currentURL %>" />
 				<portlet:param name="categoryId" value="<%= String.valueOf(curCategory.getCategoryId()) %>" />
 				<portlet:param name="vocabularyId" value="<%= String.valueOf(curCategory.getVocabularyId()) %>" />
@@ -145,30 +145,32 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(vocabulary, category, request, rende
 	</liferay-ui:search-container>
 </aui:form>
 
-<aui:script use="aui-base,liferay-util-list-fields">
-	A.one('#<portlet:namespace /><%= searchContainerReference.getId() %>SearchContainer').delegate(
-		'click',
-		function() {
-			var hide = (Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
+<aui:script sandbox="<%= true %>">
+	var Util = Liferay.Util;
 
-			A.one('#<portlet:namespace />categoriesActionsButton').toggle(!hide);
-		},
-		'input[type=checkbox]'
+	var form = $(document.<portlet:namespace />fm);
+
+	$('#<portlet:namespace /><%= searchContainerReference.getId() %>SearchContainer').on(
+		'click',
+		'input[type=checkbox]',
+		function() {
+			var hide = (Util.listCheckedExcept(form, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
+
+			$('#<portlet:namespace />categoriesActionsButton').toggleClass('hide', hide);
+		}
 	);
 
-	A.one('#<portlet:namespace />deleteSelectedCategories').on(
+	$('#<portlet:namespace />deleteSelectedCategories').on(
 		'click',
 		function() {
 			if (confirm('<liferay-ui:message key="are-you-sure-you-want-to-delete-this" />')) {
-				<portlet:actionURL var="deleteURL">
-					<portlet:param name="struts_action" value="/asset_category_admin/edit_category" />
-					<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE %>" />
+				<portlet:actionURL name="deleteCategory" var="deleteCategoryURL">
 					<portlet:param name="redirect" value="<%= currentURL %>" />
 				</portlet:actionURL>
 
-				document.<portlet:namespace />fm.<portlet:namespace />deleteCategoryIds.value = Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace />allRowIds');
+				form.fm('deleteCategoryIds').val(Util.listCheckedExcept(form, '<portlet:namespace />allRowIds'));
 
-				submitForm(document.<portlet:namespace />fm, '<%= deleteURL %>');
+				submitForm(form, '<%= deleteCategoryURL %>');
 			}
 		}
 	);

@@ -30,11 +30,14 @@ import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
+import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.storage.StorageType;
 import com.liferay.portlet.dynamicdatamapping.util.DDMXMLUtil;
 import com.liferay.util.ContentUtil;
 
@@ -84,8 +87,8 @@ public abstract class BaseDefaultDDMStructureAction extends SimpleAction {
 
 			String definition = structureElementRootElement.asXML();
 
-			Map<Locale, String> nameMap = new HashMap<Locale, String>();
-			Map<Locale, String> descriptionMap = new HashMap<Locale, String>();
+			Map<Locale, String> nameMap = new HashMap<>();
+			Map<Locale, String> descriptionMap = new HashMap<>();
 
 			Locale[] locales = LanguageUtil.getAvailableLocales(groupId);
 
@@ -110,11 +113,15 @@ public abstract class BaseDefaultDDMStructureAction extends SimpleAction {
 				continue;
 			}
 
+			DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(
+				definition);
+
 			ddmStructure = DDMStructureLocalServiceUtil.addStructure(
 				userId, groupId,
 				DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID, classNameId,
-				ddmStructureKey, nameMap, descriptionMap, definition, "xml",
-				DDMStructureConstants.TYPE_DEFAULT, serviceContext);
+				ddmStructureKey, nameMap, descriptionMap, ddmForm,
+				StorageType.JSON.toString(), DDMStructureConstants.TYPE_DEFAULT,
+				serviceContext);
 
 			Element templateElement = structureElement.element("template");
 
@@ -129,8 +136,8 @@ public abstract class BaseDefaultDDMStructureAction extends SimpleAction {
 
 			DDMTemplateLocalServiceUtil.addTemplate(
 				userId, groupId, PortalUtil.getClassNameId(DDMStructure.class),
-				ddmStructure.getStructureId(), null, nameMap, null,
-				DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY,
+				ddmStructure.getStructureId(), ddmStructure.getClassNameId(),
+				null, nameMap, null, DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY,
 				DDMTemplateConstants.TEMPLATE_MODE_CREATE,
 				TemplateConstants.LANG_TYPE_FTL, getContent(templateFileName),
 				templateCacheable, false, StringPool.BLANK, null,

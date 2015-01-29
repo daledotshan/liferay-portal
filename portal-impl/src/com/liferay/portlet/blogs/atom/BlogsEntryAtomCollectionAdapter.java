@@ -49,7 +49,7 @@ public class BlogsEntryAtomCollectionAdapter
 
 	@Override
 	public List<String> getEntryAuthors(BlogsEntry blogsEntry) {
-		List<String> authors = new ArrayList<String>();
+		List<String> authors = new ArrayList<>();
 
 		authors.add(blogsEntry.getUserName());
 
@@ -189,7 +189,8 @@ public class BlogsEntryAtomCollectionAdapter
 		return BlogsEntryServiceUtil.addEntry(
 			title, StringPool.BLANK, summary, content, displayDateMonth,
 			displayDateDay, displayDateYear, displayDateHour, displayDateMinute,
-			allowPingbacks, allowTrackbacks, trackbacks, null, serviceContext);
+			allowPingbacks, allowTrackbacks, trackbacks, null, null,
+			serviceContext);
 	}
 
 	@Override
@@ -216,7 +217,8 @@ public class BlogsEntryAtomCollectionAdapter
 			blogsEntry.getEntryId(), title, blogsEntry.getSubtitle(), summary,
 			content, displayDateMonth, displayDateDay, displayDateYear,
 			displayDateHour, displayDateMinute, blogsEntry.getAllowPingbacks(),
-			blogsEntry.isAllowTrackbacks(), trackbacks, null, serviceContext);
+			blogsEntry.isAllowTrackbacks(), trackbacks, null, null,
+			serviceContext);
 	}
 
 	private static final String _COLLECTION_NAME = "blogs";

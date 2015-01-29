@@ -26,7 +26,6 @@ String eventName = ParamUtil.getString(request, "eventName", liferayPortletRespo
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/asset_browser/view");
 portletURL.setParameter("selectedGroupIds", StringUtil.merge(selectedGroupIds));
 portletURL.setParameter("refererAssetEntryId", String.valueOf(refererAssetEntryId));
 portletURL.setParameter("typeSelection", typeSelection);
@@ -41,7 +40,7 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 		<aui:input name="typeSelection" type="hidden" value="<%= typeSelection %>" />
 
 		<liferay-ui:search-container
-			searchContainer="<%= new AssetSearch(renderRequest, portletURL) %>"
+			searchContainer="<%= new AssetBrowserSearch(renderRequest, portletURL) %>"
 		>
 			<aui:nav-bar>
 				<aui:nav cssClass="navbar-nav" searchContainer="<%= searchContainer %>">
@@ -52,11 +51,11 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 					</liferay-util:include>
 				</aui:nav>
 
-				<aui:nav-bar-search file="/html/portlet/asset_publisher/asset_search.jsp" searchContainer="<%= searchContainer %>" />
+				<aui:nav-bar-search file="/html/portlet/asset_browser/search.jsp" searchContainer="<%= searchContainer %>" />
 			</aui:nav-bar>
 
 			<%
-			AssetSearchTerms searchTerms = (AssetSearchTerms)searchContainer.getSearchTerms();
+			AssetBrowserSearchTerms searchTerms = (AssetBrowserSearchTerms)searchContainer.getSearchTerms();
 
 			long[] groupIds = selectedGroupIds;
 
@@ -64,7 +63,40 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 			%>
 
 			<liferay-ui:search-container-results>
-				<%@ include file="/html/portlet/asset_publisher/asset_search_results.jspf" %>
+				<c:choose>
+					<c:when test="<%= PropsValues.ASSET_BROWSER_SEARCH_WITH_DATABASE %>">
+
+						<%
+						int assetEntriesTotal = AssetEntryLocalServiceUtil.getEntriesCount(groupIds, new long[] {assetRendererFactory.getClassNameId()}, searchTerms.getKeywords(), searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), searchTerms.isAdvancedSearch(), searchTerms.isAndOperator());
+
+						searchContainer.setTotal(assetEntriesTotal);
+
+						List<AssetEntry> assetEntries = AssetEntryLocalServiceUtil.getEntries(groupIds, new long[] {assetRendererFactory.getClassNameId()}, searchTerms.getKeywords(), searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), searchTerms.isAdvancedSearch(), searchTerms.isAndOperator(), searchContainer.getStart(), searchContainer.getEnd(), "modifiedDate", "title", "DESC", "ASC");
+
+						searchContainer.setResults(assetEntries);
+						%>
+
+					</c:when>
+					<c:otherwise>
+
+						<%
+						Hits hits = null;
+
+						if (searchTerms.isAdvancedSearch()) {
+							hits = AssetEntryLocalServiceUtil.search(themeDisplay.getCompanyId(), new long[] {searchTerms.getGroupId()}, themeDisplay.getUserId(), assetRendererFactory.getClassName(), subtypeSelectionId, searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), null, null, WorkflowConstants.STATUS_APPROVED, searchTerms.isAndOperator(), searchContainer.getStart(), searchContainer.getEnd());
+						}
+						else {
+							hits = AssetEntryLocalServiceUtil.search(themeDisplay.getCompanyId(), groupIds, themeDisplay.getUserId(), assetRendererFactory.getClassName(), subtypeSelectionId, searchTerms.getKeywords(), WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(), searchContainer.getEnd());
+						}
+
+						List<AssetEntry> assetEntries = AssetUtil.getAssetEntries(hits);
+
+						searchContainer.setResults(assetEntries);
+						searchContainer.setTotal(hits.getLength());
+						%>
+
+					</c:otherwise>
+				</c:choose>
 			</liferay-ui:search-container-results>
 
 			<liferay-ui:search-container-row
@@ -79,7 +111,7 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 
 				<liferay-ui:search-container-column-text
 					name="title"
-					value="<%= HtmlUtil.escape(assetEntry.getTitle(locale)) %>"
+					value="<%= assetEntry.getTitle(locale) %>"
 				/>
 
 				<liferay-ui:search-container-column-text
@@ -125,6 +157,6 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 	</aui:form>
 </div>
 
-<aui:script use="aui-base">
+<aui:script>
 	Liferay.Util.selectEntityHandler('#<portlet:namespace />selectAssetFm', '<%= HtmlUtil.escapeJS(eventName) %>');
 </aui:script>

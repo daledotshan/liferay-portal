@@ -144,7 +144,6 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, portlet
 					searchContext.setAttribute(Field.DESCRIPTION, searchTerms.getDescription());
 					searchContext.setAttribute(Field.STATUS, searchTerms.getStatus());
 					searchContext.setAttribute(Field.TITLE, searchTerms.getTitle());
-					searchContext.setAttribute(Field.TYPE, searchTerms.getType());
 				}
 				else {
 					indexer = JournalSearcher.getInstance();
@@ -247,7 +246,7 @@ ArticleSearch searchContainer = new ArticleSearch(liferayPortletRequest, portlet
 							<%
 							String folderImage = "folder_empty_article";
 
-							if (JournalFolderServiceUtil.getFoldersAndArticlesCount(scopeGroupId, curFolder.getFolderId()) > 0) {
+							if (PropsValues.JOURNAL_FOLDER_ICON_CHECK_COUNT && (JournalFolderServiceUtil.getFoldersAndArticlesCount(scopeGroupId, curFolder.getFolderId()) > 0)) {
 								folderImage = "folder_full_article";
 							}
 

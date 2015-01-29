@@ -122,6 +122,10 @@ public class AssetVocabularyStagedModelDataHandler
 
 		vocabulary.setUserUuid(vocabulary.getUserUuid());
 
+		portletDataContext.addReferenceElement(
+			vocabulary, vocabularyElement, vocabulary,
+			PortletDataContext.REFERENCE_TYPE_DEPENDENCY, false);
+
 		portletDataContext.addPermissions(
 			AssetVocabulary.class, vocabulary.getVocabularyId());
 
@@ -156,9 +160,8 @@ public class AssetVocabularyStagedModelDataHandler
 
 		AssetVocabulary importedVocabulary = null;
 
-		AssetVocabulary existingVocabulary =
-			fetchStagedModelByUuidAndGroupId(
-				vocabulary.getUuid(), portletDataContext.getScopeGroupId());
+		AssetVocabulary existingVocabulary = fetchStagedModelByUuidAndGroupId(
+			vocabulary.getUuid(), portletDataContext.getScopeGroupId());
 
 		if (existingVocabulary == null) {
 			String name = getVocabularyName(
@@ -228,7 +231,7 @@ public class AssetVocabularyStagedModelDataHandler
 		Map<Locale, String> titleMap = vocabulary.getTitleMap();
 
 		if (titleMap == null) {
-			titleMap = new HashMap<Locale, String>();
+			titleMap = new HashMap<>();
 		}
 
 		titleMap.put(PortalUtil.getSiteDefaultLocale(groupId), name);

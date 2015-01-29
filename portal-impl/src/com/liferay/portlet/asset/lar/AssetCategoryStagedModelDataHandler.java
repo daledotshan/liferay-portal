@@ -160,6 +160,10 @@ public class AssetCategoryStagedModelDataHandler
 
 		categoryElement.addAttribute("path", categoryPath);
 
+		portletDataContext.addReferenceElement(
+			category, categoryElement, category,
+			PortletDataContext.REFERENCE_TYPE_DEPENDENCY, false);
+
 		portletDataContext.addPermissions(
 			AssetCategory.class, category.getCategoryId());
 
@@ -227,9 +231,8 @@ public class AssetCategoryStagedModelDataHandler
 
 		AssetCategory importedCategory = null;
 
-		AssetCategory existingCategory =
-			fetchStagedModelByUuidAndGroupId(
-				category.getUuid(), portletDataContext.getScopeGroupId());
+		AssetCategory existingCategory = fetchStagedModelByUuidAndGroupId(
+			category.getUuid(), portletDataContext.getScopeGroupId());
 
 		if (existingCategory == null) {
 			String name = getCategoryName(
@@ -299,7 +302,7 @@ public class AssetCategoryStagedModelDataHandler
 		Map<Locale, String> titleMap = category.getTitleMap();
 
 		if (titleMap == null) {
-			titleMap = new HashMap<Locale, String>();
+			titleMap = new HashMap<>();
 		}
 
 		titleMap.put(PortalUtil.getSiteDefaultLocale(groupId), name);

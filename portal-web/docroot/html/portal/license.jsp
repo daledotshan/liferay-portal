@@ -433,7 +433,7 @@ dateFormatDateTime.setTimeZone(timeZone);
 							dataType: 'JSON',
 							on: {
 								failure: function() {
-									var errorMessage = A.Lang.sub(Liferay.Language.get('error-contacting-x'), [ip]);
+									var errorMessage = A.Lang.sub('<liferay-ui:message key="error-contacting-x" />', [ip]);
 
 									if (port != '-1') {
 										errorMessage += ':' + port;
@@ -464,7 +464,7 @@ dateFormatDateTime.setTimeZone(timeZone);
 				sendClusterRequest(
 					'serverInfo',
 					'<%= clusterNode.getClusterNodeId() %>',
-					'<%= clusterNode.getBindInetAddress().getHostAddress() %>',
+					'<%= clusterNode.getPortalInetAddress().getHostAddress() %>',
 					'<%= clusterNode.getPortalPort() %>',
 					function(message) {
 						var A = AUI();
@@ -482,7 +482,7 @@ dateFormatDateTime.setTimeZone(timeZone);
 				sendClusterRequest(
 					'licenseProperties',
 					'<%= clusterNode.getClusterNodeId() %>',
-					'<%= clusterNode.getBindInetAddress().getHostAddress() %>',
+					'<%= clusterNode.getPortalInetAddress().getHostAddress() %>',
 					'<%= clusterNode.getPortalPort() %>',
 					function(message) {
 						var A = AUI();
