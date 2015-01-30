@@ -133,8 +133,8 @@ public class ElasticsearchIndexWriter extends BaseIndexWriter {
 	}
 
 	@Override
-	public void deletePortletDocuments(
-			SearchContext searchContext, String portletId)
+	public void deleteEntityDocuments(
+			SearchContext searchContext, String className)
 		throws SearchException {
 
 		try {
@@ -147,7 +147,7 @@ public class ElasticsearchIndexWriter extends BaseIndexWriter {
 			BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
 			boolQueryBuilder.must(
-				QueryBuilders.termQuery(Field.PORTLET_ID, portletId));
+				QueryBuilders.termQuery(Field.ENTRY_CLASS_NAME, className));
 
 			deleteByQueryRequestBuilder.setQuery(boolQueryBuilder);
 
@@ -160,7 +160,7 @@ public class ElasticsearchIndexWriter extends BaseIndexWriter {
 		}
 		catch (Exception e) {
 			throw new SearchException(
-				"Unable to delete data for portlet " + portletId, e);
+				"Unable to delete data for entity " + className, e);
 		}
 	}
 
@@ -204,7 +204,7 @@ public class ElasticsearchIndexWriter extends BaseIndexWriter {
 			DocumentTypes.LIFERAY, searchContext, documents, true);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		ElasticsearchIndexWriter.class);
 
 	private ElasticsearchConnectionManager _elasticsearchConnectionManager;

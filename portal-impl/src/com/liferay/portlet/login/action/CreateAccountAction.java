@@ -18,6 +18,7 @@ import com.liferay.portal.AddressCityException;
 import com.liferay.portal.AddressStreetException;
 import com.liferay.portal.AddressZipException;
 import com.liferay.portal.CompanyMaxUsersException;
+import com.liferay.portal.ContactBirthdayException;
 import com.liferay.portal.ContactFirstNameException;
 import com.liferay.portal.ContactFullNameException;
 import com.liferay.portal.ContactLastNameException;
@@ -34,7 +35,6 @@ import com.liferay.portal.PhoneNumberException;
 import com.liferay.portal.RequiredFieldException;
 import com.liferay.portal.RequiredUserException;
 import com.liferay.portal.ReservedUserEmailAddressException;
-import com.liferay.portal.ReservedUserScreenNameException;
 import com.liferay.portal.TermsOfUseException;
 import com.liferay.portal.UserEmailAddressException;
 import com.liferay.portal.UserIdException;
@@ -50,6 +50,7 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PwdGenerator;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Company;
@@ -68,7 +69,6 @@ import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.login.util.LoginUtil;
-import com.liferay.util.PwdGenerator;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -133,6 +133,7 @@ public class CreateAccountAction extends PortletAction {
 				e instanceof CaptchaMaxChallengesException ||
 				e instanceof CaptchaTextException ||
 				e instanceof CompanyMaxUsersException ||
+				e instanceof ContactBirthdayException ||
 				e instanceof ContactFirstNameException ||
 				e instanceof ContactFullNameException ||
 				e instanceof ContactLastNameException ||
@@ -148,7 +149,6 @@ public class CreateAccountAction extends PortletAction {
 				e instanceof RequiredFieldException ||
 				e instanceof RequiredUserException ||
 				e instanceof ReservedUserEmailAddressException ||
-				e instanceof ReservedUserScreenNameException ||
 				e instanceof TermsOfUseException ||
 				e instanceof UserEmailAddressException ||
 				e instanceof UserIdException ||

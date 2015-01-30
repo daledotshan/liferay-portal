@@ -76,6 +76,10 @@ public class JGroupsManager implements CacheManagerPeerProvider, CachePeer {
 		}
 
 		_jChannel = jChannel;
+
+		BaseReceiver baseReceiver = (BaseReceiver)_jChannel.getReceiver();
+
+		baseReceiver.openLatch();
 	}
 
 	@Override
@@ -165,7 +169,7 @@ public class JGroupsManager implements CacheManagerPeerProvider, CachePeer {
 
 	@Override
 	public List<JGroupsManager> listRemoteCachePeers(Ehcache ehcache) {
-		List<JGroupsManager> cachePeers = new ArrayList<JGroupsManager>();
+		List<JGroupsManager> cachePeers = new ArrayList<>();
 
 		cachePeers.add(this);
 
@@ -193,8 +197,7 @@ public class JGroupsManager implements CacheManagerPeerProvider, CachePeer {
 	public void send(Address address, List eventMessages)
 		throws RemoteException {
 
-		ArrayList<JGroupEventMessage> jGroupEventMessages =
-			new ArrayList<JGroupEventMessage>();
+		ArrayList<JGroupEventMessage> jGroupEventMessages = new ArrayList<>();
 
 		for (Object eventMessage : eventMessages) {
 			if (eventMessage instanceof JGroupEventMessage) {
@@ -273,7 +276,7 @@ public class JGroupsManager implements CacheManagerPeerProvider, CachePeer {
 
 	private static final String _SCHEME = "JGroups";
 
-	private static Log _log = LogFactoryUtil.getLog(JGroupsManager.class);
+	private static final Log _log = LogFactoryUtil.getLog(JGroupsManager.class);
 
 	private final CacheManager _cacheManager;
 	private final JChannel _jChannel;
@@ -281,7 +284,7 @@ public class JGroupsManager implements CacheManagerPeerProvider, CachePeer {
 	private class EhcacheJGroupsReceiver extends BaseReceiver {
 
 		@Override
-		public void receive(Message message) {
+		protected void doReceive(Message message) {
 			Object object = message.getObject();
 
 			if (object == null) {

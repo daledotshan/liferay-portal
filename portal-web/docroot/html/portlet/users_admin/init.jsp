@@ -40,7 +40,6 @@ page import="com.liferay.portal.RequiredOrganizationException" %><%@
 page import="com.liferay.portal.RequiredUserException" %><%@
 page import="com.liferay.portal.ReservedUserEmailAddressException" %><%@
 page import="com.liferay.portal.ReservedUserIdException" %><%@
-page import="com.liferay.portal.ReservedUserScreenNameException" %><%@
 page import="com.liferay.portal.UserEmailAddressException" %><%@
 page import="com.liferay.portal.UserFieldException" %><%@
 page import="com.liferay.portal.UserIdException" %><%@
@@ -65,8 +64,7 @@ page import="com.liferay.portlet.usergroupsadmin.search.UserGroupGroupChecker" %
 page import="com.liferay.portlet.usersadmin.search.GroupDisplayTerms" %><%@
 page import="com.liferay.portlet.usersadmin.search.OrganizationDisplayTerms" %><%@
 page import="com.liferay.portlet.usersadmin.search.UserDisplayTerms" %><%@
-page import="com.liferay.portlet.usersadmin.search.UserOrganizationChecker" %><%@
-page import="com.liferay.portlet.usersadmin.util.UsersAdmin" %>
+page import="com.liferay.portlet.usersadmin.search.UserOrganizationChecker" %>
 
 <%
 boolean showActiveUserSelect = true;

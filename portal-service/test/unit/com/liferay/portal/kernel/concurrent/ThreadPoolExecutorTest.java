@@ -263,7 +263,7 @@ public class ThreadPoolExecutorTest {
 
 		try {
 			Queue<MarkerBlockingJob> markerBlockingJobQueue =
-				new LinkedList<MarkerBlockingJob>();
+				new LinkedList<>();
 
 			Assert.assertEquals(0, threadPoolExecutor.getPoolSize());
 
@@ -368,7 +368,7 @@ public class ThreadPoolExecutorTest {
 
 		try {
 			Queue<MarkerBlockingJob> markerBlockingJobQueue =
-				new LinkedList<MarkerBlockingJob>();
+				new LinkedList<>();
 
 			Assert.assertEquals(0, threadPoolExecutor.getPoolSize());
 
@@ -933,8 +933,7 @@ public class ThreadPoolExecutorTest {
 		RecordUncaughtExceptionHandler recordUncaughtExceptionHandler =
 			threadFactory.getRecordUncaughtExceptionHandler();
 
-		Queue<MarkerBlockingJob> markerBlockingJobQueue =
-			new LinkedList<MarkerBlockingJob>();
+		Queue<MarkerBlockingJob> markerBlockingJobQueue = new LinkedList<>();
 
 		try {
 			for (int i = 0; i < 10; i++) {
@@ -1127,6 +1126,7 @@ public class ThreadPoolExecutorTest {
 		ReentrantLock takeLock = taskQueue.getTakeLock();
 
 		takeLock.lock();
+
 		try {
 			markerBlockingJob1.unBlock();
 

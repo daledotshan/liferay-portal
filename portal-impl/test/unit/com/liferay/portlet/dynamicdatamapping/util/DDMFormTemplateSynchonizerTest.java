@@ -46,7 +46,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 	{
 		DDMStructureLocalServiceUtil.class, DDMTemplateLocalServiceUtil.class,
 		LocaleUtil.class
-	})
+	}
+)
 public class DDMFormTemplateSynchonizerTest extends BaseDDMTestCase {
 
 	@Before
@@ -285,7 +286,7 @@ public class DDMFormTemplateSynchonizerTest extends BaseDDMTestCase {
 
 		@Override
 		protected List<DDMTemplate> getDDMFormTemplates() {
-			List<DDMTemplate> ddmFormTemplates = new ArrayList<DDMTemplate>();
+			List<DDMTemplate> ddmFormTemplates = new ArrayList<>();
 
 			ddmFormTemplates.add(_createDDMTemplate);
 			ddmFormTemplates.add(_editDDMTemplate);
@@ -310,6 +311,7 @@ public class DDMFormTemplateSynchonizerTest extends BaseDDMTestCase {
 				_editDDMTemplate = ddmTemplate;
 			}
 		}
+
 	}
 
 }

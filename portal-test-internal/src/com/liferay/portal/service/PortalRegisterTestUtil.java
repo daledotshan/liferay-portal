@@ -25,10 +25,6 @@ import com.liferay.portlet.blogs.asset.BlogsEntryAssetRendererFactory;
 import com.liferay.portlet.blogs.trash.BlogsEntryTrashHandler;
 import com.liferay.portlet.blogs.util.BlogsIndexer;
 import com.liferay.portlet.blogs.workflow.BlogsEntryWorkflowHandler;
-import com.liferay.portlet.bookmarks.asset.BookmarksEntryAssetRendererFactory;
-import com.liferay.portlet.bookmarks.asset.BookmarksFolderAssetRendererFactory;
-import com.liferay.portlet.bookmarks.util.BookmarksEntryIndexer;
-import com.liferay.portlet.bookmarks.util.BookmarksFolderIndexer;
 import com.liferay.portlet.directory.asset.UserAssetRendererFactory;
 import com.liferay.portlet.directory.workflow.UserWorkflowHandler;
 import com.liferay.portlet.documentlibrary.asset.DLFileEntryAssetRendererFactory;
@@ -61,12 +57,6 @@ import com.liferay.portlet.trash.util.TrashIndexer;
 import com.liferay.portlet.usersadmin.util.ContactIndexer;
 import com.liferay.portlet.usersadmin.util.OrganizationIndexer;
 import com.liferay.portlet.usersadmin.util.UserIndexer;
-import com.liferay.portlet.wiki.asset.WikiPageAssetRendererFactory;
-import com.liferay.portlet.wiki.trash.WikiNodeTrashHandler;
-import com.liferay.portlet.wiki.trash.WikiPageTrashHandler;
-import com.liferay.portlet.wiki.util.WikiNodeIndexer;
-import com.liferay.portlet.wiki.util.WikiPageIndexer;
-import com.liferay.portlet.wiki.workflow.WikiPageWorkflowHandler;
 
 /**
  * @author Roberto Díaz
@@ -107,8 +97,6 @@ public class PortalRegisterTestUtil {
 		IndexerRegistryUtil.register(new AssetIndexer());
 		IndexerRegistryUtil.register(new BlogsIndexer());
 		IndexerRegistryUtil.register(new ContactIndexer());
-		IndexerRegistryUtil.register(new BookmarksEntryIndexer());
-		IndexerRegistryUtil.register(new BookmarksFolderIndexer());
 		IndexerRegistryUtil.register(new DDLIndexer());
 		IndexerRegistryUtil.register(new DLFileEntryIndexer());
 		IndexerRegistryUtil.register(new DLFolderIndexer());
@@ -118,8 +106,6 @@ public class PortalRegisterTestUtil {
 		IndexerRegistryUtil.register(new OrganizationIndexer());
 		IndexerRegistryUtil.register(new TrashIndexer());
 		IndexerRegistryUtil.register(new UserIndexer());
-		IndexerRegistryUtil.register(new WikiNodeIndexer());
-		IndexerRegistryUtil.register(new WikiPageIndexer());
 
 		_indexersRegistered = true;
 	}
@@ -137,8 +123,6 @@ public class PortalRegisterTestUtil {
 		TrashHandlerRegistryUtil.register(new MBCategoryTrashHandler());
 		TrashHandlerRegistryUtil.register(new MBMessageTrashHandler());
 		TrashHandlerRegistryUtil.register(new MBThreadTrashHandler());
-		TrashHandlerRegistryUtil.register(new WikiNodeTrashHandler());
-		TrashHandlerRegistryUtil.register(new WikiPageTrashHandler());
 
 		_trashHandlersRegistered = true;
 	}
@@ -156,15 +140,12 @@ public class PortalRegisterTestUtil {
 		WorkflowHandlerRegistryUtil.register(new MBDiscussionWorkflowHandler());
 		WorkflowHandlerRegistryUtil.register(new MBMessageWorkflowHandler());
 		WorkflowHandlerRegistryUtil.register(new UserWorkflowHandler());
-		WorkflowHandlerRegistryUtil.register(new WikiPageWorkflowHandler());
 
 		_workflowHandlersRegistered = true;
 	}
 
 	private static final Class<?>[] _ASSET_RENDERER_FACTORY_CLASSES = {
 		BlogsEntryAssetRendererFactory.class,
-		BookmarksEntryAssetRendererFactory.class,
-		BookmarksFolderAssetRendererFactory.class,
 		DDLRecordAssetRendererFactory.class,
 		DLFileEntryAssetRendererFactory.class,
 		DLFolderAssetRendererFactory.class,
@@ -173,8 +154,7 @@ public class PortalRegisterTestUtil {
 		LayoutRevisionAssetRendererFactory.class,
 		MBCategoryAssetRendererFactory.class,
 		MBDiscussionAssetRendererFactory.class,
-		MBMessageAssetRendererFactory.class, UserAssetRendererFactory.class,
-		WikiPageAssetRendererFactory.class
+		MBMessageAssetRendererFactory.class, UserAssetRendererFactory.class
 	};
 
 	private static boolean _assetRendererFactoriesRegistered;

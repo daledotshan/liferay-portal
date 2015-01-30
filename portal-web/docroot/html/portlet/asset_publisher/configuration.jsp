@@ -26,9 +26,9 @@ String eventName = "_" + HtmlUtil.escapeJS(assetPublisherDisplayContext.getPortl
 List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<AssetRendererFactory>();
 %>
 
-<liferay-portlet:actionURL portletConfiguration="true" var="configurationActionURL" />
+<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="configurationActionURL" />
 
-<liferay-portlet:renderURL portletConfiguration="true" varImpl="configurationRenderURL" />
+<liferay-portlet:renderURL portletConfiguration="<%= true %>" varImpl="configurationRenderURL" />
 
 <aui:form action="<%= configurationActionURL %>" method="post" name="fm" onSubmit="event.preventDefault();">
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
@@ -39,7 +39,6 @@ List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<Asse
 	<aui:input name="assetEntryId" type="hidden" />
 	<aui:input name="assetEntryOrder" type="hidden" value="-1" />
 	<aui:input name="assetEntryType" type="hidden" />
-	<aui:input name="scopeId" type="hidden" />
 
 	<liferay-util:buffer var="selectStyle">
 		<c:choose>
@@ -103,7 +102,7 @@ List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<Asse
 					<liferay-ui:search-container-column-text
 						align="right"
 					>
-						<liferay-portlet:actionURL portletConfiguration="true" var="deleteURL">
+						<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="deleteURL">
 							<portlet:param name="<%= Constants.CMD %>" value="remove-scope" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
 							<portlet:param name="scopeId" value="<%= AssetPublisherUtil.getScopeId(group, scopeGroupId) %>" />
@@ -131,7 +130,7 @@ List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<Asse
 						}
 					%>
 
-						<liferay-portlet:actionURL portletConfiguration="true" var="addScopeURL">
+						<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="addScopeURL">
 							<portlet:param name="<%= Constants.CMD %>" value="add-scope" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
 							<portlet:param name="scopeId" value="<%= AssetPublisherUtil.getScopeId(group, scopeGroupId) %>" />
@@ -152,9 +151,10 @@ List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<Asse
 					<c:if test="<%= GroupLocalServiceUtil.getGroupsCount(company.getCompanyId(), Layout.class.getName(), layout.getGroupId()) > 0 %>">
 
 						<%
-						PortletURL layoutSiteBrowserURL = PortletURLFactoryUtil.create(request, PortletKeys.SITE_BROWSER, PortalUtil.getControlPanelPlid(company.getCompanyId()), PortletRequest.RENDER_PHASE);
+						String portletId = PortletProviderUtil.getPortletId(Group.class.getName(), PortletProvider.ACTION_BROWSE);
 
-						layoutSiteBrowserURL.setParameter("struts_action", "/site_browser/view");
+						PortletURL layoutSiteBrowserURL = PortletURLFactoryUtil.create(request, portletId, PortalUtil.getControlPanelPlid(company.getCompanyId()), PortletRequest.RENDER_PHASE);
+
 						layoutSiteBrowserURL.setParameter("groupId", String.valueOf(layout.getGroupId()));
 						layoutSiteBrowserURL.setParameter("selectedGroupIds", StringUtil.merge(assetPublisherDisplayContext.getGroupIds()));
 						layoutSiteBrowserURL.setParameter("type", "layoutScopes");
@@ -202,9 +202,10 @@ List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<Asse
 					<c:if test="<%= !types.isEmpty() %>">
 
 						<%
-						PortletURL siteBrowserURL = PortletURLFactoryUtil.create(request, PortletKeys.SITE_BROWSER, PortalUtil.getControlPanelPlid(company.getCompanyId()), PortletRequest.RENDER_PHASE);
+						String portletId = PortletProviderUtil.getPortletId(Group.class.getName(), PortletProvider.ACTION_BROWSE);
 
-						siteBrowserURL.setParameter("struts_action", "/site_browser/view");
+						PortletURL siteBrowserURL = PortletURLFactoryUtil.create(request, portletId, PortalUtil.getControlPanelPlid(company.getCompanyId()), PortletRequest.RENDER_PHASE);
+
 						siteBrowserURL.setParameter("groupId", String.valueOf(layout.getGroupId()));
 						siteBrowserURL.setParameter("selectedGroupIds", StringUtil.merge(assetPublisherDisplayContext.getGroupIds()));
 						siteBrowserURL.setParameter("types", StringUtil.merge(types));
@@ -254,13 +255,16 @@ List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<Asse
 	</c:choose>
 </aui:form>
 
-<aui:script use="aui-base">
-	A.getBody().delegate(
+<aui:script sandbox="<%= true %>">
+	var form = document.<portlet:namespace />fm;
+
+	$('body').on(
 		'click',
+		'.scope-selector a',
 		function(event) {
 			event.preventDefault();
 
-			var currentTarget = event.currentTarget;
+			var currentTarget = $(event.currentTarget);
 
 			Liferay.Util.selectEntity(
 				{
@@ -271,69 +275,69 @@ List<AssetRendererFactory> classTypesAssetRendererFactories = new ArrayList<Asse
 					},
 					eventName: '<%= eventName %>',
 					id: '<%= eventName %>' + currentTarget.attr('id'),
-					title: currentTarget.attr('data-title'),
-					uri: currentTarget.attr('data-href')
+					title: currentTarget.data('title'),
+					uri: currentTarget.data('href')
 				},
 				function(event) {
-					document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = 'add-scope';
-					document.<portlet:namespace />fm.<portlet:namespace />scopeId.value = event.scopeid;
+					form.<portlet:namespace /><%= Constants.CMD %>.value = 'add-scope';
+					form.<portlet:namespace />groupId.value = event.groupid;
 
-					submitForm(document.<portlet:namespace />fm);
+					submitForm(form);
 				}
 			);
-		},
-		'.scope-selector a'
+		}
 	);
 </aui:script>
 
 <aui:script>
 	function <portlet:namespace />chooseSelectionStyle() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = 'selection-style';
+		var form = AUI.$(document.<portlet:namespace />fm);
 
-		submitForm(document.<portlet:namespace />fm);
+		form.fm('<%= Constants.CMD %>').val('selection-style');
+
+		submitForm(form);
 	}
 
 	function <portlet:namespace />moveSelectionDown(assetEntryOrder) {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = 'move-selection-down';
-		document.<portlet:namespace />fm.<portlet:namespace />assetEntryOrder.value = assetEntryOrder;
+		var form = AUI.$(document.<portlet:namespace />fm);
 
-		submitForm(document.<portlet:namespace />fm);
+		form.fm('<%= Constants.CMD %>').val('move-selection-down');
+		form.fm('assetEntryOrder').val(assetEntryOrder);
+
+		submitForm(form);
 	}
 
 	function <portlet:namespace />moveSelectionUp(assetEntryOrder) {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = 'move-selection-up';
-		document.<portlet:namespace />fm.<portlet:namespace />assetEntryOrder.value = assetEntryOrder;
+		var form = AUI.$(document.<portlet:namespace />fm);
 
-		submitForm(document.<portlet:namespace />fm);
+		form.fm('<%= Constants.CMD %>').val('move-selection-up');
+		form.fm('assetEntryOrder').val(assetEntryOrder);
+
+		submitForm(form);
 	}
 
-	Liferay.provide(
-		window,
-		'<portlet:namespace />saveSelectBoxes',
-		function() {
-			if (document.<portlet:namespace />fm.<portlet:namespace />classNameIds) {
-				document.<portlet:namespace />fm.<portlet:namespace />classNameIds.value = Liferay.Util.listSelect(document.<portlet:namespace />fm.<portlet:namespace />currentClassNameIds);
-			}
+	function <portlet:namespace />saveSelectBoxes() {
+		var Util = Liferay.Util;
 
-			<%
-			for (AssetRendererFactory curRendererFactory : classTypesAssetRendererFactories) {
-				String className = AssetPublisherUtil.getClassName(curRendererFactory);
-			%>
+		var form = AUI.$(document.<portlet:namespace />fm);
 
-				if (document.<portlet:namespace />fm.<portlet:namespace />classTypeIds<%= className %>) {
-					document.<portlet:namespace />fm.<portlet:namespace />classTypeIds<%= className %>.value = Liferay.Util.listSelect(document.<portlet:namespace />fm.<portlet:namespace /><%= className %>currentClassTypeIds);
-				}
+		form.fm('classNameIds').val(Util.listSelect(form.fm('currentClassNameIds')));
 
-			<%
-			}
-			%>
+		<%
+		for (AssetRendererFactory curRendererFactory : classTypesAssetRendererFactories) {
+			String className = AssetPublisherUtil.getClassName(curRendererFactory);
+		%>
 
-			document.<portlet:namespace />fm.<portlet:namespace />metadataFields.value = Liferay.Util.listSelect(document.<portlet:namespace />fm.<portlet:namespace />currentMetadataFields);
+			form.fm('classTypeIds<%= className %>').val(Util.listSelect(form.fm('<%= className %>currentClassTypeIds')));
 
-			submitForm(document.<portlet:namespace />fm);
-		},
-		['liferay-util-list-fields']
-	);
+		<%
+		}
+		%>
 
-	Liferay.Util.toggleSelectBox('<portlet:namespace />anyAssetType','false','<portlet:namespace />classNamesBoxes');
+		form.fm('metadataFields').val(Util.listSelect(form.fm('currentMetadataFields')));
+
+		submitForm(form);
+	}
+
+	Liferay.Util.toggleSelectBox('<portlet:namespace />anyAssetType', 'false', '<portlet:namespace />classNamesBoxes');
 </aui:script>

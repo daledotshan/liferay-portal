@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.cache.CacheRegistryItem;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.cache.PortalCacheHelperUtil;
 import com.liferay.portal.kernel.cache.PortalCacheManager;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -194,7 +195,8 @@ public class FinderCacheImpl
 		Serializable cacheKey = finderPath.encodeCacheKey(args);
 
 		if (quiet) {
-			portalCache.putQuiet(cacheKey, primaryKey);
+			PortalCacheHelperUtil.putWithoutReplicator(
+				portalCache, cacheKey, primaryKey);
 		}
 		else {
 			portalCache.put(cacheKey, primaryKey);
@@ -280,8 +282,7 @@ public class FinderCacheImpl
 				return (Serializable)Collections.emptyList();
 			}
 
-			Set<Serializable> primaryKeysSet = new HashSet<Serializable>(
-				primaryKeys);
+			Set<Serializable> primaryKeysSet = new HashSet<>(primaryKeys);
 
 			Map<Serializable, ? extends BaseModel<?>> map =
 				basePersistenceImpl.fetchByPrimaryKeys(primaryKeysSet);
@@ -290,8 +291,7 @@ public class FinderCacheImpl
 				return null;
 			}
 
-			List<Serializable> list = new ArrayList<Serializable>(
-				primaryKeys.size());
+			List<Serializable> list = new ArrayList<>(primaryKeys.size());
 
 			for (Serializable curPrimaryKey : primaryKeys) {
 				list.add(map.get(curPrimaryKey));
@@ -323,8 +323,7 @@ public class FinderCacheImpl
 				return (Serializable)Collections.emptyList();
 			}
 
-			ArrayList<Serializable> cachedList = new ArrayList<Serializable>(
-				list.size());
+			ArrayList<Serializable> cachedList = new ArrayList<>(list.size());
 
 			for (Serializable curResult : list) {
 				Serializable primaryKey = _resultToPrimaryKey(curResult);

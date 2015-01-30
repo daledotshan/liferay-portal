@@ -116,6 +116,8 @@ public class BaselineJarTask extends BaseBndTask {
 				}
 			);
 
+			doHeader(bundleInfo);
+
 			for (Info info : infosArray) {
 				String warnings = "-";
 
@@ -141,14 +143,13 @@ public class BaselineJarTask extends BaseBndTask {
 				else if (delta == Delta.UNCHANGED) {
 					boolean newVersionSuggested = false;
 
-					if ((suggestedVersion.getMajor() !=
-							newerVersion.getMajor()) ||
-						(suggestedVersion.getMicro() !=
-							newerVersion.getMicro()) ||
-						(suggestedVersion.getMinor() !=
-							newerVersion.getMinor())) {
-
+					if (suggestedVersion.compareTo(newerVersion) > 0) {
 						warnings = "VERSION INCREASE SUGGESTED";
+
+						newVersionSuggested = true;
+					}
+					else if (suggestedVersion.compareTo(newerVersion) < 0) {
+						warnings = "EXCESSIVE VERSION INCREASE";
 
 						newVersionSuggested = true;
 					}
@@ -295,102 +296,94 @@ public class BaselineJarTask extends BaseBndTask {
 	protected void doExecute() throws Exception {
 		aQute.bnd.build.Project bndProject = getBndProject();
 
-		try (Builder builder = new Builder(bndProject)) {
-			builder.setClasspath(
-				_classpathFiles.toArray(new File[_classpathFiles.size()]));
-			builder.setPedantic(isPedantic());
-			builder.setProperties(_file);
-			builder.setSourcepath(new File[] {_sourcePath});
+		Builder builder = new Builder(bndProject);
 
-			Jar[] jars = builder.builds();
+		builder.setClasspath(
+			_classpathFiles.toArray(new File[_classpathFiles.size()]));
+		builder.setPedantic(isPedantic());
+		builder.setProperties(_file);
+		builder.setSourcepath(new File[] {_sourcePath});
 
-			// Report both task failures and bnd build failures
+		Jar[] jars = builder.builds();
 
-			boolean taskFailed = report();
-			boolean bndFailed = report(builder);
+		// Report both task failures and bnd build failures
 
-			// Fail this build if failure is not ok and either the task failed
-			// or the bnd build failed
+		boolean taskFailed = report();
+		boolean bndFailed = report(builder);
 
-			if (taskFailed || bndFailed) {
-				throw new BuildException(
-					"bnd failed",
-					new org.apache.tools.ant.Location(_file.getAbsolutePath()));
-			}
+		// Fail this build if failure is not ok and either the task failed or
+		// the bnd build failed
 
-			for (Jar jar : jars) {
-				String bsn = jar.getName();
+		if (taskFailed || bndFailed) {
+			throw new BuildException(
+				"bnd failed",
+				new org.apache.tools.ant.Location(_file.getAbsolutePath()));
+		}
 
-				File outputFile = _outputPath;
+		for (Jar jar : jars) {
+			String bsn = jar.getName();
 
-				if (_outputPath.isDirectory()) {
-					String path = builder.getProperty("-output");
+			File outputFile = _outputPath;
 
-					if (path != null) {
-						outputFile = getFile(_outputPath, path);
-					}
-					else {
-						outputFile = getFile(_outputPath, bsn + ".jar");
-					}
-				}
+			if (_outputPath.isDirectory()) {
+				String path = builder.getProperty("-output");
 
-				if (!outputFile.exists() ||
-					(outputFile.lastModified() <= jar.lastModified())) {
-
-					jar.write(outputFile);
-
-					Map<String, Resource> resources = jar.getResources();
-
-					log(
-						jar.getName() + " (" + outputFile.getName() + ") " +
-							resources.size());
-
-					doBaselineJar(jar, outputFile, bndProject);
+				if (path != null) {
+					outputFile = getFile(_outputPath, path);
 				}
 				else {
-					Map<String, Resource> resources = jar.getResources();
-
-					log(
-						jar.getName() + " (" + outputFile.getName() + ") " +
-							resources.size() + " (not modified)");
+					outputFile = getFile(_outputPath, bsn + ".jar");
 				}
-
-				report();
-
-				jar.close();
 			}
+
+			if (!outputFile.exists() ||
+				(outputFile.lastModified() <= jar.lastModified())) {
+
+				jar.write(outputFile);
+
+				Map<String, Resource> resources = jar.getResources();
+
+				log(
+					jar.getName() + " (" + outputFile.getName() + ") " +
+						resources.size());
+
+				doBaselineJar(jar, outputFile, bndProject);
+			}
+			else {
+				Map<String, Resource> resources = jar.getResources();
+
+				log(
+					jar.getName() + " (" + outputFile.getName() + ") " +
+						resources.size() + " (not modified)");
+			}
+
+			report();
+
+			jar.close();
 		}
+
+		builder.close();
 	}
 
 	protected void doHeader(BundleInfo bundleInfo) {
-		if (_headerPrinted) {
+		if (!bundleInfo.mismatch) {
 			return;
 		}
-
-		_headerPrinted = true;
 
 		project.log(
 			"[Baseline Report] Mode: " + _reportLevel, Project.MSG_WARN);
 
-		if (bundleInfo.mismatch) {
-			project.log(
-				"[Baseline Warning] Bundle Version Change Recommended: " +
-					bundleInfo.suggestedVersion,
-				Project.MSG_WARN);
-		}
+		String output =
+			"[Baseline Warning] Bundle Version Change Recommended: " +
+				bundleInfo.suggestedVersion;
 
-		reportLog(
-			" ", "PACKAGE_NAME", "DELTA", "CUR_VER", "BASE_VER", "REC_VER",
-			"WARNINGS", "ATTRIBUTES");
+		project.log(output, Project.MSG_WARN);
 
-		reportLog(
-			"=", "==================================================",
-			"==========", "==========", "==========", "==========",
-			"==========", "==========");
+		persistLog(output);
 	}
 
 	protected void doInfo(BundleInfo bundleInfo, Info info, String warnings) {
-		doHeader(bundleInfo);
+		doPackagesHeader(bundleInfo);
 
 		reportLog(
 			String.valueOf(info.mismatch ? '*' : ' '), info.packageName,
@@ -416,16 +409,33 @@ public class BaselineJarTask extends BaseBndTask {
 		}
 	}
 
+	protected void doPackagesHeader(BundleInfo bundleInfo) {
+		if (_headerPrinted) {
+			return;
+		}
+
+		_headerPrinted = true;
+
+		reportLog(
+			" ", "PACKAGE_NAME", "DELTA", "CUR_VER", "BASE_VER", "REC_VER",
+			"WARNINGS", "ATTRIBUTES");
+
+		reportLog(
+			"=", "==================================================",
+			"==========", "==========", "==========", "==========",
+			"==========", "==========");
+	}
+
 	protected void generatePackageInfo(Info info, String warnings)
 		throws Exception {
 
 		String sourceDirName = project.getProperty("plugin.source.dir");
 
 		if (sourceDirName == null) {
-			sourceDirName = "src";
+			sourceDirName = project.getBaseDir() + "/src";
 		}
 
-		File sourceDir = new File(project.getBaseDir(), sourceDirName);
+		File sourceDir = new File(sourceDirName);
 
 		if (!sourceDir.exists()) {
 			return;
@@ -444,13 +454,14 @@ public class BaselineJarTask extends BaseBndTask {
 			return;
 		}
 
-		try (FileOutputStream fileOutputStream = new FileOutputStream(
-				packageInfoFile)) {
+		FileOutputStream fileOutputStream = new FileOutputStream(
+			packageInfoFile);
 
-			String content = "version " + info.suggestedVersion;
+		String content = "version " + info.suggestedVersion;
 
-			fileOutputStream.write(content.getBytes());
-		}
+		fileOutputStream.write(content.getBytes());
+
+		fileOutputStream.close();
 	}
 
 	protected String getBaselineResportsDirName() {
@@ -493,6 +504,25 @@ public class BaselineJarTask extends BaseBndTask {
 		return String.valueOf(deltaString.charAt(0));
 	}
 
+	protected void persistLog(String output) {
+		if (!_reportLevelIsPersist) {
+			return;
+		}
+
+		try {
+			if (_printWriter == null) {
+				_logFile.createNewFile();
+
+				_printWriter = new PrintWriter(_logFile);
+			}
+
+			_printWriter.println(output);
+		}
+		catch (IOException ioe) {
+			throw new BuildException(ioe);
+		}
+	}
+
 	protected void reportLog(
 		String string1, String string2, String string3, String string4,
 		String string5, String string6, String string7, String string8) {
@@ -503,28 +533,15 @@ public class BaselineJarTask extends BaseBndTask {
 
 		project.log(output, Project.MSG_WARN);
 
-		if (_reportLevelIsPersist) {
-			try {
-				if (_printWriter == null) {
-					_logFile.createNewFile();
-
-					_printWriter = new PrintWriter(_logFile);
-				}
-
-				_printWriter.println(output);
-			}
-			catch (IOException ioe) {
-				throw new BuildException(ioe);
-			}
-		}
+		persistLog(output);
 	}
 
 	private static final String _BASELINE_REPORTS_DIR = "baseline-reports";
 
 	private String _baselineResportsDirName;
 	private Path _classpath;
-	private List<File> _classpathFiles = new ArrayList<File>();
-	private DiffPluginImpl _diffPluginImpl = new DiffPluginImpl();
+	private final List<File> _classpathFiles = new ArrayList<File>();
+	private final DiffPluginImpl _diffPluginImpl = new DiffPluginImpl();
 	private File _file;
 	private boolean _headerPrinted;
 	private File _logFile;
