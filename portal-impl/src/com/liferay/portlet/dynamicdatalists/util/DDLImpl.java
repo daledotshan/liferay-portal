@@ -173,7 +173,7 @@ public class DDLImpl implements DDL {
 
 	@Override
 	public List<DDLRecord> getRecords(Hits hits) throws Exception {
-		List<DDLRecord> records = new ArrayList<DDLRecord>();
+		List<DDLRecord> records = new ArrayList<>();
 
 		List<com.liferay.portal.kernel.search.Document> documents =
 			hits.toList();
@@ -225,10 +225,6 @@ public class DDLImpl implements DDL {
 
 		for (DDMFormField ddmFormField : ddmFormFields) {
 			String name = ddmFormField.getName();
-
-			if (ddmStructure.isFieldPrivate(name)) {
-				continue;
-			}
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -308,7 +304,7 @@ public class DDLImpl implements DDL {
 			RenderResponse renderResponse)
 		throws Exception {
 
-		Map<String, Object> contextObjects = new HashMap<String, Object>();
+		Map<String, Object> contextObjects = new HashMap<>();
 
 		contextObjects.put(
 			DDLConstants.RESERVED_DDM_STRUCTURE_ID,
@@ -325,16 +321,20 @@ public class DDLImpl implements DDL {
 			recordSet.getName(themeDisplay.getLocale()));
 		contextObjects.put(TemplateConstants.TEMPLATE_ID, ddmTemplateId);
 
-		String viewMode = ParamUtil.getString(renderRequest, "viewMode");
+		String viewMode = Constants.VIEW;
 
-		if (Validator.isNull(viewMode)) {
-			viewMode = Constants.VIEW;
+		if (renderRequest != null) {
+			viewMode = ParamUtil.getString(
+				renderRequest, "viewMode", Constants.VIEW);
 		}
 
 		contextObjects.put("viewMode", viewMode);
 
 		DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(
 			ddmTemplateId);
+
+		contextObjects.put(
+			TemplateConstants.CLASS_NAME_ID, ddmTemplate.getClassNameId());
 
 		return _transformer.transform(
 			themeDisplay, contextObjects, ddmTemplate.getScript(),
@@ -456,9 +456,9 @@ public class DDLImpl implements DDL {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(DDLImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(DDLImpl.class);
 
-	private Transformer _transformer = new Transformer(
+	private final Transformer _transformer = new Transformer(
 		PropsKeys.DYNAMIC_DATA_LISTS_ERROR_TEMPLATE, true);
 
 }

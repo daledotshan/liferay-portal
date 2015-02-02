@@ -33,9 +33,7 @@ long userId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:discus
 
 String strutsAction = ParamUtil.getString(request, "struts_action");
 
-String threadView = PropsValues.DISCUSSION_THREAD_VIEW;
-
-MBMessageDisplay messageDisplay = MBMessageLocalServiceUtil.getDiscussionMessageDisplay(userId, scopeGroupId, className, classPK, WorkflowConstants.STATUS_ANY, threadView);
+MBMessageDisplay messageDisplay = MBMessageLocalServiceUtil.getDiscussionMessageDisplay(userId, scopeGroupId, className, classPK, WorkflowConstants.STATUS_ANY);
 
 MBCategory category = messageDisplay.getCategory();
 MBThread thread = messageDisplay.getThread();
@@ -106,15 +104,34 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 						<c:otherwise>
 							<c:choose>
 								<c:when test="<%= messagesCount == 1 %>">
-									<liferay-ui:message key="no-comments-yet" /> <a href="<%= taglibPostReplyURL %>"><liferay-ui:message key="be-the-first" /></a>
+									<c:choose>
+										<c:when test="<%= themeDisplay.isSignedIn() || !SSOUtil.isLoginRedirectRequired(themeDisplay.getCompanyId()) %>">
+											<liferay-ui:message key="no-comments-yet" /> <a href="<%= taglibPostReplyURL %>"><liferay-ui:message key="be-the-first" /></a>
+										</c:when>
+										<c:otherwise>
+											<liferay-ui:message key="no-comments-yet" /> <a href="<%= themeDisplay.getURLSignIn() %>"><liferay-ui:message key="please-sign-in-to-comment" /></a>
+										</c:otherwise>
+									</c:choose>
 								</c:when>
 								<c:otherwise>
-									<liferay-ui:icon
-										iconCssClass="icon-reply"
-										label="<%= true %>"
-										message="add-comment"
-										url="<%= taglibPostReplyURL %>"
-									/>
+									<c:choose>
+										<c:when test="<%= themeDisplay.isSignedIn() || !SSOUtil.isLoginRedirectRequired(themeDisplay.getCompanyId()) %>">
+											<liferay-ui:icon
+												iconCssClass="icon-reply"
+												label="<%= true %>"
+												message="add-comment"
+												url="<%= taglibPostReplyURL %>"
+											/>
+										</c:when>
+										<c:otherwise>
+											<liferay-ui:icon
+												iconCssClass="icon-reply"
+												label="<%= true %>"
+												message="please-sign-in-to-comment"
+												url="<%= themeDisplay.getURLSignIn() %>"
+											/>
+										</c:otherwise>
+									</c:choose>
 								</c:otherwise>
 							</c:choose>
 						</c:otherwise>
@@ -294,7 +311,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 							</div>
 
 							<aui:row fluid="<%= true %>">
-								<aui:col cssClass="lfr-discussion-details" width="25">
+								<aui:col cssClass="lfr-discussion-details" width="<%= 25 %>">
 									<liferay-ui:user-display
 										displayStyle="2"
 										userId="<%= message.getUserId() %>"
@@ -302,7 +319,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 									/>
 								</aui:col>
 
-								<aui:col cssClass="lfr-discussion-body" width="75">
+								<aui:col cssClass="lfr-discussion-body" width="<%= 75 %>">
 									<c:if test="<%= (message != null) && !message.isApproved() %>">
 										<aui:model-context bean="<%= message %>" model="<%= MBMessage.class %>" />
 
@@ -337,7 +354,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 												classPK="<%= message.getMessageId() %>"
 												ratingsEntry="<%= ratingsEntry %>"
 												ratingsStats="<%= ratingStats %>"
-												type="thumbs"
+												type="<%= PortletRatingsDefinition.RatingsType.THUMBS.getValue() %>"
 											/>
 										</c:if>
 
@@ -350,12 +367,24 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 														String taglibPostReplyURL = "javascript:" + randomNamespace + "showForm('" + randomNamespace + "postReplyForm" + i + "', '" + namespace + randomNamespace + "postReplyBody" + i + "'); " + randomNamespace + "hideForm('" + randomNamespace + "editForm" + i + "', '" + namespace + randomNamespace + "editReplyBody" + i + "', '" + HtmlUtil.escapeJS(message.getBody()) + "');";
 														%>
 
-														<liferay-ui:icon
-															iconCssClass="icon-reply"
-															label="<%= true %>"
-															message="post-reply"
-															url="<%= taglibPostReplyURL %>"
-														/>
+														<c:choose>
+															<c:when test="<%= themeDisplay.isSignedIn() || !SSOUtil.isLoginRedirectRequired(themeDisplay.getCompanyId()) %>">
+																<liferay-ui:icon
+																	iconCssClass="icon-reply"
+																	label="<%= true %>"
+																	message="post-reply"
+																	url="<%= taglibPostReplyURL %>"
+																/>
+															</c:when>
+															<c:otherwise>
+																<liferay-ui:icon
+																	iconCssClass="icon-reply"
+																	label="<%= true %>"
+																	message="please-sign-in-to-reply"
+																	url="<%= themeDisplay.getURLSignIn() %>"
+																/>
+															</c:otherwise>
+														</c:choose>
 													</li>
 												</c:if>
 
@@ -842,7 +871,7 @@ private RatingsEntry getRatingsEntry(List<RatingsEntry> ratingEntries, long clas
 		}
 	}
 
-	return RatingsEntryUtil.create(0);
+	return null;
 }
 
 private RatingsStats getRatingsStats(List<RatingsStats> ratingsStatsList, long classPK) {

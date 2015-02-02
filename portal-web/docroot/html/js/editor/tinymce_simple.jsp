@@ -18,6 +18,13 @@
 
 <%
 String contents = (String)request.getAttribute("liferay-ui:input-editor:contents");
+
+String contentsLanguageId = (String)request.getAttribute("liferay-ui:input-editor:contentsLanguageId");
+
+Locale contentsLocale = LocaleUtil.fromLanguageId(contentsLanguageId);
+
+contentsLanguageId = LocaleUtil.toLanguageId(contentsLocale);
+
 String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-editor:cssClass"));
 String editorImpl = (String)request.getAttribute("liferay-ui:input-editor:editorImpl");
 String initMethod = (String)request.getAttribute("liferay-ui:input-editor:initMethod");
@@ -29,7 +36,14 @@ if (Validator.isNotNull(onChangeMethod)) {
 	onChangeMethod = namespace + onChangeMethod;
 }
 
+String onInitMethod = (String)request.getAttribute("liferay-ui:input-editor:onInitMethod");
+
+if (Validator.isNotNull(onInitMethod)) {
+	onInitMethod = namespace + onInitMethod;
+}
+
 boolean resizable = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-editor:resizable"));
+boolean showSource = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-editor:showSource"));
 boolean skipEditorLoading = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-editor:skipEditorLoading"));
 %>
 
@@ -40,7 +54,7 @@ boolean skipEditorLoading = GetterUtil.getBoolean((String)request.getAttribute("
 		long javaScriptLastModified = ServletContextUtil.getLastModified(application, "/html/js/", true);
 		%>
 
-		<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + themeDisplay.getPathJavaScript() + "/editor/tiny_mce/tiny_mce.js", javaScriptLastModified)) %>" type="text/javascript"></script>
+		<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + themeDisplay.getPathJavaScript() + "/editor/tiny_mce/tinymce.min.js", javaScriptLastModified)) %>" type="text/javascript"></script>
 
 		<script type="text/javascript">
 			Liferay.namespace('EDITORS')['<%= editorImpl %>'] = true;
@@ -56,38 +70,43 @@ boolean skipEditorLoading = GetterUtil.getBoolean((String)request.getAttribute("
 	window['<%= name %>'] = {
 		onChangeCallbackCounter: 0,
 
-		destroy: function() {
-			tinyMCE.editors['<%= name %>'].destroy();
-
-			window['<%= name %>'] = null;
-		},
-
-		focus: function() {
-			tinyMCE.editors['<%= name %>'].focus();
-		},
-
-		fileBrowserCallback: function(field_name, url, type) {
-		},
-
-		getHTML: function() {
-			var data;
-
-			if ((contents == null) && !window['<%= name %>'].instanceReady && window['<%= HtmlUtil.escape(namespace + initMethod) %>']) {
-				data = <%= HtmlUtil.escape(namespace + initMethod) %>();
-			}
-			else {
-				data = tinyMCE.editors['<%= name %>'].getContent();
-			}
-
-			return data;
-		},
-
 		init: function(value) {
 			if (typeof value != 'string') {
 				value = '';
 			}
 
 			window['<%= name %>'].setHTML(value);
+		},
+
+		destroy: function() {
+			tinyMCE.editors['<%= name %>'].destroy();
+
+			window['<%= name %>'] = null;
+		},
+
+		fileBrowserCallback: function(field_name, url, type) {
+		},
+
+		focus: function() {
+			tinyMCE.editors['<%= name %>'].focus();
+		},
+
+		getHTML: function() {
+			var data;
+
+			if (!window['<%= name %>'].instanceReady) {
+				if (window['<%= HtmlUtil.escape(namespace + initMethod) %>']) {
+					data = <%= HtmlUtil.escape(namespace + initMethod) %>();
+				}
+				else {
+					data = '<%= contents != null ? contents: StringPool.BLANK %>';
+				}
+			}
+			else {
+				data = tinyMCE.editors['<%= name %>'].getContent();
+			}
+
+			return data;
 		},
 
 		initInstanceCallback: function() {
@@ -106,6 +125,10 @@ boolean skipEditorLoading = GetterUtil.getBoolean((String)request.getAttribute("
 					A.one(iframeDoc).addClass('aui');
 				}
 			}
+
+			<c:if test="<%= Validator.isNotNull(onInitMethod) %>">
+				window['<%= HtmlUtil.escapeJS(namespace + onInitMethod) %>']();
+			</c:if>
 
 			window['<%= name %>'].instanceReady = true;
 		},
@@ -144,20 +167,32 @@ boolean skipEditorLoading = GetterUtil.getBoolean((String)request.getAttribute("
 		%>
 
 		setHTML: function(value) {
-			tinyMCE.editors['<%= name %>'].setContent(value);
+			if (window['<%= name %>'].instanceReady) {
+				tinyMCE.editors['<%= name %>'].setContent(value);
+			}
+			else {
+				document.getElementById('<%= name %>').innerHTML = value;
+			}
 		}
+	};
+
+	var tinyMCELanguage = {'ar_SA': 'ar', 'bg_BG': 'bg_BG', 'ca_ES': 'ca', 'cs_CZ': 'cs', 'de_DE': 'de', 'el_GR': 'el', 'en_AU': 'en_GB', 'en_GB': 'en_GB',
+		'en_US': 'en_GB', 'es_ES': 'es', 'et_EE': 'et', 'eu_ES': 'eu', 'fa_IR': 'fa', 'fi_FI': 'fi', 'fr_FR': 'fr_FR', 'gl_ES': 'gl', 'hr_HR': 'hr', 'hu_HU': 'hu_HU',
+		'in_ID': 'id', 'it_IT': 'it', 'iw_IL': 'he_IL', 'ja_JP': 'ja', 'ko_KR': 'ko_KR', 'lt_LT': 'lt', 'nb_NO': 'nb_NO', 'nl_NL': 'nl', 'pl_PL': 'pl', 'pt_BR': 'pt_BR',
+		'pt_PT': 'pt_PT', 'ro_RO': 'ro', 'ru_RU': 'ru', 'sk_SK': 'sk', 'sl_SI': 'sl_SI', 'sr_RS': 'sr', 'sv_SE': 'sv_SE', 'tr_TR': 'tr_TR', 'uk_UA': 'uk',
+		'vi_VN': 'vi', 'zh_CN': 'zh_CN', 'zh_TW': 'zh_TW'
 	};
 
 	tinyMCE.init(
 		{
 			content_css: '<%= HtmlUtil.escapeJS(themeDisplay.getPathThemeCss()) %>/aui.css,<%= HtmlUtil.escapeJS(themeDisplay.getPathThemeCss()) %>/main.css',
 			convert_urls: false,
-			elements: '<%= name %>',
 			extended_valid_elements: 'a[name|href|target|title|onclick],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|usemap],hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]',
 			file_browser_callback: window['<%= name %>'].fileBrowserCallback,
 			init_instance_callback: window['<%= name %>'].initInstanceCallback,
 			invalid_elements: 'script',
-			language: '<%= HtmlUtil.escape(locale.getLanguage()) %>',
+			language: tinyMCELanguage['<%= HtmlUtil.escape(contentsLanguageId) %>'] || tinyMCELanguage['en_US'],
+			menubar: false,
 			mode: 'textareas',
 
 			<%
@@ -170,17 +205,12 @@ boolean skipEditorLoading = GetterUtil.getBoolean((String)request.getAttribute("
 			}
 			%>
 
-			plugins: 'preview,print,contextmenu',
+			plugins: 'contextmenu preview print <c:if test="<%= showSource %>">code</c:if>',
 			relative_urls: false,
 			remove_script_host: false,
-			theme: 'advanced',
-			theme_advanced_buttons1_add: 'code,preview,print',
-			theme_advanced_buttons2: '',
-			theme_advanced_buttons3: '',
-			theme_advanced_disable: 'formatselect,styleselect,help,strikethrough',
-			theme_advanced_resize_horizontal: '<%= resizable %>',
-			theme_advanced_toolbar_align: 'left',
-			theme_advanced_toolbar_location: 'top'
+			selector: '#<%= name %>',
+			toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify | <c:if test="<%= showSource %>"> code</c:if> preview print',
+			toolbar_items_size: 'small'
 		}
 	);
 </aui:script>

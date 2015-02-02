@@ -164,6 +164,7 @@ AUI.add(
 
 				var redirect = new A.Url(instance.getRedirect(url.toString()));
 
+				redirect.setParameter('p_p_ajax', false);
 				redirect.setParameter('p_p_isolated', true);
 
 				url.setParameter(namespace + 'redirect', redirect.toString());
@@ -224,6 +225,7 @@ AUI.add(
 				if (redirect) {
 					var url = new A.Url(redirect);
 
+					url.removeParameter('p_p_ajax');
 					url.removeParameter('p_p_isolated');
 
 					A.config.win.history.replaceState(null, title, url.toString());
@@ -245,6 +247,20 @@ AUI.add(
 				NAME: 'baseScreen',
 
 				prototype: {
+					destructor: function() {
+						var instance = this;
+
+						Surface.EventScreen.superclass.destructor(instance, arguments);
+
+						Liferay.fire(
+							'surfaceScreenDestructor',
+							{
+								app: Surface.app,
+								screen: instance
+							}
+						);
+					},
+
 					activate: function() {
 						var instance = this;
 
@@ -273,20 +289,6 @@ AUI.add(
 						);
 
 						instance.set('dataChannel', {});
-					},
-
-					destructor: function() {
-						var instance = this;
-
-						Surface.EventScreen.superclass.destructor(instance, arguments);
-
-						Liferay.fire(
-							'surfaceScreenDestructor',
-							{
-								app: Surface.app,
-								screen: instance
-							}
-						);
 					},
 
 					flip: function() {
@@ -369,6 +371,7 @@ AUI.add(
 					},
 					urlParams: {
 						value: {
+							p_p_ajax: false,
 							p_p_isolated: true
 						}
 					}

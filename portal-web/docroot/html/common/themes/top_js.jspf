@@ -115,6 +115,14 @@
 				]
 			},
 
+			PortletKeys: {
+				DOCUMENT_SELECTOR : '<%= PortletKeys.DOCUMENT_SELECTOR %>',
+				DYNAMIC_DATA_MAPPING: '<%= PortletKeys.DYNAMIC_DATA_MAPPING %>',
+				JOURNAL : '<%= PortletKeys.JOURNAL %>',
+				PORTLET_CONFIGURATION: '<%= PortletKeys.PORTLET_CONFIGURATION %>',
+				PORTLET_SHARING : '<%= PortletKeys.PORTLET_SHARING %>'
+			},
+
 			PropsValues: {
 				NTLM_AUTH_ENABLED: <%= PrefsPropsUtil.getBoolean(themeDisplay.getCompanyId(), PropsKeys.NTLM_AUTH_ENABLED, PropsValues.NTLM_AUTH_ENABLED) %>
 			},
@@ -208,14 +216,7 @@
 					return '<%= themeDisplay.getSiteGroupIdOrLiveGroupId() %>';
 				},
 				getSessionId: function() {
-					<c:choose>
-						<c:when test="<%= PropsValues.SESSION_ENABLE_URL_WITH_SESSION_ID %>">
-							return '<%= session.getId() %>';
-						</c:when>
-						<c:otherwise>
-							return '';
-						</c:otherwise>
-					</c:choose>
+					return '<%= PropsValues.SESSION_ENABLE_URL_WITH_SESSION_ID ? session.getId() : StringPool.BLANK %>';
 				},
 				getSiteGroupId: function() {
 					return '<%= themeDisplay.getSiteGroupId() %>';
@@ -230,14 +231,7 @@
 					return '<%= themeDisplay.getUserId() %>';
 				},
 				getUserName: function() {
-					<c:choose>
-						<c:when test="<%= themeDisplay.isSignedIn() %>">
-							return '<%= UnicodeFormatter.toString(user.getFullName()) %>';
-						</c:when>
-						<c:otherwise>
-							return '';
-						</c:otherwise>
-					</c:choose>
+					return '<%= themeDisplay.isSignedIn() ? UnicodeFormatter.toString(user.getFullName()) : StringPool.BLANK %>';
 				},
 				isAddSessionIdToURL: function() {
 					return <%= themeDisplay.isAddSessionIdToURL() %>;
@@ -281,17 +275,18 @@
 				return '<%= PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathContext() + "/combo/", "minifierType=", javaScriptLastModified) %>&';
 			},
 			getFilter: function() {
+				var filter = 'raw';
+
 				<c:choose>
 					<c:when test="<%= themeDisplay.isThemeJsFastLoad() %>">
-						return 'min';
+						filter = 'min';
 					</c:when>
 					<c:when test="<%= PropsValues.JAVASCRIPT_LOG_ENABLED %>">
-						return 'debug';
+						filter = 'debug';
 					</c:when>
-					<c:otherwise>
-						return 'raw';
-					</c:otherwise>
 				</c:choose>
+
+				return filter;
 			},
 			getJavaScriptRootPath: function() {
 				return '<%= themeDisplay.getPathContext() %>/html/js';

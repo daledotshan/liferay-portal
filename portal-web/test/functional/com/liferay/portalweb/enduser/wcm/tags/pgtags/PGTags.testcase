@@ -1,5 +1,5 @@
 <definition component-name="portal-wcm">
-	<property name="testray.main.component.name" value="WCM" />
+	<property name="testray.main.component.name" value="Tags" />
 
 	<set-up>
 		<execute macro="User#firstLoginPG" />
@@ -260,6 +260,8 @@
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Blogs" />
 		</execute>
+
+		<execute action="Home#refresh" />
 
 		<execute macro="Tag#addViaBlogsPG">
 			<var name="entryContent" value="Entry Content" />

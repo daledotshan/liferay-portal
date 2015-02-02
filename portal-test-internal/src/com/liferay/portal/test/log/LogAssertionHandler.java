@@ -14,6 +14,8 @@
 
 package com.liferay.portal.test.log;
 
+import com.liferay.portal.kernel.util.StringBundler;
+
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -39,9 +41,22 @@ public class LogAssertionHandler extends Handler {
 		Level level = logRecord.getLevel();
 
 		if (level.equals(Level.SEVERE)) {
-			ConcurrentAssertUtil.caughtFailure(
-				"Test failed due to logged error: " +
-					logRecord.getMessage());
+			StringBundler sb = new StringBundler(6);
+
+			sb.append("{level=");
+			sb.append(logRecord.getLevel());
+			sb.append(", loggerName=");
+			sb.append(logRecord.getLoggerName());
+			sb.append(", message=");
+			sb.append(logRecord.getMessage());
+
+			LogAssertionExecutor logAssertionExecutor =
+				LogAssertionExecutorUtil.getInstance();
+
+			logAssertionExecutor.caughtFailure(
+				Thread.currentThread(),
+				new AssertionError(
+					new AssertionError(sb.toString(), logRecord.getThrown())));
 		}
 	}
 

@@ -16,6 +16,8 @@ package com.liferay.portal.log;
 
 import com.liferay.portal.kernel.util.ReflectionUtil;
 
+import java.io.Closeable;
+
 import java.lang.reflect.Field;
 
 import java.util.List;
@@ -30,7 +32,7 @@ import org.apache.log4j.spi.LoggingEvent;
 /**
  * @author Shuyang Zhou
  */
-public class CaptureAppender extends AppenderSkeleton {
+public class CaptureAppender extends AppenderSkeleton implements Closeable {
 
 	public CaptureAppender(Logger logger) {
 		_logger = logger;
@@ -75,7 +77,7 @@ public class CaptureAppender extends AppenderSkeleton {
 		_loggingEvents.add(loggingEvent);
 	}
 
-	private static Field _parentField;
+	private static final Field _parentField;
 
 	static {
 		try {
@@ -87,10 +89,10 @@ public class CaptureAppender extends AppenderSkeleton {
 		}
 	}
 
-	private Level _level;
-	private Logger _logger;
-	private List<LoggingEvent> _loggingEvents =
-		new CopyOnWriteArrayList<LoggingEvent>();
-	private Category _parentCategory;
+	private final Level _level;
+	private final Logger _logger;
+	private final List<LoggingEvent> _loggingEvents =
+		new CopyOnWriteArrayList<>();
+	private final Category _parentCategory;
 
 }

@@ -5,11 +5,11 @@ AUI.add(
 
 		var DISPLAY_STYLE_TOOLBAR = 'displayStyleToolbar';
 
+		var STR_ROW_IDS_FILE_ENTRY_CHECKBOX = 'rowIdsFileEntry';
+
 		var STR_ROW_IDS_FILE_SHORTCUT_CHECKBOX = 'rowIdsDLFileShortcut';
 
 		var STR_ROW_IDS_FOLDER_CHECKBOX = 'rowIdsFolder';
-
-		var STR_ROW_IDS_FILE_ENTRY_CHECKBOX = 'rowIdsFileEntry';
 
 		var WIN = A.config.win;
 
@@ -34,18 +34,6 @@ AUI.add(
 						instance._eventDataRequest = instance.ns('dataRequest');
 						instance._eventOpenDocument = instance.ns('openDocument');
 						instance._entriesContainer = instance.byId('entriesContainer');
-
-						if (!config.syncMessageDisabled) {
-							instance._syncMessage = new Liferay.Message(
-								{
-									boundingBox: instance.byId('syncNotification'),
-									contentBox: instance.byId('syncNotificationContent'),
-									id: instance.NS + 'show-sync-message',
-									trigger: instance.one('#showSyncMessageIconContainer'),
-									visible: true
-								}
-							).render();
-						}
 
 						var checkBoxesId = [
 							instance.ns(STR_ROW_IDS_FILE_SHORTCUT_CHECKBOX),
@@ -104,8 +92,6 @@ AUI.add(
 
 						instance._config = config;
 
-						instance._eventHandles = eventHandles;
-
 						instance._toggleTrashAction();
 
 						var hasPermission = (themeDisplay.isSignedIn() && instance.one('#addButtonContainer'));
@@ -113,8 +99,10 @@ AUI.add(
 						if (HTML5_UPLOAD && hasPermission && instance._entriesContainer.inDoc()) {
 							config.appViewEntryTemplates = instance.byId('appViewEntryTemplates');
 
-							A.getDoc().once('dragenter', instance._plugUpload, instance, config);
+							eventHandles.push(A.getDoc().once('dragenter', instance._plugUpload, instance, config));
 						}
+
+						instance._eventHandles = eventHandles;
 					},
 
 					destructor: function() {
@@ -126,6 +114,12 @@ AUI.add(
 						instance._appViewSelect.destroy();
 
 						instance._documentLibraryContainer.purge(true);
+					},
+
+					getFolderId: function() {
+						var instance = this;
+
+						return instance._folderId;
 					},
 
 					_openDocument: function(event) {
@@ -159,6 +153,7 @@ AUI.add(
 								listViewContainer: instance.byId('listViewContainer'),
 								maxFileSize: config.maxFileSize,
 								redirect: config.redirect,
+								scopeGroupId: config.scopeGroupId,
 								uploadURL: config.uploadURL,
 								viewFileEntryURL: config.viewFileEntryURL
 							}

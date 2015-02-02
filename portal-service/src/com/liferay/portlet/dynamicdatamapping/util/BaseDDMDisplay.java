@@ -138,20 +138,6 @@ public abstract class BaseDDMDisplay implements DDMDisplay {
 	}
 
 	@Override
-	public String getResourceName(long classNameId) {
-		if (classNameId > 0) {
-			TemplateHandler templateHandler =
-				TemplateHandlerRegistryUtil.getTemplateHandler(classNameId);
-
-			if (templateHandler != null) {
-				return templateHandler.getResourceName();
-			}
-		}
-
-		return getResourceName();
-	}
-
-	@Override
 	public String getStorageType() {
 		return StringPool.BLANK;
 	}
@@ -184,7 +170,7 @@ public abstract class BaseDDMDisplay implements DDMDisplay {
 			return new long[] {classPK};
 		}
 
-		List<Long> classPKs = new ArrayList<Long>();
+		List<Long> classPKs = new ArrayList<>();
 
 		classPKs.add(0L);
 
@@ -342,12 +328,12 @@ public abstract class BaseDDMDisplay implements DDMDisplay {
 		return portletURL.toString();
 	}
 
-	private static Set<String> _templateLanguageTypes =
+	private static final Set<String> _templateLanguageTypes =
 		SetUtil.fromArray(
 			new String[] {
 				TemplateConstants.LANG_TYPE_FTL, TemplateConstants.LANG_TYPE_VM
 			});
-	private static Set<String> _viewTemplateExcludedColumnNames =
+	private static final Set<String> _viewTemplateExcludedColumnNames =
 		SetUtil.fromArray(new String[] {"structure"});
 
 }

@@ -22,9 +22,16 @@ String redirect = request.getParameter("redirect");
 redirect = PortalUtil.escapeRedirect(redirect);
 
 Portlet selPortlet = PortletLocalServiceUtil.getPortletById(company.getCompanyId(), portletDisplay.getId());
+
+String className = ParamUtil.getString(request, "className");
+long classPK = ParamUtil.getLong(request, "classPK");
+
+if (Validator.isNotNull(className) && (classPK > 0)) {
+	AssetPublisherUtil.addAndStoreSelection(liferayPortletRequest, className, classPK, -1);
+}
 %>
 
-<aui:script use="aui-base">
+<aui:script>
 	Liferay.fire(
 		'closeWindow',
 		{

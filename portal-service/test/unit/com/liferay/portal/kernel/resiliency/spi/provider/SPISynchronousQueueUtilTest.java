@@ -32,8 +32,8 @@ import org.junit.Test;
 public class SPISynchronousQueueUtilTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Test
 	public void testConstructor() {
@@ -91,6 +91,8 @@ public class SPISynchronousQueueUtilTest {
 		notifyThread.start();
 
 		Assert.assertSame(mockSPI, synchronousQueue.take());
+
+		notifyThread.join();
 
 		// Destroy
 
