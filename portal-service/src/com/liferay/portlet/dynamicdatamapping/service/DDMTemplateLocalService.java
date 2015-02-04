@@ -67,6 +67,8 @@ public interface DDMTemplateLocalService extends BaseLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
+	* @param sourceClassNameId the primary key of the class name for template's
+	source model
 	* @param nameMap the template's locales and localized names
 	* @param descriptionMap the template's locales and localized descriptions
 	* @param type the template's type. For more information, see {@link
@@ -85,6 +87,7 @@ public interface DDMTemplateLocalService extends BaseLocalService,
 	*/
 	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate addTemplate(
 		long userId, long groupId, long classNameId, long classPK,
+		long sourceClassNameId,
 		java.util.Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String type, java.lang.String mode,
@@ -100,6 +103,8 @@ public interface DDMTemplateLocalService extends BaseLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
+	* @param sourceClassNameId the primary key of the class name for template's
+	source model
 	* @param templateKey the unique string identifying the template
 	(optionally <code>null</code>)
 	* @param nameMap the template's locales and localized names
@@ -126,7 +131,7 @@ public interface DDMTemplateLocalService extends BaseLocalService,
 	*/
 	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate addTemplate(
 		long userId, long groupId, long classNameId, long classPK,
-		java.lang.String templateKey,
+		long sourceClassNameId, java.lang.String templateKey,
 		java.util.Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String type, java.lang.String mode,
@@ -282,6 +287,9 @@ public interface DDMTemplateLocalService extends BaseLocalService,
 	public void deleteTemplates(long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException;
 
+	public void deleteTemplates(long groupId, long classNameId)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
 	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
 
 	/**
@@ -328,20 +336,20 @@ public interface DDMTemplateLocalService extends BaseLocalService,
 		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
 
 	/**
-	* Returns the number of rows that match the dynamic query.
+	* Returns the number of rows matching the dynamic query.
 	*
 	* @param dynamicQuery the dynamic query
 	* @param projection the projection to apply to the query
-	* @return the number of rows that match the dynamic query
+	* @return the number of rows matching the dynamic query
 	*/
 	public long dynamicQueryCount(
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
@@ -455,10 +463,27 @@ public interface DDMTemplateLocalService extends BaseLocalService,
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> getDDMTemplates(
 		int start, int end);
 
+	/**
+	* Returns all the d d m templates matching the UUID and company.
+	*
+	* @param uuid the UUID of the d d m templates
+	* @param companyId the primary key of the company
+	* @return the matching d d m templates, or an empty list if no matches were found
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> getDDMTemplatesByUuidAndCompanyId(
 		java.lang.String uuid, long companyId);
 
+	/**
+	* Returns a range of d d m templates matching the UUID and company.
+	*
+	* @param uuid the UUID of the d d m templates
+	* @param companyId the primary key of the company
+	* @param start the lower bound of the range of d d m templates
+	* @param end the upper bound of the range of d d m templates (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the range of matching d d m templates, or an empty list if no matches were found
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> getDDMTemplatesByUuidAndCompanyId(
 		java.lang.String uuid, long companyId, int start, int end,

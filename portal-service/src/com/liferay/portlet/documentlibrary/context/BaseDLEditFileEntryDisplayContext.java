@@ -67,6 +67,13 @@ public class BaseDLEditFileEntryDisplayContext
 	}
 
 	@Override
+	public DLFilePicker getDLFilePicker(String onFilePickCallback)
+		throws PortalException {
+
+		return parentDLDisplayContext.getDLFilePicker(onFilePickCallback);
+	}
+
+	@Override
 	public long getMaximumUploadSize() throws PortalException {
 		return parentDLDisplayContext.getMaximumUploadSize();
 	}
@@ -123,6 +130,11 @@ public class BaseDLEditFileEntryDisplayContext
 	}
 
 	@Override
+	public boolean isFolderSelectionVisible() throws PortalException {
+		return parentDLDisplayContext.isFolderSelectionVisible();
+	}
+
+	@Override
 	public boolean isPublishButtonDisabled() throws PortalException {
 		return parentDLDisplayContext.isPublishButtonDisabled();
 	}
@@ -140,6 +152,11 @@ public class BaseDLEditFileEntryDisplayContext
 	@Override
 	public boolean isSaveButtonVisible() throws PortalException {
 		return parentDLDisplayContext.isSaveButtonVisible();
+	}
+
+	@Override
+	public boolean isVersionInfoVisible() throws PortalException {
+		return parentDLDisplayContext.isVersionInfoVisible();
 	}
 
 	protected DLFileEntryType dlFileEntryType;

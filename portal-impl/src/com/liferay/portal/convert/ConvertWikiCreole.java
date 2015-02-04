@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Jorge Ferrer
  */
-public class ConvertWikiCreole extends ConvertProcess {
+public class ConvertWikiCreole extends BaseConvertProcess {
 
 	@Override
 	public String getDescription() {
@@ -78,6 +78,7 @@ public class ConvertWikiCreole extends ConvertProcess {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ConvertWikiCreole.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ConvertWikiCreole.class);
 
 }

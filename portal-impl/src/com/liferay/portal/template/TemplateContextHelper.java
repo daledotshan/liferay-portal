@@ -87,7 +87,7 @@ import com.liferay.portlet.expando.service.ExpandoColumnLocalService;
 import com.liferay.portlet.expando.service.ExpandoRowLocalService;
 import com.liferay.portlet.expando.service.ExpandoTableLocalService;
 import com.liferay.portlet.expando.service.ExpandoValueLocalService;
-import com.liferay.portlet.journalcontent.util.JournalContentUtil;
+import com.liferay.portlet.journal.util.JournalContentUtil;
 import com.liferay.taglib.util.VelocityTaglibImpl;
 
 import java.lang.reflect.Method;
@@ -179,7 +179,7 @@ public class TemplateContextHelper {
 			}
 		}
 
-		Map<String, Object> helperUtilities = new HashMap<String, Object>();
+		Map<String, Object> helperUtilities = new HashMap<>();
 
 		populateCommonHelperUtilities(helperUtilities);
 		populateExtraHelperUtilities(helperUtilities);
@@ -892,13 +892,13 @@ public class TemplateContextHelper {
 		template.put("tilesSelectable", tilesSelectable);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		TemplateContextHelper.class);
 
-	private static PACL _pacl = new NoPACL();
+	private static final PACL _pacl = new NoPACL();
 
-	private Map<ClassLoader, Map<String, Object>[]> _helperUtilitiesMaps =
-		new ConcurrentHashMap<ClassLoader, Map<String, Object>[]>();
+	private final Map<ClassLoader, Map<String, Object>[]> _helperUtilitiesMaps =
+		new ConcurrentHashMap<>();
 
 	private static class NoPACL implements PACL {
 

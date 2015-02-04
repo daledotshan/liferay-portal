@@ -184,6 +184,7 @@ public class MapUtilTest {
 			Assert.assertTrue(map.containsValue(false));
 			Assert.assertTrue(map.get("one") instanceof Boolean);
 		}
+
 	}
 
 	public static class WhenCreatingALinkedHashMapFromArrayWithParamsType {
@@ -381,7 +382,7 @@ public class MapUtilTest {
 
 		@Test
 		public void shouldReturnMapFilteredByEven() {
-			Map<String, String> inputMap = new HashMap<String, String>();
+			Map<String, String> inputMap = new HashMap<>();
 
 			inputMap.put("1", "one");
 			inputMap.put("2", "two");
@@ -413,7 +414,7 @@ public class MapUtilTest {
 
 		@Test
 		public void shouldReturnMapFilteredByPrefix() {
-			Map<String, String> inputMap = new HashMap<String, String>();
+			Map<String, String> inputMap = new HashMap<>();
 
 			inputMap.put("x1", "one");
 			inputMap.put("2", "two");

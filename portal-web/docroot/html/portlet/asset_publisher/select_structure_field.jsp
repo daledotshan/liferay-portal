@@ -29,7 +29,7 @@ ClassType classType = classTypeReader.getClassType(classTypeId, locale);
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/asset_publisher/select_structure_field");
+portletURL.setParameter("mvcPath", "/html/portlet/asset_publisher/select_structure_field.jsp");
 portletURL.setParameter("portletResource", assetPublisherDisplayContext.getPortletResource());
 portletURL.setParameter("className", className);
 portletURL.setParameter("classTypeId", String.valueOf(classTypeId));
@@ -71,7 +71,7 @@ portletURL.setParameter("classTypeId", String.valueOf(classTypeId));
 			<liferay-ui:search-container-column-text
 				name="field"
 			>
-				<liferay-portlet:resourceURL portletConfiguration="true" var="structureFieldURL">
+				<liferay-portlet:resourceURL portletConfiguration="<%= true %>" var="structureFieldURL">
 					<portlet:param name="<%= Constants.CMD %>" value="getFieldValue" />
 					<portlet:param name="portletResource" value="<%= assetPublisherDisplayContext.getPortletResource() %>" />
 					<portlet:param name="structureId" value="<%= String.valueOf(ddmStructureId) %>" />
@@ -114,12 +114,13 @@ portletURL.setParameter("classTypeId", String.valueOf(classTypeId));
 				<%
 				Map<String, Object> data = new HashMap<String, Object>();
 
+				data.put("fieldsnamespace", fieldsNamespace);
 				data.put("form", renderResponse.getNamespace() + name + "fieldForm");
 				data.put("label", label);
 				data.put("name", name);
 				%>
 
-				<aui:button cssClass="selector-button" data="<%= data %>" disabled="<%= name.equals(assetPublisherDisplayContext.getDDMStructureFieldName()) ? false : true %>" id='<%= renderResponse.getNamespace() + "applyButton" + name %>' value="apply" />
+				<aui:button cssClass="selector-button" data="<%= data %>" disabled="<%= name.equals(assetPublisherDisplayContext.getDDMStructureFieldName()) ? false : true %>" id='<%= "applyButton" + name %>' value="apply" />
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 
@@ -140,6 +141,12 @@ portletURL.setParameter("classTypeId", String.valueOf(classTypeId));
 
 	var submitForm = function(applyButton) {
 		var result = Util.getAttributes(applyButton, 'data-');
+
+		var fieldsnamespace = result.fieldsnamespace;
+
+		var ddmForm = Liferay.component('<portlet:namespace />' + fieldsnamespace + 'ddmForm');
+
+		ddmForm.updateDDMFormInputValue();
 
 		var form = A.one('#' + result.form);
 
