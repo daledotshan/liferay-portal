@@ -393,14 +393,6 @@
 		<property name="service" ref="com.liferay.portlet.asset.service.AssetTagService" />
 		<property name="serviceInterface" value="com.liferay.portlet.asset.service.AssetTagService" />
 	</bean>
-	<bean name="/com_liferay_portlet_asset_service_spring_AssetTagPropertyService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
-		<property name="service" ref="com.liferay.portlet.asset.service.AssetTagPropertyService" />
-		<property name="serviceInterface" value="com.liferay.portlet.asset.service.AssetTagPropertyService" />
-	</bean>
-	<bean name="/com_liferay_portlet_asset_service_spring_AssetTagPropertyService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-		<property name="service" ref="com.liferay.portlet.asset.service.AssetTagPropertyService" />
-		<property name="serviceInterface" value="com.liferay.portlet.asset.service.AssetTagPropertyService" />
-	</bean>
 	<bean name="/com_liferay_portlet_asset_service_spring_AssetVocabularyService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
 		<property name="service" ref="com.liferay.portlet.asset.service.AssetVocabularyService" />
 		<property name="serviceInterface" value="com.liferay.portlet.asset.service.AssetVocabularyService" />
@@ -416,22 +408,6 @@
 	<bean name="/com_liferay_portlet_blogs_service_spring_BlogsEntryService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
 		<property name="service" ref="com.liferay.portlet.blogs.service.BlogsEntryService" />
 		<property name="serviceInterface" value="com.liferay.portlet.blogs.service.BlogsEntryService" />
-	</bean>
-	<bean name="/com_liferay_portlet_bookmarks_service_spring_BookmarksEntryService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
-		<property name="service" ref="com.liferay.portlet.bookmarks.service.BookmarksEntryService" />
-		<property name="serviceInterface" value="com.liferay.portlet.bookmarks.service.BookmarksEntryService" />
-	</bean>
-	<bean name="/com_liferay_portlet_bookmarks_service_spring_BookmarksEntryService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-		<property name="service" ref="com.liferay.portlet.bookmarks.service.BookmarksEntryService" />
-		<property name="serviceInterface" value="com.liferay.portlet.bookmarks.service.BookmarksEntryService" />
-	</bean>
-	<bean name="/com_liferay_portlet_bookmarks_service_spring_BookmarksFolderService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
-		<property name="service" ref="com.liferay.portlet.bookmarks.service.BookmarksFolderService" />
-		<property name="serviceInterface" value="com.liferay.portlet.bookmarks.service.BookmarksFolderService" />
-	</bean>
-	<bean name="/com_liferay_portlet_bookmarks_service_spring_BookmarksFolderService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-		<property name="service" ref="com.liferay.portlet.bookmarks.service.BookmarksFolderService" />
-		<property name="serviceInterface" value="com.liferay.portlet.bookmarks.service.BookmarksFolderService" />
 	</bean>
 	<bean name="/com_liferay_portlet_documentlibrary_service_spring_DLAppService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
 		<property name="service" ref="com.liferay.portlet.documentlibrary.service.DLAppService" />
@@ -513,6 +489,14 @@
 		<property name="service" ref="com.liferay.portlet.dynamicdatamapping.service.DDMStructureService" />
 		<property name="serviceInterface" value="com.liferay.portlet.dynamicdatamapping.service.DDMStructureService" />
 	</bean>
+	<bean name="/com_liferay_portlet_dynamicdatamapping_service_spring_DDMStructureVersionService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="com.liferay.portlet.dynamicdatamapping.service.DDMStructureVersionService" />
+		<property name="serviceInterface" value="com.liferay.portlet.dynamicdatamapping.service.DDMStructureVersionService" />
+	</bean>
+	<bean name="/com_liferay_portlet_dynamicdatamapping_service_spring_DDMStructureVersionService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+		<property name="service" ref="com.liferay.portlet.dynamicdatamapping.service.DDMStructureVersionService" />
+		<property name="serviceInterface" value="com.liferay.portlet.dynamicdatamapping.service.DDMStructureVersionService" />
+	</bean>
 	<bean name="/com_liferay_portlet_dynamicdatamapping_service_spring_DDMTemplateService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
 		<property name="service" ref="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService" />
 		<property name="serviceInterface" value="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService" />
@@ -520,6 +504,14 @@
 	<bean name="/com_liferay_portlet_dynamicdatamapping_service_spring_DDMTemplateService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
 		<property name="service" ref="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService" />
 		<property name="serviceInterface" value="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService" />
+	</bean>
+	<bean name="/com_liferay_portlet_dynamicdatamapping_service_spring_DDMTemplateVersionService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateVersionService" />
+		<property name="serviceInterface" value="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateVersionService" />
+	</bean>
+	<bean name="/com_liferay_portlet_dynamicdatamapping_service_spring_DDMTemplateVersionService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+		<property name="service" ref="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateVersionService" />
+		<property name="serviceInterface" value="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateVersionService" />
 	</bean>
 	<bean name="/com_liferay_portlet_expando_service_spring_ExpandoColumnService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
 		<property name="service" ref="com.liferay.portlet.expando.service.ExpandoColumnService" />
@@ -736,21 +728,5 @@
 	<bean name="/com_liferay_portlet_trash_service_spring_TrashEntryService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
 		<property name="service" ref="com.liferay.portlet.trash.service.TrashEntryService" />
 		<property name="serviceInterface" value="com.liferay.portlet.trash.service.TrashEntryService" />
-	</bean>
-	<bean name="/com_liferay_portlet_wiki_service_spring_WikiNodeService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
-		<property name="service" ref="com.liferay.portlet.wiki.service.WikiNodeService" />
-		<property name="serviceInterface" value="com.liferay.portlet.wiki.service.WikiNodeService" />
-	</bean>
-	<bean name="/com_liferay_portlet_wiki_service_spring_WikiNodeService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-		<property name="service" ref="com.liferay.portlet.wiki.service.WikiNodeService" />
-		<property name="serviceInterface" value="com.liferay.portlet.wiki.service.WikiNodeService" />
-	</bean>
-	<bean name="/com_liferay_portlet_wiki_service_spring_WikiPageService-hessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
-		<property name="service" ref="com.liferay.portlet.wiki.service.WikiPageService" />
-		<property name="serviceInterface" value="com.liferay.portlet.wiki.service.WikiPageService" />
-	</bean>
-	<bean name="/com_liferay_portlet_wiki_service_spring_WikiPageService-http" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-		<property name="service" ref="com.liferay.portlet.wiki.service.WikiPageService" />
-		<property name="serviceInterface" value="com.liferay.portlet.wiki.service.WikiPageService" />
 	</bean>
 </beans>

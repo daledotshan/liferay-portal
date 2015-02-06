@@ -14,6 +14,7 @@
 
 package com.liferay.taglib.util;
 
+import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Layout;
@@ -28,6 +29,7 @@ import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
+import com.liferay.taglib.ui.MenuTag;
 import com.liferay.taglib.ui.MySitesTag;
 import com.liferay.taglib.ui.PngImageTag;
 import com.liferay.taglib.ui.QuickAccessTag;
@@ -222,6 +224,11 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	}
 
 	@Override
+	public MenuTag getMenuTag() throws Exception {
+		return null;
+	}
+
+	@Override
 	public MySitesTag getMySitesTag() throws Exception {
 		return null;
 	}
@@ -411,7 +418,7 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 
 	@Override
 	public void journalArticle(
-			String articleId, long groupId, String templateId)
+			String articleId, long groupId, String ddmTemplateKey)
 		throws Exception {
 	}
 
@@ -445,6 +452,10 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 
 	@Override
 	public void layoutIcon(Layout layout) throws Exception {
+	}
+
+	@Override
+	public void menu(Menu menu) throws Exception {
 	}
 
 	@Override

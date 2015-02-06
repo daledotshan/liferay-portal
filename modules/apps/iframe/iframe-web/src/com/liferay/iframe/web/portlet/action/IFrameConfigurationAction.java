@@ -14,6 +14,7 @@
 
 package com.liferay.iframe.web.portlet.action;
 
+import com.liferay.iframe.web.constants.IFramePortletKeys;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.DefaultConfigurationAction;
 import com.liferay.portal.kernel.util.CharPool;
@@ -29,11 +30,10 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Brian Wing Shun Chan
  */
-
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=com_liferay_iframe_web_portlet_IFramePortlet"
+		"javax.portlet.name=" + IFramePortletKeys.IFRAME
 	},
 	service = ConfigurationAction.class
 )

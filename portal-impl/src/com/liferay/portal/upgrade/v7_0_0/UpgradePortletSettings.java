@@ -26,8 +26,6 @@ import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portlet.blogs.BlogsPortletInstanceSettings;
 import com.liferay.portlet.blogs.BlogsSettings;
 import com.liferay.portlet.blogs.util.BlogsConstants;
-import com.liferay.portlet.bookmarks.BookmarksSettings;
-import com.liferay.portlet.bookmarks.util.BookmarksConstants;
 import com.liferay.portlet.documentlibrary.DLPortletInstanceSettings;
 import com.liferay.portlet.documentlibrary.DLSettings;
 import com.liferay.portlet.documentlibrary.util.DLConstants;
@@ -35,9 +33,6 @@ import com.liferay.portlet.messageboards.MBSettings;
 import com.liferay.portlet.messageboards.util.MBConstants;
 import com.liferay.portlet.shopping.ShoppingSettings;
 import com.liferay.portlet.shopping.util.ShoppingConstants;
-import com.liferay.portlet.wiki.WikiPortletInstanceSettings;
-import com.liferay.portlet.wiki.WikiSettings;
-import com.liferay.portlet.wiki.util.WikiConstants;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -145,10 +140,6 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			PortletKeys.PREFS_OWNER_TYPE_GROUP,
 			BlogsPortletInstanceSettings.ALL_KEYS, BlogsSettings.ALL_KEYS);
 		upgradeMainPortlet(
-			PortletKeys.BOOKMARKS, BookmarksConstants.SERVICE_NAME,
-			PortletKeys.PREFS_OWNER_TYPE_LAYOUT, StringPool.EMPTY_ARRAY,
-			BookmarksSettings.ALL_KEYS);
-		upgradeMainPortlet(
 			PortletKeys.DOCUMENT_LIBRARY, DLConstants.SERVICE_NAME,
 			PortletKeys.PREFS_OWNER_TYPE_GROUP,
 			DLPortletInstanceSettings.ALL_KEYS, DLSettings.ALL_KEYS);
@@ -160,10 +151,6 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			PortletKeys.SHOPPING, ShoppingConstants.SERVICE_NAME,
 			PortletKeys.PREFS_OWNER_TYPE_GROUP, StringPool.EMPTY_ARRAY,
 			ShoppingSettings.ALL_KEYS);
-		upgradeMainPortlet(
-			PortletKeys.WIKI, WikiConstants.SERVICE_NAME,
-			PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
-			WikiPortletInstanceSettings.ALL_KEYS, WikiSettings.ALL_KEYS);
 
 		// Display portlets
 
@@ -173,9 +160,6 @@ public class UpgradePortletSettings extends UpgradeProcess {
 		upgradeDisplayPortlet(
 			PortletKeys.MEDIA_GALLERY_DISPLAY,
 			PortletKeys.PREFS_OWNER_TYPE_LAYOUT, DLSettings.ALL_KEYS);
-		upgradeDisplayPortlet(
-			PortletKeys.WIKI_DISPLAY, PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
-			WikiSettings.ALL_KEYS);
 	}
 
 	protected long getGroupId(long plid) throws Exception {
@@ -351,7 +335,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			rs.getString("portletId"), rs.getString("preferences"));
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		UpgradePortletSettings.class);
 
 }

@@ -1,4 +1,3 @@
-
 <definition component-name="portal-web-forms-and-data-lists">
 	<property name="testray.main.component.name" value="Web Forms and Data Lists" />
 
@@ -16,7 +15,7 @@
 		<execute macro="Page#tearDownPG" />
 	</tear-down>
 
-	<command name="Demo1" priority="5">
+	<command known-issues="LPS-51684" name="Demo1" priority="5">
 		<execute macro="Page#addPG">
 			<var name="pageName" value="Company Picnic" />
 		</execute>

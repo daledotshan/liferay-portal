@@ -16,13 +16,15 @@ package com.liferay.portal.bean;
 
 import com.liferay.portal.kernel.memory.FinalizeManager;
 import com.liferay.portal.kernel.process.ClassPathUtil;
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.GCUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
+import com.liferay.portal.kernel.test.rule.NewEnv;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.test.AdviseWith;
 import com.liferay.portal.test.aspects.ReflectionUtilAdvice;
-import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.rule.AdviseWith;
+import com.liferay.portal.test.rule.AspectJNewEnvTestRule;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -37,20 +39,22 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * @author Shuyang Zhou
  */
-@RunWith(AspectJMockingNewClassLoaderJUnitTestRunner.class)
 public class ConstantsBeanFactoryImplTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			CodeCoverageAssertor.INSTANCE, AspectJNewEnvTestRule.INSTANCE);
 
 	@AdviseWith(adviceClasses = {ReflectionUtilAdvice.class})
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testCreateConstantsBean() throws ClassNotFoundException {
 
@@ -313,7 +317,7 @@ public class ConstantsBeanFactoryImplTest {
 		constantsBean1 = null;
 		constantsBeanClass1 = null;
 
-		GCUtil.gc();
+		GCUtil.gc(true);
 
 		ReflectionTestUtil.invoke(
 			FinalizeManager.class, "_pollingCleanup", new Class<?>[0]);
@@ -327,7 +331,7 @@ public class ConstantsBeanFactoryImplTest {
 
 		constantsBean2 = null;
 
-		GCUtil.gc();
+		GCUtil.gc(true);
 
 		ReflectionTestUtil.invoke(
 			FinalizeManager.class, "_pollingCleanup", new Class<?>[0]);

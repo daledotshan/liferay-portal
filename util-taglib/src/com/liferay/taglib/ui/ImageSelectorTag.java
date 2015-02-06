@@ -23,12 +23,24 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ImageSelectorTag extends IncludeTag {
 
+	public void setDraggableImage(String draggableImage) {
+		_draggableImage = draggableImage;
+	}
+
 	public void setFileEntryId(long fileEntryId) {
 		_fileEntryId = fileEntryId;
 	}
 
+	public void setMaxFileSize(long maxFileSize) {
+		_maxFileSize = maxFileSize;
+	}
+
 	public void setParamName(String paramName) {
 		_paramName = paramName;
+	}
+
+	public void setUploadURL(String uploadURL) {
+		_uploadURL = uploadURL;
 	}
 
 	public void setValidExtensions(String validExtensions) {
@@ -37,8 +49,11 @@ public class ImageSelectorTag extends IncludeTag {
 
 	@Override
 	protected void cleanUp() {
+		_draggableImage = "none";
 		_fileEntryId = 0;
+		_maxFileSize = 0;
 		_paramName = "imageSelectorFileEntryId";
+		_uploadURL = null;
 		_validExtensions = null;
 	}
 
@@ -50,8 +65,13 @@ public class ImageSelectorTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute(
+			"liferay-ui:image-selector:draggableImage", _draggableImage);
+		request.setAttribute(
 			"liferay-ui:image-selector:fileEntryId", _fileEntryId);
+		request.setAttribute(
+			"liferay-ui:image-selector:maxFileSize", _maxFileSize);
 		request.setAttribute("liferay-ui:image-selector:paramName", _paramName);
+		request.setAttribute("liferay-ui:image-selector:uploadURL", _uploadURL);
 		request.setAttribute(
 			"liferay-ui:image-selector:validExtensions", _validExtensions);
 	}
@@ -59,8 +79,11 @@ public class ImageSelectorTag extends IncludeTag {
 	private static final String _PAGE =
 		"/html/taglib/ui/image_selector/page.jsp";
 
+	private String _draggableImage = "none";
 	private long _fileEntryId;
-	private String _paramName = "imageSelectorFileEntryId";
+	private long _maxFileSize;
+	private String _paramName = "imageSelectorFileEntry";
+	private String _uploadURL;
 	private String _validExtensions;
 
 }

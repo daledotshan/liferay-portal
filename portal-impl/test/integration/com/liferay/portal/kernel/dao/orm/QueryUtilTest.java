@@ -17,9 +17,10 @@ package com.liferay.portal.kernel.dao.orm;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.test.TransactionalTestRule;
-import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.List;
 
@@ -27,18 +28,19 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * @author Sampsa Sohlman
  */
-@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class QueryUtilTest {
 
 	@ClassRule
-	public static TransactionalTestRule transactionalTestRule =
-		new TransactionalTestRule();
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(), TransactionalTestRule.INSTANCE);
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -351,7 +353,7 @@ public class QueryUtilTest {
 
 	private static DB _db;
 
-	private SessionFactory _sessionFactory =
+	private final SessionFactory _sessionFactory =
 		(SessionFactory)PortalBeanLocatorUtil.locate("liferaySessionFactory");
 
 }

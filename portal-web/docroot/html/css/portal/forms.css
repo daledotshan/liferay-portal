@@ -1,4 +1,4 @@
-@import "compass";
+@import "bourbon";
 @import "mixins";
 
 .form-group-inline {
@@ -76,7 +76,7 @@
 		white-space: normal;
 		width: auto;
 
-		@include word-break(break-all);
+		@include word-wrap(break-all);
 
 		@include respond-to(phone, tablet) {
 			font-size: 18px;
@@ -102,6 +102,16 @@
 		margin-left: 0;
 	}
 
+	.lfr-ddm-repeatable-helper {
+		display: none;
+	}
+
+	.lfr-ddm-repeatable-placeholder {
+		border: 1px dotted;
+		margin-top: 15px;
+		padding: 20px 0;
+	}
+
 	.field-wrapper {
 		position: relative;
 
@@ -116,6 +126,11 @@
 				display: inline;
 				float: none;
 			}
+		}
+
+		.file-entry-upload-progress {
+			height: 6px;
+			margin-top: -7px;
 		}
 
 		.lfr-ddm-repeatable-add-button, .lfr-ddm-repeatable-delete-button {
