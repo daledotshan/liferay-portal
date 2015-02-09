@@ -331,7 +331,7 @@ create table Contact_ (
 	classPK LONG,
 	accountId LONG,
 	parentContactId LONG,
-	emailAddress VARCHAR(75) null,
+	emailAddress VARCHAR(254) null,
 	firstName VARCHAR(75) null,
 	middleName VARCHAR(75) null,
 	lastName VARCHAR(75) null,
@@ -379,7 +379,7 @@ create table CyrusUser (
 );
 
 create table CyrusVirtual (
-	emailAddress VARCHAR(75) not null primary key,
+	emailAddress VARCHAR(254) not null primary key,
 	userId VARCHAR(75) not null
 );
 
@@ -724,7 +724,7 @@ create table EmailAddress (
 	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
-	address VARCHAR(75) null,
+	address VARCHAR(254) null,
 	typeId INTEGER,
 	primary_ BOOLEAN
 );
@@ -1204,7 +1204,7 @@ create table MBMailingList (
 	createDate DATE null,
 	modifiedDate DATE null,
 	categoryId LONG,
-	emailAddress VARCHAR(75) null,
+	emailAddress VARCHAR(254) null,
 	inProtocol VARCHAR(75) null,
 	inServerName VARCHAR(75) null,
 	inServerPort INTEGER,
@@ -1212,7 +1212,7 @@ create table MBMailingList (
 	inUserName VARCHAR(75) null,
 	inPassword VARCHAR(75) null,
 	inReadInterval INTEGER,
-	outEmailAddress VARCHAR(75) null,
+	outEmailAddress VARCHAR(254) null,
 	outCustom BOOLEAN,
 	outServerName VARCHAR(75) null,
 	outServerPort INTEGER,
@@ -1907,7 +1907,7 @@ create table ShoppingOrder (
 	couponDiscount DOUBLE,
 	billingFirstName VARCHAR(75) null,
 	billingLastName VARCHAR(75) null,
-	billingEmailAddress VARCHAR(75) null,
+	billingEmailAddress VARCHAR(254) null,
 	billingCompany VARCHAR(75) null,
 	billingStreet VARCHAR(75) null,
 	billingCity VARCHAR(75) null,
@@ -1918,7 +1918,7 @@ create table ShoppingOrder (
 	shipToBilling BOOLEAN,
 	shippingFirstName VARCHAR(75) null,
 	shippingLastName VARCHAR(75) null,
-	shippingEmailAddress VARCHAR(75) null,
+	shippingEmailAddress VARCHAR(254) null,
 	shippingCompany VARCHAR(75) null,
 	shippingStreet VARCHAR(75) null,
 	shippingCity VARCHAR(75) null,
@@ -2170,7 +2170,7 @@ create table User_ (
 	reminderQueryAnswer VARCHAR(75) null,
 	graceLoginCount INTEGER,
 	screenName VARCHAR(75) null,
-	emailAddress VARCHAR(75) null,
+	emailAddress VARCHAR(254) null,
 	facebookId LONG,
 	ldapServerId LONG,
 	openId VARCHAR(1024) null,
