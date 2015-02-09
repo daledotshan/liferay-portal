@@ -175,6 +175,10 @@
 		<execute action="PGBlogsAdd#type" locator-key1="TITLE_FIELD" value1="${entryTitle}" />
 		<execute action="PGBlogsAdd#type" locator-key1="CONTENT_FIELD" value1="${entryContent}" />
 
+		<execute action="Home#pause" locator1="3000" />
+
+		<execute action="PGBlogsAdd#click" locator-key1="SETTINGS_TAB" />
+
 		<if>
 			<condition action="PGBlogsAdd#isElementNotPresent" locator-key1="CATEGORIZATION_TAGS_FIELD" />
 			<then>
@@ -190,6 +194,15 @@
 		<var name="key_tagName" value="${tagName}" />
 
 		<execute action="PGBlogs#assertTextEquals" locator-key1="TAG" value1="${tagName}" />
+	</command>
+
+	<command name="addViaSiteCP">
+		<execute action="CPSitesettings#assertClick" locator-key1="MENU_BASIC_INFORMATION_CATEGORIZATION" value1="Categorization" />
+
+		<execute action="CPSitesettingsCategorization#type" locator-key1="TAGS_NAME_FIELD" value1="${tagName}" />
+		<execute action="CPSitesettingsCategorization#assertClick" locator-key1="TAGS_ADD_BUTTON" value1="Add" />
+		<execute action="CPSitesettingsCategorization#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
+		<execute action="CPSitesettingsCategorization#assertClick" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
 	</command>
 
 	<command name="deleteCP">

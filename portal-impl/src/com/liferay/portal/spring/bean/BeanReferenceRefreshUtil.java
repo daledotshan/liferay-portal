@@ -48,7 +48,7 @@ public class BeanReferenceRefreshUtil {
 			targetBean);
 
 		if (refreshPoints == null) {
-			refreshPoints = new ArrayList<RefreshPoint>();
+			refreshPoints = new ArrayList<>();
 
 			_registeredRefreshPoints.put(targetBean, refreshPoints);
 		}
@@ -101,12 +101,12 @@ public class BeanReferenceRefreshUtil {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		BeanReferenceRefreshUtil.class);
 
-	private static PACL _pacl = new NoPACL();
-	private static Map<Object, List<RefreshPoint>> _registeredRefreshPoints =
-		new IdentityHashMap<Object, List<RefreshPoint>>();
+	private static final PACL _pacl = new NoPACL();
+	private static final Map<Object, List<RefreshPoint>>
+		_registeredRefreshPoints = new IdentityHashMap<>();
 
 	private static class NoPACL implements PACL {
 
@@ -126,8 +126,8 @@ public class BeanReferenceRefreshUtil {
 			_referencedBeanName = referencedBeanName;
 		}
 
-		private Field _field;
-		private String _referencedBeanName;
+		private final Field _field;
+		private final String _referencedBeanName;
 
 	}
 

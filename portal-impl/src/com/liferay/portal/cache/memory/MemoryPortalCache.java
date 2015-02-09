@@ -36,10 +36,11 @@ public class MemoryPortalCache<K extends Serializable, V>
 		PortalCacheManager<K, V> portalCacheManager, String name,
 		int initialCapacity) {
 
-		_portalCacheManager = portalCacheManager;
+		super(portalCacheManager);
+
 		_name = name;
 
-		_concurrentMap = new ConcurrentHashMap<K, V>(initialCapacity);
+		_concurrentMap = new ConcurrentHashMap<>(initialCapacity);
 	}
 
 	public void destroy() {
@@ -51,7 +52,7 @@ public class MemoryPortalCache<K extends Serializable, V>
 
 	@Override
 	public List<K> getKeys() {
-		List<K> keys = new ArrayList<K>();
+		List<K> keys = new ArrayList<>();
 
 		for (K key : _concurrentMap.keySet()) {
 			keys.add(key);
@@ -63,11 +64,6 @@ public class MemoryPortalCache<K extends Serializable, V>
 	@Override
 	public String getName() {
 		return _name;
-	}
-
-	@Override
-	public PortalCacheManager<K, V> getPortalCacheManager() {
-		return _portalCacheManager;
 	}
 
 	@Override
@@ -83,12 +79,8 @@ public class MemoryPortalCache<K extends Serializable, V>
 	}
 
 	@Override
-	protected void doPut(K key, V value, int timeToLive, boolean quiet) {
+	protected void doPut(K key, V value, int timeToLive) {
 		V oldValue = _concurrentMap.put(key, value);
-
-		if (quiet) {
-			return;
-		}
 
 		if (oldValue != null) {
 			aggregatedCacheListener.notifyEntryUpdated(
@@ -160,6 +152,5 @@ public class MemoryPortalCache<K extends Serializable, V>
 
 	private ConcurrentMap<K, V> _concurrentMap;
 	private String _name;
-	private PortalCacheManager<K, V> _portalCacheManager;
 
 }

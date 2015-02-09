@@ -24,8 +24,6 @@ String uploadExceptionRedirect = ParamUtil.getString(request, "uploadExceptionRe
 
 String referringPortletResource = ParamUtil.getString(request, "referringPortletResource");
 
-String referringPortletResourceRootPortletId = PortletConstants.getRootPortletId(referringPortletResource);
-
 String uploadProgressId = "dlFileEntryUploadProgress";
 
 FileEntry fileEntry = (FileEntry)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FILE_ENTRY);
@@ -36,7 +34,7 @@ long repositoryId = BeanParamUtil.getLong(fileEntry, request, "repositoryId");
 
 if (repositoryId <= 0) {
 
-	// add_asset.jspf only passes in groupId
+	// <liferay-ui:asset_add_button /> only passes in groupId
 
 	repositoryId = BeanParamUtil.getLong(fileEntry, request, "groupId");
 }
@@ -115,10 +113,10 @@ if ((checkedOut || pending) && !dlPortletInstanceSettings.isEnableFileEntryDraft
 DLEditFileEntryDisplayContext dlEditFileEntryDisplayContext = null;
 
 if (fileEntry == null) {
-	dlEditFileEntryDisplayContext = DLEditFileEntryDisplayContextUtil.getDLEditFileEntryDisplayContext(request, response, dlFileEntryType);
+	dlEditFileEntryDisplayContext = DLDisplayContextProviderUtil.getDLEditFileEntryDisplayContext(request, response, dlFileEntryType);
 }
 else {
-	dlEditFileEntryDisplayContext = DLEditFileEntryDisplayContextUtil.getDLEditFileEntryDisplayContext(request, response, fileEntry);
+	dlEditFileEntryDisplayContext = DLDisplayContextProviderUtil.getDLEditFileEntryDisplayContext(request, response, fileEntry);
 }
 %>
 
@@ -236,7 +234,16 @@ else {
 	<aui:model-context bean="<%= fileVersion %>" model="<%= DLFileVersion.class %>" />
 
 	<c:if test="<%= fileVersion != null %>">
-		<aui:workflow-status model="<%= DLFileEntry.class %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" version="<%= fileVersion.getVersion() %>" />
+
+		<%
+		String version = null;
+
+		if (dlEditFileEntryDisplayContext.isVersionInfoVisible()) {
+			version = fileVersion.getVersion();
+		}
+		%>
+
+		<aui:workflow-status model="<%= DLFileEntry.class %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" version="<%= version %>" />
 	</c:if>
 
 	<aui:fieldset>
@@ -267,17 +274,17 @@ else {
 		<div class="form-group">
 			<aui:input label="folder" name="folderName" type="resource" value="<%= folderName %>" />
 
-			<c:if test="<%= referringPortletResourceRootPortletId.equals(PortletKeys.ASSET_PUBLISHER) && (fileEntryId == 0) %>">
+			<c:if test="<%= dlEditFileEntryDisplayContext.isFolderSelectionVisible() %>">
 				<aui:button name="selectFolderButton" value="select" />
 
 				<%
-				String taglibRemoveFolder = "Liferay.Util.removeFolderSelection('folderId', 'folderName', '" + renderResponse.getNamespace() + "');";
+				String taglibRemoveFolder = "Liferay.Util.removeEntitySelection('folderId', 'folderName', this, '" + renderResponse.getNamespace() + "');";
 				%>
 
 				<aui:button disabled="<%= folderId <= 0 %>" name="removeFolderButton" onClick="<%= taglibRemoveFolder %>" value="remove" />
 
-				<aui:script use="aui-base">
-					A.one('#<portlet:namespace />selectFolderButton').on(
+				<aui:script>
+					AUI.$('#<portlet:namespace />selectFolderButton').on(
 						'click',
 						function(event) {
 							Liferay.Util.selectEntity(
@@ -313,11 +320,7 @@ else {
 			</c:if>
 		</div>
 
-		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) || windowState.equals(LiferayWindowState.POP_UP) %>" name="file" onChange='<%= renderResponse.getNamespace() + "validateTitle();" %>' type="file">
-			<aui:validator name="acceptFiles">
-				'<%= StringUtil.merge(PrefsPropsUtil.getStringArray(PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)) %>'
-			</aui:validator>
-		</aui:input>
+		<%@ include file="/html/portlet/document_library/edit_file_entry_picker.jspf" %>
 
 		<aui:input name="title">
 			<aui:validator errorMessage="you-must-specify-a-file-or-a-title" name="custom">
@@ -338,7 +341,9 @@ else {
 				if (folder != null) {
 					DLFolder dlFolder = (DLFolder)folder.getModel();
 
-					inherited = !dlFolder.isOverrideFileEntryTypes();
+					if (dlFolder.getRestrictionType() == DLFolderConstants.RESTRICTION_TYPE_INHERIT) {
+						inherited = true;
+					}
 				}
 
 				List<DLFileEntryType> dlFileEntryTypes = DLFileEntryTypeLocalServiceUtil.getFolderFileEntryTypes(PortalUtil.getCurrentAndAncestorSiteGroupIds(scopeGroupId), folderId, inherited);
@@ -375,7 +380,6 @@ else {
 						List<DDMStructure> ddmStructures = dlFileEntryType.getDDMStructures();
 
 						for (DDMStructure ddmStructure : ddmStructures) {
-							if (dlEditFileEntryDisplayContext.isDDMStructureVisible(ddmStructure)) {
 								Fields fields = null;
 
 								try {
@@ -387,6 +391,10 @@ else {
 								}
 				%>
 
+								<c:if test="<%= !dlEditFileEntryDisplayContext.isDDMStructureVisible(ddmStructure) %>">
+									<div class="hide">
+								</c:if>
+
 								<liferay-ddm:html
 									classNameId="<%= PortalUtil.getClassNameId(DDMStructure.class) %>"
 									classPK="<%= ddmStructure.getPrimaryKey() %>"
@@ -395,8 +403,11 @@ else {
 									requestedLocale="<%= locale %>"
 								/>
 
+								<c:if test="<%= !dlEditFileEntryDisplayContext.isDDMStructureVisible(ddmStructure) %>">
+									</div>
+								</c:if>
+
 				<%
-							}
 						}
 					}
 					catch (Exception e) {
@@ -444,7 +455,7 @@ else {
 			</aui:field-wrapper>
 		</c:if>
 
-		<c:if test="<%= approved %>">
+		<c:if test="<%= approved && dlEditFileEntryDisplayContext.isVersionInfoVisible() %>">
 			<div class="alert alert-info">
 				<liferay-ui:message key="a-new-version-will-be-created-automatically-if-this-content-is-modified" />
 			</div>
