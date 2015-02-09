@@ -161,7 +161,9 @@
 		<field name="classPK" type="long" />
 		<field name="accountId" type="long" />
 		<field name="parentContactId" type="long" />
-		<field name="emailAddress" type="String" />
+		<field name="emailAddress" type="String">
+			<hint name="max-length">254</hint>
+		</field>
 		<field name="firstName" type="String" />
 		<field name="middleName" type="String" />
 		<field name="lastName" type="String" />
@@ -215,6 +217,7 @@
 		<field name="classPK" type="long" />
 		<field name="address" type="String">
 			<hint name="display-width">210</hint>
+			<hint name="max-length">254</hint>
 			<validator name="email" />
 		</field>
 		<field name="typeId" type="long" />
@@ -964,6 +967,7 @@
 			<validator name="required" />
 		</field>
 		<field name="emailAddress" type="String">
+			<hint name="max-length">254</hint>
 			<validator name="email" />
 		</field>
 		<field name="facebookId" type="long" />
@@ -1916,7 +1920,9 @@
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="categoryId" type="long" />
-		<field name="emailAddress" type="String" />
+		<field name="emailAddress" type="String">
+			<hint name="max-length">254</hint>
+		</field>
 		<field name="inProtocol" type="String" />
 		<field name="inServerName" type="String" />
 		<field name="inServerPort" type="int" />
@@ -1926,7 +1932,9 @@
 			<hint name="secret">true</hint>
 		</field>
 		<field name="inReadInterval" type="int" />
-		<field name="outEmailAddress" type="String" />
+		<field name="outEmailAddress" type="String">
+			<hint name="max-length">254</hint>
+		</field>
 		<field name="outCustom" type="boolean" />
 		<field name="outServerName" type="String" />
 		<field name="outServerPort" type="int" />
@@ -2281,7 +2289,9 @@
 		<field name="couponDiscount" type="double" />
 		<field name="billingFirstName" type="String" />
 		<field name="billingLastName" type="String" />
-		<field name="billingEmailAddress" type="String" />
+		<field name="billingEmailAddress" type="String">
+			<hint name="max-length">254</hint>
+		</field>
 		<field name="billingCompany" type="String" />
 		<field name="billingStreet" type="String" />
 		<field name="billingCity" type="String" />
@@ -2292,7 +2302,9 @@
 		<field name="shipToBilling" type="boolean" />
 		<field name="shippingFirstName" type="String" />
 		<field name="shippingLastName" type="String" />
-		<field name="shippingEmailAddress" type="String" />
+		<field name="shippingEmailAddress" type="String">
+			<hint name="max-length">254</hint>
+		</field>
 		<field name="shippingCompany" type="String" />
 		<field name="shippingStreet" type="String" />
 		<field name="shippingCity" type="String" />
