@@ -11,7 +11,19 @@ alter table BlogsEntry add coverImageFileEntryId LONG;
 alter table BlogsEntry add coverImageURL STRING null;
 alter table BlogsEntry add smallImageFileEntryId LONG;
 
+alter table Contact_ modify emailAddress VARCHAR(254);
+
 alter table DDMStructure add version VARCHAR(75) null;
+
+alter table EmailAddress modify address VARCHAR(254);
+
+alter table MBMailingList modify emailAddress VARCHAR(254);
+alter table MBMailingList modify outEmailAddress VARCHAR(254);
+
+alter table ShoppingOrder modify billingEmailAddress VARCHAR(254);
+alter table ShoppingOrder modify shippingEmailAddress VARCHAR(254);
+
+alter table User_ modify emailAddress VARCHAR(254);
 
 update DDMStructure set version = '1.0';
 
