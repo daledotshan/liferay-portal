@@ -31,7 +31,7 @@ public class CyrusVirtual implements Serializable {
 	public static final String TABLE_NAME = "CyrusVirtual";
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CyrusVirtual (emailAddress VARCHAR(75) not null " +
+		"create table CyrusVirtual (emailAddress VARCHAR(254) not null " +
 			"primary key, userId VARCHAR(75) not null)";
 
 	public CyrusVirtual() {

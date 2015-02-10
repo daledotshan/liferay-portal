@@ -13,6 +13,8 @@ alter table BlogsEntry add smallImageFileEntryId LONG;
 
 alter table Contact_ modify emailAddress VARCHAR(254);
 
+alter table CyrusVirtual modify emailAddress VARCHAR(254);
+
 alter table DDMStructure add version VARCHAR(75) null;
 
 alter table EmailAddress modify address VARCHAR(254);
