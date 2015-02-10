@@ -379,7 +379,7 @@ create table CyrusUser (
 );
 
 create table CyrusVirtual (
-	emailAddress VARCHAR(75) not null primary key,
+	emailAddress VARCHAR(254) not null primary key,
 	userId VARCHAR(75) not null
 );
 
