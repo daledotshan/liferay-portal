@@ -171,9 +171,9 @@ public class LayoutServiceWrapper implements LayoutService,
 	* @param parentLayoutId the primary key of the parent layout (optionally
 	{@link
 	com.liferay.portal.model.LayoutConstants#DEFAULT_PARENT_LAYOUT_ID})
-	* @param name Map the layout's locales and localized names
-	* @param title Map the layout's locales and localized titles
-	* @param description Map the layout's locales and localized descriptions
+	* @param name the layout's locales and localized names
+	* @param title the layout's locales and localized titles
+	* @param description the layout's locales and localized descriptions
 	* @param type the layout's type (optionally {@link
 	com.liferay.portal.model.LayoutConstants#TYPE_PORTLET}). The
 	possible types can be found in {@link
@@ -603,7 +603,8 @@ public class LayoutServiceWrapper implements LayoutService,
 	@Override
 	public java.util.List<com.liferay.portal.model.Layout> getLayouts(
 		long groupId, boolean privateLayout, long parentLayoutId,
-		boolean incomplete, int start, int end) {
+		boolean incomplete, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutService.getLayouts(groupId, privateLayout,
 			parentLayoutId, incomplete, start, end);
 	}
@@ -1071,7 +1072,7 @@ public class LayoutServiceWrapper implements LayoutService,
 	found, or if the layout parameters were invalid
 	* @deprecated As of 6.2.0, replaced by {@link #updateLayout(long, boolean,
 	long, long, Map, Map, Map, Map, Map, String, boolean, Map,
-	Boolean, byte[], ServiceContext)}
+	boolean, byte[], ServiceContext)}
 	*/
 	@Deprecated
 	@Override

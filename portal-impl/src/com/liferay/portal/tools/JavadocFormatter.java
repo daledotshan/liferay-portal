@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.tools.javadocformatter.SinceJava;
 import com.liferay.portal.tools.servicebuilder.ServiceBuilder;
 import com.liferay.portal.util.FileImpl;
@@ -777,8 +778,11 @@ public class JavadocFormatter {
 			Files.readAllBytes(Paths.get(_inputDir + fileName)),
 			StringPool.UTF8);
 
-		if (fileName.endsWith("JavadocFormatter.java") ||
+		if (fileName.contains("modules/third-party") ||
+			fileName.endsWith("Application.java") ||
+			fileName.endsWith("JavadocFormatter.java") ||
 			fileName.endsWith("SourceFormatter.java") ||
+			fileName.endsWith("WebProxyPortlet.java") ||
 			_hasGeneratedTag(originalContent)) {
 
 			return;
@@ -1103,9 +1107,9 @@ public class JavadocFormatter {
 	}
 
 	private Document _getJavadocDocument(JavaClass javaClass) throws Exception {
-		Element rootElement = _saxReaderUtil.createElement("javadoc");
+		Element rootElement = _saxReader.createElement("javadoc");
 
-		Document document = _saxReaderUtil.createDocument(rootElement);
+		Document document = _saxReader.createDocument(rootElement);
 
 		DocUtil.add(rootElement, "name", javaClass.getName());
 		DocUtil.add(rootElement, "type", javaClass.getFullyQualifiedName());
@@ -1203,7 +1207,7 @@ public class JavadocFormatter {
 
 		String javadocsXmlContent = _fileUtil.read(javadocsXmlFile);
 
-		Document javadocsXmlDocument = _saxReaderUtil.read(javadocsXmlContent);
+		Document javadocsXmlDocument = _saxReader.read(javadocsXmlContent);
 
 		tuple = new Tuple(
 			srcDirName, javadocsXmlFile, javadocsXmlContent,
@@ -1581,6 +1585,14 @@ public class JavadocFormatter {
 				continue;
 			}
 
+			int blankLines = 0;
+
+			while (line.equals(StringPool.BLANK)) {
+				line = lines[--pos];
+
+				blankLines++;
+			}
+
 			line = line.trim();
 
 			if (line.endsWith("*/")) {
@@ -1592,6 +1604,10 @@ public class JavadocFormatter {
 					}
 
 					line = lines[--pos].trim();
+				}
+
+				for (int i = 0; i < blankLines; i++) {
+					lines[lineNumber - i - 2] = null;
 				}
 			}
 		}
@@ -1969,7 +1985,7 @@ public class JavadocFormatter {
 	private static final double _LOWEST_SUPPORTED_JAVA_VERSION = 1.7;
 
 	private static FileImpl _fileUtil = FileImpl.getInstance();
-	private static SAXReaderImpl _saxReaderUtil = SAXReaderImpl.getInstance();
+	private static final SAXReader _saxReader = new SAXReaderImpl();
 
 	private boolean _initializeMissingJavadocs;
 	private String _inputDir;

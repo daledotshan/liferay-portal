@@ -14,9 +14,9 @@
 
 package com.liferay.portal.kernel.io;
 
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.SwappableSecurityManager;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 
 import java.io.File;
 
@@ -33,8 +33,8 @@ import org.junit.Test;
 public class AutoDeleteFileInputStreamTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Test
 	public void testAutoRemoveFileInputStream() throws Exception {

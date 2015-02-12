@@ -33,13 +33,15 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
+import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.WebKeys;
+import com.liferay.portlet.asset.provider.PortletProvider;
+import com.liferay.portlet.asset.provider.PortletProviderUtil;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleConstants;
 import com.liferay.portlet.journal.service.JournalArticleServiceUtil;
@@ -92,7 +94,10 @@ public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 			for (int i = 0; i < results.getDocs().length; i++) {
 				Document result = results.doc(i);
 
-				String portletId = result.get(Field.PORTLET_ID);
+				String className = result.get(Field.ENTRY_CLASS_NAME);
+
+				String portletId = PortletProviderUtil.getPortletId(
+					className, PortletProvider.Action.VIEW);
 
 				Portlet portlet = PortletLocalServiceUtil.getPortletById(
 					themeDisplay.getCompanyId(), portletId);
@@ -185,7 +190,8 @@ public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 
 		if (Validator.isNotNull(article.getLayoutUuid())) {
 			String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
-				GroupLocalServiceUtil.getGroup(article.getGroupId()), false,
+				LayoutSetLocalServiceUtil.getLayoutSet(
+					article.getGroupId(), false),
 				themeDisplay);
 
 			return groupFriendlyURL.concat(
@@ -225,6 +231,7 @@ public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 		return sb.toString();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(PortalOpenSearchImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		PortalOpenSearchImpl.class);
 
 }

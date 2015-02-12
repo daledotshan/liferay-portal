@@ -148,10 +148,6 @@ public class SyncFile extends StateAwareModel {
 		return extraSettings;
 	}
 
-	public String getFileKey() {
-		return fileKey;
-	}
-
 	public String getFilePathName() {
 		return filePathName;
 	}
@@ -230,7 +226,7 @@ public class SyncFile extends StateAwareModel {
 	}
 
 	public boolean isFolder() {
-		return type.equals(TYPE_FOLDER);
+		return !isFile();
 	}
 
 	public boolean isSystem() {
@@ -257,16 +253,16 @@ public class SyncFile extends StateAwareModel {
 		this.description = description;
 	}
 
+	public void setEvent(String event) {
+		this.event = event;
+	}
+
 	public void setExtension(String extension) {
 		this.extension = extension;
 	}
 
 	public void setExtraSettings(String extraSettings) {
 		this.extraSettings = extraSettings;
-	}
-
-	public void setFileKey(String fileKey) {
-		this.fileKey = fileKey;
 	}
 
 	public void setFilePathName(String filePathName) {
@@ -361,10 +357,7 @@ public class SyncFile extends StateAwareModel {
 	@DatabaseField(useGetSet = true, width = 16777216)
 	protected String extraSettings;
 
-	@DatabaseField(index = true, useGetSet = true)
-	protected String fileKey;
-
-	@DatabaseField(index = true, useGetSet = true, width = 16777216)
+	@DatabaseField(uniqueIndex = true, useGetSet = true, width = 16777216)
 	protected String filePathName;
 
 	@DatabaseField(useGetSet = true)

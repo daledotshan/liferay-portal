@@ -60,6 +60,8 @@ import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
 import javax.portlet.PreferencesValidator;
 import javax.portlet.RenderRequest;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 import javax.portlet.ValidatorException;
 import javax.portlet.WindowState;
 
@@ -485,18 +487,6 @@ public interface Portal {
 	 */
 	public long getClassNameId(String value);
 
-	/**
-	 * Returns the ID of certain portlets from the fully qualified name of one
-	 * of their classes. The portlets this method supports are: blogs,
-	 * bookmarks, calendar, document library, image gallery, journal, message
-	 * boards, and wiki.
-	 *
-	 * @param  className the fully qualified name of a class in a portlet
-	 * @return the ID of the portlet the class is a part of, or an empty string
-	 *         if the class is not supported
-	 */
-	public String getClassNamePortletId(String className);
-
 	public Company getCompany(HttpServletRequest request)
 		throws PortalException;
 
@@ -549,7 +539,13 @@ public interface Portal {
 	public long[] getCurrentAndAncestorSiteGroupIds(long groupId)
 		throws PortalException;
 
+	public long[] getCurrentAndAncestorSiteGroupIds(long[] groupIds)
+		throws PortalException;
+
 	public List<Group> getCurrentAndAncestorSiteGroups(long groupId)
+		throws PortalException;
+
+	public List<Group> getCurrentAndAncestorSiteGroups(long[] groupIds)
 		throws PortalException;
 
 	public String getCurrentCompleteURL(HttpServletRequest request);
@@ -671,12 +667,21 @@ public interface Portal {
 		PortletPreferences preferences, long companyId, String defaultValue);
 
 	public Map<String, Serializable> getExpandoBridgeAttributes(
+			ExpandoBridge expandoBridge, HttpServletRequest request)
+		throws PortalException;
+
+	public Map<String, Serializable> getExpandoBridgeAttributes(
 			ExpandoBridge expandoBridge, PortletRequest portletRequest)
 		throws PortalException;
 
 	public Map<String, Serializable> getExpandoBridgeAttributes(
 			ExpandoBridge expandoBridge,
 			UploadPortletRequest uploadPortletRequest)
+		throws PortalException;
+
+	public Serializable getExpandoValue(
+			HttpServletRequest request, String name, int type,
+			String displayType)
 		throws PortalException;
 
 	public Serializable getExpandoValue(
@@ -709,12 +714,11 @@ public interface Portal {
 		throws PortalException;
 
 	public String getGroupFriendlyURL(
-			Group group, boolean privateLayoutSet, ThemeDisplay themeDisplay)
+			LayoutSet layoutSet, ThemeDisplay themeDisplay)
 		throws PortalException;
 
 	public String getGroupFriendlyURL(
-			Group group, boolean privateLayoutSet, ThemeDisplay themeDisplay,
-			Locale locale)
+			LayoutSet layoutSet, ThemeDisplay themeDisplay, Locale locale)
 		throws PortalException;
 
 	public int[] getGroupFriendlyURLIndex(String requestURI);
@@ -1034,6 +1038,9 @@ public interface Portal {
 
 	public String getPortletTitle(String portletId, Locale locale);
 
+	public String getPortletTitle(
+		String portletId, ResourceBundle resourceBundle);
+
 	public String getPortletTitle(String portletId, String languageId);
 
 	public String getPortletTitle(String portletId, User user);
@@ -1241,6 +1248,11 @@ public interface Portal {
 			PortletConfig portletConfig, ActionRequest actionRequest,
 			ActionResponse actionResponse)
 		throws Exception;
+
+	public void invokeTaglibDiscussionPagination(
+			PortletConfig portletConfig, ResourceRequest resourceRequest,
+			ResourceResponse resourceResponse)
+		throws IOException, PortletException;
 
 	/**
 	 * @deprecated As of 6.2.0, with no direct replacement

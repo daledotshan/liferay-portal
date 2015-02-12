@@ -72,7 +72,7 @@ public class SyncWatchEventService {
 
 	public static SyncWatchEvent fetchLastSyncWatchEvent(long syncAccountId) {
 		try {
-			return _syncWatchEventPersistence.findBySyncAccountId_Last(
+			return _syncWatchEventPersistence.fetchBySyncAccountId_Last(
 				syncAccountId);
 		}
 		catch (SQLException sqle) {
@@ -159,7 +159,21 @@ public class SyncWatchEventService {
 		return _syncWatchEventPersistence;
 	}
 
-	private static Logger _logger = LoggerFactory.getLogger(
+	public static long getSyncWatchEventsCount(long syncAccountId) {
+		try {
+			return _syncWatchEventPersistence.countBySyncAccountId(
+				syncAccountId);
+		}
+		catch (SQLException sqle) {
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(sqle.getMessage(), sqle);
+			}
+
+			return 0;
+		}
+	}
+
+	private static final Logger _logger = LoggerFactory.getLogger(
 		SyncWatchEventService.class);
 
 	private static SyncWatchEventPersistence _syncWatchEventPersistence =

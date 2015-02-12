@@ -22,11 +22,13 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.util.FileImpl;
 import com.liferay.portal.xml.SAXReaderImpl;
 
@@ -42,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,23 +115,23 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return _firstSourceMismatchException;
 	}
 
-	protected static boolean isExcluded(
-		List<String> exclusions, String absolutePath) {
+	protected static boolean isExcludedFile(
+		List<String> exclusionFiles, String absolutePath) {
 
-		return isExcluded(exclusions, absolutePath, -1);
+		return isExcludedFile(exclusionFiles, absolutePath, -1);
 	}
 
-	protected static boolean isExcluded(
-		List<String> exclusions, String absolutePath, int lineCount) {
+	protected static boolean isExcludedFile(
+		List<String> exclusionFiles, String absolutePath, int lineCount) {
 
-		return isExcluded(exclusions, absolutePath, lineCount, null);
+		return isExcludedFile(exclusionFiles, absolutePath, lineCount, null);
 	}
 
-	protected static boolean isExcluded(
-		List<String> exclusions, String absolutePath, int lineCount,
+	protected static boolean isExcludedFile(
+		List<String> exclusionFiles, String absolutePath, int lineCount,
 		String javaTermName) {
 
-		if (ListUtil.isEmpty(exclusions)) {
+		if (ListUtil.isEmpty(exclusionFiles)) {
 			return false;
 		}
 
@@ -146,13 +149,29 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 				absolutePath + StringPool.AT + lineCount;
 		}
 
-		for (String exclusion : exclusions) {
-			if (absolutePath.endsWith(exclusion) ||
+		for (String exclusionFile : exclusionFiles) {
+			if (absolutePath.endsWith(exclusionFile) ||
 				((absolutePathWithJavaTermName != null) &&
-				 absolutePathWithJavaTermName.endsWith(exclusion)) ||
+				 absolutePathWithJavaTermName.endsWith(exclusionFile)) ||
 				((absolutePathWithLineCount != null) &&
-				 absolutePathWithLineCount.endsWith(exclusion))) {
+				 absolutePathWithLineCount.endsWith(exclusionFile))) {
 
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	protected static boolean isExcludedPath(
+		List<String> exclusionPaths, String absolutePath) {
+
+		if (ListUtil.isEmpty(exclusionPaths)) {
+			return false;
+		}
+
+		for (String exclusionPath : exclusionPaths) {
+			if (absolutePath.contains(exclusionPath)) {
 				return true;
 			}
 		}
@@ -170,6 +189,52 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		errorMessages.add(message);
 
 		_errorMessagesMap.put(fileName, errorMessages);
+	}
+
+	protected static String stripLine(
+		String s, char startDelimeter, char endDelimeter) {
+
+		boolean insideDelimeters = false;
+		int level = 0;
+
+		StringBundler sb = new StringBundler();
+
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+
+			if (insideDelimeters) {
+				if (c == endDelimeter) {
+					if (level > 0) {
+						level -= 1;
+					}
+					else {
+						if ((c > 1) &&
+							(s.charAt(i - 1) == CharPool.BACK_SLASH) &&
+							(s.charAt(i - 2) != CharPool.BACK_SLASH)) {
+
+							continue;
+						}
+
+						insideDelimeters = false;
+					}
+				}
+				else if (c == startDelimeter) {
+					level += 1;
+				}
+			}
+			else if (c == startDelimeter) {
+				insideDelimeters = true;
+			}
+			else {
+				sb.append(c);
+			}
+		}
+
+		return sb.toString();
+	}
+
+	protected static String stripQuotes(String s, char delimeter) {
+		return stripLine(s, delimeter, delimeter);
 	}
 
 	protected void checkEmptyCollection(
@@ -292,7 +357,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	protected void checkInefficientStringMethods(
 		String line, String fileName, String absolutePath, int lineCount) {
 
-		if (isRunsOutsidePortal(absolutePath)) {
+		if (isExcludedPath(getRunOutsidePortalExclusionPaths(), absolutePath) ||
+			fileName.endsWith("GetterUtil.java")) {
+
 			return;
 		}
 
@@ -692,20 +759,24 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected String formatJavaTerms(
+			String javaClassName, String packagePath, File file,
 			String fileName, String absolutePath, String content,
 			String javaClassContent, int javaClassLineCount,
-			List<String> javaTermAccessLevelModifierExclusions,
-			List<String> javaTermSortExclusions,
-			List<String> testAnnotationsExclusions)
+			List<String> checkJavaFieldTypesExclusionFiles,
+			List<String> javaTermAccessLevelModifierExclusionFiles,
+			List<String> javaTermSortExclusionFiles,
+			List<String> testAnnotationsExclusionFiles)
 		throws Exception {
 
 		JavaClass javaClass = new JavaClass(
-			fileName, absolutePath, javaClassContent, javaClassLineCount,
-			StringPool.TAB);
+			javaClassName, packagePath, file, fileName, absolutePath,
+			javaClassContent, javaClassLineCount, StringPool.TAB, null,
+			javaTermAccessLevelModifierExclusionFiles);
 
 		String newJavaClassContent = javaClass.formatJavaTerms(
-			javaTermAccessLevelModifierExclusions, javaTermSortExclusions,
-			testAnnotationsExclusions);
+			getAnnotationsExclusions(), getImmutableFieldTypes(),
+			checkJavaFieldTypesExclusionFiles, javaTermSortExclusionFiles,
+			testAnnotationsExclusionFiles);
 
 		if (!javaClassContent.equals(newJavaClassContent)) {
 			return StringUtil.replaceFirst(
@@ -715,10 +786,31 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return content;
 	}
 
+	protected String formatTagAttributeType(
+			String line, String tag, String attributeAndValue)
+		throws Exception {
+
+		return line;
+	}
+
 	protected String getAbsolutePath(File file) {
 		String absolutePath = fileUtil.getAbsolutePath(file);
 
 		return StringUtil.replace(absolutePath, "/./", StringPool.SLASH);
+	}
+
+	protected Set<String> getAnnotationsExclusions() {
+		if (_annotationsExclusions != null) {
+			return _annotationsExclusions;
+		}
+
+		_annotationsExclusions = SetUtil.fromArray(
+			new String[] {
+				"ArquillianResource", "BeanReference", "Inject", "Mock",
+				"SuppressWarnings"
+			});
+
+		return _annotationsExclusions;
 	}
 
 	protected Map<String, String> getCompatClassNamesMap() throws IOException {
@@ -852,6 +944,25 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return getFileNames(BASEDIR, excludes, includes);
 	}
 
+	protected Set<String> getImmutableFieldTypes() {
+		if (_immutableFieldTypes != null) {
+			return _immutableFieldTypes;
+		}
+
+		Set<String> immutableFieldTypes = SetUtil.fromArray(
+			new String[] {
+				"boolean", "byte", "char", "double", "float", "int", "long",
+				"short", "Boolean", "Byte", "Character", "Class", "Double",
+				"Float", "Int", "Long", "Number", "Short", "String",
+			});
+
+		immutableFieldTypes.addAll(getPropertyList("immutable.field.types"));
+
+		_immutableFieldTypes = immutableFieldTypes;
+
+		return _immutableFieldTypes;
+	}
+
 	protected String[] getLanguageKeys(Matcher matcher) {
 		int groupCount = matcher.groupCount();
 
@@ -982,6 +1093,19 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			GetterUtil.getString(getProperty(key)), StringPool.COMMA);
 	}
 
+	protected List<String> getRunOutsidePortalExclusionPaths() {
+		if (_runOutsidePortalExclusionPaths != null) {
+			return _runOutsidePortalExclusionPaths;
+		}
+
+		List<String> runOutsidePortalExclusionPaths = getPropertyList(
+			"run.outside.portal.excludes.paths");
+
+		_runOutsidePortalExclusionPaths = runOutsidePortalExclusionPaths;
+
+		return _runOutsidePortalExclusionPaths;
+	}
+
 	protected boolean hasMissingParentheses(String s) {
 		if (Validator.isNull(s)) {
 			return false;
@@ -1080,21 +1204,6 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return matcher.matches();
 	}
 
-	protected boolean isRunsOutsidePortal(String absolutePath) {
-		if (_runOutsidePortalExclusions == null) {
-			_runOutsidePortalExclusions = getPropertyList(
-				"run.outside.portal.excludes");
-		}
-
-		for (String runOutsidePortalExclusions : _runOutsidePortalExclusions) {
-			if (absolutePath.contains(runOutsidePortalExclusions)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	protected void processFormattedFile(
 			File file, String fileName, String content, String newContent)
 		throws IOException {
@@ -1153,18 +1262,22 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected String sortAttributes(
-		String fileName, String line, int lineCount,
-		boolean allowApostropheDelimeter) {
+			String fileName, String line, int lineCount,
+			boolean allowApostropheDelimeter)
+		throws Exception {
 
 		String s = line;
 
-		int x = s.indexOf(StringPool.SPACE);
+		int x = s.indexOf(StringPool.LESS_THAN);
+		int y = s.indexOf(StringPool.SPACE);
 
-		if (x == -1) {
+		if ((x == -1) || (x >= y)) {
 			return line;
 		}
 
-		s = s.substring(x + 1);
+		String tag = s.substring(x + 1, y);
+
+		s = s.substring(y + 1);
 
 		String previousAttribute = null;
 		String previousAttributeAndValue = null;
@@ -1209,7 +1322,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			String value = null;
 
-			int y = -1;
+			y = -1;
 
 			while (true) {
 				y = s.indexOf(delimeter, y + 1);
@@ -1274,6 +1387,14 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			String currentAttributeAndValue = sb.toString();
 
+			String newLine = formatTagAttributeType(
+				line, tag, currentAttributeAndValue);
+
+			if (!newLine.equals(line)) {
+				return sortAttributes(
+					fileName, newLine, lineCount, allowApostropheDelimeter);
+			}
+
 			if (wrongOrder) {
 				if ((StringUtil.count(line, currentAttributeAndValue) == 1) &&
 					(StringUtil.count(line, previousAttributeAndValue) == 1)) {
@@ -1316,52 +1437,6 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		}
 	}
 
-	protected String stripLine(
-		String s, char startDelimeter, char endDelimeter) {
-
-		boolean insideDelimeters = false;
-		int level = 0;
-
-		StringBundler sb = new StringBundler();
-
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
-
-			if (insideDelimeters) {
-				if (c == endDelimeter) {
-					if (level > 0) {
-						level -= 1;
-					}
-					else {
-						if ((c > 1) &&
-							(s.charAt(i - 1) == CharPool.BACK_SLASH) &&
-							(s.charAt(i - 2) != CharPool.BACK_SLASH)) {
-
-							continue;
-						}
-
-						insideDelimeters = false;
-					}
-				}
-				else if (c == startDelimeter) {
-					level += 1;
-				}
-			}
-			else if (c == startDelimeter) {
-				insideDelimeters = true;
-			}
-			else {
-				sb.append(c);
-			}
-		}
-
-		return sb.toString();
-	}
-
-	protected String stripQuotes(String s, char delimeter) {
-		return stripLine(s, delimeter, delimeter);
-	}
-
 	protected String stripRedundantParentheses(String s) {
 		for (int x = 0;;) {
 			x = s.indexOf(StringPool.OPEN_PARENTHESIS, x + 1);
@@ -1389,7 +1464,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		StringBundler sb = new StringBundler();
 
-		try (UnsyncBufferedReader unsyncBufferedReader = 
+		try (UnsyncBufferedReader unsyncBufferedReader =
 				new UnsyncBufferedReader(new UnsyncStringReader(content))) {
 
 			String line = null;
@@ -1456,7 +1531,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	protected static Pattern languageKeyPattern = Pattern.compile(
 		"LanguageUtil.(?:get|format)\\([^;%]+|Liferay.Language.get\\('([^']+)");
 	protected static boolean portalSource;
-	protected static SAXReaderImpl saxReaderUtil = SAXReaderImpl.getInstance();
+	protected static final SAXReader saxReader = new SAXReaderImpl();
 	protected static Pattern sessionKeyPattern = Pattern.compile(
 		"SessionErrors.(?:add|contains|get)\\([^;%&|!]+|".concat(
 			"SessionMessages.(?:add|contains|get)\\([^;%&|!]+"),
@@ -1591,16 +1666,18 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		new HashMap<String, List<String>>();
 	private static boolean _printErrors;
 
+	private Set<String> _annotationsExclusions;
 	private boolean _autoFix;
 	private Map<String, String> _compatClassNamesMap;
 	private String _copyright;
 	private String[] _excludes;
 	private SourceMismatchException _firstSourceMismatchException;
+	private Set<String> _immutableFieldTypes;
 	private String _mainReleaseVersion;
 	private String _oldCopyright;
 	private Properties _portalLanguageProperties;
 	private Properties _properties;
-	private List<String> _runOutsidePortalExclusions;
+	private List<String> _runOutsidePortalExclusionPaths;
 	private boolean _usePortalCompatImport;
 
 }

@@ -31,9 +31,11 @@ import com.liferay.portal.kernel.resiliency.spi.agent.AcceptorServlet;
 import com.liferay.portal.kernel.servlet.BufferCacheServletResponse;
 import com.liferay.portal.kernel.servlet.ReadOnlyServletResponse;
 import com.liferay.portal.kernel.test.CaptureHandler;
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
+import com.liferay.portal.kernel.test.rule.NewEnv;
 import com.liferay.portal.kernel.util.InetAddressUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -43,8 +45,8 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.impl.PortletImpl;
-import com.liferay.portal.test.AdviseWith;
-import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.rule.AdviseWith;
+import com.liferay.portal.test.rule.AspectJNewEnvTestRule;
 import com.liferay.portal.util.PropsImpl;
 import com.liferay.portal.util.PropsValues;
 
@@ -80,8 +82,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -89,12 +91,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 /**
  * @author Shuyang Zhou
  */
-@RunWith(AspectJMockingNewClassLoaderJUnitTestRunner.class)
 public class HttpClientSPIAgentTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			CodeCoverageAssertor.INSTANCE, AspectJNewEnvTestRule.INSTANCE);
 
 	@Before
 	public void setUp() {
@@ -173,14 +176,11 @@ public class HttpClientSPIAgentTest {
 
 			socket.close();
 
-			CaptureHandler captureHandler = null;
-
-			try {
+			try (CaptureHandler captureHandler =
+					JDKLoggerTestUtil.configureJDKLogger(
+						HttpClientSPIAgent.class.getName(), Level.OFF)) {
 
 				// Clean up when input is shutdown, failed without log
-
-				captureHandler = JDKLoggerTestUtil.configureJDKLogger(
-					HttpClientSPIAgent.class.getName(), Level.OFF);
 
 				List<LogRecord> logRecords = captureHandler.getLogRecords();
 
@@ -237,11 +237,6 @@ public class HttpClientSPIAgentTest {
 				Throwable throwable = logRecord.getThrown();
 
 				Assert.assertSame(IOException.class, throwable.getClass());
-			}
-			finally {
-				if (captureHandler != null) {
-					captureHandler.close();
-				}
 			}
 
 			// Clean up when output is shutdown()
@@ -382,14 +377,11 @@ public class HttpClientSPIAgentTest {
 
 	@Test
 	public void testDestroy() throws Exception {
-		CaptureHandler captureHandler = null;
-
-		try {
+		try (CaptureHandler captureHandler =
+				JDKLoggerTestUtil.configureJDKLogger(
+					HttpClientSPIAgent.class.getName(), Level.OFF)) {
 
 			// Error without log
-
-			captureHandler = JDKLoggerTestUtil.configureJDKLogger(
-				HttpClientSPIAgent.class.getName(), Level.OFF);
 
 			List<LogRecord> logRecords = captureHandler.getLogRecords();
 
@@ -479,11 +471,6 @@ public class HttpClientSPIAgentTest {
 				Assert.assertTrue(logRecords.isEmpty());
 			}
 		}
-		finally {
-			if (captureHandler != null) {
-				captureHandler.close();
-			}
-		}
 	}
 
 	@Test
@@ -541,6 +528,7 @@ public class HttpClientSPIAgentTest {
 	@AdviseWith(
 		adviceClasses = {PropsUtilAdvice.class}
 	)
+	@NewEnv(type = NewEnv.Type.CLASSLOADER)
 	@Test
 	public void testPrepareRequest() throws Exception {
 		PropsUtilAdvice.setProps(
@@ -657,14 +645,11 @@ public class HttpClientSPIAgentTest {
 
 			closePeers(socket, serverSocket);
 
-			CaptureHandler captureHandler = null;
-
-			try {
+			try (CaptureHandler captureHandler =
+					JDKLoggerTestUtil.configureJDKLogger(
+						HttpClientSPIAgent.class.getName(), Level.OFF)) {
 
 				// Force close, failed without log
-
-				captureHandler = JDKLoggerTestUtil.configureJDKLogger(
-					HttpClientSPIAgent.class.getName(), Level.OFF);
 
 				List<LogRecord> logRecords = captureHandler.getLogRecords();
 
@@ -709,11 +694,6 @@ public class HttpClientSPIAgentTest {
 				Throwable throwable = logRecord.getThrown();
 
 				Assert.assertSame(IOException.class, throwable.getClass());
-			}
-			finally {
-				if (captureHandler != null) {
-					captureHandler.close();
-				}
 			}
 
 			// socket.isConnected()
@@ -842,14 +822,11 @@ public class HttpClientSPIAgentTest {
 
 		closePeers(socket, serverSocket);
 
-		CaptureHandler captureHandler = null;
-
-		try {
+		try (CaptureHandler captureHandler =
+				JDKLoggerTestUtil.configureJDKLogger(
+					HttpClientSPIAgent.class.getName(), Level.OFF)) {
 
 			// Unable to send, unable to close, without log
-
-			captureHandler = JDKLoggerTestUtil.configureJDKLogger(
-				HttpClientSPIAgent.class.getName(), Level.OFF);
 
 			List<LogRecord> logRecords = captureHandler.getLogRecords();
 
@@ -922,11 +899,6 @@ public class HttpClientSPIAgentTest {
 			Assert.assertSame(IOException.class, throwable.getClass());
 
 			swapSocketImpl(socket, socketImpl);
-		}
-		finally {
-			if (captureHandler != null) {
-				captureHandler.close();
-			}
 		}
 
 		closePeers(socket, serverSocket);
@@ -1194,10 +1166,10 @@ public class HttpClientSPIAgentTest {
 
 	private static final String _SERVLET_CONTEXT_NAME = "SERVLET_CONTEXT_NAME";
 
-	private MockHttpServletRequest _mockHttpServletRequest =
+	private final MockHttpServletRequest _mockHttpServletRequest =
 		new MockHttpServletRequest();
 	private Portlet _portlet;
-	private SPIConfiguration _spiConfiguration = new SPIConfiguration(
+	private final SPIConfiguration _spiConfiguration = new SPIConfiguration(
 		null, null, 1234, "baseDir", null, null, null);
 
 	private static class RecordSPIAgentResponse extends SPIAgentResponse {

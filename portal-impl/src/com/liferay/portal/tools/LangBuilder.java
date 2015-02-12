@@ -18,7 +18,9 @@ import com.liferay.portal.kernel.io.OutputStreamWriter;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedWriter;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
+import com.liferay.portal.kernel.microsofttranslator.MicrosoftTranslator;
 import com.liferay.portal.kernel.microsofttranslator.MicrosoftTranslatorException;
+import com.liferay.portal.kernel.microsofttranslator.MicrosoftTranslatorFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
@@ -27,9 +29,6 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.webcache.WebCacheItem;
-import com.liferay.portlet.translator.model.Translation;
-import com.liferay.portlet.translator.util.TranslationWebCacheItem;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -95,11 +94,17 @@ public class LangBuilder {
 
 			_portalLanguageProperties.load(inputStream);
 		}
+		else {
+			_portalLanguageProperties = null;
+		}
 
 		File renameKeysFile = new File(_langDir + "/rename.properties");
 
 		if (renameKeysFile.exists()) {
 			_renameKeys = PropertiesUtil.load(FileUtil.read(renameKeysFile));
+		}
+		else {
+			_renameKeys = null;
 		}
 
 		String content = _orderProperties(
@@ -292,6 +297,9 @@ public class LangBuilder {
 						else if (key.equals("lang.line.end")) {
 							translatedText = "right";
 						}
+						else if (key.startsWith("lang.user.name.")) {
+							translatedText = "";
+						}
 						else if (languageId.equals("el") &&
 								 (key.equals("enabled") || key.equals("on") ||
 								  key.equals("on-date"))) {
@@ -443,6 +451,7 @@ public class LangBuilder {
 	private String _fixEnglishTranslation(String key, String value) {
 
 		// http://en.wikibooks.org/wiki/Basic_Book_Design/Capitalizing_Words_in_Titles
+		// http://titlecapitalization.com
 		// http://www.imdb.com
 
 		if (value.contains(" this ")) {
@@ -488,7 +497,7 @@ public class LangBuilder {
 			UnsyncBufferedWriter unsyncBufferedWriter =
 				new UnsyncBufferedWriter(new FileWriter(propertiesFile))) {
 
-			Map<String, String> messages = new TreeMap<String, String>(
+			Map<String, String> messages = new TreeMap<>(
 				new NaturalOrderStringComparator(true, true));
 
 			boolean begin = false;
@@ -646,12 +655,11 @@ public class LangBuilder {
 
 			System.out.println(sb.toString());
 
-			WebCacheItem wci = new TranslationWebCacheItem(
+			MicrosoftTranslator microsoftTranslator =
+				MicrosoftTranslatorFactoryUtil.getMicrosoftTranslator();
+
+			toText = microsoftTranslator.translate(
 				fromLanguageId, toLanguageId, fromText);
-
-			Translation translation = (Translation)wci.convert("");
-
-			toText = translation.getToText();
 		}
 		catch (Exception e) {
 			Throwable cause = e.getCause();
@@ -675,10 +683,10 @@ public class LangBuilder {
 		return toText;
 	}
 
-	private String _langDir;
-	private String _langFile;
-	private boolean _langTranslate;
-	private Properties _portalLanguageProperties;
-	private Properties _renameKeys;
+	private final String _langDir;
+	private final String _langFile;
+	private final boolean _langTranslate;
+	private final Properties _portalLanguageProperties;
+	private final Properties _renameKeys;
 
 }

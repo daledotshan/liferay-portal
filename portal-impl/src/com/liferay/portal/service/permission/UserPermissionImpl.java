@@ -131,7 +131,8 @@ public class UserPermissionImpl
 				if ((actionId.equals(ActionKeys.DELETE) ||
 					 actionId.equals(ActionKeys.IMPERSONATE) ||
 					 actionId.equals(ActionKeys.PERMISSIONS) ||
-					 actionId.equals(ActionKeys.UPDATE)) &&
+					 actionId.equals(ActionKeys.UPDATE) ||
+					 actionId.equals(ActionKeys.VIEW)) &&
 					!permissionChecker.isOmniadmin() &&
 					(PortalUtil.isOmniadmin(user) ||
 					 (!permissionChecker.isCompanyAdmin() &&
@@ -220,6 +221,7 @@ public class UserPermissionImpl
 		return contains(permissionChecker, userId, null, actionId);
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(UserPermissionImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		UserPermissionImpl.class);
 
 }

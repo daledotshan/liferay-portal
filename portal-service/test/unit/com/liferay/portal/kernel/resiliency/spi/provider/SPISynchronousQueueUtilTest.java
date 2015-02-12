@@ -16,8 +16,8 @@ package com.liferay.portal.kernel.resiliency.spi.provider;
 
 import com.liferay.portal.kernel.resiliency.spi.MockSPI;
 import com.liferay.portal.kernel.resiliency.spi.SPI;
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 
 import java.util.Map;
 import java.util.concurrent.SynchronousQueue;
@@ -32,8 +32,8 @@ import org.junit.Test;
 public class SPISynchronousQueueUtilTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Test
 	public void testConstructor() {
@@ -91,6 +91,8 @@ public class SPISynchronousQueueUtilTest {
 		notifyThread.start();
 
 		Assert.assertSame(mockSPI, synchronousQueue.take());
+
+		notifyThread.join();
 
 		// Destroy
 

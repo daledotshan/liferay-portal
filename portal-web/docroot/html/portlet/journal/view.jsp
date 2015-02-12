@@ -77,6 +77,7 @@ request.setAttribute("view.jsp-folderId", String.valueOf(folderId));
 			<aui:form action="<%= portletURL.toString() %>" method="get" name="fm">
 				<aui:input name="<%= Constants.CMD %>" type="hidden" />
 				<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
+				<aui:input name="groupId" type="hidden" value="<%= scopeGroupId%>" />
 				<aui:input name="folderIds" type="hidden" />
 				<aui:input name="articleIds" type="hidden" />
 				<aui:input name="newFolderId" type="hidden" />
@@ -104,22 +105,13 @@ request.setAttribute("view.jsp-folderId", String.valueOf(folderId));
 </div>
 
 <aui:script>
-	Liferay.provide(
-		window,
-		'<portlet:namespace />toggleActionsButton',
-		function() {
-			var A = AUI();
+	function <portlet:namespace />toggleActionsButton() {
+		var form = AUI.$(document.<portlet:namespace />fm);
 
-			var actionsButton = A.one('#<portlet:namespace />actionsButtonContainer');
+		var hide = (Liferay.Util.listCheckedExcept(form, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
 
-			var hide = (Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
-
-			if (actionsButton) {
-				actionsButton.toggle(!hide);
-			}
-		},
-		['liferay-util-list-fields']
-	);
+		AUI.$('#<portlet:namespace />actionsButtonContainer').toggleClass('hide', hide);
+	}
 
 	<portlet:namespace />toggleActionsButton();
 </aui:script>
