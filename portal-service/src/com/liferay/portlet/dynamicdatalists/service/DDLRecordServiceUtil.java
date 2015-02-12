@@ -42,6 +42,16 @@ public class DDLRecordServiceUtil {
 	 */
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord addRecord(
 		long groupId, long recordSetId, int displayIndex,
+		com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues ddmFormValues,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addRecord(groupId, recordSetId, displayIndex,
+			ddmFormValues, serviceContext);
+	}
+
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord addRecord(
+		long groupId, long recordSetId, int displayIndex,
 		com.liferay.portlet.dynamicdatamapping.storage.Fields fields,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -94,8 +104,8 @@ public class DDLRecordServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #revertRecord(long, long,
-	String, ServiceContext)}
+	* @deprecated As of 7.0.0, replaced by {@link #revertRecord(long, String,
+	ServiceContext)}
 	*/
 	@Deprecated
 	public static void revertRecordVersion(long recordId,
@@ -123,6 +133,16 @@ public class DDLRecordServiceUtil {
 		return getService()
 				   .updateRecord(recordId, displayIndex, fieldsMap,
 			mergeFields, serviceContext);
+	}
+
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord updateRecord(
+		long recordId, boolean majorVersion, int displayIndex,
+		com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues ddmFormValues,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateRecord(recordId, majorVersion, displayIndex,
+			ddmFormValues, serviceContext);
 	}
 
 	public static com.liferay.portlet.dynamicdatalists.model.DDLRecord updateRecord(

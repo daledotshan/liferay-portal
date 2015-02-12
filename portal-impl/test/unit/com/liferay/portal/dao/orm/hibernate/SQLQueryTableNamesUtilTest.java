@@ -18,7 +18,7 @@ import com.liferay.portal.cache.SingleVMPoolImpl;
 import com.liferay.portal.cache.memory.MemoryPortalCacheManager;
 import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -37,21 +37,16 @@ import org.junit.Test;
 public class SQLQueryTableNamesUtilTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Before
 	public void setUp() {
-		MemoryPortalCacheManager<String, String> memoryPortalCacheManager =
-			new MemoryPortalCacheManager<String, String>();
-
-		memoryPortalCacheManager.setName("SingleVMPortalCacheManager");
-
-		memoryPortalCacheManager.afterPropertiesSet();
-
 		SingleVMPoolImpl singleVMPoolImpl = new SingleVMPoolImpl();
 
-		singleVMPoolImpl.setPortalCacheManager(memoryPortalCacheManager);
+		singleVMPoolImpl.setPortalCacheManager(
+			MemoryPortalCacheManager.createMemoryPortalCacheManager(
+				SQLQueryTableNamesUtilTest.class.getName()));
 
 		SingleVMPoolUtil singleVMPoolUtil = new SingleVMPoolUtil();
 

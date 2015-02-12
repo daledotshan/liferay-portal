@@ -14,15 +14,14 @@
 
 package com.liferay.taglib.util;
 
-import com.liferay.kernel.servlet.taglib.DynamicIncludeUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.servlet.JSPSupportServlet;
-import com.liferay.portal.kernel.servlet.PluginContextListener;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
+import com.liferay.portal.kernel.servlet.taglib.DynamicIncludeUtil;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.template.TemplateResourceLoaderUtil;
@@ -37,17 +36,9 @@ import com.liferay.portal.model.Theme;
 import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.taglib.servlet.PipingServletResponse;
-import com.liferay.util.freemarker.FreeMarkerTaglibFactoryUtil;
-
-import freemarker.ext.servlet.HttpRequestHashModel;
-import freemarker.ext.servlet.ServletContextHashModel;
-
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateHashModel;
 
 import java.io.Writer;
 
-import javax.servlet.GenericServlet;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -144,8 +135,7 @@ public class ThemeUtil {
 		ClassLoader pluginClassLoader = null;
 
 		if (pluginServletContext != null) {
-			pluginClassLoader = (ClassLoader)pluginServletContext.getAttribute(
-				PluginContextListener.PLUGIN_CLASS_LOADER);
+			pluginClassLoader = pluginServletContext.getClassLoader();
 		}
 
 		Thread currentThread = Thread.currentThread();
@@ -256,8 +246,6 @@ public class ThemeUtil {
 
 		template.put("themeServletContext", themeServletContext);
 
-		// Tag libraries
-
 		Writer writer = null;
 
 		if (write) {
@@ -270,43 +258,23 @@ public class ThemeUtil {
 			writer = new UnsyncStringWriter();
 		}
 
-		VelocityTaglib velocityTaglib = new VelocityTaglibImpl(
-			servletContext, request,
-			new PipingServletResponse(response, writer), template);
+		TemplateManager templateManager =
+			TemplateManagerUtil.getTemplateManager(
+				TemplateConstants.LANG_TYPE_FTL);
+
+		templateManager.addTaglibApplication(
+			template, "Application", request.getServletContext());
+		templateManager.addTaglibFactory(
+			template, "PortalJspTagLibs", servletContext);
+		templateManager.addTaglibFactory(
+			template, "ThemeJspTaglibs", themeServletContext);
+		templateManager.addTaglibRequest(
+			template, "Request", request, response);
+		templateManager.addTaglibTheme(
+			template, "taglibLiferay", request,
+			new PipingServletResponse(response, writer));
 
 		template.put(TemplateConstants.WRITER, writer);
-		template.put("taglibLiferay", velocityTaglib);
-		template.put("theme", velocityTaglib);
-
-		// Portal JSP tag library factory
-
-		TemplateHashModel portalTaglib =
-			FreeMarkerTaglibFactoryUtil.createTaglibFactory(servletContext);
-
-		template.put("PortalJspTagLibs", portalTaglib);
-
-		// Theme JSP tag library factory
-
-		TemplateHashModel themeTaglib =
-			FreeMarkerTaglibFactoryUtil.createTaglibFactory(
-				themeServletContext);
-
-		template.put("ThemeJspTaglibs", themeTaglib);
-
-		// FreeMarker JSP tag library support
-
-		GenericServlet genericServlet = new JSPSupportServlet(servletContext);
-
-		ServletContextHashModel servletContextHashModel =
-			new ServletContextHashModel(
-				genericServlet, ObjectWrapper.DEFAULT_WRAPPER);
-
-		template.put("Application", servletContextHashModel);
-
-		HttpRequestHashModel httpRequestHashModel = new HttpRequestHashModel(
-			request, response, ObjectWrapper.DEFAULT_WRAPPER);
-
-		template.put("Request", httpRequestHashModel);
 
 		// Merge templates
 
@@ -326,7 +294,8 @@ public class ThemeUtil {
 		throws Exception {
 
 		DynamicIncludeUtil.include(
-			request, response, ThemeUtil.class.getName() + "#doIncludeJSP");
+			request, response, ThemeUtil.class.getName() + "#doIncludeJSP",
+			true);
 
 		if (theme.isWARFile()) {
 			ServletContext themeServletContext = servletContext.getContext(
@@ -436,6 +405,10 @@ public class ThemeUtil {
 				"Unable to load template resource " + resourcePath);
 		}
 
+		TemplateManager templateManager =
+			TemplateManagerUtil.getTemplateManager(
+				TemplateConstants.LANG_TYPE_VM);
+
 		Template template = TemplateManagerUtil.getTemplate(
 			TemplateConstants.LANG_TYPE_VM, templateResource, restricted);
 
@@ -461,14 +434,11 @@ public class ThemeUtil {
 			writer = new UnsyncStringWriter();
 		}
 
-		VelocityTaglib velocityTaglib = new VelocityTaglibImpl(
-			servletContext, request,
-			new PipingServletResponse(response, writer), template);
+		templateManager.addTaglibTheme(
+			template, "taglibLiferay", request,
+			new PipingServletResponse(response, writer));
 
 		template.put(TemplateConstants.WRITER, writer);
-		template.put("pageContext", velocityTaglib.getPageContext());
-		template.put("taglibLiferay", velocityTaglib);
-		template.put("theme", velocityTaglib);
 
 		// Merge templates
 
@@ -482,6 +452,6 @@ public class ThemeUtil {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ThemeUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(ThemeUtil.class);
 
 }

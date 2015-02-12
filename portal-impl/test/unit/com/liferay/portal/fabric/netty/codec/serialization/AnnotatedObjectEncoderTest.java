@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -16,8 +15,8 @@
 package com.liferay.portal.fabric.netty.codec.serialization;
 
 import com.liferay.portal.kernel.io.AnnotatedObjectInputStream;
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -31,10 +30,9 @@ import java.lang.reflect.Modifier;
 
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import org.testng.Assert;
 
 /**
  * @author Shuyang Zhou
@@ -42,8 +40,8 @@ import org.testng.Assert;
 public class AnnotatedObjectEncoderTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Test
 	public void testEncode() throws Exception {

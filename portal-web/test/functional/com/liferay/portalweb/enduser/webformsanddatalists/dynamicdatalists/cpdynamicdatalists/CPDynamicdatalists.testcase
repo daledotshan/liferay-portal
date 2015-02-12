@@ -198,7 +198,7 @@
 		</execute>
 	</command>
 
-	<command name="AddListAndRecordWithContactsPredefinedDataDefinition" priority="4">
+	<command known-issues="LIFERAYQA-12730" name="AddListAndRecordWithContactsPredefinedDataDefinition" priority="4">
 		<var name="ddlDataDefinitionName" value="Contacts" />
 
 		<execute macro="Page#gotoContentCP">
@@ -296,7 +296,7 @@
 		</execute>
 	</command>
 
-	<command name="AddListAndRecordWithEventsPredefinedDataDefinition" priority="4">
+	<command known-issues="LIFERAYQA-12730" name="AddListAndRecordWithEventsPredefinedDataDefinition" priority="4">
 		<var name="ddlDataDefinitionName" value="Events" />
 
 		<execute macro="Page#gotoContentCP">
@@ -323,7 +323,7 @@
 			<var name="ddlListName" value="${ddlDataDefinitionName}" />
 		</execute>
 
-		<execute macro="DDLRecord#populateFieldDocumentsAndMedia">
+		<execute macro="DDLRecord#populateFieldDocumentsAndMediaChooseFromDocumentLibrary">
 			<var name="ddlRecordFieldData" value="Document 4 Title" />
 			<var name="document" value="Document_1.txt" />
 			<var name="fieldFieldLabel" value="Attachment Upload documents no larger than 3,000k." />
@@ -451,7 +451,7 @@
 		</execute>
 	</command>
 
-	<command name="AddListAndRecordWithIssuesTrackingPredefinedDataDefinition" priority="4">
+	<command known-issues="LIFERAYQA-12730" name="AddListAndRecordWithIssuesTrackingPredefinedDataDefinition" priority="4">
 		<var name="ddlDataDefinitionName" value="Issues Tracking" />
 
 		<execute macro="Page#gotoContentCP">
@@ -484,7 +484,7 @@
 			<var name="fieldName" value="assignedTo" />
 		</execute>
 
-		<execute macro="DDLRecord#populateFieldDocumentsAndMedia">
+		<execute macro="DDLRecord#populateFieldDocumentsAndMediaChooseFromDocumentLibrary">
 			<var name="ddlRecordFieldData" value="Document 3 Title" />
 			<var name="document" value="Document_1.txt" />
 			<var name="fieldFieldLabel" value="Attachment Upload documents no larger than 3,000k." />
@@ -544,7 +544,7 @@
 		</execute>
 	</command>
 
-	<command name="AddListAndRecordWithMeetingMinutesPredefinedDataDefinition" priority="4">
+	<command known-issues="LIFERAYQA-12730" name="AddListAndRecordWithMeetingMinutesPredefinedDataDefinition" priority="4">
 		<var name="ddlDataDefinitionName" value="Meeting Minutes" />
 
 		<execute macro="Page#gotoContentCP">
@@ -571,7 +571,7 @@
 			<var name="ddlListName" value="${ddlDataDefinitionName}" />
 		</execute>
 
-		<execute macro="DDLRecord#populateFieldDocumentsAndMedia">
+		<execute macro="DDLRecord#populateFieldDocumentsAndMediaChooseFromDocumentLibrary">
 			<var name="ddlRecordFieldData" value="Document 2 Title" />
 			<var name="document" value="Document_1.txt" />
 			<var name="fieldFieldLabel" value="Attachment Upload documents no larger than 3,000k." />
@@ -658,10 +658,9 @@
 			<var name="fieldName" value="assignedTo" />
 		</execute>
 
-		<execute macro="DDLRecord#populateFieldDocumentsAndMedia">
+		<execute macro="DDLRecord#populateFieldDocumentsAndMediaChooseFromDocumentLibrary">
 			<var name="ddlRecordFieldData" value="Document 1 Title" />
-			<var name="document" value="Document_1.txt" />
-			<var name="fieldFieldLabel" value="Attachment Upload documents no larger than 3,000k." />
+			<var name="document" value="Document_1.txt" />			<var name="fieldFieldLabel" value="Attachment Upload documents no larger than 3,000k." />
 			<var name="fieldName" value="attachment" />
 		</execute>
 
@@ -727,7 +726,7 @@
 	<command name="AddListRecordWithBooleanField" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
-		<var name="ddlRecordFieldData" value="true" />
+		<var name="ddlRecordFieldData" value="Yes" />
 		<var name="field" value="Boolean" />
 		<var name="fieldFieldLabel" value="Boolean" />
 		<var name="fieldName" value="Boolean" />
@@ -974,7 +973,7 @@
 		</execute>
 	</command>
 
-	<command name="AddListRecordWithDocumentsAndMediaField" priority="5">
+	<command known-issues="LIFERAYQA-12730" name="AddListRecordWithDocumentsAndMediaFieldChooseFromDocumentLibrary" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
 		<var name="ddlRecordFieldData" value="Document Title" />
@@ -1035,7 +1034,7 @@
 			<var name="ddlListName" value="${ddlListName}" />
 		</execute>
 
-		<execute macro="DDLRecord#populateFieldDocumentsAndMedia">
+		<execute macro="DDLRecord#populateFieldDocumentsAndMediaChooseFromDocumentLibrary">
 			<var name="ddlRecordFieldData" value="${ddlRecordFieldData}" />
 			<var name="document" value="${document}" />
 			<var name="fieldFieldLabel" value="${fieldFieldLabel}" />
@@ -1059,11 +1058,94 @@
 		</execute>
 	</command>
 
-	<command name="AddListRecordWithGeolocationField" priority="5">
+	<command name="AddListRecordWithDocumentsAndMediaFieldUpload" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
-		<var name="ddlRecordFieldData" value="34.028623, -117.810337" />
-		<var name="ddlRecordFieldDataFormatted" value="Latitude: 34.029, Longitude: -117.81" />
+		<var name="document" value="Document_1.txt" />
+		<var name="field" value="Documents and Media" />
+		<var name="fieldFieldLabel" value="Documents and Media" />
+		<var name="fieldName" value="Documents_and_Media" />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLDataDefinition#addCP">
+			<var name="ddlDataDefinitionName" value="${ddlDataDefinitionName}" />
+		</execute>
+
+		<execute macro="DynamicDataMapping#addField">
+			<var name="field" value="${field}" />
+			<var name="fieldFieldLabel" value="${fieldFieldLabel}" />
+			<var name="fieldName" value="${fieldName}" />
+		</execute>
+
+		<execute macro="DDLDataDefinition#saveCP" />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLDataDefinition#viewCP">
+			<var name="ddlDataDefinitionName" value="${ddlDataDefinitionName}" />
+		</execute>
+
+		<execute macro="DynamicDataMapping#viewField">
+			<var name="fieldFieldLabel" value="${fieldFieldLabel}" />
+			<var name="fieldName" value="${fieldName}" />
+		</execute>
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLList#addCP">
+			<var name="ddlListName" value="${ddlListName}" />
+		</execute>
+
+		<execute macro="DDLDataDefinition#selectCP">
+			<var name="ddlDataDefinitionName" value="${ddlDataDefinitionName}" />
+		</execute>
+
+		<execute macro="DDLList#saveCP" />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLRecord#addCP">
+			<var name="ddlDataDefinitionName" value="${ddlDataDefinitionName}" />
+			<var name="ddlListName" value="${ddlListName}" />
+		</execute>
+
+		<execute macro="DDLRecord#populateFieldDocumentsAndMediaUpload">
+			<var name="document" value="${document}" />
+			<var name="fieldFieldLabel" value="${fieldFieldLabel}" />
+			<var name="fieldName" value="${fieldName}" />
+		</execute>
+
+		<execute macro="DDLRecord#publishCP" />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLRecord#viewCP">
+			<var name="ddlListName" value="${ddlListName}" />
+		</execute>
+
+		<execute macro="DDLRecord#viewFirstFieldCP">
+			<var name="ddlRecordFieldData" value="${document}" />
+			<var name="field" value="${field}" />
+			<var name="fieldFieldLabel" value="${fieldFieldLabel}" />
+		</execute>
+	</command>
+
+	<command name="AddListRecordWithGeolocationField" priority="5">
+		<property name="test.assert.javascript.errors" value="false" />
+
+		<var name="ddlDataDefinitionName" value="Data Definition" />
+		<var name="ddlListName" value="List Name" />
 		<var name="field" value="Geolocation" />
 		<var name="fieldFieldLabel" value="Geolocation" />
 		<var name="fieldName" value="Geolocation" />
@@ -2461,7 +2543,7 @@
 	<command name="EditBooleanFieldFieldLabel" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
-		<var name="ddlRecordFieldData" value="true" />
+		<var name="ddlRecordFieldData" value="Yes" />
 		<var name="field" value="Boolean" />
 		<var name="fieldFieldLabel" value="Boolean" />
 		<var name="fieldFieldLabelEdit" value="Boolean Edit" />
@@ -2506,6 +2588,7 @@
 
 		<execute macro="DDLDataDefinition#viewCP">
 			<var name="ddlDataDefinitionName" value="${ddlDataDefinitionName}" />
+			<var name="fieldFieldLabel" value="${fieldFieldLabelEdit}" />
 		</execute>
 
 		<execute macro="DynamicDataMapping#viewField">
@@ -2562,7 +2645,7 @@
 	<command name="EditBooleanFieldName" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
-		<var name="ddlRecordFieldData" value="true" />
+		<var name="ddlRecordFieldData" value="Yes" />
 		<var name="field" value="Boolean" />
 		<var name="fieldFieldLabel" value="Boolean" />
 		<var name="fieldName" value="Boolean" />
@@ -2661,10 +2744,10 @@
 		</execute>
 	</command>
 
-	<command name="EditBooleanFieldShowLabel" priority="5">
+	<command known-issues="LPS-51721" name="EditBooleanFieldShowLabel" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
-		<var name="ddlRecordFieldData" value="true" />
+		<var name="ddlRecordFieldData" value="Yes" />
 		<var name="field" value="Boolean" />
 		<var name="fieldFieldLabel" value="Boolean" />
 		<var name="fieldName" value="Boolean" />
@@ -3503,10 +3586,10 @@
 		</execute>
 	</command>
 
-	<command name="ImportLAR" priority="5">
+	<command known-issues="LPS-51926" name="ImportLAR" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
-		<var name="ddlRecordFieldData" value="true" />
+		<var name="ddlRecordFieldData" value="Yes" />
 		<var name="field" value="Boolean" />
 		<var name="fieldFieldLabel" value="Boolean" />
 		<var name="fieldName" value="Boolean" />
@@ -3618,7 +3701,7 @@
 	<command name="ViewBooleanFieldPredefinedValue" priority="5">
 		<var name="ddlDataDefinitionName" value="Data Definition" />
 		<var name="ddlListName" value="List Name" />
-		<var name="ddlRecordFieldData" value="false" />
+		<var name="ddlRecordFieldData" value="No" />
 		<var name="field" value="Boolean" />
 		<var name="fieldFieldLabel" value="Boolean" />
 		<var name="fieldName" value="Boolean" />
@@ -3702,7 +3785,7 @@
 		</execute>
 
 		<execute macro="DDLRecord#viewFirstFieldCP">
-			<var name="ddlRecordFieldData" value="true" />
+			<var name="ddlRecordFieldData" value="Yes" />
 			<var name="field" value="${field}" />
 			<var name="fieldFieldLabel" value="${fieldFieldLabel}" />
 		</execute>
@@ -3736,6 +3819,70 @@
 			<var name="ddlRecordFieldData" value="${ddlRecordFieldData}" />
 			<var name="field" value="${field}" />
 			<var name="fieldFieldLabel" value="${fieldFieldLabel}" />
+		</execute>
+	</command>
+
+	<command known-issues="LPS-52567" name="ViewCannotAddNonAlphanumericCharactersToFieldName" priority="5">
+		<var name="character1"><![CDATA[`]]></var>
+		<var name="character2"><![CDATA[~]]></var>
+		<var name="character3"><![CDATA[!]]></var>
+		<var name="character4"><![CDATA[@]]></var>
+		<var name="character5"><![CDATA[#]]></var>
+		<var name="character6"><![CDATA[$]]></var>
+		<var name="character7"><![CDATA[%]]></var>
+		<var name="character8"><![CDATA[^]]></var>
+		<var name="character9"><![CDATA[&]]></var>
+		<var name="character10"><![CDATA[*]]></var>
+		<var name="character11"><![CDATA[(]]></var>
+		<var name="character12"><![CDATA[)]]></var>
+		<var name="character13"><![CDATA[-]]></var>
+		<var name="character14"><![CDATA[+]]></var>
+		<var name="character15"><![CDATA[=]]></var>
+		<var name="character16"><![CDATA[[]]></var>
+		<var name="character17"><![CDATA[{]]></var>
+		<var name="character18"><![CDATA[}]]></var>
+		<var name="character19"><![CDATA[\]]></var>
+		<var name="character20"><![CDATA[|]]></var>
+		<var name="character21"><![CDATA[;]]></var>
+		<var name="character22"><![CDATA[:]]></var>
+		<var name="character23"><![CDATA[']]></var>
+		<var name="character24"><![CDATA["]]></var>
+		<var name="character25"><![CDATA[>]]></var>
+		<var name="character26"><![CDATA[<]]></var>
+		<var name="character27"><![CDATA[.]]></var>
+		<var name="character28"><![CDATA[/]]></var>
+		<var name="character29"><![CDATA[?]]></var>
+		<var name="character30"><![CDATA[_]]></var>
+		<var name="character31" value="test space" />
+		<var name="character32" value=" frontSpace" />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLDataDefinition#addCP">
+			<var name="ddlDataDefinitionDescription" value="Data Definition Description" />
+			<var name="ddlDataDefinitionName" value="Data Definition" />
+		</execute>
+
+		<execute macro="DynamicDataMapping#addField">
+			<var name="field" value="Text" />
+			<var name="fieldFieldLabel" value="Text" />
+			<var name="fieldName" value="Text" />
+		</execute>
+
+		<for list="${character1},${character2},${character3},${character4},${character5},${character6},${character7},${character8},${character9},${character10},${character11},${character12},${character13},${character14},${character15},${character16},${character17}.${character18},${character19},${character20},${character21},${character22},${character23},${character24},${character25},${character26},${character27},${character28},${character29},${character30},${character31},${character32}" param="fieldName">
+			<execute macro="DynamicDataMapping#editFieldNameInvalidCharacter">
+				<var name="field" value="Text" />
+				<var name="fieldFieldLabel" value="Text" />
+				<var name="fieldName" value="${fieldName}" />
+			</execute>
+		</for>
+
+		<execute macro="DynamicDataMapping#editFieldNameInvalidCharacter">
+			<var name="field" value="Text" />
+			<var name="fieldFieldLabel" value="Text" />
+			<var name="fieldName"><![CDATA[,]]></var>
 		</execute>
 	</command>
 

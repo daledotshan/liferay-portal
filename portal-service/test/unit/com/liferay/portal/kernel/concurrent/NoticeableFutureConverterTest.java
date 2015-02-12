@@ -14,8 +14,8 @@
 
 package com.liferay.portal.kernel.concurrent;
 
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -32,8 +32,8 @@ import org.junit.Test;
 public class NoticeableFutureConverterTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Test
 	public void testCancelInner() throws Exception {
@@ -115,7 +115,7 @@ public class NoticeableFutureConverterTest {
 			};
 
 		RecordedFutureListener<Object> recordedFutureListener =
-			new RecordedFutureListener<Object>();
+			new RecordedFutureListener<>();
 
 		Assert.assertTrue(
 			noticeableFutureConverter.addFutureListener(
@@ -168,7 +168,7 @@ public class NoticeableFutureConverterTest {
 			new NopNoticeableFutureConverter(_defaultNoticeableFuture);
 
 		RecordedFutureListener<Object> recordedFutureListener =
-			new RecordedFutureListener<Object>();
+			new RecordedFutureListener<>();
 
 		Assert.assertTrue(
 			noticeableFutureConverter.addFutureListener(
@@ -209,7 +209,7 @@ public class NoticeableFutureConverterTest {
 			new NopNoticeableFutureConverter(_defaultNoticeableFuture);
 
 		RecordedFutureListener<Object> recordedFutureListener =
-			new RecordedFutureListener<Object>();
+			new RecordedFutureListener<>();
 
 		Assert.assertTrue(
 			noticeableFutureConverter.addFutureListener(
@@ -272,7 +272,7 @@ public class NoticeableFutureConverterTest {
 	}
 
 	private final DefaultNoticeableFuture<Object> _defaultNoticeableFuture =
-		new DefaultNoticeableFuture<Object>();
+		new DefaultNoticeableFuture<>();
 
 	private static class NopNoticeableFutureConverter
 		extends NoticeableFutureConverter<Object, Object> {

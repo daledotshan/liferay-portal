@@ -121,7 +121,7 @@ public class FileHelperUtil {
 
 		final AtomicBoolean atomicMove = new AtomicBoolean(tryAtomicMove);
 		final AtomicBoolean touched = new AtomicBoolean();
-		final Map<Path, FileTime> fileTimes = new HashMap<Path, FileTime>();
+		final Map<Path, FileTime> fileTimes = new HashMap<>();
 
 		try {
 			Files.walkFileTree(
@@ -396,6 +396,6 @@ public class FileHelperUtil {
 		return rawSize.get();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(FileHelperUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(FileHelperUtil.class);
 
 }

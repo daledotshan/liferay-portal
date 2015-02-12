@@ -17,9 +17,7 @@
 <%@ include file="/html/portlet/document_library/init.jsp" %>
 
 <%
-DLEntryListDisplayContext dlEntriesListDisplayContext = new DLEntryListDisplayContext(request, dlPortletInstanceSettings);
-
-DLActionsDisplayContext dlActionsDisplayContext = dlEntriesListDisplayContext.getDLActionsDisplayContext();
+DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletInstanceSettingsHelper(dlRequestHelper);
 
 String strutsAction = ParamUtil.getString(request, "struts_action");
 
@@ -99,7 +97,7 @@ request.setAttribute("view.jsp-orderByCol", orderByCol);
 request.setAttribute("view.jsp-orderByType", orderByType);
 %>
 
-<liferay-util:buffer var="uploadURL"><liferay-portlet:actionURL><portlet:param name="struts_action" value="/document_library/view_file_entry" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_DYNAMIC %>" /><portlet:param name="folderId" value="{folderId}" /><portlet:param name="repositoryId" value="<%= String.valueOf(repositoryId) %>" /></liferay-portlet:actionURL><liferay-ui:input-permissions-params modelName="<%= DLFileEntryConstants.getClassName() %>" /></liferay-util:buffer>
+<liferay-util:buffer var="uploadURL"><liferay-portlet:actionURL><portlet:param name="struts_action" value="/document_library/view_file_entry" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_DYNAMIC %>" /><portlet:param name="folderId" value="{folderId}" /><portlet:param name="repositoryId" value="<%= String.valueOf(repositoryId) %>" /></liferay-portlet:actionURL></liferay-util:buffer>
 
 <liferay-ui:trash-undo />
 
@@ -109,7 +107,7 @@ request.setAttribute("view.jsp-orderByType", orderByType);
 			<liferay-util:include page="/html/portlet/document_library/view_folders.jsp" />
 		</aui:col>
 
-		<aui:col cssClass="context-pane" width="<%= dlActionsDisplayContext.isFolderMenuVisible() ? 75 : 100 %>">
+		<aui:col cssClass="context-pane" width="<%= dlPortletInstanceSettingsHelper.isFolderMenuVisible() ? 75 : 100 %>">
 			<liferay-ui:app-view-toolbar
 				includeDisplayStyle="<%= true %>"
 				includeSelectAll="<%= showSelectAll %>"
@@ -117,33 +115,15 @@ request.setAttribute("view.jsp-orderByType", orderByType);
 				<liferay-util:include page="/html/portlet/document_library/toolbar.jsp" />
 			</liferay-ui:app-view-toolbar>
 
-			<%
-			boolean showSyncMessage = GetterUtil.getBoolean(SessionClicks.get(request, liferayPortletResponse.getNamespace() + "show-sync-message", "true"));
-
-			String cssClass = "show-sync-message-icon-container";
-
-			if (showSyncMessage || !PropsValues.DL_SHOW_LIFERAY_SYNC_MESSAGE) {
-				cssClass += " hide";
-			}
-			%>
-
-			<div class="<%= cssClass %>" id="<portlet:namespace />showSyncMessageIconContainer">
-				<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="show-liferay-sync-tip" />" class="show-sync-message" id="<portlet:namespace />showSyncMessageIcon" src='<%= themeDisplay.getPathThemeImages() + "/common/liferay_sync.png" %>' title='<%= LanguageUtil.get(request, "liferay-sync") %>' />
-			</div>
-
 			<div class="document-library-breadcrumb" id="<portlet:namespace />breadcrumbContainer">
 				<c:if test='<%= !navigation.equals("recent") && !navigation.equals("mine") && Validator.isNull(browseBy) %>'>
 					<liferay-util:include page="/html/portlet/document_library/breadcrumb.jsp" />
 				</c:if>
 			</div>
 
-			<div class="hide" id="<portlet:namespace />syncNotification">
-				<div class="alert alert-info sync-notification" id="<portlet:namespace />syncNotificationContent">
-					<a href="http://www.liferay.com/products/liferay-sync" target="_blank">
-						<liferay-ui:message key="access-these-files-offline-using-liferay-sync" />
-					</a>
-				</div>
-			</div>
+			<c:if test="<%= portletDisplay.isWebDAVEnabled() && BrowserSnifferUtil.isIeOnWin32(request) %>">
+				<div class="alert alert-danger hide" id="<portlet:namespace />openMSOfficeError"></div>
+			</c:if>
 
 			<liferay-portlet:renderURL varImpl="editFileEntryURL">
 				<portlet:param name="struts_action" value="/document_library/edit_file_entry" />
@@ -183,22 +163,13 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(PortletKeys.DO
 %>
 
 <aui:script>
-	Liferay.provide(
-		window,
-		'<portlet:namespace />toggleActionsButton',
-		function() {
-			var A = AUI();
+	function <portlet:namespace />toggleActionsButton() {
+		var form = AUI.$(document.<portlet:namespace />fm2);
 
-			var actionsButton = A.one('#<portlet:namespace />actionsButtonContainer');
+		var hide = (Liferay.Util.listCheckedExcept(form, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
 
-			var hide = (Liferay.Util.listCheckedExcept(document.<portlet:namespace />fm2, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
-
-			if (actionsButton) {
-				actionsButton.toggle(!hide);
-			}
-		},
-		['liferay-util-list-fields']
-	);
+		$('#<portlet:namespace />actionsButtonContainer').toggleClass('hide', hide);
+	}
 
 	<portlet:namespace />toggleActionsButton();
 </aui:script>
@@ -206,7 +177,7 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(PortletKeys.DO
 <aui:script use="liferay-document-library">
 
 	<%
-	String[] entryColumns = dlEntriesListDisplayContext.getEntryColumns();
+	String[] entryColumns = dlPortletInstanceSettingsHelper.getEntryColumns();
 	String[] escapedEntryColumns = new String[entryColumns.length];
 
 	for (int i = 0; i < entryColumns.length; i++) {
@@ -278,11 +249,10 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(PortletKeys.DO
 
 			],
 			rowIds: '<%= RowChecker.ROW_IDS %>',
+			scopeGroupId: <%= scopeGroupId %>,
 			select: {
 				displayViews: ['<%= StringUtil.merge(escapedDisplayViews, "','") %>']
 			},
-			syncMessageDisabled: <%= !PropsValues.DL_SHOW_LIFERAY_SYNC_MESSAGE %>,
-			syncMessageSuppressed: <%= !GetterUtil.getBoolean(SessionClicks.get(request, liferayPortletResponse.getNamespace() + "show-sync-message", "true")) %>,
 			trashEnabled: <%= (scopeGroupId == repositoryId) && TrashUtil.isTrashEnabled(scopeGroupId) %>,
 			updateable: <%= DLFolderPermission.contains(permissionChecker, scopeGroupId, folderId, ActionKeys.UPDATE) %>,
 			uploadURL: '<%= uploadURL %>',
@@ -299,4 +269,12 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(PortletKeys.DO
 	};
 
 	Liferay.on('destroyPortlet', clearDocumentLibraryHandles);
+
+	var changeScopeHandles = function(event) {
+		documentLibrary.destroy();
+
+		Liferay.detach('changeScope', changeScopeHandles);
+	};
+
+	Liferay.on('changeScope', changeScopeHandles);
 </aui:script>

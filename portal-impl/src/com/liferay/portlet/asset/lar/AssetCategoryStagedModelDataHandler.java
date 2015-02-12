@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -47,6 +48,7 @@ import java.util.Map;
  * @author Gergely Mathe
  * @author Mate Thurzo
  */
+@OSGiBeanProperties
 public class AssetCategoryStagedModelDataHandler
 	extends BaseStagedModelDataHandler<AssetCategory> {
 
@@ -160,6 +162,10 @@ public class AssetCategoryStagedModelDataHandler
 
 		categoryElement.addAttribute("path", categoryPath);
 
+		portletDataContext.addReferenceElement(
+			category, categoryElement, category,
+			PortletDataContext.REFERENCE_TYPE_DEPENDENCY, false);
+
 		portletDataContext.addPermissions(
 			AssetCategory.class, category.getCategoryId());
 
@@ -227,9 +233,8 @@ public class AssetCategoryStagedModelDataHandler
 
 		AssetCategory importedCategory = null;
 
-		AssetCategory existingCategory =
-			fetchStagedModelByUuidAndGroupId(
-				category.getUuid(), portletDataContext.getScopeGroupId());
+		AssetCategory existingCategory = fetchStagedModelByUuidAndGroupId(
+			category.getUuid(), portletDataContext.getScopeGroupId());
 
 		if (existingCategory == null) {
 			String name = getCategoryName(
@@ -299,7 +304,7 @@ public class AssetCategoryStagedModelDataHandler
 		Map<Locale, String> titleMap = category.getTitleMap();
 
 		if (titleMap == null) {
-			titleMap = new HashMap<Locale, String>();
+			titleMap = new HashMap<>();
 		}
 
 		titleMap.put(PortalUtil.getSiteDefaultLocale(groupId), name);

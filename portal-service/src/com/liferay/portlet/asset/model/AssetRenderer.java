@@ -41,6 +41,10 @@ public interface AssetRenderer {
 
 	public static final String TEMPLATE_FULL_CONTENT = "full_content";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public String getAddToPagePortletId() throws Exception;
 
 	public int getAssetRendererType();
@@ -57,7 +61,7 @@ public interface AssetRenderer {
 
 	public long getClassPK();
 
-	public DDMFieldReader getDDMFieldReader();
+	public DDMFormValuesReader getDDMFormValuesReader();
 
 	public String getDiscussionPath();
 
@@ -164,8 +168,12 @@ public interface AssetRenderer {
 			String template)
 		throws Exception;
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public void setAddToPagePreferences(
-			PortletPreferences preferences, String portletId,
+			PortletPreferences portletPreferences, String portletId,
 			ThemeDisplay themeDisplay)
 		throws Exception;
 

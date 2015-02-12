@@ -3,8 +3,6 @@ AUI.add(
 	function(A) {
 		var Util = Liferay.Util;
 
-		var NAME = 'inputmoveboxes';
-
 		var CONFIG_REORDER = {
 			children: [
 				[
@@ -33,6 +31,8 @@ AUI.add(
 		var CSS_LEFT_REORDER = 'left-reorder';
 
 		var CSS_RIGHT_REORDER = 'right-reorder';
+
+		var NAME = 'inputmoveboxes';
 
 		var InputMoveBoxes = A.Component.create(
 			{
@@ -105,12 +105,12 @@ AUI.add(
 
 							var from = instance._leftBox;
 							var to = instance._rightBox;
-							var sort = !instance.get('leftReorder');
+							var sort = !instance.get('rightReorder');
 
 							if (cssClass.indexOf('move-right') !== -1) {
 								from = instance._rightBox;
 								to = instance._leftBox;
-								sort = !instance.get('rightReorder');
+								sort = !instance.get('leftReorder');
 							}
 
 							instance._moveItem(from, to, sort);
