@@ -108,7 +108,7 @@ import java.util.Set;
  *
  * @author ${author}
  * @see ${entity.name}Persistence
- * @see ${entity.name}Util
+ * @see ${packagePath}.service.persistence.${entity.name}Util
  * @generated
  */
 @ProviderType
@@ -1769,7 +1769,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 
 			@Override
 			public long getMvccVersion() {
-				return 0;
+				return -1;
 			}
 
 			@Override

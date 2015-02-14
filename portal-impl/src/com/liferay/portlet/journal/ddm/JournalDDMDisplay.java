@@ -42,6 +42,10 @@ import javax.portlet.PortletURL;
  */
 public class JournalDDMDisplay extends BaseDDMDisplay {
 
+	public static final long[] RESOURCE_CLASS_NAME_IDS = new long[] {
+		PortalUtil.getClassNameId(JournalArticle.class)
+	};
+
 	@Override
 	public String getAvailableFields() {
 		return "Liferay.FormBuilder.AVAILABLE_FIELDS.WCM_STRUCTURE";
@@ -68,7 +72,7 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 			String.valueOf(PortalUtil.getClassNameId(DDMStructure.class)));
 		portletURL.setParameter(
 			"classPK", String.valueOf(structure.getStructureId()));
-		portletURL.setParameter("structureId", structure.getStructureKey());
+		portletURL.setParameter("ddmStructureKey", structure.getStructureKey());
 		portletURL.setWindowState(LiferayWindowState.POP_UP);
 
 		return portletURL.toString();
@@ -99,7 +103,17 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 	}
 
 	@Override
+	public long[] getResourceClassNameIds() {
+		return RESOURCE_CLASS_NAME_IDS;
+	}
+
+	@Override
 	public String getResourceName() {
+		return JournalPermission.RESOURCE_NAME;
+	}
+
+	@Override
+	public String getResourceName(long classNameId) {
 		return JournalPermission.RESOURCE_NAME;
 	}
 
@@ -154,13 +168,13 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 		return true;
 	}
 
-	private static Set<String> _templateLanguageTypes =
+	private static final Set<String> _templateLanguageTypes =
 		SetUtil.fromArray(
 			new String[] {
 				TemplateConstants.LANG_TYPE_FTL, TemplateConstants.LANG_TYPE_VM,
 				TemplateConstants.LANG_TYPE_XSL
 			});
-	private static Set<String> _viewTemplateExcludedColumnNames =
+	private static final Set<String> _viewTemplateExcludedColumnNames =
 		SetUtil.fromArray(new String[] {"mode"});
 
 }

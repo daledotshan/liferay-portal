@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermissio
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Tina Tian
@@ -62,32 +61,17 @@ public class ClusterExecutorUtil {
 		return clusterExecutor.execute(clusterRequest);
 	}
 
-	public static void execute(
+	public static FutureClusterResponses execute(
 		ClusterRequest clusterRequest,
 		ClusterResponseCallback clusterResponseCallback) {
 
 		ClusterExecutor clusterExecutor = getClusterExecutor();
 
 		if (clusterExecutor == null) {
-			return;
+			return null;
 		}
 
-		clusterExecutor.execute(clusterRequest, clusterResponseCallback);
-	}
-
-	public static void execute(
-		ClusterRequest clusterRequest,
-		ClusterResponseCallback clusterResponseCallback, long timeout,
-		TimeUnit timeUnit) {
-
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return;
-		}
-
-		clusterExecutor.execute(
-			clusterRequest, clusterResponseCallback, timeout, timeUnit);
+		return clusterExecutor.execute(clusterRequest, clusterResponseCallback);
 	}
 
 	public static ClusterExecutor getClusterExecutor() {
@@ -102,16 +86,6 @@ public class ClusterExecutorUtil {
 		}
 
 		return _clusterExecutor;
-	}
-
-	public static List<Address> getClusterNodeAddresses() {
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return Collections.emptyList();
-		}
-
-		return clusterExecutor.getClusterNodeAddresses();
 	}
 
 	public static List<ClusterNode> getClusterNodes() {
@@ -134,16 +108,6 @@ public class ClusterExecutorUtil {
 		return clusterExecutor.getLocalClusterNode();
 	}
 
-	public static Address getLocalClusterNodeAddress() {
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return null;
-		}
-
-		return clusterExecutor.getLocalClusterNodeAddress();
-	}
-
 	public static void initialize() {
 		ClusterExecutor clusterExecutor = getClusterExecutor();
 
@@ -152,16 +116,6 @@ public class ClusterExecutorUtil {
 		}
 
 		clusterExecutor.initialize();
-	}
-
-	public static boolean isClusterNodeAlive(Address address) {
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return false;
-		}
-
-		return clusterExecutor.isClusterNodeAlive(address);
 	}
 
 	public static boolean isClusterNodeAlive(String clusterNodeId) {
@@ -202,7 +156,8 @@ public class ClusterExecutorUtil {
 		_clusterExecutor = clusterExecutor;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ClusterExecutorUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ClusterExecutorUtil.class);
 
 	private static ClusterExecutor _clusterExecutor;
 

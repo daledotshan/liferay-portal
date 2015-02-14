@@ -65,6 +65,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>FIELDS_FIELD_PNG</td>
+	<td>portal/screenshots/ddm/${key_field}_field_icon.png</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FIELDS_FIELD_UNSELECTABLE</td>
 	<td>//div[@class='tab-content']/div/ul/li[@title='${key_field}' and not(contains(@class,'property-builder-field-draggable'))]/div</td>
 	<td></td>
@@ -237,6 +242,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>FORM_FIELD_PNG</td>
+	<td>portal/screenshots/ddm/form_field_${key_formField}.png</td>
+	<td></td>
+</tr>
+<tr>
 	<td>FORM_FIELD_1_NO_LABEL</td>
 	<td>xpath=(//div[contains(@class,'component form-builder-field')]/div)[1]</td>
 	<td></td>
@@ -370,6 +380,11 @@
 <tr>
 	<td>SETTINGS_CELL_EDITOR_FIELD</td>
 	<td>//input[@name='value']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SETTINGS_CELL_EDITOR_FIELD_ALERT</td>
+	<td>//div[@class='structureFieldName' and @role='alert']</td>
 	<td></td>
 </tr>
 <tr>

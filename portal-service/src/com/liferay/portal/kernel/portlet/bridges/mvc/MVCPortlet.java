@@ -208,6 +208,16 @@ public class MVCPortlet extends LiferayPortlet {
 			portletConfig, actionRequest, actionResponse);
 	}
 
+	public void invokeTaglibDiscussionPagination(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws IOException, PortletException {
+
+		PortletConfig portletConfig = getPortletConfig();
+
+		PortalUtil.invokeTaglibDiscussionPagination(
+			portletConfig, resourceRequest, resourceResponse);
+	}
+
 	@Override
 	public void processAction(
 			ActionRequest actionRequest, ActionResponse actionResponse)
@@ -231,6 +241,13 @@ public class MVCPortlet extends LiferayPortlet {
 			include(
 				path, resourceRequest, resourceResponse,
 				PortletRequest.RESOURCE_PHASE);
+		}
+
+		boolean invokeTaglibDiscussion = GetterUtil.getBoolean(
+			resourceRequest.getParameter("invokeTaglibDiscussion"));
+
+		if (invokeTaglibDiscussion) {
+			invokeTaglibDiscussionPagination(resourceRequest, resourceResponse);
 		}
 		else {
 			super.serveResource(resourceRequest, resourceResponse);
@@ -476,7 +493,7 @@ public class MVCPortlet extends LiferayPortlet {
 		return null;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(MVCPortlet.class);
+	private static final Log _log = LogFactoryUtil.getLog(MVCPortlet.class);
 
 	private ActionCommandCache _actionCommandCache;
 

@@ -20,8 +20,6 @@ import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.portlet.PortletClassLoaderUtil;
-import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.security.lang.DoPrivilegedUtil;
 import com.liferay.portal.spring.hibernate.PortletHibernateConfiguration;
@@ -36,16 +34,11 @@ import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-
 /**
  * @author Shuyang Zhou
  * @author Alexander Chow
  */
-public class PortletSessionFactoryImpl
-	extends SessionFactoryImpl implements BeanFactoryAware {
+public class PortletSessionFactoryImpl extends SessionFactoryImpl {
 
 	@Override
 	public void closeSession(Session session) throws ORMException {
@@ -91,52 +84,30 @@ public class PortletSessionFactoryImpl
 		return wrapSession(session);
 	}
 
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		_beanFactory = beanFactory;
-	}
-
 	public void setDataSource(DataSource dataSource) {
 		_dataSource = dataSource;
 	}
 
 	protected SessionFactory createSessionFactory(DataSource dataSource) {
-		String servletContextName =
-			PortletClassLoaderUtil.getServletContextName();
+		PortletHibernateConfiguration portletHibernateConfiguration =
+			new PortletHibernateConfiguration(
+				getSessionFactoryClassLoader(), dataSource);
 
-		ClassLoader classLoader = getSessionFactoryClassLoader();
+		portletHibernateConfiguration.setDataSource(dataSource);
 
-		PortletClassLoaderUtil.setServletContextName(
-			ClassLoaderPool.getContextName(classLoader));
+		SessionFactory sessionFactory = null;
 
 		try {
-			PortletHibernateConfiguration portletHibernateConfiguration =
-				new PortletHibernateConfiguration();
-
-			portletHibernateConfiguration.setBeanFactory(_beanFactory);
-			portletHibernateConfiguration.setDataSource(dataSource);
-
-			SessionFactory sessionFactory = null;
-
-			try {
-				sessionFactory =
-					portletHibernateConfiguration.buildSessionFactory();
-			}
-			catch (Exception e) {
-				_log.error(e, e);
-
-				return null;
-			}
-
-			return sessionFactory;
+			sessionFactory =
+				portletHibernateConfiguration.buildSessionFactory();
 		}
-		finally {
-			PortletClassLoaderUtil.setServletContextName(servletContextName);
-		}
-	}
+		catch (Exception e) {
+			_log.error(e, e);
 
-	protected BeanFactory getBeanFactory() {
-		return _beanFactory;
+			return null;
+		}
+
+		return sessionFactory;
 	}
 
 	protected DataSource getDataSource() {
@@ -193,12 +164,11 @@ public class PortletSessionFactoryImpl
 		return DoPrivilegedUtil.wrapWhenActive(super.wrapSession(session));
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortletSessionFactoryImpl.class);
 
-	private BeanFactory _beanFactory;
 	private DataSource _dataSource;
-	private Map<DataSource, SessionFactory> _sessionFactories =
-		new HashMap<DataSource, SessionFactory>();
+	private final Map<DataSource, SessionFactory> _sessionFactories =
+		new HashMap<>();
 
 }

@@ -1,7 +1,11 @@
 <definition>
-	<command name="assertClick">
-		<case locator-key1="ARTICLE_MENULIST_VIEW">
-			<execute function="AssertClick#assertTextClickAtAndWait" />
+	<command name="assertTextEquals">
+		<case locator-key1="ARTICLE_TABLE_PRIORITY">
+			<execute function="AssertTextEquals#assertValue" />
+		</case>
+
+		<case locator-key1="SUCCESS_MESSAGE">
+			<execute function="AssertTextEquals#assertPartialText" />
 		</case>
 	</command>
 </definition>

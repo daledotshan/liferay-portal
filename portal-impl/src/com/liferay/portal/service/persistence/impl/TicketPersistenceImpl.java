@@ -59,7 +59,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see TicketPersistence
- * @see TicketUtil
+ * @see com.liferay.portal.service.persistence.TicketUtil
  * @generated
  */
 @ProviderType
@@ -1020,7 +1020,7 @@ public class TicketPersistenceImpl extends BasePersistenceImpl<Ticket>
 		MVCCModel {
 		@Override
 		public long getMvccVersion() {
-			return 0;
+			return -1;
 		}
 
 		@Override
