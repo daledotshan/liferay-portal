@@ -14,16 +14,20 @@
  */
 --%>
 
-<%@ taglib uri="/META-INF/aui.tld" prefix="aui" %>
-<%@ taglib uri="/META-INF/c.tld" prefix="c" %>
-<%@ taglib uri="/META-INF/liferay-portlet-ext.tld" prefix="liferay-portlet" %>
-<%@ taglib uri="/META-INF/liferay-portlet_2_0.tld" prefix="portlet" %>
-<%@ taglib uri="/META-INF/liferay-theme.tld" prefix="liferay-theme" %>
-<%@ taglib uri="/META-INF/liferay-ui.tld" prefix="liferay-ui" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+
+<%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
+<%@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
+<%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
 <%@ page contentType="text/html; charset=UTF-8" %>
 
-<%@ page import="com.liferay.iframe.web.util.IFrameWebKeys" %><%@
+<%@ page import="com.liferay.iframe.web.configuration.IFrameConfiguration" %><%@
+page import="com.liferay.iframe.web.constants.IFrameWebKeys" %><%@
+page import="com.liferay.iframe.web.util.IFrameUtil" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.util.CharPool" %><%@
@@ -33,7 +37,8 @@ page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.util.StringPool" %><%@
 page import="com.liferay.portal.kernel.util.StringUtil" %><%@
-page import="com.liferay.portal.kernel.util.Validator" %>
+page import="com.liferay.portal.kernel.util.Validator" %><%@
+page import="com.liferay.portal.kernel.util.WebKeys" %>
 
 <%@ page import="java.util.ArrayList" %><%@
 page import="java.util.Enumeration" %><%@
@@ -47,13 +52,15 @@ page import="java.util.List" %>
 <%
 WindowState windowState = liferayPortletRequest.getWindowState();
 
+IFrameConfiguration iFrameConfiguration = (IFrameConfiguration)renderRequest.getAttribute(IFrameConfiguration.class.getName());
+
 String src = portletPreferences.getValue("src", StringPool.BLANK);
 
 boolean relative = GetterUtil.getBoolean(portletPreferences.getValue("relative", StringPool.BLANK));
 
-boolean auth = GetterUtil.getBoolean(portletPreferences.getValue("auth", StringPool.BLANK));
-String authType = portletPreferences.getValue("authType", StringPool.BLANK);
-String formMethod = portletPreferences.getValue("formMethod", StringPool.BLANK);
+boolean auth = GetterUtil.getBoolean(portletPreferences.getValue("auth", iFrameConfiguration.auth()));
+String authType = portletPreferences.getValue("authType", iFrameConfiguration.authType());
+String formMethod = portletPreferences.getValue("formMethod", iFrameConfiguration.formMethod());
 String userNameField = portletPreferences.getValue("userNameField", StringPool.BLANK);
 String passwordField = portletPreferences.getValue("passwordField", StringPool.BLANK);
 
@@ -69,7 +76,7 @@ else {
 	password = portletPreferences.getValue("formPassword", StringPool.BLANK);
 }
 
-String hiddenVariables = portletPreferences.getValue("hiddenVariables", StringPool.BLANK);
+String hiddenVariables = portletPreferences.getValue("hiddenVariables", iFrameConfiguration.hiddenVariables());
 boolean resizeAutomatically = GetterUtil.getBoolean(portletPreferences.getValue("resizeAutomatically", StringPool.TRUE));
 String heightMaximized = GetterUtil.getString(portletPreferences.getValue("heightMaximized", "600"));
 String heightNormal = GetterUtil.getString(portletPreferences.getValue("heightNormal", "600"));

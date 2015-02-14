@@ -59,7 +59,7 @@ import java.util.Set;
  *
  * @author Brian Wing Shun Chan
  * @see BackgroundTaskPersistence
- * @see BackgroundTaskUtil
+ * @see com.liferay.portal.service.persistence.BackgroundTaskUtil
  * @generated
  */
 @ProviderType
@@ -7889,7 +7889,7 @@ public class BackgroundTaskPersistenceImpl extends BasePersistenceImpl<Backgroun
 		MVCCModel {
 		@Override
 		public long getMvccVersion() {
-			return 0;
+			return -1;
 		}
 
 		@Override

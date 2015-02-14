@@ -14,7 +14,7 @@
 
 package com.liferay.taglib.util;
 
-import com.liferay.portal.kernel.template.Template;
+import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.taglib.aui.ColumnTag;
@@ -27,6 +27,7 @@ import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
+import com.liferay.taglib.ui.MenuTag;
 import com.liferay.taglib.ui.MySitesTag;
 import com.liferay.taglib.ui.PngImageTag;
 import com.liferay.taglib.ui.QuickAccessTag;
@@ -147,6 +148,8 @@ public interface VelocityTaglib {
 
 	public LayoutTag getLayoutTag() throws Exception;
 
+	public MenuTag getMenuTag() throws Exception;
+
 	public MySitesTag getMySitesTag() throws Exception;
 
 	public PageContext getPageContext();
@@ -262,7 +265,7 @@ public interface VelocityTaglib {
 	public void include(String page) throws Exception;
 
 	public void journalArticle(
-			String articleId, long groupId, String templateId)
+			String articleId, long groupId, String ddmTemplateKey)
 		throws Exception;
 
 	public void journalContentSearch() throws Exception;
@@ -284,6 +287,8 @@ public interface VelocityTaglib {
 		throws Exception;
 
 	public void layoutIcon(Layout layout) throws Exception;
+
+	public void menu(Menu menu) throws Exception;
 
 	public void metaTags() throws Exception;
 
@@ -406,8 +411,6 @@ public interface VelocityTaglib {
 		throws Exception;
 
 	public void search() throws Exception;
-
-	public void setTemplate(Template template);
 
 	public void sitesDirectory() throws Exception;
 

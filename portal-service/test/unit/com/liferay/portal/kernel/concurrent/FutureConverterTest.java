@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.concurrent;
 
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -34,8 +34,8 @@ import org.junit.Test;
 public class FutureConverterTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@Test
 	public void testCancelInner() throws Exception {

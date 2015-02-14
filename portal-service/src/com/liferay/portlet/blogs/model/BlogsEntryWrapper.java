@@ -70,6 +70,8 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 		attributes.put("allowPingbacks", getAllowPingbacks());
 		attributes.put("allowTrackbacks", getAllowTrackbacks());
 		attributes.put("trackbacks", getTrackbacks());
+		attributes.put("coverImageFileEntryId", getCoverImageFileEntryId());
+		attributes.put("coverImageURL", getCoverImageURL());
 		attributes.put("smallImage", getSmallImage());
 		attributes.put("smallImageFileEntryId", getSmallImageFileEntryId());
 		attributes.put("smallImageId", getSmallImageId());
@@ -186,6 +188,19 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 			setTrackbacks(trackbacks);
 		}
 
+		Long coverImageFileEntryId = (Long)attributes.get(
+				"coverImageFileEntryId");
+
+		if (coverImageFileEntryId != null) {
+			setCoverImageFileEntryId(coverImageFileEntryId);
+		}
+
+		String coverImageURL = (String)attributes.get("coverImageURL");
+
+		if (coverImageURL != null) {
+			setCoverImageURL(coverImageURL);
+		}
+
 		Boolean smallImage = (Boolean)attributes.get("smallImage");
 
 		if (smallImage != null) {
@@ -296,6 +311,33 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	}
 
 	/**
+	* Returns the cover image file entry ID of this blogs entry.
+	*
+	* @return the cover image file entry ID of this blogs entry
+	*/
+	@Override
+	public long getCoverImageFileEntryId() {
+		return _blogsEntry.getCoverImageFileEntryId();
+	}
+
+	/**
+	* Returns the cover image u r l of this blogs entry.
+	*
+	* @return the cover image u r l of this blogs entry
+	*/
+	@Override
+	public java.lang.String getCoverImageURL() {
+		return _blogsEntry.getCoverImageURL();
+	}
+
+	@Override
+	public java.lang.String getCoverImageURL(
+		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _blogsEntry.getCoverImageURL(themeDisplay);
+	}
+
+	/**
 	* Returns the create date of this blogs entry.
 	*
 	* @return the create date of this blogs entry
@@ -335,6 +377,11 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 		return _blogsEntry.getEntryId();
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getSmallImageURL(
+	ThemeDisplay)}
+	*/
+	@Deprecated
 	@Override
 	public java.lang.String getEntryImageURL(
 		com.liferay.portal.theme.ThemeDisplay themeDisplay) {
@@ -401,11 +448,6 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 		return _blogsEntry.getSmallImageFileEntryId();
 	}
 
-	@Override
-	public long getSmallImageFolderId() {
-		return _blogsEntry.getSmallImageFolderId();
-	}
-
 	/**
 	* Returns the small image ID of this blogs entry.
 	*
@@ -430,6 +472,13 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	@Override
 	public java.lang.String getSmallImageURL() {
 		return _blogsEntry.getSmallImageURL();
+	}
+
+	@Override
+	public java.lang.String getSmallImageURL(
+		com.liferay.portal.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _blogsEntry.getSmallImageURL(themeDisplay);
 	}
 
 	/**
@@ -806,6 +855,26 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	@Override
 	public void setContent(java.lang.String content) {
 		_blogsEntry.setContent(content);
+	}
+
+	/**
+	* Sets the cover image file entry ID of this blogs entry.
+	*
+	* @param coverImageFileEntryId the cover image file entry ID of this blogs entry
+	*/
+	@Override
+	public void setCoverImageFileEntryId(long coverImageFileEntryId) {
+		_blogsEntry.setCoverImageFileEntryId(coverImageFileEntryId);
+	}
+
+	/**
+	* Sets the cover image u r l of this blogs entry.
+	*
+	* @param coverImageURL the cover image u r l of this blogs entry
+	*/
+	@Override
+	public void setCoverImageURL(java.lang.String coverImageURL) {
+		_blogsEntry.setCoverImageURL(coverImageURL);
 	}
 
 	/**

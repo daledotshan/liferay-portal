@@ -70,7 +70,7 @@ public class LiferayPackageAutoDeployer implements AutoDeployer {
 
 			zipFile = new ZipFile(file);
 
-			List<String> fileNames = new ArrayList<String>(zipFile.size());
+			List<String> fileNames = new ArrayList<>(zipFile.size());
 			String propertiesString = null;
 
 			Enumeration<? extends ZipEntry> enu = zipFile.entries();
@@ -134,7 +134,7 @@ public class LiferayPackageAutoDeployer implements AutoDeployer {
 		return new LiferayPackageAutoDeployer();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		LiferayPackageAutoDeployer.class);
 
 	private final String _baseDir;
