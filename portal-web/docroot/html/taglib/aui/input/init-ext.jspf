@@ -38,7 +38,7 @@ else if (Validator.isNotNull(title)) {
 }
 
 boolean checkboxField = baseType.equals("checkbox") || baseType.equals("boolean");
-boolean choiceField = checkboxField || baseType.equals("radio");
+boolean radioField = baseType.equals("radio");
 
 boolean showForLabel = true;
 
@@ -46,7 +46,7 @@ if (type.equals("assetCategories") || baseType.equals(Date.class.getName())) {
 	showForLabel = false;
 }
 
-if (choiceField && Validator.isNull(inlineLabel)) {
+if ((radioField || checkboxField) && Validator.isNull(inlineLabel)) {
 	inlineLabel = "right";
 }
 
@@ -65,11 +65,15 @@ if (baseType.equals("email") || baseType.equals("password") || baseType.equals("
 	fieldCssClass += " form-control";
 }
 
+if (type.equals("switch")) {
+	fieldCssClass += " switch";
+}
+
 boolean useInputWrapper = true;
 
 String inputWrapperClass = controlGroupCssClass;
 
-if (choiceField) {
+if (radioField) {
 	inputWrapperClass = baseTypeCssClass;
 
 	if (Validator.isNull(label)) {

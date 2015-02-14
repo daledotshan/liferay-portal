@@ -98,7 +98,7 @@ public class DDMStructureStagedModelDataHandler
 	public Map<String, String> getReferenceAttributes(
 		PortletDataContext portletDataContext, DDMStructure structure) {
 
-		Map<String, String> referenceAttributes = new HashMap<String, String>();
+		Map<String, String> referenceAttributes = new HashMap<>();
 
 		referenceAttributes.put(
 			"referenced-class-name", structure.getClassName());
@@ -278,25 +278,26 @@ public class DDMStructureStagedModelDataHandler
 					userId, portletDataContext.getScopeGroupId(),
 					parentStructureId, structure.getClassNameId(),
 					structure.getStructureKey(), structure.getNameMap(),
-					structure.getDescriptionMap(), structure.getDefinition(),
-					structure.getStorageType(), structure.getType(),
-					serviceContext);
+					structure.getDescriptionMap(), structure.getDDMForm(),
+					structure.getDDMFormLayout(), structure.getStorageType(),
+					structure.getType(), serviceContext);
 			}
 			else {
 				importedStructure =
 					DDMStructureLocalServiceUtil.updateStructure(
 						existingStructure.getStructureId(), parentStructureId,
 						structure.getNameMap(), structure.getDescriptionMap(),
-						structure.getDefinition(), serviceContext);
+						structure.getDDMForm(), structure.getDDMFormLayout(),
+						serviceContext);
 			}
 		}
 		else {
 			importedStructure = DDMStructureLocalServiceUtil.addStructure(
 				userId, portletDataContext.getScopeGroupId(), parentStructureId,
 				structure.getClassNameId(), null, structure.getNameMap(),
-				structure.getDescriptionMap(), structure.getDefinition(),
-				structure.getStorageType(), structure.getType(),
-				serviceContext);
+				structure.getDescriptionMap(), structure.getDDMForm(),
+				structure.getDDMFormLayout(), structure.getStorageType(),
+				structure.getType(), serviceContext);
 		}
 
 		portletDataContext.importClassedModel(structure, importedStructure);

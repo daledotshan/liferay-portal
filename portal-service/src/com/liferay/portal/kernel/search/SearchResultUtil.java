@@ -52,7 +52,7 @@ public class SearchResultUtil {
 		Hits hits, Locale locale, PortletURL portletURL,
 		PortletRequest portletRequest, PortletResponse portletResponse) {
 
-		List<SearchResult> searchResults = new ArrayList<SearchResult>();
+		List<SearchResult> searchResults = new ArrayList<>();
 
 		for (Document document : hits.getDocs()) {
 			String entryClassName = GetterUtil.getString(
@@ -205,6 +205,7 @@ public class SearchResultUtil {
 
 	protected static final int SUMMARY_MAX_CONTENT_LENGTH = 200;
 
-	private static Log _log = LogFactoryUtil.getLog(SearchResultUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		SearchResultUtil.class);
 
 }

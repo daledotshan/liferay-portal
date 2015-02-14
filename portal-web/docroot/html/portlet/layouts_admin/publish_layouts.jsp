@@ -71,6 +71,8 @@ if ((liveGroup.isStaged() && liveGroup.isStagedRemotely()) || cmd.equals(Constan
 	localPublishing = false;
 }
 
+boolean quickPublish = ParamUtil.getBoolean(request, "quickPublish");
+
 String treeId = "liveLayoutsTree";
 
 if (liveGroup.isStaged()) {
@@ -106,7 +108,24 @@ catch (NoSuchLayoutException nsle) {
 
 treeId = treeId + privateLayout + layoutSetBranchId;
 
-long[] selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(SessionTreeJSClicks.getOpenNodes(request, treeId + "SelectedNode"), ','));
+long[] selectedLayoutIds = null;
+
+String openNodes = SessionTreeJSClicks.getOpenNodes(request, treeId + "SelectedNode");
+
+if (openNodes == null) {
+	List<Layout> stagingGroupLayouts = LayoutLocalServiceUtil.getLayouts(stagingGroupId, privateLayout);
+
+	selectedLayoutIds = new long[stagingGroupLayouts.size()];
+
+	for (int i = 0; i < stagingGroupLayouts.size(); i++) {
+		Layout stagingGroupLayout = stagingGroupLayouts.get(i);
+
+		selectedLayoutIds[i] = stagingGroupLayout.getLayoutId();
+	}
+}
+else {
+	selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(openNodes, ','));
+}
 
 UnicodeProperties liveGroupTypeSettings = liveGroup.getTypeSettingsProperties();
 
@@ -118,7 +137,7 @@ if (group.isStaged() && group.isStagedRemotely()) {
 
 portletURL.setParameter("struts_action", "/layouts_admin/publish_layouts");
 portletURL.setParameter("closeRedirect", closeRedirect);
-portletURL.setParameter("groupId", String.valueOf(liveGroupId));
+portletURL.setParameter("groupId", String.valueOf(stagingGroupId));
 portletURL.setParameter("stagingGroupId", String.valueOf(stagingGroupId));
 portletURL.setParameter("privateLayout", String.valueOf(privateLayout));
 
@@ -162,7 +181,7 @@ String tabs2Names = StringPool.BLANK;
 if (cmd.equals("view_processes")) {
 	tabs2Names = "current-and-previous";
 }
-else {
+else if (!quickPublish) {
 	tabs2Names = "new-publication-process,current-and-previous,scheduled";
 }
 %>
@@ -174,7 +193,7 @@ else {
 	param="tabs2"
 	refresh="<%= false %>"
 >
-	<c:if test='<%= !cmd.equals("view_processes") %>'>
+	<c:if test='<%= !cmd.equals("view_processes") && !quickPublish %>'>
 		<liferay-ui:section>
 			<div <%= (!cmd.equals(Constants.ADD) && !cmd.equals(Constants.UPDATE)) ? StringPool.BLANK : "class=\"hide\"" %>>
 				<aui:nav-bar>
@@ -379,7 +398,7 @@ else {
 		</div>
 	</liferay-ui:section>
 
-	<c:if test='<%= !cmd.equals("view_processes") %>'>
+	<c:if test='<%= !cmd.equals("view_processes") && !quickPublish %>'>
 		<liferay-ui:section>
 
 			<%
@@ -401,28 +420,15 @@ else {
 </liferay-ui:tabs>
 
 <aui:script>
-	Liferay.provide(
-		window,
-		'<portlet:namespace />publishPages',
-		function() {
-			if (confirm('<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-" + publishActionKey + "-these-pages") %>')) {
-				var A = AUI();
+	function <portlet:namespace />publishPages() {
+		var form = AUI.$(document.<portlet:namespace />exportPagesFm);
 
-				var allContentRadioChecked = A.one('#<portlet:namespace />allContent').attr('checked');
+		if (form.fm('allContent').prop('checked')) {
+			form.fm('<%= PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT %>').val(true);
+		}
 
-				if (allContentRadioChecked) {
-					var selectedContents = A.one('#<portlet:namespace />selectContents');
-
-					var portletDataControlDefault = A.one('#<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT %>');
-
-					portletDataControlDefault.val(true);
-				}
-
-				submitForm(document.<portlet:namespace />exportPagesFm);
-			}
-		},
-		['aui-base']
-	);
+		submitForm(form);
+	}
 
 	Liferay.Util.toggleRadio('<portlet:namespace />allApplications', '<portlet:namespace />showChangeGlobalConfiguration', ['<portlet:namespace />selectApplications']);
 	Liferay.Util.toggleRadio('<portlet:namespace />allContent', '<portlet:namespace />showChangeGlobalContent', ['<portlet:namespace />selectContents']);
@@ -469,9 +475,9 @@ else {
 			ratingsNode: '#<%= PortletDataHandlerKeys.RATINGS %>',
 			remoteAddressNode: '#<portlet:namespace />remoteAddress',
 			remoteDeletePortletDataNode: '#remoteDeletePortletData',
-			remotePortNode: '#<portlet:namespace />remotePort',
-			remotePathContextNode: '#<portlet:namespace />remotePathContext',
 			remoteGroupIdNode: '#<portlet:namespace />remoteGroupId',
+			remotePathContextNode: '#<portlet:namespace />remotePathContext',
+			remotePortNode: '#<portlet:namespace />remotePort',
 			secureConnectionNode: '#secureConnection',
 			setupNode: '#<%= PortletDataHandlerKeys.PORTLET_SETUP_ALL %>',
 			themeReferenceNode: '#<%= PortletDataHandlerKeys.THEME_REFERENCE %>',
@@ -501,5 +507,9 @@ else {
 		}
 	};
 
-	A.one('#<portlet:namespace />publishConfigurationButtons').delegate('click', clickHandler, 'li a');
+	var publishConfigurationButtons = A.one('#<portlet:namespace />publishConfigurationButtons');
+
+	if (publishConfigurationButtons) {
+		publishConfigurationButtons.delegate('click', clickHandler, 'li a');
+	}
 </aui:script>

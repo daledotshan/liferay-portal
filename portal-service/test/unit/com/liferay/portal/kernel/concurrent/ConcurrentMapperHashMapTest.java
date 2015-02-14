@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -17,7 +16,7 @@ package com.liferay.portal.kernel.concurrent;
 
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
-import com.liferay.portal.kernel.test.CodeCoverageAssertor;
+import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.util.SetUtil;
 
 import java.io.ObjectInputStream;
@@ -46,8 +45,8 @@ import org.junit.Test;
 public class ConcurrentMapperHashMapTest {
 
 	@ClassRule
-	public static CodeCoverageAssertor codeCoverageAssertor =
-		new CodeCoverageAssertor();
+	public static final CodeCoverageAssertor codeCoverageAssertor =
+		CodeCoverageAssertor.INSTANCE;
 
 	@After
 	public void tearDown() {
@@ -890,7 +889,7 @@ public class ConcurrentMapperHashMapTest {
 	}
 
 	protected Map<Key, Value> _createDataMap() {
-		Map<Key, Value> map = new HashMap<Key, Value>();
+		Map<Key, Value> map = new HashMap<>();
 
 		map.put(_testKey, _testValue);
 		map.put(new Key("testKey2"), _testValue2);
@@ -908,7 +907,7 @@ public class ConcurrentMapperHashMapTest {
 
 	private static final Queue<Event> _eventQueue =  new LinkedList<Event>();
 
-	private ConcurrentMap<Key, Value> _concurrentMap =
+	private final ConcurrentMap<Key, Value> _concurrentMap =
 		new ConcurrentTypeReferenceHashMap();
 	private final Key _testKey = new Key("testKey");
 	private final Value _testValue = new Value("testValue");

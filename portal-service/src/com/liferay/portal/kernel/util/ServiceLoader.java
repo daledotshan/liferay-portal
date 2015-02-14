@@ -66,7 +66,7 @@ public class ServiceLoader {
 		Enumeration<URL> enu = classLoader.getResources(
 			"META-INF/services/" + clazz.getName());
 
-		List<S> services = new ArrayList<S>();
+		List<S> services = new ArrayList<>();
 
 		while (enu.hasMoreElements()) {
 			URL url = enu.nextElement();
@@ -133,9 +133,9 @@ public class ServiceLoader {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(ServiceLoader.class);
+	private static final Log _log = LogFactoryUtil.getLog(ServiceLoader.class);
 
-	private static ServiceLoaderCondition _serviceLoaderCondition =
+	private static final ServiceLoaderCondition _serviceLoaderCondition =
 		new DefaultServiceLoaderCondition();
 
 }

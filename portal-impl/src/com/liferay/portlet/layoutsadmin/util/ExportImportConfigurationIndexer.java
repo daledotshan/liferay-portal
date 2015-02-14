@@ -16,26 +16,27 @@ package com.liferay.portlet.layoutsadmin.util;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.search.BaseIndexer;
+import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.service.ExportImportConfigurationLocalServiceUtil;
-import com.liferay.portal.util.PortletKeys;
 
 import java.io.Serializable;
 
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 import javax.portlet.PortletRequest;
@@ -44,22 +45,51 @@ import javax.portlet.PortletURL;
 
 /**
  * @author Mate Thurzo
+ * @author Akos Thurzo
  */
+@OSGiBeanProperties
 public class ExportImportConfigurationIndexer extends BaseIndexer {
 
-	public static final String[] CLASS_NAMES =
-		{ExportImportConfiguration.class.getName()};
+	public static final String CLASS_NAME =
+		ExportImportConfiguration.class.getName();
 
-	public static final String PORTLET_ID = PortletKeys.LAYOUTS_ADMIN;
-
-	@Override
-	public String[] getClassNames() {
-		return CLASS_NAMES;
+	public ExportImportConfigurationIndexer() {
+		setCommitImmediately(true);
 	}
 
 	@Override
-	public String getPortletId() {
-		return PORTLET_ID;
+	public String getClassName() {
+		return CLASS_NAME;
+	}
+
+	@Override
+	public void postProcessContextQuery(
+			BooleanQuery contextQuery, SearchContext searchContext)
+		throws Exception {
+
+		contextQuery.addRequiredTerm(
+			Field.COMPANY_ID, searchContext.getCompanyId());
+		contextQuery.addRequiredTerm(
+			Field.GROUP_ID,
+			GetterUtil.getLong(searchContext.getAttribute(Field.GROUP_ID)));
+
+		Serializable type = searchContext.getAttribute(Field.TYPE);
+
+		if (type != null) {
+			contextQuery.addRequiredTerm(
+				Field.TYPE, GetterUtil.getInteger(type));
+		}
+	}
+
+	@Override
+	public void postProcessSearchQuery(
+			BooleanQuery searchQuery, SearchContext searchContext)
+		throws Exception {
+
+		addSearchTerm(searchQuery, searchContext, Field.DESCRIPTION, true);
+		addSearchTerm(
+			searchQuery, searchContext, "exportImportConfigurationId", false);
+		addSearchTerm(searchQuery, searchContext, Field.NAME, true);
 	}
 
 	@Override
@@ -78,12 +108,15 @@ public class ExportImportConfigurationIndexer extends BaseIndexer {
 			(ExportImportConfiguration)obj;
 
 		Document document = getBaseModelDocument(
-			PORTLET_ID, exportImportConfiguration);
+			CLASS_NAME, exportImportConfiguration);
 
 		document.addText(
 			Field.DESCRIPTION, exportImportConfiguration.getDescription());
 		document.addText(Field.NAME, exportImportConfiguration.getName());
 		document.addKeyword(Field.TYPE, exportImportConfiguration.getType());
+		document.addNumber(
+			"exportImportConfigurationId",
+			exportImportConfiguration.getExportImportConfigurationId());
 
 		Map<String, Serializable> settingsMap =
 			exportImportConfiguration.getSettingsMap();
@@ -152,11 +185,6 @@ public class ExportImportConfigurationIndexer extends BaseIndexer {
 		reindexExportImportConfigurations(companyId);
 	}
 
-	@Override
-	protected String getPortletId(SearchContext searchContext) {
-		return PORTLET_ID;
-	}
-
 	protected void populateDates(
 		Document document, Map<String, Serializable> settingsMap) {
 
@@ -176,16 +204,25 @@ public class ExportImportConfigurationIndexer extends BaseIndexer {
 	protected void populateLayoutIds(
 		Document document, Map<String, Serializable> settingsMap) {
 
-		if (!settingsMap.containsKey("layoutIdMap")) {
+		if (!settingsMap.containsKey("layoutIdMap") &&
+			!settingsMap.containsKey("layoutIds")) {
+
 			return;
 		}
 
-		Map<Long, Boolean> layoutIdMap = (Map<Long, Boolean>)settingsMap.get(
-			"layoutIdMap");
+		long[] layoutIds = GetterUtil.getLongValues(
+			settingsMap.get("layoutIds"));
 
-		Set<Long> layoutIdSet = layoutIdMap.keySet();
+		if (ArrayUtil.isEmpty(layoutIds)) {
+			Map<Long, Boolean> layoutIdMap =
+				(Map<Long, Boolean>)settingsMap.get("layoutIdMap");
 
-		Long[] layoutIds = layoutIdSet.toArray(new Long[layoutIdSet.size()]);
+			try {
+				layoutIds = ExportImportHelperUtil.getLayoutIds(layoutIdMap);
+			}
+			catch (PortalException pe) {
+			}
+		}
 
 		document.addKeyword("layoutIds", layoutIds);
 	}

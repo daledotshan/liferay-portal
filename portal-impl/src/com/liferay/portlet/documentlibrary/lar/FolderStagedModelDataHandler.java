@@ -36,8 +36,8 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Repository;
 import com.liferay.portal.model.RepositoryEntry;
-import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
+import com.liferay.portal.repository.portletrepository.PortletRepository;
 import com.liferay.portal.service.RepositoryLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
@@ -127,10 +127,10 @@ public class FolderStagedModelDataHandler
 			portletDataContext.addClassedModel(
 				folderElement, folderPath, folder);
 
-			long liferayRepositoryClassNameId = PortalUtil.getClassNameId(
-				LiferayRepository.class.getName());
+			long portletRepositoryClassNameId = PortalUtil.getClassNameId(
+				PortletRepository.class.getName());
 
-			if (repository.getClassNameId() != liferayRepositoryClassNameId) {
+			if (repository.getClassNameId() != portletRepositoryClassNameId) {
 				return;
 			}
 		}
@@ -332,12 +332,6 @@ public class FolderStagedModelDataHandler
 			"defaultFileEntryTypeUuid", defaultFileEntryTypeUuid);
 	}
 
-	/**
-	 * @see com.liferay.portal.lar.PortletImporter#getAssetCategoryName(String,
-	 *      long, long, String, long, int)
-	 * @see com.liferay.portal.lar.PortletImporter#getAssetVocabularyName(
-	 *      String, long, String, int)
-	 */
 	protected String getFolderName(
 			String uuid, long groupId, long parentFolderId, String name,
 			int count)
@@ -367,7 +361,7 @@ public class FolderStagedModelDataHandler
 			return;
 		}
 
-		List<Long> currentFolderFileEntryTypeIds = new ArrayList<Long>();
+		List<Long> currentFolderFileEntryTypeIds = new ArrayList<>();
 
 		String defaultFileEntryTypeUuid = GetterUtil.getString(
 			folderElement.attributeValue("defaultFileEntryTypeUuid"));
@@ -420,7 +414,9 @@ public class FolderStagedModelDataHandler
 			DLFolder dlFolder = (DLFolder)importedFolder.getModel();
 
 			dlFolder.setDefaultFileEntryTypeId(defaultFileEntryTypeId);
-			dlFolder.setOverrideFileEntryTypes(true);
+			dlFolder.setRestrictionType(
+				DLFolderConstants.
+					RESTRICTION_TYPE_FILE_ENTRY_TYPES_AND_WORKFLOW);
 
 			DLFolderLocalServiceUtil.updateDLFolder(dlFolder);
 
@@ -474,7 +470,7 @@ public class FolderStagedModelDataHandler
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		FolderStagedModelDataHandler.class);
 
 }

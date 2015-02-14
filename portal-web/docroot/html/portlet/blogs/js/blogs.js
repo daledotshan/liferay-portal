@@ -3,13 +3,24 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang;
 
+		var STR_BLANK = '';
+
+		var STR_CHANGE = 'change';
+
 		var STR_CLICK = 'click';
+
+		var STR_SUFFIX = '...';
 
 		var Blogs = A.Component.create(
 			{
 				ATTRS: {
 					constants: {
 						validator: Lang.isObject
+					},
+
+					descriptionLength: {
+						validator: Lang.isNumber,
+						value: 400
 					},
 
 					editEntryURL: {
@@ -27,6 +38,7 @@ AUI.add(
 					strings: {
 						validator: Lang.isObject,
 						value: {
+							confirmDiscardImages: Liferay.Language.get('uploads-are-in-progress-confirmation'),
 							savedAtMessage: Liferay.Language.get('entry-saved-at-x'),
 							savedDraftAtMessage: Liferay.Language.get('draft-saved-at-x'),
 							saveDraftError: Liferay.Language.get('could-not-save-draft-to-the-server'),
@@ -58,6 +70,13 @@ AUI.add(
 						if (!entry || (userEntry && draftEntry)) {
 							instance._initDraftSaveInterval();
 						}
+
+						var customDescriptionEnabled = entry && entry.customDescription;
+
+						instance._customDescription = customDescriptionEnabled ? entry.description : STR_BLANK;
+						instance._shortenDescription = !customDescriptionEnabled;
+
+						instance.setDescription(window[instance.ns('contentEditor')].getHTML());
 					},
 
 					destructor: function() {
@@ -70,6 +89,18 @@ AUI.add(
 						(new A.EventHandle(instance._eventHandles)).detach();
 					},
 
+					setDescription: function(text) {
+						var instance = this;
+
+						var description = instance._customDescription;
+
+						if (instance._shortenDescription) {
+							description = instance._shorten(text);
+						}
+
+						window[instance.ns('descriptionEditor')].setHTML(description);
+					},
+
 					_bindUI: function() {
 						var instance = this;
 
@@ -79,7 +110,7 @@ AUI.add(
 
 						if (publishButton) {
 							eventHandles.push(
-								publishButton.on(STR_CLICK, A.bind('_saveEntry', instance, false, false))
+								publishButton.on(STR_CLICK, A.bind('_checkImagesBeforeSave', instance, false, false))
 							);
 						}
 
@@ -87,7 +118,7 @@ AUI.add(
 
 						if (saveButton) {
 							eventHandles.push(
-								saveButton.on(STR_CLICK, A.bind('_saveEntry', instance, true, false))
+								saveButton.on(STR_CLICK, A.bind('_checkImagesBeforeSave', instance, true, false))
 							);
 						}
 
@@ -99,7 +130,55 @@ AUI.add(
 							);
 						}
 
+						var customAbstractOptions = instance.one('#entryAbstractOptions');
+
+						if (customAbstractOptions) {
+							eventHandles.push(
+								customAbstractOptions.delegate(STR_CHANGE, instance._configureAbstract, 'input[type="radio"]', instance)
+							);
+						}
+
 						instance._eventHandles = eventHandles;
+					},
+
+					_checkImagesBeforeSave: function(draft, ajax) {
+						var instance = this;
+
+						if (instance._hasTempImages()) {
+							if (confirm(instance.get('strings').confirmDiscardImages)) {
+
+								instance._getTempImages().each(
+									function(node) {
+										node.ancestor().remove();
+									}
+								);
+
+								instance._saveEntry(draft, ajax);
+							}
+						}
+						else {
+							instance._saveEntry(draft, ajax);
+						}
+					},
+
+					_configureAbstract: function(event) {
+						var instance = this;
+
+						var target = event.target;
+
+						var description = instance._customDescription;
+
+						instance._shortenDescription = (target.val() === 'false');
+
+						if (instance._shortenDescription) {
+							instance._customDescription = window[instance.ns('descriptionEditor')].getHTML();
+
+							description = window[instance.ns('contentEditor')].getHTML();
+						}
+
+						instance._setDescriptionReadOnly(instance._shortenDescription);
+
+						instance.setDescription(description);
 					},
 
 					_getPrincipalForm: function(formName) {
@@ -108,22 +187,38 @@ AUI.add(
 						return instance.one('form[name=' + instance.ns(formName || 'fm') + ']');
 					},
 
+					_getTempImages: function() {
+						var instance = this;
+
+						return instance.all('img[data-random-id]');
+					},
+
+					_hasTempImages: function() {
+						var instance = this;
+
+						return instance._getTempImages().size() > 0;
+					},
+
 					_initDraftSaveInterval: function() {
 						var instance = this;
 
 						instance._saveDraftTimer = A.later(
 							instance.get('saveInterval'),
 							instance,
-							instance._saveEntry,
-							[true, true],
+							function() {
+								if (!instance._hasTempImages()) {
+									instance._saveEntry(true, true);
+								}
+							},
+							null,
 							true
 						);
 
 						var entry = instance.get('entry');
 
-						instance._oldContent = entry ? entry.content : '';
-						instance._oldSubtitle = entry ? entry.subtitle : '';
-						instance._oldTitle = entry ? entry.title : '';
+						instance._oldContent = entry ? entry.content : STR_BLANK;
+						instance._oldSubtitle = entry ? entry.subtitle : STR_BLANK;
+						instance._oldTitle = entry ? entry.title : STR_BLANK;
 					},
 
 					_previewEntry: function() {
@@ -142,6 +237,12 @@ AUI.add(
 
 						if (contentEditor) {
 							instance.one('#content').val(contentEditor.getHTML());
+						}
+
+						var descriptionEditor = window[instance.ns('descriptionEditor')];
+
+						if (descriptionEditor) {
+							instance.one('#description').val(descriptionEditor.getHTML());
 						}
 
 						var subtitleEditor = window[instance.ns('subtitleEditor')];
@@ -168,11 +269,12 @@ AUI.add(
 						var title = window[instance.ns('titleEditor')].getHTML();
 						var subtitle = window[instance.ns('subtitleEditor')].getHTML();
 						var content = window[instance.ns('contentEditor')].getHTML();
+						var description = window[instance.ns('descriptionEditor')].getHTML();
 
 						var form = instance._getPrincipalForm();
 
 						if (draft && ajax) {
-							var hasData = (content !== '') && (title !== '');
+							var hasData = (content !== STR_BLANK) && (title !== STR_BLANK);
 
 							var hasChanged = (instance._oldContent !== content) || (instance._oldSubtitle !== subtitle) || (instance._oldTitle !== title);
 
@@ -181,8 +283,13 @@ AUI.add(
 
 								var saveStatus = instance.one('#saveStatus');
 
+								var allowPingbacks = instance.one('#allowPingbacks');
+								var allowTrackbacks = instance.one('#allowTrackbacks');
+
 								var data = instance.ns(
 									{
+										'allowPingbacks': allowPingbacks && allowPingbacks.val(),
+										'allowTrackbacks': allowTrackbacks && allowTrackbacks.val(),
 										'assetTagNames': instance.one('#assetTagNames').val(),
 										'cmd': constants.ADD,
 										'content': content,
@@ -231,7 +338,14 @@ AUI.add(
 
 												if (message) {
 													instance.one('#entryId').val(message.entryId);
-													instance.one('#redirect').val(message.redirect);
+
+													if (message.updateRedirect) {
+														instance.one('#redirect').val(message.redirect);
+													}
+
+													if (message.blogsEntryAttachmentReferences) {
+														instance._updateImages(message.blogsEntryAttachmentReferences);
+													}
 
 													var tabs1BackButton = instance.one('#tabs1TabsBack');
 
@@ -272,11 +386,56 @@ AUI.add(
 							instance.one('#title').val(title);
 							instance.one('#subtitle').val(subtitle);
 							instance.one('#content').val(content);
+							instance.one('#description').val(description);
 
 							instance.one('#workflowAction').val(draft ? constants.ACTION_SAVE_DRAFT : constants.ACTION_PUBLISH);
 
 							submitForm(form);
 						}
+					},
+
+					_setDescriptionReadOnly: function(readOnly) {
+						var instance = this;
+
+						var descriptionEditorNode = instance.one('#descriptionEditor');
+
+						descriptionEditorNode.attr('contenteditable', !readOnly);
+						descriptionEditorNode.toggleClass('readonly', readOnly);
+					},
+
+					_shorten: function(text) {
+						var instance = this;
+
+						var descriptionLength = instance.get('descriptionLength');
+
+						if (text.length > descriptionLength) {
+							text = text.substring(0, descriptionLength);
+
+							if (STR_SUFFIX.length < descriptionLength) {
+								var spaceIndex = text.lastIndexOf(' ', (descriptionLength - STR_SUFFIX.length));
+
+								text = text.substring(0, spaceIndex).concat(STR_SUFFIX);
+							}
+						}
+
+						return text;
+					},
+
+					_updateImages: function(persistentImages) {
+						var instance = this;
+
+						A.Array.each(
+							persistentImages,
+							function(item, index) {
+								var el = instance.one('img[' + item.attributeDataImageId + '="' + item.fileEntryId + '"]');
+
+								if (el) {
+									el.attr('src', item.fileEntryUrl);
+
+									el.removeAttribute(item.attributeDataImageId);
+								}
+							}
+						);
 					},
 
 					_updateStatus: function(text, className) {

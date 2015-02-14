@@ -28,7 +28,7 @@ import java.util.Set;
 public class UnmodifiableDictionaryMap <K, V> implements Map<K, V> {
 
 	public UnmodifiableDictionaryMap(Dictionary<K, V> dictionary) {
-		Map<K, V> map = new HashMap<K, V>();
+		Map<K, V> map = new HashMap<>();
 
 		if (dictionary != null) {
 			for (Enumeration<K> enumeration = dictionary.keys();
@@ -103,6 +103,6 @@ public class UnmodifiableDictionaryMap <K, V> implements Map<K, V> {
 		return _map.values();
 	}
 
-	private Map<K, V> _map;
+	private final Map<K, V> _map;
 
 }

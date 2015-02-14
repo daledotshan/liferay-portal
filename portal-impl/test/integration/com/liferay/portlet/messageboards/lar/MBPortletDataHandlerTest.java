@@ -14,35 +14,42 @@
 
 package com.liferay.portlet.messageboards.lar;
 
+import com.liferay.portal.kernel.lar.ManifestSummary;
 import com.liferay.portal.kernel.lar.PortletDataHandler;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.lar.BasePortletDataHandlerTestCase;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.LongWrapper;
+import com.liferay.portal.lar.test.BasePortletDataHandlerTestCase;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
-import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PortletKeys;
-import com.liferay.portal.util.test.GroupTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBMessage;
+import com.liferay.portlet.messageboards.model.MBThread;
 import com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil;
 import com.liferay.portlet.messageboards.util.test.MBTestUtil;
 
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import org.testng.Assert;
 
 /**
  * @author Zsolt Berentey
  */
-@ExecutionTestListeners(listeners = {MainServletExecutionTestListener.class})
-@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class MBPortletDataHandlerTest extends BasePortletDataHandlerTestCase {
+
+	@ClassRule
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
 
 	@Test
 	public void testDeleteAllFolders() throws Exception {
@@ -90,6 +97,18 @@ public class MBPortletDataHandlerTest extends BasePortletDataHandlerTestCase {
 			stagingGroup.getGroupId(), message.getThread());
 
 		MBTestUtil.addBan(stagingGroup.getGroupId());
+	}
+
+	@Override
+	protected void checkManifestSummary(
+		Map<String, LongWrapper> expectedModelAdditionCounters) {
+
+		String manifestSummaryKey = ManifestSummary.getManifestSummaryKey(
+			MBThread.class.getName(), null);
+
+		expectedModelAdditionCounters.remove(manifestSummaryKey);
+
+		super.checkManifestSummary(expectedModelAdditionCounters);
 	}
 
 	@Override
