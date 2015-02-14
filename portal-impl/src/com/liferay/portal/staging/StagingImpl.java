@@ -1431,6 +1431,10 @@ public class StagingImpl implements Staging {
 
 		Group liveGroup = GroupLocalServiceUtil.getGroup(groupId);
 
+		if (liveGroup.isStagingGroup()) {
+			liveGroup = liveGroup.getLiveGroup();
+		}
+
 		Map<String, String[]> parameterMap = getStagingParameters(
 			portletRequest);
 
