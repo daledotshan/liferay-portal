@@ -1423,24 +1423,23 @@ public class StagingImpl implements Staging {
 	public void publishToLive(PortletRequest portletRequest)
 		throws PortalException {
 
-		long groupId = ParamUtil.getLong(portletRequest, "groupId");
+		long stagingGroupId = ParamUtil.getLong(
+			portletRequest, "stagingGroupId");
 
-		Group liveGroup = GroupLocalServiceUtil.getGroup(groupId);
+		Group stagingGroup = GroupLocalServiceUtil.getGroup(stagingGroupId);
+
+		Group liveGroup = stagingGroup.getLiveGroup();
 
 		Map<String, String[]> parameterMap = getStagingParameters(
 			portletRequest);
 
-		if (liveGroup.isStaged()) {
-			if (liveGroup.isStagedRemotely()) {
-				publishToRemote(portletRequest);
-			}
-			else {
-				Group stagingGroup = liveGroup.getStagingGroup();
-
-				publishLayouts(
-					portletRequest, stagingGroup.getGroupId(), groupId,
-					parameterMap, false);
-			}
+		if (liveGroup.isStagedRemotely()) {
+			publishToRemote(portletRequest);
+		}
+		else {
+			publishLayouts(
+				portletRequest, stagingGroupId, liveGroup.getGroupId(),
+				parameterMap, false);
 		}
 	}
 
