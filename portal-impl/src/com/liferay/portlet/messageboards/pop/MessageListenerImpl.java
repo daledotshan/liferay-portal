@@ -173,7 +173,13 @@ public class MessageListenerImpl implements MessageListener {
 				categoryId);
 
 			if (category == null) {
-				groupId = categoryId;
+				if (parentMessage != null) {
+					groupId = parentMessage.getGroupId();
+				}
+				else {
+					groupId = categoryId;
+				}
+
 				categoryId = MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID;
 			}
 			else {
