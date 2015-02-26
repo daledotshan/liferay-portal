@@ -595,7 +595,11 @@ public class MBUtil {
 			int z = temp.lastIndexOf(CharPool.PERIOD);
 
 			if (z != -1) {
-				messageId = GetterUtil.getLong(temp.substring(z + 1));
+				int w = temp.substring(0, z).lastIndexOf(CharPool.PERIOD);
+
+				if (w != -1) {
+					messageId = GetterUtil.getLong(temp.substring(w + 1, z));
+				}
 			}
 		}
 
