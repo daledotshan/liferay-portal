@@ -345,8 +345,9 @@ public class PoshiRunnerExecutor {
 							locator);
 
 					String locatorKey =
-						PoshiRunnerGetterUtil.
-							getCommandNameFromClassCommandName(locator);
+						PoshiRunnerVariablesUtil.replaceCommandVars(
+							PoshiRunnerGetterUtil.
+								getCommandNameFromClassCommandName(locator));
 
 					locator = PoshiRunnerContext.getPathLocator(
 						pathClassName + "#" + locatorKey);
@@ -497,6 +498,10 @@ public class PoshiRunnerExecutor {
 				else if (i == 1) {
 					argument = PoshiRunnerVariablesUtil.getValueFromCommandMap(
 						"value1");
+
+					if (selenium.equals("clickAt")) {
+						argument = "";
+					}
 				}
 				else if (i == 2) {
 					argument = PoshiRunnerVariablesUtil.getValueFromCommandMap(
