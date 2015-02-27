@@ -141,40 +141,7 @@ public class MessageListenerImpl implements MessageListener {
 				_log.debug("Message id " + messageIdString);
 			}
 
-			long groupId = 0;
-			long categoryId = getCategoryId(messageIdString);
-
-			MBCategory category = MBCategoryLocalServiceUtil.fetchMBCategory(
-				categoryId);
-
-			if (category == null) {
-				groupId = categoryId;
-				categoryId = MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID;
-			}
-			else {
-				groupId = category.getGroupId();
-
-				if (category.isRoot()) {
-					long messageId = getMessageId(messageIdString);
-
-					MBMessage threadMessage =
-						MBMessageLocalServiceUtil.fetchMBMessage(messageId);
-
-					if (threadMessage != null) {
-						groupId = threadMessage.getGroupId();
-					}
-				}
-			}
-
-			if (_log.isDebugEnabled()) {
-				_log.debug("Group id " + groupId);
-				_log.debug("Category id " + categoryId);
-			}
-
-			User user = UserLocalServiceUtil.getUserByEmailAddress(
-				company.getCompanyId(), from);
-
-			long parentMessageId = getParentMessageId(recipient, message);
+			long parentMessageId = getParentMessageId(messageIdString);
 
 			if (_log.isDebugEnabled()) {
 				_log.debug("Parent message id " + parentMessageId);
@@ -198,6 +165,31 @@ public class MessageListenerImpl implements MessageListener {
 			if (_log.isDebugEnabled()) {
 				_log.debug("Parent message " + parentMessage);
 			}
+
+			long groupId = 0;
+			long categoryId = getCategoryId(messageIdString);
+
+			MBCategory category = MBCategoryLocalServiceUtil.fetchMBCategory(
+				categoryId);
+
+			if (category == null) {
+				categoryId = MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID;
+
+				if (parentMessage != null) {
+					groupId = parentMessage.getGroupId();
+				}
+			}
+			else {
+				groupId = category.getGroupId();
+			}
+
+			if (_log.isDebugEnabled()) {
+				_log.debug("Group id " + groupId);
+				_log.debug("Category id " + categoryId);
+			}
+
+			User user = UserLocalServiceUtil.getUserByEmailAddress(
+				company.getCompanyId(), from);
 
 			String subject = MBUtil.getSubjectForEmail(message);
 
@@ -295,12 +287,6 @@ public class MessageListenerImpl implements MessageListener {
 		return CompanyLocalServiceUtil.getCompanyByMx(mx);
 	}
 
-	protected long getMessageId(String messageIdString) {
-		String[] parts = getMessageIdStringParts(messageIdString);
-
-		return GetterUtil.getLong(parts[1]);
-	}
-
 	protected String getMessageIdString(String recipient, Message message)
 		throws Exception {
 
@@ -329,37 +315,10 @@ public class MessageListenerImpl implements MessageListener {
 		return 0;
 	}
 
-	protected long getParentMessageId(String recipient, Message message)
-		throws Exception {
+	protected long getParentMessageId(String messageIdString) {
+		String[] parts = getMessageIdStringParts(messageIdString);
 
-		if (!StringUtil.startsWith(
-				recipient, MBUtil.MESSAGE_POP_PORTLET_PREFIX)) {
-
-			return MBUtil.getParentMessageId(message);
-		}
-
-		int pos = recipient.indexOf(CharPool.AT);
-
-		if (pos < 0) {
-			return MBUtil.getParentMessageId(message);
-		}
-
-		String target = recipient.substring(
-			MBUtil.MESSAGE_POP_PORTLET_PREFIX.length(), pos);
-
-		String[] parts = StringUtil.split(target, CharPool.PERIOD);
-
-		long parentMessageId = 0;
-
-		if (parts.length == 2) {
-			parentMessageId = GetterUtil.getLong(parts[1]);
-		}
-
-		if (parentMessageId > 0) {
-			return parentMessageId;
-		}
-
-		return MBUtil.getParentMessageId(message);
+		return GetterUtil.getLong(parts[1]);
 	}
 
 	protected boolean isAutoReply(Message message) throws MessagingException {
