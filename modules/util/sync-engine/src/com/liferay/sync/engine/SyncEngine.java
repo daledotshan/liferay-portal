@@ -101,6 +101,10 @@ public class SyncEngine {
 		return _eventProcessorExecutorService;
 	}
 
+	public static ExecutorService getExecutorService() {
+		return _executorService;
+	}
+
 	public static synchronized boolean isRunning() {
 		return _running;
 	}
@@ -161,6 +165,11 @@ public class SyncEngine {
 		SyncAccount syncAccount = ServerEventUtil.synchronizeSyncAccount(
 			syncAccountId);
 
+		syncAccount.setState(SyncAccount.STATE_CONNECTED);
+		syncAccount.setUiEvent(SyncAccount.UI_EVENT_NONE);
+
+		SyncAccountService.update(syncAccount);
+
 		Path filePath = Paths.get(syncAccount.getFilePathName());
 
 		SyncFile syncFile = SyncFileService.fetchSyncFile(
@@ -191,11 +200,6 @@ public class SyncEngine {
 		}
 
 		if (!ConnectionRetryUtil.retryInProgress(syncAccountId)) {
-			syncAccount.setState(SyncAccount.STATE_CONNECTED);
-			syncAccount.setUiEvent(SyncAccount.UI_EVENT_NONE);
-
-			SyncAccountService.update(syncAccount);
-
 			ServerEventUtil.synchronizeSyncSites(syncAccountId);
 		}
 
