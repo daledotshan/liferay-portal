@@ -267,8 +267,8 @@ PortletURL viewDiffsPortletURL = workflowHandler.getURLViewDiffs(classPK, lifera
 
 				<liferay-ui:discussion
 					assetEntryVisible="<%= false %>"
-					className="<%= WorkflowInstance.class.getName() %>"
-					classPK="<%= workflowTask.getWorkflowInstanceId() %>"
+					className="<%= assetRenderer.getClassName() %>"
+					classPK="<%= assetRenderer.getClassPK() %>"
 					formAction="<%= discussionURL %>"
 					formName="fm1"
 					paginationURL="<%= discussionPaginationURL %>"
