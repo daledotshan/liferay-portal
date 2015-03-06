@@ -360,10 +360,18 @@ public class FileUtil {
 		}
 
 		try {
-			if ((syncFile.getSize() > 0) &&
-				(syncFile.getSize() != Files.size(filePath))) {
+			FileTime fileTime = Files.getLastModifiedTime(filePath);
 
-				return true;
+			long modifiedTime = syncFile.getModifiedTime();
+
+			if (OSDetector.isUnix()) {
+				modifiedTime = modifiedTime / 1000 * 1000;
+			}
+
+			if ((fileTime.toMillis() <= modifiedTime) &&
+				(getFileKey(filePath) == syncFile.getSyncFileId())) {
+
+				return false;
 			}
 		}
 		catch (IOException ioe) {
@@ -373,18 +381,10 @@ public class FileUtil {
 		}
 
 		try {
-			FileTime fileTime = Files.getLastModifiedTime(filePath);
+			if ((syncFile.getSize() > 0) &&
+				(syncFile.getSize() != Files.size(filePath))) {
 
-			long modifiedTime = syncFile.getModifiedTime();
-
-			if (OSDetector.isUnix()) {
-				modifiedTime = modifiedTime / 1000 * 1000;
-			}
-
-			if ((fileTime.toMillis() == modifiedTime) &&
-				(getFileKey(filePath) == syncFile.getSyncFileId())) {
-
-				return false;
+				return true;
 			}
 		}
 		catch (IOException ioe) {
@@ -479,6 +479,10 @@ public class FileUtil {
 	}
 
 	public static void writeFileKey(Path filePath, String fileKey) {
+		if (!Files.exists(filePath)) {
+			return;
+		}
+
 		if (OSDetector.isApple()) {
 			Xattrj xattrj = getXattrj();
 

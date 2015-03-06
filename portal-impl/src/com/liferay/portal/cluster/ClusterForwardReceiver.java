@@ -14,7 +14,7 @@
 
 package com.liferay.portal.cluster;
 
-import com.liferay.portal.kernel.cluster.ClusterLinkUtil;
+import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Message;
@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.jgroups.Address;
 
@@ -30,7 +31,12 @@ import org.jgroups.Address;
  */
 public class ClusterForwardReceiver extends BaseReceiver {
 
-	public ClusterForwardReceiver(List<Address> localTransportAddresses) {
+	public ClusterForwardReceiver(
+		ExecutorService executorService,
+		List<Address> localTransportAddresses) {
+
+		super(executorService);
+
 		_localTransportAddresses = localTransportAddresses;
 	}
 
@@ -50,9 +56,14 @@ public class ClusterForwardReceiver extends BaseReceiver {
 							destinationName);
 				}
 
-				ClusterLinkUtil.setForwardMessage(message);
+				ClusterInvokeThreadLocal.setEnabled(false);
 
-				MessageBusUtil.sendMessage(destinationName, message);
+				try {
+					MessageBusUtil.sendMessage(destinationName, message);
+				}
+				finally {
+					ClusterInvokeThreadLocal.setEnabled(true);
+				}
 			}
 			else {
 				if (_log.isErrorEnabled()) {
@@ -72,6 +83,6 @@ public class ClusterForwardReceiver extends BaseReceiver {
 	private static final Log _log = LogFactoryUtil.getLog(
 		ClusterForwardReceiver.class);
 
-	private final List<org.jgroups.Address> _localTransportAddresses;
+	private final List<Address> _localTransportAddresses;
 
 }
