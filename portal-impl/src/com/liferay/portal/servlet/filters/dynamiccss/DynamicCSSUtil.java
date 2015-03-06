@@ -235,6 +235,11 @@ public class DynamicCSSUtil {
 		String baseURL = portalContextPath;
 
 		String contextPath = ContextPathUtil.getContextPath(servletContext);
+		String pathProxy = PropsValues.PORTAL_PROXY_PATH;
+
+		if (portalContextPath.startsWith(pathProxy)) {
+			portalContextPath = portalContextPath.substring(pathProxy.length());
+		}
 
 		if (!contextPath.equals(portalContextPath)) {
 			baseURL = StringPool.SLASH.concat(
