@@ -11,6 +11,8 @@
 	<target name="prepare-poshi-runner" depends="compile">
 		<echo file="classes/poshi-runner-ext.properties">
 			test.class.command.name=${test.case.name}
+
+			test.basedir=../../../portal-web/test/functional/com/liferay/portalweb/
 		</echo>
 	</target>
 
@@ -18,7 +20,7 @@
 		<if>
 			<os family="unix" />
 			<then>
-				<get
+				<mirrors-get
 					dest="lib/opencv-linux-x86_64.jar"
 					skipexisting="true"
 					src="http://repo1.maven.org/maven2/org/bytedeco/javacpp-presets/opencv/2.4.9-0.9/opencv-2.4.9-0.9-linux-x86_64.jar"

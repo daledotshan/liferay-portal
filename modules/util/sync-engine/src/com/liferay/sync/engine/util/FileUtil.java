@@ -43,6 +43,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -322,7 +324,6 @@ public class FileUtil {
 		String fileName = String.valueOf(filePath.getFileName());
 
 		if (_syncFileIgnoreNames.contains(fileName) ||
-			isOfficeTempFile(fileName, filePath) ||
 			(PropsValues.SYNC_FILE_IGNORE_HIDDEN && isHidden(filePath)) ||
 			Files.isSymbolicLink(filePath) || fileName.endsWith(".lnk")) {
 
@@ -360,10 +361,18 @@ public class FileUtil {
 		}
 
 		try {
-			if ((syncFile.getSize() > 0) &&
-				(syncFile.getSize() != Files.size(filePath))) {
+			FileTime fileTime = Files.getLastModifiedTime(filePath);
 
-				return true;
+			long modifiedTime = syncFile.getModifiedTime();
+
+			if (OSDetector.isUnix()) {
+				modifiedTime = modifiedTime / 1000 * 1000;
+			}
+
+			if ((fileTime.toMillis() <= modifiedTime) &&
+				(getFileKey(filePath) == syncFile.getSyncFileId())) {
+
+				return false;
 			}
 		}
 		catch (IOException ioe) {
@@ -373,18 +382,10 @@ public class FileUtil {
 		}
 
 		try {
-			FileTime fileTime = Files.getLastModifiedTime(filePath);
+			if ((syncFile.getSize() > 0) &&
+				(syncFile.getSize() != Files.size(filePath))) {
 
-			long modifiedTime = syncFile.getModifiedTime();
-
-			if (OSDetector.isUnix()) {
-				modifiedTime = modifiedTime / 1000 * 1000;
-			}
-
-			if ((fileTime.toMillis() == modifiedTime) &&
-				(getFileKey(filePath) == syncFile.getSyncFileId())) {
-
-				return false;
+				return true;
 			}
 		}
 		catch (IOException ioe) {
@@ -405,6 +406,26 @@ public class FileUtil {
 
 			return true;
 		}
+	}
+
+	public static boolean isOfficeTempFile(String fileName, Path filePath) {
+		if (Files.isDirectory(filePath)) {
+			return false;
+		}
+
+		if (fileName.startsWith("~$") ||
+			(fileName.startsWith("~") && fileName.endsWith(".tmp"))) {
+
+			return true;
+		}
+
+		Matcher matcher = _pattern.matcher(fileName);
+
+		if (matcher.matches()) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public static boolean isValidChecksum(Path filePath) throws IOException {
@@ -479,6 +500,10 @@ public class FileUtil {
 	}
 
 	public static void writeFileKey(Path filePath, String fileKey) {
+		if (!Files.exists(filePath)) {
+			return;
+		}
+
 		if (OSDetector.isApple()) {
 			Xattrj xattrj = getXattrj();
 
@@ -556,25 +581,12 @@ public class FileUtil {
 		}
 	}
 
-	protected static boolean isOfficeTempFile(String fileName, Path filePath) {
-		if (Files.isDirectory(filePath)) {
-			return false;
-		}
-
-		if (fileName.startsWith("~$") ||
-			(fileName.startsWith("~") && fileName.endsWith(".tmp"))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
 	private static final Charset _CHARSET = Charset.forName("UTF-8");
 
 	private static final Logger _logger = LoggerFactory.getLogger(
 		FileUtil.class);
 
+	private static final Pattern _pattern = Pattern.compile("[0-9A-F]{8}");
 	private static final Set<String> _syncFileIgnoreNames = new HashSet<>(
 		Arrays.asList(PropsValues.SYNC_FILE_IGNORE_NAMES));
 	private static Xattrj _xattrj;
