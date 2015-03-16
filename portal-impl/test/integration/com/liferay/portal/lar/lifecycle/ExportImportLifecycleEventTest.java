@@ -14,10 +14,13 @@
 
 package com.liferay.portal.lar.lifecycle;
 
+import com.liferay.portal.kernel.lar.exportimportconfiguration.ExportImportConfigurationParameterMapFactory;
 import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants;
 import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleEvent;
 import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleEventListenerRegistryUtil;
 import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleListener;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -26,6 +29,7 @@ import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -78,6 +82,9 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 			new MockExportImportLifecycleListener());
 
 		_firedExportImportLifecycleEventsMap = new HashMap<>();
+
+		_parameterMap =
+			ExportImportConfigurationParameterMapFactory.buildParameterMap();
 	}
 
 	@Test
@@ -86,10 +93,12 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 
 		try {
 			layoutExporter.exportLayoutsAsFile(
-				0, false, new long[0], StagingUtil.getStagingParameters(),
-				new Date(), new Date());
+				0, false, new long[0], _parameterMap, new Date(), new Date());
 		}
 		catch (Throwable t) {
+			if (_log.isInfoEnabled()) {
+				_log.info(t, t);
+			}
 		}
 
 		Assert.assertTrue(
@@ -103,10 +112,12 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 
 		try {
 			layoutImporter.importLayouts(
-				TestPropsValues.getUserId(), 0, false,
-				StagingUtil.getStagingParameters(), null);
+				TestPropsValues.getUserId(), 0, false, _parameterMap, null);
 		}
 		catch (Throwable t) {
+			if (_log.isInfoEnabled()) {
+				_log.info(t, t);
+			}
 		}
 
 		Assert.assertTrue(
@@ -119,10 +130,13 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 		try {
 			StagingUtil.publishLayouts(
 				TestPropsValues.getUserId(), _group.getGroupId(),
-				RandomTestUtil.nextInt(), false, new long[0],
-				StagingUtil.getStagingParameters(), new Date(), new Date());
+				RandomTestUtil.nextInt(), false, new long[0], _parameterMap,
+				new Date(), new Date());
 		}
 		catch (Throwable t) {
+			if (_log.isInfoEnabled()) {
+				_log.info(t, t);
+			}
 		}
 
 		Assert.assertTrue(
@@ -138,10 +152,12 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 		try {
 			portletExporter.exportPortletInfoAsFile(
 				RandomTestUtil.nextLong(), _group.getGroupId(),
-				StringPool.BLANK, StagingUtil.getStagingParameters(),
-				new Date(), new Date());
+				StringPool.BLANK, _parameterMap, new Date(), new Date());
 		}
 		catch (Throwable t) {
+			if (_log.isInfoEnabled()) {
+				_log.info(t, t);
+			}
 		}
 
 		Assert.assertTrue(
@@ -156,9 +172,12 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 		try {
 			portletImporter.importPortletInfo(
 				TestPropsValues.getUserId(), 0, 0, StringPool.BLANK,
-				StagingUtil.getStagingParameters(), null);
+				_parameterMap, null);
 		}
 		catch (Throwable t) {
+			if (_log.isInfoEnabled()) {
+				_log.info(t, t);
+			}
 		}
 
 		Assert.assertTrue(
@@ -177,16 +196,21 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 		mockHttpServletRequest.setAttribute(
 			WebKeys.USER_ID, TestPropsValues.getUserId());
 
-		when(
-			portletRequest.getHttpServletRequest()
-		).thenReturn(
-			mockHttpServletRequest
-		);
+		ThemeDisplay themeDisplay = new ThemeDisplay();
+
+		themeDisplay.setLocale(LocaleUtil.getDefault());
+		themeDisplay.setUser(TestPropsValues.getUser());
 
 		when(
 			portletRequest.getAttribute(WebKeys.THEME_DISPLAY)
 		).thenReturn(
-			new ThemeDisplay()
+			themeDisplay
+		);
+
+		when(
+			portletRequest.getHttpServletRequest()
+		).thenReturn(
+			mockHttpServletRequest
 		);
 
 		try {
@@ -195,6 +219,9 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 				0, StringPool.BLANK);
 		}
 		catch (Throwable t) {
+			if (_log.isInfoEnabled()) {
+				_log.info(t, t);
+			}
 		}
 
 		Assert.assertTrue(
@@ -216,8 +243,8 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 
 		StagingUtil.publishLayouts(
 			TestPropsValues.getUserId(), _group.getGroupId(),
-			_liveGroup.getGroupId(), false, (long[])null,
-			StagingUtil.getStagingParameters(), startDate, endDate);
+			_liveGroup.getGroupId(), false, (long[])null, _parameterMap,
+			startDate, endDate);
 
 		Assert.assertTrue(
 			_firedExportImportLifecycleEventsMap.containsKey(
@@ -269,6 +296,9 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 					EVENT_STAGED_MODEL_IMPORT_SUCCEEDED));
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		ExportImportLifecycleEventTest.class);
+
 	private Map<Integer, ExportImportLifecycleEvent>
 		_firedExportImportLifecycleEventsMap;
 
@@ -277,6 +307,8 @@ public class ExportImportLifecycleEventTest extends PowerMockito {
 
 	@DeleteAfterTestRun
 	private Group _liveGroup;
+
+	private Map<String, String[]> _parameterMap;
 
 	private class MockExportImportLifecycleListener
 		implements ExportImportLifecycleListener {
