@@ -72,7 +72,7 @@ import com.liferay.portal.util.SubscriptionSender;
 import com.liferay.portlet.PortletURLFactoryUtil;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLinkConstants;
-import com.liferay.portlet.blogs.BlogsSettings;
+import com.liferay.portlet.blogs.BlogsGroupServiceSettings;
 import com.liferay.portlet.blogs.EntryContentException;
 import com.liferay.portlet.blogs.EntryDisplayDateException;
 import com.liferay.portlet.blogs.EntrySmallImageNameException;
@@ -1375,7 +1375,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		}
 
 		if ((coverImageImageSelector != null) &&
-			(coverImageImageSelector.getImageId() != 0)) {
+			(coverImageImageSelector.getImageId() != 0) &&
+			(coverImageImageSelector.getImageId() !=
+				entry.getCoverImageFileEntryId())) {
 
 			PortletFileRepositoryUtil.deletePortletFileEntry(
 				coverImageImageSelector.getImageId());
@@ -1791,7 +1793,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	protected void notifySubscribers(
-			long contextUserId, BlogsEntry entry, ServiceContext serviceContext,
+			long creatorUserId, BlogsEntry entry, ServiceContext serviceContext,
 			Map<String, Serializable> workflowContext)
 		throws PortalException {
 
@@ -1802,17 +1804,17 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return;
 		}
 
-		BlogsSettings blogsSettings = BlogsSettings.getInstance(
-			entry.getGroupId());
+		BlogsGroupServiceSettings blogsGroupServiceSettings =
+			BlogsGroupServiceSettings.getInstance(entry.getGroupId());
 
 		boolean sendEmailEntryUpdated = GetterUtil.getBoolean(
 			serviceContext.getAttribute("sendEmailEntryUpdated"));
 
 		if (serviceContext.isCommandAdd() &&
-			blogsSettings.isEmailEntryAddedEnabled()) {
+			blogsGroupServiceSettings.isEmailEntryAddedEnabled()) {
 		}
 		else if (sendEmailEntryUpdated && serviceContext.isCommandUpdate() &&
-				 blogsSettings.isEmailEntryUpdatedEnabled()) {
+				 blogsGroupServiceSettings.isEmailEntryUpdatedEnabled()) {
 		}
 		else {
 			return;
@@ -1822,21 +1824,23 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		String entryTitle = entry.getTitle();
 
-		String fromName = blogsSettings.getEmailFromName();
-		String fromAddress = blogsSettings.getEmailFromAddress();
+		String fromName = blogsGroupServiceSettings.getEmailFromName();
+		String fromAddress = blogsGroupServiceSettings.getEmailFromAddress();
 
 		LocalizedValuesMap subjectLocalizedValuesMap = null;
 		LocalizedValuesMap bodyLocalizedValuesMap = null;
 
 		if (serviceContext.isCommandUpdate()) {
 			subjectLocalizedValuesMap =
-				blogsSettings.getEmailEntryUpdatedSubject();
-			bodyLocalizedValuesMap = blogsSettings.getEmailEntryUpdatedBody();
+				blogsGroupServiceSettings.getEmailEntryUpdatedSubject();
+			bodyLocalizedValuesMap =
+				blogsGroupServiceSettings.getEmailEntryUpdatedBody();
 		}
 		else {
 			subjectLocalizedValuesMap =
-				blogsSettings.getEmailEntryAddedSubject();
-			bodyLocalizedValuesMap = blogsSettings.getEmailEntryAddedBody();
+				blogsGroupServiceSettings.getEmailEntryAddedSubject();
+			bodyLocalizedValuesMap =
+				blogsGroupServiceSettings.getEmailEntryAddedBody();
 		}
 
 		SubscriptionSender subscriptionSender =
@@ -1867,7 +1871,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			workflowContext.get(WorkflowConstants.CONTEXT_USER_PORTRAIT_URL),
 			"[$BLOGS_ENTRY_USER_URL$]",
 			workflowContext.get(WorkflowConstants.CONTEXT_USER_URL));
-		subscriptionSender.setContextUserId(contextUserId);
+		subscriptionSender.setCreatorUserId(creatorUserId);
 		subscriptionSender.setContextUserPrefix("BLOGS_ENTRY");
 		subscriptionSender.setEntryTitle(entryTitle);
 		subscriptionSender.setEntryURL(entryURL);

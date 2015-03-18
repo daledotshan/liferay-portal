@@ -32,7 +32,7 @@ boolean ratingsEnabled = GetterUtil.getBoolean((String) request.getAttribute("li
 String redirect = (String)request.getAttribute("liferay-ui:discussion:redirect");
 long userId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:discussion:userId"));
 
-MBMessageDisplay messageDisplay = MBMessageLocalServiceUtil.getDiscussionMessageDisplay(userId, scopeGroupId, className, classPK, WorkflowConstants.STATUS_ANY);
+MBMessageDisplay messageDisplay = MBMessageLocalServiceUtil.getDiscussionMessageDisplay(userId, scopeGroupId, className, classPK, WorkflowConstants.STATUS_ANY, new MessageThreadComparator());
 
 MBThread thread = messageDisplay.getThread();
 MBTreeWalker treeWalker = messageDisplay.getTreeWalker();
@@ -76,7 +76,7 @@ int messagesCount = messages.size();
 						</div>
 
 						<%
-						String taglibPostReplyURL = "javascript:" + randomNamespace + "showForm('" + randomNamespace + "postReplyForm0');";
+						String taglibPostReplyURL = "javascript:" + randomNamespace + "showEl('" + randomNamespace + "postReplyForm0');";
 						%>
 
 						<c:if test="<%= messagesCount == 1 %>">
@@ -135,21 +135,23 @@ int messagesCount = messages.size();
 									<div class="lfr-discussion-body">
 
 										<%
-										Map<String, Object> dataTextEditor = new HashMap<String, Object>();
+										Map<String, Object> data = new HashMap<String, Object>();
 
-										JSONObject editorConfig = JSONFactoryUtil.createJSONObject();
-										editorConfig.put("allowedContent", PropsValues.DISCUSSION_COMMENTS_ALLOWED_CONTENT);
-										editorConfig.put("toolbars", JSONFactoryUtil.createJSONObject());
+										JSONObject editorConfigJSONObject = JSONFactoryUtil.createJSONObject();
 
-										JSONObject editorOptions = JSONFactoryUtil.createJSONObject();
-										editorOptions.put("textMode", Boolean.FALSE);
-										editorOptions.put("showSource", Boolean.FALSE);
+										editorConfigJSONObject.put("allowedContent", PropsValues.DISCUSSION_COMMENTS_ALLOWED_CONTENT);
+										editorConfigJSONObject.put("toolbars", JSONFactoryUtil.createJSONObject());
 
-										dataTextEditor.put("editorConfig", editorConfig);
-										dataTextEditor.put("editorOptions", editorOptions);
+										data.put("editorConfig", editorConfigJSONObject);
+
+										JSONObject editorOptionsJSONObject = JSONFactoryUtil.createJSONObject();
+
+										editorOptionsJSONObject.put("textMode", Boolean.FALSE);
+
+										data.put("editorOptions", editorOptionsJSONObject);
 										%>
 
-										<liferay-ui:input-editor contents="" data="<%= dataTextEditor %>" editorImpl="<%= EDITOR_IMPL_KEY %>" name='<%= randomNamespace + "postReplyBody0" %>' onChangeMethod='<%= randomNamespace + "0OnChange" %>' placeholder="type-your-comment-here" />
+										<liferay-ui:input-editor contents="" data="<%= data %>" editorImpl="<%= EDITOR_IMPL_KEY %>" name='<%= randomNamespace + "postReplyBody0" %>' onChangeMethod='<%= randomNamespace + "0OnChange" %>' placeholder="type-your-comment-here" showSource="<%= false %>" />
 
 										<aui:input name="postReplyBody0" type="hidden" />
 
@@ -177,14 +179,12 @@ int messagesCount = messages.size();
 					<aui:row>
 
 						<%
-						messages = ListUtil.copy(messages);
-
-						messages.remove(0);
-
 						List<Long> classPKs = new ArrayList<Long>();
 
 						for (MBMessage curMessage : messages) {
-							classPKs.add(curMessage.getMessageId());
+							if (!curMessage.isRoot()) {
+								classPKs.add(curMessage.getMessageId());
+							}
 						}
 
 						List<RatingsEntry> ratingsEntries = RatingsEntryLocalServiceUtil.getEntries(themeDisplay.getUserId(), MBDiscussion.class.getName(), classPKs);
@@ -196,7 +196,7 @@ int messagesCount = messages.size();
 						int rootIndexPage = 0;
 						boolean moreCommentsPagination = false;
 
-						for (int j = range[0] - 1; j < range[1] - 1; j++) {
+						for (int j = range[0]; j < range[1]; j++) {
 							index = GetterUtil.getInteger(request.getAttribute("liferay-ui:discussion:index"), 1);
 
 							rootIndexPage = j;
@@ -270,10 +270,8 @@ int messagesCount = messages.size();
 				<portlet:namespace />sendMessage(form);
 			}
 
-			function <%= randomNamespace %>hideForm(rowId) {
-				var form = AUI.$('#' + rowId);
-
-				form.css('display', 'none');
+			function <%= randomNamespace %>hideEl(elId) {
+				AUI.$('#' + elId).css('display', 'none');
 			}
 
 			function <%= randomNamespace %>hideEditor(editorName, formId) {
@@ -281,7 +279,7 @@ int messagesCount = messages.size();
 					window[editorName].dispose();
 				}
 
-				<%= randomNamespace %>hideForm(formId);
+				<%= randomNamespace %>hideEl(formId);
 			}
 
 			function <portlet:namespace />onMessagePosted(response, refreshPage) {
@@ -394,6 +392,10 @@ int messagesCount = messages.size();
 				);
 			}
 
+			function <%= randomNamespace %>showEl(elId) {
+				AUI.$('#' + elId).css('display', '');
+			}
+
 			function <%= randomNamespace %>showEditor(editorName, formId) {
 				window[editorName].create();
 
@@ -401,13 +403,7 @@ int messagesCount = messages.size();
 
 				Liferay.Util.toggleDisabled('#' + editorName.replace('Body', 'Button'), (html === ''));
 
-				<%= randomNamespace %>showForm(formId);
-			}
-
-			function <%= randomNamespace %>showForm(rowId) {
-				var form = AUI.$('#' + rowId);
-
-				form.css('display', 'block');
+				<%= randomNamespace %>showEl(formId);
 			}
 
 			function <portlet:namespace />showStatusMessage(type, message) {
@@ -455,6 +451,44 @@ int messagesCount = messages.size();
 
 				editorInstance.dispose();
 			}
+		</aui:script>
+
+		<aui:script sandbox="<%= true %>">
+			$('#<%= namespace %>moreComments').on(
+				'click',
+				function(event) {
+					var form = $('#<%= namespace %><%= HtmlUtil.escapeJS(formName) %>');
+
+					var data = Liferay.Util.ns(
+						'<portlet:namespace />',
+						{
+							className: '<%= className %>',
+							classPK: <%= classPK %>,
+							hideControls: '<%= hideControls %>',
+							index: form.fm('index').val(),
+							permissionClassName: '<%= permissionClassName %>',
+							permissionClassPK: '<%= permissionClassPK %>',
+							randomNamespace: '<%= randomNamespace %>',
+							ratingsEnabled: '<%= ratingsEnabled %>',
+							rootIndexPage: form.fm('rootIndexPage').val(),
+							userId: '<%= userId %>'
+						}
+					);
+
+					$.ajax(
+						'<%= paginationURL %>',
+						{
+							data: data,
+							error: function() {
+								<portlet:namespace />showStatusMessage('danger', '<%= UnicodeLanguageUtil.get(request, "your-request-failed-to-complete") %>');
+							},
+							success: function(data) {
+								$('#<%= namespace %>moreCommentsPage').append(data);
+							}
+						}
+					);
+				}
+			);
 		</aui:script>
 
 		<aui:script use="aui-popover,event-outside">

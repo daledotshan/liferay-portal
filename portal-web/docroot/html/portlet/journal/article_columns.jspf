@@ -30,12 +30,12 @@
 
 	PortletURL rowURL = liferayPortletResponse.createRenderURL();
 
-	rowURL.setParameter("struts_action", "/journal/edit_article");
+	rowURL.setParameter("mvcPath", "/html/portlet/journal/edit_article.jsp");
 	rowURL.setParameter("redirect", currentURL);
 	rowURL.setParameter("groupId", String.valueOf(curArticle.getGroupId()));
 	rowURL.setParameter("folderId", String.valueOf(curArticle.getFolderId()));
 	rowURL.setParameter("articleId", curArticle.getArticleId());
-	rowURL.setParameter("status", String.valueOf(status));
+	rowURL.setParameter("status", String.valueOf(curArticle.getStatus());
 	%>
 
 	<liferay-ui:icon

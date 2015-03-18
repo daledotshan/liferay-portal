@@ -113,8 +113,11 @@ public class Session {
 		CredentialsProvider credentialsProvider =
 			new BasicCredentialsProvider();
 
+		_httpHost = new HttpHost(
+			url.getHost(), url.getPort(), url.getProtocol());
+
 		credentialsProvider.setCredentials(
-			new AuthScope(url.getHost(), url.getPort()),
+			new AuthScope(_httpHost),
 			new UsernamePasswordCredentials(login, password));
 
 		httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
@@ -123,7 +126,6 @@ public class Session {
 
 		builder.setConnectTimeout(PropsValues.SYNC_HTTP_CONNECTION_TIMEOUT);
 		builder.setSocketTimeout(PropsValues.SYNC_HTTP_SOCKET_TIMEOUT);
-		builder.setStaleConnectionCheckEnabled(false);
 
 		httpClientBuilder.setDefaultRequestConfig(builder.build());
 
@@ -133,18 +135,8 @@ public class Session {
 
 		if (trustSelfSigned) {
 			try {
-				SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
-
-				sslContextBuilder.loadTrustMaterial(
-					null, new TrustSelfSignedStrategy());
-
-				SSLConnectionSocketFactory sslConnectionSocketFactory =
-					new SSLConnectionSocketFactory(
-						sslContextBuilder.build(),
-						SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-
 				httpClientBuilder.setSSLSocketFactory(
-					sslConnectionSocketFactory);
+					_getTrustingSSLSocketFactory());
 			}
 			catch (Exception e) {
 				_logger.error(e.getMessage(), e);
@@ -153,8 +145,6 @@ public class Session {
 
 		_httpClient = httpClientBuilder.build();
 
-		_httpHost = new HttpHost(
-			url.getHost(), url.getPort(), url.getProtocol());
 		_token = null;
 
 		Runnable runnable = new Runnable() {
@@ -441,6 +431,20 @@ public class Session {
 			ContentType.create(
 				ContentType.TEXT_PLAIN.getMimeType(),
 				Charset.forName("UTF-8")));
+	}
+
+	@SuppressWarnings("deprecation")
+	private SSLConnectionSocketFactory _getTrustingSSLSocketFactory()
+		throws Exception {
+
+		SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
+
+		sslContextBuilder.loadTrustMaterial(
+			null, new TrustSelfSignedStrategy());
+
+		return new SSLConnectionSocketFactory(
+			sslContextBuilder.build(),
+			SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 	}
 
 	private HttpEntity _getURLEncodedFormEntity(Map<String, Object> parameters)

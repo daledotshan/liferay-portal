@@ -91,17 +91,18 @@ journalContentDisplayContext.incrementViewCounter();
 											for (String extension : journalContentDisplayContext.getExtensions()) {
 											%>
 
-												<portlet:actionURL name="exportArticle" var="exportArticleURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
+												<portlet:resourceURL id="exportArticle" var="exportArticleURL">
 													<portlet:param name="groupId" value="<%= String.valueOf(articleDisplay.getGroupId()) %>" />
 													<portlet:param name="articleId" value="<%= articleDisplay.getArticleId() %>" />
 													<portlet:param name="targetExtension" value="<%= extension %>" />
-												</portlet:actionURL>
+												</portlet:resourceURL>
 
 												<liferay-ui:icon
 													iconCssClass="<%= DLUtil.getFileIconCssClass(extension) %>"
 													label="<%= true %>"
 													message='<%= LanguageUtil.format(request, "x-convert-x-to-x", new Object[] {"hide-accessible", HtmlUtil.escape(articleDisplay.getTitle()), StringUtil.toUpperCase(HtmlUtil.escape(extension))}) %>'
 													method="get"
+													target="_blank"
 													url="<%= exportArticleURL %>"
 												/>
 
@@ -167,7 +168,7 @@ journalContentDisplayContext.incrementViewCounter();
 								<c:choose>
 									<c:when test="<%= JournalArticlePermission.contains(permissionChecker, article.getGroupId(), article.getArticleId(), ActionKeys.UPDATE) %>">
 										<liferay-portlet:renderURL portletName="<%= PortletKeys.JOURNAL %>" var="editURL" windowState="<%= WindowState.MAXIMIZED.toString() %>">
-											<portlet:param name="struts_action" value="/journal/edit_article" />
+											<portlet:param name="mvcPath" value="/html/portlet/journal/edit_article.jsp" />
 											<portlet:param name="redirect" value="<%= currentURL %>" />
 											<portlet:param name="groupId" value="<%= String.valueOf(article.getGroupId()) %>" />
 											<portlet:param name="folderId" value="<%= String.valueOf(article.getFolderId()) %>" />
@@ -211,7 +212,7 @@ journalContentDisplayContext.incrementViewCounter();
 				%>
 
 				<liferay-portlet:renderURL portletName="<%= PortletKeys.JOURNAL %>" var="editArticleURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-					<portlet:param name="struts_action" value="/journal/edit_article" />
+					<portlet:param name="mvcPath" value="/html/portlet/journal/edit_article.jsp" />
 					<portlet:param name="redirect" value="<%= redirectURL.toString() %>" />
 					<portlet:param name="groupId" value="<%= String.valueOf(latestArticle.getGroupId()) %>" />
 					<portlet:param name="folderId" value="<%= String.valueOf(latestArticle.getFolderId()) %>" />
@@ -285,7 +286,7 @@ journalContentDisplayContext.incrementViewCounter();
 					showWhenSingleIcon="<%= true %>"
 				>
 					<liferay-portlet:renderURL portletName="<%= PortletKeys.JOURNAL %>" varImpl="addArticleURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-						<portlet:param name="struts_action" value="/journal/edit_article" />
+						<portlet:param name="mvcPath" value="/html/portlet/journal/edit_article.jsp" />
 						<portlet:param name="redirect" value="<%= redirectURL.toString() %>" />
 						<portlet:param name="portletResource" value="<%= portletDisplay.getId() %>" />
 						<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />

@@ -17,7 +17,7 @@
 <%@ include file="/html/portlet/journal/init.jsp" %>
 
 <%
-JournalArticle article = (JournalArticle)request.getAttribute(WebKeys.JOURNAL_ARTICLE);
+JournalArticle article = ActionUtil.getArticle(request);
 
 long groupId = BeanParamUtil.getLong(article, request, "groupId", scopeGroupId);
 
@@ -231,7 +231,7 @@ if (ddmFields != null) {
 			'ddm.classPK': <%= ddmStructure.getPrimaryKey() %>,
 			'ddm.groupId': <%= groupId %>,
 			'ddm.refererPortletName': '<%= PortletKeys.JOURNAL %>',
-			'ddm.sourceClassNameId': '<%= ddmStructure.getClassNameId() %>',
+			'ddm.resourceClassNameId': '<%= ddmStructure.getClassNameId() %>',
 			'ddm.templateId': <%= (ddmTemplate != null) ? ddmTemplate.getTemplateId() : 0 %>,
 			descriptionInputLocalized: Liferay.component('<portlet:namespace />description'),
 			editStructure: '#<portlet:namespace />editDDMStructure',
