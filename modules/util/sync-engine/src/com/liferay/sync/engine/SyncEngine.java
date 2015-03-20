@@ -37,6 +37,7 @@ import com.liferay.sync.engine.service.SyncWatchEventService;
 import com.liferay.sync.engine.service.persistence.SyncAccountPersistence;
 import com.liferay.sync.engine.upgrade.util.UpgradeUtil;
 import com.liferay.sync.engine.util.ConnectionRetryUtil;
+import com.liferay.sync.engine.util.FileLockRetryUtil;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.LoggerUtil;
 import com.liferay.sync.engine.util.OSDetector;
@@ -101,6 +102,10 @@ public class SyncEngine {
 		return _eventProcessorExecutorService;
 	}
 
+	public static ExecutorService getExecutorService() {
+		return _executorService;
+	}
+
 	public static synchronized boolean isRunning() {
 		return _running;
 	}
@@ -161,6 +166,11 @@ public class SyncEngine {
 		SyncAccount syncAccount = ServerEventUtil.synchronizeSyncAccount(
 			syncAccountId);
 
+		syncAccount.setState(SyncAccount.STATE_CONNECTED);
+		syncAccount.setUiEvent(SyncAccount.UI_EVENT_NONE);
+
+		SyncAccountService.update(syncAccount);
+
 		Path filePath = Paths.get(syncAccount.getFilePathName());
 
 		SyncFile syncFile = SyncFileService.fetchSyncFile(
@@ -191,11 +201,6 @@ public class SyncEngine {
 		}
 
 		if (!ConnectionRetryUtil.retryInProgress(syncAccountId)) {
-			syncAccount.setState(SyncAccount.STATE_CONNECTED);
-			syncAccount.setUiEvent(SyncAccount.UI_EVENT_NONE);
-
-			SyncAccountService.update(syncAccount);
-
 			ServerEventUtil.synchronizeSyncSites(syncAccountId);
 		}
 
@@ -240,6 +245,8 @@ public class SyncEngine {
 
 		UpgradeUtil.upgrade();
 
+		FileLockRetryUtil.init();
+
 		for (SyncAccount syncAccount : SyncAccountService.findAll()) {
 			scheduleSyncAccountTasks(syncAccount.getSyncAccountId());
 		}
@@ -262,6 +269,8 @@ public class SyncEngine {
 		_executorService.shutdownNow();
 		_localEventsScheduledExecutorService.shutdownNow();
 		_remoteEventsScheduledExecutorService.shutdownNow();
+
+		FileLockRetryUtil.shutdown();
 
 		SyncAccountPersistence syncAccountPersistence =
 			SyncAccountService.getSyncAccountPersistence();
