@@ -31,11 +31,9 @@ import java.util.Set;
 @ProviderType
 public interface DDMDisplay {
 
-	public String getAddStructureActionId();
-
-	public String getAddTemplateActionId();
-
 	public String getAvailableFields();
+
+	public DDMPermissionHandler getDDMPermissionHandler();
 
 	public String getEditStructureDefaultValuesURL(
 			LiferayPortletRequest liferayPortletRequest,
@@ -56,12 +54,6 @@ public interface DDMDisplay {
 
 	public String getPortletId();
 
-	public long[] getResourceClassNameIds();
-
-	public String getResourceName();
-
-	public String getResourceName(long classNameId);
-
 	public String getStorageType();
 
 	public String getStructureName(Locale locale);
@@ -70,8 +62,15 @@ public interface DDMDisplay {
 
 	public long[] getTemplateClassNameIds(long classNameId);
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
 	public long[] getTemplateClassPKs(
 			long companyId, long classNameId, long classPK)
+		throws Exception;
+
+	public long[] getTemplateClassPKs(
+			long[] groupIds, long classNameId, long classPK)
 		throws Exception;
 
 	public long[] getTemplateGroupIds(
