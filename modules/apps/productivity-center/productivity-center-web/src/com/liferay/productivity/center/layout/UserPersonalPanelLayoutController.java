@@ -22,9 +22,7 @@ import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutTypeController;
-import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.productivity.center.util.BundleServletUtil;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
 import java.util.Collection;
@@ -32,17 +30,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Adolfo Pérez
@@ -74,14 +67,32 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 	}
 
 	@Override
+	public String includeEditContent(
+			HttpServletRequest request, HttpServletResponse response,
+			Layout layout)
+		throws Exception {
+
+		RequestDispatcher requestDispatcher =
+			_servletContext.getRequestDispatcher(getEditPage());
+
+		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
+
+		PipingServletResponse pipingServletResponse = new PipingServletResponse(
+			response, unsyncStringWriter);
+
+		requestDispatcher.include(request, pipingServletResponse);
+
+		return unsyncStringWriter.toString();
+	}
+
+	@Override
 	public boolean includeLayoutContent(
 			HttpServletRequest request, HttpServletResponse response,
 			Layout layout)
 		throws Exception {
 
-		RequestDispatcher requestDispatcher = request.getRequestDispatcher(
-			Portal.PATH_MODULE + StringPool.SLASH + _servletContextName +
-				_VIEW_PATH);
+		RequestDispatcher requestDispatcher =
+			_servletContext.getRequestDispatcher(_VIEW_PATH);
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
@@ -138,24 +149,11 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 		}
 	}
 
-	@Activate
-	protected void activate(BundleContext bundleContext) {
-		Bundle bundle = bundleContext.getBundle();
-
-		_servletContextName = bundle.getSymbolicName();
-
-		_servletServiceRegistration = BundleServletUtil.createJspServlet(
-			_servletContextName, bundleContext);
-
-		_servletContextHelperServiceRegistration =
-			BundleServletUtil.createContext(_servletContextName, bundle);
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		_servletServiceRegistration.unregister();
-
-		_servletContextHelperServiceRegistration.unregister();
+	@Reference(
+		target = "(osgi.web.symbolicname=com.liferay.productivity.center.web)"
+	)
+	protected void setServletContext(ServletContext servletContext) {
+		_servletContext = servletContext;
 	}
 
 	private static final String _EDIT_PAGE =
@@ -173,9 +171,6 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 	private static final String _VIEW_PATH =
 		"/layout/view/user_personal_panel.jsp";
 
-	private ServiceRegistration<ServletContextHelper>
-		_servletContextHelperServiceRegistration;
-	private String _servletContextName;
-	private ServiceRegistration<Servlet> _servletServiceRegistration;
+	private ServletContext _servletContext;
 
 }

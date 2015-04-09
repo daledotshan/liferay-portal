@@ -17,6 +17,8 @@ package com.liferay.portlet.blogs;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.settings.FallbackKeys;
 import com.liferay.portal.kernel.settings.ParameterMapSettings;
+import com.liferay.portal.kernel.settings.PortletInstanceSettings;
+import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.settings.TypedSettings;
@@ -31,14 +33,14 @@ import java.util.Map;
  * @author Iván Zaera
  */
 @Settings.Config(settingsIds = {PortletKeys.BLOGS, PortletKeys.BLOGS_ADMIN})
-public class BlogsPortletInstanceSettings {
+public class BlogsPortletInstanceSettings implements PortletInstanceSettings {
 
 	public static BlogsPortletInstanceSettings getInstance(
 			Layout layout, String portletId)
 		throws PortalException {
 
-		Settings settings = SettingsFactoryUtil.getPortletInstanceSettings(
-			layout, portletId);
+		Settings settings = SettingsFactoryUtil.getSettings(
+			new PortletInstanceSettingsLocator(layout, portletId));
 
 		return new BlogsPortletInstanceSettings(settings);
 	}
@@ -47,8 +49,8 @@ public class BlogsPortletInstanceSettings {
 			Layout layout, String portletId, Map<String, String[]> parameterMap)
 		throws PortalException {
 
-		Settings settings = SettingsFactoryUtil.getPortletInstanceSettings(
-			layout, portletId);
+		Settings settings = SettingsFactoryUtil.getSettings(
+			new PortletInstanceSettingsLocator(layout, portletId));
 
 		return new BlogsPortletInstanceSettings(
 			new ParameterMapSettings(parameterMap, settings));
