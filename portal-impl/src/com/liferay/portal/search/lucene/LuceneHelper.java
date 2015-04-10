@@ -105,9 +105,6 @@ public interface LuceneHelper {
 
 	public long getLastGeneration(long companyId);
 
-	public InputStream getLoadIndexesInputStreamFromCluster(
-		long companyId, String bootupClusterNodeId);
-
 	public Set<String> getQueryTerms(Query query);
 
 	/**
@@ -124,12 +121,8 @@ public interface LuceneHelper {
 
 	public Version getVersion();
 
-	public boolean isLoadIndexFromClusterEnabled();
-
 	public void loadIndex(long companyId, InputStream inputStream)
 		throws IOException;
-
-	public void loadIndexesFromCluster(long companyId);
 
 	public void releaseIndexSearcher(
 			long companyId, IndexSearcher indexSearcher)
