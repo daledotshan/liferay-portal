@@ -21,10 +21,12 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Layout;
+import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutTypeController;
-import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.productivity.center.util.BundleServletUtil;
+import com.liferay.productivity.center.constants.ProductivityCenterWebKeys;
+import com.liferay.productivity.center.service.panel.PanelAppRegistry;
+import com.liferay.productivity.center.service.panel.PanelCategoryRegistry;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
 import java.util.Collection;
@@ -32,23 +34,19 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.http.context.ServletContextHelper;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Adolfo Pérez
  */
 @Component(
-	immediate = true, property = {"layout.type=user_personal_panel"},
+	immediate = true,
+	property = {"layout.type=" + LayoutConstants.TYPE_USER_PERSONAL_PANEL},
 	service = LayoutTypeController.class
 )
 public class UserPersonalPanelLayoutController implements LayoutTypeController {
@@ -64,13 +62,34 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 	}
 
 	@Override
-	public String getEditPage() {
-		return _EDIT_PAGE;
+	public String getURL() {
+		return _URL;
 	}
 
 	@Override
-	public String getURL() {
-		return _URL;
+	public String includeEditContent(
+			HttpServletRequest request, HttpServletResponse response,
+			Layout layout)
+		throws Exception {
+
+		RequestDispatcher requestDispatcher =
+			_servletContext.getRequestDispatcher(getEditPage());
+
+		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
+
+		PipingServletResponse pipingServletResponse = new PipingServletResponse(
+			response, unsyncStringWriter);
+
+		try {
+			setPanelEntryRegistries(request);
+
+			requestDispatcher.include(request, pipingServletResponse);
+		}
+		finally {
+			removePanelEntryRegistries(request);
+		}
+
+		return unsyncStringWriter.toString();
 	}
 
 	@Override
@@ -79,9 +98,8 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 			Layout layout)
 		throws Exception {
 
-		RequestDispatcher requestDispatcher = request.getRequestDispatcher(
-			Portal.PATH_MODULE + StringPool.SLASH + _servletContextName +
-				_VIEW_PATH);
+		RequestDispatcher requestDispatcher =
+			_servletContext.getRequestDispatcher(_VIEW_PATH);
 
 		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
 
@@ -90,7 +108,14 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 
 		String contentType = pipingServletResponse.getContentType();
 
-		requestDispatcher.include(request, pipingServletResponse);
+		try {
+			setPanelEntryRegistries(request);
+
+			requestDispatcher.include(request, pipingServletResponse);
+		}
+		finally {
+			removePanelEntryRegistries(request);
+		}
 
 		if (contentType != null) {
 			response.setContentType(contentType);
@@ -138,24 +163,41 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 		}
 	}
 
-	@Activate
-	protected void activate(BundleContext bundleContext) {
-		Bundle bundle = bundleContext.getBundle();
-
-		_servletContextName = bundle.getSymbolicName();
-
-		_servletServiceRegistration = BundleServletUtil.createJspServlet(
-			_servletContextName, bundleContext);
-
-		_servletContextHelperServiceRegistration =
-			BundleServletUtil.createContext(_servletContextName, bundle);
+	protected String getEditPage() {
+		return _EDIT_PAGE;
 	}
 
-	@Deactivate
-	protected void deactivate() {
-		_servletServiceRegistration.unregister();
+	protected void removePanelEntryRegistries(HttpServletRequest request) {
+		request.removeAttribute(ProductivityCenterWebKeys.PANEL_APP_REGISTRY);
+		request.removeAttribute(
+			ProductivityCenterWebKeys.PANEL_CATEGORY_REGISTRY);
+	}
 
-		_servletContextHelperServiceRegistration.unregister();
+	@Reference(unbind = "-")
+	protected void setPanelAppRegistry(PanelAppRegistry panelAppRegistry) {
+		_panelAppRegistry = panelAppRegistry;
+	}
+
+	@Reference(unbind = "-")
+	protected void setPanelCategoryRegistry(
+		PanelCategoryRegistry panelCategoryRegistry) {
+
+		_panelCategoryRegistry = panelCategoryRegistry;
+	}
+
+	protected void setPanelEntryRegistries(HttpServletRequest request) {
+		request.setAttribute(
+			ProductivityCenterWebKeys.PANEL_APP_REGISTRY, _panelAppRegistry);
+		request.setAttribute(
+			ProductivityCenterWebKeys.PANEL_CATEGORY_REGISTRY,
+			_panelCategoryRegistry);
+	}
+
+	@Reference(
+		target = "(osgi.web.symbolicname=com.liferay.productivity.center.web)"
+	)
+	protected void setServletContext(ServletContext servletContext) {
+		_servletContext = servletContext;
 	}
 
 	private static final String _EDIT_PAGE =
@@ -173,9 +215,8 @@ public class UserPersonalPanelLayoutController implements LayoutTypeController {
 	private static final String _VIEW_PATH =
 		"/layout/view/user_personal_panel.jsp";
 
-	private ServiceRegistration<ServletContextHelper>
-		_servletContextHelperServiceRegistration;
-	private String _servletContextName;
-	private ServiceRegistration<Servlet> _servletServiceRegistration;
+	private PanelAppRegistry _panelAppRegistry;
+	private PanelCategoryRegistry _panelCategoryRegistry;
+	private ServletContext _servletContext;
 
 }

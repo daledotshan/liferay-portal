@@ -269,8 +269,7 @@ public class BookmarksFolderLocalServiceImpl
 	public List<Object> getFoldersAndEntries(
 		long groupId, long folderId, int status) {
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
-			status);
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
 
 		return bookmarksFolderFinder.findF_E_ByG_F(
 			groupId, folderId, queryDefinition);
@@ -280,7 +279,7 @@ public class BookmarksFolderLocalServiceImpl
 	public List<Object> getFoldersAndEntries(
 		long groupId, long folderId, int status, int start, int end) {
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
 			status, start, end, null);
 
 		return bookmarksFolderFinder.findF_E_ByG_F(
@@ -291,8 +290,7 @@ public class BookmarksFolderLocalServiceImpl
 	public int getFoldersAndEntriesCount(
 		long groupId, long folderId, int status) {
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
-			status);
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
 
 		return bookmarksFolderFinder.countF_E_ByG_F(
 			groupId, folderId, queryDefinition);
@@ -572,7 +570,7 @@ public class BookmarksFolderLocalServiceImpl
 			folder.getFolderId(), folder.getUuid(), 0, assetCategoryIds,
 			assetTagNames, true, null, null, null, ContentTypes.TEXT_PLAIN,
 			folder.getName(), folder.getDescription(), null, null, null, 0, 0,
-			null, false);
+			null);
 
 		assetLinkLocalService.updateLinks(
 			userId, assetEntry.getEntryId(), assetLinkEntryIds,

@@ -21,8 +21,6 @@ import com.liferay.portal.kernel.nio.intraband.rpc.IntrabandRPCUtil;
 import com.liferay.portal.kernel.process.ProcessCallable;
 import com.liferay.portal.kernel.resiliency.mpi.MPIHelperUtil;
 import com.liferay.portal.kernel.resiliency.spi.SPI;
-import com.liferay.portal.kernel.resiliency.spi.SPIUtil;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.StringPool;
@@ -82,16 +80,11 @@ public class IndexAccessorImpl implements IndexAccessor {
 		IndexSearcherManager indexSearcherManager = null;
 
 		try {
-			if (!SPIUtil.isSPI()) {
-				_checkLuceneDir();
-				_initIndexWriter();
-				_initCommitScheduler();
+			_checkLuceneDir();
+			_initIndexWriter();
+			_initCommitScheduler();
 
-				indexSearcherManager = new IndexSearcherManager(_indexWriter);
-			}
-			else {
-				indexSearcherManager = new IndexSearcherManager(getLuceneDir());
-			}
+			indexSearcherManager = new IndexSearcherManager(_indexWriter);
 		}
 		catch (IOException ioe) {
 			_log.error(
@@ -110,10 +103,6 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	@Override
 	public void addDocument(Document document) throws IOException {
-		if (SearchEngineUtil.isIndexReadOnly()) {
-			return;
-		}
-
 		_write(null, document);
 	}
 
@@ -135,10 +124,6 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	@Override
 	public void close() {
-		if (SPIUtil.isSPI()) {
-			return;
-		}
-
 		try {
 			_indexSearcherManager.close();
 
@@ -157,19 +142,11 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	@Override
 	public void delete() {
-		if (SearchEngineUtil.isIndexReadOnly()) {
-			return;
-		}
-
 		_deleteDirectory();
 	}
 
 	@Override
 	public void deleteDocuments(Term term) throws IOException {
-		if (SearchEngineUtil.isIndexReadOnly()) {
-			return;
-		}
-
 		try {
 			_indexWriter.deleteDocuments(term);
 
@@ -289,16 +266,14 @@ public class IndexAccessorImpl implements IndexAccessor {
 	public void updateDocument(Term term, Document document)
 		throws IOException {
 
-		if (SearchEngineUtil.isIndexReadOnly()) {
-			return;
-		}
-
 		if (_log.isDebugEnabled()) {
 			_log.debug("Indexing " + document);
 		}
 
 		_write(term, document);
 	}
+
+	protected static LuceneHelper luceneHelper;
 
 	private static void _invalidate(long companyId) {
 		for (SPI spi : MPIHelperUtil.getSPIs()) {
@@ -320,10 +295,6 @@ public class IndexAccessorImpl implements IndexAccessor {
 	}
 
 	private void _checkLuceneDir() {
-		if (SearchEngineUtil.isIndexReadOnly()) {
-			return;
-		}
-
 		try {
 			Directory directory = getLuceneDir();
 
@@ -380,19 +351,17 @@ public class IndexAccessorImpl implements IndexAccessor {
 	}
 
 	private void _doCommit() throws IOException {
-		if (_indexWriter != null) {
-			_commitLock.lock();
+		_commitLock.lock();
 
-			try {
-				_indexWriter.commit();
-			}
-			finally {
-				_commitLock.unlock();
+		try {
+			_indexWriter.commit();
+		}
+		finally {
+			_commitLock.unlock();
 
-				_indexSearcherManager.invalidate();
+			_indexSearcherManager.invalidate();
 
-				_invalidate(_companyId);
-			}
+			_invalidate(_companyId);
 		}
 
 		_batchCount = 0;
@@ -490,11 +459,11 @@ public class IndexAccessorImpl implements IndexAccessor {
 	private void _initIndexWriter() {
 		try {
 			Analyzer analyzer = new LimitTokenCountAnalyzer(
-				LuceneHelperUtil.getAnalyzer(),
+				luceneHelper.getAnalyzer(),
 				PropsValues.LUCENE_ANALYZER_MAX_TOKENS);
 
 			IndexWriterConfig indexWriterConfig = new IndexWriterConfig(
-				LuceneHelperUtil.getVersion(), analyzer);
+				luceneHelper.getVersion(), analyzer);
 
 			indexWriterConfig.setIndexDeletionPolicy(_dumpIndexDeletionPolicy);
 			indexWriterConfig.setMergePolicy(_getMergePolicy());
@@ -566,7 +535,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 		@Override
 		public Serializable call() {
-			IndexAccessor indexAccessor = LuceneHelperUtil.getIndexAccessor(
+			IndexAccessor indexAccessor = luceneHelper.getIndexAccessor(
 				_companyId);
 
 			indexAccessor.invalidate();

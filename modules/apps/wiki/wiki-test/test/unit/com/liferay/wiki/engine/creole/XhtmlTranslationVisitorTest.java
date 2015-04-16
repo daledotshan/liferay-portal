@@ -20,7 +20,9 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.util.HtmlImpl;
 import com.liferay.wiki.engine.creole.util.test.CreoleTestUtil;
 import com.liferay.wiki.parser.creole.visitor.impl.XhtmlTranslationVisitor;
+import com.liferay.wiki.service.provider.WikiServiceComponentProvider;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +38,14 @@ public class XhtmlTranslationVisitorTest {
 		HtmlUtil htmlUtil = new HtmlUtil();
 
 		htmlUtil.setHtml(new HtmlImpl());
+
+		_wikiServiceComponentProvider =
+			CreoleTestUtil.getWikiSettingsProvider();
+	}
+
+	@After
+	public void tearDown() {
+		_wikiServiceComponentProvider.deactivate();
 	}
 
 	@Test
@@ -572,7 +582,7 @@ public class XhtmlTranslationVisitorTest {
 	@Test
 	public void testParseOnlySpacesContentInImageTag() {
 		Assert.assertEquals(
-			"<p><img src=\"L1\" alt=\"A1\"/><img src=\"L2\" alt=\"A2\"/>"  +
+			"<p><img src=\"L1\" alt=\"A1\"/><img src=\"L2\" alt=\"A2\"/>" +
 				"<img src=\"L3\" alt=\"A3\"/><img src=\"L4\" alt=\"A4\"/>" +
 					"<img src=\"L5\" alt=\"A5\"/> </p>",
 			translate("image-5.creole"));
@@ -722,6 +732,7 @@ public class XhtmlTranslationVisitorTest {
 
 	private static final String _NEW_LINE = StringPool.NEW_LINE;
 
+	private WikiServiceComponentProvider _wikiServiceComponentProvider;
 	private final XhtmlTranslationVisitor _xhtmlTranslationVisitor =
 		new XhtmlTranslationVisitor();
 

@@ -302,13 +302,14 @@ public class MediaWikiToCreoleTranslator extends BaseTranslator {
 
 	private static final String[] _HTML_TAGS = {
 		"<blockquote>", "</blockquote>", "<br>", "<br/>", "<br />", "<center>",
-		"</center>", "<cite>", "</cite>","<code>", "</code>", "</div>",
+		"</center>", "<cite>", "</cite>", "<code>", "</code>", "</div>",
 		"</font>", "<hr>", "<hr/>", "<hr />", "<p>", "</p>", "<tt>", "</tt>",
 		"<var>", "</var>"
 	};
 
 	private final Pattern[] _htmlTagPatterns = {
-		Pattern.compile("<div[^>]*>"), Pattern.compile("<font[^>]*>")};
+		Pattern.compile("<div[^>]*>"), Pattern.compile("<font[^>]*>")
+	};
 	private final Pattern _imagePattern = Pattern.compile(
 		"(\\[{2})(Image|File)(:)", Pattern.DOTALL);
 	private final Pattern _linkPattern = Pattern.compile(

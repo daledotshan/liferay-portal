@@ -33,8 +33,10 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.repository.model.RepositoryModel;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -52,7 +54,7 @@ import com.liferay.portal.util.SubscriptionSender;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLink;
 import com.liferay.portlet.asset.model.AssetLinkConstants;
-import com.liferay.portlet.documentlibrary.DLSettings;
+import com.liferay.portlet.documentlibrary.DLGroupServiceSettings;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
@@ -78,7 +80,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -129,10 +130,6 @@ public class DLAppHelperLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		updateFileEntry(
-			userId, fileEntry, sourceFileVersion, destinationFileVersion,
-			serviceContext);
-
 		if (draftFileVersion == null) {
 			return;
 		}
@@ -167,7 +164,7 @@ public class DLAppHelperLocalServiceImpl
 				fileEntry.getUuid(), fileEntryTypeId, assetCategoryIds,
 				assetTagNames, false, null, null, null, fileEntry.getMimeType(),
 				fileEntry.getTitle(), fileEntry.getDescription(), null, null,
-				null, 0, 0, null, false);
+				null, 0, 0, null);
 		}
 
 		AssetEntry fileVersionAssetEntry = assetEntryLocalService.fetchEntry(
@@ -192,8 +189,7 @@ public class DLAppHelperLocalServiceImpl
 				fileVersion.getFileVersionId(), fileEntry.getUuid(),
 				fileEntryTypeId, assetCategoryIds, assetTagNames, false, null,
 				null, null, fileEntry.getMimeType(), fileEntry.getTitle(),
-				fileEntry.getDescription(), null, null, null, 0, 0, null,
-				false);
+				fileEntry.getDescription(), null, null, null, 0, 0, null);
 
 			List<AssetLink> assetLinks = assetLinkLocalService.getDirectLinks(
 				fileEntryAssetEntry.getEntryId());
@@ -477,8 +473,8 @@ public class DLAppHelperLocalServiceImpl
 
 				// Folders, file entries, and file shortcuts
 
-				QueryDefinition<?> queryDefinition =
-					new QueryDefinition<Object>(WorkflowConstants.STATUS_ANY);
+				QueryDefinition<?> queryDefinition = new QueryDefinition<>(
+					WorkflowConstants.STATUS_ANY);
 
 				List<Object> foldersAndFileEntriesAndFileShortcuts =
 					dlFolderLocalService.
@@ -847,9 +843,8 @@ public class DLAppHelperLocalServiceImpl
 
 				// Folders, file entries, and file shortcuts
 
-				QueryDefinition<?> queryDefinition =
-					new QueryDefinition<Object>(
-						WorkflowConstants.STATUS_IN_TRASH);
+				QueryDefinition<?> queryDefinition = new QueryDefinition<>(
+					WorkflowConstants.STATUS_IN_TRASH);
 
 				List<Object> foldersAndFileEntriesAndFileShortcuts =
 					dlFolderLocalService.
@@ -1028,7 +1023,7 @@ public class DLAppHelperLocalServiceImpl
 
 		// Folders, file entries, and file shortcuts
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
 			WorkflowConstants.STATUS_IN_TRASH);
 
 		List<Object> foldersAndFileEntriesAndFileShortcuts =
@@ -1154,8 +1149,7 @@ public class DLAppHelperLocalServiceImpl
 				fileVersion.getFileVersionId(), fileEntry.getUuid(),
 				fileEntryTypeId, assetCategoryIds, assetTagNames, false, null,
 				null, null, fileEntry.getMimeType(), fileEntry.getTitle(),
-				fileEntry.getDescription(), null, null, null, 0, 0, null,
-				false);
+				fileEntry.getDescription(), null, null, null, 0, 0, null);
 		}
 		else {
 			assetEntry = assetEntryLocalService.updateEntry(
@@ -1165,8 +1159,7 @@ public class DLAppHelperLocalServiceImpl
 				fileEntry.getUuid(), fileEntryTypeId, assetCategoryIds,
 				assetTagNames, visible, null, null, null,
 				fileEntry.getMimeType(), fileEntry.getTitle(),
-				fileEntry.getDescription(), null, null, null, 0, 0, null,
-				false);
+				fileEntry.getDescription(), null, null, null, 0, 0, null);
 
 			List<DLFileShortcut> dlFileShortcuts =
 				dlFileShortcutPersistence.findByToFileEntryId(
@@ -1182,8 +1175,7 @@ public class DLAppHelperLocalServiceImpl
 					dlFileShortcut.getUuid(), fileEntryTypeId, assetCategoryIds,
 					assetTagNames, true, null, null, null,
 					fileEntry.getMimeType(), fileEntry.getTitle(),
-					fileEntry.getDescription(), null, null, null, 0, 0, null,
-					false);
+					fileEntry.getDescription(), null, null, null, 0, 0, null);
 			}
 		}
 
@@ -1222,7 +1214,7 @@ public class DLAppHelperLocalServiceImpl
 			folder.getModifiedDate(), DLFolderConstants.getClassName(),
 			folder.getFolderId(), folder.getUuid(), 0, assetCategoryIds,
 			assetTagNames, visible, null, null, null, null, folder.getName(),
-			folder.getDescription(), null, null, null, 0, 0, null, false);
+			folder.getDescription(), null, null, null, 0, 0, null);
 
 		assetLinkLocalService.updateLinks(
 			userId, assetEntry.getEntryId(), assetLinkEntryIds,
@@ -1337,7 +1329,7 @@ public class DLAppHelperLocalServiceImpl
 								draftAssetEntry.getMimeType(),
 								fileEntry.getTitle(),
 								fileEntry.getDescription(), null, null, null, 0,
-								0, null, false);
+								0, null);
 
 						assetLinkLocalService.updateLinks(
 							userId, assetEntry.getEntryId(), assetLinkEntryIds,
@@ -1686,7 +1678,7 @@ public class DLAppHelperLocalServiceImpl
 
 			// Folders, file entries, and file shortcuts
 
-			QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
+			QueryDefinition<?> queryDefinition = new QueryDefinition<>(
 				WorkflowConstants.STATUS_IN_TRASH);
 
 			List<Object> foldersAndFileEntriesAndFileShortcuts =
@@ -1751,7 +1743,7 @@ public class DLAppHelperLocalServiceImpl
 
 		// Folders, file entries, and file shortcuts
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
 			WorkflowConstants.STATUS_ANY);
 
 		List<Object> foldersAndFileEntriesAndFileShortcuts =
@@ -1786,8 +1778,7 @@ public class DLAppHelperLocalServiceImpl
 		List<DLFileVersion> dlFileVersions) {
 
 		List<ObjectValuePair<Long, Integer>> dlFileVersionStatusOVPs =
-			new ArrayList<ObjectValuePair<Long, Integer>>(
-				dlFileVersions.size());
+			new ArrayList<>(dlFileVersions.size());
 
 		for (DLFileVersion dlFileVersion : dlFileVersions) {
 			int status = dlFileVersion.getStatus();
@@ -1832,7 +1823,7 @@ public class DLAppHelperLocalServiceImpl
 	}
 
 	protected void notifySubscribers(
-			long contextUserId, FileVersion fileVersion, String entryURL,
+			long userId, FileVersion fileVersion, String entryURL,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -1840,14 +1831,14 @@ public class DLAppHelperLocalServiceImpl
 			return;
 		}
 
-		DLSettings dlSettings = DLSettings.getInstance(
-			fileVersion.getGroupId());
+		DLGroupServiceSettings dlGroupServiceSettings =
+			DLGroupServiceSettings.getInstance(fileVersion.getGroupId());
 
 		if (serviceContext.isCommandAdd() &&
-			dlSettings.isEmailFileEntryAddedEnabled()) {
+			dlGroupServiceSettings.isEmailFileEntryAddedEnabled()) {
 		}
 		else if (serviceContext.isCommandUpdate() &&
-				 dlSettings.isEmailFileEntryUpdatedEnabled()) {
+				 dlGroupServiceSettings.isEmailFileEntryUpdatedEnabled()) {
 		}
 		else {
 			return;
@@ -1855,19 +1846,23 @@ public class DLAppHelperLocalServiceImpl
 
 		String entryTitle = fileVersion.getTitle();
 
-		String fromName = dlSettings.getEmailFromName();
-		String fromAddress = dlSettings.getEmailFromAddress();
+		String fromName = dlGroupServiceSettings.getEmailFromName();
+		String fromAddress = dlGroupServiceSettings.getEmailFromAddress();
 
-		Map<Locale, String> localizedSubjectMap = null;
-		Map<Locale, String> localizedBodyMap = null;
+		LocalizedValuesMap subjectLocalizedValuesMap = null;
+		LocalizedValuesMap bodyLocalizedValuesMap = null;
 
 		if (serviceContext.isCommandUpdate()) {
-			localizedSubjectMap = dlSettings.getEmailFileEntryUpdatedSubject();
-			localizedBodyMap = dlSettings.getEmailFileEntryUpdatedBody();
+			subjectLocalizedValuesMap =
+				dlGroupServiceSettings.getEmailFileEntryUpdatedSubject();
+			bodyLocalizedValuesMap =
+				dlGroupServiceSettings.getEmailFileEntryUpdatedBody();
 		}
 		else {
-			localizedSubjectMap = dlSettings.getEmailFileEntryAddedSubject();
-			localizedBodyMap = dlSettings.getEmailFileEntryAddedBody();
+			subjectLocalizedValuesMap =
+				dlGroupServiceSettings.getEmailFileEntryAddedSubject();
+			bodyLocalizedValuesMap =
+				dlGroupServiceSettings.getEmailFileEntryAddedBody();
 		}
 
 		FileEntry fileEntry = fileVersion.getFileEntry();
@@ -1906,14 +1901,17 @@ public class DLAppHelperLocalServiceImpl
 			"[$DOCUMENT_TYPE$]",
 			dlFileEntryType.getName(serviceContext.getLocale()),
 			"[$DOCUMENT_URL$]", entryURL, "[$FOLDER_NAME$]", folderName);
-		subscriptionSender.setContextUserId(contextUserId);
-		subscriptionSender.setContextUserPrefix("DOCUMENT");
+		subscriptionSender.setContextCreatorUserPrefix("DOCUMENT");
+		subscriptionSender.setCreatorUserId(fileVersion.getUserId());
+		subscriptionSender.setCurrentUserId(userId);
 		subscriptionSender.setEntryTitle(entryTitle);
 		subscriptionSender.setEntryURL(entryURL);
 		subscriptionSender.setFrom(fromAddress, fromName);
 		subscriptionSender.setHtmlFormat(true);
-		subscriptionSender.setLocalizedBodyMap(localizedBodyMap);
-		subscriptionSender.setLocalizedSubjectMap(localizedSubjectMap);
+		subscriptionSender.setLocalizedBodyMap(
+			LocalizationUtil.getMap(bodyLocalizedValuesMap));
+		subscriptionSender.setLocalizedSubjectMap(
+			LocalizationUtil.getMap(subjectLocalizedValuesMap));
 		subscriptionSender.setMailId(
 			"file_entry", fileVersion.getFileEntryId());
 
@@ -1931,7 +1929,6 @@ public class DLAppHelperLocalServiceImpl
 		subscriptionSender.setReplyToAddress(fromAddress);
 		subscriptionSender.setScopeGroupId(fileVersion.getGroupId());
 		subscriptionSender.setServiceContext(serviceContext);
-		subscriptionSender.setUserId(fileVersion.getUserId());
 
 		subscriptionSender.addPersistedSubscribers(
 			DLFolder.class.getName(), fileVersion.getGroupId());

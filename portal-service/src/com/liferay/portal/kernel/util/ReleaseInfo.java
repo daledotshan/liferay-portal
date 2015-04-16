@@ -89,6 +89,8 @@ public class ReleaseInfo {
 
 	public static final int RELEASE_6_2_2_BUILD_NUMBER = 6202;
 
+	public static final int RELEASE_6_2_3_BUILD_NUMBER = 6203;
+
 	public static final int RELEASE_6_2_10_BUILD_NUMBER = 6210;
 
 	public static final int RELEASE_7_0_0_BUILD_NUMBER = 7000;
@@ -157,10 +159,10 @@ public class ReleaseInfo {
 	private static final int _PARENT_BUILD_NUMBER = _BUILD_NUMBER;
 
 	private static final String _RELEASE_INFO_PREFIX = System.getProperty(
-		"liferay.release.info.prefix" , StringPool.BLANK);
+		"liferay.release.info.prefix", StringPool.BLANK);
 
 	private static final String _RELEASE_INFO_SUFFIX = System.getProperty(
-		"liferay.release.info.suffix" , StringPool.BLANK);
+		"liferay.release.info.suffix", StringPool.BLANK);
 
 	private static final String _VENDOR = "Liferay, Inc.";
 
