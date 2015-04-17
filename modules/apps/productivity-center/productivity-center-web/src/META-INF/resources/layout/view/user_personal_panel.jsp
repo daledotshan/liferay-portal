@@ -13,3 +13,16 @@
  * details.
  */
 --%>
+
+<%@ include file="/layout/view/init.jsp" %>
+
+<aui:container cssClass="panel-manage-frontpage">
+	<aui:row>
+		<aui:col cssClass="panel-page-menu" width="<%= 25 %>">
+			<liferay-portlet:runtime portletName="<%= ProductivityCenterPortletKeys.PRODUCTIVITY_CENTER %>" />
+		</aui:col>
+		<aui:col width="<%= 75 %>">
+			<productivity-center-ui:panel-content portletId="<%= themeDisplay.getPpid() %>" servletContext="<%= application %>" />
+		</aui:col>
+	</aui:row>
+</aui:container>

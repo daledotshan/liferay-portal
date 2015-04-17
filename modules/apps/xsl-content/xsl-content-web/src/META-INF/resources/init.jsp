@@ -21,12 +21,10 @@
 <%@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
 <%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
-<%@ page contentType="text/html; charset=UTF-8" %>
-
 <%@ page import="com.liferay.portal.kernel.log.Log" %><%@
 page import="com.liferay.portal.kernel.log.LogFactoryUtil" %><%@
 page import="com.liferay.portal.kernel.util.Constants" %><%@
-page import="com.liferay.portal.kernel.util.StringUtil" %><%@
+page import="com.liferay.portal.kernel.util.Validator" %><%@
 page import="com.liferay.xsl.content.web.configuration.XSLContentConfiguration" %><%@
 page import="com.liferay.xsl.content.web.util.XSLContentUtil" %>
 
@@ -36,8 +34,10 @@ page import="com.liferay.xsl.content.web.util.XSLContentUtil" %>
 <portlet:defineObjects />
 
 <%
-String xmlUrl = portletPreferences.getValue("xmlUrl", "@portal_url@" + request.getContextPath() + XSLContentUtil.DEFAULT_XML_URL);
-String xslUrl = portletPreferences.getValue("xslUrl", "@portal_url@" + request.getContextPath() + XSLContentUtil.DEFAULT_XSL_URL);
+XSLContentConfiguration xslContentConfiguration = (XSLContentConfiguration)request.getAttribute(XSLContentConfiguration.class.getName());
+
+String xmlUrl = portletPreferences.getValue("xmlUrl", "@portlet_context_url@" + XSLContentUtil.DEFAULT_XML_URL);
+String xslUrl = portletPreferences.getValue("xslUrl", "@portlet_context_url@" + XSLContentUtil.DEFAULT_XSL_URL);
 %>
 
 <%@ include file="/init-ext.jsp" %>

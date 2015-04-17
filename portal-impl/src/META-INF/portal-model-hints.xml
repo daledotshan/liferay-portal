@@ -229,7 +229,9 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
-		<field name="name" type="String" />
+		<field name="name" type="String">
+			<hint name="max-length">200</hint>
+		</field>
 		<field name="description" type="String">
 			<hint-collection name="TEXTAREA" />
 		</field>
@@ -1261,7 +1263,9 @@
 		<field name="leftCategoryId" type="long" />
 		<field name="rightCategoryId" type="long" />
 		<field name="name" type="String" />
-		<field name="title" type="String" localized="true" />
+		<field name="title" type="String" localized="true">
+			<validator name="required" />
+		</field>
 		<field name="description" type="String" localized="true">
 			<hint-collection name="TEXTAREA" />
 			<hint name="display-width">350</hint>
@@ -1339,7 +1343,9 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
-		<field name="name" type="String" />
+		<field name="name" type="String">
+			<validator name="required" />
+		</field>
 		<field name="assetCount" type="int" />
 	</model>
 	<model name="com.liferay.portlet.asset.model.AssetTagStats">
@@ -1358,7 +1364,9 @@
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="name" type="String" />
-		<field name="title" type="String" localized="true" />
+		<field name="title" type="String" localized="true">
+			<validator name="required" />
+		</field>
 		<field name="description" type="String" localized="true">
 			<hint-collection name="TEXTAREA" />
 			<hint name="display-width">350</hint>
@@ -1401,8 +1409,13 @@
 		<field name="trackbacks" type="String">
 			<hint-collection name="CLOB" />
 		</field>
+		<field name="coverImageCaption" type="String">
+			<hint-collection name="TEXTAREA" />
+		</field>
 		<field name="coverImageFileEntryId" type="long" />
-		<field name="coverImageURL" type="String" />
+		<field name="coverImageURL" type="String">
+			<hint-collection name="URL" />
+		</field>
 		<field name="smallImage" type="boolean" />
 		<field name="smallImageFileEntryId" type="long" />
 		<field name="smallImageId" type="long" />
@@ -1812,7 +1825,7 @@
 		<field name="modifiedDate" type="Date" />
 		<field name="classNameId" type="long" />
 		<field name="classPK" type="long" />
-		<field name="sourceClassNameId" type="long" />
+		<field name="resourceClassNameId" type="long" />
 		<field name="templateKey" type="String">
 			<hint name="upper-case">true</hint>
 			<hint name="auto-escape">false</hint>
