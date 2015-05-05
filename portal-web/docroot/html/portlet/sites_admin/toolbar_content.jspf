@@ -64,11 +64,12 @@
 				<c:if test="<%= hasAddLayoutSetPrototypePermission %>">
 					<aui:nav-item cssClass="divider" />
 
-					<liferay-portlet:renderURL portletName="<%= PortletKeys.LAYOUT_SET_PROTOTYPE %>" varImpl="manageSiteTemplateURL">
-						<portlet:param name="struts_action" value="/layout_set_prototypes/view" />
-						<portlet:param name="redirect" value="<%= viewSitesURL %>" />
-						<portlet:param name="backURL" value="<%= viewSitesURL %>" />
-					</liferay-portlet:renderURL>
+					<%
+					PortletURL manageSiteTemplateURL = PortletProviderUtil.getPortletURL(request, LayoutSetPrototype.class.getName(), PortletProvider.Action.VIEW);
+
+					manageSiteTemplateURL.setParameter("redirect", viewSitesURL);
+					manageSiteTemplateURL.setParameter("backURL", viewSitesURL);
+					%>
 
 					<aui:nav-item href="<%= manageSiteTemplateURL.toString() %>" label="manage-site-template" />
 				</c:if>

@@ -16,7 +16,7 @@ package com.liferay.portal.staging;
 
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.staging.StagingUtil;
+import com.liferay.portal.kernel.lar.exportimportconfiguration.ExportImportConfigurationParameterMapFactory;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -40,8 +40,12 @@ import com.liferay.portlet.journal.util.test.JournalTestUtil;
 
 import java.io.File;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -53,7 +57,7 @@ import org.junit.Test;
 /**
  * @author Daniel Kocsis
  */
-@Sync
+@Sync(cleanTransaction = true)
 public class StagingLocalizationTest {
 
 	@ClassRule
@@ -115,9 +119,11 @@ public class StagingLocalizationTest {
 			_sourceGroup.getGroupId(), "Title", "content",
 			LocaleUtil.fromLanguageId(defaultContentLanguageId));
 
+		Map<String, String[]> parameterMap =
+			ExportImportConfigurationParameterMapFactory.buildParameterMap();
+
 		File file = LayoutLocalServiceUtil.exportLayoutsAsFile(
-			_sourceGroup.getGroupId(), false, null,
-			StagingUtil.getStagingParameters(),
+			_sourceGroup.getGroupId(), false, null, parameterMap,
 			new Date(System.currentTimeMillis() - Time.MINUTE), new Date());
 
 		CompanyTestUtil.resetCompanyLocales(
@@ -125,7 +131,7 @@ public class StagingLocalizationTest {
 
 		LayoutLocalServiceUtil.importLayouts(
 			TestPropsValues.getUserId(), _targetGroup.getGroupId(), false,
-			StagingUtil.getStagingParameters(), file);
+			parameterMap, file);
 
 		JournalArticleResource articleResource =
 			JournalArticleResourceLocalServiceUtil.
@@ -165,10 +171,10 @@ public class StagingLocalizationTest {
 		}
 	}
 
-	private Locale[] _availableLocales;
+	private Set<Locale> _availableLocales;
 	private Locale _defaultLocale;
-	private final Locale[] _locales =
-		{LocaleUtil.US, LocaleUtil.GERMANY, LocaleUtil.SPAIN};
+	private final List<Locale> _locales = Arrays.asList(
+		LocaleUtil.US, LocaleUtil.GERMANY, LocaleUtil.SPAIN);
 
 	@DeleteAfterTestRun
 	private Group _sourceGroup;

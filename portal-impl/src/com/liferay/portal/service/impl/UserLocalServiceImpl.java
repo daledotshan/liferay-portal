@@ -64,7 +64,6 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.Digester;
 import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -77,6 +76,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PwdGenerator;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -471,7 +471,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 
 		addDefaultRolesAndTeams(groupId, userIds);
 	}
@@ -494,7 +494,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -528,7 +528,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -549,7 +549,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -664,7 +664,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -1797,7 +1797,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userId);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -1943,7 +1943,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		// Permission cache
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(user.getUserId());
 
 		// Workflow
 
@@ -1970,7 +1970,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userId);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -2489,7 +2489,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		params.put(
 			"socialMutualRelationType",
 			new Long[] {userId1, new Long(socialRelationType), userId2,
-			new Long(socialRelationType)});
+			new Long(socialRelationType)
+		});
 
 		return search(
 			user1.getCompanyId(), null, WorkflowConstants.STATUS_APPROVED,
@@ -2659,7 +2660,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		params.put(
 			"socialMutualRelationType",
 			new Long[] {userId1, new Long(socialRelationType), userId2,
-			new Long(socialRelationType)});
+			new Long(socialRelationType)
+		});
 
 		return searchCount(
 			user1.getCompanyId(), null, WorkflowConstants.STATUS_APPROVED,
@@ -3682,7 +3684,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		subscriptionSender.setLocalizedSubjectMap(localizedSubjectMap);
 		subscriptionSender.setMailId("user", user.getUserId());
 		subscriptionSender.setServiceContext(serviceContext);
-		subscriptionSender.setUserId(user.getUserId());
 
 		subscriptionSender.addRuntimeSubscribers(toAddress, toName);
 
@@ -3919,13 +3920,20 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	public void setRoleUsers(long roleId, long[] userIds)
 		throws PortalException {
 
+		long[] oldUserIds = rolePersistence.getUserPrimaryKeys(roleId);
+
+		Set<Long> updatedUserIdsSet = SetUtil.symmetricDifference(
+			userIds, oldUserIds);
+
+		long[] updateUserIds = ArrayUtil.toLongArray(updatedUserIdsSet);
+
 		rolePersistence.setUsers(roleId, userIds);
 
 		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(User.class);
 
-		indexer.reindex(userIds);
+		indexer.reindex(updateUserIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(updateUserIds);
 	}
 
 	/**
@@ -3945,13 +3953,21 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			userGroupLocalService.copyUserGroupLayouts(userGroupId, userIds);
 		}
 
+		long[] oldUserIds = userGroupPersistence.getUserPrimaryKeys(
+			userGroupId);
+
+		Set<Long> updatedUserIdsSet = SetUtil.symmetricDifference(
+			userIds, oldUserIds);
+
+		long[] updateUserIds = ArrayUtil.toLongArray(updatedUserIdsSet);
+
 		userGroupPersistence.setUsers(userGroupId, userIds);
 
 		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(User.class);
 
-		indexer.reindex(userIds);
+		indexer.reindex(updateUserIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(updateUserIds);
 	}
 
 	/**
@@ -3971,7 +3987,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			unsetTeamUsers(team.getTeamId(), userIds);
 		}
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4000,7 +4016,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 
 		Callable<Void> callable = new Callable<Void>() {
 
@@ -4048,7 +4064,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 
 		Callable<Void> callable = new Callable<Void>() {
 
@@ -4112,7 +4128,15 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(users);
 
-		PermissionCacheUtil.clearCache();
+		long[] userIds = new long[users.size()];
+
+		for (int i = 0; i < users.size(); i++) {
+			User user = users.get(i);
+
+			userIds[i] = user.getUserId();
+		}
+
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4143,7 +4167,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4163,7 +4187,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4183,7 +4207,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		indexer.reindex(userIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userIds);
 	}
 
 	/**
@@ -4237,7 +4261,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			user.getModifiedDate(), User.class.getName(), user.getUserId(),
 			user.getUuid(), 0, assetCategoryIds, assetTagNames, false, null,
 			null, null, null, user.getFullName(), null, null, null, null, 0, 0,
-			null, false);
+			null);
 	}
 
 	/**
@@ -5322,7 +5346,11 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		user.setFacebookId(facebookId);
 
-		Long ldapServerId = (Long)serviceContext.getAttribute("ldapServerId");
+		Long ldapServerId = null;
+
+		if (serviceContext != null) {
+			ldapServerId = (Long)serviceContext.getAttribute("ldapServerId");
+		}
 
 		if (ldapServerId != null) {
 			user.setLdapServerId(ldapServerId);
@@ -5476,7 +5504,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		// Permission cache
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 
 		return user;
 	}
@@ -6088,12 +6116,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		}
 
 		for (String key : params.keySet()) {
-			if (!key.equals("inherit") &&
-				!key.equals("usersGroups") &&
-				!key.equals("usersOrgs") &&
-				!key.equals("usersOrgsCount") &&
-				!key.equals("usersRoles") &&
-				!key.equals("usersTeams") &&
+			if (!key.equals("inherit") && !key.equals("usersGroups") &&
+				!key.equals("usersOrgs") && !key.equals("usersOrgsCount") &&
+				!key.equals("usersRoles") && !key.equals("usersTeams") &&
 				!key.equals("usersUserGroups")) {
 
 				return true;
@@ -6160,7 +6185,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		subscriptionSender.setLocalizedSubjectMap(localizedSubjectMap);
 		subscriptionSender.setMailId("user", user.getUserId());
 		subscriptionSender.setServiceContext(serviceContext);
-		subscriptionSender.setUserId(user.getUserId());
 
 		subscriptionSender.addRuntimeSubscribers(toAddress, toName);
 
@@ -6270,7 +6294,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		subscriptionSender.setLocalizedSubjectMap(localizedSubjectMap);
 		subscriptionSender.setMailId("user", user.getUserId());
 		subscriptionSender.setServiceContext(serviceContext);
-		subscriptionSender.setUserId(user.getUserId());
 
 		subscriptionSender.addRuntimeSubscribers(toAddress, toName);
 
@@ -6346,7 +6369,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			indexer.reindex(new long[] {userId});
 		}
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	protected void updateOrganizations(
@@ -6378,7 +6401,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			indexer.reindex(new long[] {userId});
 		}
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	protected void updateUserGroupRoles(
@@ -6709,17 +6732,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 					throw new UserScreenNameException.MustNotBeUsedByGroup(
 						userId, screenName, group);
 				}
-			}
-		}
-
-		for (char c : screenName.toCharArray()) {
-			if (!Validator.isChar(c) && !Validator.isDigit(c) &&
-				(c != CharPool.DASH) && (c != CharPool.PERIOD) &&
-				(c != CharPool.UNDERLINE)) {
-
-				throw new UserScreenNameException.MustBeAlphaNumeric(
-					userId, screenName, CharPool.DASH, CharPool.PERIOD,
-					CharPool.UNDERLINE);
 			}
 		}
 

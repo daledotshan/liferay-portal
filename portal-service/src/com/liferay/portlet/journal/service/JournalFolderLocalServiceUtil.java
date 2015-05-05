@@ -345,6 +345,12 @@ public class JournalFolderLocalServiceUtil {
 		return getService().getDDMStructurePrimaryKeys(folderId);
 	}
 
+	public static java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getDDMStructures(
+		long[] groupIds, long folderId, int restrictionType)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getDDMStructures(groupIds, folderId, restrictionType);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
@@ -613,25 +619,27 @@ public class JournalFolderLocalServiceUtil {
 	}
 
 	public static com.liferay.portlet.journal.model.JournalFolder updateFolder(
-		long userId, long folderId, long parentFolderId, java.lang.String name,
-		java.lang.String description, long[] ddmStructureIds,
-		int restrictionType, boolean mergeWithParentFolder,
+		long userId, long groupId, long folderId, long parentFolderId,
+		java.lang.String name, java.lang.String description,
+		long[] ddmStructureIds, int restrictionType,
+		boolean mergeWithParentFolder,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .updateFolder(userId, folderId, parentFolderId, name,
-			description, ddmStructureIds, restrictionType,
+				   .updateFolder(userId, groupId, folderId, parentFolderId,
+			name, description, ddmStructureIds, restrictionType,
 			mergeWithParentFolder, serviceContext);
 	}
 
 	public static com.liferay.portlet.journal.model.JournalFolder updateFolder(
-		long userId, long folderId, long parentFolderId, java.lang.String name,
-		java.lang.String description, boolean mergeWithParentFolder,
+		long userId, long groupId, long folderId, long parentFolderId,
+		java.lang.String name, java.lang.String description,
+		boolean mergeWithParentFolder,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .updateFolder(userId, folderId, parentFolderId, name,
-			description, mergeWithParentFolder, serviceContext);
+				   .updateFolder(userId, groupId, folderId, parentFolderId,
+			name, description, mergeWithParentFolder, serviceContext);
 	}
 
 	public static void updateFolderDDMStructures(

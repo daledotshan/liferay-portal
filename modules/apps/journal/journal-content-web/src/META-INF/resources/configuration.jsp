@@ -66,7 +66,7 @@ String ddmTemplateKey = journalContentDisplayContext.getDDMTemplateKey();
 				<liferay-portlet:renderURL portletName="<%= PortletKeys.DYNAMIC_DATA_MAPPING %>" var="editTemplateURL">
 					<portlet:param name="struts_action" value="/dynamic_data_mapping/edit_template" />
 					<portlet:param name="redirect" value="<%= currentURL %>" />
-					<portlet:param name="refererPortletName" value="<%= PortletKeys.JOURNAL %>" />
+					<portlet:param name="refererPortletName" value="<%= PortletProviderUtil.getPortletId(JournalArticle.class.getName(), PortletProvider.Action.EDIT) %>" />
 					<portlet:param name="groupId" value="<%= String.valueOf(tableIteratorObj.getGroupId()) %>" />
 					<portlet:param name="templateId" value="<%= String.valueOf(tableIteratorObj.getTemplateId()) %>" />
 				</liferay-portlet:renderURL>
@@ -152,15 +152,14 @@ String ddmTemplateKey = journalContentDisplayContext.getDDMTemplateKey();
 			event.preventDefault();
 
 			<%
-			String portletId = PortletProviderUtil.getPortletId(JournalArticle.class.getName(), PortletProvider.Action.BROWSE);
-			%>
+			PortletURL selectWebContentURL = PortletProviderUtil.getPortletURL(request, JournalArticle.class.getName(), PortletProvider.Action.BROWSE);
 
-			<liferay-portlet:renderURL plid="<%= PortalUtil.getControlPanelPlid(company.getCompanyId()) %>" portletName="<%= portletId %>" var="selectWebContentURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-				<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
-				<portlet:param name="selectedGroupIds" value="<%= StringUtil.merge(PortalUtil.getSharedContentSiteGroupIds(company.getCompanyId(), scopeGroupId, user.getUserId())) %>" />
-				<portlet:param name="typeSelection" value="<%= JournalArticle.class.getName() %>" />
-				<portlet:param name="eventName" value="selectContent" />
-			</liferay-portlet:renderURL>
+			selectWebContentURL.setParameter("groupId", String.valueOf(scopeGroupId));
+			selectWebContentURL.setParameter("selectedGroupIds", StringUtil.merge(PortalUtil.getSharedContentSiteGroupIds(company.getCompanyId(), scopeGroupId, user.getUserId())));
+			selectWebContentURL.setParameter("typeSelection", JournalArticle.class.getName());
+			selectWebContentURL.setParameter("eventName", "selectContent");
+			selectWebContentURL.setWindowState(LiferayWindowState.POP_UP);
+			%>
 
 			Liferay.Util.selectEntity(
 				{
@@ -172,7 +171,7 @@ String ddmTemplateKey = journalContentDisplayContext.getDDMTemplateKey();
 					eventName: 'selectContent',
 					id: 'selectContent',
 					title: '<liferay-ui:message key="select-web-content" />',
-					uri: '<%= selectWebContentURL %>'
+					uri: '<%= HttpUtil.addParameter(selectWebContentURL.toString(), "doAsGroupId", scopeGroupId) %>'
 				},
 				function(event) {
 					form.fm('assetEntryId').val(event.assetentryid);

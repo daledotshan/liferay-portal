@@ -31,8 +31,6 @@ public class PortletKeys {
 
 	public static final String ANNOUNCEMENTS = "84";
 
-	public static final String ASSET_PUBLISHER = "101";
-
 	public static final String BACKGROUND_TASK = "189";
 
 	public static final String BLOGS = "33";
@@ -61,9 +59,6 @@ public class PortletKeys {
 
 	public static final String DOCUMENT_LIBRARY_DISPLAY = "110";
 
-	public static final String DOCUMENT_SELECTOR =
-		"200_WAR_documentselectorweb";
-
 	public static final String DYNAMIC_DATA_LIST_DISPLAY = "169";
 
 	public static final String DYNAMIC_DATA_LISTS = "167";
@@ -82,17 +77,13 @@ public class PortletKeys {
 
 	public static final String GROUP_STATISTICS = "181";
 
-	public static final String HIGHEST_RATED_ASSETS = "194";
-
 	public static final String IMAGE_UPLOADER = "195";
 
-	public static final String JOURNAL = "15";
+	public static final String ITEM_SELECTOR =
+		"com_liferay_item_selector_web_portlet_ItemSelectorPortlet";
 
-	public static final String JOURNAL_CONTENT_SEARCH = "77";
-
-	public static final String LAYOUT_PROTOTYPE = "146";
-
-	public static final String LAYOUT_SET_PROTOTYPE = "149";
+	public static final String JOURNAL =
+		"com_liferay_journal_web_portlet_JournalPortlet";
 
 	public static final String LAYOUTS_ADMIN = "88";
 
@@ -117,13 +108,9 @@ public class PortletKeys {
 
 	public static final String MONITORING = "131";
 
-	public static final String MOST_VIEWED_ASSETS = "193";
-
 	public static final String MY_ACCOUNT = "2";
 
 	public static final String MY_PAGES = "140";
-
-	public static final String MY_SITES = "29";
 
 	public static final String MY_SITES_DIRECTORY = "188";
 
@@ -148,8 +135,6 @@ public class PortletKeys {
 
 	public static final String PORTLET_CONFIGURATION = "86";
 
-	public static final String PORTLET_CSS = "113";
-
 	public static final String PORTLET_DISPLAY_TEMPLATES = "183";
 
 	public static final String PORTLET_SHARING = "133";
@@ -172,35 +157,19 @@ public class PortletKeys {
 
 	public static final String RECENT_BLOGGERS = "114";
 
-	public static final String RECENT_CONTENT = "173";
-
 	public static final String RECENT_DOCUMENTS = "64";
-
-	public static final String RELATED_ASSETS = "175";
 
 	public static final String REQUESTS = "121";
 
 	public static final String ROLES_ADMIN = "128";
 
-	public static final String SEARCH = "3";
-
 	public static final String SHOPPING = "34";
 
 	public static final String SITE_MEMBERS_DIRECTORY = "187";
 
-	public static final String SITE_MEMBERSHIPS_ADMIN = "174";
-
-	public static final String SITE_REDIRECTOR = "49";
-
 	public static final String SITE_SETTINGS = "165";
 
-	public static final String SITE_TEAMS_ADMIN = "191";
-
-	public static final String SITE_TEMPLATE_SETTINGS = "192";
-
 	public static final String SITES_ADMIN = "134";
-
-	public static final String SITES_DIRECTORY = "184";
 
 	public static final String SOCIAL_ACTIVITY = "179";
 
@@ -210,11 +179,7 @@ public class PortletKeys {
 
 	public static final String STOCKS = "12";
 
-	public static final String TAGS_COMPILER = "103";
-
 	public static final String TRANSLATOR = "26";
-
-	public static final String TRASH = "182";
 
 	public static final String UNIT_CONVERTER = "27";
 
@@ -223,8 +188,6 @@ public class PortletKeys {
 	public static final String USER_STATISTICS = "180";
 
 	public static final String USERS_ADMIN = "125";
-
-	public static final String WORKFLOW_CONFIGURATION = "152";
 
 	public static final String WORKFLOW_DEFINITIONS = "151";
 

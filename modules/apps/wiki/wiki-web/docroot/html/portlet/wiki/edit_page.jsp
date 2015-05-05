@@ -32,7 +32,7 @@ String title = BeanParamUtil.getString(wikiPage, request, "title");
 boolean editTitle = ParamUtil.getBoolean(request, "editTitle");
 
 String content = BeanParamUtil.getString(wikiPage, request, "content");
-String selectedFormat = BeanParamUtil.getString(wikiPage, request, "format", wikiSettings.getDefaultFormat());
+String selectedFormat = BeanParamUtil.getString(wikiPage, request, "format", wikiGroupServiceSettings.defaultFormat());
 String parentTitle = BeanParamUtil.getString(wikiPage, request, "parentTitle");
 
 boolean preview = ParamUtil.getBoolean(request, "preview");
@@ -52,7 +52,7 @@ List<FileEntry> attachmentsFileEntries = null;
 if (wikiPage != null) {
 	attachmentsFileEntries = wikiPage.getAttachmentsFileEntries();
 
-	if (WikiPagePermission.contains(permissionChecker, wikiPage, ActionKeys.UPDATE)) {
+	if (WikiPagePermissionChecker.contains(permissionChecker, wikiPage, ActionKeys.UPDATE)) {
 		editable = true;
 	}
 }
@@ -257,7 +257,7 @@ if (Validator.isNull(redirect)) {
 							for (String format : formats) {
 							%>
 
-								<aui:option label='<%= LanguageUtil.get(request, "wiki.formats." + format) %>' selected="<%= selectedFormat.equals(format) %>" value="<%= format %>" />
+								<aui:option label="<%= WikiUtil.getFormatLabel(format, locale) %>" selected="<%= selectedFormat.equals(format) %>" value="<%= format %>" />
 
 							<%
 							}
@@ -276,9 +276,10 @@ if (Validator.isNull(redirect)) {
 
 				<%
 				request.setAttribute("edit_page.jsp-wikiPage", wikiPage);
+
+				WikiUtil.renderEditPageHTML(selectedFormat, pageContext, wikiPage);
 				%>
 
-				<liferay-util:include page="<%= WikiUtil.getEditPage(selectedFormat) %>" servletContext="<%= application %>" />
 			</div>
 
 			<c:if test="<%= wikiPage != null %>">
@@ -438,7 +439,7 @@ if (Validator.isNull(redirect)) {
 
 					<aui:button disabled="<%= pending %>" name="publishButton" onClick='<%= renderResponse.getNamespace() + "publishPage();" %>' primary="<%= true %>" value="<%= publishButtonLabel %>" />
 
-					<c:if test="<%= !newPage && WikiPagePermission.contains(permissionChecker, wikiPage, ActionKeys.DELETE) %>">
+					<c:if test="<%= !newPage && WikiPagePermissionChecker.contains(permissionChecker, wikiPage, ActionKeys.DELETE) %>">
 						<c:choose>
 							<c:when test="<%= !wikiPage.isDraft() && TrashUtil.isTrashEnabled(scopeGroupId) %>">
 								<aui:button name="moveToTrashButton" onClick='<%= renderResponse.getNamespace() + "moveToTrashPage();" %>' value="move-to-the-recycle-bin" />
@@ -523,7 +524,7 @@ if (Validator.isNull(redirect)) {
 
 		<portlet:renderURL var="nodeURL">
 			<portlet:param name="struts_action" value="/wiki/view" />
-			<portlet:param name="title" value="<%= wikiConfiguration.frontPageName() %>" />
+			<portlet:param name="title" value="<%= wikiGroupServiceConfiguration.frontPageName() %>" />
 			<portlet:param name="tag" value="<%= StringPool.BLANK %>" />
 		</portlet:renderURL>
 

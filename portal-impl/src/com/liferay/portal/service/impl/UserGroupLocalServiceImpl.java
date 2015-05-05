@@ -232,7 +232,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	public void clearUserUserGroups(long userId) {
 		userPersistence.clearUserGroups(userId);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -370,7 +370,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 
 		// Users
 
-		clearUserUserGroups(userGroup.getUserGroupId());
+		clearUserUserGroups(userGroup.getUserId());
 
 		// Group
 
@@ -861,7 +861,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 
 		indexer.reindex(userId);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -1120,8 +1120,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	protected void validate(long userGroupId, long companyId, String name)
 		throws PortalException {
 
-		if (Validator.isNull(name) ||
-			(name.indexOf(CharPool.COMMA) != -1) ||
+		if (Validator.isNull(name) || (name.indexOf(CharPool.COMMA) != -1) ||
 			(name.indexOf(CharPool.STAR) != -1)) {
 
 			throw new UserGroupNameException();

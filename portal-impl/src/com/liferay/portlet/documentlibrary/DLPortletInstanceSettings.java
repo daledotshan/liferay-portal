@@ -17,6 +17,7 @@ package com.liferay.portlet.documentlibrary;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.settings.FallbackKeys;
 import com.liferay.portal.kernel.settings.ParameterMapSettings;
+import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.settings.TypedSettings;
@@ -32,7 +33,6 @@ import java.util.Map;
 /**
  * @author Sergio González
  */
-
 @Settings.Config(
 	settingsIds = {
 		PortletKeys.DOCUMENT_LIBRARY, PortletKeys.DOCUMENT_LIBRARY_ADMIN,
@@ -45,8 +45,8 @@ public class DLPortletInstanceSettings {
 			Layout layout, String portletId)
 		throws PortalException {
 
-		Settings settings = SettingsFactoryUtil.getPortletInstanceSettings(
-			layout, portletId);
+		Settings settings = SettingsFactoryUtil.getSettings(
+			new PortletInstanceSettingsLocator(layout, portletId));
 
 		return new DLPortletInstanceSettings(settings);
 	}
@@ -55,8 +55,8 @@ public class DLPortletInstanceSettings {
 			Layout layout, String portletId, Map<String, String[]> parameterMap)
 		throws PortalException {
 
-		Settings settings = SettingsFactoryUtil.getPortletInstanceSettings(
-			layout, portletId);
+		Settings settings = SettingsFactoryUtil.getSettings(
+			new PortletInstanceSettingsLocator(layout, portletId));
 
 		Settings parameterMapSettings = new ParameterMapSettings(
 			parameterMap, settings);

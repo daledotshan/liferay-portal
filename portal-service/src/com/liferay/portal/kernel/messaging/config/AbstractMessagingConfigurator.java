@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.DestinationEventListener;
 import com.liferay.portal.kernel.messaging.MessageBus;
+import com.liferay.portal.kernel.messaging.MessageBusEventListener;
 import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.nio.intraband.RegistrationReference;
 import com.liferay.portal.kernel.nio.intraband.messaging.DestinationConfigurationProcessCallable;
@@ -29,6 +30,11 @@ import com.liferay.portal.kernel.resiliency.spi.SPIUtil;
 import com.liferay.portal.kernel.security.pacl.permission.PortalMessageBusPermission;
 import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceReference;
+import com.liferay.registry.ServiceTracker;
+import com.liferay.registry.ServiceTrackerCustomizer;
 
 import java.lang.reflect.Method;
 
@@ -44,57 +50,12 @@ public abstract class AbstractMessagingConfigurator
 	implements MessagingConfigurator {
 
 	public void afterPropertiesSet() {
-		Thread currentThread = Thread.currentThread();
+		Registry registry = RegistryUtil.getRegistry();
 
-		ClassLoader contextClassLoader = currentThread.getContextClassLoader();
+		_serviceTracker = registry.trackServices(
+			MessageBus.class, new MessageBusServiceTrackerCustomizer());
 
-		ClassLoader operatingClassLoader = getOperatingClassloader();
-
-		if (contextClassLoader == operatingClassLoader) {
-			_portalMessagingConfigurator = true;
-		}
-
-		MessageBus messageBus = getMessageBus();
-
-		for (DestinationEventListener destinationEventListener :
-				_globalDestinationEventListeners) {
-
-			messageBus.addDestinationEventListener(destinationEventListener);
-		}
-
-		for (Destination destination : _destinations) {
-			if (SPIUtil.isSPI()) {
-				destination = new IntrabandBridgeDestination(destination);
-			}
-
-			messageBus.addDestination(destination);
-		}
-
-		for (Map.Entry<String, List<DestinationEventListener>>
-				destinationEventListeners :
-					_specificDestinationEventListeners.entrySet()) {
-
-			String destinationName = destinationEventListeners.getKey();
-
-			for (DestinationEventListener destinationEventListener :
-					destinationEventListeners.getValue()) {
-
-				messageBus.addDestinationEventListener(
-					destinationName, destinationEventListener);
-			}
-		}
-
-		for (Destination destination : _replacementDestinations) {
-			messageBus.replace(destination);
-		}
-
-		connect();
-
-		String servletContextName = ClassLoaderPool.getContextName(
-			operatingClassLoader);
-
-		MessagingConfiguratorRegistry.registerMessagingConfigurator(
-			servletContextName, this);
+		_serviceTracker.open();
 	}
 
 	@Override
@@ -102,8 +63,6 @@ public abstract class AbstractMessagingConfigurator
 		if (SPIUtil.isSPI() && _portalMessagingConfigurator) {
 			return;
 		}
-
-		MessageBus messageBus = getMessageBus();
 
 		Thread currentThread = Thread.currentThread();
 
@@ -148,7 +107,7 @@ public abstract class AbstractMessagingConfigurator
 				for (MessageListener messageListener :
 						messageListeners.getValue()) {
 
-					messageBus.registerMessageListener(
+					_messageBus.registerMessageListener(
 						destinationName, messageListener);
 				}
 			}
@@ -162,32 +121,35 @@ public abstract class AbstractMessagingConfigurator
 	public void destroy() {
 		disconnect();
 
-		MessageBus messageBus = getMessageBus();
-
 		for (Destination destination : _destinations) {
-			messageBus.removeDestination(destination.getName());
+			_messageBus.removeDestination(destination.getName());
 
 			destination.close();
 		}
 
 		for (Map.Entry<String, List<DestinationEventListener>>
 				destinationEventListeners :
-					_specificDestinationEventListeners.entrySet()) {
+					_destinationEventListeners.entrySet()) {
 
 			String destinationName = destinationEventListeners.getKey();
 
 			for (DestinationEventListener destinationEventListener :
 					destinationEventListeners.getValue()) {
 
-				messageBus.removeDestinationEventListener(
-					destinationName, destinationEventListener);
+				Destination destination = _messageBus.getDestination(
+					destinationName);
+
+				if (destination != null) {
+					destination.removeDestinationEventListener(
+						destinationEventListener);
+				}
 			}
 		}
 
-		for (DestinationEventListener destinationEventListener :
-				_globalDestinationEventListeners) {
+		for (MessageBusEventListener messageBusEventListener :
+				_messageBusEventListeners) {
 
-			messageBus.removeDestinationEventListener(destinationEventListener);
+			_messageBus.removeMessageBusEventListener(messageBusEventListener);
 		}
 
 		ClassLoader operatingClassLoader = getOperatingClassloader();
@@ -197,6 +159,8 @@ public abstract class AbstractMessagingConfigurator
 
 		MessagingConfiguratorRegistry.unregisterMessagingConfigurator(
 			servletContextName, this);
+
+		_serviceTracker.close();
 	}
 
 	@Override
@@ -204,8 +168,6 @@ public abstract class AbstractMessagingConfigurator
 		if (SPIUtil.isSPI() && _portalMessagingConfigurator) {
 			return;
 		}
-
-		MessageBus messageBus = getMessageBus();
 
 		for (Map.Entry<String, List<MessageListener>> messageListeners :
 				_messageListeners.entrySet()) {
@@ -215,10 +177,17 @@ public abstract class AbstractMessagingConfigurator
 			for (MessageListener messageListener :
 					messageListeners.getValue()) {
 
-				messageBus.unregisterMessageListener(
+				_messageBus.unregisterMessageListener(
 					destinationName, messageListener);
 			}
 		}
+	}
+
+	@Override
+	public void setDestinationEventListeners(
+		Map<String, List<DestinationEventListener>> destinationEventListeners) {
+
+		_destinationEventListeners = destinationEventListeners;
 	}
 
 	@Override
@@ -240,10 +209,10 @@ public abstract class AbstractMessagingConfigurator
 	}
 
 	@Override
-	public void setGlobalDestinationEventListeners(
-		List<DestinationEventListener> globalDestinationEventListeners) {
+	public void setMessageBusEventListeners(
+		List<MessageBusEventListener> messageBusEventListeners) {
 
-		_globalDestinationEventListeners = globalDestinationEventListeners;
+		_messageBusEventListeners = messageBusEventListeners;
 	}
 
 	@Override
@@ -264,8 +233,7 @@ public abstract class AbstractMessagingConfigurator
 
 					setMessageBusMethod.setAccessible(true);
 
-					setMessageBusMethod.invoke(
-						messageListener, getMessageBus());
+					setMessageBusMethod.invoke(messageListener, _messageBus);
 
 					continue;
 				}
@@ -279,8 +247,7 @@ public abstract class AbstractMessagingConfigurator
 
 					setMessageBusMethod.setAccessible(true);
 
-					setMessageBusMethod.invoke(
-						messageListener, getMessageBus());
+					setMessageBusMethod.invoke(messageListener, _messageBus);
 				}
 				catch (Exception e) {
 				}
@@ -295,29 +262,110 @@ public abstract class AbstractMessagingConfigurator
 		_replacementDestinations = replacementDestinations;
 	}
 
-	@Override
-	public void setSpecificDestinationEventListener(
-		Map<String, List<DestinationEventListener>>
-			specificDestinationEventListeners) {
-
-		_specificDestinationEventListeners = specificDestinationEventListeners;
-	}
-
-	protected abstract MessageBus getMessageBus();
-
 	protected abstract ClassLoader getOperatingClassloader();
+
+	protected void initialize() {
+		Thread currentThread = Thread.currentThread();
+
+		ClassLoader contextClassLoader = currentThread.getContextClassLoader();
+
+		ClassLoader operatingClassLoader = getOperatingClassloader();
+
+		if (contextClassLoader == operatingClassLoader) {
+			_portalMessagingConfigurator = true;
+		}
+
+		for (MessageBusEventListener messageBusEventListener :
+				_messageBusEventListeners) {
+
+			_messageBus.addMessageBusEventListener(messageBusEventListener);
+		}
+
+		for (Destination destination : _destinations) {
+			if (SPIUtil.isSPI()) {
+				destination = new IntrabandBridgeDestination(destination);
+			}
+
+			_messageBus.addDestination(destination);
+		}
+
+		for (Map.Entry<String, List<DestinationEventListener>>
+				destinationEventListeners :
+					_destinationEventListeners.entrySet()) {
+
+			String destinationName = destinationEventListeners.getKey();
+
+			for (DestinationEventListener destinationEventListener :
+					destinationEventListeners.getValue()) {
+
+				Destination destination = _messageBus.getDestination(
+					destinationName);
+
+				if (destination != null) {
+					destination.addDestinationEventListener(
+						destinationEventListener);
+				}
+			}
+		}
+
+		for (Destination destination : _replacementDestinations) {
+			_messageBus.replace(destination);
+		}
+
+		connect();
+
+		String servletContextName = ClassLoaderPool.getContextName(
+			operatingClassLoader);
+
+		MessagingConfiguratorRegistry.registerMessagingConfigurator(
+			servletContextName, this);
+	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AbstractMessagingConfigurator.class);
 
+	private Map<String, List<DestinationEventListener>>
+		_destinationEventListeners = new HashMap<>();
 	private final List<Destination> _destinations = new ArrayList<>();
-	private List<DestinationEventListener> _globalDestinationEventListeners =
+	private volatile MessageBus _messageBus;
+	private List<MessageBusEventListener> _messageBusEventListeners =
 		new ArrayList<>();
 	private Map<String, List<MessageListener>> _messageListeners =
 		new HashMap<>();
 	private boolean _portalMessagingConfigurator;
 	private List<Destination> _replacementDestinations = new ArrayList<>();
-	private Map<String, List<DestinationEventListener>>
-		_specificDestinationEventListeners = new HashMap<>();
+	private ServiceTracker<MessageBus, MessageBus> _serviceTracker;
+
+	private class MessageBusServiceTrackerCustomizer
+		implements ServiceTrackerCustomizer<MessageBus, MessageBus> {
+
+		@Override
+		public MessageBus addingService(
+			ServiceReference<MessageBus> serviceReference) {
+
+			Registry registry = RegistryUtil.getRegistry();
+
+			_messageBus = registry.getService(serviceReference);
+
+			initialize();
+
+			return _messageBus;
+		}
+
+		@Override
+		public void modifiedService(
+			ServiceReference<MessageBus> serviceReference,
+			MessageBus messageBus) {
+		}
+
+		@Override
+		public void removedService(
+			ServiceReference<MessageBus> serviceReference,
+			MessageBus messageBus) {
+
+			_messageBus = null;
+		}
+
+	}
 
 }

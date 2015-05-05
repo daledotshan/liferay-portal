@@ -28,8 +28,11 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
+import com.liferay.portal.kernel.servlet.PortalWebResourcesUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.CookieKeys;
@@ -55,8 +58,11 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.LayoutTemplate;
+import com.liferay.portal.model.LayoutType;
+import com.liferay.portal.model.LayoutTypeAccessPolicy;
 import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.LayoutTypePortletConstants;
+import com.liferay.portal.model.MembershipRequest;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.Theme;
@@ -467,7 +473,7 @@ public class ServicePreAction extends Action {
 					layout.getGroupId(), layout.isPrivateLayout(),
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
 
-				if (!group.isControlPanel()) {
+				if (!group.isControlPanel() && !group.isUserPersonalPanel()) {
 					doAsGroupId = 0;
 				}
 			}
@@ -511,6 +517,7 @@ public class ServicePreAction extends Action {
 
 		LayoutSet layoutSet = null;
 
+		boolean hasAddLayoutLayoutPermission = false;
 		boolean hasCustomizeLayoutPermission = false;
 		boolean hasDeleteLayoutPermission = false;
 		boolean hasUpdateLayoutPermission = false;
@@ -519,14 +526,23 @@ public class ServicePreAction extends Action {
 			request, "customized_view", true);
 
 		if (layout != null) {
-			if (!layout.isTypeControlPanel()) {
-				hasCustomizeLayoutPermission = LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.CUSTOMIZE);
-				hasDeleteLayoutPermission = LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.DELETE);
-				hasUpdateLayoutPermission = LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.UPDATE);
-			}
+			LayoutType layoutType = layout.getLayoutType();
+
+			LayoutTypeAccessPolicy layoutTypeAccessPolicy =
+				layoutType.getLayoutTypeAccessPolicy();
+
+			hasAddLayoutLayoutPermission =
+				layoutTypeAccessPolicy.isAddLayoutAllowed(
+					permissionChecker, layout);
+			hasCustomizeLayoutPermission =
+				layoutTypeAccessPolicy.isCustomizeLayoutAllowed(
+					permissionChecker, layout);
+			hasDeleteLayoutPermission =
+				layoutTypeAccessPolicy.isDeleteLayoutAllowed(
+					permissionChecker, layout);
+			hasUpdateLayoutPermission =
+				layoutTypeAccessPolicy.isUpdateLayoutAllowed(
+					permissionChecker, layout);
 
 			layoutSet = layout.getLayoutSet();
 
@@ -673,7 +689,9 @@ public class ServicePreAction extends Action {
 		long siteGroupId = 0;
 
 		if (layout != null) {
-			if (layout.isTypeControlPanel()) {
+			if (layout.isTypeControlPanel() ||
+				layout.isTypeUserPersonalPanel()) {
+
 				siteGroupId = PortalUtil.getSiteGroupId(scopeGroupId);
 			}
 			else {
@@ -688,7 +706,9 @@ public class ServicePreAction extends Action {
 
 		boolean wapTheme = BrowserSnifferUtil.isWap(request);
 
-		if ((layout != null) && group.isControlPanel()) {
+		if ((layout != null) &&
+			(group.isControlPanel() || group.isUserPersonalPanel())) {
+
 			String themeId = PrefsPropsUtil.getString(
 				companyId, PropsKeys.CONTROL_PANEL_LAYOUT_REGULAR_THEME_ID);
 			String colorSchemeId =
@@ -806,7 +826,8 @@ public class ServicePreAction extends Action {
 		themeDisplay.setPathFriendlyURLPrivateUser(friendlyURLPrivateUserPath);
 		themeDisplay.setPathFriendlyURLPublic(friendlyURLPublicPath);
 		themeDisplay.setPathImage(imagePath);
-		themeDisplay.setPathJavaScript(contextPath.concat("/html/js"));
+		themeDisplay.setPathJavaScript(
+			PortalWebResourcesUtil.getContextPath().concat("/html/js"));
 		themeDisplay.setPathMain(mainPath);
 		themeDisplay.setPathSound(contextPath.concat("/html/sound"));
 		themeDisplay.setPermissionChecker(permissionChecker);
@@ -1036,14 +1057,16 @@ public class ServicePreAction extends Action {
 
 					themeDisplay.setShowManageSiteMembershipsIcon(true);
 
+					String portletId = PortletProviderUtil.getPortletId(
+						MembershipRequest.class.getName(),
+						PortletProvider.Action.VIEW);
+
 					LiferayPortletURL manageSiteMembershipsURL =
 						new PortletURLImpl(
-							request, PortletKeys.SITE_MEMBERSHIPS_ADMIN,
-							controlPanelPlid, PortletRequest.RENDER_PHASE);
+							request, portletId, controlPanelPlid,
+							PortletRequest.RENDER_PHASE);
 
 					manageSiteMembershipsURL.setDoAsGroupId(scopeGroupId);
-					manageSiteMembershipsURL.setParameter(
-						"struts_action", "/sites_admin/edit_site_assignments");
 					manageSiteMembershipsURL.setParameter(
 						"groupId", String.valueOf(scopeGroupId));
 					manageSiteMembershipsURL.setParameter(
@@ -1080,10 +1103,6 @@ public class ServicePreAction extends Action {
 
 			boolean hasAddLayoutGroupPermission = GroupPermissionUtil.contains(
 				permissionChecker, scopeGroup, ActionKeys.ADD_LAYOUT);
-			boolean hasAddLayoutLayoutPermission =
-				!layout.isTypeControlPanel() &&
-				LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.ADD_LAYOUT);
 			boolean hasManageLayoutsGroupPermission =
 				GroupPermissionUtil.contains(
 					permissionChecker, scopeGroup, ActionKeys.MANAGE_LAYOUTS);
@@ -1097,7 +1116,8 @@ public class ServicePreAction extends Action {
 				permissionChecker, scopeGroup, ActionKeys.VIEW_STAGING);
 
 			if (!group.isControlPanel() && !group.isUser() &&
-				!group.isUserGroup() && hasUpdateGroupPermission) {
+				!group.isUserGroup() && !group.isUserPersonalPanel() &&
+				hasUpdateGroupPermission) {
 
 				themeDisplay.setShowSiteSettingsIcon(true);
 
@@ -1181,7 +1201,7 @@ public class ServicePreAction extends Action {
 				themeDisplay.setURLPublishToLive(null);
 			}
 
-			if (group.isControlPanel()) {
+			if (group.isControlPanel() || group.isUserPersonalPanel()) {
 				themeDisplay.setShowPageSettingsIcon(false);
 				themeDisplay.setURLPublishToLive(null);
 			}
@@ -1230,7 +1250,7 @@ public class ServicePreAction extends Action {
 					request, myAccountPortlet.getPortletId(), controlPanelPlid,
 					PortletRequest.RENDER_PHASE);
 
-				if (user != null) {
+				if (signedIn) {
 					myAccountURL.setDoAsGroupId(user.getGroupId());
 				}
 				else if (scopeGroupId > 0) {
@@ -2235,7 +2255,7 @@ public class ServicePreAction extends Action {
 		// Parallel render
 
 		if (PropsValues.LAYOUT_PARALLEL_RENDER_ENABLE &&
-			ServerDetector.isTomcat() && !PropsValues.TCK_URL) {
+			ServerDetector.isTomcat()) {
 
 			boolean portletParallelRender = ParamUtil.getBoolean(
 				request, "p_p_parallel", true);

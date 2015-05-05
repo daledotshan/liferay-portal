@@ -282,8 +282,14 @@
 			overflow: hidden;
 		}
 
-		.document-type .lfr-panel-content {
-			min-height: 35px;
+		.document-type {
+			.lfr-panel-content {
+				min-height: 35px;
+			}
+
+			.document-type-selector .btn {
+				white-space: normal;
+			}
 		}
 
 		.document-type-fields {
@@ -531,30 +537,6 @@
 	background-color: #FFFFE0;
 	font-size: 1.2em;
 	padding: 0.3em;
-}
-
-.ie6, .ie7 {
-	.portlet-document-library, .portlet-document-library-display {
-		.entry-display-style.display-descriptive, .document-info {
-			zoom: 1;
-		}
-	}
-}
-
-.ie6 {
-	.portlet-document-library {
-		.taglib-ratings.stars {
-			border-width: 0;
-		}
-
-		.lfr-header-row {
-			height: 31px;
-
-			.lfr-header-row-content .lfr-search-combobox {
-				width: 250px;
-			}
-		}
-	}
 }
 
 .firefox {

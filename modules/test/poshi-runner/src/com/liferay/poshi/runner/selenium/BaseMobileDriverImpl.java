@@ -179,6 +179,11 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public void assertPartialConfirmation(String pattern) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void assertPartialText(String locator, String pattern)
 		throws Exception {
 
@@ -650,6 +655,11 @@ public abstract class BaseMobileDriverImpl
 	@Override
 	public void typeAceEditor(String locator, String value) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void typeCKEditor(String locator, String value) {
+		WebDriverHelper.typeCKEditor(this, locator, value);
 	}
 
 	@Override

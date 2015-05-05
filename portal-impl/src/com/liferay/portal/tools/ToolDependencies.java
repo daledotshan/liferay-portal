@@ -16,10 +16,12 @@ package com.liferay.portal.tools;
 
 import com.liferay.portal.cache.MultiVMPoolImpl;
 import com.liferay.portal.cache.SingleVMPoolImpl;
+import com.liferay.portal.cache.key.SimpleCacheKeyGenerator;
 import com.liferay.portal.cache.memory.MemoryPortalCacheManager;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
 import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
+import com.liferay.portal.kernel.cache.key.CacheKeyGeneratorUtil;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.microsofttranslator.MicrosoftTranslatorFactoryUtil;
 import com.liferay.portal.kernel.util.DigesterUtil;
@@ -28,10 +30,9 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
-import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.microsofttranslator.MicrosoftTranslatorFactoryImpl;
-import com.liferay.portal.model.ModelHintsImpl;
+import com.liferay.portal.model.DefaultModelHintsImpl;
 import com.liferay.portal.model.ModelHintsUtil;
 import com.liferay.portal.security.auth.DefaultFullNameGenerator;
 import com.liferay.portal.security.auth.FullNameGenerator;
@@ -72,6 +73,12 @@ public class ToolDependencies {
 		registry.registerService(
 			FullNameGenerator.class, new DefaultFullNameGenerator());
 
+		CacheKeyGeneratorUtil cacheKeyGeneratorUtil =
+			new CacheKeyGeneratorUtil();
+
+		cacheKeyGeneratorUtil.setDefaultCacheKeyGenerator(
+			new SimpleCacheKeyGenerator());
+
 		DigesterUtil digesterUtil = new DigesterUtil();
 
 		digesterUtil.setDigester(new DigesterImpl());
@@ -110,18 +117,6 @@ public class ToolDependencies {
 		microsoftTranslatorFactoryUtil.setMicrosoftTranslatorFactory(
 			new MicrosoftTranslatorFactoryImpl());
 
-		ModelHintsUtil modelHintsUtil = new ModelHintsUtil();
-
-		ModelHintsImpl modelHintsImpl = new ModelHintsImpl();
-
-		SAXReader saxReader = new SAXReaderImpl();
-
-		modelHintsImpl.setSAXReader(saxReader);
-
-		modelHintsImpl.afterPropertiesSet();
-
-		modelHintsUtil.setModelHints(modelHintsImpl);
-
 		SingleVMPoolUtil singleVMPoolUtil = new SingleVMPoolUtil();
 
 		PortletPermissionUtil portletPermissionUtil =
@@ -131,7 +126,13 @@ public class ToolDependencies {
 
 		SAXReaderUtil saxReaderUtil = new SAXReaderUtil();
 
-		saxReaderUtil.setSecureSAXReader(saxReader);
+		SAXReaderImpl secureSAXReader = new SAXReaderImpl();
+
+		secureSAXReader.setSecure(true);
+
+		saxReaderUtil.setSecureSAXReader(secureSAXReader);
+
+		saxReaderUtil.setUnsecureSAXReader(new SAXReaderImpl());
 
 		SecureXMLFactoryProviderUtil secureXMLFactoryProviderUtil =
 			new SecureXMLFactoryProviderUtil();
@@ -146,6 +147,17 @@ public class ToolDependencies {
 				ToolDependencies.class.getName()));
 
 		singleVMPoolUtil.setSingleVMPool(singleVMPoolImpl);
+
+		// DefaultModelHintsImpl requires SecureXMLFactoryProviderUtil
+
+		ModelHintsUtil modelHintsUtil = new ModelHintsUtil();
+
+		DefaultModelHintsImpl defaultModelHintsImpl =
+			new DefaultModelHintsImpl();
+
+		defaultModelHintsImpl.afterPropertiesSet();
+
+		modelHintsUtil.setModelHints(defaultModelHintsImpl);
 	}
 
 	public static void wireDeployers() {
