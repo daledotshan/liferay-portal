@@ -460,6 +460,7 @@ html {
 	}
 
 	.lfr-nav-item .lfr-nav-child-toggle {
+		display: inline;
 		padding: 10px;
 
 		i {
@@ -864,13 +865,5 @@ html {
 		a, span {
 			text-shadow: -1px -1px #000;
 		}
-	}
-}
-
-/* ---------- IE8 ---------- */
-
-.ie8 {
-	.dockbar-split .dockbar .info-button a {
-		margin-top: -2px;
 	}
 }

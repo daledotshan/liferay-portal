@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BasePortletDataHandler;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
@@ -99,6 +98,10 @@ public class DDLPortletDataHandler extends BasePortletDataHandler {
 
 		DDLRecordSetLocalServiceUtil.deleteRecordSets(
 			portletDataContext.getScopeGroupId());
+
+		DDMStructureLocalServiceUtil.deleteStructures(
+			portletDataContext.getScopeGroupId(),
+			PortalUtil.getClassNameId(DDLRecordSet.class));
 
 		return portletPreferences;
 	}
@@ -277,11 +280,7 @@ public class DDLPortletDataHandler extends BasePortletDataHandler {
 					StagedModelDataHandlerUtil.exportStagedModel(
 						portletDataContext, ddmStructure);
 
-					try {
-						ddmTemplates.addAll(ddmStructure.getTemplates());
-					}
-					catch (SystemException se) {
-					}
+					ddmTemplates.addAll(ddmStructure.getTemplates());
 				}
 
 			});

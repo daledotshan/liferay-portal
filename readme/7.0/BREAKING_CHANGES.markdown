@@ -20,7 +20,7 @@ feature or API will be dropped in an upcoming version.
 replaces an old API, in spite of the old API being kept in Liferay Portal for
 backwards compatibility.
 
-*This document has been reviewed through commit `7763533`.*
+*This document has been reviewed through commit `ef6867d`.*
 
 ## Breaking Changes Contribution Guidelines
 
@@ -73,7 +73,7 @@ in ascending chronological order.
 
 ## Breaking Changes List
 
-### The `liferay-ui:logo-selector` Tag Requires Parameter Changes
+### The liferay-ui:logo-selector Tag Requires Parameter Changes
 - **Date:** 2013-Dec-05
 - **JIRA Ticket:** LPS-42645
 
@@ -185,7 +185,7 @@ body fields separate.
 
 ---------------------------------------
 
-### Removed `get` and `format` Methods That Used `PortletConfig` Parameters
+### Removed get and format Methods that Used PortletConfig Parameters
 - **Date:** 2014-Mar-07
 - **JIRA Ticket:** LPS-44342
 
@@ -247,7 +247,7 @@ template.
 
 ---------------------------------------
 
-### Changed the AssetRenderer and Indexer APIs to Include the `PortletRequest` and `PortletResponse` Parameters
+### Changed the AssetRenderer and Indexer APIs to Include the PortletRequest and PortletResponse Parameters
 - **Date:** 2014-May-07
 - **JIRA Ticket:** LPS-44639 and LPS-44894
 
@@ -332,7 +332,7 @@ Unifying portlet and service configuration facilitates managing them.
 
 ---------------------------------------
 
-### DDM Structure Local Service API No Longer Has the `updateXSDFieldMetadata()` operation
+### DDM Structure Local Service API No Longer Has the updateXSDFieldMetadata operation
 - **Date:** 2014-Jun-11
 - **JIRA Ticket:** LPS-47559
 
@@ -359,7 +359,7 @@ of data.
 
 ---------------------------------------
 
-### The `aui:input` Tag for Type `checkbox` No Longer Creates a Hidden Input
+### The aui:input Tag for Type checkbox No Longer Creates a Hidden Input
 - **Date:** 2014-Jun-16
 - **JIRA Ticket:** LPS-44228
 
@@ -388,7 +388,7 @@ properly even when JavaScript is disabled.
 
 ---------------------------------------
 
-### Using `util-taglib` No Longer Binds You to Using `portal-service`'s `javax.servlet.jsp` Implementation
+### Using util-taglib No Longer Binds You to Using portal-service's javax.servlet.jsp Implementation
 - **Date:** 2014-Jun-19
 - **JIRA Ticket:** LPS-47682
 
@@ -458,7 +458,7 @@ and it allows for easier recovery, when possible.
 
 ---------------------------------------
 
-### Removed Trash Logic from `DLAppHelperLocalService` Methods
+### Removed Trash Logic from DLAppHelperLocalService Methods
 - **Date:** 2014-Jul-22
 - **JIRA Ticket:** LPS-47508
 
@@ -499,7 +499,7 @@ operations in a uniform way.
 
 ---------------------------------------
 
-### Removed Sync Logic from `DLAppHelperLocalService` Methods
+### Removed Sync Logic from DLAppHelperLocalService Methods
 - **Date:** 2014-Sep-05
 - **JIRA Ticket:** LPS-48895
 
@@ -533,7 +533,7 @@ There are repositories that don't support Liferay Sync operations.
 
 ---------------------------------------
 
-### Removed the `.aui` Namespace from Bootstrap
+### Removed the .aui Namespace from Bootstrap
 - **Date:** 2014-Sep-26
 - **JIRA Ticket:** LPS-50348
 
@@ -561,7 +561,7 @@ minor benefit.
 
 ---------------------------------------
 
-### Moved `MVCPortlet`, `ActionCommand` and `ActionCommandCache` from `util-bridges.jar` to `portal-service.jar`
+### Moved MVCPortlet, ActionCommand and ActionCommandCache from util-bridges.jar to portal-service.jar
 - **Date:** 2014-Sep-26
 - **JIRA Ticket:** LPS-50156
 
@@ -606,7 +606,7 @@ system. Duplication can cause `ClassCastException`s.
 
 ---------------------------------------
 
-### Convert Process Classes Are No Longer Specified via the `convert.processes` Portal Property, but Are Contributed as OSGi Modules
+### Convert Process Classes Are No Longer Specified via the convert.processes Portal Property, but Are Contributed as OSGi Modules
 - **Date:** 2014-Oct-09
 - **JIRA Ticket:** LPS-50604
 
@@ -643,7 +643,7 @@ Portal by means of an OSGi container.
 
 ---------------------------------------
 
-### Migration of the Field *Type* from the Journal Article API into a Vocabulary
+### Migration of the Field Type from the Journal Article API into a Vocabulary
 - **Date:** 2014-Oct-13
 - **JIRA Ticket:** LPS-50764
 
@@ -677,7 +677,7 @@ be used now in asset publishers and faceted search.
 
 ---------------------------------------
 
-### Removed the `getClassNamePortletId(String)` Method from `PortalUtil` Class
+### Removed the getClassNamePortletId(String) Method from PortalUtil Class
 - **Date:** 2014-Nov-11
 - **JIRA Ticket:** LPS-50604
 
@@ -702,7 +702,7 @@ longer being used inside Liferay Portal.
 
 ---------------------------------------
 
-### Removed the *Header Web Content* and *Footer Web Content* Preferences from the RSS Portlet
+### Removed the Header Web Content and Footer Web Content Preferences from the RSS Portlet
 - **Date:** 2014-Nov-12
 - **JIRA Ticket:** LPS-46984
 
@@ -732,7 +732,7 @@ preferences.
 
 ---------------------------------------
 
-### Removed the `createFlyouts` Method from `liferay/util.js` and Related Resources
+### Removed the createFlyouts Method from liferay/util.js and Related Resources
 - **Date:** 2014-Dec-18
 - **JIRA Ticket:** LPS-52275
 
@@ -758,7 +758,7 @@ its overall lack of functionality.
 
 ---------------------------------------
 
-### Removed Support for *Flat* Thread View in Discussion Comments
+### Removed Support for Flat Thread View in Discussion Comments
 - **Date:** 2014-Dec-30
 - **JIRA Ticket:** LPS-51876
 
@@ -788,7 +788,7 @@ history. Therefore, the `flat` thread view is no longer needed.
 
 ---------------------------------------
 
-### Removed *Asset Tag Properties*
+### Removed Asset Tag Properties
 - **Date:** 2015-Jan-13
 - **JIRA Ticket:** LPS-52588
 
@@ -815,7 +815,7 @@ The Asset Tag Properties were deprecated for the 6.2 version of Liferay Portal.
 
 ---------------------------------------
 
-### Removed the `asset.publisher.asset.entry.query.processors` Property
+### Removed the asset.publisher.asset.entry.query.processors Property
 - **Date:** 2015-Jan-22
 - **JIRA Ticket:** LPS-52966
 
@@ -844,7 +844,7 @@ Portal.
 
 ---------------------------------------
 
-### Replaced the `ReservedUserScreenNameException` with `UserScreenNameException.MustNotBeReserved` in `UserLocalService`
+### Replaced the ReservedUserScreenNameException with UserScreenNameException.MustNotBeReserved in UserLocalService
 - **Date:** 2015-Jan-29
 - **JIRA Ticket:** LPS-53113
 
@@ -877,7 +877,7 @@ of reserved screen names.
 
 ---------------------------------------
 
-### Replaced the `ReservedUserEmailAddressException` with `UserEmailAddressException` Inner Classes in User Services
+### Replaced the ReservedUserEmailAddressException with UserEmailAddressException Inner Classes in User Services
 - **Date:** 2015-Feb-03
 - **JIRA Ticket:** LPS-53279
 
@@ -916,7 +916,7 @@ email address and the list of reserved email addresses.
 
 ---------------------------------------
 
-### Added Required Attribute `paginationURL` to the Tag `liferay-ui:discussion`
+### Added Required Attribute paginationURL to the Tag liferay-ui:discussion
 - **Date:** 2015-Feb-05
 - **JIRA Ticket:** LPS-53313
 
@@ -948,7 +948,7 @@ This change was made to support comment pagination.
 
 ---------------------------------------
 
-### Replaced `ReservedUserIdException` with `UserIdException` Inner Classes
+### Replaced ReservedUserIdException with UserIdException Inner Classes
 - **Date:** 2015-Feb-10
 - **JIRA Ticket:** LPS-53487
 
@@ -979,7 +979,7 @@ IDs.
 
 ------------------------------------------------------------------------------
 
-### Moved the `AssetPublisherUtil` Class and Removed It from the Public API
+### Moved the AssetPublisherUtil Class and Removed It from the Public API
 - **Date:** 2015-Feb-11
 - **JIRA Ticket:** LPS-52744
 
@@ -1007,7 +1007,7 @@ different parts of the portal.
 
 ---------------------------------------
 
-### Removed Operations That Used the `Fields` Class from the `StorageAdapter` Interface
+### Removed Operations That Used the Fields Class from the StorageAdapter Interface
 - **Date:** 2015-Feb-11
 - **JIRA Ticket:** LPS-53021
 
@@ -1032,31 +1032,542 @@ This change has been made due to the deprecation of the `Fields` class.
 
 ---------------------------------------
 
-### DLProcessor needs to implement a new method getType()
+### Created a New getType Method That is Implemented in DLProcessor
 - **Date:** 2015-Feb-17
 - **JIRA Ticket:** LPS-53574
 
 #### What changed?
 
-DLProcessor has a new method getType()
+The `DLProcessor` interface has a new method `getType()`.
 
 #### Who is affected?
 
-All developers who have created DLProcessor
+This affects developers who have created a `DLProcessor`.
 
 #### How should I update my code?
 
-You need to implement the method in the DLProcessor and return the type of
-Processor. You can check the class DLProcessorConstants to see the types.
-class.
+You should implement the new method and return the type of processor. You can
+check the class `DLProcessorConstants` to see processor types.
 
 #### Why was this change made?
 
-Before we were forcing developers to extend one of the existing DLProcessors and
-we were checking the instance of the class to determine what type of processor
-was.
+Previous to Liferay 7, developers were forced to extend one of the existing
+`DLProcessor` classes and developers using the extended class had to check the
+instance of that class to determine its processor type.
 
-With the new change developers don't need to extend any particular class to
-create their own DLProcessor.
+With this change, developers no longer need to extend any particular class to
+create their own `DLProcessor` and their processor's type can be clearly
+specified by a constant from the class `DLProcessorConstants`.
+
+---------------------------------------
+
+### Changed the Usage of the liferay-ui:restore-entry Tag
+- **Date:** 2015-Mar-01
+- **JIRA Ticket:** LPS-54106
+
+#### What changed?
+
+The usage of the taglib tag `liferay-ui:restore-entry` serves a different
+purpose now. It renders the UI to restore elements from the Recycle Bin.
+
+#### Who is affected?
+
+This affects developers using the tag `liferay-ui:restore-entry`.
+
+#### How should I update my code?
+
+You should replace your calls to the tag with code like the listing below:
+
+    <aui:script use="liferay-restore-entry">
+        new Liferay.RestoreEntry(
+        {
+                checkEntryURL: '<%= checkEntryURL.toString() %>',
+                duplicateEntryURL: '<%= duplicateEntryURL.toString() %>',
+                namespace: '<portlet:namespace />'
+            }
+        );
+    </aui:script>
+
+In the above code, the `checkEntryURL` should be an `ActionURL` of your portlet,
+which checks whether the current entry can be restored from the Recycle Bin. The
+`duplicateEntryURL` should be a `RenderURL` of your portlet, that renders the UI
+to restore the entry, resolving any existing conflicts. In order to generate
+that URL, you can use the tag `liferay-ui:restore-entry`, which has been
+refactored for this usage.
+
+#### Why was this change made?
+
+This change allows the Trash portlet to be an independent module. Its actions
+and views are no longer used by the tag; they are now the responsability of
+each plugin.
+
+---------------------------------------
+
+### Added Required Parameter resourceClassNameId for DDM Template Search Operations
+- **Date:** 2015-Mar-03
+- **JIRA Ticket:** LPS-52990
+
+#### What changed?
+
+The DDM template `search` and `searchCount` operations have a new parameter
+called `resourceClassNameId`.
+
+#### Who is affected?
+
+This affects developers who have direct calls to the `DDMTemplateService` or 
+`DDMTemplateLocalService`.
+
+#### How should I update my code?
+
+You should add the `resourceClassNameId` parameter to your calls. This parameter
+represents the resource that owns the permission for the DDM template. For
+example, if the template is a WCM template, the `resourceClassNameId` points to
+the `JournalArticle`'s `classNameId`. If the template is a DDL template, the
+`resourceClassNameId` points to the `DDLRecordSet`'s `classNameId`. If the
+template is an ADT template, the `resourceClassNameId` points to the
+`PortletDisplayTemplate`'s `classNameId`.
+
+#### Why was this change made?
+
+This change was made in order to implement model resource permissions for DDM
+templates, such as `VIEW`, `DELETE`, `PERMISSIONS`, and `UPDATE`.
+
+---------------------------------------
+
+### Replaced the Breadcrumb Portlet's Display Styles with ADTs
+- **Date:** 2015-Mar-12
+- **JIRA Ticket:** LPS-53577
+
+#### What changed?
+
+The custom display styles of the breadcrumb tag added using JSPs no longer work.
+They have been replaced by Application Display Templates (ADT).
+
+#### Who is affected?
+
+This affects developers that use the following properties:
+
+    breadcrumb.display.style.default=horizontal
+
+    breadcrumb.display.style.options=horizontal,vertical
+
+#### How should I update my code?
+
+To style the Breadcrumb portlet, you should use ADTs instead of using custom
+styles in your JSPs. ADTs can be created from the UI of the portal by navigating
+to *Site Settings* &rarr; *Application Display Templates*. ADTs can also be
+created programatically.
+
+#### Why was this change made?
+
+ADTs allow you to change an application's look and feel without changing its JSP
+code.
+
+---------------------------------------
+
+### Changed Usage of the liferay-ui:ddm-template-selector Tag
+- **Date:** 2015-Mar-16
+- **JIRA Ticket:** LPS-53790
+
+#### What changed?
+
+The attribute `classNameId` of the `liferay-ui:ddm-template-selector` taglib tag
+has been renamed `className`.
+
+#### Who is affected?
+
+This affects developers using the `liferay-ui:ddm-template-selector` tag.
+
+#### How should I update my code?
+
+In your `liferay-ui:ddm-template-selector` tags, rename the `classNameId`
+attribute to `className`.
+
+#### Why was this change made?
+
+Application Display Templates were being referenced by their UUID, which was
+usually not known by the developer. Referencing all DDM templates by their class
+name simplifies using this tag.
+
+---------------------------------------
+
+### Changed the Usage of Asset Preview
+- **Date:** 2015-Mar-16
+- **JIRA Ticket:** LPS-53972
+
+#### What changed?
+
+Instead of directly including the JSP referenced by the `AssetRenderer`'s
+`getPreviewPath` method to preview an asset, you now use a taglib tag.
+
+#### Who is affected?
+
+This affects developers who have written code that directly calls an
+`AssetRenderer`'s `getPreviewPath` method to preview an asset.
+
+#### How should I update my code?
+
+JSP code that previews an asset by calling an `AssetRenderer`'s `getPreviewPath`
+method, such as in the example code below, must be replaced:
+
+    <liferay-util:include
+        page="<%= assetRenderer.getPreviewPath(liferayPortletRequest, liferayPortletResponse) %>"
+        portletId="<%= assetRendererFactory.getPortletId() %>"
+        servletContext="<%= application %>"
+    />
+
+To preview an asset, you should instead use the `liferay-ui:asset-display` tag,
+passing it an instance of the asset entry and an asset renderer preview
+template. Here's an example of using the tag:
+
+    <liferay-ui:asset-display
+        assetEntry="<%= assetEntry %>"
+        template="<%= AssetRenderer.TEMPLATE_PREVIEW %>"
+    />
+
+#### Why was this change made?
+
+This change simplifies using asset previews.
+
+---------------------------------------
+
+### Added New Methods in the ScreenNameValidator Interface
+- **Date:** 2015-Mar-17
+- **JIRA Ticket:** LPS-53409
+
+#### What changed?
+
+The `ScreenNameValidator` interface has new methods `getDescription(Locale)` and
+`getJSValidation()`.
+
+#### Who is affected?
+
+This affects developers who have implemented a custom screen name validator with
+the `ScreenNameValidator` interface.
+
+#### How should I update my code?
+
+You should implement the new methods introduced in the interface.
+
+- `getDescription(Locale)`: returns a description of what the screen name 
+validator validates.
+
+- `getJSValidation()`: returns the JavaScript input validator on the client
+side.
+
+#### Why was this change made?
+
+Previous to Liferay 7, validation for user screen name characters was hard-coded 
+in `UserLocalService`. A new portal property named
+`users.screen.name.special.characters` has been added to provide configurability
+of special characters allowed in screen names.
+
+In addition, developers can now specify a custom input validator for the screen
+name on the client side by providing a JavaScript validator in
+`getJSValidation()`.
+
+---------------------------------------
+
+### Replaced the Language Portlet's Display Styles with ADTs
+- **Date:** 2015-Mar-30
+- **JIRA Ticket:** LPS-54419
+
+#### What changed?
+
+The custom display styles of the language tag added using JSPs no longer work.
+They have been replaced by Application Display Templates (ADT).
+
+#### Who is affected?
+
+This affects developers that use the following properties:
+
+    language.display.style.default=icon
+
+    language.display.style.options=icon,long-text
+
+#### How should I update my code?
+
+To style the Language portlet, you should use ADTs instead of using custom
+styles in your JSPs. ADTs can be created from the UI of the portal by navigating
+to *Site Settings* &rarr; *Application Display Templates*. ADTs can also be
+created programatically.
+
+#### Why was this change made?
+
+ADTs allow you to change an application's look and feel without changing its JSP
+code.
+
+---------------------------------------
+
+### Added Required Parameter groupId for Adding Tags, Categories, and Vocabularies
+- **Date:** 2015-Mar-31
+- **JIRA Ticket:** LPS-54570
+
+#### What changed?
+
+The API for adding tags, categories, and vocabularies now requires passing the
+`groupId` parameter. Previously, it had to be included in the `ServiceContext`
+parameter passed to the method.
+ 
+#### Who is affected?
+
+This affects developers who have direct calls to the following methods:
+
+- `addTag` in `AssetTagService` or `AssetTagLocalService`
+- `addCategory` in `AssetCategoryService` or `AssetCategoryLocalService`
+- `addVocabulary` in `AssetVocabularyService` or `AssetVocabularyLocalService`
+- `updateFolder` in `JournalFolderService` or `JournalFolderLocalService`
+
+#### How should I update my code?
+
+You should add the `groupId` parameter to your calls. This parameter represents
+the site in which you are creating the tag, category, or vocabulary. It can be
+obtained from the `themeDisplay` or `serviceContext` using
+`themeDisplay.getScopeGroupId()` or `serviceContext.getScopeGroupId()`,
+respectively.
+
+#### Why was this change made?
+
+This change was made in order improve the API. The `groupId` parameter was
+always required, but it was hidden by the `ServiceContext` object.
+
+---------------------------------------
+
+### Removed the Tags that Start with portlet:icon-
+- **Date:** 2015-Mar-31
+- **JIRA Ticket:** LPS-54620
+
+#### What changed?
+
+The following tags have been removed:
+
+- `portlet:icon-close`
+- `portlet:icon-configuration`
+- `portlet:icon-edit`
+- `portlet:icon-edit-defaults`
+- `portlet:icon-edit-guest`
+- `portlet:icon-export-import`
+- `portlet:icon-help`
+- `portlet:icon-maximize`
+- `portlet:icon-minimize`
+- `portlet:icon-portlet-css`
+- `portlet:icon-print`
+- `portlet:icon-refresh`
+- `portlet:icon-staging`
+
+#### Who is affected?
+
+This affects developers who have written code that uses these tags.
+
+#### How should I update my code?
+
+The tag `liferay-ui:icon` can replace the call to the previous tags. All the
+previous tags have been converted into Java classes that implement the methods
+that the `icon` tag requires.
+
+See the modules `portlet-configuration-icon-*` in the `modules/addons` folder.
+
+#### Why was this change made?
+
+These tags were used to generate the configuration icon of portlets. This
+functionality will now be managed from OSGi modules instead of tags since OSGi
+modules provide more flexibility and can be included in any app.
+
+---------------------------------------
+
+### Changed the Default Value of the copy-request-parameters Init Parameter for MVC Portlets
+- **Date:** 2015-Apr-15
+- **JIRA Ticket:** LPS-54798
+
+#### What changed?
+
+The `copy-request-parameters` init parameter's default value is now set to
+`true` in all portlets that extend `MVCPortlet`.
+
+#### Who is affected?
+
+This affects developers that have created portlets that extend `MVCPortlet`.
+
+#### How should I update my code?
+
+To continue using the property the same way you did before this change was
+implemented, you'll need to change the default property. To change the property,
+set the init parameter to `false` in your class extending `MVCPortlet`:
+
+    javax.portlet.init-param.copy-request-parameters=false
+
+#### Why was this change made?
+
+This change was made to allow for backwards compatibility.
+
+---------------------------------------
+
+### Removed Portal Properties Used to Display Sections in Form Navigators
+- **Date:** 2015-Apr-16
+- **JIRA Ticket:** LPS-54903
+
+#### What changed?
+
+The following portal properties (and the equivalent `PropsKeys` and
+`PropsValues`) that were used to decide what sections would be displayed in the
+`form-navigator` have been removed:
+
+- `company.settings.form.configuration`
+- `company.settings.form.identification`
+- `company.settings.form.miscellaneous`
+- `company.settings.form.social`
+- `layout.form.add`
+- `layout.form.update`
+- `layout.set.form.update`
+- `organizations.form.add.identification`
+- `organizations.form.add.main`
+- `organizations.form.add.miscellaneous`
+- `organizations.form.update.identification`
+- `organizations.form.update.main`
+- `organizations.form.update.miscellaneous`
+- `sites.form.add.advanced`
+- `sites.form.add.main`
+- `sites.form.add.miscellaneous`
+- `sites.form.add.seo`
+- `sites.form.update.advanced`
+- `sites.form.update.main`
+- `sites.form.update.miscellaneous`
+- `sites.form.update.seo`
+
+The sections and categories of form navigators are now OSGi components.
+
+#### Who is affected?
+
+This affects administrators who may have added, removed, or reordered sections
+using those portal properties. Developers using the constants defined in
+`PropsKeys` or `PropsValues` for those portal properties will also be affected.
+
+#### How should I update my code?
+
+Since those properties no longer exist, you cannot rely on them. References to
+the constants of `PropsKeys` and `PropsValues` will need to be updated. You can
+use `FormNavigatorCategoryUtil` and `FormNavigatorEntryUtil` to obtain a list of
+the available sections and categories for a form navigator instance.
+
+Changes to remove or reorder specific sections will need to be done through the
+OSGi console to update the service ranking or stop the components.
+
+Adding new sections with Liferay Hooks will still work as a legacy feature, but
+the recommended way is using OSGi components to add new sections.
+
+#### Why was this change made?
+
+The old mechanism to add new sections to `form-navigator` tags was very
+limited because it could only depend on portal for services and utils due to the
+new section that was rendered from the portal classloader.
+
+There was a need to add new sections and categories to `form-navigator` tags via
+OSGi plugins in a more extensible way, allowing the developer to include new
+sections to access to their own utils and services.
+
+---------------------------------------
+
+### Removed the Type Setting breadcrumbShowParentGroups from Groups
+- **Date:** 2015-Apr-21
+- **JIRA Ticket:** LPS-54791
+
+#### What changed?
+
+The type setting `breadcrumbShowParentGroups` was removed from groups and is
+no longer available in the site configuration. Now, it is only available in the
+breadcrumb configuration.
+
+#### Who is affected?
+
+This affects all site administrators that have set the `showParentGroups`
+preference in Site Administration.
+
+#### How should I update my code?
+
+There are no code updates required. This should only be updated at the portlet
+instance level.
+
+#### Why was this change made?
+
+This change was introduced to support the new Settings API.
+
+---------------------------------------
+
+### Changed Return Value of the Method getText of the Editor's Window API
+- **Date:** 2015-Apr-28
+- **JIRA Ticket:** LPS-52698
+
+#### What changed?
+
+The method `getText` now returns the editor's content, without any HTML markup.
+
+#### Who is affected?
+
+This affects developers that are using the `getText` method of the editor's
+window API.
+
+#### How should I update my code?
+
+To continue using the editor the same way you did before this change was
+implemented, you should change calls to the `getText` method to instead call the
+`getHTML` method.
+
+#### Why was this change made?
+
+This change was made in the editor's window API to provide a proper `getText`
+method that returns just the editor's content, without any HTML markup. This
+change is used for the blog abstract field.
+
+---------------------------------------
+
+### Moved the Contact Name Exception Classes to Inner classes of ContactNameException
+- **Date:** 2015-May-5
+- **JIRA Ticket:** LPS-55364
+
+#### What changed?
+
+The use of classes `ContactFirstNameException`, `ContactFullNameException`, and
+`ContactLastNameException` has been moved to inner classes in a new class called
+`ContactNameException`.
+
+#### Who is affected?
+
+This affects developers who may have included one of the three classes above in
+their code.
+
+#### How should I update my code?
+
+While the old classes remain for backwards-compatibility, they are being
+deprecated. You're encouraged to use the new pattern of inner classes for
+exceptions wherever possible. For example, instead of using
+`ContactFirstNameExeception`, use `ContactNameException.MustHaveFirstName`. 
+
+#### Why was this change made?
+
+This change was made in accordance with the new exceptions pattern being applied
+throughout Portal. It also allows the new localized user name configuration
+feature to be thoroughly covered by exceptions for different configurations.  
+
+---------------------------------------
+
+### Removed USERS_LAST_NAME_REQUIRED from portal.properties in favor of language.properties configurations
+- **Date:** 2015-May-07
+- **JIRA Ticket:** LPS-54956
+
+#### What changed?
+
+The USERS_LAST_NAME_REQUIRED property has been removed from the portal.properties and the corresponding UI.  Required names are now handled on a per-language basis via the language.properties files.  It has also been removed as an option from the Portal Settings section of the control panel.
+
+#### Who is affected?
+
+This affects anyone who uses the USERS_LAST_NAME_REQUIRED portal property.
+
+#### How should I update my code?
+
+If you need to require the last name, list it on the `lang.user.name.required.field.names` line of the appropriate language.properties files like so: `lang.user.name.required.field.names=last-name`.
+
+#### Why was this change made?
+
+This change was made to account for different languages allowing for different user name fields, along with which of those fields are required (introduced as part of LPS-48406). That change was in conflict with the current USERS_LAST_NAME_REQUIRED property, so all control has been relegated to the language.properties files (with the exception of first-name, which is still always present and always required).
 
 ---------------------------------------

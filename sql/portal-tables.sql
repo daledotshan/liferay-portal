@@ -234,8 +234,9 @@ create table BlogsEntry (
 	allowPingbacks BOOLEAN,
 	allowTrackbacks BOOLEAN,
 	trackbacks TEXT null,
+	coverImageCaption STRING null,
 	coverImageFileEntryId LONG,
-	coverImageURL VARCHAR(75) null,
+	coverImageURL STRING null,
 	smallImage BOOLEAN,
 	smallImageFileEntryId LONG,
 	smallImageId LONG,
@@ -524,7 +525,7 @@ create table DDMTemplate (
 	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
-	sourceClassNameId LONG,
+	resourceClassNameId LONG,
 	templateKey VARCHAR(75) null,
 	version VARCHAR(75) null,
 	name STRING null,
@@ -539,6 +540,13 @@ create table DDMTemplate (
 	smallImageURL VARCHAR(75) null
 );
 
+create table DDMTemplateLink (
+	templateLinkId LONG not null primary key,
+	classNameId LONG,
+	classPK LONG,
+	templateId LONG
+);
+
 create table DDMTemplateVersion (
 	templateVersionId LONG not null primary key,
 	groupId LONG,
@@ -546,6 +554,8 @@ create table DDMTemplateVersion (
 	userId LONG,
 	userName VARCHAR(75) null,
 	createDate DATE null,
+	classNameId LONG,
+	classPK LONG,
 	templateId LONG,
 	version VARCHAR(75) null,
 	name STRING null,
@@ -602,7 +612,6 @@ create table DLFileEntryMetadata (
 	fileEntryMetadataId LONG not null primary key,
 	DDMStorageId LONG,
 	DDMStructureId LONG,
-	fileEntryTypeId LONG,
 	fileEntryId LONG,
 	fileVersionId LONG
 );
@@ -787,7 +796,7 @@ create table ExportImportConfiguration (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	name VARCHAR(75) null,
+	name VARCHAR(200) null,
 	description STRING null,
 	type_ INTEGER,
 	settings_ TEXT null,

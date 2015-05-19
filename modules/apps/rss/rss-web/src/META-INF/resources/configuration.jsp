@@ -49,7 +49,7 @@
 			<aui:fieldset cssClass="subscriptions">
 
 				<%
-				String[] urls = rssDisplayContext.getURLs();
+				String[] urls = rssDisplayContext.getUrls();
 
 				if (urls.length == 0) {
 					urls = new String[1];
@@ -84,13 +84,8 @@
 		<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="rssFeedsDisplaySettingsPanel" persistState="<%= true %>" title="display-settings">
 			<aui:fieldset>
 				<div class="display-template">
-
-					<%
-					TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(RSSFeed.class.getName());
-					%>
-
 					<liferay-ui:ddm-template-selector
-						classNameId="<%= PortalUtil.getClassNameId(templateHandler.getClassName()) %>"
+						className="<%= RSSFeed.class.getName() %>"
 						displayStyle="<%= rssDisplayContext.getDisplayStyle() %>"
 						displayStyleGroupId="<%= rssDisplayContext.getDisplayStyleGroupId() %>"
 						label="display-template"

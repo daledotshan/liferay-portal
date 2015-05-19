@@ -74,6 +74,8 @@
 	<taskdef classpathref="lib.classpath" resource="tasks.properties" />
 
 	<taskdef classname="com.liferay.ant.bnd.BaselineJarTask" classpathref="lib.classpath" name="baseline-jar" />
+	<taskdef classname="com.liferay.ant.bnd.ReleaseToRepoTask" classpathref="lib.classpath" name="release-to-repo" />
+
 	<taskdef classname="com.tonicsystems.jarjar.JarJarTask" classpath="${project.dir}/lib/development/jarjar.jar" name="jarjar" />
 	<taskdef classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpath="${project.dir}/lib/development/xmltask.jar" name="xmltask" />
 
@@ -462,16 +464,14 @@ Please set the environment variable ANT_OPTS to the recommended value of
 	<if>
 		<and>
 			<not>
-				<isset property="jdk.6.home" />
+				<isset property="jdk.7.home" />
 			</not>
 			<equals arg1="${java.specification.version}" arg2="1.6" />
 		</and>
 		<then>
-			<property name="jdk.6.home" value="${env.JAVA_HOME}" />
+			<property name="jdk.7.home" value="${env.JAVA_HOME}" />
 		</then>
 	</if>
-
-	<property name="junit.cobertura.agent" value="-javaagent:${project.dir}/${junit.cobertura.agent.jar}=${junit.cobertura.includes};${junit.cobertura.excludes}" />
 
 	<if>
 		<not>
@@ -481,6 +481,8 @@ Please set the environment variable ANT_OPTS to the recommended value of
 			<var name="junit.debug.jpda" value="" />
 		</then>
 	</if>
+
+	<property name="whip.agent" value="-javaagent:${project.dir}/${junit.whip.jar}=${junit.whip.includes};${junit.whip.excludes}" />
 
 	<macrodef name="ant-execute">
 		<attribute default="build.xml" name="ant.build.file" />
@@ -517,31 +519,6 @@ Please set the environment variable ANT_OPTS to the recommended value of
 			<echo file="app.server.${user.name}.properties">@{properties.content}</echo>
 
 			<echo file="${project.dir}/tools/sdk/build.${user.name}.properties">@{properties.content}</echo>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="baseline-jar-macro">
-		<attribute name="bndRootFile" />
-		<attribute name="file" />
-		<attribute name="outputPath" />
-		<attribute name="rootProjectDir" />
-		<attribute name="sourcePath" />
-
-		<sequential>
-			<manifest-helper />
-
-			<bndexpand propertyfile="@{bndRootFile}" />
-
-			<baseline-jar
-				bndRootFile="@{bndRootFile}"
-				file="@{file}"
-				outputPath="@{outputPath}"
-				sourcePath="@{sourcePath}"
-			>
-				<classpath>
-					<pathelement location="@{sourcePath}/classes" />
-				</classpath>
-			</baseline-jar>
 		</sequential>
 	</macrodef>
 
@@ -902,13 +879,13 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		<sequential>
 			<junit dir="${project.dir}" fork="on" forkmode="@{forkmode}" haltonfailure="${junit.halt.on.failure}" jvm="${junit.jvm}" outputtoformatters="false" printsummary="on" showoutput="true">
 				<sysproperty key="junit.aspectj.dump" file="woven-classes" />
-				<sysproperty key="junit.cobertura.agent" value="${junit.cobertura.agent}" />
 				<sysproperty key="junit.code.coverage" value="${junit.code.coverage}" />
-				<sysproperty key="junit.code.coverage.dump" value="${junit.code.coverage.dump}" />
 				<sysproperty key="junit.debug" value="${junit.debug}" />
-				<sysproperty key="net.sourceforge.cobertura.datafile" file="test-coverage/@{test.type}/cobertura.ser" />
+				<sysproperty key="whip.agent" value="${whip.agent}" />
+				<sysproperty key="whip.datafile" file="test-coverage/@{test.type}/whip.dat" />
+				<sysproperty key="whip.instrument.dump" value="${whip.instrument.dump}" />
 				<jvmarg line="${junit.debug.jpda}" />
-				<jvmarg line="${junit.cobertura.agent}" />
+				<jvmarg line="${whip.agent}" />
 				<jvmarg value="-Xmx${junit.java.mx}" />
 				<jvmarg value="-Xss2m" />
 				<jvmarg value="-XX:MaxPermSize=${junit.java.maxpermsize}" />
@@ -960,76 +937,15 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		</sequential>
 	</macrodef>
 
-	<macrodef name="mirrors-get">
-		<attribute name="dest" />
-		<attribute default="false" name="ignoreerrors" />
-		<attribute default="false" name="skipexisting" />
-		<attribute name="src" />
-		<attribute default="false" name="verbose" />
-
+	<macrodef name="print-current-time">
 		<sequential>
-			<propertyregex
-				input="@{src}"
-				override="true"
-				property="mirrors.src"
-				regexp="http://"
-				replace="http://mirrors/"
-			/>
+			<local name="current.time" />
 
-			<trycatch>
-				<try>
-					<get
-						dest="@{dest}"
-						ignoreerrors="@{ignoreerrors}"
-						skipexisting="@{skipexisting}"
-						src="${mirrors.src}"
-						verbose="@{verbose}"
-					/>
-				</try>
-				<catch>
-					<get
-						dest="@{dest}"
-						ignoreerrors="@{ignoreerrors}"
-						skipexisting="@{skipexisting}"
-						src="@{src}"
-						verbose="@{verbose}"
-					/>
-				</catch>
-			</trycatch>
-		</sequential>
-	</macrodef>
+			<tstamp>
+				<format property="current.time" pattern="MMMM d, yyyy 'at' hh:mm aa" />
+			</tstamp>
 
-	<macrodef name="release-to-repo-macro">
-		<attribute name="bndRootFile" />
-		<attribute name="file" />
-
-		<sequential>
-			<trycatch>
-				<try>
-					<taskdef
-						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
-						classpathref="project.classpath"
-						name="release-to-repo"
-					/>
-				</try>
-				<catch>
-					<ant antfile="${project.dir}/portal-service/build.xml" target="compile" inheritAll="false" />
-					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
-
-					<taskdef
-						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
-						classpathref="project.classpath"
-						name="release-to-repo"
-					/>
-				</catch>
-			</trycatch>
-
-			<bndexpand propertyfile="@{bndRootFile}" />
-
-			<release-to-repo
-				bndRootFile="@{bndRootFile}"
-				file="@{file}"
-			/>
+			<echo message="${current.time}" />
 		</sequential>
 	</macrodef>
 
@@ -1339,6 +1255,14 @@ rerun your task.
 			<if>
 				<available file="test/${current.test.dir}" type="dir" />
 				<then>
+					<if>
+						<equals arg1="@{test.type}" arg2="integration" />
+						<then>
+							<delete dir="${liferay.home}/data" />
+							<delete dir="${liferay.home}/osgi/state" />
+						</then>
+					</if>
+
 					<junit-cmd
 						forkmode="@{junit.forkmode}"
 						test.type="@{test.type}"
@@ -1399,9 +1323,14 @@ rerun your task.
 	<target name="format-javadoc">
 		<echo>Run "ant compile compile-test" before using format-javadoc to generate @Override tags.</echo>
 
+		<path id="javadoc.formatter.classpath">
+			<fileset dir="${project.dir}/tools/sdk/dependencies/com.liferay.javadoc.formatter/lib" includes="*.jar" />
+			<path refid="project.classpath" />
+		</path>
+
 		<java
-			classname="com.liferay.portal.tools.JavadocFormatter"
-			classpathref="project.classpath"
+			classname="com.liferay.javadoc.formatter.JavadocFormatter"
+			classpathref="javadoc.formatter.classpath"
 			fork="true"
 			newenvironment="true"
 		>
@@ -1414,16 +1343,14 @@ rerun your task.
 		</java>
 	</target>
 
-	<target name="print-current-time">
-		<tstamp>
-			<format property="current.time" pattern="MMMM d, yyyy 'at' hh:mm aa" />
-		</tstamp>
-
-		<echo message="${current.time}" />
-	</target>
-
 	<target name="print-properties">
 		<echoproperties />
+	</target>
+
+	<target name="run-cpd">
+		<ant antfile="build-common.xml" dir="${project.dir}/tools/sdk" inheritRefs="true" target="run-cpd">
+			<property name="cpd.basedir" value="${basedir}" />
+		</ant>
 	</target>
 
 	<target name="run-pmd">
@@ -1503,9 +1430,21 @@ rerun your task.
 			</sequential>
 		</for>
 
-		<taskdef resource="org/sonar/ant/antlib.xml" uri="antlib:org.sonar.ant">
-			<classpath path="lib/development/sonar-ant-task.jar" />
-		</taskdef>
+		<ivy:resolve log="quiet">
+			<dependency conf="default" name="sonar-ant-task" org="org.codehaus.sonar-plugins" rev="2.1" />
+		</ivy:resolve>
+
+		<ivy:cachepath
+			conf="default"
+			inline="true"
+			module="sonar-ant-task"
+			log="quiet"
+			organisation="org.codehaus.sonar-plugins"
+			pathid="sonar.ant.task.classpath"
+			revision="2.1"
+		/>
+
+		<taskdef classpathref="sonar.ant.task.classpath" resource="org/sonar/ant/antlib.xml" uri="antlib:org.sonar.ant" />
 
 		<sonar:sonar />
 
@@ -1572,16 +1511,6 @@ rerun your task.
 		<propertycopy from="TEST_CLASS_GROUP_${test.class.group.index}" name="test.classes" />
 
 		<test-cmd
-			junit.forkmode="once"
-			test.includes="${test.classes}"
-			test.type="integration"
-		/>
-
-		<report-test-coverage
-			test.type="integration"
-		/>
-
-		<test-cmd
 			junit.forkmode="perTest"
 			test.includes="${test.classes}"
 			test.type="unit"
@@ -1589,6 +1518,16 @@ rerun your task.
 
 		<report-test-coverage
 			test.type="unit"
+		/>
+
+		<test-cmd
+			junit.forkmode="once"
+			test.includes="${test.classes}"
+			test.type="integration"
+		/>
+
+		<report-test-coverage
+			test.type="integration"
 		/>
 	</target>
 

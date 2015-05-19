@@ -265,10 +265,11 @@ public class RepositoryLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.repository.LocalRepository getLocalRepositoryImpl(
-		long folderId, long fileEntryId, long fileVersionId)
+		long folderId, long fileEntryId, long fileVersionId, long fileShortcutId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .getLocalRepositoryImpl(folderId, fileEntryId, fileVersionId);
+				   .getLocalRepositoryImpl(folderId, fileEntryId,
+			fileVersionId, fileShortcutId);
 	}
 
 	public static com.liferay.portal.kernel.repository.LocalRepository getLocalRepositoryImpl(
@@ -382,10 +383,11 @@ public class RepositoryLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
-		long folderId, long fileEntryId, long fileVersionId)
+		long folderId, long fileEntryId, long fileVersionId, long fileShortcutId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .getRepositoryImpl(folderId, fileEntryId, fileVersionId);
+				   .getRepositoryImpl(folderId, fileEntryId, fileVersionId,
+			fileShortcutId);
 	}
 
 	public static com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
@@ -428,6 +430,12 @@ public class RepositoryLocalServiceUtil {
 		java.lang.String name, java.lang.String description)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().updateRepository(repositoryId, name, description);
+	}
+
+	public static void updateRepository(long repositoryId,
+		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().updateRepository(repositoryId, typeSettingsProperties);
 	}
 
 	public static RepositoryLocalService getService() {

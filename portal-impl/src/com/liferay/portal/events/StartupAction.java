@@ -17,18 +17,14 @@ package com.liferay.portal.events;
 import com.liferay.portal.cache.bootstrap.ClusterLinkBootstrapLoaderHelperUtil;
 import com.liferay.portal.fabric.server.FabricServerUtil;
 import com.liferay.portal.jericho.CachedLoggerProvider;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
-import com.liferay.portal.kernel.cluster.ClusterLinkUtil;
-import com.liferay.portal.kernel.cluster.ClusterMasterExecutorUtil;
+import com.liferay.portal.kernel.cluster.ClusterExecutor;
+import com.liferay.portal.kernel.cluster.ClusterMasterExecutor;
 import com.liferay.portal.kernel.events.ActionException;
 import com.liferay.portal.kernel.events.SimpleAction;
+import com.liferay.portal.kernel.executor.PortalExecutorManager;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.MessageBus;
-import com.liferay.portal.kernel.messaging.MessageBusUtil;
-import com.liferay.portal.kernel.messaging.sender.MessageSender;
-import com.liferay.portal.kernel.messaging.sender.SynchronousMessageSender;
 import com.liferay.portal.kernel.nio.intraband.Intraband;
 import com.liferay.portal.kernel.nio.intraband.SystemDataType;
 import com.liferay.portal.kernel.nio.intraband.mailbox.MailboxDatagramReceiveHandler;
@@ -36,7 +32,6 @@ import com.liferay.portal.kernel.nio.intraband.messaging.MessageDatagramReceiveH
 import com.liferay.portal.kernel.nio.intraband.proxy.IntrabandProxyDatagramReceiveHandler;
 import com.liferay.portal.kernel.nio.intraband.rpc.RPCDatagramReceiveHandler;
 import com.liferay.portal.kernel.resiliency.mpi.MPIHelperUtil;
-import com.liferay.portal.kernel.resiliency.spi.SPIUtil;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.Direction;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.DistributedRegistry;
 import com.liferay.portal.kernel.resiliency.spi.agent.annotation.MatchType;
@@ -44,13 +39,16 @@ import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.plugin.PluginPackageIndexer;
-import com.liferay.portal.security.lang.DoPrivilegedUtil;
 import com.liferay.portal.service.BackgroundTaskLocalServiceUtil;
 import com.liferay.portal.service.LockLocalServiceUtil;
 import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.messageboards.util.MBMessageIndexer;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.dependency.ServiceDependencyListener;
+import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.taglib.servlet.JspFactorySwapper;
 
 import javax.portlet.MimeResponse;
@@ -86,41 +84,14 @@ public class StartupAction extends SimpleAction {
 
 		// Portal resiliency
 
-		DistributedRegistry.registerDistributed(
-			ComponentConstants.COMPONENT_CONTEXT, Direction.DUPLEX,
-			MatchType.POSTFIX);
-		DistributedRegistry.registerDistributed(
-			MimeResponse.MARKUP_HEAD_ELEMENT, Direction.DUPLEX,
-			MatchType.EXACT);
-		DistributedRegistry.registerDistributed(
-			PortletRequest.LIFECYCLE_PHASE, Direction.DUPLEX, MatchType.EXACT);
-		DistributedRegistry.registerDistributed(WebKeys.class);
+		ServiceDependencyManager portalResiliencyServiceDependencyManager =
+			new ServiceDependencyManager();
 
-		Intraband intraband = MPIHelperUtil.getIntraband();
+		portalResiliencyServiceDependencyManager.registerDependencies(
+			MessageBus.class, PortalExecutorManager.class);
 
-		intraband.registerDatagramReceiveHandler(
-			SystemDataType.MAILBOX.getValue(),
-			new MailboxDatagramReceiveHandler());
-
-		MessageBus messageBus = (MessageBus)PortalBeanLocatorUtil.locate(
-			MessageBus.class.getName());
-
-		intraband.registerDatagramReceiveHandler(
-			SystemDataType.MESSAGE.getValue(),
-			new MessageDatagramReceiveHandler(messageBus));
-
-		intraband.registerDatagramReceiveHandler(
-			SystemDataType.PROXY.getValue(),
-			new IntrabandProxyDatagramReceiveHandler());
-
-		intraband.registerDatagramReceiveHandler(
-			SystemDataType.RPC.getValue(), new RPCDatagramReceiveHandler());
-
-		// Portal fabric
-
-		if (PropsValues.PORTAL_FABRIC_ENABLED) {
-			FabricServerUtil.start();
-		}
+		portalResiliencyServiceDependencyManager.addServiceDependencyListener(
+			new PortalResiliencyServiceDependencyLister());
 
 		// Shutdown hook
 
@@ -161,36 +132,6 @@ public class StartupAction extends SimpleAction {
 			}
 		}
 
-		// Messaging
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Initialize message bus");
-		}
-
-		MessageSender messageSender =
-			(MessageSender)PortalBeanLocatorUtil.locate(
-				MessageSender.class.getName());
-		SynchronousMessageSender synchronousMessageSender =
-			(SynchronousMessageSender)PortalBeanLocatorUtil.locate(
-				SynchronousMessageSender.class.getName());
-
-		MessageBusUtil.init(
-			DoPrivilegedUtil.wrap(messageBus),
-			DoPrivilegedUtil.wrap(messageSender),
-			DoPrivilegedUtil.wrap(synchronousMessageSender));
-
-		// Cluster link
-
-		ClusterLinkUtil.initialize();
-
-		// Cluster executor
-
-		ClusterExecutorUtil.initialize();
-
-		if (!SPIUtil.isSPI()) {
-			ClusterMasterExecutorUtil.initialize();
-		}
-
 		// Ehache bootstrap
 
 		ClusterLinkBootstrapLoaderHelperUtil.start();
@@ -213,9 +154,32 @@ public class StartupAction extends SimpleAction {
 
 		// Background tasks
 
-		if (!ClusterMasterExecutorUtil.isEnabled()) {
-			BackgroundTaskLocalServiceUtil.cleanUpBackgroundTasks();
-		}
+		ServiceDependencyManager backgroundTaskServiceDependencyManager =
+			new ServiceDependencyManager();
+
+		backgroundTaskServiceDependencyManager.registerDependencies(
+			ClusterExecutor.class, ClusterMasterExecutor.class);
+
+		backgroundTaskServiceDependencyManager.addServiceDependencyListener(
+			new ServiceDependencyListener() {
+
+				@Override
+				public void dependenciesFulfilled() {
+					Registry registry = RegistryUtil.getRegistry();
+
+					ClusterMasterExecutor clusterMasterExecutor =
+						registry.getService(ClusterMasterExecutor.class);
+
+					if (!clusterMasterExecutor.isEnabled()) {
+						BackgroundTaskLocalServiceUtil.cleanUpBackgroundTasks();
+					}
+				}
+
+				@Override
+				public void destroy() {
+				}
+
+			});
 
 		// Liferay JspFactory
 
@@ -227,5 +191,60 @@ public class StartupAction extends SimpleAction {
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(StartupAction.class);
+
+	private class PortalResiliencyServiceDependencyLister
+		implements ServiceDependencyListener {
+
+		@Override
+		public void dependenciesFulfilled() {
+			Registry registry = RegistryUtil.getRegistry();
+
+			MessageBus messageBus = registry.getService(MessageBus.class);
+
+			try {
+				DistributedRegistry.registerDistributed(
+					ComponentConstants.COMPONENT_CONTEXT, Direction.DUPLEX,
+					MatchType.POSTFIX);
+				DistributedRegistry.registerDistributed(
+					MimeResponse.MARKUP_HEAD_ELEMENT, Direction.DUPLEX,
+					MatchType.EXACT);
+				DistributedRegistry.registerDistributed(
+					PortletRequest.LIFECYCLE_PHASE, Direction.DUPLEX,
+					MatchType.EXACT);
+				DistributedRegistry.registerDistributed(WebKeys.class);
+
+				Intraband intraband = MPIHelperUtil.getIntraband();
+
+				intraband.registerDatagramReceiveHandler(
+					SystemDataType.MAILBOX.getValue(),
+					new MailboxDatagramReceiveHandler());
+
+				intraband.registerDatagramReceiveHandler(
+					SystemDataType.MESSAGE.getValue(),
+					new MessageDatagramReceiveHandler(messageBus));
+
+				intraband.registerDatagramReceiveHandler(
+					SystemDataType.PROXY.getValue(),
+					new IntrabandProxyDatagramReceiveHandler());
+
+				intraband.registerDatagramReceiveHandler(
+					SystemDataType.RPC.getValue(),
+					new RPCDatagramReceiveHandler());
+
+				if (PropsValues.PORTAL_FABRIC_ENABLED) {
+					FabricServerUtil.start();
+				}
+			}
+			catch (Exception e) {
+				throw new IllegalStateException(
+					"Unable to initialize portal resiliency", e);
+			}
+		}
+
+		@Override
+		public void destroy() {
+		}
+
+	}
 
 }

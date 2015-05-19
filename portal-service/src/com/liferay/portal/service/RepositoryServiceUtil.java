@@ -72,10 +72,11 @@ public class RepositoryServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.repository.LocalRepository getLocalRepositoryImpl(
-		long folderId, long fileEntryId, long fileVersionId)
+		long folderId, long fileEntryId, long fileVersionId, long fileShortcutId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .getLocalRepositoryImpl(folderId, fileEntryId, fileVersionId);
+				   .getLocalRepositoryImpl(folderId, fileEntryId,
+			fileVersionId, fileShortcutId);
 	}
 
 	public static com.liferay.portal.kernel.repository.LocalRepository getLocalRepositoryImpl(
@@ -91,10 +92,11 @@ public class RepositoryServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
-		long folderId, long fileEntryId, long fileVersionId)
+		long folderId, long fileEntryId, long fileVersionId, long fileShortcutId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .getRepositoryImpl(folderId, fileEntryId, fileVersionId);
+				   .getRepositoryImpl(folderId, fileEntryId, fileVersionId,
+			fileShortcutId);
 	}
 
 	public static com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
@@ -108,6 +110,15 @@ public class RepositoryServiceUtil {
 		return getService().getSupportedConfigurations(classNameId);
 	}
 
+	public static java.lang.String[] getSupportedParameters(
+		java.lang.String className, java.lang.String configuration) {
+		return getService().getSupportedParameters(className, configuration);
+	}
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getSupportedParameters(String, String)}
+	*/
+	@Deprecated
 	public static java.lang.String[] getSupportedParameters(long classNameId,
 		java.lang.String configuration) {
 		return getService().getSupportedParameters(classNameId, configuration);

@@ -22,6 +22,14 @@ String backURL = ParamUtil.getString(request, "backURL");
 
 long exportImportConfigurationId = ParamUtil.getLong(request, "exportImportConfigurationId");
 
+boolean publishOnLayout = false;
+
+if (exportImportConfigurationId <= 0) {
+	exportImportConfigurationId = GetterUtil.getLong(request.getAttribute("exportImportConfigurationId"));
+
+	publishOnLayout = true;
+}
+
 ExportImportConfiguration exportImportConfiguration = ExportImportConfigurationLocalServiceUtil.getExportImportConfiguration(exportImportConfigurationId);
 
 String cmd = Constants.EXPORT;
@@ -33,18 +41,16 @@ if (exportImportConfiguration.getType() == ExportImportConfigurationConstants.TY
 }
 else if (exportImportConfiguration.getType() == ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_REMOTE) {
 	cmd = Constants.PUBLISH_TO_REMOTE;
-	submitLanguageKey = "publish-to-remote";
+	submitLanguageKey = "publish-to-remote-live";
 }
 
 Map<String, Serializable> settingsMap = exportImportConfiguration.getSettingsMap();
 
-long[] layoutIds = GetterUtil.getLongValues(settingsMap.get("layoutIds"));
 Map<String, String[]> parameterMap = (Map<String, String[]>)settingsMap.get("parameterMap");
-
-boolean quickPublish = ParamUtil.getBoolean(request, "quickPublish");
+long[] layoutIds = GetterUtil.getLongValues(settingsMap.get("layoutIds"));
 %>
 
-<c:if test="<%= !quickPublish %>">
+<c:if test="<%= !publishOnLayout %>">
 	<liferay-ui:header
 		backURL="<%= backURL %>"
 		title="<%= exportImportConfiguration.getName() %>"
@@ -88,26 +94,34 @@ boolean quickPublish = ParamUtil.getBoolean(request, "quickPublish");
 							<%
 							StringBundler sb = new StringBundler();
 
-							if (ArrayUtil.isEmpty(layoutIds)) {
-								sb.append(LanguageUtil.get(locale, "selected-pages"));
+							long sourceGroupId = MapUtil.getLong(settingsMap, "sourceGroupId");
+							boolean privateLayout = MapUtil.getBoolean(settingsMap, "privateLayout");
+
+							long[] allLayoutIds = ExportImportHelperUtil.getAllLayoutIds(sourceGroupId, privateLayout);
+
+							if (ArrayUtil.containsAll(layoutIds, allLayoutIds)) {
+								sb.append(LanguageUtil.get(request, "all-pages"));
+							}
+							else if (ArrayUtil.isNotEmpty(layoutIds)) {
+								sb.append(LanguageUtil.get(request, "selected-pages"));
 							}
 							else {
-								sb.append(LanguageUtil.get(locale, "all-pages"));
+								sb.append(LanguageUtil.get(request, "no-pages"));
 							}
 
 							if (MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.LAYOUT_SET_SETTINGS)) {
 								sb.append(", ");
-								sb.append(LanguageUtil.get(locale, "site-pages-settings"));
+								sb.append(LanguageUtil.get(request, "site-pages-settings"));
 							}
 
 							if (MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.THEME_REFERENCE)) {
 								sb.append(", ");
-								sb.append(LanguageUtil.get(locale, "theme-settings"));
+								sb.append(LanguageUtil.get(request, "theme-settings"));
 							}
 
 							if (MapUtil.getBoolean(parameterMap, PortletDataHandlerKeys.LOGO)) {
 								sb.append(", ");
-								sb.append(LanguageUtil.get(locale, "logo"));
+								sb.append(LanguageUtil.get(request, "logo"));
 							}
 							%>
 
@@ -138,6 +152,7 @@ boolean quickPublish = ParamUtil.getBoolean(request, "quickPublish");
 			form: document.<portlet:namespace />fm2,
 			incompleteProcessMessageNode: '#<portlet:namespace />incompleteProcessMessage',
 			layoutSetSettingsNode: '#<%= PortletDataHandlerKeys.LAYOUT_SET_SETTINGS %>',
+			locale: '<%= locale.toLanguageTag() %>',
 			logoNode: '#<%= PortletDataHandlerKeys.LOGO %>',
 			namespace: '<portlet:namespace />',
 			rangeAllNode: '#rangeAll',
@@ -147,6 +162,7 @@ boolean quickPublish = ParamUtil.getBoolean(request, "quickPublish");
 			ratingsNode: '#<%= PortletDataHandlerKeys.RATINGS %>',
 			setupNode: '#<%= PortletDataHandlerKeys.PORTLET_SETUP_ALL %>',
 			themeReferenceNode: '#<%= PortletDataHandlerKeys.THEME_REFERENCE %>',
+			timeZone: '<%= timeZone.getID() %>',
 			userPreferencesNode: '#<%= PortletDataHandlerKeys.PORTLET_USER_PREFERENCES_ALL %>'
 		}
 	);

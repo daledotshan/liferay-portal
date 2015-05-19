@@ -16,17 +16,21 @@ package com.liferay.portlet.sitesadmin.lar;
 
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.adapter.StagedGroup;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Daniel Kocsis
  */
+@OSGiBeanProperties
 public class StagedGroupStagedModelDataHandler
 	extends BaseStagedModelDataHandler<StagedGroup> {
 
@@ -40,10 +44,10 @@ public class StagedGroupStagedModelDataHandler
 	}
 
 	@Override
-	public StagedGroup fetchStagedModelByUuidAndCompanyId(
+	public List<StagedGroup> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override

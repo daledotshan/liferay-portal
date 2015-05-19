@@ -211,7 +211,7 @@ public class ExportImportConfigurationWrapper
 	* @return the create date of this export import configuration
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _exportImportConfiguration.getCreateDate();
 	}
 
@@ -256,7 +256,7 @@ public class ExportImportConfigurationWrapper
 	* @return the modified date of this export import configuration
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _exportImportConfiguration.getModifiedDate();
 	}
 
@@ -306,7 +306,7 @@ public class ExportImportConfigurationWrapper
 	}
 
 	@Override
-	public java.util.Map<java.lang.String, java.io.Serializable> getSettingsMap() {
+	public Map<java.lang.String, java.io.Serializable> getSettingsMap() {
 		return _exportImportConfiguration.getSettingsMap();
 	}
 
@@ -356,7 +356,7 @@ public class ExportImportConfigurationWrapper
 	* @return the status date of this export import configuration
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _exportImportConfiguration.getStatusDate();
 	}
 
@@ -587,7 +587,7 @@ public class ExportImportConfigurationWrapper
 	* @param createDate the create date of this export import configuration
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_exportImportConfiguration.setCreateDate(createDate);
 	}
 
@@ -602,8 +602,7 @@ public class ExportImportConfigurationWrapper
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_exportImportConfiguration.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -645,7 +644,7 @@ public class ExportImportConfigurationWrapper
 	* @param modifiedDate the modified date of this export import configuration
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_exportImportConfiguration.setModifiedDate(modifiedDate);
 	}
 
@@ -745,7 +744,7 @@ public class ExportImportConfigurationWrapper
 	* @param statusDate the status date of this export import configuration
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_exportImportConfiguration.setStatusDate(statusDate);
 	}
 
@@ -790,7 +789,7 @@ public class ExportImportConfigurationWrapper
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.ExportImportConfiguration> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.ExportImportConfiguration> toCacheModel() {
 		return _exportImportConfiguration.toCacheModel();
 	}
 

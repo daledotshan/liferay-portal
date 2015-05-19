@@ -622,6 +622,46 @@ public class DLFileEntryLocalServiceImpl
 	}
 
 	@Override
+	public DLFileEntry copyFileEntry(
+			long userId, long groupId, long repositoryId, long fileEntryId,
+			long destFolderId, ServiceContext serviceContext)
+		throws PortalException {
+
+		DLFileEntry dlFileEntry = getFileEntry(fileEntryId);
+
+		String sourceFileName = "A";
+
+		String extension = dlFileEntry.getExtension();
+
+		if (Validator.isNotNull(extension)) {
+			sourceFileName = sourceFileName.concat(StringPool.PERIOD).concat(
+				extension);
+		}
+
+		InputStream inputStream = DLStoreUtil.getFileAsStream(
+			dlFileEntry.getCompanyId(), dlFileEntry.getDataRepositoryId(),
+			dlFileEntry.getName());
+
+		DLFileEntry newDlFileEntry = addFileEntry(
+			userId, groupId, repositoryId, destFolderId, sourceFileName,
+			dlFileEntry.getMimeType(), dlFileEntry.getTitle(),
+			dlFileEntry.getDescription(), null,
+			dlFileEntry.getFileEntryTypeId(), null, null, inputStream,
+			dlFileEntry.getSize(), serviceContext);
+
+		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
+
+		DLFileVersion newDlFileVersion = newDlFileEntry.getFileVersion();
+
+		copyFileEntryMetadata(
+			dlFileVersion.getCompanyId(), dlFileVersion.getFileEntryTypeId(),
+			fileEntryId, newDlFileVersion.getFileVersionId(),
+			dlFileVersion.getFileVersionId(), serviceContext);
+
+		return newDlFileEntry;
+	}
+
+	@Override
 	public void copyFileEntryMetadata(
 			long companyId, long fileEntryTypeId, long fileEntryId,
 			long fromFileVersionId, long toFileVersionId,
@@ -647,8 +687,8 @@ public class DLFileEntryLocalServiceImpl
 		}
 
 		copyFileEntryMetadata(
-			companyId, fileEntryTypeId, fileEntryId, fromFileVersionId,
-			toFileVersionId, serviceContext, ddmFormValuesMap, ddmStructures);
+			companyId, fileEntryId, fromFileVersionId, toFileVersionId,
+			serviceContext, ddmFormValuesMap, ddmStructures);
 	}
 
 	@Override
@@ -821,6 +861,9 @@ public class DLFileEntryLocalServiceImpl
 			dlFileVersionPersistence.remove(dlFileVersion);
 
 			expandoRowLocalService.deleteRows(dlFileVersion.getFileVersionId());
+
+			dlFileEntryMetadataLocalService.deleteFileVersionFileEntryMetadata(
+				dlFileVersion.getFileVersionId());
 
 			workflowInstanceLinkLocalService.deleteWorkflowInstanceLinks(
 				dlFileVersion.getCompanyId(), dlFileVersion.getGroupId(),
@@ -1162,13 +1205,16 @@ public class DLFileEntryLocalServiceImpl
 		return dlFileEntryPersistence.countAll();
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public int getFileEntriesCount(
 		long groupId, DateRange dateRange, long repositoryId,
 		QueryDefinition<DLFileEntry> queryDefinition) {
 
-		return dlFileEntryFinder.countByG_M_R(
-			groupId, dateRange, repositoryId, queryDefinition);
+		return 0;
 	}
 
 	@Override
@@ -2148,9 +2194,8 @@ public class DLFileEntryLocalServiceImpl
 	}
 
 	protected void copyFileEntryMetadata(
-			long companyId, long fileEntryTypeId, long fileEntryId,
-			long fromFileVersionId, long toFileVersionId,
-			ServiceContext serviceContext,
+			long companyId, long fileEntryId, long fromFileVersionId,
+			long toFileVersionId, ServiceContext serviceContext,
 			Map<String, DDMFormValues> ddmFormValuesMap,
 			List<DDMStructure> ddmStructures)
 		throws PortalException {
@@ -2172,8 +2217,8 @@ public class DLFileEntryLocalServiceImpl
 
 		if (!ddmFormValuesMap.isEmpty()) {
 			dlFileEntryMetadataLocalService.updateFileEntryMetadata(
-				companyId, ddmStructures, fileEntryTypeId, fileEntryId,
-				toFileVersionId, ddmFormValuesMap, serviceContext);
+				companyId, ddmStructures, fileEntryId, toFileVersionId,
+				ddmFormValuesMap, serviceContext);
 		}
 	}
 

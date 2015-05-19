@@ -60,12 +60,13 @@ public class StagingServiceUtil {
 		return getService().getBeanIdentifier();
 	}
 
-	public static void publishStagingRequest(long stagingRequestId,
-		boolean privateLayout,
+	public static com.liferay.portal.kernel.lar.MissingReferences publishStagingRequest(
+		long stagingRequestId, boolean privateLayout,
 		java.util.Map<java.lang.String, java.lang.String[]> parameterMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService()
-			.publishStagingRequest(stagingRequestId, privateLayout, parameterMap);
+		return getService()
+				   .publishStagingRequest(stagingRequestId, privateLayout,
+			parameterMap);
 	}
 
 	/**
@@ -83,6 +84,11 @@ public class StagingServiceUtil {
 		getService().updateStagingRequest(stagingRequestId, fileName, bytes);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #publishStagingRequest(long,
+	boolean, java.util.Map)}
+	*/
+	@Deprecated
 	public static com.liferay.portal.kernel.lar.MissingReferences validateStagingRequest(
 		long stagingRequestId, boolean privateLayout,
 		java.util.Map<java.lang.String, java.lang.String[]> parameterMap)

@@ -14,7 +14,6 @@
 
 package com.liferay.portal.scheduler.quartz;
 
-import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.bean.ClassLoaderBeanHandler;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
@@ -24,7 +23,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.InvokerMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
-import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.scheduler.IntervalTrigger;
@@ -45,7 +43,6 @@ import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.PortletApp;
 import com.liferay.portal.scheduler.job.MessageSenderJob;
 import com.liferay.portal.service.PortletLocalServiceUtil;
-import com.liferay.portal.service.QuartzLocalService;
 import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -92,8 +89,6 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 
 		try {
-			quartzLocalService.checkQuartzTables();
-
 			_persistedScheduler = initializeScheduler(
 				"persisted.scheduler.", true);
 
@@ -108,7 +103,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	public void delete(String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -138,7 +133,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -179,7 +174,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return null;
 		}
 
@@ -238,7 +233,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	public List<SchedulerResponse> getScheduledJobs(StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return Collections.emptyList();
 		}
 
@@ -267,7 +262,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return Collections.emptyList();
 		}
 
@@ -286,7 +281,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	public void pause(String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -315,7 +310,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	public void pause(String jobName, String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -344,7 +339,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	public void resume(String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -374,7 +369,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -406,7 +401,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -489,7 +484,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -516,7 +511,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	public void unschedule(String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -544,7 +539,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -573,7 +568,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			StorageType storageType)
 		throws SchedulerException {
 
-		if (!PropsValues.SCHEDULER_ENABLED) {
+		if (!isEnabled(storageType)) {
 			return;
 		}
 
@@ -688,8 +683,8 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			long interval = (Long)trigger.getTriggerContent();
 
 			if (interval <= 0) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(
+				if (_log.isWarnEnabled()) {
+					_log.warn(
 						"Not scheduling " + trigger.getJobName() +
 							" because interval is less than or equal to 0");
 				}
@@ -922,6 +917,27 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 	}
 
+	protected boolean isEnabled(StorageType storageType)
+		throws SchedulerException {
+
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			return false;
+		}
+
+		Scheduler scheduler = getScheduler(storageType);
+
+		try {
+			if (scheduler.isShutdown() || scheduler.isInStandbyMode()) {
+				return false;
+			}
+		}
+		catch (org.quartz.SchedulerException se) {
+			throw new SchedulerException(se);
+		}
+
+		return true;
+	}
+
 	protected void registerMessageListeners(
 			String destinationName, Message message)
 		throws SchedulerException {
@@ -1040,9 +1056,8 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 
 		String destinationName = jobDataMap.getString(DESTINATION_NAME);
 
-		MessageBus messageBus = MessageBusUtil.getMessageBus();
-
-		Destination destination = messageBus.getDestination(destinationName);
+		Destination destination = MessageBusUtil.getDestination(
+			destinationName);
 
 		if (destination == null) {
 			return;
@@ -1073,7 +1088,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			if (messageListenerUUID.equals(
 					schedulerMessageListener.getMessageListenerUUID())) {
 
-				messageBus.unregisterMessageListener(
+				MessageBusUtil.unregisterMessageListener(
 					destinationName, schedulerMessageListener);
 
 				return;
@@ -1185,9 +1200,6 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 
 		scheduler.addJob(jobDetail, true);
 	}
-
-	@BeanReference(name = "com.liferay.portal.service.QuartzLocalService")
-	protected QuartzLocalService quartzLocalService;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		QuartzSchedulerEngine.class);

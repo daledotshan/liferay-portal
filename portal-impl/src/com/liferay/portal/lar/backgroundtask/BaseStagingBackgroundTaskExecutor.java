@@ -18,14 +18,15 @@ import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatus;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusRegistryUtil;
-import com.liferay.portal.kernel.backgroundtask.BaseBackgroundTaskExecutor;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.lar.MissingReference;
 import com.liferay.portal.kernel.lar.MissingReferences;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.staging.StagingUtil;
-import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.model.LayoutSet;
@@ -34,20 +35,19 @@ import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.spring.transaction.TransactionAttributeBuilder;
+import com.liferay.portal.util.PropsValues;
 
+import java.io.File;
 import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.transaction.interceptor.TransactionAttribute;
-
 /**
  * @author Mate Thurzo
  */
 public abstract class BaseStagingBackgroundTaskExecutor
-	extends BaseBackgroundTaskExecutor {
+	extends BaseExportImportBackgroundTaskExecutor {
 
 	public BaseStagingBackgroundTaskExecutor() {
 		setBackgroundTaskStatusMessageTranslator(
@@ -56,15 +56,6 @@ public abstract class BaseStagingBackgroundTaskExecutor
 		// Isolation level guarantees this will be serial in a group
 
 		setIsolationLevel(BackgroundTaskConstants.ISOLATION_LEVEL_GROUP);
-		setSerial(true);
-	}
-
-	@Override
-	public String handleException(BackgroundTask backgroundTask, Exception e) {
-		JSONObject jsonObject = StagingUtil.getExceptionMessagesJSONObject(
-			getLocale(backgroundTask), e, backgroundTask.getTaskContextMap());
-
-		return jsonObject.toString();
 	}
 
 	protected void clearBackgroundTaskStatus(BackgroundTask backgroundTask) {
@@ -73,6 +64,24 @@ public abstract class BaseStagingBackgroundTaskExecutor
 				backgroundTask.getBackgroundTaskId());
 
 		backgroundTaskStatus.clearAttributes();
+	}
+
+	protected void deleteTempLarOnFailure(File file) {
+		if (PropsValues.STAGING_DELETE_TEMP_LAR_ON_FAILURE) {
+			FileUtil.delete(file);
+		}
+		else if ((file != null) && _log.isErrorEnabled()) {
+			_log.error("Kept temporary LAR file " + file.getAbsolutePath());
+		}
+	}
+
+	protected void deleteTempLarOnSuccess(File file) {
+		if (PropsValues.STAGING_DELETE_TEMP_LAR_ON_SUCCESS) {
+			FileUtil.delete(file);
+		}
+		else if ((file != null) && _log.isDebugEnabled()) {
+			_log.debug("Kept temporary LAR file " + file.getAbsolutePath());
+		}
 	}
 
 	protected void initThreadLocals(long groupId, boolean privateLayout)
@@ -130,12 +139,14 @@ public abstract class BaseStagingBackgroundTaskExecutor
 		BackgroundTaskResult backgroundTaskResult = new BackgroundTaskResult(
 			BackgroundTaskConstants.STATUS_SUCCESSFUL);
 
+		if (missingReferences == null) {
+			return backgroundTaskResult;
+		}
+
 		Map<String, MissingReference> weakMissingReferences =
 			missingReferences.getWeakMissingReferences();
 
-		if ((weakMissingReferences != null) &&
-			!weakMissingReferences.isEmpty()) {
-
+		if (MapUtil.isNotEmpty(weakMissingReferences)) {
 			BackgroundTask backgroundTask =
 				BackgroundTaskLocalServiceUtil.fetchBackgroundTask(
 					backgroundTaskId);
@@ -150,8 +161,7 @@ public abstract class BaseStagingBackgroundTaskExecutor
 		return backgroundTaskResult;
 	}
 
-	protected TransactionAttribute transactionAttribute =
-		TransactionAttributeBuilder.build(
-			Propagation.REQUIRED, new Class<?>[] {Exception.class});
+	private static final Log _log = LogFactoryUtil.getLog(
+		BaseStagingBackgroundTaskExecutor.class);
 
 }

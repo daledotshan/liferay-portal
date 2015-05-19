@@ -46,6 +46,7 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLinkConstants;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructureLink;
 import com.liferay.portlet.journal.DuplicateFolderNameException;
 import com.liferay.portlet.journal.InvalidDDMStructureException;
 import com.liferay.portlet.journal.NoSuchFolderException;
@@ -156,13 +157,6 @@ public class JournalFolderLocalServiceImpl
 
 		// Folder
 
-		Set<Long> ddmStructureIds = getDDMStructureIds(
-			journalFolderPersistence.getDDMStructures(folder.getFolderId()));
-
-		if (ddmStructureIds.isEmpty()) {
-			ddmStructureIds.add(JournalArticleConstants.DDM_STRUCTURE_ID_ALL);
-		}
-
 		journalFolderPersistence.remove(folder);
 
 		// Resources
@@ -198,12 +192,33 @@ public class JournalFolderLocalServiceImpl
 
 		// Workflow
 
-		for (long ddmStructureId : ddmStructureIds) {
+		List<DDMStructureLink> ddmStructureLinks =
+			ddmStructureLinkLocalService.getStructureLinks(
+				classNameLocalService.getClassNameId(JournalFolder.class),
+				folder.getFolderId());
+
+		if (ddmStructureLinks.isEmpty()) {
 			WorkflowDefinitionLink workflowDefinitionLink =
 				workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
 					folder.getCompanyId(), folder.getGroupId(),
 					JournalFolder.class.getName(), folder.getFolderId(),
-					ddmStructureId);
+					JournalArticleConstants.DDM_STRUCTURE_ID_ALL);
+
+			if (workflowDefinitionLink != null) {
+				workflowDefinitionLinkLocalService.deleteWorkflowDefinitionLink(
+					workflowDefinitionLink);
+			}
+		}
+
+		for (DDMStructureLink ddmStructureLink : ddmStructureLinks ) {
+			ddmStructureLinkLocalService.deleteStructureLink(
+				ddmStructureLink.getStructureLinkId());
+
+			WorkflowDefinitionLink workflowDefinitionLink =
+				workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
+					folder.getCompanyId(), folder.getGroupId(),
+					JournalFolder.class.getName(), folder.getFolderId(),
+					ddmStructureLink.getStructureId());
 
 			if (workflowDefinitionLink != null) {
 				workflowDefinitionLinkLocalService.deleteWorkflowDefinitionLink(
@@ -277,6 +292,34 @@ public class JournalFolderLocalServiceImpl
 	}
 
 	@Override
+	public List<DDMStructure> getDDMStructures(
+			long[] groupIds, long folderId, int restrictionType)
+		throws PortalException {
+
+		if (restrictionType ==
+				JournalFolderConstants.
+					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW) {
+
+			return ddmStructureLinkLocalService.getStructureLinkStructures(
+				classNameLocalService.getClassNameId(JournalFolder.class),
+				folderId);
+		}
+
+		folderId = getOverridedDDMStructuresFolderId(folderId);
+
+		if (folderId != JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			return ddmStructureLinkLocalService.getStructureLinkStructures(
+				classNameLocalService.getClassNameId(JournalFolder.class),
+				folderId);
+		}
+
+		long classNameId = classNameLocalService.getClassNameId(
+			JournalArticle.class);
+
+		return ddmStructurePersistence.findByG_C(groupIds, classNameId);
+	}
+
+	@Override
 	public JournalFolder getFolder(long folderId) throws PortalException {
 		return journalFolderPersistence.findByPrimaryKey(folderId);
 	}
@@ -319,7 +362,7 @@ public class JournalFolderLocalServiceImpl
 
 	@Override
 	public List<Object> getFoldersAndArticles(long groupId, long folderId) {
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
 			WorkflowConstants.STATUS_ANY);
 
 		return journalFolderFinder.findF_A_ByG_F(
@@ -330,8 +373,7 @@ public class JournalFolderLocalServiceImpl
 	public List<Object> getFoldersAndArticles(
 		long groupId, long folderId, int status) {
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
-			status);
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
 
 		return journalFolderFinder.findF_A_ByG_F(
 			groupId, folderId, queryDefinition);
@@ -731,7 +773,7 @@ public class JournalFolderLocalServiceImpl
 			folder.getFolderId(), folder.getUuid(), 0, assetCategoryIds,
 			assetTagNames, true, null, null, null, ContentTypes.TEXT_PLAIN,
 			folder.getName(), folder.getDescription(), null, null, null, 0, 0,
-			null, false);
+			null);
 
 		assetLinkLocalService.updateLinks(
 			userId, assetEntry.getEntryId(), assetLinkEntryIds,
@@ -741,23 +783,24 @@ public class JournalFolderLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public JournalFolder updateFolder(
-			long userId, long folderId, long parentFolderId, String name,
-			String description, boolean mergeWithParentFolder,
+			long userId, long groupId, long folderId, long parentFolderId,
+			String name, String description, boolean mergeWithParentFolder,
 			ServiceContext serviceContext)
 		throws PortalException {
 
 		return updateFolder(
-			userId, folderId, parentFolderId, name, description, new long[0],
-			JournalFolderConstants.RESTRICTION_TYPE_INHERIT,
+			userId, groupId, folderId, parentFolderId, name, description,
+			new long[0], JournalFolderConstants.RESTRICTION_TYPE_INHERIT,
 			mergeWithParentFolder, serviceContext);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public JournalFolder updateFolder(
-			long userId, long folderId, long parentFolderId, String name,
-			String description, long[] ddmStructureIds, int restrictionType,
-			boolean mergeWithParentFolder, ServiceContext serviceContext)
+			long userId, long groupId, long folderId, long parentFolderId,
+			String name, String description, long[] ddmStructureIds,
+			int restrictionType, boolean mergeWithParentFolder,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		JournalFolder folder = null;
@@ -766,7 +809,9 @@ public class JournalFolderLocalServiceImpl
 
 		if (folderId > JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			originalDDMStructureIds = getDDMStructureIds(
-				journalFolderPersistence.getDDMStructures(folderId));
+				ddmStructureLinkLocalService.getStructureLinks(
+					classNameLocalService.getClassNameId(JournalFolder.class),
+					folderId));
 
 			folder = doUpdateFolder(
 				userId, folderId, parentFolderId, name, description,
@@ -830,20 +875,26 @@ public class JournalFolderLocalServiceImpl
 		}
 
 		workflowDefinitionLinkLocalService.updateWorkflowDefinitionLinks(
-			serviceContext.getUserId(), serviceContext.getCompanyId(),
-			serviceContext.getScopeGroupId(), JournalFolder.class.getName(),
-			folderId, workflowDefinitionOVPs);
+			userId, serviceContext.getCompanyId(), groupId,
+			JournalFolder.class.getName(), folderId, workflowDefinitionOVPs);
 
 		return folder;
 	}
 
 	@Override
 	public void updateFolderDDMStructures(
-		JournalFolder folder, long[] ddmStructureIdsArray) {
+			JournalFolder folder, long[] ddmStructureIdsArray)
+		throws PortalException {
 
 		Set<Long> ddmStructureIds = SetUtil.fromArray(ddmStructureIdsArray);
+
+		List<DDMStructureLink> ddmStructureLinks =
+			ddmStructureLinkLocalService.getStructureLinks(
+				classNameLocalService.getClassNameId(JournalFolder.class),
+				folder.getFolderId());
+
 		Set<Long> originalDDMStructureIds = getDDMStructureIds(
-			journalFolderPersistence.getDDMStructures(folder.getFolderId()));
+			ddmStructureLinks);
 
 		if (ddmStructureIds.equals(originalDDMStructureIds)) {
 			return;
@@ -851,14 +902,16 @@ public class JournalFolderLocalServiceImpl
 
 		for (Long ddmStructureId : ddmStructureIds) {
 			if (!originalDDMStructureIds.contains(ddmStructureId)) {
-				journalFolderPersistence.addDDMStructure(
+				ddmStructureLinkLocalService.addStructureLink(
+					classNameLocalService.getClassNameId(JournalFolder.class),
 					folder.getFolderId(), ddmStructureId);
 			}
 		}
 
 		for (Long originalDDMStructureId : originalDDMStructureIds) {
 			if (!ddmStructureIds.contains(originalDDMStructureId)) {
-				journalFolderPersistence.removeDDMStructure(
+				ddmStructureLinkLocalService.deleteStructureLink(
+					classNameLocalService.getClassNameId(JournalFolder.class),
 					folder.getFolderId(), originalDDMStructureId);
 			}
 		}
@@ -917,11 +970,9 @@ public class JournalFolderLocalServiceImpl
 			restrictionType = parentFolder.getRestrictionType();
 		}
 
-		List<DDMStructure> folderDDMStructures =
-			ddmStructureLocalService.getJournalFolderStructures(
-				PortalUtil.getCurrentAndAncestorSiteGroupIds(
-					folder.getGroupId()),
-				parentFolderId, restrictionType);
+		List<DDMStructure> folderDDMStructures = getDDMStructures(
+			PortalUtil.getCurrentAndAncestorSiteGroupIds(folder.getGroupId()),
+			parentFolderId, restrictionType);
 
 		long[] ddmStructureIds = new long[folderDDMStructures.size()];
 
@@ -932,36 +983,6 @@ public class JournalFolderLocalServiceImpl
 		}
 
 		validateArticleDDMStructures(folderId, ddmStructureIds);
-	}
-
-	protected void deleteWorkflowDefinitionLink(JournalFolder folder) {
-		List<Long> ddmStructureIds = new ArrayList<>();
-
-		for (DDMStructure ddmStructure :
-				ddmStructureLocalService.getJournalFolderDDMStructures(
-					folder.getFolderId())) {
-
-			ddmStructureIds.add(ddmStructure.getStructureId());
-		}
-
-		if (ddmStructureIds.isEmpty()) {
-			ddmStructureIds.add(JournalArticleConstants.DDM_STRUCTURE_ID_ALL);
-		}
-
-		for (long ddmStructureId : ddmStructureIds) {
-			WorkflowDefinitionLink workflowDefinitionLink =
-				workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
-					folder.getCompanyId(), folder.getGroupId(),
-					JournalFolder.class.getName(), folder.getFolderId(),
-					ddmStructureId);
-
-			if (workflowDefinitionLink == null) {
-				continue;
-			}
-
-			workflowDefinitionLinkLocalService.deleteWorkflowDefinitionLink(
-				workflowDefinitionLink);
-		}
 	}
 
 	protected JournalFolder doUpdateFolder(
@@ -1022,11 +1043,13 @@ public class JournalFolderLocalServiceImpl
 		return folder;
 	}
 
-	protected Set<Long> getDDMStructureIds(List<DDMStructure> ddmStructures) {
+	protected Set<Long> getDDMStructureIds(
+		List<DDMStructureLink> ddmStructureLinks) {
+
 		Set<Long> ddmStructureIds = new HashSet<>();
 
-		for (DDMStructure ddmStructure : ddmStructures) {
-			ddmStructureIds.add(ddmStructure.getStructureId());
+		for (DDMStructureLink ddmStructureLink : ddmStructureLinks) {
+			ddmStructureIds.add(ddmStructureLink.getStructureId());
 		}
 
 		return ddmStructureIds;

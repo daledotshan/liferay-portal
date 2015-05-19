@@ -14,6 +14,8 @@
 
 package com.liferay.social.networking.service.persistence.test;
 
+import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -29,16 +31,14 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.social.networking.exception.NoSuchMeetupsRegistrationException;
 import com.liferay.social.networking.model.MeetupsRegistration;
 import com.liferay.social.networking.service.MeetupsRegistrationLocalServiceUtil;
 import com.liferay.social.networking.service.persistence.MeetupsRegistrationPersistence;
 import com.liferay.social.networking.service.persistence.MeetupsRegistrationUtil;
-
-import org.jboss.arquillian.junit.Arquillian;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -63,7 +63,8 @@ import java.util.Set;
 @RunWith(Arquillian.class)
 public class MeetupsRegistrationPersistenceTest {
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(PersistenceTestRule.INSTANCE,
+	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
 	@Before
@@ -162,41 +163,26 @@ public class MeetupsRegistrationPersistenceTest {
 	}
 
 	@Test
-	public void testCountByMeetupsEntryId() {
-		try {
-			_persistence.countByMeetupsEntryId(RandomTestUtil.nextLong());
+	public void testCountByMeetupsEntryId() throws Exception {
+		_persistence.countByMeetupsEntryId(RandomTestUtil.nextLong());
 
-			_persistence.countByMeetupsEntryId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByMeetupsEntryId(0L);
 	}
 
 	@Test
-	public void testCountByU_ME() {
-		try {
-			_persistence.countByU_ME(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByU_ME() throws Exception {
+		_persistence.countByU_ME(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByU_ME(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_ME(0L, 0L);
 	}
 
 	@Test
-	public void testCountByME_S() {
-		try {
-			_persistence.countByME_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByME_S() throws Exception {
+		_persistence.countByME_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByME_S(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByME_S(0L, 0);
 	}
 
 	@Test
@@ -208,29 +194,17 @@ public class MeetupsRegistrationPersistenceTest {
 		Assert.assertEquals(existingMeetupsRegistration, newMeetupsRegistration);
 	}
 
-	@Test
+	@Test(expected = NoSuchMeetupsRegistrationException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchMeetupsRegistrationException");
-		}
-		catch (NoSuchMeetupsRegistrationException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<MeetupsRegistration> getOrderByComparator() {
@@ -439,10 +413,6 @@ public class MeetupsRegistrationPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		MeetupsRegistration newMeetupsRegistration = addMeetupsRegistration();
 
 		_persistence.clearCache();

@@ -15,6 +15,12 @@
 package com.liferay.portlet.journal.trash;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.search.BooleanQuery;
+import com.liferay.portal.kernel.search.BooleanQueryFactoryUtil;
+import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Query;
+import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.Validator;
@@ -24,9 +30,10 @@ import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
+import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
-import com.liferay.portlet.journal.asset.JournalArticleAssetRenderer;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleResource;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
@@ -50,6 +57,11 @@ import javax.portlet.PortletRequest;
  * @author Sergio González
  * @author Zsolt Berentey
  */
+@OSGiBeanProperties(
+	property = {
+		"model.class.name=com.liferay.portlet.journal.model.JournalArticle"
+	}
+)
 public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 
 	@Override
@@ -86,6 +98,18 @@ public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 	@Override
 	public String getClassName() {
 		return JournalArticle.class.getName();
+	}
+
+	@Override
+	public Query getExcludeQuery(SearchContext searchContext) {
+		BooleanQuery excludeQuery = BooleanQueryFactoryUtil.create(
+			searchContext);
+
+		excludeQuery.addRequiredTerm(
+			Field.ENTRY_CLASS_NAME, JournalArticle.class.getName());
+		excludeQuery.addRequiredTerm("head", false);
+
+		return excludeQuery;
 	}
 
 	@Override
@@ -146,10 +170,15 @@ public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 
 	@Override
 	public TrashRenderer getTrashRenderer(long classPK) throws PortalException {
+		AssetRendererFactory assetRendererFactory =
+			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
+				JournalArticle.class.getName());
+
 		JournalArticle article =
 			JournalArticleLocalServiceUtil.getLatestArticle(classPK);
 
-		return new JournalArticleAssetRenderer(article);
+		return (TrashRenderer)assetRendererFactory.getAssetRenderer(
+			article.getId());
 	}
 
 	@Override
@@ -320,7 +349,7 @@ public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 		int restrictionType = JournalUtil.getRestrictionType(containerModelId);
 
 		List<DDMStructure> folderDDMStructures =
-			DDMStructureLocalServiceUtil.getJournalFolderStructures(
+			JournalFolderLocalServiceUtil.getDDMStructures(
 				PortalUtil.getCurrentAndAncestorSiteGroupIds(
 					article.getGroupId()),
 				containerModelId, restrictionType);

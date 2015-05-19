@@ -18,6 +18,7 @@ import com.liferay.portal.cache.AbstractPortalCacheManager;
 import com.liferay.portal.cache.cluster.ClusterLinkCallbackFactory;
 import com.liferay.portal.kernel.cache.CacheListenerScope;
 import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.cache.PortalCacheManagerTypes;
 import com.liferay.portal.kernel.cache.configuration.CallbackConfiguration;
 import com.liferay.portal.kernel.cache.configuration.PortalCacheConfiguration;
 import com.liferay.portal.kernel.cache.configuration.PortalCacheManagerConfiguration;
@@ -48,14 +49,9 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 
 		memoryPortalCacheManager.setName(name);
 
-		memoryPortalCacheManager.afterPropertiesSet();
+		memoryPortalCacheManager.initialize();
 
 		return memoryPortalCacheManager;
-	}
-
-	@Override
-	public String getName() {
-		return _name;
 	}
 
 	@Override
@@ -71,10 +67,6 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 		int cacheManagerInitialCapacity) {
 
 		_cacheManagerInitialCapacity = cacheManagerInitialCapacity;
-	}
-
-	public void setName(String name) {
-		_name = name;
 	}
 
 	@Override
@@ -138,7 +130,7 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 
 		PortalCacheConfiguration defaultPortalCacheConfiguration = null;
 
-		if (clusterAware && PropsValues.CLUSTER_LINK_ENABLED) {
+		if (isClusterAware() && PropsValues.CLUSTER_LINK_ENABLED) {
 			CallbackConfiguration cacheListenerConfiguration =
 				new CallbackConfiguration(
 					ClusterLinkCallbackFactory.INSTANCE, new Properties());
@@ -163,11 +155,12 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 	}
 
 	@Override
-	protected void initPortalCacheManager() {
-		if (_name == null) {
-			throw new NullPointerException("Name is null");
-		}
+	protected String getType() {
+		return PortalCacheManagerTypes.MEMORY;
+	}
 
+	@Override
+	protected void initPortalCacheManager() {
 		_memoryPortalCaches = new ConcurrentHashMap<>(
 			_cacheManagerInitialCapacity);
 
@@ -177,6 +170,5 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 	private int _cacheInitialCapacity = 10000;
 	private int _cacheManagerInitialCapacity = 10000;
 	private ConcurrentMap<String, MemoryPortalCache<K, V>> _memoryPortalCaches;
-	private String _name;
 
 }

@@ -27,10 +27,10 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil;
 
 /**
  * Provides the HTTP utility for the
- * {@link com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil} service utility. The
+ * {@link DDMStructureServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it requires an additional
- * {@link com.liferay.portal.security.auth.HttpPrincipal} parameter.
+ * {@link HttpPrincipal} parameter.
  *
  * <p>
  * The benefits of using the HTTP utility is that it is fast and allows for
@@ -49,8 +49,8 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil;
  *
  * @author Brian Wing Shun Chan
  * @see DDMStructureServiceSoap
- * @see com.liferay.portal.security.auth.HttpPrincipal
- * @see com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil
+ * @see HttpPrincipal
+ * @see DDMStructureServiceUtil
  * @generated
  */
 @ProviderType
@@ -422,17 +422,16 @@ public class DDMStructureServiceHttp {
 		}
 	}
 
-	public static java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getJournalFolderStructures(
-		HttpPrincipal httpPrincipal, long[] groupIds, long journalFolderId,
-		int restrictionType)
+	public static com.liferay.portlet.dynamicdatamapping.model.DDMStructure fetchStructure(
+		HttpPrincipal httpPrincipal, long groupId, long classNameId,
+		java.lang.String structureKey, boolean includeAncestorStructures)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(DDMStructureServiceUtil.class,
-					"getJournalFolderStructures",
-					_getJournalFolderStructuresParameterTypes10);
+					"fetchStructure", _fetchStructureParameterTypes10);
 
-			MethodHandler methodHandler = new MethodHandler(methodKey,
-					groupIds, journalFolderId, restrictionType);
+			MethodHandler methodHandler = new MethodHandler(methodKey, groupId,
+					classNameId, structureKey, includeAncestorStructures);
 
 			Object returnObj = null;
 
@@ -447,7 +446,7 @@ public class DDMStructureServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return (java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure>)returnObj;
+			return (com.liferay.portlet.dynamicdatamapping.model.DDMStructure)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -987,8 +986,8 @@ public class DDMStructureServiceHttp {
 	private static final Class<?>[] _fetchStructureParameterTypes9 = new Class[] {
 			long.class, long.class, java.lang.String.class
 		};
-	private static final Class<?>[] _getJournalFolderStructuresParameterTypes10 = new Class[] {
-			long[].class, long.class, int.class
+	private static final Class<?>[] _fetchStructureParameterTypes10 = new Class[] {
+			long.class, long.class, java.lang.String.class, boolean.class
 		};
 	private static final Class<?>[] _getStructureParameterTypes11 = new Class[] {
 			long.class

@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Document;
@@ -108,35 +109,6 @@ public class DLImpl implements DL {
 
 	@Override
 	public void addPortletBreadcrumbEntries(
-			DLFileShortcut dlFileShortcut, HttpServletRequest request,
-			RenderResponse renderResponse)
-		throws Exception {
-
-		Folder folder = dlFileShortcut.getFolder();
-
-		if (folder.getFolderId() !=
-				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
-
-			addPortletBreadcrumbEntries(folder, request, renderResponse);
-		}
-
-		DLFileShortcut unescapedDLFileShortcut =
-			dlFileShortcut.toUnescapedModel();
-
-		PortletURL portletURL = renderResponse.createRenderURL();
-
-		portletURL.setParameter(
-			"struts_action", "/document_library/view_file_entry");
-		portletURL.setParameter(
-			"fileEntryId", String.valueOf(dlFileShortcut.getToFileEntryId()));
-
-		PortalUtil.addPortletBreadcrumbEntry(
-			request, unescapedDLFileShortcut.getToTitle(),
-			portletURL.toString());
-	}
-
-	@Override
-	public void addPortletBreadcrumbEntries(
 			FileEntry fileEntry, HttpServletRequest request,
 			RenderResponse renderResponse)
 		throws Exception {
@@ -160,6 +132,34 @@ public class DLImpl implements DL {
 
 		PortalUtil.addPortletBreadcrumbEntry(
 			request, unescapedFileEntry.getTitle(), portletURL.toString());
+	}
+
+	@Override
+	public void addPortletBreadcrumbEntries(
+			FileShortcut fileShortcut, HttpServletRequest request,
+			RenderResponse renderResponse)
+		throws Exception {
+
+		Folder folder = fileShortcut.getFolder();
+
+		if (folder.getFolderId() !=
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+
+			addPortletBreadcrumbEntries(folder, request, renderResponse);
+		}
+
+		FileShortcut unescapedDLFileShortcut = fileShortcut.toUnescapedModel();
+
+		PortletURL portletURL = renderResponse.createRenderURL();
+
+		portletURL.setParameter(
+			"struts_action", "/document_library/view_file_entry");
+		portletURL.setParameter(
+			"fileEntryId", String.valueOf(fileShortcut.getToFileEntryId()));
+
+		PortalUtil.addPortletBreadcrumbEntry(
+			request, unescapedDLFileShortcut.getToTitle(),
+			portletURL.toString());
 	}
 
 	@Override
@@ -293,8 +293,8 @@ public class DLImpl implements DL {
 		if (strutsAction.equals("/document_library/select_file_entry") ||
 			strutsAction.equals("/document_library/select_folder") ||
 			strutsAction.equals("/document_library_display/select_folder") ||
-			strutsAction.equals("/document_selector/view") ||
-			strutsAction.equals("/image_gallery_display/select_folder")) {
+			strutsAction.equals("/image_gallery_display/select_folder") ||
+			strutsAction.equals("/item_selector/view")) {
 
 			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 				WebKeys.THEME_DISPLAY);
@@ -909,19 +909,6 @@ public class DLImpl implements DL {
 
 		sb.append(queryString);
 
-		if (themeDisplay != null) {
-			PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
-
-			if (portletDisplay != null) {
-				String portletId = portletDisplay.getId();
-
-				if (portletId.equals(PortletKeys.TRASH)) {
-					sb.append("&status=");
-					sb.append(WorkflowConstants.STATUS_IN_TRASH);
-				}
-			}
-		}
-
 		String previewURL = sb.toString();
 
 		if ((themeDisplay != null) && themeDisplay.isAddSessionIdToURL()) {
@@ -1382,6 +1369,13 @@ public class DLImpl implements DL {
 
 			return serviceContext.getPortalURL() +
 				serviceContext.getCurrentURL();
+		}
+
+		String entryURL = GetterUtil.getString(
+			serviceContext.getAttribute("entryURL"));
+
+		if (Validator.isNotNull(entryURL)) {
+			return entryURL;
 		}
 
 		HttpServletRequest request = serviceContext.getRequest();

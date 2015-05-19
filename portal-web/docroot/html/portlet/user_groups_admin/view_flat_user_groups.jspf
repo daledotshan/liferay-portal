@@ -19,7 +19,7 @@ UserGroupSearch userGroupSearch = new UserGroupSearch(renderRequest, portletURL)
 %>
 
 <liferay-ui:search-container
-	rowChecker="<%= new RowChecker(renderResponse) %>"
+	rowChecker="<%= new UserGroupChecker(renderResponse) %>"
 	searchContainer="<%= userGroupSearch %>"
 >
 	<aui:input disabled="<%= true %>" name="userGroupsRedirect" type="hidden" value="<%= portletURL.toString() %>" />
@@ -41,7 +41,9 @@ UserGroupSearch userGroupSearch = new UserGroupSearch(renderRequest, portletURL)
 			</c:if>
 		</aui:nav>
 
-		<aui:nav-bar-search file="/html/portlet/user_groups_admin/user_group_search.jsp" searchContainer="<%= userGroupSearch %>" />
+		<aui:nav-bar-search>
+			<liferay-ui:user-group-search-form />
+		</aui:nav-bar-search>
 	</aui:nav-bar>
 
 	<%
@@ -78,7 +80,7 @@ UserGroupSearch userGroupSearch = new UserGroupSearch(renderRequest, portletURL)
 		</portlet:renderURL>
 
 		<%
-		if (!UserGroupPermissionUtil.contains(permissionChecker, userGroup.getUserGroupId(), ActionKeys.UPDATE)) {
+		if (!UserGroupPermissionUtil.contains(permissionChecker, userGroup.getUserGroupId(), ActionKeys.VIEW)) {
 			rowURL = null;
 		}
 		%>

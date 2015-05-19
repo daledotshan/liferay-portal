@@ -179,7 +179,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	* @return the create date of this user group
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _userGroup.getCreateDate();
 	}
 
@@ -216,7 +216,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	* @return the modified date of this user group
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _userGroup.getModifiedDate();
 	}
 
@@ -405,7 +405,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	* @param createDate the create date of this user group
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_userGroup.setCreateDate(createDate);
 	}
 
@@ -420,8 +420,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_userGroup.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -443,7 +442,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	* @param modifiedDate the modified date of this user group
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_userGroup.setModifiedDate(modifiedDate);
 	}
 
@@ -548,7 +547,7 @@ public class UserGroupWrapper implements UserGroup, ModelWrapper<UserGroup> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.UserGroup> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.UserGroup> toCacheModel() {
 		return _userGroup.toCacheModel();
 	}
 

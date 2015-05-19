@@ -26,7 +26,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portlet.documentlibrary.service.DLFolderServiceUtil} service utility. The
+ * {@link DLFolderServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -61,7 +61,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see DLFolderServiceHttp
  * @see com.liferay.portlet.documentlibrary.model.DLFolderSoap
- * @see com.liferay.portlet.documentlibrary.service.DLFolderServiceUtil
+ * @see DLFolderServiceUtil
  * @generated
  */
 @ProviderType
@@ -452,6 +452,27 @@ public class DLFolderServiceSoap {
 		throws RemoteException {
 		try {
 			DLFolderServiceUtil.unlockFolder(folderId, lockUuid);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.documentlibrary.model.DLFolderSoap updateFolder(
+		long folderId, long parentFolderId, java.lang.String name,
+		java.lang.String description, long defaultFileEntryTypeId,
+		Long[] fileEntryTypeIds, int restrictionType,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			com.liferay.portlet.documentlibrary.model.DLFolder returnValue = DLFolderServiceUtil.updateFolder(folderId,
+					parentFolderId, name, description, defaultFileEntryTypeId,
+					ListUtil.toList(fileEntryTypeIds), restrictionType,
+					serviceContext);
+
+			return com.liferay.portlet.documentlibrary.model.DLFolderSoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

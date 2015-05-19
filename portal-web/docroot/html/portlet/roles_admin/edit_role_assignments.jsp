@@ -25,7 +25,7 @@ int cur = ParamUtil.getInteger(request, SearchContainer.DEFAULT_CUR_PARAM);
 
 String redirect = ParamUtil.getString(request, "redirect");
 
-Role role = (Role)request.getAttribute(WebKeys.ROLE);
+Role role = ActionUtil.getRole(request);
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
@@ -80,7 +80,7 @@ request.setAttribute("edit_role_assignments.jsp-portletURL", portletURL);
 			<liferay-util:include page="/html/portlet/users_admin/edit_role_assignments_users.jsp" />
 		</c:when>
 		<c:when test='<%= tabs2.equals("sites") %>'>
-			<liferay-util:include page="/html/portlet/sites_admin/edit_role_assignments_sites.jsp" />
+			<liferay-util:include page="/html/portlet/users_admin/edit_role_assignments_sites.jsp" />
 		</c:when>
 		<c:when test='<%= tabs2.equals("organizations") %>'>
 			<liferay-util:include page="/html/portlet/users_admin/edit_role_assignments_organizations.jsp" />
