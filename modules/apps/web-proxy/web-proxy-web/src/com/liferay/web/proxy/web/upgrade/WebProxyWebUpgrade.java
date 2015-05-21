@@ -31,9 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Raymond Augé
  */
-@Component(
-	immediate = true, service = WebProxyWebUpgrade.class
-)
+@Component(immediate = true, service = WebProxyWebUpgrade.class)
 public class WebProxyWebUpgrade {
 
 	@Reference(unbind = "-")
@@ -62,7 +60,7 @@ public class WebProxyWebUpgrade {
 
 		_releaseLocalService.updateRelease(
 			"com.liferay.web.proxy.web",
-			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 0,
+			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 1,
 			false);
 	}
 

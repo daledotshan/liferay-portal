@@ -16,7 +16,7 @@ package com.liferay.bookmarks.indexer;
 
 import com.liferay.bookmarks.model.BookmarksFolder;
 import com.liferay.bookmarks.service.BookmarksFolderLocalServiceUtil;
-import com.liferay.bookmarks.service.permission.BookmarksFolderPermission;
+import com.liferay.bookmarks.service.permission.BookmarksFolderPermissionChecker;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -46,9 +46,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Eduardo Garcia
  */
-@Component(
-	immediate = true, service = Indexer.class
-)
+@Component(immediate = true, service = Indexer.class)
 public class BookmarksFolderIndexer extends BaseIndexer {
 
 	public static final String CLASS_NAME = BookmarksFolder.class.getName();
@@ -75,7 +73,7 @@ public class BookmarksFolderIndexer extends BaseIndexer {
 		BookmarksFolder folder = BookmarksFolderLocalServiceUtil.getFolder(
 			entryClassPK);
 
-		return BookmarksFolderPermission.contains(
+		return BookmarksFolderPermissionChecker.contains(
 			permissionChecker, folder, ActionKeys.VIEW);
 	}
 

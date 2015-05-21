@@ -22,10 +22,10 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portal.kernel.lar.StagedModelDataHandler;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.trash.TrashHandler;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
@@ -33,15 +33,25 @@ import com.liferay.portal.service.ServiceContext;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Mate Thurzo
  * @author Daniel Kocsis
  */
+@Component(immediate = true, service = StagedModelDataHandler.class)
 public class BookmarksFolderStagedModelDataHandler
 	extends BaseStagedModelDataHandler<BookmarksFolder> {
 
 	public static final String[] CLASS_NAMES =
 		{BookmarksFolder.class.getName()};
+
+	@Override
+	public void deleteStagedModel(BookmarksFolder folder)
+		throws PortalException {
+
+		BookmarksFolderLocalServiceUtil.deleteFolder(folder);
+	}
 
 	@Override
 	public void deleteStagedModel(
@@ -52,25 +62,8 @@ public class BookmarksFolderStagedModelDataHandler
 			uuid, groupId);
 
 		if (folder != null) {
-			BookmarksFolderLocalServiceUtil.deleteFolder(folder);
+			deleteStagedModel(folder);
 		}
-	}
-
-	@Override
-	public BookmarksFolder fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<BookmarksFolder> folders =
-			BookmarksFolderLocalServiceUtil.
-				getBookmarksFoldersByUuidAndCompanyId(
-					uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-					new StagedModelModifiedDateComparator<BookmarksFolder>());
-
-		if (ListUtil.isEmpty(folders)) {
-			return null;
-		}
-
-		return folders.get(0);
 	}
 
 	@Override
@@ -79,6 +72,16 @@ public class BookmarksFolderStagedModelDataHandler
 
 		return BookmarksFolderLocalServiceUtil.
 			fetchBookmarksFolderByUuidAndGroupId(uuid, groupId);
+	}
+
+	@Override
+	public List<BookmarksFolder> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return BookmarksFolderLocalServiceUtil.
+			getBookmarksFoldersByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<BookmarksFolder>());
 	}
 
 	@Override

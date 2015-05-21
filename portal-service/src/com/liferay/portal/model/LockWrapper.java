@@ -178,7 +178,7 @@ public class LockWrapper implements Lock, ModelWrapper<Lock> {
 	* @return the create date of this lock
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _lock.getCreateDate();
 	}
 
@@ -193,7 +193,7 @@ public class LockWrapper implements Lock, ModelWrapper<Lock> {
 	* @return the expiration date of this lock
 	*/
 	@Override
-	public java.util.Date getExpirationDate() {
+	public Date getExpirationDate() {
 		return _lock.getExpirationDate();
 	}
 
@@ -383,13 +383,12 @@ public class LockWrapper implements Lock, ModelWrapper<Lock> {
 	* @param createDate the create date of this lock
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_lock.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_lock.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -411,7 +410,7 @@ public class LockWrapper implements Lock, ModelWrapper<Lock> {
 	* @param expirationDate the expiration date of this lock
 	*/
 	@Override
-	public void setExpirationDate(java.util.Date expirationDate) {
+	public void setExpirationDate(Date expirationDate) {
 		_lock.setExpirationDate(expirationDate);
 	}
 
@@ -526,7 +525,7 @@ public class LockWrapper implements Lock, ModelWrapper<Lock> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Lock> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Lock> toCacheModel() {
 		return _lock.toCacheModel();
 	}
 

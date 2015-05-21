@@ -112,15 +112,17 @@
 							toggleText: false
 						}
 					</c:if>
-				]
+				],
+
+				sharedResources: []
 			},
 
 			PortletKeys: {
-				DOCUMENT_SELECTOR : '<%= PortletKeys.DOCUMENT_SELECTOR %>',
+				DOCUMENT_LIBRARY: '<%= PortletKeys.DOCUMENT_LIBRARY %>',
 				DYNAMIC_DATA_MAPPING: '<%= PortletKeys.DYNAMIC_DATA_MAPPING %>',
-				JOURNAL : '<%= PortletKeys.JOURNAL %>',
+				ITEM_SELECTOR: '<%= PortletKeys.ITEM_SELECTOR %>',
 				PORTLET_CONFIGURATION: '<%= PortletKeys.PORTLET_CONFIGURATION %>',
-				PORTLET_SHARING : '<%= PortletKeys.PORTLET_SHARING %>'
+				PORTLET_SHARING: '<%= PortletKeys.PORTLET_SHARING %>'
 			},
 
 			PropsValues: {
@@ -262,7 +264,7 @@
 		Liferay.AUI = {
 
 			<%
-			long javaScriptLastModified = ServletContextUtil.getLastModified(application, "/html/js/", true);
+			long javaScriptLastModified = PortalWebResourcesUtil.getLastModified(PortalWebResourceConstants.RESOURCE_TYPE_JS);
 			%>
 
 			getAvailableLangPath: function() {
@@ -273,6 +275,9 @@
 			},
 			getComboPath: function() {
 				return '<%= PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathContext() + "/combo/", "minifierType=", javaScriptLastModified) %>&';
+			},
+			getEditorsPath: function() {
+				return '<%= themeDisplay.getPathEditors() %>';
 			},
 			getFilter: function() {
 				var filter = 'raw';
@@ -289,13 +294,16 @@
 				return filter;
 			},
 			getJavaScriptRootPath: function() {
-				return '<%= themeDisplay.getPathContext() %>/html/js';
+				return '<%= themeDisplay.getPathJavaScript() %>';
 			},
 			getLangPath: function() {
 				return '<%= PortalUtil.getStaticResourceURL(request, "aui_lang.jsp", javaScriptLastModified) %>';
 			},
 			getPortletRootPath: function() {
 				return '<%= themeDisplay.getPathContext() %>/html/portlet';
+			},
+			getStaticResourceURLParams: function() {
+				return '<%= PortalUtil.getStaticResourceURL(request, StringPool.BLANK, "minifierType=", javaScriptLastModified) %>';
 			}
 		};
 
@@ -338,7 +346,7 @@
 		for (String javaScriptFile : javaScriptFiles) {
 		%>
 
-			<script src="<%= path %>/<%= javaScriptFile %>?t=<%= javaScriptLastModified %>" type="text/javascript"></script>
+			<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, path + "/" + javaScriptFile, "minifierType=", javaScriptLastModified)) %>" type="text/javascript"></script>
 
 		<%
 		}

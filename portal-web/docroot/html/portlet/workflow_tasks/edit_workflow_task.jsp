@@ -64,7 +64,7 @@ PortletURL viewDiffsPortletURL = workflowHandler.getURLViewDiffs(classPK, lifera
 <liferay-ui:header
 	backURL="<%= backURL.toString() %>"
 	localizeTitle="<%= false %>"
-	title="<%= headerTitle %>"
+	title="<%= HtmlUtil.extractText(headerTitle) %>"
 />
 
 <aui:row>
@@ -219,7 +219,7 @@ PortletURL viewDiffsPortletURL = workflowHandler.getURLViewDiffs(classPK, lifera
 						<liferay-ui:icon
 							iconCssClass="<%= workflowHandler.getIconCssClass() %>"
 							label="<%= true %>"
-							message="<%= HtmlUtil.escape(workflowHandler.getTitle(classPK, locale)) %>"
+							message="<%= HtmlUtil.extractText(workflowHandler.getTitle(classPK, locale)) %>"
 						/>
 					</h3>
 
@@ -238,6 +238,28 @@ PortletURL viewDiffsPortletURL = workflowHandler.getURLViewDiffs(classPK, lifera
 						metadataFields="<%= metadataFields %>"
 					/>
 				</liferay-ui:panel>
+
+				<liferay-ui:panel title="comments">
+					<portlet:actionURL var="discussionURL">
+						<portlet:param name="struts_action" value="/workflow_tasks/edit_workflow_task_discussion" />
+					</portlet:actionURL>
+
+					<portlet:resourceURL var="discussionPaginationURL">
+						<portlet:param name="struts_action" value="/workflow_tasks/edit_workflow_task_discussion" />
+					</portlet:resourceURL>
+
+					<liferay-ui:discussion
+						assetEntryVisible="<%= false %>"
+						className="<%= assetRenderer.getClassName() %>"
+						classPK="<%= assetRenderer.getClassPK() %>"
+						formAction="<%= discussionURL %>"
+						formName="fm1"
+						paginationURL="<%= discussionPaginationURL %>"
+						ratingsEnabled="<%= false %>"
+						redirect="<%= currentURL %>"
+						userId="<%= user.getUserId() %>"
+					/>
+				</liferay-ui:panel>
 			</c:if>
 
 			<liferay-ui:panel defaultState="closed" title="activities">
@@ -253,29 +275,7 @@ PortletURL viewDiffsPortletURL = workflowHandler.getURLViewDiffs(classPK, lifera
 				List<WorkflowLog> workflowLogs = WorkflowLogManagerUtil.getWorkflowLogsByWorkflowInstance(company.getCompanyId(), workflowTask.getWorkflowInstanceId(), logTypes, QueryUtil.ALL_POS, QueryUtil.ALL_POS, WorkflowComparatorFactoryUtil.getLogCreateDateComparator(true));
 				%>
 
-				<%@ include file="/html/portlet/workflow_instances/workflow_logs.jspf" %>
-			</liferay-ui:panel>
-
-			<liferay-ui:panel title="comments">
-				<portlet:actionURL var="discussionURL">
-					<portlet:param name="struts_action" value="/workflow_tasks/edit_workflow_task_discussion" />
-				</portlet:actionURL>
-
-				<portlet:resourceURL var="discussionPaginationURL">
-					<portlet:param name="struts_action" value="/workflow_tasks/edit_workflow_task_discussion" />
-				</portlet:resourceURL>
-
-				<liferay-ui:discussion
-					assetEntryVisible="<%= false %>"
-					className="<%= WorkflowInstance.class.getName() %>"
-					classPK="<%= workflowTask.getWorkflowInstanceId() %>"
-					formAction="<%= discussionURL %>"
-					formName="fm1"
-					paginationURL="<%= discussionPaginationURL %>"
-					ratingsEnabled="<%= false %>"
-					redirect="<%= currentURL %>"
-					userId="<%= user.getUserId() %>"
-				/>
+				<%@ include file="/html/portlet/workflow_tasks/workflow_logs.jspf" %>
 			</liferay-ui:panel>
 		</liferay-ui:panel-container>
 	</aui:col>

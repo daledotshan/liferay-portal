@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lar.ExportImportDateUtil;
 import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.lar.MissingReferences;
+import com.liferay.portal.kernel.lar.exportimportconfiguration.ExportImportConfigurationParameterMapFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -39,6 +40,7 @@ import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
@@ -58,7 +60,6 @@ import com.liferay.portal.service.base.StagingLocalServiceBaseImpl;
 import com.liferay.portal.service.http.GroupServiceHttp;
 import com.liferay.portal.staging.StagingAdvicesThreadLocal;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.NoSuchFolderException;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
@@ -67,6 +68,7 @@ import com.liferay.portlet.documentlibrary.util.comparator.RepositoryModelNameCo
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -162,7 +164,7 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		ServiceContext serviceContext = new ServiceContext();
 
 		Repository repository = PortletFileRepositoryUtil.addPortletRepository(
-			groupId, PortletKeys.SITES_ADMIN, serviceContext);
+			groupId, _PORTLET_REPOSITORY_ID, serviceContext);
 
 		Folder folder = PortletFileRepositoryUtil.addPortletFolder(
 			userId, repository.getRepositoryId(),
@@ -287,12 +289,13 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			Group stagingGroup = liveGroup.getStagingGroup();
 
 			Map<String, String[]> parameterMap =
-				StagingUtil.getStagingParameters();
+				ExportImportConfigurationParameterMapFactory.
+					buildParameterMap();
 
 			if (liveGroup.hasPrivateLayouts()) {
 				StagingUtil.publishLayouts(
 					userId, liveGroup.getGroupId(), stagingGroup.getGroupId(),
-					true, parameterMap, null, null);
+					true, parameterMap);
 			}
 
 			if (liveGroup.hasPublicLayouts() ||
@@ -300,7 +303,7 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 
 				StagingUtil.publishLayouts(
 					userId, liveGroup.getGroupId(), stagingGroup.getGroupId(),
-					false, parameterMap, null, null);
+					false, parameterMap);
 			}
 		}
 	}
@@ -381,11 +384,27 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		updateStagedPortlets(remoteURL, remoteGroupId, typeSettingsProperties);
 	}
 
+	/**
+	 * @throws     PortalException
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
-	public void publishStagingRequest(
+	public MissingReferences publishStagingRequest(
 			long userId, long stagingRequestId, boolean privateLayout,
 			Map<String, String[]> parameterMap)
 		throws PortalException {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public MissingReferences publishStagingRequest(
+			long userId, long stagingRequestId,
+			ExportImportConfiguration exportImportConfiguration)
+		throws PortalException {
+
+		File file = null;
 
 		try {
 			ExportImportThreadLocal.setLayoutImportInProcess(true);
@@ -396,9 +415,28 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			FileEntry stagingRequestFileEntry = getStagingRequestFileEntry(
 				userId, stagingRequestId, folder);
 
-			layoutLocalService.importLayouts(
-				userId, folder.getGroupId(), privateLayout, parameterMap,
-				stagingRequestFileEntry.getContentStream());
+			file = FileUtil.createTempFile("lar");
+
+			FileUtil.write(file, stagingRequestFileEntry.getContentStream());
+
+			Map<String, Serializable> settingsMap =
+				exportImportConfiguration.getSettingsMap();
+
+			settingsMap.put("userId", userId);
+
+			layoutLocalService.importLayoutsDataDeletions(
+				exportImportConfiguration, file);
+
+			MissingReferences missingReferences =
+				layoutLocalService.validateImportLayoutsFile(
+					exportImportConfiguration, file);
+
+			layoutLocalService.importLayouts(exportImportConfiguration, file);
+
+			return missingReferences;
+		}
+		catch (IOException ioe) {
+			throw new SystemException(ioe);
 		}
 		finally {
 			ExportImportThreadLocal.setLayoutImportInProcess(false);
@@ -415,33 +453,22 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 
 		PortletFileRepositoryUtil.addPortletFileEntry(
 			folder.getGroupId(), userId, Group.class.getName(),
-			folder.getGroupId(), PortletKeys.SITES_ADMIN, folder.getFolderId(),
+			folder.getGroupId(), _PORTLET_REPOSITORY_ID, folder.getFolderId(),
 			new UnsyncByteArrayInputStream(bytes), fileName,
 			ContentTypes.APPLICATION_ZIP, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #publishStagingRequest(long,
+	 *             long, boolean, java.util.Map)}
+	 */
+	@Deprecated
 	@Override
 	public MissingReferences validateStagingRequest(
-			long userId, long stagingRequestId, boolean privateLayout,
-			Map<String, String[]> parameterMap)
-		throws PortalException {
+		long userId, long stagingRequestId, boolean privateLayout,
+		Map<String, String[]> parameterMap) {
 
-		try {
-			ExportImportThreadLocal.setLayoutValidationInProcess(true);
-
-			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-				stagingRequestId);
-
-			FileEntry fileEntry = getStagingRequestFileEntry(
-				userId, stagingRequestId, folder);
-
-			return layoutLocalService.validateImportLayoutsFile(
-				userId, folder.getGroupId(), privateLayout, parameterMap,
-				fileEntry.getContentStream());
-		}
-		finally {
-			ExportImportThreadLocal.setLayoutValidationInProcess(false);
-		}
+		return new MissingReferences();
 	}
 
 	protected void addDefaultLayoutSetBranch(
@@ -528,10 +555,11 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 			stagingGroup.getTypeSettingsProperties();
 
 		stagingTypeSettingsProperties.setProperty(
+			GroupConstants.TYPE_SETTINGS_KEY_INHERIT_LOCALES,
+			Boolean.FALSE.toString());
+		stagingTypeSettingsProperties.setProperty(
 			PropsKeys.LOCALES,
 			liveTypeSettingsProperties.getProperty(PropsKeys.LOCALES));
-		stagingTypeSettingsProperties.setProperty(
-			"inheritLocales", Boolean.FALSE.toString());
 		stagingTypeSettingsProperties.setProperty(
 			"languageId",
 			liveTypeSettingsProperties.getProperty(
@@ -761,7 +789,7 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 
 			PortletFileRepositoryUtil.addPortletFileEntry(
 				folder.getGroupId(), userId, Group.class.getName(),
-				folder.getGroupId(), PortletKeys.SITES_ADMIN,
+				folder.getGroupId(), _PORTLET_REPOSITORY_ID,
 				folder.getFolderId(), tempFile,
 				getAssembledFileName(stagingRequestId),
 				ContentTypes.APPLICATION_ZIP, false);
@@ -899,6 +927,8 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 	}
 
 	private static final String _ASSEMBLED_LAR_PREFIX = "assembled_";
+
+	private static final String _PORTLET_REPOSITORY_ID = "134";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		StagingLocalServiceImpl.class);

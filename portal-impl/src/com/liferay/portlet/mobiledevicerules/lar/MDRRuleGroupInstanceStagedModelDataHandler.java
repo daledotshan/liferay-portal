@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
@@ -50,6 +49,12 @@ public class MDRRuleGroupInstanceStagedModelDataHandler
 		{MDRRuleGroupInstance.class.getName()};
 
 	@Override
+	public void deleteStagedModel(MDRRuleGroupInstance ruleGroupInstance) {
+		MDRRuleGroupInstanceLocalServiceUtil.deleteRuleGroupInstance(
+			ruleGroupInstance);
+	}
+
+	@Override
 	public void deleteStagedModel(
 		String uuid, long groupId, String className, String extraData) {
 
@@ -57,27 +62,8 @@ public class MDRRuleGroupInstanceStagedModelDataHandler
 			fetchStagedModelByUuidAndGroupId(uuid, groupId);
 
 		if (ruleGroupInstance != null) {
-			MDRRuleGroupInstanceLocalServiceUtil.deleteRuleGroupInstance(
-				ruleGroupInstance);
+			deleteStagedModel(ruleGroupInstance);
 		}
-	}
-
-	@Override
-	public MDRRuleGroupInstance fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<MDRRuleGroupInstance> ruleGroupInstances =
-			MDRRuleGroupInstanceLocalServiceUtil.
-				getMDRRuleGroupInstancesByUuidAndCompanyId(
-					uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-					new StagedModelModifiedDateComparator
-						<MDRRuleGroupInstance>());
-
-		if (ListUtil.isEmpty(ruleGroupInstances)) {
-			return null;
-		}
-
-		return ruleGroupInstances.get(0);
 	}
 
 	@Override
@@ -86,6 +72,16 @@ public class MDRRuleGroupInstanceStagedModelDataHandler
 
 		return MDRRuleGroupInstanceLocalServiceUtil.
 			fetchMDRRuleGroupInstanceByUuidAndGroupId(uuid, groupId);
+	}
+
+	@Override
+	public List<MDRRuleGroupInstance> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return MDRRuleGroupInstanceLocalServiceUtil.
+			getMDRRuleGroupInstancesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<MDRRuleGroupInstance>());
 	}
 
 	@Override

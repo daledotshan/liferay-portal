@@ -81,7 +81,6 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 		// Record
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		Date now = new Date();
 
 		DDLRecordSet recordSet = ddlRecordSetPersistence.findByPrimaryKey(
 			recordSetId);
@@ -97,8 +96,6 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 		record.setUserName(user.getFullName());
 		record.setVersionUserId(user.getUserId());
 		record.setVersionUserName(user.getFullName());
-		record.setCreateDate(serviceContext.getCreateDate(now));
-		record.setModifiedDate(serviceContext.getModifiedDate(now));
 
 		long ddmStorageId = StorageEngineUtil.create(
 			recordSet.getCompanyId(), recordSet.getDDMStructureId(),
@@ -498,7 +495,7 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 				recordVersion.getRecordVersionId(), record.getUuid(), 0,
 				assetCategoryIds, assetTagNames, false, null, null, null,
 				ContentTypes.TEXT_HTML, title, null, StringPool.BLANK, null,
-				null, 0, 0, null, false);
+				null, 0, 0, null);
 		}
 		else {
 			assetEntryLocalService.updateEntry(
@@ -507,7 +504,7 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 				record.getRecordId(), record.getUuid(), 0, assetCategoryIds,
 				assetTagNames, visible, null, null, null,
 				ContentTypes.TEXT_HTML, title, null, StringPool.BLANK, null,
-				null, 0, 0, null, false);
+				null, 0, 0, null);
 		}
 	}
 
@@ -673,7 +670,6 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 				record.setVersion(recordVersion.getVersion());
 				record.setVersionUserId(recordVersion.getUserId());
 				record.setVersionUserName(recordVersion.getUserName());
-				record.setModifiedDate(recordVersion.getCreateDate());
 
 				ddlRecordPersistence.update(record);
 			}

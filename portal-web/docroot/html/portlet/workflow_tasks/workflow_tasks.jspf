@@ -89,7 +89,7 @@ else if (type.equals("assigned-to-my-roles")) {
 		<liferay-ui:search-container-column-text
 			href="<%= rowURL %>"
 			name="asset-title"
-			value="<%= HtmlUtil.escape(workflowHandler.getTitle(classPK, locale)) %>"
+			value="<%= HtmlUtil.extractText(workflowHandler.getTitle(classPK, locale)) %>"
 		/>
 
 		<liferay-ui:search-container-column-text

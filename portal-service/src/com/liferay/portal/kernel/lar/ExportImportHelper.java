@@ -77,6 +77,11 @@ public interface ExportImportHelper {
 	public static final String TEMP_FOLDER_NAME =
 		ExportImportHelper.class.getName();
 
+	public long[] getAllLayoutIds(long groupId, boolean privateLayout);
+
+	public Map<Long, Boolean> getAllLayoutIdsMap(
+		long groupId, boolean privateLayout);
+
 	/**
 	 * @deprecated As of 7.0.0, moved to {@link
 	 *             ExportImportDateUtil#getCalendar(PortletRequest, String,
@@ -238,6 +243,12 @@ public interface ExportImportHelper {
 			PortletDataContext portletDataContext,
 			StagedModel entityStagedModel, String content,
 			boolean exportReferencedContent)
+		throws Exception;
+
+	public String replaceExportContentReferences(
+			PortletDataContext portletDataContext,
+			StagedModel entityStagedModel, String content,
+			boolean exportReferencedContent, boolean escapeContent)
 		throws Exception;
 
 	/**

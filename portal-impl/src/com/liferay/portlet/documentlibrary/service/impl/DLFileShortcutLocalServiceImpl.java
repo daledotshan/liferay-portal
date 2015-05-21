@@ -28,6 +28,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
+import com.liferay.portlet.documentlibrary.model.DLFileShortcutConstants;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.base.DLFileShortcutLocalServiceBaseImpl;
@@ -43,8 +44,8 @@ public class DLFileShortcutLocalServiceImpl
 
 	@Override
 	public DLFileShortcut addFileShortcut(
-			long userId, long groupId, long folderId, long toFileEntryId,
-			ServiceContext serviceContext)
+			long userId, long groupId, long repositoryId, long folderId,
+			long toFileEntryId, ServiceContext serviceContext)
 		throws PortalException {
 
 		// File shortcut
@@ -65,8 +66,7 @@ public class DLFileShortcutLocalServiceImpl
 		fileShortcut.setCompanyId(user.getCompanyId());
 		fileShortcut.setUserId(user.getUserId());
 		fileShortcut.setUserName(user.getFullName());
-		fileShortcut.setCreateDate(serviceContext.getCreateDate(now));
-		fileShortcut.setModifiedDate(serviceContext.getModifiedDate(now));
+		fileShortcut.setRepositoryId(repositoryId);
 		fileShortcut.setFolderId(folderId);
 		fileShortcut.setToFileEntryId(toFileEntryId);
 		fileShortcut.setTreePath(fileShortcut.buildTreePath());
@@ -121,7 +121,7 @@ public class DLFileShortcutLocalServiceImpl
 
 		resourceLocalService.addResources(
 			fileShortcut.getCompanyId(), fileShortcut.getGroupId(),
-			fileShortcut.getUserId(), DLFileShortcut.class.getName(),
+			fileShortcut.getUserId(), DLFileShortcutConstants.getClassName(),
 			fileShortcut.getFileShortcutId(), false, addGroupPermissions,
 			addGuestPermissions);
 	}
@@ -134,7 +134,7 @@ public class DLFileShortcutLocalServiceImpl
 
 		resourceLocalService.addModelResources(
 			fileShortcut.getCompanyId(), fileShortcut.getGroupId(),
-			fileShortcut.getUserId(), DLFileShortcut.class.getName(),
+			fileShortcut.getUserId(), DLFileShortcutConstants.getClassName(),
 			fileShortcut.getFileShortcutId(), groupPermissions,
 			guestPermissions);
 	}
@@ -177,25 +177,26 @@ public class DLFileShortcutLocalServiceImpl
 		// Resources
 
 		resourceLocalService.deleteResource(
-			fileShortcut.getCompanyId(), DLFileShortcut.class.getName(),
+			fileShortcut.getCompanyId(), DLFileShortcutConstants.getClassName(),
 			ResourceConstants.SCOPE_INDIVIDUAL,
 			fileShortcut.getFileShortcutId());
 
 		// Asset
 
 		assetEntryLocalService.deleteEntry(
-			DLFileShortcut.class.getName(), fileShortcut.getFileShortcutId());
+			DLFileShortcutConstants.getClassName(),
+			fileShortcut.getFileShortcutId());
 
 		// Trash
 
 		if (fileShortcut.isInTrashExplicitly()) {
 			trashEntryLocalService.deleteEntry(
-				DLFileShortcut.class.getName(),
+				DLFileShortcutConstants.getClassName(),
 				fileShortcut.getFileShortcutId());
 		}
 		else {
 			trashVersionLocalService.deleteTrashVersion(
-				DLFileShortcut.class.getName(),
+				DLFileShortcutConstants.getClassName(),
 				fileShortcut.getFileShortcutId());
 		}
 	}
@@ -269,6 +270,11 @@ public class DLFileShortcutLocalServiceImpl
 		throws PortalException {
 
 		return dlFileShortcutPersistence.findByPrimaryKey(fileShortcutId);
+	}
+
+	@Override
+	public List<DLFileShortcut> getFileShortcuts(long toFileEntryId) {
+		return dlFileShortcutPersistence.findByToFileEntryId(toFileEntryId);
 	}
 
 	@Override
@@ -346,17 +352,18 @@ public class DLFileShortcutLocalServiceImpl
 
 		assetEntryLocalService.updateEntry(
 			userId, fileShortcut.getGroupId(), fileShortcut.getCreateDate(),
-			fileShortcut.getModifiedDate(), DLFileShortcut.class.getName(),
+			fileShortcut.getModifiedDate(),
+			DLFileShortcutConstants.getClassName(),
 			fileShortcut.getFileShortcutId(), fileShortcut.getUuid(), 0,
 			assetCategoryIds, assetTagNames, false, null, null, null,
 			fileEntry.getMimeType(), fileEntry.getTitle(),
-			fileEntry.getDescription(), null, null, null, 0, 0, null, false);
+			fileEntry.getDescription(), null, null, null, 0, 0, null);
 	}
 
 	@Override
 	public DLFileShortcut updateFileShortcut(
-			long userId, long fileShortcutId, long folderId, long toFileEntryId,
-			ServiceContext serviceContext)
+			long userId, long fileShortcutId, long repositoryId, long folderId,
+			long toFileEntryId, ServiceContext serviceContext)
 		throws PortalException {
 
 		// File shortcut
@@ -368,8 +375,6 @@ public class DLFileShortcutLocalServiceImpl
 
 		validate(user, toFileEntryId);
 
-		fileShortcut.setModifiedDate(
-			serviceContext.getModifiedDate(new Date()));
 		fileShortcut.setFolderId(folderId);
 		fileShortcut.setToFileEntryId(toFileEntryId);
 		fileShortcut.setTreePath(fileShortcut.buildTreePath());
@@ -424,7 +429,7 @@ public class DLFileShortcutLocalServiceImpl
 		fileShortcut.setStatus(status);
 		fileShortcut.setStatusByUserId(user.getUserId());
 		fileShortcut.setStatusByUserName(user.getFullName());
-		fileShortcut.setStatusDate(serviceContext.getModifiedDate(new Date()));
+		fileShortcut.setStatusDate(serviceContext.getModifiedDate(null));
 
 		dlFileShortcutPersistence.update(fileShortcut);
 	}

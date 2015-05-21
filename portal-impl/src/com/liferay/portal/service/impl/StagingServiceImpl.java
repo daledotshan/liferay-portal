@@ -17,6 +17,7 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lar.MissingReferences;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.base.StagingServiceBaseImpl;
@@ -49,16 +50,33 @@ public class StagingServiceImpl extends StagingServiceBaseImpl {
 			getUserId(), groupId, checksum);
 	}
 
+	/**
+	 * @throws PortalException
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
-	public void publishStagingRequest(
+	public MissingReferences publishStagingRequest(
 			long stagingRequestId, boolean privateLayout,
 			Map<String, String[]> parameterMap)
 		throws PortalException {
 
 		checkPermission(stagingRequestId);
 
-		stagingLocalService.publishStagingRequest(
+		return stagingLocalService.publishStagingRequest(
 			getUserId(), stagingRequestId, privateLayout, parameterMap);
+	}
+
+	@Override
+	public MissingReferences publishStagingRequest(
+			long stagingRequestId,
+			ExportImportConfiguration exportImportConfiguration)
+		throws PortalException {
+
+		checkPermission(stagingRequestId);
+
+		return stagingLocalService.publishStagingRequest(
+			getUserId(), stagingRequestId, exportImportConfiguration);
 	}
 
 	@Override
@@ -72,6 +90,11 @@ public class StagingServiceImpl extends StagingServiceBaseImpl {
 			getUserId(), stagingRequestId, fileName, bytes);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #publishStagingRequest(long,
+	 *             boolean, java.util.Map)}
+	 */
+	@Deprecated
 	@Override
 	public MissingReferences validateStagingRequest(
 			long stagingRequestId, boolean privateLayout,

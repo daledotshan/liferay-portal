@@ -823,26 +823,6 @@ body.yui3-skin-sam .yui3-widget-mask {
 	background-color: #FFF;
 }
 
-.ie {
-	#navigation {
-		filter: none;
-	}
-}
-
-.ie6, .ie7 {
-	.panel.panel-default .panel-heading {
-		background: none no-repeat 0 50%;
-
-		&.toggler-header-collapsed {
-			background-image: url(../images/arrows/05_right.png);
-		}
-
-		&.toggler-header-expanded {
-			background-image: url(../images/arrows/05_down.png);
-		}
-	}
-}
-
 /* ---------- Portlet wrapper and icons ---------- */
 
 .dropdown-menu > li.item-remove > a {
@@ -1123,27 +1103,6 @@ body.yui3-skin-sam .yui3-widget-mask {
 
 /* ---------- Alloy editor ---------- */
 
-.alloy-editor-toolbar {
-	.alloy-editor-button {
-		background-color: #215EC0;
-		background-image: none;
-		border-width: 0;
-		line-height: normal;
-	}
-
-	&.alloy-editor-toolbar-styles {
-		.link-wrapper .input-container input {
-			border-width: 0;
-			margin: 0;
-			padding: 0;
-		}
-	}
-}
-
-.alloy-editor-tooltip-link .link-container .icon-link-container {
-	line-height: 20px;
-}
-
 .alloy-editor-switch .btn {
 	background-color: #DDD;
 	border-color: transparent;
@@ -1153,6 +1112,18 @@ body.yui3-skin-sam .yui3-widget-mask {
 
 	&:focus {
 		outline: none;
+	}
+}
+
+/* ---------- CKEditor ---------- */
+
+.html-editor.portlet-message-boards {
+	a {
+		font-weight: inherit;
+	}
+
+	pre {
+		min-height: 33px;
 	}
 }
 

@@ -45,25 +45,7 @@ String structureKey = BeanParamUtil.getString(structure, request, "structureKey"
 
 String script = BeanParamUtil.getString(structure, request, "definition");
 
-JSONArray fieldsJSONArray = null;
-
-if (Validator.isNotNull(script)) {
-	if (structure != null) {
-		try {
-			fieldsJSONArray = DDMXSDUtil.getJSONArray(structure, script);
-		}
-		catch (Exception e) {
-			fieldsJSONArray = DDMXSDUtil.getJSONArray(structure.getDefinition());
-		}
-	}
-	else {
-		try {
-			fieldsJSONArray = DDMXSDUtil.getJSONArray(script);
-		}
-		catch (Exception e) {
-		}
-	}
-}
+JSONArray fieldsJSONArray = DDMUtil.getDDMFormFieldsJSONArray(structure, script);
 %>
 
 <portlet:actionURL var="editStructureURL">
@@ -127,7 +109,7 @@ if (Validator.isNotNull(requestEditStructureURL)) {
 
 	<aui:fieldset>
 		<aui:field-wrapper>
-			<c:if test="<%= (structure != null) && ((DDMStorageLinkLocalServiceUtil.getStructureStorageLinksCount(classPK) > 0) || (JournalArticleLocalServiceUtil.getStructureArticlesCount(groupId, structureKey) > 0)) %>">
+			<c:if test="<%= (structure != null) && (DDMStorageLinkLocalServiceUtil.getStructureStorageLinksCount(classPK) > 0) %>">
 				<div class="alert alert-warning">
 					<liferay-ui:message key="there-are-content-references-to-this-structure.-you-may-lose-data-if-a-field-name-is-renamed-or-removed" />
 				</div>

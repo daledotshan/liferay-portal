@@ -62,6 +62,17 @@ public class MBMessageServiceUtil {
 
 	public static com.liferay.portlet.messageboards.model.MBMessage addMessage(
 		long groupId, long categoryId, java.lang.String subject,
+		java.lang.String body, java.lang.String fileName, java.io.File file,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			java.io.FileNotFoundException {
+		return getService()
+				   .addMessage(groupId, categoryId, subject, body, fileName,
+			file, serviceContext);
+	}
+
+	public static com.liferay.portlet.messageboards.model.MBMessage addMessage(
+		long groupId, long categoryId, java.lang.String subject,
 		java.lang.String body, java.lang.String format,
 		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
 		boolean anonymous, double priority, boolean allowPingbacks,
@@ -104,6 +115,11 @@ public class MBMessageServiceUtil {
 			inputStreamOVPs, anonymous, priority, allowPingbacks, serviceContext);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #deleteDiscussionMessage(
+	String, long, long, long)}
+	*/
+	@Deprecated
 	public static void deleteDiscussionMessage(long groupId,
 		java.lang.String className, long classPK,
 		java.lang.String permissionClassName, long permissionClassPK,
@@ -114,6 +130,15 @@ public class MBMessageServiceUtil {
 			permissionClassName, permissionClassPK, permissionOwnerId, messageId);
 	}
 
+	public static void deleteDiscussionMessage(
+		java.lang.String permissionClassName, long permissionClassPK,
+		long permissionOwnerId, long messageId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.deleteDiscussionMessage(permissionClassName, permissionClassPK,
+			permissionOwnerId, messageId);
+	}
+
 	public static void deleteMessage(long messageId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteMessage(messageId);
@@ -122,6 +147,11 @@ public class MBMessageServiceUtil {
 	public static void deleteMessageAttachments(long messageId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteMessageAttachments(messageId);
+	}
+
+	public static void emptyMessageAttachments(long messageId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().emptyMessageAttachments(messageId);
 	}
 
 	/**

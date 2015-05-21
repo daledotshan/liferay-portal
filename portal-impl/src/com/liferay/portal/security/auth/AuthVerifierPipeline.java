@@ -17,13 +17,12 @@ package com.liferay.portal.security.auth;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
@@ -69,8 +68,11 @@ public class AuthVerifierPipeline {
 	private AuthVerifierPipeline() {
 		Registry registry = RegistryUtil.getRegistry();
 
+		Filter filter = registry.getFilter(
+			"(objectClass=" + AuthVerifier.class.getName() + ")");
+
 		_serviceTracker = registry.trackServices(
-			AuthVerifier.class, new AuthVerifierTrackerCustomizer());
+			filter, new AuthVerifierTrackerCustomizer());
 
 		_serviceTracker.open();
 	}
@@ -215,8 +217,7 @@ public class AuthVerifierPipeline {
 	private Map<String, Object> _mergeSettings(
 		Properties properties, Map<String, Object> settings) {
 
-		Map<String, Object> mergedSettings = new HashMap<String, Object>(
-			settings);
+		Map<String, Object> mergedSettings = new HashMap<>(settings);
 
 		if (properties != null) {
 			for (Map.Entry<Object, Object> entry : properties.entrySet()) {
@@ -309,12 +310,6 @@ public class AuthVerifierPipeline {
 		public AuthVerifierConfiguration addingService(
 			ServiceReference<AuthVerifier> serviceReference) {
 
-			if (Validator.isNull(
-					serviceReference.getProperty("urls.includes"))) {
-
-				return null;
-			}
-
 			Registry registry = RegistryUtil.getRegistry();
 
 			AuthVerifier authVerifier = registry.getService(serviceReference);
@@ -328,7 +323,7 @@ public class AuthVerifierPipeline {
 			authVerifierConfiguration.setAuthVerifierClassName(
 				authVerifierClass.getName());
 			authVerifierConfiguration.setProperties(
-				PropertiesUtil.fromMap(serviceReference.getProperties()));
+				_loadProperties(serviceReference, authVerifierClass.getName()));
 
 			_authVerifierConfigurations.add(0, authVerifierConfiguration);
 
@@ -348,7 +343,9 @@ public class AuthVerifierPipeline {
 			newAuthVerifierConfiguration.setAuthVerifierClassName(
 				authVerifierConfiguration.getAuthVerifierClassName());
 			newAuthVerifierConfiguration.setProperties(
-				PropertiesUtil.fromMap(serviceReference.getProperties()));
+				_loadProperties(
+					serviceReference,
+					authVerifierConfiguration.getAuthVerifierClassName()));
 
 			if (_authVerifierConfigurations.remove(authVerifierConfiguration)) {
 				_authVerifierConfigurations.add(
@@ -366,6 +363,36 @@ public class AuthVerifierPipeline {
 			registry.ungetService(serviceReference);
 
 			_authVerifierConfigurations.remove(authVerifierConfiguration);
+		}
+
+		private Properties _loadProperties(
+			ServiceReference<AuthVerifier> serviceReference,
+			String authVerifierClassName) {
+
+			Properties properties = new Properties();
+
+			String authVerifierPropertyName = getAuthVerifierPropertyName(
+				authVerifierClassName);
+
+			Map<String, Object> serviceReferenceProperties =
+				serviceReference.getProperties();
+
+			for (String key : serviceReferenceProperties.keySet()) {
+				String propertiesKey = key;
+
+				if (key.startsWith(authVerifierPropertyName)) {
+					propertiesKey = key.substring(
+						authVerifierPropertyName.length());
+				}
+
+				Object value = serviceReferenceProperties.get(key);
+
+				if (value instanceof String) {
+					properties.setProperty(propertiesKey, (String)value);
+				}
+			}
+
+			return properties;
 		}
 
 	}

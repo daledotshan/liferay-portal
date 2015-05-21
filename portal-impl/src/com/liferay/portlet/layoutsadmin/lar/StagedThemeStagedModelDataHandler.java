@@ -23,6 +23,7 @@ import com.liferay.portal.model.Theme;
 import com.liferay.portal.model.adapter.StagedTheme;
 import com.liferay.portal.service.ThemeLocalServiceUtil;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,15 +35,19 @@ public class StagedThemeStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {StagedTheme.class.getName()};
 
 	@Override
+	public void deleteStagedModel(StagedTheme stagedTheme) {
+	}
+
+	@Override
 	public void deleteStagedModel(
 		String uuid, long groupId, String className, String extraData) {
 	}
 
 	@Override
-	public StagedTheme fetchStagedModelByUuidAndCompanyId(
+	public List<StagedTheme> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override

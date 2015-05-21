@@ -59,6 +59,8 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 		attributes.put("userId", getUserId());
 		attributes.put("userName", getUserName());
 		attributes.put("createDate", getCreateDate());
+		attributes.put("classNameId", getClassNameId());
+		attributes.put("classPK", getClassPK());
 		attributes.put("templateId", getTemplateId());
 		attributes.put("version", getVersion());
 		attributes.put("name", getName());
@@ -105,6 +107,18 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 
 		if (createDate != null) {
 			setCreateDate(createDate);
+		}
+
+		Long classNameId = (Long)attributes.get("classNameId");
+
+		if (classNameId != null) {
+			setClassNameId(classNameId);
+		}
+
+		Long classPK = (Long)attributes.get("classPK");
+
+		if (classPK != null) {
+			setClassPK(classPK);
 		}
 
 		Long templateId = (Long)attributes.get("templateId");
@@ -161,6 +175,36 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	}
 
 	/**
+	* Returns the fully qualified class name of this d d m template version.
+	*
+	* @return the fully qualified class name of this d d m template version
+	*/
+	@Override
+	public java.lang.String getClassName() {
+		return _ddmTemplateVersion.getClassName();
+	}
+
+	/**
+	* Returns the class name ID of this d d m template version.
+	*
+	* @return the class name ID of this d d m template version
+	*/
+	@Override
+	public long getClassNameId() {
+		return _ddmTemplateVersion.getClassNameId();
+	}
+
+	/**
+	* Returns the class p k of this d d m template version.
+	*
+	* @return the class p k of this d d m template version
+	*/
+	@Override
+	public long getClassPK() {
+		return _ddmTemplateVersion.getClassPK();
+	}
+
+	/**
 	* Returns the company ID of this d d m template version.
 	*
 	* @return the company ID of this d d m template version
@@ -176,7 +220,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	* @return the create date of this d d m template version
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _ddmTemplateVersion.getCreateDate();
 	}
 
@@ -259,7 +303,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	* @return the locales and localized descriptions of this d d m template version
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _ddmTemplateVersion.getDescriptionMap();
 	}
 
@@ -361,7 +405,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	* @return the locales and localized names of this d d m template version
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _ddmTemplateVersion.getNameMap();
 	}
 
@@ -493,6 +537,31 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 		_ddmTemplateVersion.setCachedModel(cachedModel);
 	}
 
+	@Override
+	public void setClassName(java.lang.String className) {
+		_ddmTemplateVersion.setClassName(className);
+	}
+
+	/**
+	* Sets the class name ID of this d d m template version.
+	*
+	* @param classNameId the class name ID of this d d m template version
+	*/
+	@Override
+	public void setClassNameId(long classNameId) {
+		_ddmTemplateVersion.setClassNameId(classNameId);
+	}
+
+	/**
+	* Sets the class p k of this d d m template version.
+	*
+	* @param classPK the class p k of this d d m template version
+	*/
+	@Override
+	public void setClassPK(long classPK) {
+		_ddmTemplateVersion.setClassPK(classPK);
+	}
+
 	/**
 	* Sets the company ID of this d d m template version.
 	*
@@ -509,7 +578,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	* @param createDate the create date of this d d m template version
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_ddmTemplateVersion.setCreateDate(createDate);
 	}
 
@@ -560,7 +629,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_ddmTemplateVersion.setDescriptionMap(descriptionMap);
 	}
 
@@ -572,7 +641,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_ddmTemplateVersion.setDescriptionMap(descriptionMap, defaultLocale);
 	}
@@ -660,8 +729,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	* @param nameMap the locales and localized names of this d d m template version
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_ddmTemplateVersion.setNameMap(nameMap);
 	}
 
@@ -672,8 +740,7 @@ public class DDMTemplateVersionWrapper implements DDMTemplateVersion,
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_ddmTemplateVersion.setNameMap(nameMap, defaultLocale);
 	}

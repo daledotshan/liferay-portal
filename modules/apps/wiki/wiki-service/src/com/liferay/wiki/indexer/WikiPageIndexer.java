@@ -14,6 +14,7 @@
 
 package com.liferay.wiki.indexer;
 
+import com.liferay.portal.kernel.comment.Comment;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
@@ -37,13 +38,12 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.wiki.service.WikiNodeServiceUtil;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
-import com.liferay.wiki.service.permission.WikiPagePermission;
+import com.liferay.wiki.service.permission.WikiPagePermissionChecker;
 import com.liferay.wiki.util.WikiUtil;
 
 import java.util.Locale;
@@ -59,9 +59,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Bruno Farache
  * @author Raymond Augé
  */
-@Component(
-	immediate = true, service = Indexer.class
-)
+@Component(immediate = true, service = Indexer.class)
 public class WikiPageIndexer extends BaseIndexer {
 
 	public static final String CLASS_NAME = WikiPage.class.getName();
@@ -81,15 +79,15 @@ public class WikiPageIndexer extends BaseIndexer {
 
 		long classPK = 0;
 
-		if (obj instanceof DLFileEntry) {
+		if (obj instanceof Comment) {
+			Comment comment = (Comment)obj;
+
+			classPK = comment.getClassPK();
+		}
+		else if (obj instanceof DLFileEntry) {
 			DLFileEntry dlFileEntry = (DLFileEntry)obj;
 
 			classPK = dlFileEntry.getClassPK();
-		}
-		else if (obj instanceof MBMessage) {
-			MBMessage message = (MBMessage)obj;
-
-			classPK = message.getClassPK();
 		}
 
 		WikiPage page = null;
@@ -117,7 +115,7 @@ public class WikiPageIndexer extends BaseIndexer {
 
 		WikiPage page = WikiPageLocalServiceUtil.getPage(entryClassPK);
 
-		return WikiPagePermission.contains(
+		return WikiPagePermissionChecker.contains(
 			permissionChecker, page, ActionKeys.VIEW);
 	}
 

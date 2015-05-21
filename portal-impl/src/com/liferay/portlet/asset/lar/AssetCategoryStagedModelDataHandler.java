@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -55,31 +54,23 @@ public class AssetCategoryStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {AssetCategory.class.getName()};
 
 	@Override
+	public void deleteStagedModel(AssetCategory category)
+		throws PortalException {
+
+		AssetCategoryLocalServiceUtil.deleteCategory(category);
+	}
+
+	@Override
 	public void deleteStagedModel(
-		String uuid, long groupId, String className, String extraData) {
+			String uuid, long groupId, String className, String extraData)
+		throws PortalException {
 
 		AssetCategory category = fetchStagedModelByUuidAndGroupId(
 			uuid, groupId);
 
 		if (category != null) {
-			AssetCategoryLocalServiceUtil.deleteAssetCategory(category);
+			deleteStagedModel(category);
 		}
-	}
-
-	@Override
-	public AssetCategory fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<AssetCategory> categories =
-			AssetCategoryLocalServiceUtil.getAssetCategoriesByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<AssetCategory>());
-
-		if (ListUtil.isEmpty(categories)) {
-			return null;
-		}
-
-		return categories.get(0);
 	}
 
 	@Override
@@ -88,6 +79,16 @@ public class AssetCategoryStagedModelDataHandler
 
 		return AssetCategoryLocalServiceUtil.fetchAssetCategoryByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public List<AssetCategory> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return AssetCategoryLocalServiceUtil.
+			getAssetCategoriesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<AssetCategory>());
 	}
 
 	@Override
@@ -244,7 +245,7 @@ public class AssetCategoryStagedModelDataHandler
 			serviceContext.setUuid(category.getUuid());
 
 			importedCategory = AssetCategoryLocalServiceUtil.addCategory(
-				userId, parentCategoryId,
+				userId, portletDataContext.getScopeGroupId(), parentCategoryId,
 				getCategoryTitleMap(
 					portletDataContext.getScopeGroupId(), category, name),
 				category.getDescriptionMap(), vocabularyId, properties,

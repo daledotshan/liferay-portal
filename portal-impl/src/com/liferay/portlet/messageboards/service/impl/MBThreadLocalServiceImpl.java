@@ -74,8 +74,6 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 
 		// Thread
 
-		Date now = new Date();
-
 		long threadId = message.getThreadId();
 
 		if (!message.isRoot() || (threadId <= 0)) {
@@ -89,8 +87,6 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 		thread.setCompanyId(message.getCompanyId());
 		thread.setUserId(message.getUserId());
 		thread.setUserName(message.getUserName());
-		thread.setCreateDate(serviceContext.getCreateDate(now));
-		thread.setModifiedDate(serviceContext.getModifiedDate(now));
 		thread.setCategoryId(categoryId);
 		thread.setRootMessageId(message.getMessageId());
 		thread.setRootMessageUserId(message.getUserId());
@@ -124,7 +120,7 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 				MBThread.class.getName(), thread.getThreadId(),
 				thread.getUuid(), 0, new long[0], new String[0], false, null,
 				null, null, null, String.valueOf(thread.getRootMessageId()),
-				null, null, null, null, 0, 0, null, false);
+				null, null, null, null, 0, 0, null);
 		}
 
 		return thread;
@@ -749,7 +745,6 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 
 		// Thread
 
-		thread.setModifiedDate(new Date());
 		thread.setCategoryId(categoryId);
 
 		mbThreadPersistence.update(thread);
@@ -1100,8 +1095,6 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 		MBThread thread = addThread(
 			message.getCategoryId(), message, serviceContext);
 
-		oldThread.setModifiedDate(serviceContext.getModifiedDate(new Date()));
-
 		mbThreadPersistence.update(oldThread);
 
 		// Update messages
@@ -1224,13 +1217,10 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 
-		Date now = new Date();
-
-		thread.setModifiedDate(now);
 		thread.setStatus(status);
 		thread.setStatusByUserId(user.getUserId());
 		thread.setStatusByUserName(user.getFullName());
-		thread.setStatusDate(now);
+		thread.setStatusDate(new Date());
 
 		mbThreadPersistence.update(thread);
 

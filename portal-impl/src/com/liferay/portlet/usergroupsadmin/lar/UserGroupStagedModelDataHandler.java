@@ -25,6 +25,9 @@ import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author David Mendez Gonzalez
  */
@@ -44,16 +47,26 @@ public class UserGroupStagedModelDataHandler
 			uuid, group.getCompanyId());
 
 		if (userGroup != null) {
-			UserGroupLocalServiceUtil.deleteUserGroup(userGroup);
+			deleteStagedModel(userGroup);
 		}
 	}
 
 	@Override
-	public UserGroup fetchStagedModelByUuidAndCompanyId(
+	public void deleteStagedModel(UserGroup userGroup) throws PortalException {
+		UserGroupLocalServiceUtil.deleteUserGroup(userGroup);
+	}
+
+	@Override
+	public List<UserGroup> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		return UserGroupLocalServiceUtil.fetchUserGroupByUuidAndCompanyId(
-			uuid, companyId);
+		List<UserGroup> userGroups = new ArrayList<>();
+
+		userGroups.add(
+			UserGroupLocalServiceUtil.fetchUserGroupByUuidAndCompanyId(
+				uuid, companyId));
+
+		return userGroups;
 	}
 
 	@Override

@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
@@ -41,36 +40,34 @@ public class MDRRuleStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {MDRRule.class.getName()};
 
 	@Override
+	public void deleteStagedModel(MDRRule rule) {
+		MDRRuleLocalServiceUtil.deleteRule(rule);
+	}
+
+	@Override
 	public void deleteStagedModel(
 		String uuid, long groupId, String className, String extraData) {
 
 		MDRRule rule = fetchStagedModelByUuidAndGroupId(uuid, groupId);
 
 		if (rule != null) {
-			MDRRuleLocalServiceUtil.deleteRule(rule);
+			deleteStagedModel(rule);
 		}
-	}
-
-	@Override
-	public MDRRule fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<MDRRule> rules =
-			MDRRuleLocalServiceUtil.getMDRRulesByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<MDRRule>());
-
-		if (ListUtil.isEmpty(rules)) {
-			return null;
-		}
-
-		return rules.get(0);
 	}
 
 	@Override
 	public MDRRule fetchStagedModelByUuidAndGroupId(String uuid, long groupId) {
 		return MDRRuleLocalServiceUtil.fetchMDRRuleByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public List<MDRRule> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return MDRRuleLocalServiceUtil.getMDRRulesByUuidAndCompanyId(
+			uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			new StagedModelModifiedDateComparator<MDRRule>());
 	}
 
 	@Override

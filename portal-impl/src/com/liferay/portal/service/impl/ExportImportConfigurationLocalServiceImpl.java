@@ -77,10 +77,6 @@ public class ExportImportConfigurationLocalServiceImpl
 		exportImportConfiguration.setCompanyId(user.getCompanyId());
 		exportImportConfiguration.setUserId(userId);
 		exportImportConfiguration.setUserName(user.getFullName());
-		exportImportConfiguration.setCreateDate(
-			serviceContext.getCreateDate(now));
-		exportImportConfiguration.setModifiedDate(
-			serviceContext.getModifiedDate(now));
 		exportImportConfiguration.setName(name);
 		exportImportConfiguration.setDescription(description);
 		exportImportConfiguration.setType(type);
@@ -346,8 +342,6 @@ public class ExportImportConfigurationLocalServiceImpl
 
 		exportImportConfiguration.setUserId(userId);
 		exportImportConfiguration.setUserName(user.getFullName());
-		exportImportConfiguration.setModifiedDate(
-			serviceContext.getModifiedDate(new Date()));
 		exportImportConfiguration.setName(name);
 		exportImportConfiguration.setDescription(description);
 
@@ -393,6 +387,7 @@ public class ExportImportConfigurationLocalServiceImpl
 
 		Map<String, Serializable> attributes = new HashMap<>();
 
+		attributes.put(Field.STATUS, WorkflowConstants.STATUS_APPROVED);
 		attributes.put("description", description);
 		attributes.put("groupId", groupId);
 		attributes.put("name", name);

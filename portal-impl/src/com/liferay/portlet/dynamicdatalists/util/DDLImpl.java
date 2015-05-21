@@ -27,6 +27,10 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.template.TemplateHandler;
+import com.liferay.portal.kernel.template.TemplateHandlerRegistryUtil;
+import com.liferay.portal.kernel.template.TemplateManager;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
@@ -199,7 +203,8 @@ public class DDLImpl implements DDL {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
 						"DDL record index is stale and contains record " +
-							recordId);
+							recordId,
+						nsre);
 				}
 
 				Indexer indexer = IndexerRegistryUtil.getIndexer(
@@ -310,6 +315,8 @@ public class DDLImpl implements DDL {
 			RenderResponse renderResponse)
 		throws Exception {
 
+		Transformer transformer = TransformerHolder.getTransformer();
+
 		Map<String, Object> contextObjects = new HashMap<>();
 
 		contextObjects.put(
@@ -342,7 +349,17 @@ public class DDLImpl implements DDL {
 		contextObjects.put(
 			TemplateConstants.CLASS_NAME_ID, ddmTemplate.getClassNameId());
 
-		return _transformer.transform(
+		TemplateManager templateManager =
+			TemplateManagerUtil.getTemplateManager(ddmTemplate.getLanguage());
+
+		TemplateHandler templateHandler =
+			TemplateHandlerRegistryUtil.getTemplateHandler(
+				DDLRecordSet.class.getName());
+
+		templateManager.addContextObjects(
+			contextObjects, templateHandler.getCustomContextObjects());
+
+		return transformer.transform(
 			themeDisplay, contextObjects, ddmTemplate.getScript(),
 			ddmTemplate.getLanguage(), new UnsyncStringWriter());
 	}
@@ -464,7 +481,15 @@ public class DDLImpl implements DDL {
 
 	private static final Log _log = LogFactoryUtil.getLog(DDLImpl.class);
 
-	private final Transformer _transformer = new Transformer(
-		PropsKeys.DYNAMIC_DATA_LISTS_ERROR_TEMPLATE, true);
+	private static class TransformerHolder {
+
+		public static Transformer getTransformer() {
+			return _transformer;
+		}
+
+		private static final Transformer _transformer = new Transformer(
+			PropsKeys.DYNAMIC_DATA_LISTS_ERROR_TEMPLATE, true);
+
+	}
 
 }

@@ -27,10 +27,10 @@ import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 
 /**
  * Provides the HTTP utility for the
- * {@link com.liferay.portlet.documentlibrary.service.DLAppServiceUtil} service utility. The
+ * {@link DLAppServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it requires an additional
- * {@link com.liferay.portal.security.auth.HttpPrincipal} parameter.
+ * {@link HttpPrincipal} parameter.
  *
  * <p>
  * The benefits of using the HTTP utility is that it is fast and allows for
@@ -49,8 +49,8 @@ import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
  *
  * @author Brian Wing Shun Chan
  * @see DLAppServiceSoap
- * @see com.liferay.portal.security.auth.HttpPrincipal
- * @see com.liferay.portlet.documentlibrary.service.DLAppServiceUtil
+ * @see HttpPrincipal
+ * @see DLAppServiceUtil
  * @generated
  */
 @ProviderType
@@ -166,7 +166,7 @@ public class DLAppServiceHttp {
 		}
 	}
 
-	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut addFileShortcut(
+	public static com.liferay.portal.kernel.repository.model.FileShortcut addFileShortcut(
 		HttpPrincipal httpPrincipal, long repositoryId, long folderId,
 		long toFileEntryId,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -191,7 +191,7 @@ public class DLAppServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return (com.liferay.portlet.documentlibrary.model.DLFileShortcut)returnObj;
+			return (com.liferay.portal.kernel.repository.model.FileShortcut)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -1273,7 +1273,7 @@ public class DLAppServiceHttp {
 		}
 	}
 
-	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut getFileShortcut(
+	public static com.liferay.portal.kernel.repository.model.FileShortcut getFileShortcut(
 		HttpPrincipal httpPrincipal, long fileShortcutId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
@@ -1296,7 +1296,7 @@ public class DLAppServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return (com.liferay.portlet.documentlibrary.model.DLFileShortcut)returnObj;
+			return (com.liferay.portal.kernel.repository.model.FileShortcut)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -2701,7 +2701,7 @@ public class DLAppServiceHttp {
 		}
 	}
 
-	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut moveFileShortcutFromTrash(
+	public static com.liferay.portal.kernel.repository.model.FileShortcut moveFileShortcutFromTrash(
 		HttpPrincipal httpPrincipal, long fileShortcutId, long newFolderId,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -2726,7 +2726,7 @@ public class DLAppServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return (com.liferay.portlet.documentlibrary.model.DLFileShortcut)returnObj;
+			return (com.liferay.portal.kernel.repository.model.FileShortcut)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -2735,7 +2735,7 @@ public class DLAppServiceHttp {
 		}
 	}
 
-	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut moveFileShortcutToTrash(
+	public static com.liferay.portal.kernel.repository.model.FileShortcut moveFileShortcutToTrash(
 		HttpPrincipal httpPrincipal, long fileShortcutId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
@@ -2759,7 +2759,7 @@ public class DLAppServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return (com.liferay.portlet.documentlibrary.model.DLFileShortcut)returnObj;
+			return (com.liferay.portal.kernel.repository.model.FileShortcut)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -3597,7 +3597,7 @@ public class DLAppServiceHttp {
 		}
 	}
 
-	public static com.liferay.portlet.documentlibrary.model.DLFileShortcut updateFileShortcut(
+	public static com.liferay.portal.kernel.repository.model.FileShortcut updateFileShortcut(
 		HttpPrincipal httpPrincipal, long fileShortcutId, long folderId,
 		long toFileEntryId,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -3622,7 +3622,7 @@ public class DLAppServiceHttp {
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
-			return (com.liferay.portlet.documentlibrary.model.DLFileShortcut)returnObj;
+			return (com.liferay.portal.kernel.repository.model.FileShortcut)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);

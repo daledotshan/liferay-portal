@@ -32,16 +32,16 @@ AUI.add(
 		var STR_SPACE = ' ';
 
 		var TPL_BUTTON = '<div class="field-labels-inline">' +
-							'<input type="button" value="' + A.Escape.html(Liferay.Language.get('select')) + '" />' +
-						'<div>';
+				'<input type="button" value="' + A.Escape.html(Liferay.Language.get('select')) + '" />' +
+			'<div>';
 
 		var TPL_GEOLOCATION = '<div class="field-labels-inline">' +
-									'<img src="' + themeDisplay.getPathThemeImages() + '/common/geolocation.png" title="' + A.Escape.html(Liferay.Language.get('geolocate')) + '" />' +
-								'<div>';
+				'<img src="' + themeDisplay.getPathThemeImages() + '/common/geolocation.png" title="' + A.Escape.html(Liferay.Language.get('geolocate')) + '" />' +
+			'<div>';
 
 		var TPL_LINK_TO_PAGE = '<div class="lfr-ddm-link-to-page">' +
-								'<a href="javascript:;">' + Liferay.Language.get('link') + '</a>' +
-							'</div>';
+				'<a href="javascript:;">' + Liferay.Language.get('link') + '</a>' +
+			'</div>';
 
 		var TPL_PARAGRAPH = '<p></p>';
 
@@ -84,8 +84,7 @@ AUI.add(
 
 			node.setStyle(STR_BLANK);
 
-			AArray.each(
-				styles,
+			styles.forEach(
 				function(item, index) {
 					var rule = item.split(':');
 
@@ -149,9 +148,9 @@ AUI.add(
 						portletURL.setParameter('eventName', 'selectDocumentLibrary');
 						portletURL.setParameter('groupId', themeDisplay.getScopeGroupId());
 						portletURL.setParameter('refererPortletName', '167');
-						portletURL.setParameter('struts_action', '/document_selector/view');
+						portletURL.setParameter('mvcPath', '/view.jsp');
 						portletURL.setParameter('tabs1Names', 'documents');
-						portletURL.setPortletId(Liferay.PortletKeys.DOCUMENT_SELECTOR);
+						portletURL.setPortletId(Liferay.PortletKeys.ITEM_SELECTOR);
 						portletURL.setWindowState('pop_up');
 
 						Liferay.Util.selectEntity(
@@ -295,8 +294,7 @@ AUI.add(
 					_createOptionElements: function(layouts, options, prefix) {
 						var instance = this;
 
-						AArray.each(
-							layouts,
+						layouts.forEach(
 							function(item, index) {
 								options[prefix + item.name] = {
 									groupId: item.groupId,
@@ -407,8 +405,7 @@ AUI.add(
 			LinkToPageCellEditor
 		];
 
-		AArray.each(
-			customCellEditors,
+		customCellEditors.forEach(
 			function(item, index) {
 				Liferay.FormBuilder.CUSTOM_CELL_EDITORS[item.NAME] = item;
 			}
@@ -489,8 +486,7 @@ AUI.add(
 
 			instance.after('render', instance._afterLocalizableFieldRender);
 
-			A.each(
-				LOCALIZABLE_FIELD_ATTRS,
+			LOCALIZABLE_FIELD_ATTRS.forEach(
 				function(localizableField) {
 					instance.after(localizableField + 'Change', instance._afterLocalizableFieldChange);
 				}
@@ -539,8 +535,7 @@ AUI.add(
 			var defaultLocale = translationManager.get('defaultLocale');
 			var editingLocale = translationManager.get('editingLocale');
 
-			AArray.each(
-				UNLOCALIZABLE_FIELD_ATTRS,
+			UNLOCALIZABLE_FIELD_ATTRS.forEach(
 				function(item, index) {
 					if (defaultLocale === editingLocale) {
 						AArray.removeItem(val, item);
@@ -564,8 +559,7 @@ AUI.add(
 			var localeMap = localizationMap[locale];
 
 			if (isObject(localeMap)) {
-				AArray.each(
-					LOCALIZABLE_FIELD_ATTRS,
+				LOCALIZABLE_FIELD_ATTRS.forEach(
 					function(item, index) {
 						if (item !== 'options') {
 							var localizedItem = localeMap[item];
@@ -594,8 +588,7 @@ AUI.add(
 
 			var options = instance.get('options');
 
-			AArray.each(
-				options,
+			options.forEach(
 				function(item, index) {
 					var localizationMap = item.localizationMap;
 
@@ -615,8 +608,7 @@ AUI.add(
 		LocalizableFieldSupport.prototype._updateLocalizationMap = function(locale) {
 			var instance = this;
 
-			AArray.each(
-				LOCALIZABLE_FIELD_ATTRS,
+			LOCALIZABLE_FIELD_ATTRS.forEach(
 				function(item, index) {
 					instance._updateLocalizationMapAttribute(locale, item);
 				}
@@ -653,22 +645,23 @@ AUI.add(
 
 			var options = instance.get('options');
 
-			AArray.each(
-				options,
-				function(item, index) {
-					var localizationMap = item.localizationMap;
+			if (options) {
+				options.forEach(
+					function(item, index) {
+						var localizationMap = item.localizationMap;
 
-					if (!isObject(localizationMap)) {
-						localizationMap = {};
+						if (!isObject(localizationMap)) {
+							localizationMap = {};
+						}
+
+						localizationMap[locale] = {
+							label: item.label
+						};
+
+						item.localizationMap = localizationMap;
 					}
-
-					localizationMap[locale] = {
-						label: item.label
-					};
-
-					item.localizationMap = localizationMap;
-				}
-			);
+				);
+			}
 		};
 
 		var SerializableFieldSupport = function() {
@@ -677,8 +670,7 @@ AUI.add(
 		SerializableFieldSupport.prototype._addDefinitionFieldLocalizedAttributes = function(fieldJSON) {
 			var instance = this;
 
-			AArray.each(
-				LOCALIZABLE_FIELD_ATTRS,
+			LOCALIZABLE_FIELD_ATTRS.forEach(
 				function(attr) {
 					if (attr === 'options') {
 						if (instanceOf(instance, A.FormBuilderMultipleChoiceField)) {
@@ -695,8 +687,7 @@ AUI.add(
 		SerializableFieldSupport.prototype._addDefinitionFieldUnlocalizedAttributes = function(fieldJSON) {
 			var instance = this;
 
-			AArray.each(
-				UNLOCALIZABLE_FIELD_ATTRS,
+			UNLOCALIZABLE_FIELD_ATTRS.forEach(
 				function(attr) {
 					fieldJSON[attr] = instance.get(attr);
 				}
@@ -711,8 +702,7 @@ AUI.add(
 			var fieldOptions = [];
 
 			if (options) {
-				AArray.each(
-					options,
+				options.forEach(
 					function(option) {
 						var fieldOption = {};
 
@@ -765,8 +755,7 @@ AUI.add(
 
 			var translationManager = builder.translationManager;
 
-			AArray.each(
-				translationManager.get('availableLocales'),
+			translationManager.get('availableLocales').forEach(
 				function(locale) {
 					var value = A.Object.getValue(localizationMap, [locale, attribute]);
 
@@ -824,8 +813,7 @@ AUI.add(
 				'true': Liferay.Language.get('yes')
 			};
 
-			AArray.each(
-				model,
+			model.forEach(
 				function(item, index) {
 					if (item.attributeName == 'name') {
 						item.editor = new A.TextCellEditor(
@@ -934,8 +922,7 @@ AUI.add(
 
 						var model = DDMDateField.superclass.getPropertyModel.apply(instance, arguments);
 
-						AArray.each(
-							model,
+						model.forEach(
 							function(item, index, collection) {
 								var attributeName = item.attributeName;
 
@@ -1014,8 +1001,7 @@ AUI.add(
 
 						var model = DDMDocumentLibraryField.superclass.getPropertyModel.apply(instance, arguments);
 
-						AArray.each(
-							model,
+						model.forEach(
 							function(item, index) {
 								var attributeName = item.attributeName;
 
@@ -1351,8 +1337,7 @@ AUI.add(
 			DDMHTMLTextField
 		];
 
-		AArray.each(
-			plugins,
+		plugins.forEach(
 			function(item, index) {
 				FormBuilderTypes[item.NAME] = item;
 			}

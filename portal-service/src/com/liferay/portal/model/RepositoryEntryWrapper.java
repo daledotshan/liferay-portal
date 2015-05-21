@@ -172,7 +172,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @return the create date of this repository entry
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _repositoryEntry.getCreateDate();
 	}
 
@@ -217,7 +217,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @return the modified date of this repository entry
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _repositoryEntry.getModifiedDate();
 	}
 
@@ -362,13 +362,12 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @param createDate the create date of this repository entry
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_repositoryEntry.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_repositoryEntry.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -420,7 +419,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @param modifiedDate the modified date of this repository entry
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_repositoryEntry.setModifiedDate(modifiedDate);
 	}
 
@@ -515,7 +514,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.RepositoryEntry> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.RepositoryEntry> toCacheModel() {
 		return _repositoryEntry.toCacheModel();
 	}
 

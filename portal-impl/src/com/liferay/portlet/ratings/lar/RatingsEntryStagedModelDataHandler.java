@@ -26,6 +26,8 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.ratings.model.RatingsEntry;
 import com.liferay.portlet.ratings.service.RatingsEntryLocalServiceUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,26 +39,37 @@ public class RatingsEntryStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {RatingsEntry.class.getName()};
 
 	@Override
+	public void deleteStagedModel(RatingsEntry ratingsEntry) {
+		RatingsEntryLocalServiceUtil.deleteRatingsEntry(ratingsEntry);
+	}
+
+	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
-		RatingsEntry entry = fetchStagedModelByUuidAndCompanyId(
-			uuid, group.getCompanyId());
+		RatingsEntry entry =
+			RatingsEntryLocalServiceUtil.fetchRatingsEntryByUuidAndCompanyId(
+				uuid, group.getCompanyId());
 
 		if (entry != null) {
-			RatingsEntryLocalServiceUtil.deleteRatingsEntry(entry);
+			deleteStagedModel(entry);
 		}
 	}
 
 	@Override
-	public RatingsEntry fetchStagedModelByUuidAndCompanyId(
+	public List<RatingsEntry> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		return RatingsEntryLocalServiceUtil.fetchRatingsEntryByUuidAndCompanyId(
-			uuid, companyId);
+		List<RatingsEntry> ratingsEntries = new ArrayList<>();
+
+		ratingsEntries.add(
+			RatingsEntryLocalServiceUtil.fetchRatingsEntryByUuidAndCompanyId(
+				uuid, companyId));
+
+		return ratingsEntries;
 	}
 
 	@Override

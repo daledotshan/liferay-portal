@@ -40,6 +40,7 @@ import com.liferay.portal.service.UserLocalService;
 import com.liferay.portal.service.persistence.RepositoryEntryUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalService;
 import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFolderLocalService;
 import com.liferay.portlet.documentlibrary.util.DL;
 
 import java.io.File;
@@ -47,7 +48,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -266,12 +266,13 @@ public abstract class BaseRepositoryImpl
 	}
 
 	@Override
-	public List<Object> getFileEntriesAndFileShortcuts(
+	@SuppressWarnings("rawtypes")
+	public List<com.liferay.portal.kernel.repository.model.RepositoryEntry>
+		getFileEntriesAndFileShortcuts(
 			long folderId, int status, int start, int end)
 		throws PortalException {
 
-		return new ArrayList<Object>(
-			getFileEntries(folderId, start, end, null));
+		return (List)getFileEntries(folderId, start, end, null);
 	}
 
 	@Override
@@ -307,21 +308,26 @@ public abstract class BaseRepositoryImpl
 		throws PortalException;
 
 	@Override
-	public List<Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long folderId, int status, boolean includeMountFolders, int start,
-		int end, OrderByComparator<?> obc) {
+	@SuppressWarnings("rawtypes")
+	public List<com.liferay.portal.kernel.repository.model.RepositoryEntry>
+		getFoldersAndFileEntriesAndFileShortcuts(
+			long folderId, int status, boolean includeMountFolders, int start,
+			int end, OrderByComparator<?> obc) {
 
-		return getFoldersAndFileEntries(folderId, start, end, obc);
+		return (List)getFoldersAndFileEntries(folderId, start, end, obc);
 	}
 
 	@Override
-	public List<Object> getFoldersAndFileEntriesAndFileShortcuts(
+	@SuppressWarnings("rawtypes")
+	public List<com.liferay.portal.kernel.repository.model.RepositoryEntry>
+		getFoldersAndFileEntriesAndFileShortcuts(
 			long folderId, int status, String[] mimeTypes,
 			boolean includeMountFolders, int start, int end,
 			OrderByComparator<?> obc)
 		throws PortalException {
 
-		return getFoldersAndFileEntries(folderId, mimeTypes, start, end, obc);
+		return (List)getFoldersAndFileEntries(
+			folderId, mimeTypes, start, end, obc);
 	}
 
 	@Override
@@ -363,25 +369,21 @@ public abstract class BaseRepositoryImpl
 		return _localRepository;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getRepositoryEntry(String)}
+	 */
+	@Deprecated
 	public Object[] getRepositoryEntryIds(String objectId)
 		throws PortalException {
 
-		boolean newRepositoryEntry = false;
-
-		RepositoryEntry repositoryEntry = RepositoryEntryUtil.fetchByR_M(
-			getRepositoryId(), objectId);
-
-		if (repositoryEntry == null) {
-			repositoryEntry = repositoryEntryLocalService.addRepositoryEntry(
+		RepositoryEntry repositoryEntry =
+			repositoryEntryLocalService.getRepositoryEntry(
 				PrincipalThreadLocal.getUserId(), getGroupId(),
-				getRepositoryId(), objectId, new ServiceContext());
-
-			newRepositoryEntry = true;
-		}
+				getRepositoryId(), objectId);
 
 		return new Object[] {
 			repositoryEntry.getRepositoryEntryId(), repositoryEntry.getUuid(),
-			newRepositoryEntry
+			false
 		};
 	}
 
@@ -421,6 +423,18 @@ public abstract class BaseRepositoryImpl
 	@Override
 	public long getRepositoryId() {
 		return _repositoryId;
+	}
+
+	@Deprecated
+	@Override
+	public String[] getSupportedConfigurations() {
+		return _SUPPORTED_CONFIGURATIONS;
+	}
+
+	@Deprecated
+	@Override
+	public String[][] getSupportedParameters() {
+		return _SUPPORTED_PARAMETERS;
 	}
 
 	public UnicodeProperties getTypeSettingsProperties() {
@@ -550,6 +564,13 @@ public abstract class BaseRepositoryImpl
 		DLAppHelperLocalService dlAppHelperLocalService) {
 
 		this.dlAppHelperLocalService = dlAppHelperLocalService;
+	}
+
+	@Override
+	public void setDLFolderLocalService(
+		DLFolderLocalService dlFolderLocalService) {
+
+		this.dlFolderLocalService = dlFolderLocalService;
 	}
 
 	@Override
@@ -702,6 +723,14 @@ public abstract class BaseRepositoryImpl
 		RepositoryEntryUtil.update(repositoryEntry);
 	}
 
+	protected RepositoryEntry getRepositoryEntry(String objectId)
+		throws PortalException {
+
+		return repositoryEntryLocalService.getRepositoryEntry(
+			PrincipalThreadLocal.getUserId(), getGroupId(), getRepositoryId(),
+			objectId);
+	}
+
 	protected void setManualCheckInRequired(
 			long fileEntryId, ServiceContext serviceContext)
 		throws NoSuchRepositoryEntryException {
@@ -724,8 +753,13 @@ public abstract class BaseRepositoryImpl
 	protected AssetEntryLocalService assetEntryLocalService;
 	protected CompanyLocalService companyLocalService;
 	protected DLAppHelperLocalService dlAppHelperLocalService;
+	protected DLFolderLocalService dlFolderLocalService;
 	protected RepositoryEntryLocalService repositoryEntryLocalService;
 	protected UserLocalService userLocalService;
+
+	private static final String[] _SUPPORTED_CONFIGURATIONS = {};
+
+	private static final String[][] _SUPPORTED_PARAMETERS = {};
 
 	private long _companyId;
 	private long _groupId;

@@ -24,7 +24,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portal.service.StagingServiceUtil} service utility. The
+ * {@link StagingServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -48,7 +48,7 @@ import java.rmi.RemoteException;
  *
  * @author Brian Wing Shun Chan
  * @see StagingServiceHttp
- * @see com.liferay.portal.service.StagingServiceUtil
+ * @see StagingServiceUtil
  * @generated
  */
 @ProviderType
@@ -70,6 +70,24 @@ public class StagingServiceSoap {
 		try {
 			long returnValue = StagingServiceUtil.createStagingRequest(groupId,
 					checksum);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.kernel.lar.MissingReferences publishStagingRequest(
+		long stagingRequestId,
+		com.liferay.portal.model.ExportImportConfigurationSoap exportImportConfiguration)
+		throws RemoteException {
+		try {
+			com.liferay.portal.kernel.lar.MissingReferences returnValue = StagingServiceUtil.publishStagingRequest(stagingRequestId,
+					com.liferay.portal.model.impl.ExportImportConfigurationModelImpl.toModel(
+						exportImportConfiguration));
 
 			return returnValue;
 		}
