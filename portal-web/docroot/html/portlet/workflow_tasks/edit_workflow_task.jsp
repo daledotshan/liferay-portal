@@ -64,7 +64,7 @@ PortletURL viewDiffsPortletURL = workflowHandler.getURLViewDiffs(classPK, lifera
 <liferay-ui:header
 	backURL="<%= backURL.toString() %>"
 	localizeTitle="<%= false %>"
-	title="<%= headerTitle %>"
+	title="<%= HtmlUtil.extractText(headerTitle) %>"
 />
 
 <aui:row>
@@ -219,7 +219,7 @@ PortletURL viewDiffsPortletURL = workflowHandler.getURLViewDiffs(classPK, lifera
 						<liferay-ui:icon
 							iconCssClass="<%= workflowHandler.getIconCssClass() %>"
 							label="<%= true %>"
-							message="<%= HtmlUtil.escape(workflowHandler.getTitle(classPK, locale)) %>"
+							message="<%= HtmlUtil.extractText(workflowHandler.getTitle(classPK, locale)) %>"
 						/>
 					</h3>
 
