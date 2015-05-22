@@ -35,11 +35,6 @@ import com.liferay.portlet.documentlibrary.trash.DLFolderTrashHandler;
 import com.liferay.portlet.documentlibrary.util.DLFileEntryIndexer;
 import com.liferay.portlet.documentlibrary.util.DLFolderIndexer;
 import com.liferay.portlet.documentlibrary.workflow.DLFileEntryWorkflowHandler;
-import com.liferay.portlet.dynamicdatalists.asset.DDLRecordAssetRendererFactory;
-import com.liferay.portlet.dynamicdatalists.util.DDLIndexer;
-import com.liferay.portlet.dynamicdatalists.workflow.DDLRecordWorkflowHandler;
-import com.liferay.portlet.journal.asset.JournalArticleAssetRendererFactory;
-import com.liferay.portlet.journal.asset.JournalFolderAssetRendererFactory;
 import com.liferay.portlet.journal.trash.JournalArticleTrashHandler;
 import com.liferay.portlet.journal.util.JournalArticleIndexer;
 import com.liferay.portlet.journal.util.JournalFolderIndexer;
@@ -97,7 +92,6 @@ public class PortalRegisterTestUtil {
 		IndexerRegistryUtil.register(new AssetIndexer());
 		IndexerRegistryUtil.register(new BlogsIndexer());
 		IndexerRegistryUtil.register(new ContactIndexer());
-		IndexerRegistryUtil.register(new DDLIndexer());
 		IndexerRegistryUtil.register(new DLFileEntryIndexer());
 		IndexerRegistryUtil.register(new DLFolderIndexer());
 		IndexerRegistryUtil.register(new JournalArticleIndexer());
@@ -133,7 +127,6 @@ public class PortalRegisterTestUtil {
 		}
 
 		WorkflowHandlerRegistryUtil.register(new BlogsEntryWorkflowHandler());
-		WorkflowHandlerRegistryUtil.register(new DDLRecordWorkflowHandler());
 		WorkflowHandlerRegistryUtil.register(new DLFileEntryWorkflowHandler());
 		WorkflowHandlerRegistryUtil.register(
 			new JournalArticleWorkflowHandler());
@@ -146,11 +139,8 @@ public class PortalRegisterTestUtil {
 
 	private static final Class<?>[] _ASSET_RENDERER_FACTORY_CLASSES = {
 		BlogsEntryAssetRendererFactory.class,
-		DDLRecordAssetRendererFactory.class,
 		DLFileEntryAssetRendererFactory.class,
 		DLFolderAssetRendererFactory.class,
-		JournalArticleAssetRendererFactory.class,
-		JournalFolderAssetRendererFactory.class,
 		LayoutRevisionAssetRendererFactory.class,
 		MBCategoryAssetRendererFactory.class,
 		MBDiscussionAssetRendererFactory.class,

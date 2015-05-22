@@ -148,6 +148,16 @@ public class DLFileEntryLocalServiceUtil {
 		getService().convertExtraSettings(keys);
 	}
 
+	public static com.liferay.portlet.documentlibrary.model.DLFileEntry copyFileEntry(
+		long userId, long groupId, long repositoryId, long fileEntryId,
+		long destFolderId,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .copyFileEntry(userId, groupId, repositoryId, fileEntryId,
+			destFolderId, serviceContext);
+	}
+
 	public static void copyFileEntryMetadata(long companyId,
 		long fileEntryTypeId, long fileEntryId, long fromFileVersionId,
 		long toFileVersionId,
@@ -635,6 +645,10 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getFileEntriesCount();
 	}
 
+	/**
+	* @deprecated As of 7.0.0, with no direct replacement
+	*/
+	@Deprecated
 	public static int getFileEntriesCount(long groupId,
 		com.liferay.portal.kernel.util.DateRange dateRange, long repositoryId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<com.liferay.portlet.documentlibrary.model.DLFileEntry> queryDefinition) {

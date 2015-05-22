@@ -15,7 +15,8 @@
 package com.liferay.portlet.dynamicdatamapping.action;
 
 import com.liferay.portal.LocaleException;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Constants;
@@ -37,7 +38,6 @@ import com.liferay.portlet.dynamicdatamapping.RequiredStructureException;
 import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 import com.liferay.portlet.dynamicdatamapping.StructureDuplicateElementException;
 import com.liferay.portlet.dynamicdatamapping.StructureNameException;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayout;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
@@ -165,19 +165,15 @@ public class EditStructureAction extends PortletAction {
 			// Let this slide because the user can manually input a structure
 			// key for a new structure that does not yet exist
 
+			if (_log.isDebugEnabled()) {
+				_log.debug(nsse, nsse);
+			}
 		}
-		catch (Exception e) {
-			if (//e instanceof NoSuchStructureException ||
-				e instanceof PrincipalException) {
+		catch (PrincipalException pe) {
+			SessionErrors.add(renderRequest, pe.getClass());
 
-				SessionErrors.add(renderRequest, e.getClass());
-
-				return actionMapping.findForward(
-					"portlet.dynamic_data_mapping.error");
-			}
-			else {
-				throw e;
-			}
+			return actionMapping.findForward(
+				"portlet.dynamic_data_mapping.error");
 		}
 
 		return actionMapping.findForward(
@@ -202,20 +198,6 @@ public class EditStructureAction extends PortletAction {
 
 		for (long deleteStructureId : deleteStructureIds) {
 			DDMStructureServiceUtil.deleteStructure(deleteStructureId);
-		}
-	}
-
-	protected DDMForm getDDMForm(ActionRequest actionRequest)
-		throws PortalException {
-
-		try {
-			String definition = ParamUtil.getString(
-				actionRequest, "definition");
-
-			return DDMFormJSONDeserializerUtil.deserialize(definition);
-		}
-		catch (PortalException pe) {
-			throw new StructureDefinitionException(pe);
 		}
 	}
 
@@ -275,7 +257,7 @@ public class EditStructureAction extends PortletAction {
 			actionRequest, "name");
 		Map<Locale, String> descriptionMap =
 			LocalizationUtil.getLocalizationMap(actionRequest, "description");
-		DDMForm ddmForm = getDDMForm(actionRequest);
+		DDMForm ddmForm = DDMUtil.getDDMForm(actionRequest);
 		DDMFormLayout ddmFormLayout = DDMUtil.getDefaultDDMFormLayout(ddmForm);
 		String storageType = ParamUtil.getString(actionRequest, "storageType");
 
@@ -298,5 +280,8 @@ public class EditStructureAction extends PortletAction {
 
 		return structure;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		EditStructureAction.class);
 
 }
