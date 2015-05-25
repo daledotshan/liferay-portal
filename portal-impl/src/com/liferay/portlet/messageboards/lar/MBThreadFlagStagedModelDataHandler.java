@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
@@ -48,6 +47,11 @@ public class MBThreadFlagStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {MBThreadFlag.class.getName()};
 
 	@Override
+	public void deleteStagedModel(MBThreadFlag threadFlag) {
+		MBThreadFlagLocalServiceUtil.deleteThreadFlag(threadFlag);
+	}
+
+	@Override
 	public void deleteStagedModel(
 		String uuid, long groupId, String className, String extraData) {
 
@@ -55,24 +59,8 @@ public class MBThreadFlagStagedModelDataHandler
 			uuid, groupId);
 
 		if (threadFlag != null) {
-			MBThreadFlagLocalServiceUtil.deleteThreadFlag(threadFlag);
+			deleteStagedModel(threadFlag);
 		}
-	}
-
-	@Override
-	public MBThreadFlag fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<MBThreadFlag> threadFlags =
-			MBThreadFlagLocalServiceUtil.getMBThreadFlagsByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<MBThreadFlag>());
-
-		if (ListUtil.isEmpty(threadFlags)) {
-			return null;
-		}
-
-		return threadFlags.get(0);
 	}
 
 	@Override
@@ -81,6 +69,15 @@ public class MBThreadFlagStagedModelDataHandler
 
 		return MBThreadFlagLocalServiceUtil.fetchMBThreadFlagByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public List<MBThreadFlag> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return MBThreadFlagLocalServiceUtil.getMBThreadFlagsByUuidAndCompanyId(
+			uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			new StagedModelModifiedDateComparator<MBThreadFlag>());
 	}
 
 	@Override

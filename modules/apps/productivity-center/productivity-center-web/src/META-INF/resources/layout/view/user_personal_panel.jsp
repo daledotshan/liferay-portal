@@ -13,3 +13,23 @@
  * details.
  */
 --%>
+
+<%@ include file="/layout/view/init.jsp" %>
+
+<c:choose>
+	<c:when test="<%= themeDisplay.isStatePopUp() %>">
+		<productivity-center-ui:panel-content portletId="<%= themeDisplay.getPpid() %>" />
+	</c:when>
+	<c:otherwise>
+		<aui:container cssClass="panel-manage-frontpage">
+			<aui:row>
+				<aui:col cssClass="panel-page-menu" width="<%= 25 %>">
+					<liferay-portlet:runtime portletName="<%= ProductivityCenterPortletKeys.PRODUCTIVITY_CENTER %>" />
+				</aui:col>
+				<aui:col width="<%= 75 %>">
+					<productivity-center-ui:panel-content portletId="<%= themeDisplay.getPpid() %>" />
+				</aui:col>
+			</aui:row>
+		</aui:container>
+	</c:otherwise>
+</c:choose>

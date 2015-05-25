@@ -14,20 +14,21 @@
 
 package com.liferay.portal.lar.backgroundtask;
 
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.EVENT_PUBLICATION_LAYOUT_REMOTE_FAILED;
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.EVENT_PUBLICATION_LAYOUT_REMOTE_STARTED;
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.EVENT_PUBLICATION_LAYOUT_REMOTE_SUCCEEDED;
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS;
+
 import com.liferay.portal.NoSuchLayoutException;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportDateUtil;
 import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.lar.MissingReferences;
-import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
-import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants;
 import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleManager;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -36,7 +37,6 @@ import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.security.auth.HttpPrincipal;
-import com.liferay.portal.service.ExportImportConfigurationLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.http.LayoutServiceHttp;
 import com.liferay.portal.service.http.StagingServiceHttp;
@@ -47,7 +47,6 @@ import java.io.FileInputStream;
 import java.io.Serializable;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -63,129 +62,73 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 	}
 
 	@Override
-	public BackgroundTaskResult execute(BackgroundTask backgroundTask)
-		throws PortalException {
-
-		Map<String, Serializable> taskContextMap =
-			backgroundTask.getTaskContextMap();
-
-		long exportImportConfigurationId = MapUtil.getLong(
-			taskContextMap, "exportImportConfigurationId");
-
+	public BackgroundTaskResult execute(BackgroundTask backgroundTask) {
 		ExportImportConfiguration exportImportConfiguration =
-			ExportImportConfigurationLocalServiceUtil.
-				getExportImportConfiguration(exportImportConfigurationId);
-
-		Map<String, Serializable> settingsMap =
-			exportImportConfiguration.getSettingsMap();
-
-		long sourceGroupId = MapUtil.getLong(settingsMap, "sourceGroupId");
-		boolean privateLayout = MapUtil.getBoolean(
-			settingsMap, "privateLayout");
-
-		initThreadLocals(sourceGroupId, privateLayout);
-
-		Map<Long, Boolean> layoutIdMap = (Map<Long, Boolean>)settingsMap.get(
-			"layoutIdMap");
-		Map<String, String[]> parameterMap =
-			(Map<String, String[]>)settingsMap.get("parameterMap");
-		long remoteGroupId = MapUtil.getLong(settingsMap, "remoteGroupId");
-		DateRange dateRange = ExportImportDateUtil.getDateRange(
-			exportImportConfiguration,
-			ExportImportDateUtil.RANGE_FROM_LAST_PUBLISH_DATE);
-		HttpPrincipal httpPrincipal = (HttpPrincipal)taskContextMap.get(
-			"httpPrincipal");
+			getExportImportConfiguration(backgroundTask);
 
 		clearBackgroundTaskStatus(backgroundTask);
 
-		long stagingRequestId = 0;
-
 		File file = null;
-		FileInputStream fileInputStream = null;
+		HttpPrincipal httpPrincipal = null;
 		MissingReferences missingReferences = null;
+		long stagingRequestId = 0L;
 
 		try {
 			ExportImportThreadLocal.setLayoutStagingInProcess(true);
 
 			ExportImportLifecycleManager.fireExportImportLifecycleEvent(
-				ExportImportLifecycleConstants.
-					EVENT_PUBLICATION_LAYOUT_REMOTE_STARTED,
+				EVENT_PUBLICATION_LAYOUT_REMOTE_STARTED,
+				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
 				exportImportConfiguration);
 
+			Map<String, Serializable> settingsMap =
+				exportImportConfiguration.getSettingsMap();
+
+			long sourceGroupId = MapUtil.getLong(settingsMap, "sourceGroupId");
+			boolean privateLayout = MapUtil.getBoolean(
+				settingsMap, "privateLayout");
+
+			initThreadLocals(sourceGroupId, privateLayout);
+
+			Map<Long, Boolean> layoutIdMap =
+				(Map<Long, Boolean>)settingsMap.get("layoutIdMap");
+			long remoteGroupId = MapUtil.getLong(settingsMap, "remoteGroupId");
+
+			Map<String, Serializable> taskContextMap =
+				backgroundTask.getTaskContextMap();
+
+			httpPrincipal = (HttpPrincipal)taskContextMap.get("httpPrincipal");
+
 			file = exportLayoutsAsFile(
-				sourceGroupId, privateLayout, layoutIdMap, parameterMap,
-				remoteGroupId, dateRange.getStartDate(), dateRange.getEndDate(),
+				exportImportConfiguration, layoutIdMap, remoteGroupId,
 				httpPrincipal);
 
 			String checksum = FileUtil.getMD5Checksum(file);
 
-			fileInputStream = new FileInputStream(file);
-
 			stagingRequestId = StagingServiceHttp.createStagingRequest(
 				httpPrincipal, remoteGroupId, checksum);
 
-			byte[] bytes =
-				new byte[PropsValues.STAGING_REMOTE_TRANSFER_BUFFER_SIZE];
-
-			int i = 0;
-			int j = 0;
-
-			String numberFormat = String.format(
-				"%%0%dd",
-				String.valueOf(
-					(int)(file.length() / bytes.length)).length() + 1);
-
-			while ((i = fileInputStream.read(bytes)) >= 0) {
-				String fileName =
-					file.getName() + String.format(numberFormat, j++);
-
-				if (i < PropsValues.STAGING_REMOTE_TRANSFER_BUFFER_SIZE) {
-					byte[] tempBytes = new byte[i];
-
-					System.arraycopy(bytes, 0, tempBytes, 0, i);
-
-					StagingServiceHttp.updateStagingRequest(
-						httpPrincipal, stagingRequestId, fileName, tempBytes);
-				}
-				else {
-					StagingServiceHttp.updateStagingRequest(
-						httpPrincipal, stagingRequestId, fileName, bytes);
-				}
-
-				bytes =
-					new byte[PropsValues.STAGING_REMOTE_TRANSFER_BUFFER_SIZE];
-			}
+			transferFileToRemoteLive(file, stagingRequestId, httpPrincipal);
 
 			markBackgroundTask(
 				backgroundTask.getBackgroundTaskId(), "exported");
 
-			missingReferences = StagingServiceHttp.validateStagingRequest(
-				httpPrincipal, stagingRequestId, privateLayout, parameterMap);
+			missingReferences = StagingServiceHttp.publishStagingRequest(
+				httpPrincipal, stagingRequestId, exportImportConfiguration);
 
-			markBackgroundTask(
-				backgroundTask.getBackgroundTaskId(), "validated");
-
-			StagingServiceHttp.publishStagingRequest(
-				httpPrincipal, stagingRequestId, privateLayout, parameterMap);
-
-			boolean updateLastPublishDate = MapUtil.getBoolean(
-				parameterMap, PortletDataHandlerKeys.UPDATE_LAST_PUBLISH_DATE);
-
-			if (updateLastPublishDate) {
-				ExportImportDateUtil.updateLastPublishDate(
-					sourceGroupId, privateLayout, dateRange,
-					dateRange.getEndDate());
-			}
+			ExportImportThreadLocal.setLayoutStagingInProcess(false);
 
 			ExportImportLifecycleManager.fireExportImportLifecycleEvent(
-				ExportImportLifecycleConstants.
-					EVENT_PUBLICATION_LAYOUT_REMOTE_SUCCEEDED,
+				EVENT_PUBLICATION_LAYOUT_REMOTE_SUCCEEDED,
+				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
 				exportImportConfiguration);
 		}
 		catch (Throwable t) {
+			ExportImportThreadLocal.setLayoutStagingInProcess(false);
+
 			ExportImportLifecycleManager.fireExportImportLifecycleEvent(
-				ExportImportLifecycleConstants.
-					EVENT_PUBLICATION_LAYOUT_REMOTE_FAILED,
+				EVENT_PUBLICATION_LAYOUT_REMOTE_FAILED,
+				PROCESS_FLAG_LAYOUT_STAGING_IN_PROCESS,
 				exportImportConfiguration);
 
 			if (_log.isDebugEnabled()) {
@@ -195,29 +138,31 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 				_log.warn("Unable to publish layout: " + t.getMessage());
 			}
 
+			deleteTempLarOnFailure(file);
+
 			throw new SystemException(t);
 		}
 		finally {
-			ExportImportThreadLocal.setLayoutStagingInProcess(false);
-
-			StreamUtil.cleanUp(fileInputStream);
-
-			FileUtil.delete(file);
-
-			if (stagingRequestId > 0) {
-				StagingServiceHttp.cleanUpStagingRequest(
-					httpPrincipal, stagingRequestId);
+			if ((stagingRequestId > 0) && (httpPrincipal != null)) {
+				try {
+					StagingServiceHttp.cleanUpStagingRequest(
+						httpPrincipal, stagingRequestId);
+				}
+				catch (PortalException pe) {
+					_log.warn("Unable to clean up the remote live site");
+				}
 			}
 		}
+
+		deleteTempLarOnSuccess(file);
 
 		return processMissingReferences(
 			backgroundTask.getBackgroundTaskId(), missingReferences);
 	}
 
 	protected File exportLayoutsAsFile(
-			long sourceGroupId, boolean privateLayout,
-			Map<Long, Boolean> layoutIdMap, Map<String, String[]> parameterMap,
-			long remoteGroupId, Date startDate, Date endDate,
+			ExportImportConfiguration exportImportConfiguration,
+			Map<Long, Boolean> layoutIdMap, long remoteGroupId,
 			HttpPrincipal httpPrincipal)
 		throws PortalException {
 
@@ -255,9 +200,15 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 
 		long[] layoutIds = ExportImportHelperUtil.getLayoutIds(layouts);
 
+		Map<String, Serializable> settingsMap =
+			exportImportConfiguration.getSettingsMap();
+
+		settingsMap.remove("layoutIdMap");
+
+		settingsMap.put("layoutIds", layoutIds);
+
 		return LayoutLocalServiceUtil.exportLayoutsAsFile(
-			sourceGroupId, privateLayout, layoutIds, parameterMap, startDate,
-			endDate);
+			exportImportConfiguration);
 	}
 
 	/**
@@ -293,6 +244,51 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 		}
 
 		return missingRemoteParentLayouts;
+	}
+
+	protected void transferFileToRemoteLive(
+			File file, long stagingRequestId, HttpPrincipal httpPrincipal)
+		throws Exception {
+
+		byte[] bytes =
+			new byte[PropsValues.STAGING_REMOTE_TRANSFER_BUFFER_SIZE];
+
+		int i = 0;
+		int j = 0;
+
+		String numberFormat = String.format(
+			"%%0%dd",
+			String.valueOf((int) (file.length() / bytes.length)).length() + 1);
+
+		FileInputStream fileInputStream = null;
+
+		try {
+			fileInputStream = new FileInputStream(file);
+
+			while ((i = fileInputStream.read(bytes)) >= 0) {
+				String fileName =
+					file.getName() + String.format(numberFormat, j++);
+
+				if (i < PropsValues.STAGING_REMOTE_TRANSFER_BUFFER_SIZE) {
+					byte[] tempBytes = new byte[i];
+
+					System.arraycopy(bytes, 0, tempBytes, 0, i);
+
+					StagingServiceHttp.updateStagingRequest(
+						httpPrincipal, stagingRequestId, fileName, tempBytes);
+				}
+				else {
+					StagingServiceHttp.updateStagingRequest(
+						httpPrincipal, stagingRequestId, fileName, bytes);
+				}
+
+				bytes =
+					new byte[PropsValues.STAGING_REMOTE_TRANSFER_BUFFER_SIZE];
+			}
+		}
+		finally {
+			StreamUtil.cleanUp(fileInputStream);
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
