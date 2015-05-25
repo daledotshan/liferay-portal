@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.lar.PortletDataException;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
@@ -49,6 +48,11 @@ public class DDLRecordStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {DDLRecord.class.getName()};
 
 	@Override
+	public void deleteStagedModel(DDLRecord record) throws PortalException {
+		DDLRecordLocalServiceUtil.deleteRecord(record);
+	}
+
+	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
@@ -56,24 +60,8 @@ public class DDLRecordStagedModelDataHandler
 		DDLRecord record = fetchStagedModelByUuidAndGroupId(uuid, groupId);
 
 		if (record != null) {
-			DDLRecordLocalServiceUtil.deleteRecord(record);
+			deleteStagedModel(record);
 		}
-	}
-
-	@Override
-	public DDLRecord fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<DDLRecord> records =
-			DDLRecordLocalServiceUtil.getDDLRecordsByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<DDLRecord>());
-
-		if (ListUtil.isEmpty(records)) {
-			return null;
-		}
-
-		return records.get(0);
 	}
 
 	@Override
@@ -82,6 +70,15 @@ public class DDLRecordStagedModelDataHandler
 
 		return DDLRecordLocalServiceUtil.fetchDDLRecordByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public List<DDLRecord> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return DDLRecordLocalServiceUtil.getDDLRecordsByUuidAndCompanyId(
+			uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			new StagedModelModifiedDateComparator<DDLRecord>());
 	}
 
 	@Override

@@ -69,8 +69,6 @@ if (layoutRevision != null) {
 	}
 }
 
-String[] mainSections = PropsValues.LAYOUT_FORM_UPDATE;
-
 if (selLayout.isSupportsEmbeddedPortlets()) {
 	List<Portlet> embeddedPortlets = new ArrayList<Portlet>();
 
@@ -86,16 +84,8 @@ if (selLayout.isSupportsEmbeddedPortlets()) {
 
 	if (!embeddedPortlets.isEmpty()) {
 		request.setAttribute("edit_pages.jsp-embeddedPortlets", embeddedPortlets);
-
-		mainSections = ArrayUtil.append(mainSections, "embedded-portlets");
 	}
 }
-
-if (!group.isUser() && selLayout.isTypePortlet()) {
-	mainSections = ArrayUtil.append(mainSections, "customization-settings");
-}
-
-String[][] categorySections = {mainSections};
 
 String displayStyle = ParamUtil.getString(request, "displayStyle");
 boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
@@ -225,9 +215,9 @@ boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
 		<c:otherwise>
 			<c:if test="<%= !group.isLayoutPrototype() && (selLayout != null) %>">
 				<c:if test="<%= selGroup.isStagingGroup() %>">
-					<%@ include file="/html/portlet/layouts_admin/error_auth_exception.jspf" %>
+					<%@ include file="/html/portlet/export_import/error_auth_exception.jspf" %>
 
-					<%@ include file="/html/portlet/layouts_admin/error_remote_export_exception.jspf" %>
+					<%@ include file="/html/portlet/export_import/error_remote_export_exception.jspf" %>
 
 					<div class="alert alert-warning">
 						<liferay-ui:message key="the-staging-environment-is-activated-changes-have-to-be-published-to-make-them-available-to-end-users" />
@@ -271,10 +261,9 @@ boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
 
 			<c:if test="<%= !selGroup.hasLocalOrRemoteStagingGroup() || selGroup.isStagingGroup() %>">
 				<liferay-ui:form-navigator
-					categoryNames="<%= _CATEGORY_NAMES %>"
-					categorySections="<%= categorySections %>"
 					displayStyle="<%= displayStyle %>"
-					jspPath="/html/portlet/layouts_admin/layout/"
+					formModelBean="<%= selLayout %>"
+					id="<%= FormNavigatorConstants.FORM_NAVIGATOR_ID_LAYOUT %>"
 					showButtons="<%= (selLayout.getGroupId() == layoutsAdminDisplayContext.getGroupId()) && SitesUtil.isLayoutUpdateable(selLayout) && LayoutPermissionUtil.contains(permissionChecker, selLayout, ActionKeys.UPDATE) %>"
 				/>
 			</c:if>
@@ -301,7 +290,3 @@ boolean showAddAction = ParamUtil.getBoolean(request, "showAddAction", true);
 		submitForm(form);
 	}
 </aui:script>
-
-<%!
-private static final String[] _CATEGORY_NAMES = {""};
-%>
