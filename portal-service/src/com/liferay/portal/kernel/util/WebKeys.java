@@ -22,6 +22,10 @@ import com.liferay.portal.kernel.resiliency.spi.agent.annotation.Distributed;
  */
 public interface WebKeys {
 
+	public static final String ASSET_ADDON_ENTRIES = "ASSET_ADDON_ENTRIES";
+
+	public static final String ASSET_ADDON_ENTRY = "ASSET_ADDON_ENTRY";
+
 	public static final String ASSET_ENTRY_ABSTRACT_LENGTH = "ASSET_ENTRY_ABSTRACT_LENGTH";
 
 	public static final String ASSET_ENTRY_VIEW_URL = "ASSET_ENTRY_VIEW_URL";
@@ -59,6 +63,10 @@ public interface WebKeys {
 	public static final String DOCUMENT_LIBRARY_FOLDER = "DOCUMENT_LIBRARY_FOLDER";
 
 	public static final String EXTEND_SESSION = "EXTEND_SESSION";
+
+	public static final String FACEBOOK_INCOMPLETE_USER_ID = "FACEBOOK_INCOMPLETE_USER_ID";
+
+	public static final String FACEBOOK_USER_EMAIL_ADDRESS = "FACEBOOK_USER_EMAIL_ADDRESS";
 
 	public static final String FILE_ITEM_THRESHOLD_SIZE_EXCEEDED = "FILE_ITEM_THRESHOLD_SIZE_EXCEEDED";
 
@@ -98,6 +106,10 @@ public interface WebKeys {
 	 */
 	@Deprecated
 	public static final String LIFERAY_SHARED_VISITED_GROUP_ID_RECENT = "LIFERAY_SHARED_VISITED_GROUP_ID_RECENT";
+
+	public static final String OPEN_ID_LOGIN = "OPEN_ID_LOGIN";
+
+	public static final String OPEN_ID_LOGIN_PENDING = "OPEN_ID_LOGIN_PENDING";
 
 	public static final String OSGI_BUNDLE = "OSGI_BUNDLE";
 
@@ -174,6 +186,8 @@ public interface WebKeys {
 
 	public static final String RENDER_PORTLET_COLUMN_POS = "RENDER_PORTLET_COLUMN_POS";
 
+	public static final String RENDER_PORTLET_PREFERENCES = "RENDER_PORTLET_PREFERENCES";
+
 	public static final String RENDER_PORTLET_RESOURCE = "RENDER_PORTLET_RESOURCE";
 
 	public static final String SEARCH_CONTAINER = "SEARCH_CONTAINER";
@@ -193,6 +207,8 @@ public interface WebKeys {
 	public static final String SERVLET_CONTEXT_INCLUDE_FILTER_THEME = "SERVLET_CONTEXT_INCLUDE_FILTER_THEME";
 
 	public static final String SERVLET_PATH = "SERVLET_PATH";
+
+	public static final String SETTINGS_SCOPE = "SETTINGS_SCOPE";
 
 	public static final String SINGLE_PAGE_APPLICATION_LAST_PORTLET_ID = "SINGLE_PAGE_APPLICATION_LAST_PORTLET_ID";
 
@@ -254,6 +270,8 @@ public interface WebKeys {
 	public static final String VM_VARIABLES = "VM_VARIABLES";
 
 	public static final String WINDOW_STATE = "WINDOW_STATE";
+
+	public static final String WORKFLOW_ASSET_PREVIEW = "WORKFLOW_ASSET_PREVIEW";
 
 	public static final String XUGGLER_INSTALL_STATUS = "XUGGLER_INSTALL_STATUS";
 
