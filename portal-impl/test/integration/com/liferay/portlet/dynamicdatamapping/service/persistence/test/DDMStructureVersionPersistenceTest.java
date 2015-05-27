@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureVersionException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureVersion;
@@ -176,29 +175,19 @@ public class DDMStructureVersionPersistenceTest {
 	}
 
 	@Test
-	public void testCountByStructureId() {
-		try {
-			_persistence.countByStructureId(RandomTestUtil.nextLong());
+	public void testCountByStructureId() throws Exception {
+		_persistence.countByStructureId(RandomTestUtil.nextLong());
 
-			_persistence.countByStructureId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByStructureId(0L);
 	}
 
 	@Test
-	public void testCountByS_V() {
-		try {
-			_persistence.countByS_V(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByS_V() throws Exception {
+		_persistence.countByS_V(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByS_V(0L, StringPool.NULL);
+		_persistence.countByS_V(0L, StringPool.NULL);
 
-			_persistence.countByS_V(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByS_V(0L, (String)null);
 	}
 
 	@Test
@@ -210,29 +199,17 @@ public class DDMStructureVersionPersistenceTest {
 		Assert.assertEquals(existingDDMStructureVersion, newDDMStructureVersion);
 	}
 
-	@Test
+	@Test(expected = NoSuchStructureVersionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchStructureVersionException");
-		}
-		catch (NoSuchStructureVersionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<DDMStructureVersion> getOrderByComparator() {
@@ -441,10 +418,6 @@ public class DDMStructureVersionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		DDMStructureVersion newDDMStructureVersion = addDDMStructureVersion();
 
 		_persistence.clearCache();

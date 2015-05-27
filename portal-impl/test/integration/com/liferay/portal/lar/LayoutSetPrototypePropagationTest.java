@@ -270,13 +270,13 @@ public class LayoutSetPrototypePropagationTest
 
 			Map<String, String[]> preferenceMap = new HashMap<>();
 
-			preferenceMap.put("bulletStyle", new String[]{"Dots"});
+			preferenceMap.put("bulletStyle", new String[] {"Dots"});
 
 			String testPortletId1 = LayoutTestUtil.addPortletToLayout(
 				TestPropsValues.getUserId(), _layoutSetPrototypeLayout,
 				PortletKeys.TEST, "column-1", preferenceMap);
 
-			preferenceMap.put("bulletStyle", new String[]{"Arrows"});
+			preferenceMap.put("bulletStyle", new String[] {"Arrows"});
 
 			String testPortletId2 = LayoutTestUtil.addPortletToLayout(
 				TestPropsValues.getUserId(), _layoutSetPrototypeLayout,
@@ -685,18 +685,16 @@ public class LayoutSetPrototypePropagationTest
 		try {
 			LayoutTestUtil.addLayout(group, layout.getPlid());
 
-			if (layoutSetPrototypeLinkEnabled) {
-				Assert.fail(
-					"Able to add a child page to a page associated to a site " +
-						"template with link enabled");
-			}
+			Assert.assertFalse(
+				"Able to add a child page to a page associated to a site " +
+					"template with link enabled",
+				layoutSetPrototypeLinkEnabled);
 		}
 		catch (LayoutParentLayoutIdException lplie) {
-			if (!layoutSetPrototypeLinkEnabled) {
-				Assert.fail(
-					"Unable to add a child page to a page associated to a " +
-						"template with link disabled");
-			}
+			Assert.assertTrue(
+				"Unable to add a child page to a page associated to a " +
+					"template with link disabled",
+				layoutSetPrototypeLinkEnabled);
 		}
 	}
 
@@ -708,8 +706,6 @@ public class LayoutSetPrototypePropagationTest
 	private LayoutSetPrototype _layoutSetPrototype;
 
 	private Group _layoutSetPrototypeGroup;
-
-	@DeleteAfterTestRun
 	private JournalArticle _layoutSetPrototypeJournalArticle;
 
 	@DeleteAfterTestRun

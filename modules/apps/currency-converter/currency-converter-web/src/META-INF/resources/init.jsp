@@ -22,8 +22,6 @@
 <%@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
 <%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
-<%@ page contentType="text/html; charset=UTF-8" %>
-
 <%@ page import="com.liferay.currency.converter.web.configuration.CurrencyConverterConfiguration" %><%@
 page import="com.liferay.currency.converter.web.model.CurrencyConverter" %><%@
 page import="com.liferay.currency.converter.web.util.CurrencyConverterUtil" %><%@
@@ -46,8 +44,9 @@ page import="java.util.Map" %>
 page import="javax.portlet.PortletURL" %><%@
 page import="javax.portlet.WindowState" %>
 
-<liferay-theme:defineObjects />
 <portlet:defineObjects />
+
+<liferay-theme:defineObjects />
 
 <%
 WindowState windowState = liferayPortletRequest.getWindowState();
