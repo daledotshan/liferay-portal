@@ -26,7 +26,7 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 String backURL = ParamUtil.getString(request, "backURL", redirect);
 
-Role role = (Role)request.getAttribute(WebKeys.ROLE);
+Role role = ActionUtil.getRole(request);
 
 String portletResource = ParamUtil.getString(request, "portletResource");
 
@@ -162,8 +162,6 @@ portletURL.setParameter("roleId", String.valueOf(role.getRoleId()));
 	function createLiveSearch() {
 		var instance = this;
 
-		var trim = A.Lang.trim;
-
 		var PermissionNavigationSearch = A.Component.create(
 			{
 				AUGMENTS: [A.AutoCompleteBase],
@@ -190,7 +188,7 @@ portletURL.setParameter("roleId", String.valueOf(role.getRoleId()));
 				function(item, index, collection) {
 					results.push(
 						{
-							data: trim(item.text()),
+							data: item.text().trim(),
 							node: item.ancestor()
 						}
 					);
@@ -246,8 +244,7 @@ portletURL.setParameter("roleId", String.valueOf(role.getRoleId()));
 					}
 				);
 
-				AArray.each(
-					event.results,
+				event.results.forEach(
 					function(item, index) {
 						item.raw.node.removeClass('hide');
 					}

@@ -63,7 +63,7 @@ public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @return the staging local service
 	 */
-	public com.liferay.portal.service.StagingLocalService getStagingLocalService() {
+	public StagingLocalService getStagingLocalService() {
 		return stagingLocalService;
 	}
 
@@ -72,8 +72,7 @@ public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param stagingLocalService the staging local service
 	 */
-	public void setStagingLocalService(
-		com.liferay.portal.service.StagingLocalService stagingLocalService) {
+	public void setStagingLocalService(StagingLocalService stagingLocalService) {
 		this.stagingLocalService = stagingLocalService;
 	}
 
@@ -113,6 +112,44 @@ public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 	public void setCounterLocalService(
 		com.liferay.counter.service.CounterLocalService counterLocalService) {
 		this.counterLocalService = counterLocalService;
+	}
+
+	/**
+	 * Returns the export import local service.
+	 *
+	 * @return the export import local service
+	 */
+	public com.liferay.portal.service.ExportImportLocalService getExportImportLocalService() {
+		return exportImportLocalService;
+	}
+
+	/**
+	 * Sets the export import local service.
+	 *
+	 * @param exportImportLocalService the export import local service
+	 */
+	public void setExportImportLocalService(
+		com.liferay.portal.service.ExportImportLocalService exportImportLocalService) {
+		this.exportImportLocalService = exportImportLocalService;
+	}
+
+	/**
+	 * Returns the export import remote service.
+	 *
+	 * @return the export import remote service
+	 */
+	public com.liferay.portal.service.ExportImportService getExportImportService() {
+		return exportImportService;
+	}
+
+	/**
+	 * Sets the export import remote service.
+	 *
+	 * @param exportImportService the export import remote service
+	 */
+	public void setExportImportService(
+		com.liferay.portal.service.ExportImportService exportImportService) {
+		this.exportImportService = exportImportService;
 	}
 
 	/**
@@ -484,12 +521,16 @@ public abstract class StagingLocalServiceBaseImpl extends BaseLocalServiceImpl
 		}
 	}
 
-	@BeanReference(type = com.liferay.portal.service.StagingLocalService.class)
-	protected com.liferay.portal.service.StagingLocalService stagingLocalService;
+	@BeanReference(type = StagingLocalService.class)
+	protected StagingLocalService stagingLocalService;
 	@BeanReference(type = com.liferay.portal.service.StagingService.class)
 	protected com.liferay.portal.service.StagingService stagingService;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
 	protected com.liferay.counter.service.CounterLocalService counterLocalService;
+	@BeanReference(type = com.liferay.portal.service.ExportImportLocalService.class)
+	protected com.liferay.portal.service.ExportImportLocalService exportImportLocalService;
+	@BeanReference(type = com.liferay.portal.service.ExportImportService.class)
+	protected com.liferay.portal.service.ExportImportService exportImportService;
 	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
 	protected com.liferay.portal.service.GroupLocalService groupLocalService;
 	@BeanReference(type = com.liferay.portal.service.GroupService.class)
