@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil} service utility. The
+ * {@link DDMStructureServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -64,7 +64,7 @@ import java.util.Map;
  * @author Brian Wing Shun Chan
  * @see DDMStructureServiceHttp
  * @see com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap
- * @see com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil
+ * @see DDMStructureServiceUtil
  * @generated
  */
 @ProviderType
@@ -457,15 +457,15 @@ public class DDMStructureServiceSoap {
 		}
 	}
 
-	public static com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap[] getJournalFolderStructures(
-		long[] groupIds, long journalFolderId, int restrictionType)
-		throws RemoteException {
+	public static com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap fetchStructure(
+		long groupId, long classNameId, java.lang.String structureKey,
+		boolean includeAncestorStructures) throws RemoteException {
 		try {
-			java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> returnValue =
-				DDMStructureServiceUtil.getJournalFolderStructures(groupIds,
-					journalFolderId, restrictionType);
+			com.liferay.portlet.dynamicdatamapping.model.DDMStructure returnValue =
+				DDMStructureServiceUtil.fetchStructure(groupId, classNameId,
+					structureKey, includeAncestorStructures);
 
-			return com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap.toSoapModels(returnValue);
+			return com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

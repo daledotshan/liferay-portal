@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -50,16 +49,6 @@ import javax.portlet.PortletURL;
  */
 @ProviderType
 public abstract class BaseDDMDisplay implements DDMDisplay {
-
-	@Override
-	public String getAddStructureActionId() {
-		return ActionKeys.ADD_STRUCTURE;
-	}
-
-	@Override
-	public String getAddTemplateActionId() {
-		return ActionKeys.ADD_TEMPLATE;
-	}
 
 	@Override
 	public String getAvailableFields() {
@@ -239,7 +228,7 @@ public abstract class BaseDDMDisplay implements DDMDisplay {
 			getControlPanelPlid(liferayPortletRequest),
 			PortletKeys.DYNAMIC_DATA_MAPPING, PortletRequest.RENDER_PHASE);
 
-		portletURL.setParameter("struts_action", "/dynamic_data_mapping/view");
+		portletURL.setParameter("mvcPath", "/view.jsp");
 
 		return portletURL.toString();
 	}
@@ -320,8 +309,7 @@ public abstract class BaseDDMDisplay implements DDMDisplay {
 			getControlPanelPlid(liferayPortletRequest),
 			PortletKeys.DYNAMIC_DATA_MAPPING, PortletRequest.RENDER_PHASE);
 
-		portletURL.setParameter(
-			"struts_action", "/dynamic_data_mapping/view_template");
+		portletURL.setParameter("mvcPath", "/view_template.jsp");
 		portletURL.setParameter("classNameId", String.valueOf(classNameId));
 		portletURL.setParameter("classPK", String.valueOf(classPK));
 

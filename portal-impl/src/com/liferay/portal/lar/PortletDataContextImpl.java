@@ -17,13 +17,17 @@ package com.liferay.portal.lar;
 import com.liferay.portal.NoSuchRoleException;
 import com.liferay.portal.NoSuchTeamException;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
+import com.liferay.portal.kernel.dao.orm.Conjunction;
+import com.liferay.portal.kernel.dao.orm.Criterion;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.ExportImportClassedModelUtil;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
+import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.lar.ManifestSummary;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
@@ -309,17 +313,15 @@ public class PortletDataContextImpl implements PortletDataContext {
 	 */
 	@Override
 	public void addDateRangeCriteria(
-		DynamicQuery dynamicQuery, String modifiedDatePropertyName) {
+		DynamicQuery dynamicQuery, String propertyName) {
 
-		if (!hasDateRange()) {
+		Criterion criterion = getDateRangeCriteria(propertyName);
+
+		if (criterion == null) {
 			return;
 		}
 
-		Property modifiedDateProperty = PropertyFactoryUtil.forName(
-			modifiedDatePropertyName);
-
-		dynamicQuery.add(modifiedDateProperty.ge(_startDate));
-		dynamicQuery.add(modifiedDateProperty.le(_endDate));
+		dynamicQuery.add(criterion);
 	}
 
 	@Override
@@ -821,6 +823,22 @@ public class PortletDataContextImpl implements PortletDataContext {
 	}
 
 	@Override
+	public Criterion getDateRangeCriteria(String propertyName) {
+		if (!hasDateRange()) {
+			return null;
+		}
+
+		Conjunction conjunction = RestrictionsFactoryUtil.conjunction();
+
+		Property property = PropertyFactoryUtil.forName(propertyName);
+
+		conjunction.add(property.le(_endDate));
+		conjunction.add(property.ge(_startDate));
+
+		return conjunction;
+	}
+
+	@Override
 	public Set<StagedModelType> getDeletionSystemEventStagedModelTypes() {
 		return _deletionSystemEventModelTypes;
 	}
@@ -888,7 +906,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 				(StagedGroupedModel)classedModel;
 
 			element.addAttribute(
-				"group-id",String.valueOf(stagedGroupedModel.getGroupId()));
+				"group-id", String.valueOf(stagedGroupedModel.getGroupId()));
 			element.addAttribute("uuid", stagedGroupedModel.getUuid());
 		}
 		else if (classedModel instanceof StagedModel) {
@@ -1688,6 +1706,25 @@ public class PortletDataContextImpl implements PortletDataContext {
 		else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isInitialPublication() {
+		Group group = null;
+
+		try {
+			group = GroupLocalServiceUtil.getGroup(getGroupId());
+		}
+		catch (Exception e) {
+		}
+
+		if (ExportImportThreadLocal.isStagingInProcess() && (group != null) &&
+			group.hasStagingGroup()) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override

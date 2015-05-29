@@ -58,6 +58,9 @@ import com.sun.syndication.feed.synd.SyndLink;
 import com.sun.syndication.feed.synd.SyndLinkImpl;
 import com.sun.syndication.io.FeedException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import java.util.ArrayList;
@@ -74,18 +77,17 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 
 	@Override
 	public MBMessage addDiscussionMessage(
-			long groupId, String className, long classPK,
-			String permissionClassName, long permissionClassPK,
-			long permissionOwnerId, long threadId, long parentMessageId,
-			String subject, String body, ServiceContext serviceContext)
+			long groupId, String className, long classPK, long threadId,
+			long parentMessageId, String subject, String body,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		User user = getGuestOrUser();
 
 		MBDiscussionPermission.check(
 			getPermissionChecker(), user.getCompanyId(),
-			serviceContext.getScopeGroupId(), permissionClassName,
-			permissionClassPK, permissionOwnerId, ActionKeys.ADD_DISCUSSION);
+			serviceContext.getScopeGroupId(), className, classPK,
+			ActionKeys.ADD_DISCUSSION);
 
 		return mbMessageLocalService.addDiscussionMessage(
 			user.getUserId(), null, groupId, className, classPK, threadId,
@@ -143,6 +145,29 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 			getGuestOrUserId(), null, groupId, categoryId, subject, body,
 			format, inputStreamOVPs, anonymous, priority, allowPingbacks,
 			serviceContext);
+	}
+
+	@Override
+	public MBMessage addMessage(
+			long groupId, long categoryId, String subject, String body,
+			String format, String fileName, File file, boolean anonymous,
+			double priority, boolean allowPingbacks,
+			ServiceContext serviceContext)
+		throws FileNotFoundException, PortalException {
+
+		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
+			new ArrayList<>();
+
+		InputStream inputStream = new FileInputStream(file);
+
+		ObjectValuePair<String, InputStream> inputStreamOVP =
+			new ObjectValuePair<>(fileName, inputStream);
+
+		inputStreamOVPs.add(inputStreamOVP);
+
+		return addMessage(
+			groupId, categoryId, subject, body, format, inputStreamOVPs,
+			anonymous, priority, allowPingbacks, serviceContext);
 	}
 
 	@Override
@@ -218,20 +243,47 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 	}
 
 	@Override
+	public void addMessageAttachment(
+			long messageId, String fileName, File file, String mimeType)
+		throws PortalException {
+
+		MBMessage message = mbMessageLocalService.getMBMessage(messageId);
+
+		if (lockLocalService.isLocked(
+				MBThread.class.getName(), message.getThreadId())) {
+
+			throw new LockedThreadException();
+		}
+
+		MBCategoryPermission.contains(
+			getPermissionChecker(), message.getGroupId(),
+			message.getCategoryId(), ActionKeys.ADD_FILE);
+
+		mbMessageLocalService.addMessageAttachment(
+			getUserId(), messageId, fileName, file, mimeType);
+	}
+
+	@Override
+	public void deleteDiscussionMessage(long messageId) throws PortalException {
+		MBDiscussionPermission.check(
+			getPermissionChecker(), messageId, ActionKeys.DELETE_DISCUSSION);
+
+		mbMessageLocalService.deleteDiscussionMessage(messageId);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #deleteDiscussionMessage(
+	 *             long)}
+	 */
+	@Deprecated
+	@Override
 	public void deleteDiscussionMessage(
 			long groupId, String className, long classPK,
 			String permissionClassName, long permissionClassPK,
 			long permissionOwnerId, long messageId)
 		throws PortalException {
 
-		User user = getUser();
-
-		MBDiscussionPermission.check(
-			getPermissionChecker(), user.getCompanyId(), groupId,
-			permissionClassName, permissionClassPK, messageId,
-			permissionOwnerId, ActionKeys.DELETE_DISCUSSION);
-
-		mbMessageLocalService.deleteDiscussionMessage(messageId);
+		deleteDiscussionMessage(messageId);
 	}
 
 	@Override
@@ -243,6 +295,16 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 	}
 
 	@Override
+	public void deleteMessageAttachment(long messageId, String fileName)
+		throws PortalException {
+
+		MBMessagePermission.check(
+			getPermissionChecker(), messageId, ActionKeys.UPDATE);
+
+		mbMessageLocalService.deleteMessageAttachment(messageId, fileName);
+	}
+
+	@Override
 	public void deleteMessageAttachments(long messageId)
 		throws PortalException {
 
@@ -250,6 +312,14 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 			getPermissionChecker(), messageId, ActionKeys.DELETE);
 
 		mbMessageLocalService.deleteMessageAttachments(messageId);
+	}
+
+	@Override
+	public void emptyMessageAttachments(long messageId) throws PortalException {
+		MBMessagePermission.check(
+			getPermissionChecker(), messageId, ActionKeys.DELETE);
+
+		mbMessageLocalService.emptyMessageAttachments(messageId);
 	}
 
 	@Override
@@ -650,18 +720,12 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 
 	@Override
 	public MBMessage updateDiscussionMessage(
-			String className, long classPK, String permissionClassName,
-			long permissionClassPK, long permissionOwnerId, long messageId,
-			String subject, String body, ServiceContext serviceContext)
+			String className, long classPK, long messageId, String subject,
+			String body, ServiceContext serviceContext)
 		throws PortalException {
 
-		User user = getUser();
-
 		MBDiscussionPermission.check(
-			getPermissionChecker(), user.getCompanyId(),
-			serviceContext.getScopeGroupId(), permissionClassName,
-			permissionClassPK, messageId, permissionOwnerId,
-			ActionKeys.UPDATE_DISCUSSION);
+			getPermissionChecker(), messageId, ActionKeys.UPDATE_DISCUSSION);
 
 		return mbMessageLocalService.updateDiscussionMessage(
 			getUserId(), messageId, className, classPK, subject, body,
