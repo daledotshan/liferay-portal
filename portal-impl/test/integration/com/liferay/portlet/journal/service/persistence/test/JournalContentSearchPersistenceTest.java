@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.journal.NoSuchContentSearchException;
 import com.liferay.portlet.journal.model.JournalContentSearch;
@@ -150,124 +149,84 @@ public class JournalContentSearchPersistenceTest {
 	}
 
 	@Test
-	public void testCountByPortletId() {
-		try {
-			_persistence.countByPortletId(StringPool.BLANK);
+	public void testCountByPortletId() throws Exception {
+		_persistence.countByPortletId(StringPool.BLANK);
 
-			_persistence.countByPortletId(StringPool.NULL);
+		_persistence.countByPortletId(StringPool.NULL);
 
-			_persistence.countByPortletId((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByPortletId((String)null);
 	}
 
 	@Test
-	public void testCountByArticleId() {
-		try {
-			_persistence.countByArticleId(StringPool.BLANK);
+	public void testCountByArticleId() throws Exception {
+		_persistence.countByArticleId(StringPool.BLANK);
 
-			_persistence.countByArticleId(StringPool.NULL);
+		_persistence.countByArticleId(StringPool.NULL);
 
-			_persistence.countByArticleId((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByArticleId((String)null);
 	}
 
 	@Test
-	public void testCountByG_P() {
-		try {
-			_persistence.countByG_P(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByG_P() throws Exception {
+		_persistence.countByG_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean());
 
-			_persistence.countByG_P(0L, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P(0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByG_A() {
-		try {
-			_persistence.countByG_A(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByG_A() throws Exception {
+		_persistence.countByG_A(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByG_A(0L, StringPool.NULL);
+		_persistence.countByG_A(0L, StringPool.NULL);
 
-			_persistence.countByG_A(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_A(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByG_P_L() {
-		try {
-			_persistence.countByG_P_L(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong());
+	public void testCountByG_P_L() throws Exception {
+		_persistence.countByG_P_L(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong());
 
-			_persistence.countByG_P_L(0L, RandomTestUtil.randomBoolean(), 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P_L(0L, RandomTestUtil.randomBoolean(), 0L);
 	}
 
 	@Test
-	public void testCountByG_P_A() {
-		try {
-			_persistence.countByG_P_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), StringPool.BLANK);
+	public void testCountByG_P_A() throws Exception {
+		_persistence.countByG_P_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), StringPool.BLANK);
 
-			_persistence.countByG_P_A(0L, RandomTestUtil.randomBoolean(),
-				StringPool.NULL);
+		_persistence.countByG_P_A(0L, RandomTestUtil.randomBoolean(),
+			StringPool.NULL);
 
-			_persistence.countByG_P_A(0L, RandomTestUtil.randomBoolean(),
-				(String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P_A(0L, RandomTestUtil.randomBoolean(),
+			(String)null);
 	}
 
 	@Test
-	public void testCountByG_P_L_P() {
-		try {
-			_persistence.countByG_P_L_P(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong(),
-				StringPool.BLANK);
+	public void testCountByG_P_L_P() throws Exception {
+		_persistence.countByG_P_L_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong(),
+			StringPool.BLANK);
 
-			_persistence.countByG_P_L_P(0L, RandomTestUtil.randomBoolean(), 0L,
-				StringPool.NULL);
+		_persistence.countByG_P_L_P(0L, RandomTestUtil.randomBoolean(), 0L,
+			StringPool.NULL);
 
-			_persistence.countByG_P_L_P(0L, RandomTestUtil.randomBoolean(), 0L,
-				(String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P_L_P(0L, RandomTestUtil.randomBoolean(), 0L,
+			(String)null);
 	}
 
 	@Test
-	public void testCountByG_P_L_P_A() {
-		try {
-			_persistence.countByG_P_L_P_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong(),
-				StringPool.BLANK, StringPool.BLANK);
+	public void testCountByG_P_L_P_A() throws Exception {
+		_persistence.countByG_P_L_P_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.nextLong(),
+			StringPool.BLANK, StringPool.BLANK);
 
-			_persistence.countByG_P_L_P_A(0L, RandomTestUtil.randomBoolean(),
-				0L, StringPool.NULL, StringPool.NULL);
+		_persistence.countByG_P_L_P_A(0L, RandomTestUtil.randomBoolean(), 0L,
+			StringPool.NULL, StringPool.NULL);
 
-			_persistence.countByG_P_L_P_A(0L, RandomTestUtil.randomBoolean(),
-				0L, (String)null, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P_L_P_A(0L, RandomTestUtil.randomBoolean(), 0L,
+			(String)null, (String)null);
 	}
 
 	@Test
@@ -280,29 +239,17 @@ public class JournalContentSearchPersistenceTest {
 			newJournalContentSearch);
 	}
 
-	@Test
+	@Test(expected = NoSuchContentSearchException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchContentSearchException");
-		}
-		catch (NoSuchContentSearchException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<JournalContentSearch> getOrderByComparator() {
@@ -512,10 +459,6 @@ public class JournalContentSearchPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		JournalContentSearch newJournalContentSearch = addJournalContentSearch();
 
 		_persistence.clearCache();

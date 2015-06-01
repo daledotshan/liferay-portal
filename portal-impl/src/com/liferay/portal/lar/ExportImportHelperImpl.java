@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.lar.DefaultConfigurationPortletDataHandler;
-import com.liferay.portal.kernel.lar.ExportImportClassedModelUtil;
 import com.liferay.portal.kernel.lar.ExportImportDateUtil;
 import com.liferay.portal.kernel.lar.ExportImportHelper;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
@@ -116,7 +115,6 @@ import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructureUtil;
-import com.liferay.portlet.journal.model.JournalArticle;
 
 import java.io.File;
 import java.io.InputStream;
@@ -146,6 +144,30 @@ import org.xml.sax.XMLReader;
  * @author Mate Thurzo
  */
 public class ExportImportHelperImpl implements ExportImportHelper {
+
+	@Override
+	public long[] getAllLayoutIds(long groupId, boolean privateLayout) {
+		List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
+			groupId, privateLayout);
+
+		return getLayoutIds(layouts);
+	}
+
+	@Override
+	public Map<Long, Boolean> getAllLayoutIdsMap(
+		long groupId, boolean privateLayout) {
+
+		List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
+			groupId, privateLayout, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
+
+		Map<Long, Boolean> layoutIdMap = new HashMap<>();
+
+		for (Layout layout : layouts) {
+			layoutIdMap.put(layout.getPlid(), true);
+		}
+
+		return layoutIdMap;
+	}
 
 	/**
 	 * @deprecated As of 7.0.0, moved to {@link
@@ -213,7 +235,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		Portlet portlet = PortletLocalServiceUtil.getPortletById(
 			companyId, portletId);
 
-		if (portlet == null) {
+		if ((portlet == null) || portlet.isUndeployedPortlet()) {
 			return null;
 		}
 
@@ -256,7 +278,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 			exportPortletControlsMap.get(PortletDataHandlerKeys.PORTLET_DATA),
 			exportPortletControlsMap.get(PortletDataHandlerKeys.PORTLET_SETUP),
 			exportPortletControlsMap.get(
-				PortletDataHandlerKeys.PORTLET_USER_PREFERENCES),
+				PortletDataHandlerKeys.PORTLET_USER_PREFERENCES)
 		};
 	}
 
@@ -331,7 +353,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 			importPortletControlsMap.get(PortletDataHandlerKeys.PORTLET_DATA),
 			importPortletControlsMap.get(PortletDataHandlerKeys.PORTLET_SETUP),
 			importPortletControlsMap.get(
-				PortletDataHandlerKeys.PORTLET_USER_PREFERENCES),
+				PortletDataHandlerKeys.PORTLET_USER_PREFERENCES)
 		};
 	}
 
@@ -741,6 +763,18 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 			boolean exportReferencedContent)
 		throws Exception {
 
+		return replaceExportContentReferences(
+			portletDataContext, entityStagedModel, content,
+			exportReferencedContent, true);
+	}
+
+	@Override
+	public String replaceExportContentReferences(
+			PortletDataContext portletDataContext,
+			StagedModel entityStagedModel, String content,
+			boolean exportReferencedContent, boolean escapeContent)
+		throws Exception {
+
 		content = replaceExportDLReferences(
 			portletDataContext, entityStagedModel, content,
 			exportReferencedContent);
@@ -749,10 +783,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		content = replaceExportLinksToLayouts(
 			portletDataContext, entityStagedModel, content);
 
-		String className = ExportImportClassedModelUtil.getClassName(
-			entityStagedModel);
-
-		if (!className.equals(JournalArticle.class.getName())) {
+		if (escapeContent) {
 			content = StringUtil.replace(
 				content, StringPool.AMPERSAND_ENCODED, StringPool.AMPERSAND);
 		}
@@ -1008,7 +1039,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 					else if (urlSBString.contains(
 								DATA_HANDLER_PRIVATE_LAYOUT_SET_SECURE_URL) ||
 							 urlSBString.contains(
-								DATA_HANDLER_PRIVATE_LAYOUT_SET_URL)) {
+								 DATA_HANDLER_PRIVATE_LAYOUT_SET_URL)) {
 
 						layoutSet = group.getPrivateLayoutSet();
 					}
@@ -1889,7 +1920,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		Portlet portlet = PortletLocalServiceUtil.getPortletById(
 			companyId, portletId);
 
-		if (portlet == null) {
+		if ((portlet == null) || portlet.isUndeployedPortlet()) {
 			return false;
 		}
 

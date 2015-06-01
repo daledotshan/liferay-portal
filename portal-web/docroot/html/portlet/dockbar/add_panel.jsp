@@ -36,7 +36,7 @@
 			boolean hasLayoutUpdatePermission = LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.UPDATE);
 			%>
 
-			<c:if test="<%= !group.isControlPanel() && (hasLayoutAddPermission || hasLayoutUpdatePermission || (layoutTypePortlet.isCustomizable() && layoutTypePortlet.isCustomizedView() && hasLayoutCustomizePermission)) %>">
+			<c:if test="<%= !group.isControlPanel() && !group.isUserPersonalPanel() && (hasLayoutAddPermission || hasLayoutUpdatePermission || (layoutTypePortlet.isCustomizable() && layoutTypePortlet.isCustomizedView() && hasLayoutCustomizePermission)) %>">
 				<div class="add-content-menu" id="<portlet:namespace />addPanelContainer">
 					<aui:button cssClass="close" name="closePanelAdd" value="&times;" />
 
@@ -80,9 +80,32 @@
 							</liferay-ui:section>
 						</c:if>
 
-						<c:if test="<%= hasLayoutAddPermission %>">
+						<c:if test="<%= hasLayoutAddPermission && themeDisplay.isShowSiteAdministrationIcon() %>">
+
+							<%
+							long selPlid= ParamUtil.getLong(request, "selPlid", LayoutConstants.DEFAULT_PLID);
+							%>
+
 							<liferay-ui:section>
-								<liferay-util:include page="/html/portlet/layouts_admin/add_layout.jsp" />
+								<liferay-portlet:renderURL plid="<%= PortalUtil.getControlPanelPlid(company.getCompanyId()) %>" portletName="<%= PortletKeys.GROUP_PAGES %>" varImpl="newPageURL" windowState="<%= WindowState.NORMAL.toString() %>">
+									<portlet:param name="struts_action" value="/group_pages/edit_layouts" />
+									<portlet:param name="tabs1" value='<%= layout.isPrivateLayout() ? "private-pages" : "public-pages" %>' />
+									<portlet:param name="groupId" value="<%= String.valueOf(groupDisplayContextHelper.getLiveGroupId()) %>" />
+									<portlet:param name="selPlid" value="<%= String.valueOf(selPlid) %>" />
+									<portlet:param name="treeId" value="layoutsTree" />
+									<portlet:param name="viewLayout" value="true" />
+								</liferay-portlet:renderURL>
+
+								<%
+								String newPageURLString = HttpUtil.setParameter(newPageURL.toString(), "controlPanelCategory", "current_site");
+
+								newPageURLString = HttpUtil.setParameter(newPageURLString, "doAsGroupId", String.valueOf(groupDisplayContextHelper.getLiveGroupId()));
+								newPageURLString = HttpUtil.setParameter(newPageURLString, "refererPlid", String.valueOf(selPlid));
+								%>
+
+								<aui:button-row>
+									<aui:button href="<%= newPageURLString %>"  primary="<%= true %>" value="new-page" />
+								</aui:button-row>
 							</liferay-ui:section>
 						</c:if>
 					</liferay-ui:tabs>

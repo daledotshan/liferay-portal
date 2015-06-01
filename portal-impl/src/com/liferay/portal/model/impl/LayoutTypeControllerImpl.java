@@ -85,11 +85,6 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 	}
 
 	@Override
-	public String getEditPage() {
-		return StrutsUtil.TEXT_HTML_DIR + _editPage;
-	}
-
-	@Override
 	public String getURL() {
 		return _url;
 	}
@@ -119,6 +114,28 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 		}
 
 		return path;
+	}
+
+	@Override
+	public String includeEditContent(
+			HttpServletRequest request, HttpServletResponse response,
+			Layout layout)
+		throws Exception {
+
+		ServletContext servletContext = (ServletContext)request.getAttribute(
+			WebKeys.CTX);
+
+		RequestDispatcher requestDispatcher =
+			servletContext.getRequestDispatcher(getEditPage());
+
+		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
+
+		PipingServletResponse pipingServletResponse = new PipingServletResponse(
+			response, unsyncStringWriter);
+
+		requestDispatcher.include(request, pipingServletResponse);
+
+		return unsyncStringWriter.toString();
 	}
 
 	@Override
@@ -190,6 +207,10 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 		catch (SystemException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	protected String getEditPage() {
+		return StrutsUtil.TEXT_HTML_DIR + _editPage;
 	}
 
 	private final String[] _configurationActionDelete;

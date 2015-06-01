@@ -36,7 +36,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 		%>
 
 		<div class="<%= (incompleteBackgroundTaskCount == 0) ? "hide" : "in-progress" %>" id="<portlet:namespace />incompleteProcessMessage">
-			<liferay-util:include page="/html/portlet/layouts_admin/incomplete_processes_message.jsp">
+			<liferay-util:include page="/html/portlet/export_import/incomplete_processes_message.jsp">
 				<liferay-util:param name="incompleteBackgroundTaskCount" value="<%= String.valueOf(incompleteBackgroundTaskCount) %>" />
 			</liferay-util:include>
 		</div>
@@ -86,7 +86,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 															request.setAttribute("render_controls.jsp-portletId", selPortlet.getRootPortletId());
 															%>
 
-															<liferay-util:include page="/html/portlet/layouts_admin/render_controls.jsp" />
+															<liferay-util:include page="/html/portlet/export_import/render_controls.jsp" />
 														</ul>
 													</aui:fieldset>
 												</li>
@@ -171,6 +171,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 															dayValue="<%= startCalendar.get(Calendar.DATE) %>"
 															disabled="<%= false %>"
 															firstDayOfWeek="<%= startCalendar.getFirstDayOfWeek() - 1 %>"
+															lastEnabledDate="<%= new Date() %>"
 															monthParam="startDateMonth"
 															monthValue="<%= startCalendar.get(Calendar.MONTH) %>"
 															name="startDate"
@@ -202,6 +203,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 															dayValue="<%= endCalendar.get(Calendar.DATE) %>"
 															disabled="<%= false %>"
 															firstDayOfWeek="<%= endCalendar.getFirstDayOfWeek() - 1 %>"
+															lastEnabledDate="<%= new Date() %>"
 															monthParam="endDateMonth"
 															monthValue="<%= endCalendar.get(Calendar.MONTH) %>"
 															name="endDate"
@@ -251,7 +253,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 									<liferay-ui:icon
 										iconCssClass="icon-calendar"
 										label="<%= true %>"
-										message='<%= LanguageUtil.get(locale, "date-range") + selectedLabelsHTML %>'
+										message='<%= LanguageUtil.get(request, "date-range") + selectedLabelsHTML %>'
 									/>
 								</li>
 
@@ -292,7 +294,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 
 																		<aui:field-wrapper label='<%= ArrayUtil.isNotEmpty(metadataControls) ? "content" : StringPool.BLANK %>'>
 																			<ul class="lfr-tree list-unstyled">
-																				<liferay-util:include page="/html/portlet/layouts_admin/render_controls.jsp" />
+																				<liferay-util:include page="/html/portlet/export_import/render_controls.jsp" />
 																			</ul>
 																		</aui:field-wrapper>
 																	</c:if>
@@ -311,7 +313,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 
 																				<aui:field-wrapper label="content-metadata">
 																					<ul class="lfr-tree list-unstyled">
-																						<liferay-util:include page="/html/portlet/layouts_admin/render_controls.jsp" />
+																						<liferay-util:include page="/html/portlet/export_import/render_controls.jsp" />
 																					</ul>
 																				</aui:field-wrapper>
 
@@ -390,7 +392,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 						Map<String, String[]> parameterMap = Collections.emptyMap();
 						%>
 
-						<%@ include file="/html/portlet/layouts_admin/export_configuration/permissions.jspf" %>
+						<%@ include file="/html/portlet/export_import/permissions.jspf" %>
 					</aui:fieldset>
 				</c:if>
 
@@ -414,6 +416,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 	<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" var="exportProcessesURL">
 		<portlet:param name="struts_action" value="/portlet_configuration/export_import" />
 		<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.EXPORT %>" />
+		<portlet:param name="tabs2" value="export" />
 		<portlet:param name="<%= SearchContainer.DEFAULT_CUR_PARAM %>" value="<%= ParamUtil.getString(request, SearchContainer.DEFAULT_CUR_PARAM) %>" />
 		<portlet:param name="<%= SearchContainer.DEFAULT_DELTA_PARAM %>" value="<%= ParamUtil.getString(request, SearchContainer.DEFAULT_DELTA_PARAM) %>" />
 		<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getScopeGroupId()) %>" />
@@ -426,13 +429,15 @@ portletURL.setParameter("tabs3", "current-and-previous");
 			deletionsNode: '#<%= PortletDataHandlerKeys.DELETIONS %>Checkbox',
 			form: document.<portlet:namespace />fm1,
 			incompleteProcessMessageNode: '#<portlet:namespace />incompleteProcessMessage',
+			locale: '<%= locale.toLanguageTag() %>',
 			namespace: '<portlet:namespace />',
 			processesNode: '#exportProcesses',
 			processesResourceURL: '<%= exportProcessesURL.toString() %>',
 			rangeAllNode: '#rangeAll',
 			rangeDateRangeNode: '#rangeDateRange',
 			rangeLastNode: '#rangeLast',
-			ratingsNode: '#<%= PortletDataHandlerKeys.RATINGS %>Checkbox'
+			ratingsNode: '#<%= PortletDataHandlerKeys.RATINGS %>Checkbox',
+			timeZone: '<%= timeZone.getID() %>'
 		}
 	);
 

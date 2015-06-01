@@ -113,6 +113,9 @@ public class SearchPermissionCheckerImpl implements SearchPermissionChecker {
 				companyId, groupId, className, classPK, document);
 		}
 		catch (NoSuchResourceException nsre) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(nsre, nsre);
+			}
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -335,7 +338,7 @@ public class SearchPermissionCheckerImpl implements SearchPermissionChecker {
 			PermissionCheckerBag userBag = advancedPermissionChecker.getUserBag(
 				userId, group.getGroupId());
 
-			List<Role> groupRoles = userBag.getRoles();
+			List<Role> groupRoles = ListUtil.fromCollection(userBag.getRoles());
 
 			groupIdsToRoles.put(group.getGroupId(), groupRoles);
 
