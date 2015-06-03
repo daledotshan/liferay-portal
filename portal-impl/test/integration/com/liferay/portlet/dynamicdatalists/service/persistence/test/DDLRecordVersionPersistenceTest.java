@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion;
@@ -185,42 +184,27 @@ public class DDLRecordVersionPersistenceTest {
 	}
 
 	@Test
-	public void testCountByRecordId() {
-		try {
-			_persistence.countByRecordId(RandomTestUtil.nextLong());
+	public void testCountByRecordId() throws Exception {
+		_persistence.countByRecordId(RandomTestUtil.nextLong());
 
-			_persistence.countByRecordId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRecordId(0L);
 	}
 
 	@Test
-	public void testCountByR_V() {
-		try {
-			_persistence.countByR_V(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByR_V() throws Exception {
+		_persistence.countByR_V(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByR_V(0L, StringPool.NULL);
+		_persistence.countByR_V(0L, StringPool.NULL);
 
-			_persistence.countByR_V(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByR_V(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByR_S() {
-		try {
-			_persistence.countByR_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByR_S() throws Exception {
+		_persistence.countByR_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByR_S(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByR_S(0L, 0);
 	}
 
 	@Test
@@ -232,29 +216,17 @@ public class DDLRecordVersionPersistenceTest {
 		Assert.assertEquals(existingDDLRecordVersion, newDDLRecordVersion);
 	}
 
-	@Test
+	@Test(expected = NoSuchRecordVersionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchRecordVersionException");
-		}
-		catch (NoSuchRecordVersionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<DDLRecordVersion> getOrderByComparator() {
@@ -464,10 +436,6 @@ public class DDLRecordVersionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		DDLRecordVersion newDDLRecordVersion = addDDLRecordVersion();
 
 		_persistence.clearCache();

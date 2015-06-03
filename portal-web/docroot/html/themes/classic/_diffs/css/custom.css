@@ -460,6 +460,7 @@ html {
 	}
 
 	.lfr-nav-item .lfr-nav-child-toggle {
+		display: inline;
 		padding: 10px;
 
 		i {
@@ -492,6 +493,12 @@ html {
 
 #breadcrumbs {
 	margin-bottom: 45px;
+
+	@include respond-to(phone, tablet) {
+		.portlet-borderless-container {
+			display: none;
+		}
+	}
 
 	.breadcrumb {
 		margin-bottom: 0;
@@ -640,6 +647,10 @@ html {
 	position: fixed;
 	top: 0;
 	z-index: 300;
+
+	@include respond-to(phone, tablet) {
+		display: none;
+	}
 
 	.breadcrumb {
 		background: #414445;
@@ -864,13 +875,5 @@ html {
 		a, span {
 			text-shadow: -1px -1px #000;
 		}
-	}
-}
-
-/* ---------- IE8 ---------- */
-
-.ie8 {
-	.dockbar-split .dockbar .info-button a {
-		margin-top: -2px;
 	}
 }
