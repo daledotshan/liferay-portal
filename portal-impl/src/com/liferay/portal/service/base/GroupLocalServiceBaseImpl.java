@@ -100,6 +100,7 @@ import com.liferay.portlet.social.service.persistence.SocialActivitySettingPersi
 import com.liferay.portlet.social.service.persistence.SocialRequestPersistence;
 import com.liferay.portlet.softwarecatalog.service.persistence.SCFrameworkVersionPersistence;
 import com.liferay.portlet.softwarecatalog.service.persistence.SCProductEntryPersistence;
+import com.liferay.portlet.trash.service.persistence.TrashEntryPersistence;
 
 import java.io.Serializable;
 
@@ -883,7 +884,7 @@ public abstract class GroupLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @return the group local service
 	 */
-	public com.liferay.portal.service.GroupLocalService getGroupLocalService() {
+	public GroupLocalService getGroupLocalService() {
 		return groupLocalService;
 	}
 
@@ -892,8 +893,7 @@ public abstract class GroupLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param groupLocalService the group local service
 	 */
-	public void setGroupLocalService(
-		com.liferay.portal.service.GroupLocalService groupLocalService) {
+	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
 	}
 
@@ -1195,6 +1195,44 @@ public abstract class GroupLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 */
 	public void setCompanyPersistence(CompanyPersistence companyPersistence) {
 		this.companyPersistence = companyPersistence;
+	}
+
+	/**
+	 * Returns the export import local service.
+	 *
+	 * @return the export import local service
+	 */
+	public com.liferay.portal.service.ExportImportLocalService getExportImportLocalService() {
+		return exportImportLocalService;
+	}
+
+	/**
+	 * Sets the export import local service.
+	 *
+	 * @param exportImportLocalService the export import local service
+	 */
+	public void setExportImportLocalService(
+		com.liferay.portal.service.ExportImportLocalService exportImportLocalService) {
+		this.exportImportLocalService = exportImportLocalService;
+	}
+
+	/**
+	 * Returns the export import remote service.
+	 *
+	 * @return the export import remote service
+	 */
+	public com.liferay.portal.service.ExportImportService getExportImportService() {
+		return exportImportService;
+	}
+
+	/**
+	 * Sets the export import remote service.
+	 *
+	 * @param exportImportService the export import remote service
+	 */
+	public void setExportImportService(
+		com.liferay.portal.service.ExportImportService exportImportService) {
+		this.exportImportService = exportImportService;
 	}
 
 	/**
@@ -2178,6 +2216,63 @@ public abstract class GroupLocalServiceBaseImpl extends BaseLocalServiceImpl
 	public void setSCProductEntryPersistence(
 		SCProductEntryPersistence scProductEntryPersistence) {
 		this.scProductEntryPersistence = scProductEntryPersistence;
+	}
+
+	/**
+	 * Returns the trash entry local service.
+	 *
+	 * @return the trash entry local service
+	 */
+	public com.liferay.portlet.trash.service.TrashEntryLocalService getTrashEntryLocalService() {
+		return trashEntryLocalService;
+	}
+
+	/**
+	 * Sets the trash entry local service.
+	 *
+	 * @param trashEntryLocalService the trash entry local service
+	 */
+	public void setTrashEntryLocalService(
+		com.liferay.portlet.trash.service.TrashEntryLocalService trashEntryLocalService) {
+		this.trashEntryLocalService = trashEntryLocalService;
+	}
+
+	/**
+	 * Returns the trash entry remote service.
+	 *
+	 * @return the trash entry remote service
+	 */
+	public com.liferay.portlet.trash.service.TrashEntryService getTrashEntryService() {
+		return trashEntryService;
+	}
+
+	/**
+	 * Sets the trash entry remote service.
+	 *
+	 * @param trashEntryService the trash entry remote service
+	 */
+	public void setTrashEntryService(
+		com.liferay.portlet.trash.service.TrashEntryService trashEntryService) {
+		this.trashEntryService = trashEntryService;
+	}
+
+	/**
+	 * Returns the trash entry persistence.
+	 *
+	 * @return the trash entry persistence
+	 */
+	public TrashEntryPersistence getTrashEntryPersistence() {
+		return trashEntryPersistence;
+	}
+
+	/**
+	 * Sets the trash entry persistence.
+	 *
+	 * @param trashEntryPersistence the trash entry persistence
+	 */
+	public void setTrashEntryPersistence(
+		TrashEntryPersistence trashEntryPersistence) {
+		this.trashEntryPersistence = trashEntryPersistence;
 	}
 
 	/**
@@ -3635,8 +3730,8 @@ public abstract class GroupLocalServiceBaseImpl extends BaseLocalServiceImpl
 		}
 	}
 
-	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
-	protected com.liferay.portal.service.GroupLocalService groupLocalService;
+	@BeanReference(type = GroupLocalService.class)
+	protected GroupLocalService groupLocalService;
 	@BeanReference(type = com.liferay.portal.service.GroupService.class)
 	protected com.liferay.portal.service.GroupService groupService;
 	@BeanReference(type = GroupPersistence.class)
@@ -3669,6 +3764,10 @@ public abstract class GroupLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected com.liferay.portal.service.CompanyService companyService;
 	@BeanReference(type = CompanyPersistence.class)
 	protected CompanyPersistence companyPersistence;
+	@BeanReference(type = com.liferay.portal.service.ExportImportLocalService.class)
+	protected com.liferay.portal.service.ExportImportLocalService exportImportLocalService;
+	@BeanReference(type = com.liferay.portal.service.ExportImportService.class)
+	protected com.liferay.portal.service.ExportImportService exportImportService;
 	@BeanReference(type = com.liferay.portal.service.ExportImportConfigurationLocalService.class)
 	protected com.liferay.portal.service.ExportImportConfigurationLocalService exportImportConfigurationLocalService;
 	@BeanReference(type = com.liferay.portal.service.ExportImportConfigurationService.class)
@@ -3773,6 +3872,12 @@ public abstract class GroupLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected com.liferay.portlet.softwarecatalog.service.SCProductEntryService scProductEntryService;
 	@BeanReference(type = SCProductEntryPersistence.class)
 	protected SCProductEntryPersistence scProductEntryPersistence;
+	@BeanReference(type = com.liferay.portlet.trash.service.TrashEntryLocalService.class)
+	protected com.liferay.portlet.trash.service.TrashEntryLocalService trashEntryLocalService;
+	@BeanReference(type = com.liferay.portlet.trash.service.TrashEntryService.class)
+	protected com.liferay.portlet.trash.service.TrashEntryService trashEntryService;
+	@BeanReference(type = TrashEntryPersistence.class)
+	protected TrashEntryPersistence trashEntryPersistence;
 	@BeanReference(type = com.liferay.portal.service.LayoutLocalService.class)
 	protected com.liferay.portal.service.LayoutLocalService layoutLocalService;
 	@BeanReference(type = com.liferay.portal.service.LayoutService.class)

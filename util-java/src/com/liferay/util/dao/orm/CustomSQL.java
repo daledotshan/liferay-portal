@@ -35,7 +35,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.util.PortalUtil;
 
 import java.io.IOException;
@@ -492,13 +492,8 @@ public class CustomSQL {
 		}
 
 		sql = StringUtil.replace(
-			sql,
-			new String[] {
-				"[$AND_OR_CONNECTOR$]", "[$AND_OR_NULL_CHECK$]"
-			},
-			new String[] {
-				andOrConnector, andOrNullCheck
-			});
+			sql, new String[] {"[$AND_OR_CONNECTOR$]", "[$AND_OR_NULL_CHECK$]"},
+			new String[] {andOrConnector, andOrNullCheck});
 
 		if (_vendorPostgreSQL) {
 			sql = StringUtil.replace(
@@ -564,13 +559,8 @@ public class CustomSQL {
 	public String replaceIsNull(String sql) {
 		if (Validator.isNotNull(_functionIsNull)) {
 			sql = StringUtil.replace(
-				sql,
-				new String[] {
-					"? IS NULL", "? IS NOT NULL"
-				},
-				new String[] {
-					_functionIsNull, _functionIsNotNull
-				});
+				sql, new String[] {"? IS NULL", "? IS NOT NULL"},
+				new String[] {_functionIsNull, _functionIsNotNull});
 		}
 
 		return sql;
@@ -772,7 +762,7 @@ public class CustomSQL {
 			_log.debug("Loading " + source);
 		}
 
-		Document document = SAXReaderUtil.read(is);
+		Document document = UnsecureSAXReaderUtil.read(is);
 
 		Element rootElement = document.getRootElement();
 

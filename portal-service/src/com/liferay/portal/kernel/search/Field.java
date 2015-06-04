@@ -41,12 +41,6 @@ public class Field implements Serializable {
 
 	public static final String ASSET_CATEGORY_IDS = "assetCategoryIds";
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #ASSET_CATEGORY_TITLES}
-	 */
-	@Deprecated
-	public static final String ASSET_CATEGORY_NAMES = "assetCategoryNames";
-
 	public static final String ASSET_CATEGORY_TITLE = "assetCategoryTitle";
 
 	public static final String ASSET_CATEGORY_TITLES = "assetCategoryTitles";
@@ -62,6 +56,8 @@ public class Field implements Serializable {
 	public static final String ASSET_VOCABULARY_ID = "assetVocabularyId";
 
 	public static final String ASSET_VOCABULARY_IDS = "assetVocabularyIds";
+
+	public static final String CAPTION = "caption";
 
 	public static final String CATEGORY_ID = "categoryId";
 
@@ -108,12 +104,6 @@ public class Field implements Serializable {
 	public static final String LANGUAGE_ID = "languageId";
 
 	public static final String LAYOUT_UUID = "layoutUuid";
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #MODIFIED_DATE}
-	 */
-	@Deprecated
-	public static final String MODIFIED = "modified";
 
 	public static final String MODIFIED_DATE = "modified";
 
@@ -200,46 +190,19 @@ public class Field implements Serializable {
 		this(name, new String[] {value});
 	}
 
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String value, boolean tokenized) {
-		this(name, value);
-
-		setTokenized(tokenized);
-	}
-
 	public Field(String name, String[] values) {
 		_name = name;
 		_values = values;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String[] values, boolean tokenized) {
-		this(name, values);
-
-		setTokenized(tokenized);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String[] values, boolean tokenized, float boost) {
-		this(name, values);
-
-		setBoost(boost);
-		setTokenized(tokenized);
 	}
 
 	public void addField(Field field) {
 		_fields.add(field);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link Query#getBoost}
+	 */
+	@Deprecated
 	public float getBoost() {
 		return _boost;
 	}
@@ -314,6 +277,10 @@ public class Field implements Serializable {
 		return _tokenized;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link Query#setBoost(float)}
+	 */
+	@Deprecated
 	public void setBoost(float boost) {
 		_boost = boost;
 	}

@@ -16,8 +16,10 @@ package com.liferay.portal.kernel.lar;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.Criterion;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.xml.Element;
@@ -25,7 +27,6 @@ import com.liferay.portal.kernel.zip.ZipReader;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.Lock;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.service.ServiceContext;
@@ -154,7 +155,7 @@ public interface PortletDataContext extends Serializable {
 		String className, long classPK, List<MBMessage> messages);
 
 	public void addDateRangeCriteria(
-		DynamicQuery dynamicQuery, String modifiedDatePropertyName);
+		DynamicQuery dynamicQuery, String propertyName);
 
 	public void addDeletionSystemEventStagedModelTypes(
 		StagedModelType... stagedModelTypes);
@@ -312,6 +313,8 @@ public interface PortletDataContext extends Serializable {
 	public String getDataStrategy();
 
 	public DateRange getDateRange();
+
+	public Criterion getDateRangeCriteria(String propertyName);
 
 	public Set<StagedModelType> getDeletionSystemEventStagedModelTypes();
 
@@ -615,6 +618,8 @@ public interface PortletDataContext extends Serializable {
 	public boolean isDataStrategyMirror();
 
 	public boolean isDataStrategyMirrorWithOverwriting();
+
+	public boolean isInitialPublication();
 
 	public boolean isModelCounted(String className, long classPK);
 

@@ -29,13 +29,14 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.util.HtmlImpl;
 import com.liferay.portal.util.LocalizationImpl;
 import com.liferay.portal.xml.SAXReaderImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerImpl;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONSerializerImpl;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONSerializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayoutColumn;
@@ -314,7 +315,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 	protected DDMStructure createStructure(String name, DDMForm ddmForm) {
 		return createStructure(
-			name, DDMFormXSDSerializerUtil.serialize(ddmForm));
+			name, DDMFormJSONSerializerUtil.serialize(ddmForm));
 	}
 
 	protected DDMStructure createStructure(String name, String definition) {
@@ -425,20 +426,20 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		return StringUtil.read(inputStream);
 	}
 
-	protected void setUpDDMFormXSDDeserializerUtil() {
-		DDMFormXSDDeserializerUtil ddmFormXSDDeserializerUtil =
-			new DDMFormXSDDeserializerUtil();
+	protected void setUpDDMFormJSONDeserializerUtil() {
+		DDMFormJSONDeserializerUtil ddmFormJSONDeserializerUtil =
+			new DDMFormJSONDeserializerUtil();
 
-		ddmFormXSDDeserializerUtil.setDDMFormXSDDeserializer(
-			new DDMFormXSDDeserializerImpl());
+		ddmFormJSONDeserializerUtil.setDDMFormJSONDeserializer(
+			new DDMFormJSONDeserializerImpl());
 	}
 
-	protected void setUpDDMFormXSDSerializerUtil() {
-		DDMFormXSDSerializerUtil ddmFormXSDSerializerUtil =
-			new DDMFormXSDSerializerUtil();
+	protected void setUpDDMFormJSONSerializerUtil() {
+		DDMFormJSONSerializerUtil ddmFormJSONSerializerUtil =
+			new DDMFormJSONSerializerUtil();
 
-		ddmFormXSDSerializerUtil.setDDMFormXSDSerializer(
-			new DDMFormXSDSerializerImpl());
+		ddmFormJSONSerializerUtil.setDDMFormJSONSerializer(
+			new DDMFormJSONSerializerImpl());
 	}
 
 	protected void setUpDDMStructureLocalServiceUtil() {
@@ -603,13 +604,30 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 			"yyyyMMddHHmmss"
 		);
 
+		when(
+			props.get(PropsKeys.XML_SECURITY_ENABLED)
+		).thenReturn(
+			Boolean.TRUE.toString()
+		);
+
 		PropsUtil.setProps(props);
 	}
 
 	protected void setUpSAXReaderUtil() {
 		SAXReaderUtil saxReaderUtil = new SAXReaderUtil();
 
-		saxReaderUtil.setSecureSAXReader(new SAXReaderImpl());
+		SAXReaderImpl secureSAXReader = new SAXReaderImpl();
+
+		secureSAXReader.setSecure(true);
+
+		saxReaderUtil.setSAXReader(secureSAXReader);
+
+		UnsecureSAXReaderUtil unsecureSAXReaderUtil =
+			new UnsecureSAXReaderUtil();
+
+		SAXReaderImpl unsecureSAXReader = new SAXReaderImpl();
+
+		unsecureSAXReaderUtil.setSAXReader(unsecureSAXReader);
 	}
 
 	protected void whenLanguageGet(

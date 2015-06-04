@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.journal.NoSuchArticleImageException;
 import com.liferay.portlet.journal.model.JournalArticleImage;
@@ -155,60 +154,40 @@ public class JournalArticleImagePersistenceTest {
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByTempImage() {
-		try {
-			_persistence.countByTempImage(RandomTestUtil.randomBoolean());
+	public void testCountByTempImage() throws Exception {
+		_persistence.countByTempImage(RandomTestUtil.randomBoolean());
 
-			_persistence.countByTempImage(RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByTempImage(RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByG_A_V() {
-		try {
-			_persistence.countByG_A_V(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextDouble());
+	public void testCountByG_A_V() throws Exception {
+		_persistence.countByG_A_V(RandomTestUtil.nextLong(), StringPool.BLANK,
+			RandomTestUtil.nextDouble());
 
-			_persistence.countByG_A_V(0L, StringPool.NULL, 0D);
+		_persistence.countByG_A_V(0L, StringPool.NULL, 0D);
 
-			_persistence.countByG_A_V(0L, (String)null, 0D);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_A_V(0L, (String)null, 0D);
 	}
 
 	@Test
-	public void testCountByG_A_V_E_E_L() {
-		try {
-			_persistence.countByG_A_V_E_E_L(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextDouble(),
-				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK);
+	public void testCountByG_A_V_E_E_L() throws Exception {
+		_persistence.countByG_A_V_E_E_L(RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextDouble(), StringPool.BLANK,
+			StringPool.BLANK, StringPool.BLANK);
 
-			_persistence.countByG_A_V_E_E_L(0L, StringPool.NULL, 0D,
-				StringPool.NULL, StringPool.NULL, StringPool.NULL);
+		_persistence.countByG_A_V_E_E_L(0L, StringPool.NULL, 0D,
+			StringPool.NULL, StringPool.NULL, StringPool.NULL);
 
-			_persistence.countByG_A_V_E_E_L(0L, (String)null, 0D, (String)null,
-				(String)null, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_A_V_E_E_L(0L, (String)null, 0D, (String)null,
+			(String)null, (String)null);
 	}
 
 	@Test
@@ -220,29 +199,17 @@ public class JournalArticleImagePersistenceTest {
 		Assert.assertEquals(existingJournalArticleImage, newJournalArticleImage);
 	}
 
-	@Test
+	@Test(expected = NoSuchArticleImageException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchArticleImageException");
-		}
-		catch (NoSuchArticleImageException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<JournalArticleImage> getOrderByComparator() {
@@ -450,10 +417,6 @@ public class JournalArticleImagePersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		JournalArticleImage newJournalArticleImage = addJournalArticleImage();
 
 		_persistence.clearCache();

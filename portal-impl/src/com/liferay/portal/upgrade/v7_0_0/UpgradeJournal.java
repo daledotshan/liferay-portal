@@ -33,12 +33,14 @@ import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.upgrade.v7_0_0.util.JournalArticleTable;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerUtil;
 import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants;
+import com.liferay.portlet.dynamicdatamapping.storage.StorageType;
 import com.liferay.portlet.dynamicdatamapping.util.DDMXMLUtil;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.util.ContentUtil;
@@ -92,9 +94,12 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 
 		String ddmStructureUUID = PortalUUIDUtil.generate();
 
+		DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(xsd);
+
 		long ddmStructureId = addDDMStructure(
 			ddmStructureUUID, increment(), groupId, companyId, name,
-			localizedName, localizedDescription, xsd);
+			localizedName, localizedDescription, toJSON(ddmForm),
+			StorageType.JSON.toString());
 
 		String ddmTemplateUUID = PortalUUIDUtil.generate();
 
@@ -114,7 +119,8 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 		if (stagingGroupId > 0) {
 			ddmStructureId = addDDMStructure(
 				ddmStructureUUID, increment(), stagingGroupId, companyId, name,
-				localizedName, localizedDescription, xsd);
+				localizedName, localizedDescription, toJSON(ddmForm),
+				StorageType.JSON.toString());
 
 			addDDMTemplate(
 				ddmTemplateUUID, increment(), stagingGroupId, companyId,
@@ -128,7 +134,7 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 	protected long addDDMStructure(
 			String uuid, long ddmStructureId, long groupId, long companyId,
 			String ddmStructureKey, String localizedName,
-			String localizedDescription, String xsd)
+			String localizedDescription, String definition, String storageType)
 		throws Exception {
 
 		Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -166,8 +172,8 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 			ps.setString(12, DDMStructureConstants.VERSION_DEFAULT);
 			ps.setString(13, localizedName);
 			ps.setString(14, localizedDescription);
-			ps.setString(15, xsd);
-			ps.setString(16, "xml");
+			ps.setString(15, definition);
+			ps.setString(16, storageType);
 			ps.setInt(17, DDMStructureConstants.TYPE_DEFAULT);
 
 			ps.executeUpdate();
@@ -177,11 +183,11 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 			addStructureVersion(
 				ddmStructureVersionId, groupId, companyId,
 				getDefaultUserId(companyId), StringPool.BLANK, now,
-				ddmStructureId, localizedName, localizedDescription, xsd, "xml",
-				DDMStructureConstants.TYPE_DEFAULT);
+				ddmStructureId, localizedName, localizedDescription, definition,
+				storageType, DDMStructureConstants.TYPE_DEFAULT);
 
 			String ddmStructureLayoutDefinition =
-				getDefaultDDMFormLayoutDefinition(xsd);
+				getDefaultDDMFormLayoutDefinition(definition);
 
 			addStructureLayout(
 				PortalUUIDUtil.generate(), increment(), groupId, companyId,
@@ -271,8 +277,10 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 
 			addTemplateVersion(
 				increment(), groupId, companyId, getDefaultUserId(companyId),
-				StringPool.BLANK, now, ddmTemplateId, localizedName,
-				localizedDescription, TemplateConstants.LANG_TYPE_FTL, script);
+				StringPool.BLANK, now,
+				PortalUtil.getClassNameId(DDMStructure.class), ddmStructureId,
+				ddmTemplateId, localizedName, localizedDescription,
+				TemplateConstants.LANG_TYPE_FTL, script);
 
 			Map<String, Long> bitwiseValues = getBitwiseValues(
 				DDMTemplate.class.getName());
@@ -300,6 +308,74 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 		}
 
 		return ddmTemplateId;
+	}
+
+	protected void addDDMTemplateLink(
+			long classNameId, long classPK, long templateId)
+		throws Exception {
+
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			ps = con.prepareStatement(
+				"insert into DDMTemplateLink (templateLinkId, classNameId, " +
+					"classPK, templateId) values (?, ?, ?, ?)");
+
+			ps.setLong(1, increment());
+			ps.setLong(2, classNameId);
+			ps.setLong(3, classPK);
+			ps.setLong(4, templateId);
+
+			ps.executeUpdate();
+		}
+		catch (Exception e) {
+			_log.error("Unable to create template link for journal article");
+
+			throw e;
+		}
+		finally {
+			DataAccess.cleanUp(con, ps);
+		}
+	}
+
+	protected void addDDMTemplateLinks() throws Exception {
+		long classNameId = PortalUtil.getClassNameId(DDMStructure.class);
+
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = DataAccess.getUpgradeOptimizedConnection();
+
+			StringBundler sb = new StringBundler(6);
+
+			sb.append("select DDMTemplate.templateId, JournalArticle.id_ ");
+			sb.append("from JournalArticle inner join DDMTemplate on (");
+			sb.append("DDMTemplate.groupId = JournalArticle.groupId and ");
+			sb.append("DDMTemplate.templateKey = ");
+			sb.append("JournalArticle.ddmTemplateKey and ");
+			sb.append("JournalArticle.classNameId != ?)");
+
+			ps = con.prepareStatement(sb.toString());
+
+			ps.setLong(1, classNameId);
+
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				long templateId = rs.getLong("templateId");
+				long id_ = rs.getLong("id_");
+
+				addDDMTemplateLink(classNameId, id_, templateId);
+			}
+		}
+		finally {
+			DataAccess.cleanUp(con, ps, rs);
+		}
 	}
 
 	protected String convertStaticContentToDynamic(String content)
@@ -386,6 +462,8 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 		}
 
 		updateBasicWebContentStructure();
+
+		addDDMTemplateLinks();
 	}
 
 	protected String getContent(String fileName) {
@@ -407,10 +485,10 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 		return rootElement.elements("structure");
 	}
 
-	protected String getDefaultDDMFormLayoutDefinition(String xsd)
+	protected String getDefaultDDMFormLayoutDefinition(String definition)
 		throws Exception {
 
-		DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(xsd);
+		DDMForm ddmForm = DDMFormJSONDeserializerUtil.deserialize(definition);
 
 		return getDefaultDDMFormLayoutDefinition(ddmForm);
 	}
