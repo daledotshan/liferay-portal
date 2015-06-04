@@ -16,6 +16,7 @@ package com.liferay.poshi.runner.selenium;
 
 import com.liferay.poshi.runner.util.CharPool;
 import com.liferay.poshi.runner.util.GetterUtil;
+import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.PropsValues;
 import com.liferay.poshi.runner.util.Validator;
 
@@ -35,11 +36,32 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.internal.WrapsDriver;
+import org.openqa.selenium.support.ui.Select;
 
 /**
  * @author Kenji Heigel
  */
 public class WebDriverHelper {
+
+	public static void addSelection(
+		WebDriver webDriver, String locator, String optionLocator) {
+
+		Select select = new Select(getWebElement(webDriver, locator));
+
+		if (optionLocator.startsWith("index=")) {
+			select.selectByIndex(
+				GetterUtil.getInteger(optionLocator.substring(6)));
+		}
+		else if (optionLocator.startsWith("label=")) {
+			select.selectByVisibleText(optionLocator.substring(6));
+		}
+		else if (optionLocator.startsWith("value=")) {
+			select.selectByValue(optionLocator.substring(6));
+		}
+		else {
+			select.selectByVisibleText(optionLocator);
+		}
+	}
 
 	public static void assertJavaScriptErrors(
 			WebDriver webDriver, String ignoreJavaScriptError)
@@ -523,6 +545,40 @@ public class WebDriverHelper {
 		webElement.clear();
 
 		webElement.sendKeys(value);
+	}
+
+	public static void typeCKEditor(
+		WebDriver webDriver, String locator, String value) {
+
+		WebElement webElement = getWebElement(webDriver, locator);
+
+		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
+
+		WebDriver wrappedWebDriver = wrapsDriver.getWrappedDriver();
+
+		JavascriptExecutor javascriptExecutor =
+			(JavascriptExecutor)wrappedWebDriver;
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("CKEDITOR.instances[\"");
+
+		String titleAttribute = getAttribute(webDriver, locator + "@title");
+
+		int x = titleAttribute.indexOf(",");
+		int y = titleAttribute.indexOf(",", x + 1);
+
+		if (y == -1) {
+			y = titleAttribute.length();
+		}
+
+		sb.append(titleAttribute.substring(x + 2, y));
+
+		sb.append("\"].setData(\"");
+		sb.append(HtmlUtil.escapeJS(value.replace("\\", "\\\\")));
+		sb.append("\");");
+
+		javascriptExecutor.executeScript(sb.toString());
 	}
 
 	protected static WebElement getWebElement(

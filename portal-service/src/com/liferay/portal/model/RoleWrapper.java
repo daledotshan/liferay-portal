@@ -225,7 +225,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @return the create date of this role
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _role.getCreateDate();
 	}
 
@@ -308,7 +308,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @return the locales and localized descriptions of this role
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _role.getDescriptionMap();
 	}
 
@@ -329,7 +329,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @return the modified date of this role
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _role.getModifiedDate();
 	}
 
@@ -461,7 +461,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @return the locales and localized titles of this role
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getTitleMap() {
+	public Map<java.util.Locale, java.lang.String> getTitleMap() {
 		return _role.getTitleMap();
 	}
 
@@ -614,7 +614,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @param createDate the create date of this role
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_role.setCreateDate(createDate);
 	}
 
@@ -665,7 +665,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_role.setDescriptionMap(descriptionMap);
 	}
 
@@ -677,14 +677,13 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_role.setDescriptionMap(descriptionMap, defaultLocale);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_role.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -706,7 +705,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @param modifiedDate the modified date of this role
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_role.setModifiedDate(modifiedDate);
 	}
 
@@ -815,8 +814,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @param titleMap the locales and localized titles of this role
 	*/
 	@Override
-	public void setTitleMap(
-		java.util.Map<java.util.Locale, java.lang.String> titleMap) {
+	public void setTitleMap(Map<java.util.Locale, java.lang.String> titleMap) {
 		_role.setTitleMap(titleMap);
 	}
 
@@ -827,8 +825,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setTitleMap(
-		java.util.Map<java.util.Locale, java.lang.String> titleMap,
+	public void setTitleMap(Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Locale defaultLocale) {
 		_role.setTitleMap(titleMap, defaultLocale);
 	}
@@ -884,7 +881,7 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Role> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Role> toCacheModel() {
 		return _role.toCacheModel();
 	}
 
