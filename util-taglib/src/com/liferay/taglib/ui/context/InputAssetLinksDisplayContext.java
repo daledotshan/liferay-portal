@@ -17,6 +17,8 @@ package com.liferay.taglib.ui.context;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -32,15 +34,12 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.PortletURLFactoryUtil;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLink;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.portlet.asset.model.ClassType;
 import com.liferay.portlet.asset.model.ClassTypeReader;
-import com.liferay.portlet.asset.provider.PortletProvider;
-import com.liferay.portlet.asset.provider.PortletProviderUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.asset.service.AssetEntryServiceUtil;
 import com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil;
@@ -305,14 +304,9 @@ public class InputAssetLinksDisplayContext {
 			AssetRendererFactory assetRendererFactory)
 		throws Exception {
 
-		long controlPanelPlid = PortalUtil.getControlPanelPlid(
-			_themeDisplay.getCompanyId());
-
-		String portletId = PortletProviderUtil.getPortletId(
-			assetRendererFactory.getClassName(), PortletProvider.Action.BROWSE);
-
-		PortletURL portletURL = PortletURLFactoryUtil.create(
-			_request, portletId, controlPanelPlid, PortletRequest.RENDER_PHASE);
+		PortletURL portletURL = PortletProviderUtil.getPortletURL(
+			_request, assetRendererFactory.getClassName(),
+			PortletProvider.Action.BROWSE);
 
 		long groupId = _getAssetBrowserGroupId(assetRendererFactory);
 

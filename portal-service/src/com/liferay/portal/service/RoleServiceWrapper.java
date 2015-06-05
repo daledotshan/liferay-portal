@@ -180,6 +180,20 @@ public class RoleServiceWrapper implements RoleService,
 		return _roleService.getRole(roleId);
 	}
 
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(
+		long companyId, int[] types)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.getRoles(companyId, types);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(int type,
+		java.lang.String subtype)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.getRoles(type, subtype);
+	}
+
 	/**
 	* Returns all the user's roles within the user group.
 	*
@@ -279,6 +293,23 @@ public class RoleServiceWrapper implements RoleService,
 		java.lang.String[] names, boolean inherited)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _roleService.hasUserRoles(userId, companyId, names, inherited);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> search(
+		long companyId, java.lang.String keywords, java.lang.Integer[] types,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.model.Role> obc) {
+		return _roleService.search(companyId, keywords, types, params, start,
+			end, obc);
+	}
+
+	@Override
+	public int searchCount(long companyId, java.lang.String keywords,
+		java.lang.Integer[] types,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params) {
+		return _roleService.searchCount(companyId, keywords, types, params);
 	}
 
 	/**
