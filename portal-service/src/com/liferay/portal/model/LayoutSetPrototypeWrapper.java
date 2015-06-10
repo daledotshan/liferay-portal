@@ -186,7 +186,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the create date of this layout set prototype
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _layoutSetPrototype.getCreateDate();
 	}
 
@@ -269,7 +269,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the locales and localized descriptions of this layout set prototype
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _layoutSetPrototype.getDescriptionMap();
 	}
 
@@ -312,7 +312,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the modified date of this layout set prototype
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _layoutSetPrototype.getModifiedDate();
 	}
 
@@ -399,7 +399,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the locales and localized names of this layout set prototype
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _layoutSetPrototype.getNameMap();
 	}
 
@@ -476,6 +476,11 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	@Override
 	public java.lang.String getUuid() {
 		return _layoutSetPrototype.getUuid();
+	}
+
+	@Override
+	public boolean hasSetModifiedDate() {
+		return _layoutSetPrototype.hasSetModifiedDate();
 	}
 
 	@Override
@@ -557,7 +562,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param createDate the create date of this layout set prototype
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_layoutSetPrototype.setCreateDate(createDate);
 	}
 
@@ -608,7 +613,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_layoutSetPrototype.setDescriptionMap(descriptionMap);
 	}
 
@@ -620,14 +625,13 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_layoutSetPrototype.setDescriptionMap(descriptionMap, defaultLocale);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_layoutSetPrototype.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -659,7 +663,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param modifiedDate the modified date of this layout set prototype
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_layoutSetPrototype.setModifiedDate(modifiedDate);
 	}
 
@@ -718,8 +722,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param nameMap the locales and localized names of this layout set prototype
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_layoutSetPrototype.setNameMap(nameMap);
 	}
 
@@ -730,8 +733,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_layoutSetPrototype.setNameMap(nameMap, defaultLocale);
 	}
@@ -813,7 +815,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.LayoutSetPrototype> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.LayoutSetPrototype> toCacheModel() {
 		return _layoutSetPrototype.toCacheModel();
 	}
 

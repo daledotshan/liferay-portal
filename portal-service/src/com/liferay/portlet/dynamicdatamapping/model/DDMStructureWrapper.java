@@ -60,6 +60,8 @@ public class DDMStructureWrapper implements DDMStructure,
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
 		attributes.put("userName", getUserName());
+		attributes.put("versionUserId", getVersionUserId());
+		attributes.put("versionUserName", getVersionUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("parentStructureId", getParentStructureId());
@@ -111,6 +113,18 @@ public class DDMStructureWrapper implements DDMStructure,
 
 		if (userName != null) {
 			setUserName(userName);
+		}
+
+		Long versionUserId = (Long)attributes.get("versionUserId");
+
+		if (versionUserId != null) {
+			setVersionUserId(versionUserId);
+		}
+
+		String versionUserName = (String)attributes.get("versionUserName");
+
+		if (versionUserName != null) {
+			setVersionUserName(versionUserName);
 		}
 
 		Date createDate = (Date)attributes.get("createDate");
@@ -245,7 +259,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @return the create date of this d d m structure
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _ddmStructure.getCreateDate();
 	}
 
@@ -362,7 +376,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @return the locales and localized descriptions of this d d m structure
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _ddmStructure.getDescriptionMap();
 	}
 
@@ -441,7 +455,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	}
 
 	@Override
-	public java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.model.DDMFormField> getFullHierarchyDDMFormFieldsMap(
+	public Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.model.DDMFormField> getFullHierarchyDDMFormFieldsMap(
 		boolean includeNestedDDMFormFields) {
 		return _ddmStructure.getFullHierarchyDDMFormFieldsMap(includeNestedDDMFormFields);
 	}
@@ -462,7 +476,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @return the modified date of this d d m structure
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _ddmStructure.getModifiedDate();
 	}
 
@@ -539,7 +553,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @return the locales and localized names of this d d m structure
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _ddmStructure.getNameMap();
 	}
 
@@ -683,6 +697,36 @@ public class DDMStructureWrapper implements DDMStructure,
 	}
 
 	/**
+	* Returns the version user ID of this d d m structure.
+	*
+	* @return the version user ID of this d d m structure
+	*/
+	@Override
+	public long getVersionUserId() {
+		return _ddmStructure.getVersionUserId();
+	}
+
+	/**
+	* Returns the version user name of this d d m structure.
+	*
+	* @return the version user name of this d d m structure
+	*/
+	@Override
+	public java.lang.String getVersionUserName() {
+		return _ddmStructure.getVersionUserName();
+	}
+
+	/**
+	* Returns the version user uuid of this d d m structure.
+	*
+	* @return the version user uuid of this d d m structure
+	*/
+	@Override
+	public java.lang.String getVersionUserUuid() {
+		return _ddmStructure.getVersionUserUuid();
+	}
+
+	/**
 	* Returns the WebDAV URL to access the structure.
 	*
 	* @param themeDisplay the theme display needed to build the URL. It can
@@ -789,7 +833,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @param createDate the create date of this d d m structure
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_ddmStructure.setCreateDate(createDate);
 	}
 
@@ -856,7 +900,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_ddmStructure.setDescriptionMap(descriptionMap);
 	}
 
@@ -868,7 +912,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_ddmStructure.setDescriptionMap(descriptionMap, defaultLocale);
 	}
@@ -913,7 +957,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @param modifiedDate the modified date of this d d m structure
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_ddmStructure.setModifiedDate(modifiedDate);
 	}
 
@@ -962,8 +1006,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @param nameMap the locales and localized names of this d d m structure
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_ddmStructure.setNameMap(nameMap);
 	}
 
@@ -974,8 +1017,7 @@ public class DDMStructureWrapper implements DDMStructure,
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_ddmStructure.setNameMap(nameMap, defaultLocale);
 	}
@@ -1098,6 +1140,36 @@ public class DDMStructureWrapper implements DDMStructure,
 	@Override
 	public void setVersion(java.lang.String version) {
 		_ddmStructure.setVersion(version);
+	}
+
+	/**
+	* Sets the version user ID of this d d m structure.
+	*
+	* @param versionUserId the version user ID of this d d m structure
+	*/
+	@Override
+	public void setVersionUserId(long versionUserId) {
+		_ddmStructure.setVersionUserId(versionUserId);
+	}
+
+	/**
+	* Sets the version user name of this d d m structure.
+	*
+	* @param versionUserName the version user name of this d d m structure
+	*/
+	@Override
+	public void setVersionUserName(java.lang.String versionUserName) {
+		_ddmStructure.setVersionUserName(versionUserName);
+	}
+
+	/**
+	* Sets the version user uuid of this d d m structure.
+	*
+	* @param versionUserUuid the version user uuid of this d d m structure
+	*/
+	@Override
+	public void setVersionUserUuid(java.lang.String versionUserUuid) {
+		_ddmStructure.setVersionUserUuid(versionUserUuid);
 	}
 
 	@Override

@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureVersionException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureVersion;
@@ -142,6 +141,14 @@ public class DDMStructureVersionPersistenceTest {
 
 		newDDMStructureVersion.setType(RandomTestUtil.nextInt());
 
+		newDDMStructureVersion.setStatus(RandomTestUtil.nextInt());
+
+		newDDMStructureVersion.setStatusByUserId(RandomTestUtil.nextLong());
+
+		newDDMStructureVersion.setStatusByUserName(RandomTestUtil.randomString());
+
+		newDDMStructureVersion.setStatusDate(RandomTestUtil.nextDate());
+
 		_ddmStructureVersions.add(_persistence.update(newDDMStructureVersion));
 
 		DDMStructureVersion existingDDMStructureVersion = _persistence.findByPrimaryKey(newDDMStructureVersion.getPrimaryKey());
@@ -173,32 +180,39 @@ public class DDMStructureVersionPersistenceTest {
 			newDDMStructureVersion.getStorageType());
 		Assert.assertEquals(existingDDMStructureVersion.getType(),
 			newDDMStructureVersion.getType());
+		Assert.assertEquals(existingDDMStructureVersion.getStatus(),
+			newDDMStructureVersion.getStatus());
+		Assert.assertEquals(existingDDMStructureVersion.getStatusByUserId(),
+			newDDMStructureVersion.getStatusByUserId());
+		Assert.assertEquals(existingDDMStructureVersion.getStatusByUserName(),
+			newDDMStructureVersion.getStatusByUserName());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingDDMStructureVersion.getStatusDate()),
+			Time.getShortTimestamp(newDDMStructureVersion.getStatusDate()));
 	}
 
 	@Test
-	public void testCountByStructureId() {
-		try {
-			_persistence.countByStructureId(RandomTestUtil.nextLong());
+	public void testCountByStructureId() throws Exception {
+		_persistence.countByStructureId(RandomTestUtil.nextLong());
 
-			_persistence.countByStructureId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByStructureId(0L);
 	}
 
 	@Test
-	public void testCountByS_V() {
-		try {
-			_persistence.countByS_V(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByS_V() throws Exception {
+		_persistence.countByS_V(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByS_V(0L, StringPool.NULL);
+		_persistence.countByS_V(0L, StringPool.NULL);
 
-			_persistence.countByS_V(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByS_V(0L, (String)null);
+	}
+
+	@Test
+	public void testCountByS_S() throws Exception {
+		_persistence.countByS_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
+
+		_persistence.countByS_S(0L, 0);
 	}
 
 	@Test
@@ -210,29 +224,17 @@ public class DDMStructureVersionPersistenceTest {
 		Assert.assertEquals(existingDDMStructureVersion, newDDMStructureVersion);
 	}
 
-	@Test
+	@Test(expected = NoSuchStructureVersionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchStructureVersionException");
-		}
-		catch (NoSuchStructureVersionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<DDMStructureVersion> getOrderByComparator() {
@@ -240,7 +242,9 @@ public class DDMStructureVersionPersistenceTest {
 			"structureVersionId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
 			"structureId", true, "version", true, "name", true, "description",
-			true, "definition", true, "storageType", true, "type", true);
+			true, "definition", true, "storageType", true, "type", true,
+			"status", true, "statusByUserId", true, "statusByUserName", true,
+			"statusDate", true);
 	}
 
 	@Test
@@ -441,10 +445,6 @@ public class DDMStructureVersionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		DDMStructureVersion newDDMStructureVersion = addDDMStructureVersion();
 
 		_persistence.clearCache();
@@ -489,6 +489,14 @@ public class DDMStructureVersionPersistenceTest {
 		ddmStructureVersion.setStorageType(RandomTestUtil.randomString());
 
 		ddmStructureVersion.setType(RandomTestUtil.nextInt());
+
+		ddmStructureVersion.setStatus(RandomTestUtil.nextInt());
+
+		ddmStructureVersion.setStatusByUserId(RandomTestUtil.nextLong());
+
+		ddmStructureVersion.setStatusByUserName(RandomTestUtil.randomString());
+
+		ddmStructureVersion.setStatusDate(RandomTestUtil.nextDate());
 
 		_ddmStructureVersions.add(_persistence.update(ddmStructureVersion));
 

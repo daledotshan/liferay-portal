@@ -21,9 +21,12 @@ import aQute.bnd.annotation.metatype.Meta;
  */
 @Meta.OCD(
 	id = "com.liferay.xsl.content.web.configuration.XSLContentConfiguration",
-	localization = "content.Language"
+	localization = "content/Language"
 )
 public interface XSLContentConfiguration {
+
+	@Meta.AD(deflt = "@portlet_context_url@", id = "valid.url.prefixes")
+	public String validUrlPrefixes();
 
 	@Meta.AD(deflt = "false", id = "xml.doctype.declaration.allowed")
 	public boolean xmlDoctypeDeclarationAllowed();
