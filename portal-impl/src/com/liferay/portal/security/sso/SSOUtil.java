@@ -14,6 +14,7 @@
 
 package com.liferay.portal.security.sso;
 
+import com.liferay.portal.kernel.security.sso.SSO;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
@@ -39,16 +40,6 @@ public class SSOUtil {
 	public static String getSessionExpirationRedirectURL(
 		long companyId, String sessionExpirationRedirectURL) {
 
-		if (PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-					PropsValues.OPEN_SSO_AUTH_ENABLED) &&
-			PropsValues.OPEN_SSO_LOGOUT_ON_SESSION_EXPIRATION) {
-
-			return PrefsPropsUtil.getString(
-					companyId, PropsKeys.OPEN_SSO_LOGOUT_URL,
-					PropsValues.OPEN_SSO_LOGOUT_URL);
-		}
-
 		if (_instance._ssoMap.isEmpty()) {
 			return sessionExpirationRedirectURL;
 		}
@@ -57,13 +48,6 @@ public class SSOUtil {
 	}
 
 	public static String getSignInURL(long companyId, String signInURL) {
-		if (PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-				PropsValues.OPEN_SSO_AUTH_ENABLED)) {
-
-			return signInURL;
-		}
-
 		if (_instance._ssoMap.isEmpty()) {
 			return null;
 		}
@@ -98,10 +82,7 @@ public class SSOUtil {
 	public static boolean isLoginRedirectRequired(long companyId) {
 		if (PrefsPropsUtil.getBoolean(
 				companyId, PropsKeys.LOGIN_DIALOG_DISABLED,
-				PropsValues.LOGIN_DIALOG_DISABLED) ||
-			PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-				PropsValues.OPEN_SSO_AUTH_ENABLED)) {
+				PropsValues.LOGIN_DIALOG_DISABLED)) {
 
 			return true;
 		}
@@ -131,7 +112,7 @@ public class SSOUtil {
 
 		if (PrefsPropsUtil.getBoolean(
 				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-					PropsValues.OPEN_SSO_AUTH_ENABLED) &&
+				PropsValues.OPEN_SSO_AUTH_ENABLED) &&
 			PropsValues.OPEN_SSO_LOGOUT_ON_SESSION_EXPIRATION) {
 
 			return true;

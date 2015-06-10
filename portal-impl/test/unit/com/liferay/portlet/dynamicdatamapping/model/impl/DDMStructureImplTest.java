@@ -50,11 +50,13 @@ public class DDMStructureImplTest extends BaseDDMTestCase {
 
 	@Before
 	public void setUp() throws Exception {
+		setUpDDMFormFieldTypeRegistryUtil();
+		setUpDDMFormJSONDeserializerUtil();
+		setUpDDMFormJSONSerializerUtil();
 		setUpDDMStructureLocalServiceUtil();
 		setUpDDMTemplateLocalServiceUtil();
-		setUpDDMFormXSDDeserializerUtil();
-		setUpDDMFormXSDSerializerUtil();
 		setUpHtmlUtil();
+		setUpJSONFactoryUtil();
 		setUpLocaleUtil();
 		setUpPropsUtil();
 		setUpSAXReaderUtil();
@@ -74,7 +76,7 @@ public class DDMStructureImplTest extends BaseDDMTestCase {
 
 		Assert.assertEquals(2, actualAvailableLanguageIds.length);
 
-		for (String actualAvailableLanguageId :  actualAvailableLanguageIds) {
+		for (String actualAvailableLanguageId : actualAvailableLanguageIds) {
 			Locale actualAvailableLocale = LocaleUtil.fromLanguageId(
 				actualAvailableLanguageId);
 

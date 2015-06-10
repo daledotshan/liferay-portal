@@ -67,18 +67,14 @@ public class EditLayoutSetAction extends EditLayoutsAction {
 			ActionResponse actionResponse)
 		throws Exception {
 
-		try {
-			checkPermissions(actionRequest);
-		}
-		catch (PrincipalException pe) {
-			return;
-		}
-
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 		try {
 			if (cmd.equals(Constants.UPDATE)) {
 				updateLayoutSet(actionRequest, actionResponse);
+			}
+			else if (cmd.equals("reset_merge_fail_count_and_merge")) {
+				resetMergeFailCountAndMerge(actionRequest);
 			}
 
 			sendRedirect(actionRequest, actionResponse);
@@ -109,16 +105,6 @@ public class EditLayoutSetAction extends EditLayoutsAction {
 			PortletConfig portletConfig, RenderRequest renderRequest,
 			RenderResponse renderResponse)
 		throws Exception {
-
-		try {
-			checkPermissions(renderRequest);
-		}
-		catch (PrincipalException pe) {
-			SessionErrors.add(
-				renderRequest, PrincipalException.class.getName());
-
-			return actionMapping.findForward("portlet.layouts_admin.error");
-		}
 
 		try {
 			getGroup(renderRequest);

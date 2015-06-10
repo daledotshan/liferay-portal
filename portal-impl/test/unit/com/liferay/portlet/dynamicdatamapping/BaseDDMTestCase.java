@@ -29,13 +29,14 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.util.HtmlImpl;
 import com.liferay.portal.util.LocalizationImpl;
 import com.liferay.portal.xml.SAXReaderImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerImpl;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONSerializerImpl;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONSerializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayoutColumn;
@@ -46,6 +47,10 @@ import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
 import com.liferay.portlet.dynamicdatamapping.model.Value;
 import com.liferay.portlet.dynamicdatamapping.model.impl.DDMStructureImpl;
 import com.liferay.portlet.dynamicdatamapping.model.impl.DDMTemplateImpl;
+import com.liferay.portlet.dynamicdatamapping.registry.DDMFormFieldType;
+import com.liferay.portlet.dynamicdatamapping.registry.DDMFormFieldTypeRegistry;
+import com.liferay.portlet.dynamicdatamapping.registry.DDMFormFieldTypeRegistryUtil;
+import com.liferay.portlet.dynamicdatamapping.registry.DDMFormFieldTypeSettings;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.storage.DDMFormFieldValue;
@@ -53,6 +58,7 @@ import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 import com.liferay.portlet.dynamicdatamapping.storage.Field;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 import com.liferay.portlet.dynamicdatamapping.util.DDMImpl;
+import com.liferay.portlet.dynamicdatamapping.util.test.DDMFormFieldTypeSettingsTestUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -314,7 +320,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 	protected DDMStructure createStructure(String name, DDMForm ddmForm) {
 		return createStructure(
-			name, DDMFormXSDSerializerUtil.serialize(ddmForm));
+			name, DDMFormJSONSerializerUtil.serialize(ddmForm));
 	}
 
 	protected DDMStructure createStructure(String name, String definition) {
@@ -425,20 +431,30 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		return StringUtil.read(inputStream);
 	}
 
-	protected void setUpDDMFormXSDDeserializerUtil() {
-		DDMFormXSDDeserializerUtil ddmFormXSDDeserializerUtil =
-			new DDMFormXSDDeserializerUtil();
+	protected void setUpDDMFormFieldTypeRegistryUtil() {
+		setUpDefaultDDMFormFieldType();
 
-		ddmFormXSDDeserializerUtil.setDDMFormXSDDeserializer(
-			new DDMFormXSDDeserializerImpl());
+		DDMFormFieldTypeRegistryUtil ddmFormFieldTypeRegistryUtil =
+			new DDMFormFieldTypeRegistryUtil();
+
+		ddmFormFieldTypeRegistryUtil.setDDMFormFieldTypeRegistry(
+			_ddmFormFieldTypeRegistry);
 	}
 
-	protected void setUpDDMFormXSDSerializerUtil() {
-		DDMFormXSDSerializerUtil ddmFormXSDSerializerUtil =
-			new DDMFormXSDSerializerUtil();
+	protected void setUpDDMFormJSONDeserializerUtil() {
+		DDMFormJSONDeserializerUtil ddmFormJSONDeserializerUtil =
+			new DDMFormJSONDeserializerUtil();
 
-		ddmFormXSDSerializerUtil.setDDMFormXSDSerializer(
-			new DDMFormXSDSerializerImpl());
+		ddmFormJSONDeserializerUtil.setDDMFormJSONDeserializer(
+			new DDMFormJSONDeserializerImpl());
+	}
+
+	protected void setUpDDMFormJSONSerializerUtil() {
+		DDMFormJSONSerializerUtil ddmFormJSONSerializerUtil =
+			new DDMFormJSONSerializerUtil();
+
+		ddmFormJSONSerializerUtil.setDDMFormJSONSerializer(
+			new DDMFormJSONSerializerImpl());
 	}
 
 	protected void setUpDDMStructureLocalServiceUtil() {
@@ -484,6 +500,30 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 				}
 
 			}
+		);
+	}
+
+	protected void setUpDefaultDDMFormFieldType() {
+		when (
+			_defaultDDMFormFieldType.getDDMFormFieldTypeSettings()
+		).then(
+			new Answer<Class<? extends DDMFormFieldTypeSettings>>() {
+
+				@Override
+				public Class<? extends DDMFormFieldTypeSettings> answer(
+						InvocationOnMock invocationOnMock)
+					throws Throwable {
+
+					return DDMFormFieldTypeSettingsTestUtil.getSettings();
+				}
+
+			}
+		);
+
+		when(
+			_ddmFormFieldTypeRegistry.getDDMFormFieldType(Matchers.anyString())
+		).thenReturn(
+			_defaultDDMFormFieldType
 		);
 	}
 
@@ -603,13 +643,30 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 			"yyyyMMddHHmmss"
 		);
 
+		when(
+			props.get(PropsKeys.XML_SECURITY_ENABLED)
+		).thenReturn(
+			Boolean.TRUE.toString()
+		);
+
 		PropsUtil.setProps(props);
 	}
 
 	protected void setUpSAXReaderUtil() {
 		SAXReaderUtil saxReaderUtil = new SAXReaderUtil();
 
-		saxReaderUtil.setSecureSAXReader(new SAXReaderImpl());
+		SAXReaderImpl secureSAXReader = new SAXReaderImpl();
+
+		secureSAXReader.setSecure(true);
+
+		saxReaderUtil.setSAXReader(secureSAXReader);
+
+		UnsecureSAXReaderUtil unsecureSAXReaderUtil =
+			new UnsecureSAXReaderUtil();
+
+		SAXReaderImpl unsecureSAXReader = new SAXReaderImpl();
+
+		unsecureSAXReaderUtil.setSAXReader(unsecureSAXReader);
 	}
 
 	protected void whenLanguageGet(
@@ -670,5 +727,11 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		private static final long serialVersionUID = 1L;
 
 	}
+
+	@Mock
+	private DDMFormFieldTypeRegistry _ddmFormFieldTypeRegistry;
+
+	@Mock
+	private DDMFormFieldType _defaultDDMFormFieldType;
 
 }

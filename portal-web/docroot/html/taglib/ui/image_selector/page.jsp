@@ -37,7 +37,7 @@ if (fileEntryId != 0) {
 }
 %>
 
-<div class="taglib-image-selector <%= fileEntryId == 0 ? "drop-enabled" : StringPool.BLANK %> <%= !draggableImage.equals("none") ? "draggable-image " + draggableImage : StringPool.BLANK %>" id="<%= randomNamespace %>taglibImageSelector">
+<div class="taglib-image-selector <%= fileEntryId == 0 ? "drop-zone" : StringPool.BLANK %> <%= !draggableImage.equals("none") ? "draggable-image " + draggableImage : StringPool.BLANK %>" id="<%= randomNamespace %>taglibImageSelector">
 	<aui:input name='<%= paramName + "Id" %>' type="hidden" value="<%= fileEntryId %>" />
 	<aui:input name='<%= paramName + "CropRegion" %>' type="hidden" value="<%= cropRegion %>" />
 
@@ -67,19 +67,7 @@ if (fileEntryId != 0) {
 
 	<i class="glyphicon glyphicon-ok"></i>
 
-	<div class="drop-here-info">
-		<div class="drop-here-indicator">
-			<div class="drop-icons">
-				<span aria-hidden="true" class="glyphicon glyphicon-picture"></span>
-				<span aria-hidden="true" class="glyphicon glyphicon-picture"></span>
-				<span aria-hidden="true" class="glyphicon glyphicon-picture"></span>
-			</div>
-
-			<div class="drop-text">
-				<liferay-ui:message key="drop-files-here" />
-			</div>
-		</div>
-	</div>
+	<liferay-ui:drop-here-info message="drop-files-here" />
 
 	<div class="error-wrapper hide">
 		<aui:alert closeable="<%= true %>" id='<%= randomNamespace + "errorAlert" %>' type="danger">
@@ -106,15 +94,26 @@ if (fileEntryId != 0) {
 	</div>
 </div>
 
-<liferay-portlet:renderURL portletName="<%= PortletKeys.DOCUMENT_SELECTOR %>" varImpl="documentSelectorURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-	<portlet:param name="struts_action" value="/document_selector/view" />
-	<portlet:param name="tabs1Names" value="documents" />
-	<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
-	<portlet:param name="checkContentDisplayPage" value="true" />
-	<portlet:param name="eventName" value='<%= randomNamespace + "selectImage" %>' />
-</liferay-portlet:renderURL>
-
 <%
+PortletURL itemSelectorURL = liferayPortletResponse.createRenderURL(PortletKeys.ITEM_SELECTOR);
+
+itemSelectorURL.setParameter("criteria", "com.liferay.item.selector.criteria.image.criterion.ImageItemSelectorCriterion");
+itemSelectorURL.setParameter("itemSelectedEventName", liferayPortletResponse.getNamespace() + "selectImage");
+
+JSONObject itemSelectorJSONParamJSONObject = JSONFactoryUtil.createJSONObject();
+
+JSONArray desiredReturnTypesJSONArray = JSONFactoryUtil.createJSONArray();
+
+desiredReturnTypesJSONArray.put(URL.class.getName());
+desiredReturnTypesJSONArray.put(FileEntry.class.getName());
+
+itemSelectorJSONParamJSONObject.put("desiredReturnTypes", desiredReturnTypesJSONArray);
+
+itemSelectorURL.setParameter("0_json", itemSelectorJSONParamJSONObject.toString());
+
+itemSelectorURL.setPortletMode(PortletMode.VIEW);
+itemSelectorURL.setWindowState(LiferayWindowState.POP_UP);
+
 String modules = "liferay-image-selector";
 
 if (!draggableImage.equals("none")) {
@@ -125,9 +124,9 @@ if (!draggableImage.equals("none")) {
 <aui:script use="<%= modules %>">
 	var imageSelector = new Liferay.ImageSelector(
 		{
-			documentSelectorURL: '<%= documentSelectorURL.toString() %>',
 			errorNode: '#<%= randomNamespace + "errorAlert" %>',
 			fileEntryImageNode: '#<%= randomNamespace %>image',
+			itemSelectorURL: '<%= itemSelectorURL.toString() %>',
 			maxFileSize: <%= maxFileSize %>,
 			namespace: '<%= randomNamespace %>',
 			paramName: '<portlet:namespace /><%= paramName %>',

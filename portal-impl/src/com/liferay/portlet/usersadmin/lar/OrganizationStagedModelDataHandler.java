@@ -58,26 +58,39 @@ public class OrganizationStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {Organization.class.getName()};
 
 	@Override
+	public void deleteStagedModel(Organization organization)
+		throws PortalException {
+
+		OrganizationLocalServiceUtil.deleteOrganization(organization);
+	}
+
+	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
-		Organization organization = fetchStagedModelByUuidAndCompanyId(
-			uuid, group.getCompanyId());
+		Organization organization =
+			OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
+				uuid, group.getCompanyId());
 
 		if (organization != null) {
-			OrganizationLocalServiceUtil.deleteOrganization(organization);
+			deleteStagedModel(organization);
 		}
 	}
 
 	@Override
-	public Organization fetchStagedModelByUuidAndCompanyId(
+	public List<Organization> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		return OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
-			uuid, companyId);
+		List<Organization> organizations = new ArrayList<>();
+
+		organizations.add(
+			OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
+				uuid, companyId));
+
+		return organizations;
 	}
 
 	@Override
@@ -150,8 +163,9 @@ public class OrganizationStagedModelDataHandler
 
 		serviceContext.setUserId(userId);
 
-		Organization existingOrganization = fetchStagedModelByUuidAndCompanyId(
-			organization.getUuid(), portletDataContext.getGroupId());
+		Organization existingOrganization =
+			OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
+				organization.getUuid(), portletDataContext.getGroupId());
 
 		if (existingOrganization == null) {
 			existingOrganization =
