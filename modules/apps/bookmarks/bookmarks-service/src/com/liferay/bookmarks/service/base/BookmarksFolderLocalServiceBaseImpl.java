@@ -30,13 +30,16 @@ import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Criterion;
 import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Disjunction;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
@@ -49,6 +52,7 @@ import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalServiceImpl;
 import com.liferay.portal.service.PersistedModelLocalServiceRegistry;
@@ -311,16 +315,34 @@ public abstract class BookmarksFolderLocalServiceBaseImpl
 		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
 				@Override
 				public void addCriteria(DynamicQuery dynamicQuery) {
-					portletDataContext.addDateRangeCriteria(dynamicQuery,
-						"modifiedDate");
+					Criterion modifiedDateCriterion = portletDataContext.getDateRangeCriteria(
+							"modifiedDate");
+					Criterion statusDateCriterion = portletDataContext.getDateRangeCriteria(
+							"statusDate");
 
-					StagedModelDataHandler<?> stagedModelDataHandler = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(BookmarksFolder.class.getName());
+					if ((modifiedDateCriterion != null) &&
+							(statusDateCriterion != null)) {
+						Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
+
+						disjunction.add(modifiedDateCriterion);
+						disjunction.add(statusDateCriterion);
+
+						dynamicQuery.add(disjunction);
+					}
 
 					Property workflowStatusProperty = PropertyFactoryUtil.forName(
 							"status");
 
-					dynamicQuery.add(workflowStatusProperty.in(
-							stagedModelDataHandler.getExportableStatuses()));
+					if (portletDataContext.isInitialPublication()) {
+						dynamicQuery.add(workflowStatusProperty.ne(
+								WorkflowConstants.STATUS_IN_TRASH));
+					}
+					else {
+						StagedModelDataHandler<?> stagedModelDataHandler = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(BookmarksFolder.class.getName());
+
+						dynamicQuery.add(workflowStatusProperty.in(
+								stagedModelDataHandler.getExportableStatuses()));
+					}
 				}
 			});
 
@@ -524,7 +546,7 @@ public abstract class BookmarksFolderLocalServiceBaseImpl
 	 *
 	 * @return the bookmarks folder local service
 	 */
-	public com.liferay.bookmarks.service.BookmarksFolderLocalService getBookmarksFolderLocalService() {
+	public BookmarksFolderLocalService getBookmarksFolderLocalService() {
 		return bookmarksFolderLocalService;
 	}
 
@@ -534,7 +556,7 @@ public abstract class BookmarksFolderLocalServiceBaseImpl
 	 * @param bookmarksFolderLocalService the bookmarks folder local service
 	 */
 	public void setBookmarksFolderLocalService(
-		com.liferay.bookmarks.service.BookmarksFolderLocalService bookmarksFolderLocalService) {
+		BookmarksFolderLocalService bookmarksFolderLocalService) {
 		this.bookmarksFolderLocalService = bookmarksFolderLocalService;
 	}
 
@@ -1195,8 +1217,8 @@ public abstract class BookmarksFolderLocalServiceBaseImpl
 	protected BookmarksEntryPersistence bookmarksEntryPersistence;
 	@BeanReference(type = BookmarksEntryFinder.class)
 	protected BookmarksEntryFinder bookmarksEntryFinder;
-	@BeanReference(type = com.liferay.bookmarks.service.BookmarksFolderLocalService.class)
-	protected com.liferay.bookmarks.service.BookmarksFolderLocalService bookmarksFolderLocalService;
+	@BeanReference(type = BookmarksFolderLocalService.class)
+	protected BookmarksFolderLocalService bookmarksFolderLocalService;
 	@BeanReference(type = com.liferay.bookmarks.service.BookmarksFolderService.class)
 	protected com.liferay.bookmarks.service.BookmarksFolderService bookmarksFolderService;
 	@BeanReference(type = BookmarksFolderPersistence.class)

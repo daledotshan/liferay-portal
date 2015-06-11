@@ -17,17 +17,18 @@ package com.liferay.portlet.asset.service.impl;
 import com.liferay.portal.kernel.cache.ThreadLocalCachable;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.asset.AssetTagException;
 import com.liferay.portlet.asset.DuplicateTagException;
-import com.liferay.portlet.asset.NoSuchTagException;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetTag;
 import com.liferay.portlet.asset.service.base.AssetTagLocalServiceBaseImpl;
@@ -37,7 +38,6 @@ import com.liferay.portlet.social.util.SocialCounterPeriodUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,15 +53,13 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 
 	@Override
 	public AssetTag addTag(
-			long userId, String name, ServiceContext serviceContext)
+			long userId, long groupId, String name,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		// Tag
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		long groupId = serviceContext.getScopeGroupId();
-
-		Date now = new Date();
 
 		long tagId = counterLocalService.increment();
 
@@ -71,8 +69,6 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		tag.setCompanyId(user.getCompanyId());
 		tag.setUserId(user.getUserId());
 		tag.setUserName(user.getFullName());
-		tag.setCreateDate(now);
-		tag.setModifiedDate(now);
 
 		name = name.trim();
 		name = StringUtil.toLowerCase(name);
@@ -154,19 +150,16 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		List<AssetTag> tags = new ArrayList<>();
 
 		for (String name : names) {
-			AssetTag tag = null;
+			AssetTag tag = fetchTag(group.getGroupId(), name);
 
-			try {
-				tag = getTag(group.getGroupId(), name);
-			}
-			catch (NoSuchTagException nste1) {
+			if (tag == null) {
 				ServiceContext serviceContext = new ServiceContext();
 
 				serviceContext.setAddGroupPermissions(true);
 				serviceContext.setAddGuestPermissions(true);
 				serviceContext.setScopeGroupId(group.getGroupId());
 
-				tag = addTag(userId, name, serviceContext);
+				tag = addTag(userId, group.getGroupId(), name, serviceContext);
 			}
 
 			if (tag != null) {
@@ -178,12 +171,12 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void checkTags(long userId, long groupId, String[] names)
+	public List<AssetTag> checkTags(long userId, long groupId, String[] names)
 		throws PortalException {
 
 		Group group = groupPersistence.findByPrimaryKey(groupId);
 
-		checkTags(userId, group, names);
+		return checkTags(userId, group, names);
 	}
 
 	@Override
@@ -206,11 +199,12 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		List<AssetTag> tags = getGroupTags(groupId);
 
 		for (AssetTag tag : tags) {
-			deleteTag(tag);
+			assetTagLocalService.deleteTag(tag);
 		}
 	}
 
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public void deleteTag(AssetTag tag) throws PortalException {
 
 		// Entries
@@ -237,7 +231,12 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	public void deleteTag(long tagId) throws PortalException {
 		AssetTag tag = assetTagPersistence.findByPrimaryKey(tagId);
 
-		deleteTag(tag);
+		assetTagLocalService.deleteTag(tag);
+	}
+
+	@Override
+	public AssetTag fetchTag(long groupId, String name) {
+		return assetTagPersistence.fetchByG_N(groupId, name);
 	}
 
 	@Override
@@ -310,47 +309,41 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	}
 
 	@Override
-	public long[] getTagIds(long groupId, String[] names)
-		throws PortalException {
-
+	public long[] getTagIds(long groupId, String[] names) {
 		List<Long> tagIds = new ArrayList<>(names.length);
 
 		for (String name : names) {
-			try {
-				AssetTag tag = getTag(groupId, name);
+			AssetTag tag = fetchTag(groupId, name);
 
-				tagIds.add(tag.getTagId());
+			if (tag == null) {
+				continue;
 			}
-			catch (NoSuchTagException nste) {
-			}
+
+			tagIds.add(tag.getTagId());
 		}
 
 		return ArrayUtil.toArray(tagIds.toArray(new Long[tagIds.size()]));
 	}
 
 	@Override
-	public long[] getTagIds(long[] groupIds, String name)
-		throws PortalException {
-
+	public long[] getTagIds(long[] groupIds, String name) {
 		List<Long> tagIds = new ArrayList<>(groupIds.length);
 
 		for (long groupId : groupIds) {
-			try {
-				AssetTag tag = getTag(groupId, name);
+			AssetTag tag = fetchTag(groupId, name);
 
-				tagIds.add(tag.getTagId());
+			if (tag == null) {
+				continue;
 			}
-			catch (NoSuchTagException nste) {
-			}
+
+			tagIds.add(tag.getTagId());
 		}
 
 		return ArrayUtil.toArray(tagIds.toArray(new Long[tagIds.size()]));
 	}
 
 	@Override
-	public long[] getTagIds(long[] groupIds, String[] names)
-		throws PortalException {
-
+	public long[] getTagIds(long[] groupIds, String[] names) {
 		long[] tagsIds = new long[0];
 
 		for (long groupId : groupIds) {
@@ -421,15 +414,14 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 	}
 
 	@Override
-	public boolean hasTag(long groupId, String name) throws PortalException {
-		try {
-			getTag(groupId, name);
+	public boolean hasTag(long groupId, String name) {
+		AssetTag tag = fetchTag(groupId, name);
 
+		if (tag != null) {
 			return true;
 		}
-		catch (NoSuchTagException nste) {
-			return false;
-		}
+
+		return false;
 	}
 
 	@Override
@@ -483,8 +475,6 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 
 		String oldName = tag.getName();
 
-		tag.setModifiedDate(new Date());
-
 		name = name.trim();
 		name = StringUtil.toLowerCase(name);
 
@@ -494,15 +484,13 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		}
 
 		if (!tag.getName().equals(name)) {
-			try {
-				AssetTag existingAssetTag = getTag(tag.getGroupId(), name);
+			AssetTag existingAssetTag = fetchTag(tag.getGroupId(), name);
 
-				if (existingAssetTag.getTagId() != tagId) {
-					throw new DuplicateTagException(
-						"A tag with the name " + name + " already exists");
-				}
-			}
-			catch (NoSuchTagException nste) {
+			if ((existingAssetTag != null) &&
+				(existingAssetTag.getTagId() != tagId)) {
+
+				throw new DuplicateTagException(
+					"A tag with the name " + name + " already exists");
 			}
 		}
 

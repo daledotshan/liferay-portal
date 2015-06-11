@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermissio
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.StagedModel;
@@ -41,6 +42,17 @@ import javax.portlet.PortletRequest;
  */
 @ProviderType
 public class ExportImportHelperUtil {
+
+	public static long[] getAllLayoutIds(long groupId, boolean privateLayout) {
+		return getExportImportHelper().getAllLayoutIds(groupId, privateLayout);
+	}
+
+	public static Map<Long, Boolean> getAllLayoutIdsMap(
+		long groupId, boolean privateLayout) {
+
+		return getExportImportHelper().getAllLayoutIdsMap(
+			groupId, privateLayout);
+	}
 
 	/**
 	 * @deprecated As of 7.0.0, moved to {@link
@@ -220,6 +232,10 @@ public class ExportImportHelperUtil {
 			portletRequest, targetGroupId);
 	}
 
+	public static ZipWriter getLayoutSetZipWriter(long groupId) {
+		return getExportImportHelper().getLayoutSetZipWriter(groupId);
+	}
+
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #getManifestSummary(PortletDataContext)}
@@ -265,6 +281,10 @@ public class ExportImportHelperUtil {
 
 		return getExportImportHelper().getModelDeletionCount(
 			portletDataContext, stagedModelType);
+	}
+
+	public static ZipWriter getPortletZipWriter(String portletId) {
+		return getExportImportHelper().getPortletZipWriter(portletId);
 	}
 
 	public static String getSelectedLayoutsJSON(
@@ -323,6 +343,17 @@ public class ExportImportHelperUtil {
 		return getExportImportHelper().replaceExportContentReferences(
 			portletDataContext, entityStagedModel, content,
 			exportReferencedContent);
+	}
+
+	public static String replaceExportContentReferences(
+			PortletDataContext portletDataContext,
+			StagedModel entityStagedModel, String content,
+			boolean exportReferencedContent, boolean escapeContent)
+		throws Exception {
+
+		return getExportImportHelper().replaceExportContentReferences(
+			portletDataContext, entityStagedModel, content,
+			exportReferencedContent, escapeContent);
 	}
 
 	/**

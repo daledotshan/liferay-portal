@@ -211,6 +211,11 @@ public abstract class BaseSeleniumImpl
 	}
 
 	@Override
+	public void assertPartialConfirmation(String pattern) throws Exception {
+		LiferaySeleniumHelper.assertPartialConfirmation(this, pattern);
+	}
+
+	@Override
 	public void assertPartialText(String locator, String pattern)
 		throws Exception {
 
@@ -327,13 +332,13 @@ public abstract class BaseSeleniumImpl
 	@Override
 	public String getFirstNumber(String locator) {
 		return _commandProcessor.getString(
-			"getFirstNumber", new String[] {locator,});
+			"getFirstNumber", new String[] {locator});
 	}
 
 	@Override
 	public String getFirstNumberIncrement(String locator) {
 		return _commandProcessor.getString(
-			"getFirstNumberIncrement", new String[] {locator,});
+			"getFirstNumberIncrement", new String[] {locator});
 	}
 
 	@Override
@@ -432,7 +437,7 @@ public abstract class BaseSeleniumImpl
 		value = RuntimeVariables.replace(value);
 
 		return _commandProcessor.getBoolean(
-			"isPartialText", new String[] {locator, value,});
+			"isPartialText", new String[] {locator, value});
 	}
 
 	@Override
@@ -733,6 +738,11 @@ public abstract class BaseSeleniumImpl
 	@Override
 	public void typeAceEditor(String locator, String value) {
 		LiferaySeleniumHelper.typeAceEditor(this, locator, value);
+	}
+
+	@Override
+	public void typeCKEditor(String locator, String value) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

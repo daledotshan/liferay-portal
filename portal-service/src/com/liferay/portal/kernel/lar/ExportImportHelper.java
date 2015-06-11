@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.DateRange;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.StagedModel;
@@ -76,6 +77,11 @@ public interface ExportImportHelper {
 
 	public static final String TEMP_FOLDER_NAME =
 		ExportImportHelper.class.getName();
+
+	public long[] getAllLayoutIds(long groupId, boolean privateLayout);
+
+	public Map<Long, Boolean> getAllLayoutIdsMap(
+		long groupId, boolean privateLayout);
 
 	/**
 	 * @deprecated As of 7.0.0, moved to {@link
@@ -182,6 +188,8 @@ public interface ExportImportHelper {
 			PortletRequest portletRequest, long targetGroupId)
 		throws PortalException;
 
+	public ZipWriter getLayoutSetZipWriter(long groupId);
+
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #getManifestSummary(PortletDataContext)}
@@ -208,6 +216,8 @@ public interface ExportImportHelper {
 			final PortletDataContext portletDataContext,
 			final StagedModelType stagedModelType)
 		throws PortalException;
+
+	public ZipWriter getPortletZipWriter(String portletId);
 
 	public String getSelectedLayoutsJSON(
 		long groupId, boolean privateLayout, String selectedNodes);
@@ -238,6 +248,12 @@ public interface ExportImportHelper {
 			PortletDataContext portletDataContext,
 			StagedModel entityStagedModel, String content,
 			boolean exportReferencedContent)
+		throws Exception;
+
+	public String replaceExportContentReferences(
+			PortletDataContext portletDataContext,
+			StagedModel entityStagedModel, String content,
+			boolean exportReferencedContent, boolean escapeContent)
 		throws Exception;
 
 	/**
