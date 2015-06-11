@@ -154,12 +154,12 @@ public class FinderCacheImpl
 	}
 
 	@Override
-	public void notifyCacheAdded(String name) {
+	public void notifyCacheAdded(String portalCacheName) {
 	}
 
 	@Override
-	public void notifyCacheRemoved(String name) {
-		_portalCaches.remove(name);
+	public void notifyCacheRemoved(String portalCacheName) {
+		_portalCaches.remove(portalCacheName);
 	}
 
 	@Override
@@ -173,8 +173,7 @@ public class FinderCacheImpl
 
 		if (!PropsValues.VALUE_OBJECT_FINDER_CACHE_ENABLED ||
 			!finderPath.isFinderCacheEnabled() ||
-			!CacheRegistryUtil.isActive() ||
-			(result == null)) {
+			!CacheRegistryUtil.isActive() || (result == null)) {
 
 			return;
 		}
