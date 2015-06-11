@@ -24,7 +24,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portal.service.OrganizationServiceUtil} service utility. The
+ * {@link OrganizationServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see OrganizationServiceHttp
  * @see com.liferay.portal.model.OrganizationSoap
- * @see com.liferay.portal.service.OrganizationServiceUtil
+ * @see OrganizationServiceUtil
  * @generated
  */
 @ProviderType
@@ -381,6 +381,20 @@ public class OrganizationServiceSoap {
 		throws RemoteException {
 		try {
 			OrganizationServiceUtil.deleteOrganization(organizationId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.model.OrganizationSoap fetchOrganization(
+		long organizationId) throws RemoteException {
+		try {
+			com.liferay.portal.model.Organization returnValue = OrganizationServiceUtil.fetchOrganization(organizationId);
+
+			return com.liferay.portal.model.OrganizationSoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

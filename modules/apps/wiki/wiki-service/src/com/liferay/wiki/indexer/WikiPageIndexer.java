@@ -14,36 +14,41 @@
 
 package com.liferay.wiki.indexer;
 
+import com.liferay.portal.kernel.comment.Comment;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.repository.capabilities.RelatedModelCapability;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.search.BaseIndexer;
+import com.liferay.portal.kernel.search.BaseRelatedEntryIndexer;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
-import com.liferay.portal.kernel.search.BooleanQuery;
-import com.liferay.portal.kernel.search.BooleanQueryFactoryUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.RelatedEntryIndexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
+import com.liferay.portal.kernel.search.filter.TermsFilter;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.wiki.service.WikiNodeServiceUtil;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
-import com.liferay.wiki.service.permission.WikiPagePermission;
+import com.liferay.wiki.service.permission.WikiPagePermissionChecker;
 import com.liferay.wiki.util.WikiUtil;
 
 import java.util.Locale;
@@ -59,10 +64,9 @@ import org.osgi.service.component.annotations.Component;
  * @author Bruno Farache
  * @author Raymond Augé
  */
-@Component(
-	immediate = true, service = Indexer.class
-)
-public class WikiPageIndexer extends BaseIndexer {
+@Component(immediate = true, service = Indexer.class)
+public class WikiPageIndexer
+	extends BaseIndexer implements RelatedEntryIndexer {
 
 	public static final String CLASS_NAME = WikiPage.class.getName();
 
@@ -76,20 +80,32 @@ public class WikiPageIndexer extends BaseIndexer {
 	}
 
 	@Override
+	public void addRelatedClassNames(
+			BooleanFilter contextBooleanFilter, SearchContext searchContext)
+		throws Exception {
+
+		_relatedEntryIndexer.addRelatedClassNames(
+			contextBooleanFilter, searchContext);
+	}
+
+	@Override
 	public void addRelatedEntryFields(Document document, Object obj)
 		throws Exception {
 
 		long classPK = 0;
 
-		if (obj instanceof DLFileEntry) {
-			DLFileEntry dlFileEntry = (DLFileEntry)obj;
+		if (obj instanceof Comment) {
+			Comment comment = (Comment)obj;
 
-			classPK = dlFileEntry.getClassPK();
+			classPK = comment.getClassPK();
 		}
-		else if (obj instanceof MBMessage) {
-			MBMessage message = (MBMessage)obj;
+		else if (obj instanceof FileEntry) {
+			FileEntry fileEntry = (FileEntry)obj;
 
-			classPK = message.getClassPK();
+			RelatedModelCapability relatedModelCapability =
+				fileEntry.getRepositoryCapability(RelatedModelCapability.class);
+
+			classPK = relatedModelCapability.getClassPK(fileEntry);
 		}
 
 		WikiPage page = null;
@@ -117,7 +133,7 @@ public class WikiPageIndexer extends BaseIndexer {
 
 		WikiPage page = WikiPageLocalServiceUtil.getPage(entryClassPK);
 
-		return WikiPagePermission.contains(
+		return WikiPagePermissionChecker.contains(
 			permissionChecker, page, ActionKeys.VIEW);
 	}
 
@@ -129,31 +145,41 @@ public class WikiPageIndexer extends BaseIndexer {
 	}
 
 	@Override
-	public void postProcessContextQuery(
-			BooleanQuery contextQuery, SearchContext searchContext)
+	public void postProcessContextBooleanFilter(
+			BooleanFilter contextBooleanFilter, SearchContext searchContext)
 		throws Exception {
 
-		addStatus(contextQuery, searchContext);
+		addStatus(contextBooleanFilter, searchContext);
 
 		long[] nodeIds = searchContext.getNodeIds();
 
 		if (ArrayUtil.isNotEmpty(nodeIds)) {
-			BooleanQuery nodeIdsQuery = BooleanQueryFactoryUtil.create(
-				searchContext);
+			TermsFilter nodesIdTermsFilter = new TermsFilter(Field.NODE_ID);
 
 			for (long nodeId : nodeIds) {
 				try {
 					WikiNodeServiceUtil.getNode(nodeId);
 				}
 				catch (Exception e) {
+					if (_log.isDebugEnabled()) {
+						_log.debug("Unable to get node " + nodeId, e);
+					}
+
 					continue;
 				}
 
-				nodeIdsQuery.addTerm(Field.NODE_ID, nodeId);
+				nodesIdTermsFilter.addValue(String.valueOf(nodeId));
 			}
 
-			contextQuery.add(nodeIdsQuery, BooleanClauseOccur.MUST);
+			if (!nodesIdTermsFilter.isEmpty()) {
+				contextBooleanFilter.add(
+					nodesIdTermsFilter, BooleanClauseOccur.MUST);
+			}
 		}
+	}
+
+	@Override
+	public void updateFullQuery(SearchContext searchContext) {
 	}
 
 	@Override
@@ -311,5 +337,11 @@ public class WikiPageIndexer extends BaseIndexer {
 
 		actionableDynamicQuery.performActions();
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		WikiPageIndexer.class);
+
+	private final RelatedEntryIndexer _relatedEntryIndexer =
+		new BaseRelatedEntryIndexer();
 
 }

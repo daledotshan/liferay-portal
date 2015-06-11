@@ -47,6 +47,11 @@ public class IndexSearcherProxyBean
 	}
 
 	@Override
+	public String getQueryString(SearchContext searchContext, Query query) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Hits search(SearchContext searchContext, Query query) {
 		throw new UnsupportedOperationException();
 	}
@@ -61,6 +66,11 @@ public class IndexSearcherProxyBean
 		String searchEngineId, long companyId, Query query, Sort[] sort,
 		int start, int end) {
 
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public long searchCount(SearchContext searchContext, Query query) {
 		throw new UnsupportedOperationException();
 	}
 
