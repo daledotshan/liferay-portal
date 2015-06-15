@@ -22,18 +22,16 @@ import com.liferay.portal.kernel.deploy.hot.HotDeployEvent;
 import com.liferay.portal.kernel.deploy.hot.HotDeployException;
 import com.liferay.portal.kernel.javadoc.JavadocManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.language.UTF8Control;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletBag;
-import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
-import com.liferay.portal.kernel.scheduler.SchedulerEntry;
-import com.liferay.portal.kernel.scheduler.StorageType;
+import com.liferay.portal.kernel.portlet.PortletBagPool;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
 import com.liferay.portal.kernel.servlet.FileTimestampUtil;
 import com.liferay.portal.kernel.servlet.PortletServlet;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.ServletContextProvider;
-import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -53,12 +51,10 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalInstances;
-import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebAppPool;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.CustomUserAttributes;
 import com.liferay.portlet.InvokerPortlet;
-import com.liferay.portlet.PortletBagFactory;
 import com.liferay.portlet.PortletContextBag;
 import com.liferay.portlet.PortletContextBagPool;
 import com.liferay.portlet.PortletFilterFactory;
@@ -190,18 +186,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			PortletURLListenerFactory.destroy(portletURLListener);
 		}
 
-		if (PropsValues.SCHEDULER_ENABLED) {
-			List<SchedulerEntry> schedulerEntries =
-				portlet.getSchedulerEntries();
-
-			if ((schedulerEntries != null) && !schedulerEntries.isEmpty()) {
-				for (SchedulerEntry schedulerEntry : schedulerEntries) {
-					SchedulerEngineHelperUtil.unschedule(
-						schedulerEntry, StorageType.MEMORY_CLUSTERED);
-				}
-			}
-		}
-
 		PortletInstanceFactoryUtil.destroy(portlet);
 
 		portletIds.add(portlet.getPortletId());
@@ -238,6 +222,11 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			_log.info("Registering portlets for " + servletContextName);
 		}
 
+		PortletContextBag portletContextBag = new PortletContextBag(
+			servletContextName);
+
+		PortletContextBagPool.put(servletContextName, portletContextBag);
+
 		List<Portlet> portlets = PortletLocalServiceUtil.initWAR(
 			servletContextName, servletContext, xmls,
 			hotDeployEvent.getPluginPackage());
@@ -247,21 +236,15 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		boolean phpPortlet = false;
 		boolean strutsBridges = false;
 
-		PortletBagFactory portletBagFactory = new PortletBagFactory();
-
 		ClassLoader classLoader = hotDeployEvent.getContextClassLoader();
-
-		portletBagFactory.setClassLoader(classLoader);
-
-		portletBagFactory.setServletContext(servletContext);
-		portletBagFactory.setWARFile(true);
 
 		Iterator<Portlet> itr = portlets.iterator();
 
 		while (itr.hasNext()) {
 			Portlet portlet = itr.next();
 
-			PortletBag portletBag = portletBagFactory.create(portlet);
+			PortletBag portletBag = PortletBagPool.get(
+				portlet.getRootPortletId());
 
 			if (!portletAppInitialized) {
 				initPortletApp(
@@ -369,7 +352,6 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 		DirectServletRegistryUtil.clearServlets();
 		FileTimestampUtil.reset();
-		SettingsFactoryUtil.clearCache();
 
 		_portlets.put(servletContextName, portlets);
 
@@ -462,10 +444,8 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			ClassLoader classLoader, Portlet portlet)
 		throws Exception {
 
-		PortletContextBag portletContextBag = new PortletContextBag(
+		PortletContextBag portletContextBag = PortletContextBagPool.get(
 			servletContextName);
-
-		PortletContextBagPool.put(servletContextName, portletContextBag);
 
 		PortletApp portletApp = portlet.getPortletApp();
 
@@ -559,11 +539,10 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 			"language.bundle");
 
 		if (Validator.isNotNull(languageBundleName)) {
-			Locale[] locales = LanguageUtil.getAvailableLocales();
-
-			for (Locale locale : locales) {
+			for (Locale locale : LanguageUtil.getAvailableLocales()) {
 				ResourceBundle resourceBundle = ResourceBundle.getBundle(
-					languageBundleName, locale, classLoader);
+					languageBundleName, locale, classLoader,
+					UTF8Control.INSTANCE);
 
 				PortletResourceBundles.put(
 					servletContextName, LocaleUtil.toLanguageId(locale),

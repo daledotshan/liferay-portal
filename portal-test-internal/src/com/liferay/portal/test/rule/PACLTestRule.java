@@ -16,7 +16,6 @@ package com.liferay.portal.test.rule;
 
 import com.liferay.portal.deploy.hot.HookHotDeployListener;
 import com.liferay.portal.deploy.hot.IndexerPostProcessorRegistry;
-import com.liferay.portal.deploy.hot.SchedulerEntryRegistry;
 import com.liferay.portal.deploy.hot.ServiceWrapperRegistry;
 import com.liferay.portal.kernel.deploy.hot.DependencyManagementThreadLocal;
 import com.liferay.portal.kernel.deploy.hot.HotDeployEvent;
@@ -48,8 +47,6 @@ import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.naming.Context;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -234,28 +231,17 @@ public class PACLTestRule implements TestRule {
 		"com.liferay.portal.security.pacl.test.";
 
 	static {
-		URL resource = PACLTestRule.class.getResource("pacl-test.properties");
-
-		if (resource != null) {
-			System.setProperty("external-properties", resource.getPath());
-		}
-
-		System.setProperty(
-			Context.INITIAL_CONTEXT_FACTORY,
-			"org.apache.naming.java.javaURLContextFactory");
-
-		System.setProperty("catalina.base", ".");
-
 		List<String> configLocations = ListUtil.fromArray(
 			PropsUtil.getArray(PropsKeys.SPRING_CONFIGS));
 
 		InitUtil.initWithSpring(configLocations, true);
 
+		ServiceTestUtil.initMainServletServices();
+		ServiceTestUtil.initStaticServices();
 		ServiceTestUtil.initServices();
 		ServiceTestUtil.initPermissions();
 
 		new IndexerPostProcessorRegistry();
-		new SchedulerEntryRegistry();
 		new ServiceWrapperRegistry();
 	}
 

@@ -24,7 +24,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
 import com.liferay.portlet.dynamicdatamapping.RequiredStructureException;
 import com.liferay.portlet.dynamicdatamapping.StructureDefinitionException;
 import com.liferay.portlet.dynamicdatamapping.StructureDuplicateElementException;
@@ -33,6 +32,7 @@ import com.liferay.portlet.dynamicdatamapping.StructureNameException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
+import com.liferay.portlet.dynamicdatamapping.service.test.BaseDDMServiceTestCase;
 import com.liferay.portlet.dynamicdatamapping.storage.StorageType;
 import com.liferay.portlet.dynamicdatamapping.util.comparator.StructureIdComparator;
 
@@ -43,6 +43,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * @author Eduardo Garcia
@@ -57,7 +59,7 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 
 	@BeforeClass
 	public static void setUpClass() {
-		_CLASS_NAME_ID = PortalUtil.getClassNameId(DDLRecordSet.class);
+		_CLASS_NAME_ID = PortalUtil.getClassNameId(StringUtil.randomString());
 	}
 
 	@Test
@@ -187,8 +189,8 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 		DDMStructure copyStructure = copyStructure(structure);
 
 		Assert.assertEquals(structure.getGroupId(), copyStructure.getGroupId());
-		Assert.assertEquals(
-			structure.getDefinition(), copyStructure.getDefinition());
+		JSONAssert.assertEquals(
+			structure.getDefinition(), copyStructure.getDefinition(), false);
 		Assert.assertEquals(
 			structure.getStorageType(), copyStructure.getStorageType());
 		Assert.assertEquals(structure.getType(), copyStructure.getType());
@@ -206,21 +208,19 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 				structure.getStructureId()));
 	}
 
-	@Test
+	@Test(
+		expected =
+			RequiredStructureException.
+				MustNotDeleteStructureReferencedByTemplates.class
+	)
 	public void testDeleteStructureReferencedByTemplates() throws Exception {
 		DDMStructure structure = addStructure(_CLASS_NAME_ID, "Test Structure");
 
 		addDisplayTemplate(structure.getPrimaryKey(), "Test Display Template");
 		addFormTemplate(structure.getPrimaryKey(), "Test Form Template");
 
-		try {
-			DDMStructureLocalServiceUtil.deleteStructure(
-				structure.getStructureId());
-
-			Assert.fail();
-		}
-		catch (RequiredStructureException rse) {
-		}
+		DDMStructureLocalServiceUtil.deleteStructure(
+			structure.getStructureId());
 	}
 
 	@Test
@@ -272,7 +272,7 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testSearchByDescription() throws Exception {
-		addStructure(_CLASS_NAME_ID, StringUtil.randomString(),  "Contact");
+		addStructure(_CLASS_NAME_ID, StringUtil.randomString(), "Contact");
 		addStructure(_CLASS_NAME_ID, StringUtil.randomString(), "Event");
 
 		List<DDMStructure> structures = DDMStructureLocalServiceUtil.search(
@@ -318,7 +318,7 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testSearchByNameAndDescription() throws Exception {
-		addStructure(_CLASS_NAME_ID, "Contact",  "Contact");
+		addStructure(_CLASS_NAME_ID, "Contact", "Contact");
 		addStructure(_CLASS_NAME_ID, "Event", "Event");
 
 		List<DDMStructure> structures = DDMStructureLocalServiceUtil.search(
@@ -332,7 +332,7 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 
 	@Test
 	public void testSearchByNameOrDescription() throws Exception {
-		addStructure(_CLASS_NAME_ID, "Contact",  "Contact");
+		addStructure(_CLASS_NAME_ID, "Contact", "Contact");
 		addStructure(_CLASS_NAME_ID, "Event", "Event");
 
 		List<DDMStructure> structures = DDMStructureLocalServiceUtil.search(
@@ -420,9 +420,10 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 		throws Exception {
 
 		return DDMStructureLocalServiceUtil.updateStructure(
-			structure.getStructureId(), structure.getParentStructureId(),
-			structure.getNameMap(), structure.getDescriptionMap(),
-			structure.getDDMForm(), structure.getDDMFormLayout(),
+			structure.getUserId(), structure.getStructureId(),
+			structure.getParentStructureId(), structure.getNameMap(),
+			structure.getDescriptionMap(), structure.getDDMForm(),
+			structure.getDDMFormLayout(),
 			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
 	}
 

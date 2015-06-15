@@ -1,0 +1,37 @@
+buildscript {
+	repositories {
+		mavenLocal()
+
+		maven {
+			url "http://cdn.repository.liferay.com/nexus/content/groups/public"
+		}
+	}
+
+	dependencies {
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.poshi.runner", version: "latest.release"
+	}
+}
+
+apply plugin: "com.liferay.poshi.runner"
+
+poshiRunner {
+	baseDir = file("test/functional")
+
+	if (project.hasProperty("seleniumLoggerEnabled")) {
+		poshiProperty "selenium.logger.enabled", project.properties["seleniumLoggerEnabled"]
+	}
+
+	if (project.hasProperty("testCaseAvailablePropertyNames")) {
+		poshiProperty "test.case.available.property.names", project.properties["testCaseAvailablePropertyNames"]
+	}
+
+	version = "1.0.4"
+}
+
+repositories {
+	mavenLocal()
+
+	maven {
+		url "http://cdn.repository.liferay.com/nexus/content/groups/public"
+	}
+}

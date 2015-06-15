@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.BaseIndexer;
-import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
@@ -27,6 +26,7 @@ import com.liferay.portal.kernel.search.FolderIndexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -65,7 +65,7 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 
 	@Override
 	public String[] getFolderClassNames() {
-		return new String[]{CLASS_NAME};
+		return new String[] {CLASS_NAME};
 	}
 
 	@Override
@@ -82,11 +82,11 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 	}
 
 	@Override
-	public void postProcessContextQuery(
-			BooleanQuery contextQuery, SearchContext searchContext)
+	public void postProcessContextBooleanFilter(
+			BooleanFilter contextBooleanFilter, SearchContext searchContext)
 		throws Exception {
 
-		addStatus(contextQuery, searchContext);
+		addStatus(contextBooleanFilter, searchContext);
 	}
 
 	@Override
@@ -173,15 +173,23 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 			new ActionableDynamicQuery.PerformActionMethod() {
 
 				@Override
-				public void performAction(Object object)
-					throws PortalException {
-
+				public void performAction(Object object) {
 					JournalFolder folder = (JournalFolder)object;
 
-					Document document = getDocument(folder);
+					try {
+						Document document = getDocument(folder);
 
-					if (document != null) {
-						actionableDynamicQuery.addDocument(document);
+						if (document != null) {
+							actionableDynamicQuery.addDocument(document);
+						}
+					}
+					catch (PortalException pe) {
+						if (_log.isWarnEnabled()) {
+							_log.warn(
+								"Unable to index journal folder " +
+									folder.getFolderId(),
+								pe);
+						}
 					}
 				}
 
