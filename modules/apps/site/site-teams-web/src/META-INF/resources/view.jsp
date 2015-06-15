@@ -23,6 +23,10 @@ String backURL = ParamUtil.getString(request, "backURL", redirect);
 
 Group group = ActionUtil.getGroup(renderRequest);
 
+if (group.isStagingGroup()) {
+	group = group.getLiveGroup();
+}
+
 long groupId = group.getGroupId();
 
 Organization organization = null;
