@@ -31,9 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Eudaldo Alonso
  */
-@Component(
-	immediate = true, service = AssetCategoriesAdminWebUpgrade.class
-)
+@Component(immediate = true, service = AssetCategoriesAdminWebUpgrade.class)
 public class AssetCategoriesAdminWebUpgrade {
 
 	@Reference(unbind = "-")
@@ -65,7 +63,7 @@ public class AssetCategoriesAdminWebUpgrade {
 
 		_releaseLocalService.updateRelease(
 			"com.liferay.asset.categories.admin.web",
-			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 0,
+			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 1,
 			false);
 	}
 

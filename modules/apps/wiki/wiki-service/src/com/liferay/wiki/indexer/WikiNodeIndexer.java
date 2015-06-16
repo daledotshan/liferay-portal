@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.BaseIndexer;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
@@ -32,7 +34,7 @@ import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.service.WikiNodeLocalServiceUtil;
-import com.liferay.wiki.service.permission.WikiNodePermission;
+import com.liferay.wiki.service.permission.WikiNodePermissionChecker;
 
 import java.util.Locale;
 
@@ -44,9 +46,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Eudaldo Alonso
  */
-@Component(
-	immediate = true, service = Indexer.class
-)
+@Component(immediate = true, service = Indexer.class)
 public class WikiNodeIndexer extends BaseIndexer {
 
 	public static final String CLASS_NAME = WikiNode.class.getName();
@@ -72,7 +72,7 @@ public class WikiNodeIndexer extends BaseIndexer {
 
 		WikiNode node = WikiNodeLocalServiceUtil.getNode(entryClassPK);
 
-		return WikiNodePermission.contains(
+		return WikiNodePermissionChecker.contains(
 			permissionChecker, node, ActionKeys.VIEW);
 	}
 
@@ -166,14 +166,21 @@ public class WikiNodeIndexer extends BaseIndexer {
 			new ActionableDynamicQuery.PerformActionMethod() {
 
 				@Override
-				public void performAction(Object object)
-					throws PortalException {
-
+				public void performAction(Object object) {
 					WikiNode node = (WikiNode)object;
 
-					Document document = getDocument(node);
+					try {
+						Document document = getDocument(node);
 
-					actionableDynamicQuery.addDocument(document);
+						actionableDynamicQuery.addDocument(document);
+					}
+					catch (PortalException pe) {
+						if (_log.isWarnEnabled()) {
+							_log.warn(
+								"Unable to index wiki node " + node.getNodeId(),
+								pe);
+						}
+					}
 				}
 
 			});
@@ -181,5 +188,8 @@ public class WikiNodeIndexer extends BaseIndexer {
 
 		actionableDynamicQuery.performActions();
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		WikiNodeIndexer.class);
 
 }
