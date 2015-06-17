@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.journal.lar;
 
-import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
 import com.liferay.portlet.journal.model.JournalArticle;
 
 /**
@@ -31,7 +31,6 @@ import com.liferay.portlet.journal.model.JournalArticle;
  * </p>
  *
  * @author Joel Kozikowski
- * @see    com.liferay.portlet.journal.lar.JournalPortletDataHandler
  */
 public class JournalCreationStrategyImpl implements JournalCreationStrategy {
 

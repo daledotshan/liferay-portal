@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.portlet.bridges.mvc;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortlet;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -55,7 +56,7 @@ public class MVCPortlet extends LiferayPortlet {
 	public void destroy() {
 		super.destroy();
 
-		_actionCommandCache.close();
+		_mvcActionCommandCache.close();
 	}
 
 	@Override
@@ -189,12 +190,11 @@ public class MVCPortlet extends LiferayPortlet {
 		clearRequestParameters = GetterUtil.getBoolean(
 			getInitParameter("clear-request-parameters"));
 		copyRequestParameters = GetterUtil.getBoolean(
-			getInitParameter("copy-request-parameters"));
+			getInitParameter("copy-request-parameters"), true);
 
-		String packagePrefix = getInitParameter(
-			ActionCommandCache.ACTION_PACKAGE_NAME);
+		String packagePrefix = getInitParameter("action.package.prefix");
 
-		_actionCommandCache = new ActionCommandCache(
+		_mvcActionCommandCache = new MVCActionCommandCache(
 			packagePrefix, getPortletName());
 	}
 
@@ -270,21 +270,21 @@ public class MVCPortlet extends LiferayPortlet {
 			actionRequest, ActionRequest.ACTION_NAME);
 
 		if (!actionName.contains(StringPool.COMMA)) {
-			ActionCommand actionCommand = _actionCommandCache.getActionCommand(
-				actionName);
+			MVCActionCommand mvcActionCommand =
+				_mvcActionCommandCache.getMVCActionCommand(actionName);
 
-			if (actionCommand != ActionCommandCache.EMPTY) {
-				return actionCommand.processCommand(
+			if (mvcActionCommand != MVCActionCommandCache.EMPTY) {
+				return mvcActionCommand.processAction(
 					actionRequest, actionResponse);
 			}
 		}
 		else {
-			List<ActionCommand> actionCommands =
-				_actionCommandCache.getActionCommandChain(actionName);
+			List<MVCActionCommand> mvcActionCommands =
+				_mvcActionCommandCache.getMVCActionCommandChain(actionName);
 
-			if (!actionCommands.isEmpty()) {
-				for (ActionCommand actionCommand : actionCommands) {
-					if (!actionCommand.processCommand(
+			if (!mvcActionCommands.isEmpty()) {
+				for (MVCActionCommand mvcActionCommand : mvcActionCommands) {
+					if (!mvcActionCommand.processAction(
 							actionRequest, actionResponse)) {
 
 						return false;
@@ -314,21 +314,21 @@ public class MVCPortlet extends LiferayPortlet {
 			resourceRequest, ActionRequest.ACTION_NAME);
 
 		if (!actionName.contains(StringPool.COMMA)) {
-			ActionCommand actionCommand = _actionCommandCache.getActionCommand(
-				actionName);
+			MVCActionCommand mvcActionCommand =
+				_mvcActionCommandCache.getMVCActionCommand(actionName);
 
-			if (actionCommand != ActionCommandCache.EMPTY) {
-				return actionCommand.processCommand(
+			if (mvcActionCommand != MVCActionCommandCache.EMPTY) {
+				return mvcActionCommand.processAction(
 					resourceRequest, resourceResponse);
 			}
 		}
 		else {
-			List<ActionCommand> actionCommands =
-				_actionCommandCache.getActionCommandChain(actionName);
+			List<MVCActionCommand> mvcActionCommands =
+				_mvcActionCommandCache.getMVCActionCommandChain(actionName);
 
-			if (!actionCommands.isEmpty()) {
-				for (ActionCommand actionCommand : actionCommands) {
-					if (!actionCommand.processCommand(
+			if (!mvcActionCommands.isEmpty()) {
+				for (MVCActionCommand mvcActionCommand : mvcActionCommands) {
+					if (!mvcActionCommand.processAction(
 							resourceRequest, resourceResponse)) {
 
 						return false;
@@ -395,6 +395,20 @@ public class MVCPortlet extends LiferayPortlet {
 		}
 
 		return mvcPath;
+	}
+
+	protected void hideDefaultErrorMessage(PortletRequest portletRequest) {
+		SessionMessages.add(
+			portletRequest,
+			PortalUtil.getPortletId(portletRequest) +
+				SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_ERROR_MESSAGE);
+	}
+
+	protected void hideDefaultSuccessMessage(PortletRequest portletRequest) {
+		SessionMessages.add(
+			portletRequest,
+			PortalUtil.getPortletId(portletRequest) +
+				SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
 	}
 
 	protected void include(
@@ -495,6 +509,6 @@ public class MVCPortlet extends LiferayPortlet {
 
 	private static final Log _log = LogFactoryUtil.getLog(MVCPortlet.class);
 
-	private ActionCommandCache _actionCommandCache;
+	private MVCActionCommandCache _mvcActionCommandCache;
 
 }

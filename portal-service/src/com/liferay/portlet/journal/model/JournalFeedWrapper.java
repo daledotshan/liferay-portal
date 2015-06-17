@@ -16,9 +16,10 @@ package com.liferay.portlet.journal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -254,7 +255,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	* @return the create date of this journal feed
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _journalFeed.getCreateDate();
 	}
 
@@ -369,7 +370,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	* @return the modified date of this journal feed
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _journalFeed.getModifiedDate();
 	}
 
@@ -561,7 +562,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	* @param createDate the create date of this journal feed
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_journalFeed.setCreateDate(createDate);
 	}
 
@@ -690,7 +691,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	* @param modifiedDate the modified date of this journal feed
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_journalFeed.setModifiedDate(modifiedDate);
 	}
 

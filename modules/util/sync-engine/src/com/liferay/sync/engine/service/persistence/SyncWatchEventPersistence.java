@@ -16,6 +16,7 @@ package com.liferay.sync.engine.service.persistence;
 
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 
 import com.liferay.sync.engine.model.SyncWatchEvent;
@@ -51,7 +52,26 @@ public class SyncWatchEventPersistence
 
 		where.eq("syncAccountId", syncAccountId);
 
-		delete(deleteBuilder.prepare());
+		deleteBuilder.delete();
+	}
+
+	public SyncWatchEvent fetchByE_F_T(
+			String eventType, String filePathName, long timestamp)
+		throws SQLException {
+
+		QueryBuilder<SyncWatchEvent, Long> queryBuilder = queryBuilder();
+
+		queryBuilder.limit(1L);
+
+		Where<SyncWatchEvent, Long> where = queryBuilder.where();
+
+		where.eq("eventType", eventType);
+		where.eq("filePathName", new SelectArg(filePathName));
+		where.between("timestamp", timestamp - 1000, timestamp + 1000);
+
+		where.and(3);
+
+		return where.queryForFirst();
 	}
 
 	public List<SyncWatchEvent> findBySyncAccountId(long syncAccountId)
@@ -59,13 +79,29 @@ public class SyncWatchEventPersistence
 
 		QueryBuilder<SyncWatchEvent, Long> queryBuilder = queryBuilder();
 
+		queryBuilder.orderBy("fileType", false);
+
 		Where<SyncWatchEvent, Long> where = queryBuilder.where();
 
 		where.eq("syncAccountId", syncAccountId);
 
-		queryBuilder.orderBy("fileType", false);
+		return where.query();
+	}
 
-		return query(queryBuilder.prepare());
+	public List<SyncWatchEvent> findBySyncAccountId(
+			long syncAccountId, String orderByColumn, boolean ascending)
+		throws SQLException {
+
+		QueryBuilder<SyncWatchEvent, Long> queryBuilder = queryBuilder();
+
+		queryBuilder.orderBy("fileType", false);
+		queryBuilder.orderBy(orderByColumn, ascending);
+
+		Where<SyncWatchEvent, Long> where = queryBuilder.where();
+
+		where.eq("syncAccountId", syncAccountId);
+
+		return where.query();
 	}
 
 }
