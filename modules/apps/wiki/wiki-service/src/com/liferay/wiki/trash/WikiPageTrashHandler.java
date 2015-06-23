@@ -45,8 +45,8 @@ import com.liferay.wiki.model.WikiPageResource;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.wiki.service.WikiPageResourceLocalServiceUtil;
 import com.liferay.wiki.service.WikiPageServiceUtil;
-import com.liferay.wiki.service.permission.WikiNodePermission;
-import com.liferay.wiki.service.permission.WikiPagePermission;
+import com.liferay.wiki.service.permission.WikiNodePermissionChecker;
+import com.liferay.wiki.service.permission.WikiPagePermissionChecker;
 import com.liferay.wiki.util.WikiPageAttachmentsUtil;
 
 import java.util.ArrayList;
@@ -55,12 +55,18 @@ import java.util.List;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * Implements trash handling for the wiki page entity.
  *
  * @author Eudaldo Alonso
  * @author Roberto Díaz
  */
+@Component(
+	property = {"model.class.name=com.liferay.wiki.model.WikiPage"},
+	service = TrashHandler.class
+)
 public class WikiPageTrashHandler extends BaseWikiTrashHandler {
 
 	@Override
@@ -272,14 +278,14 @@ public class WikiPageTrashHandler extends BaseWikiTrashHandler {
 				classPK, WorkflowConstants.STATUS_ANY, true);
 
 			if (page != null) {
-				WikiPagePermission.check(
+				WikiPagePermissionChecker.check(
 					permissionChecker, page.getNodeId(), page.getTitle(),
 					ActionKeys.DELETE);
 
 				classPK = page.getNodeId();
 			}
 
-			return WikiNodePermission.contains(
+			return WikiNodePermissionChecker.contains(
 				permissionChecker, classPK, ActionKeys.ADD_PAGE);
 		}
 
@@ -460,7 +466,7 @@ public class WikiPageTrashHandler extends BaseWikiTrashHandler {
 			PermissionChecker permissionChecker, long classPK, String actionId)
 		throws PortalException {
 
-		return WikiPagePermission.contains(
+		return WikiPagePermissionChecker.contains(
 			permissionChecker, classPK, actionId);
 	}
 

@@ -17,11 +17,12 @@ package com.liferay.bookmarks.trash;
 import com.liferay.bookmarks.model.BookmarksEntry;
 import com.liferay.bookmarks.service.BookmarksEntryLocalServiceUtil;
 import com.liferay.bookmarks.service.BookmarksFolderLocalServiceUtil;
-import com.liferay.bookmarks.service.permission.BookmarksEntryPermission;
-import com.liferay.bookmarks.service.permission.BookmarksFolderPermission;
+import com.liferay.bookmarks.service.permission.BookmarksEntryPermissionChecker;
+import com.liferay.bookmarks.service.permission.BookmarksFolderPermissionChecker;
 import com.liferay.bookmarks.util.BookmarksUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
+import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -31,12 +32,18 @@ import com.liferay.portlet.trash.model.TrashEntry;
 
 import javax.portlet.PortletRequest;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * Represents the trash handler for bookmarks entries entity.
  *
  * @author Levente Hudák
  * @author Zsolt Berentey
  */
+@Component(
+	property = {"model.class.name=com.liferay.bookmarks.model.BookmarksEntry"},
+	service = TrashHandler.class
+)
 public class BookmarksEntryTrashHandler extends BookmarksBaseTrashHandler {
 
 	@Override
@@ -108,7 +115,7 @@ public class BookmarksEntryTrashHandler extends BookmarksBaseTrashHandler {
 		throws PortalException {
 
 		if (trashActionId.equals(TrashActionKeys.MOVE)) {
-			return BookmarksFolderPermission.contains(
+			return BookmarksFolderPermissionChecker.contains(
 				permissionChecker, groupId, classPK, ActionKeys.ADD_ENTRY);
 		}
 
@@ -184,7 +191,7 @@ public class BookmarksEntryTrashHandler extends BookmarksBaseTrashHandler {
 
 		BookmarksEntry entry = BookmarksEntryLocalServiceUtil.getEntry(classPK);
 
-		return BookmarksEntryPermission.contains(
+		return BookmarksEntryPermissionChecker.contains(
 			permissionChecker, entry, actionId);
 	}
 

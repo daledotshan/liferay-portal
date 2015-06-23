@@ -32,9 +32,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * @author Miguel Pastor
  */
-@Component(
-	immediate = true, service = PollsServiceUpgrade.class
-)
+@Component(immediate = true, service = PollsServiceUpgrade.class)
 public class PollsServiceUpgrade {
 
 	@Reference(
@@ -63,7 +61,7 @@ public class PollsServiceUpgrade {
 		upgradeProcesses.add(new UpgradeClassNames());
 
 		_releaseLocalService.updateRelease(
-			"com.liferay.polls.service", upgradeProcesses, 1, 0, false);
+			"com.liferay.polls.service", upgradeProcesses, 1, 1, false);
 	}
 
 	private ReleaseLocalService _releaseLocalService;

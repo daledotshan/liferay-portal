@@ -17,10 +17,11 @@ package com.liferay.bookmarks.trash;
 import com.liferay.bookmarks.asset.BookmarksFolderAssetRenderer;
 import com.liferay.bookmarks.model.BookmarksFolder;
 import com.liferay.bookmarks.service.BookmarksFolderLocalServiceUtil;
-import com.liferay.bookmarks.service.permission.BookmarksFolderPermission;
+import com.liferay.bookmarks.service.permission.BookmarksFolderPermissionChecker;
 import com.liferay.bookmarks.util.BookmarksUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
+import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -30,11 +31,17 @@ import com.liferay.portlet.trash.model.TrashEntry;
 
 import javax.portlet.PortletRequest;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * Represents the trash handler for bookmarks folder entity.
  *
  * @author Eudaldo Alonso
  */
+@Component(
+	property = {"model.class.name=com.liferay.bookmarks.model.BookmarksFolder"},
+	service = TrashHandler.class
+)
 public class BookmarksFolderTrashHandler extends BookmarksBaseTrashHandler {
 
 	@Override
@@ -120,7 +127,7 @@ public class BookmarksFolderTrashHandler extends BookmarksBaseTrashHandler {
 		throws PortalException {
 
 		if (trashActionId.equals(TrashActionKeys.MOVE)) {
-			return BookmarksFolderPermission.contains(
+			return BookmarksFolderPermissionChecker.contains(
 				permissionChecker, groupId, classPK, ActionKeys.ADD_FOLDER);
 		}
 
@@ -207,7 +214,7 @@ public class BookmarksFolderTrashHandler extends BookmarksBaseTrashHandler {
 
 		BookmarksFolder folder = getBookmarksFolder(classPK);
 
-		return BookmarksFolderPermission.contains(
+		return BookmarksFolderPermissionChecker.contains(
 			permissionChecker, folder, actionId);
 	}
 
