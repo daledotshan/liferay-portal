@@ -124,6 +124,8 @@ public class ConfigurationImpl
 	@Override
 	public void clearCache() {
 		_values.clear();
+
+		_properties = null;
 	}
 
 	@Override
@@ -275,13 +277,8 @@ public class ConfigurationImpl
 		Properties componentPropertiesProperties =
 			componentProperties.getProperties();
 
-		for (Map.Entry<Object, Object> entry :
-				componentPropertiesProperties.entrySet()) {
-
-			String key = (String)entry.getKey();
-			String value = (String)entry.getValue();
-
-			_properties.setProperty(key, value);
+		for (String key : componentPropertiesProperties.stringPropertyNames()) {
+			_properties.setProperty(key, componentProperties.getString(key));
 		}
 
 		return _properties;

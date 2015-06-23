@@ -34,7 +34,7 @@ import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
-import com.liferay.wiki.service.permission.WikiNodePermission;
+import com.liferay.wiki.service.permission.WikiNodePermissionChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +42,18 @@ import java.util.List;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * Implements trash handling for the wiki node entity.
  *
  * @author Eudaldo Alonso
  * @author Roberto Díaz
  */
+@Component(
+	property = {"model.class.name=com.liferay.wiki.model.WikiNode"},
+	service = TrashHandler.class
+)
 public class WikiNodeTrashHandler extends BaseWikiTrashHandler {
 
 	@Override
@@ -248,7 +254,7 @@ public class WikiNodeTrashHandler extends BaseWikiTrashHandler {
 			PermissionChecker permissionChecker, long classPK, String actionId)
 		throws PortalException {
 
-		return WikiNodePermission.contains(
+		return WikiNodePermissionChecker.contains(
 			permissionChecker, classPK, actionId);
 	}
 

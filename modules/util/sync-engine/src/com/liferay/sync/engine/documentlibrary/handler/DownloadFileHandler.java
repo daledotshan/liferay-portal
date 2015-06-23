@@ -15,6 +15,7 @@
 package com.liferay.sync.engine.documentlibrary.handler;
 
 import com.liferay.sync.engine.documentlibrary.event.Event;
+import com.liferay.sync.engine.documentlibrary.util.FileEventUtil;
 import com.liferay.sync.engine.filesystem.Watcher;
 import com.liferay.sync.engine.filesystem.util.WatcherRegistry;
 import com.liferay.sync.engine.model.SyncAccount;
@@ -23,6 +24,7 @@ import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.service.SyncFileService;
 import com.liferay.sync.engine.session.Session;
 import com.liferay.sync.engine.session.SessionManager;
+import com.liferay.sync.engine.util.FileKeyUtil;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.IODeltaUtil;
 import com.liferay.sync.engine.util.StreamUtil;
@@ -87,7 +89,56 @@ public class DownloadFileHandler extends BaseHandler {
 
 		SyncFile syncFile = getLocalSyncFile();
 
-		SyncFileService.deleteSyncFile(syncFile, false);
+		if ((Boolean)getParameterValue("patch")) {
+			FileEventUtil.downloadFile(getSyncAccountId(), syncFile);
+		}
+		else {
+			SyncFileService.deleteSyncFile(syncFile, false);
+		}
+	}
+
+	@Override
+	public boolean handlePortalException(String exception) throws Exception {
+		SyncFile syncFile = getLocalSyncFile();
+
+		if (_logger.isDebugEnabled()) {
+			_logger.debug(
+				"Handling exception {} file path {}", exception,
+				syncFile.getFilePathName());
+		}
+
+		if (exception.equals(
+				"com.liferay.portal.security.auth.PrincipalException")) {
+
+			syncFile.setState(SyncFile.STATE_ERROR);
+			syncFile.setUiEvent(SyncFile.UI_EVENT_INVALID_PERMISSIONS);
+
+			SyncFileService.update(syncFile);
+
+			return true;
+		}
+		else if (exception.equals(
+					"com.liferay.portlet.documentlibrary." +
+						"NoSuchFileVersionException") &&
+				 (Boolean)getParameterValue("patch")) {
+
+			FileEventUtil.downloadFile(getSyncAccountId(), syncFile, false);
+
+			return true;
+		}
+		else if (exception.equals(
+					"com.liferay.portlet.documentlibrary." +
+						"NoSuchFileEntryException") ||
+				 exception.equals(
+					 "com.liferay.portlet.documentlibrary." +
+						 "NoSuchFileException")) {
+
+			SyncFileService.deleteSyncFile(syncFile, false);
+
+			return true;
+		}
+
+		return super.handlePortalException(exception);
 	}
 
 	protected void copyFile(
@@ -98,8 +149,6 @@ public class DownloadFileHandler extends BaseHandler {
 
 		List<String> downloadedFilePathNames =
 			watcher.getDownloadedFilePathNames();
-
-		downloadedFilePathNames.add(filePath.toString());
 
 		try {
 			SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
@@ -135,8 +184,8 @@ public class DownloadFileHandler extends BaseHandler {
 				syncFile.setUiEvent(SyncFile.UI_EVENT_DOWNLOADED_NEW);
 			}
 
-			FileUtil.writeFileKey(
-				tempFilePath, String.valueOf(syncFile.getSyncFileId()));
+			FileKeyUtil.writeFileKey(
+				tempFilePath, String.valueOf(syncFile.getSyncFileId()), false);
 
 			FileUtil.setModifiedTime(tempFilePath, syncFile.getModifiedTime());
 
@@ -154,6 +203,8 @@ public class DownloadFileHandler extends BaseHandler {
 			downloadedFilePathNames.remove(filePath.toString());
 
 			String message = fse.getMessage();
+
+			_logger.error(message, fse);
 
 			if (message.contains("File name too long")) {
 				syncFile.setState(SyncFile.STATE_ERROR);
@@ -216,8 +267,24 @@ public class DownloadFileHandler extends BaseHandler {
 	protected boolean isUnsynced(SyncFile syncFile) {
 		syncFile = SyncFileService.fetchSyncFile(syncFile.getSyncFileId());
 
-		if ((syncFile == null) ||
-			(syncFile.getState() == SyncFile.STATE_UNSYNCED)) {
+		if (syncFile.getState() == SyncFile.STATE_UNSYNCED) {
+			_logger.debug(
+				"Skipping file {}. File is unsynced.", syncFile.getName());
+
+			return true;
+		}
+
+		Path filePath = Paths.get(syncFile.getFilePathName());
+
+		if (Files.notExists(filePath.getParent())) {
+			_logger.debug(
+				"Skipping file {}. Missing parent file path {}.",
+				syncFile.getName(), filePath.getParent());
+
+			syncFile.setState(SyncFile.STATE_ERROR);
+			syncFile.setUiEvent(SyncFile.UI_EVENT_PARENT_MISSING);
+
+			SyncFileService.update(syncFile);
 
 			return true;
 		}
