@@ -16,7 +16,6 @@ package com.liferay.portlet.asset.service.persistence;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -120,8 +119,7 @@ public class AssetEntryQuery {
 	}
 
 	public AssetEntryQuery(
-			long[] classNameIds, SearchContainer<?> searchContainer)
-		throws PortalException {
+		long[] classNameIds, SearchContainer<?> searchContainer) {
 
 		this();
 
@@ -157,8 +155,8 @@ public class AssetEntryQuery {
 		}
 	}
 
-	public AssetEntryQuery(String className, SearchContainer<?> searchContainer)
-		throws PortalException {
+	public AssetEntryQuery(
+		String className, SearchContainer<?> searchContainer) {
 
 		this(
 			new long[] {PortalUtil.getClassNameId(className)}, searchContainer);
@@ -460,7 +458,7 @@ public class AssetEntryQuery {
 		_toString = null;
 	}
 
-	public void setListable(boolean listable) {
+	public void setListable(Boolean listable) {
 		_listable = listable;
 	}
 
@@ -705,7 +703,7 @@ public class AssetEntryQuery {
 	private String _keywords;
 	private Layout _layout;
 	private long _linkedAssetEntryId = 0;
-	private boolean _listable = true;
+	private Boolean _listable = true;
 	private long[] _notAllCategoryIds = new long[0];
 	private long[] _notAllTagIds = new long[0];
 	private long[][] _notAllTagIdsArray = new long[0][];
