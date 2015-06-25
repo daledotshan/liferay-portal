@@ -51,10 +51,10 @@ CKEDITOR.dialog.add(
 
 										var val = instance.getValue();
 
-										var address = val;
+										var address = val.toString().trim();
 
-										if (val.indexOf('www.') === 0) {
-											address = 'http://' + val;
+										if (!address.match('://')) {
+											address = 'http://' + address;
 										}
 
 										data.address = address;
