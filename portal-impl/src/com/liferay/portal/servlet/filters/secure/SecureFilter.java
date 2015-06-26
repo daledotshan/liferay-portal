@@ -16,6 +16,7 @@ package com.liferay.portal.servlet.filters.secure;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.access.control.AccessControlUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.ProtectedServletRequest;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -31,7 +32,6 @@ import com.liferay.portal.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.security.permission.PermissionThreadLocal;
-import com.liferay.portal.security.sso.SSOUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
 import com.liferay.portal.util.Portal;
@@ -192,17 +192,28 @@ public class SecureFilter extends BasePortalFilter {
 
 		User user = (User)session.getAttribute(WebKeys.USER);
 
+		initThreadLocals(user);
+
+		PrincipalThreadLocal.setPassword(PortalUtil.getUserPassword(request));
+	}
+
+	protected void initThreadLocals(User user) throws Exception {
 		CompanyThreadLocal.setCompanyId(user.getCompanyId());
 
 		PrincipalThreadLocal.setName(user.getUserId());
-		PrincipalThreadLocal.setPassword(PortalUtil.getUserPassword(request));
 
 		if (!_usePermissionChecker) {
 			return;
 		}
 
 		PermissionChecker permissionChecker =
-			PermissionCheckerFactoryUtil.create(user);
+			PermissionThreadLocal.getPermissionChecker();
+
+		if (permissionChecker != null) {
+			return;
+		}
+
+		permissionChecker = PermissionCheckerFactoryUtil.create(user);
 
 		PermissionThreadLocal.setPermissionChecker(permissionChecker);
 	}
@@ -215,7 +226,7 @@ public class SecureFilter extends BasePortalFilter {
 
 		String remoteAddr = request.getRemoteAddr();
 
-		if (SSOUtil.isAccessAllowed(request, _hostsAllowed)) {
+		if (AccessControlUtil.isAccessAllowed(request, _hostsAllowed)) {
 			if (_log.isDebugEnabled()) {
 				_log.debug("Access allowed for " + remoteAddr);
 			}
@@ -276,7 +287,13 @@ public class SecureFilter extends BasePortalFilter {
 
 			User user = PortalUtil.getUser(request);
 
-			if ((user != null) && !user.isDefaultUser()) {
+			if (user == null) {
+				user = PortalUtil.initUser(request);
+			}
+
+			initThreadLocals(user);
+
+			if (!user.isDefaultUser()) {
 				request = setCredentials(
 					request, request.getSession(), user.getUserId(), null);
 			}

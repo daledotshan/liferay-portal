@@ -63,7 +63,17 @@ IPGeocoder ipGeocoder = (IPGeocoder)request.getAttribute(SocialNetworkingWebKeys
 	</c:otherwise>
 </c:choose>
 
-<script src="http://maps.googleapis.com/maps/api/js?key=<%= PortletProps.get("map.google.maps.api.key") %>&language=<%= themeDisplay.getLanguageId() %>&sensor=false" type="text/javascript"></script>
+<%
+String apiKey = GetterUtil.getString(group.getLiveParentTypeSettingsProperty("googleMapsAPIKey"));
+
+if (Validator.isNull(apiKey)) {
+	PortletPreferences companyPortletPreferences = PrefsPropsUtil.getPreferences(themeDisplay.getCompanyId());
+
+	apiKey = GetterUtil.getString(companyPortletPreferences.getValue("googleMapsAPIKey", null));
+}
+%>
+
+<script src="http://maps.googleapis.com/maps/api/js?key=<%= apiKey %>&language=<%= themeDisplay.getLanguageId() %>&sensor=false" type="text/javascript"></script>
 
 <aui:script>
 	function <portlet:namespace />initMap() {
@@ -88,7 +98,7 @@ IPGeocoder ipGeocoder = (IPGeocoder)request.getAttribute(SocialNetworkingWebKeys
 		if (siteProfileMap) {
 			LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
-			userParams.put("usersGroups", new Long(group.getGroupId()));
+			userParams.put("usersGroups", Long.valueOf(group.getGroupId()));
 
 			users = UserLocalServiceUtil.search(company.getCompanyId(), null, WorkflowConstants.STATUS_APPROVED, userParams, 0, 50, new UserLoginDateComparator());
 		}
@@ -98,7 +108,7 @@ IPGeocoder ipGeocoder = (IPGeocoder)request.getAttribute(SocialNetworkingWebKeys
 		else if (organizationProfileMap) {
 			LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
-			userParams.put("usersOrgs", new Long(organization.getOrganizationId()));
+			userParams.put("usersOrgs", Long.valueOf(organization.getOrganizationId()));
 
 			users = UserLocalServiceUtil.search(company.getCompanyId(), null, WorkflowConstants.STATUS_APPROVED, userParams, 0, 50, new UserLoginDateComparator());
 		}

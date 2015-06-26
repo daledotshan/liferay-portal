@@ -77,6 +77,8 @@ public interface LiferaySelenium extends Selenium {
 
 	public void assertNotVisible(String locator) throws Exception;
 
+	public void assertPartialConfirmation(String pattern) throws Exception;
+
 	public void assertPartialText(String locator, String pattern)
 		throws Exception;
 
@@ -269,6 +271,8 @@ public interface LiferaySelenium extends Selenium {
 	public void stopLogger();
 
 	public void typeAceEditor(String locator, String value);
+
+	public void typeCKEditor(String locator, String value);
 
 	public void typeFrame(String locator, String value);
 

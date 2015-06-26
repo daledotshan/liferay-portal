@@ -15,12 +15,14 @@
 package com.liferay.wiki.upgrade;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.service.ReleaseLocalService;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradeClassNames;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradePortletId;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradePortletPreferences;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradePortletSettings;
+import com.liferay.wiki.upgrade.v1_0_0.UpgradeWikiPageResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +36,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * @author Iván Zaera
  */
-@Component(
-	immediate = true, service = WikiServiceUpgrade.class
-)
+@Component(immediate = true, service = WikiServiceUpgrade.class)
 public class WikiServiceUpgrade {
 
 	@Reference(
@@ -56,6 +56,11 @@ public class WikiServiceUpgrade {
 		_releaseLocalService = releaseLocalService;
 	}
 
+	@Reference(unbind = "-")
+	protected void setSettingsFactory(SettingsFactory settingsFactory) {
+		_settingsFactory = settingsFactory;
+	}
+
 	@Activate
 	protected void upgrade() throws PortalException {
 		List<UpgradeProcess> upgradeProcesses = new ArrayList<>();
@@ -65,12 +70,14 @@ public class WikiServiceUpgrade {
 		upgradeProcesses.add(new UpgradePortletPreferences());
 
 		upgradeProcesses.add(new UpgradeClassNames());
-		upgradeProcesses.add(new UpgradePortletSettings());
+		upgradeProcesses.add(new UpgradePortletSettings(_settingsFactory));
+		upgradeProcesses.add(new UpgradeWikiPageResource());
 
 		_releaseLocalService.updateRelease(
-			"com.liferay.wiki.service", upgradeProcesses, 1, 0, false);
+			"com.liferay.wiki.service", upgradeProcesses, 1, 1, false);
 	}
 
 	private ReleaseLocalService _releaseLocalService;
+	private SettingsFactory _settingsFactory;
 
 }
