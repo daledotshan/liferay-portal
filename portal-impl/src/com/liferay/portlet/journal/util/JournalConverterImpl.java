@@ -45,7 +45,7 @@ import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 import com.liferay.portlet.dynamicdatamapping.util.DDMFieldsCounter;
 import com.liferay.portlet.dynamicdatamapping.util.DDMImpl;
 import com.liferay.portlet.dynamicdatamapping.util.DDMUtil;
-import com.liferay.portlet.dynamicdatamapping.util.DDMXMLUtil;
+import com.liferay.util.xml.XMLUtil;
 
 import java.io.Serializable;
 
@@ -143,7 +143,7 @@ public class JournalConverterImpl implements JournalConverter {
 			}
 		}
 
-		return DDMXMLUtil.formatXML(document.asXML());
+		return XMLUtil.formatXML(document.asXML());
 	}
 
 	@Override
@@ -207,7 +207,7 @@ public class JournalConverterImpl implements JournalConverter {
 				dynamicElementElement, defaultLocale.toString());
 		}
 
-		return DDMXMLUtil.formatXML(document);
+		return XMLUtil.formatXML(document);
 	}
 
 	@Override
@@ -229,7 +229,7 @@ public class JournalConverterImpl implements JournalConverter {
 				dynamicElementElement, defaultLanguageId);
 		}
 
-		return DDMXMLUtil.formatXML(document);
+		return XMLUtil.formatXML(document);
 	}
 
 	protected void addDDMFields(
@@ -608,6 +608,8 @@ public class JournalConverterImpl implements JournalConverter {
 		String fieldType = ddmStructure.getFieldType(fieldName);
 		String indexType = ddmStructure.getFieldProperty(
 			fieldName, "indexType");
+		boolean multiple = GetterUtil.getBoolean(
+			ddmStructure.getFieldProperty(fieldName, "multiple"));
 
 		String type = _ddmTypesToJournalTypes.get(fieldType);
 
@@ -648,7 +650,8 @@ public class JournalConverterImpl implements JournalConverter {
 				String valueString = String.valueOf(fieldValue);
 
 				updateDynamicContentValue(
-					dynamicContentElement, fieldType, valueString.trim());
+					dynamicContentElement, fieldType, multiple,
+					valueString.trim());
 			}
 		}
 
@@ -751,7 +754,8 @@ public class JournalConverterImpl implements JournalConverter {
 	}
 
 	protected void updateDynamicContentValue(
-			Element dynamicContentElement, String fieldType, String fieldValue)
+			Element dynamicContentElement, String fieldType, boolean multiple,
+			String fieldValue)
 		throws Exception {
 
 		if (DDMImpl.TYPE_CHECKBOX.equals(fieldType)) {
@@ -821,8 +825,8 @@ public class JournalConverterImpl implements JournalConverter {
 
 			JSONArray jsonArray = JSONFactoryUtil.createJSONArray(fieldValue);
 
-			if (jsonArray.length() > 1) {
-				for (int i = 0; i <jsonArray.length(); i++) {
+			if (multiple) {
+				for (int i = 0; i < jsonArray.length(); i++) {
 					Element optionElement = dynamicContentElement.addElement(
 						"option");
 
