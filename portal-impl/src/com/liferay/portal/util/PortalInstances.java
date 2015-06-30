@@ -43,7 +43,6 @@ import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.VirtualHostLocalServiceUtil;
-import com.liferay.portlet.journal.service.JournalContentSearchLocalServiceUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -211,7 +210,7 @@ public class PortalInstances {
 			_log.debug("Set company id " + companyId);
 		}
 
-		request.setAttribute(WebKeys.COMPANY_ID, new Long(companyId));
+		request.setAttribute(WebKeys.COMPANY_ID, Long.valueOf(companyId));
 
 		CompanyThreadLocal.setCompanyId(companyId);
 
@@ -465,25 +464,6 @@ public class PortalInstances {
 			}
 			catch (Exception e) {
 				_log.error(e, e);
-			}
-
-			// Check journal content search
-
-			if (_log.isDebugEnabled()) {
-				_log.debug("Check journal content search");
-			}
-
-			if (GetterUtil.getBoolean(
-					PropsUtil.get(
-						PropsKeys.JOURNAL_SYNC_CONTENT_SEARCH_ON_STARTUP))) {
-
-				try {
-					JournalContentSearchLocalServiceUtil.checkContentSearches(
-						companyId);
-				}
-				catch (Exception e) {
-					_log.error(e, e);
-				}
 			}
 
 			// LDAP import

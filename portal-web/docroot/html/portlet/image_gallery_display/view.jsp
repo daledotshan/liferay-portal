@@ -61,7 +61,7 @@ String[] mediaGalleryMimeTypes = dlPortletInstanceSettings.getMimeTypes();
 List fileEntries = DLAppServiceUtil.getGroupFileEntries(scopeGroupId, 0, folderId, mediaGalleryMimeTypes, status, 0, SearchContainer.MAX_DELTA, null);
 %>
 
-<liferay-ui:ddm-template-renderer contextObjects="<%= contextObjects %>" displayStyle="<%= displayStyle %>" displayStyleGroupId="<%= displayStyleGroupId %>" entries="<%= fileEntries %>">
+<liferay-ui:ddm-template-renderer className="<%= FileEntry.class.getName() %>" contextObjects="<%= contextObjects %>" displayStyle="<%= displayStyle %>" displayStyleGroupId="<%= displayStyleGroupId %>" entries="<%= fileEntries %>">
 
 	<%
 	String topLink = ParamUtil.getString(request, "topLink", "home");
@@ -92,7 +92,14 @@ List fileEntries = DLAppServiceUtil.getGroupFileEntries(scopeGroupId, 0, folderI
 	request.setAttribute("view.jsp-portletURL", portletURL);
 	%>
 
-	<liferay-ui:trash-undo />
+	<portlet:actionURL var="restoreTrashEntriesURL">
+		<portlet:param name="struts_action" value="/image_gallery_display/edit_entry" />
+		<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.RESTORE %>" />
+	</portlet:actionURL>
+
+	<liferay-ui:trash-undo
+		portletURL="<%= restoreTrashEntriesURL %>"
+	/>
 
 	<liferay-util:include page="/html/portlet/document_library/top_links.jsp" />
 
@@ -106,10 +113,11 @@ List fileEntries = DLAppServiceUtil.getGroupFileEntries(scopeGroupId, 0, folderI
 			<%
 			SearchContainer searchContainer = new SearchContainer(renderRequest, null, null, "cur2", SearchContainer.DEFAULT_DELTA, portletURL, null, null);
 
-			long[] classNameIds = {PortalUtil.getClassNameId(DLFileEntryConstants.getClassName()), PortalUtil.getClassNameId(DLFileShortcut.class.getName())};
+			long[] classNameIds = {PortalUtil.getClassNameId(DLFileEntryConstants.getClassName()), PortalUtil.getClassNameId(DLFileShortcutConstants.getClassName())};
 
 			AssetEntryQuery assetEntryQuery = new AssetEntryQuery(classNameIds, searchContainer);
 
+			assetEntryQuery.setEnablePermissions(true);
 			assetEntryQuery.setExcludeZeroViewCount(false);
 
 			int total = AssetEntryServiceUtil.getEntriesCount(assetEntryQuery);

@@ -644,7 +644,7 @@ public class UsersAdminImpl implements UsersAdmin {
 		for (int i = 0; i < organizations.size(); i++) {
 			Organization organization = organizations.get(i);
 
-			organizationIds[i] = new Long(organization.getOrganizationId());
+			organizationIds[i] = Long.valueOf(organization.getOrganizationId());
 		}
 
 		return organizationIds;
@@ -1205,7 +1205,9 @@ public class UsersAdminImpl implements UsersAdmin {
 			PropsKeys.FIELD_EDITABLE_DOMAINS, new Filter(field));
 
 		for (String domainName : fieldEditableDomainNames) {
-			if (emailAddress.endsWith(domainName)) {
+			if (domainName.equals(StringPool.STAR) ||
+				emailAddress.endsWith(domainName)) {
+
 				return true;
 			}
 		}
