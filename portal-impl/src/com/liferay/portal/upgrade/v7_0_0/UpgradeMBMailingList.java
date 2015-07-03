@@ -15,26 +15,31 @@
 package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.upgrade.v7_0_0.util.EmailAddressTable;
+import com.liferay.portal.upgrade.v7_0_0.util.MBMailingListTable;
 
 import java.sql.SQLException;
 
 /**
- * @author Brian Wing Shun Chan
+ * @author Bejond Shao
  */
-public class UpgradeEmailAddress extends UpgradeProcess {
+public class UpgradeMBMailingList extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
 		try {
-			runSQL("alter_column_type EmailAddress typeId LONG");
-			runSQL("alter_column_type EmailAddress address VARCHAR(254) null");
+			runSQL(
+				"alter_column_type MBMailingList emailAddress " +
+				"VARCHAR(254) null");
+
+			runSQL(
+				"alter_column_type MBMailingList outEmailAddress " +
+				"VARCHAR(254) null");
 		}
 		catch (SQLException sqle) {
 			upgradeTable(
-				EmailAddressTable.TABLE_NAME, EmailAddressTable.TABLE_COLUMNS,
-				EmailAddressTable.TABLE_SQL_CREATE,
-				EmailAddressTable.TABLE_SQL_ADD_INDEXES);
+				MBMailingListTable.TABLE_NAME, MBMailingListTable.TABLE_COLUMNS,
+				MBMailingListTable.TABLE_SQL_CREATE,
+				MBMailingListTable.TABLE_SQL_ADD_INDEXES);
 		}
 	}
 

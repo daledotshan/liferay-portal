@@ -40,6 +40,13 @@ public class UpgradeShopping extends UpgradeProcess {
 
 		try {
 			runSQL("alter_column_type ShoppingOrder comments TEXT null");
+			runSQL(
+				"alter_column_type ShoppingOrder billingEmailAddress " +
+				"VARCHAR(254) null");
+
+			runSQL(
+				"alter_column_type ShoppingOrder shippingEmailAddress " +
+				"VARCHAR(254) null");
 		}
 		catch (SQLException sqle) {
 			upgradeTable(
