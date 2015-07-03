@@ -15,6 +15,8 @@
 package com.liferay.portal.upgrade.v7_0_0.util;
 
 import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author	  Brian Wing Shun Chan
