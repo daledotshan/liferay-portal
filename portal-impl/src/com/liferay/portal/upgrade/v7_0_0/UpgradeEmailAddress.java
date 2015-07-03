@@ -28,6 +28,7 @@ public class UpgradeEmailAddress extends UpgradeProcess {
 	protected void doUpgrade() throws Exception {
 		try {
 			runSQL("alter_column_type EmailAddress typeId LONG");
+			runSQL("alter_column_type EmailAddress address VARCHAR(254) null");
 		}
 		catch (SQLException sqle) {
 			upgradeTable(

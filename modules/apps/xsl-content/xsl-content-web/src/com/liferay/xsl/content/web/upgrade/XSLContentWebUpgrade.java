@@ -31,9 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Raymond Augé
  */
-@Component(
-	immediate = true, service = XSLContentWebUpgrade.class
-)
+@Component(immediate = true, service = XSLContentWebUpgrade.class)
 public class XSLContentWebUpgrade {
 
 	@Reference(unbind = "-")
@@ -62,7 +60,7 @@ public class XSLContentWebUpgrade {
 
 		_releaseLocalService.updateRelease(
 			"com.liferay.xsl.content.web",
-			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 0,
+			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 1,
 			false);
 	}
 

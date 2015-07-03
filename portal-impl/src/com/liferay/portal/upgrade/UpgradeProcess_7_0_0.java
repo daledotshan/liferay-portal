@@ -34,12 +34,14 @@ import com.liferay.portal.upgrade.v7_0_0.UpgradeJournal;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeJournalArticleType;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeJournalDisplayPreferences;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeListType;
-import com.liferay.portal.upgrade.v7_0_0.UpgradeLock;
+import com.liferay.portal.upgrade.v7_0_0.UpgradeMBMailingList;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeMembershipRequest;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeMessageBoards;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeOrgLabor;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeOrganization;
 import com.liferay.portal.upgrade.v7_0_0.UpgradePhone;
+import com.liferay.portal.upgrade.v7_0_0.UpgradePortalPreferences;
+import com.liferay.portal.upgrade.v7_0_0.UpgradePortletDisplayTemplatePreferences;
 import com.liferay.portal.upgrade.v7_0_0.UpgradePortletSettings;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeRatings;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeRepositoryEntry;
@@ -47,6 +49,7 @@ import com.liferay.portal.upgrade.v7_0_0.UpgradeSchema;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeShopping;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeShoppingPreferences;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeSubscription;
+import com.liferay.portal.upgrade.v7_0_0.UpgradeUser;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeWebsite;
 
 /**
@@ -80,17 +83,20 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 		upgrade(UpgradeJournalDisplayPreferences.class);
 		upgrade(UpgradeJournalArticleType.class);
 		upgrade(UpgradeListType.class);
-		upgrade(UpgradeLock.class);
+		upgrade(UpgradeMBMailingList.class);
 		upgrade(UpgradeMembershipRequest.class);
 		upgrade(UpgradeMessageBoards.class);
 		upgrade(UpgradeOrganization.class);
 		upgrade(UpgradeOrgLabor.class);
 		upgrade(UpgradePhone.class);
+		upgrade(UpgradePortalPreferences.class);
+		upgrade(UpgradePortletDisplayTemplatePreferences.class);
 		upgrade(UpgradeRatings.class);
 		upgrade(UpgradeRepositoryEntry.class);
 		upgrade(UpgradeShopping.class);
 		upgrade(UpgradeShoppingPreferences.class);
 		upgrade(UpgradeSubscription.class);
+		upgrade(UpgradeUser.class);
 		upgrade(UpgradeWebsite.class);
 
 		// This must be the last upgrade process. Otherwise, upgrades based on

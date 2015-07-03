@@ -15,6 +15,7 @@
 package com.liferay.portlet.portletdisplaytemplate.util;
 
 import com.liferay.portal.kernel.bean.ClassLoaderBeanHandler;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -122,7 +123,7 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 				Group liveGroup = group.getLiveGroup();
 
 				if (!liveGroup.isStagedPortlet(
-						PortletKeys.PORTLET_DISPLAY_TEMPLATES)) {
+						PortletKeys.PORTLET_DISPLAY_TEMPLATE)) {
 
 					return liveGroup.getGroupId();
 				}
@@ -140,7 +141,7 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 	}
 
 	@Override
-	public String getDDMTemplateUuid(String displayStyle) {
+	public String getDDMTemplateKey(String displayStyle) {
 		if (!displayStyle.startsWith(DISPLAY_STYLE_PREFIX)) {
 			return null;
 		}
@@ -148,6 +149,77 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 		return displayStyle.substring(DISPLAY_STYLE_PREFIX.length());
 	}
 
+	@Deprecated
+	@Override
+	public String getDDMTemplateUuid(String displayStyle) {
+		return getDDMTemplateKey(displayStyle);
+	}
+
+	@Override
+	public DDMTemplate getDefaultPortletDisplayTemplateDDMTemplate(
+		long groupId, long classNameId) {
+
+		TemplateHandler templateHandler =
+			TemplateHandlerRegistryUtil.getTemplateHandler(classNameId);
+
+		if ((templateHandler == null) ||
+			(templateHandler.getDefaultTemplateKey() == null)) {
+
+			return null;
+		}
+
+		return getPortletDisplayTemplateDDMTemplate(
+			groupId, classNameId,
+			getDisplayStyle(templateHandler.getDefaultTemplateKey()));
+	}
+
+	@Override
+	public String getDisplayStyle(String ddmTemplateKey) {
+		return DISPLAY_STYLE_PREFIX + ddmTemplateKey;
+	}
+
+	@Override
+	public DDMTemplate getPortletDisplayTemplateDDMTemplate(
+		long groupId, long classNameId, String displayStyle) {
+
+		return getPortletDisplayTemplateDDMTemplate(
+			groupId, classNameId, displayStyle, false);
+	}
+
+	@Override
+	public DDMTemplate getPortletDisplayTemplateDDMTemplate(
+		long groupId, long classNameId, String displayStyle,
+		boolean useDefault) {
+
+		long portletDisplayDDMTemplateGroupId = getDDMTemplateGroupId(groupId);
+
+		DDMTemplate portletDisplayDDMTemplate = null;
+
+		if (displayStyle.startsWith(DISPLAY_STYLE_PREFIX)) {
+			String ddmTemplateKey = getDDMTemplateKey(displayStyle);
+
+			if (Validator.isNotNull(ddmTemplateKey)) {
+				try {
+					portletDisplayDDMTemplate =
+						DDMTemplateLocalServiceUtil.fetchTemplate(
+							portletDisplayDDMTemplateGroupId, classNameId,
+							ddmTemplateKey, true);
+				}
+				catch (PortalException e) {
+				}
+			}
+		}
+
+		if ((portletDisplayDDMTemplate == null) && useDefault) {
+			portletDisplayDDMTemplate =
+				getDefaultPortletDisplayTemplateDDMTemplate(
+					groupId, classNameId);
+		}
+
+		return portletDisplayDDMTemplate;
+	}
+
+	@Deprecated
 	@Override
 	public long getPortletDisplayTemplateDDMTemplateId(
 		long groupId, String displayStyle) {
@@ -267,24 +339,27 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 	@Override
 	public String renderDDMTemplate(
 			HttpServletRequest request, HttpServletResponse response,
-			long ddmTemplateId, List<?> entries)
+			DDMTemplate ddmTemplate, List<?> entries)
 		throws Exception {
 
 		Map<String, Object> contextObjects = new HashMap<>();
 
 		return renderDDMTemplate(
-			request, response, ddmTemplateId, entries, contextObjects);
+			request, response, ddmTemplate, entries, contextObjects);
 	}
 
 	@Override
 	public String renderDDMTemplate(
 			HttpServletRequest request, HttpServletResponse response,
-			long ddmTemplateId, List<?> entries,
+			DDMTemplate ddmTemplate, List<?> entries,
 			Map<String, Object> contextObjects)
 		throws Exception {
 
+		Transformer transformer = TransformerHolder.getTransformer();
+
 		contextObjects.put(
-			PortletDisplayTemplateConstants.TEMPLATE_ID, ddmTemplateId);
+			PortletDisplayTemplateConstants.TEMPLATE_ID,
+			ddmTemplate.getTemplateId());
 		contextObjects.put(PortletDisplayTemplateConstants.ENTRIES, entries);
 
 		if (!entries.isEmpty()) {
@@ -309,22 +384,22 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 		contextObjects.put(
 			PortletDisplayTemplateConstants.RENDER_RESPONSE, renderResponse);
 
-		PortletURL currentURL = PortletURLUtil.getCurrent(
-			renderRequest, renderResponse);
+		if ((renderRequest != null) && (renderResponse != null)) {
+			PortletURL currentURL = PortletURLUtil.getCurrent(
+				renderRequest, renderResponse);
 
-		contextObjects.put(
-			PortletDisplayTemplateConstants.CURRENT_URL, currentURL.toString());
+			contextObjects.put(
+				PortletDisplayTemplateConstants.CURRENT_URL,
+				currentURL.toString());
+		}
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		contextObjects.put(
 			PortletDisplayTemplateConstants.THEME_DISPLAY, themeDisplay);
 
 		// Custom context objects
-
-		DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(
-			ddmTemplateId);
 
 		contextObjects.put(
 			TemplateConstants.CLASS_NAME_ID, ddmTemplate.getClassNameId());
@@ -338,29 +413,8 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 			TemplateHandlerRegistryUtil.getTemplateHandler(
 				ddmTemplate.getClassNameId());
 
-		if (templateHandler instanceof BasePortletDisplayTemplateHandler) {
-			BasePortletDisplayTemplateHandler portletDisplayTemplateHandler =
-				(BasePortletDisplayTemplateHandler)templateHandler;
-
-			Map<String, Object> customContextObjects =
-				portletDisplayTemplateHandler.getCustomContextObjects();
-
-			for (String variableName : customContextObjects.keySet()) {
-				if (contextObjects.containsKey(variableName)) {
-					continue;
-				}
-
-				Object object = customContextObjects.get(variableName);
-
-				if (object instanceof Class) {
-					templateManager.addStaticClassSupport(
-						contextObjects, variableName, (Class<?>)object);
-				}
-				else {
-					contextObjects.put(variableName, object);
-				}
-			}
-		}
+		templateManager.addContextObjects(
+			contextObjects, templateHandler.getCustomContextObjects());
 
 		// Taglibs
 
@@ -386,11 +440,39 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 
 		contextObjects.put(TemplateConstants.WRITER, unsyncStringWriter);
 
-		contextObjects.putAll(_getPortletPreferences(renderRequest));
+		if (renderRequest != null) {
+			contextObjects.putAll(_getPortletPreferences(renderRequest));
+		}
 
-		return _transformer.transform(
+		return transformer.transform(
 			themeDisplay, contextObjects, ddmTemplate.getScript(), language,
 			unsyncStringWriter);
+	}
+
+	@Override
+	public String renderDDMTemplate(
+			HttpServletRequest request, HttpServletResponse response,
+			long ddmTemplateId, List<?> entries)
+		throws Exception {
+
+		Map<String, Object> contextObjects = new HashMap<>();
+
+		return renderDDMTemplate(
+			request, response, ddmTemplateId, entries, contextObjects);
+	}
+
+	@Override
+	public String renderDDMTemplate(
+			HttpServletRequest request, HttpServletResponse response,
+			long ddmTemplateId, List<?> entries,
+			Map<String, Object> contextObjects)
+		throws Exception {
+
+		DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.getTemplate(
+			ddmTemplateId);
+
+		return renderDDMTemplate(
+			request, response, ddmTemplate, entries, contextObjects);
 	}
 
 	private Map<String, Object> _getPortletPreferences(
@@ -427,7 +509,15 @@ public class PortletDisplayTemplateImpl implements PortletDisplayTemplate {
 	private static final Log _log = LogFactoryUtil.getLog(
 		PortletDisplayTemplateImpl.class);
 
-	private final Transformer _transformer = new Transformer(
-		PropsKeys.DYNAMIC_DATA_LISTS_ERROR_TEMPLATE, true);
+	private static class TransformerHolder {
+
+		public static Transformer getTransformer() {
+			return _transformer;
+		}
+
+		private static final Transformer _transformer = new Transformer(
+			PropsKeys.PORTLET_DISPLAY_TEMPLATES_ERROR, true);
+
+	}
 
 }
