@@ -232,6 +232,11 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public void assertPartialConfirmation(String pattern) throws Exception {
+		LiferaySeleniumHelper.assertPartialConfirmation(this, pattern);
+	}
+
+	@Override
 	public void assertPartialText(String locator, String pattern)
 		throws Exception {
 
@@ -797,6 +802,11 @@ public abstract class BaseWebDriverImpl
 		webElement.sendKeys(Keys.chord(Keys.CONTROL, Keys.SHIFT, Keys.END));
 
 		webElement.sendKeys(Keys.DELETE);
+	}
+
+	@Override
+	public void typeCKEditor(String locator, String value) {
+		WebDriverHelper.typeCKEditor(this, locator, value);
 	}
 
 	@Override

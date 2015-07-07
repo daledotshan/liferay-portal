@@ -59,12 +59,12 @@ public class AssetCategoryLocalServiceTest {
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup();
 
-		_blogsIndexer = IndexerRegistryUtil.getIndexer(BlogsEntry.class);
+		_blogsEntryIndexer = IndexerRegistryUtil.getIndexer(BlogsEntry.class);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		IndexerRegistryUtil.register(_blogsIndexer);
+		IndexerRegistryUtil.register(_blogsEntryIndexer);
 	}
 
 	@Test
@@ -79,12 +79,14 @@ public class AssetCategoryLocalServiceTest {
 
 		AssetVocabulary assetVocabulary =
 			AssetVocabularyLocalServiceUtil.addVocabulary(
-				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-				titleMap, null, null, serviceContext);
+				TestPropsValues.getUserId(), _group.getGroupId(),
+				RandomTestUtil.randomString(), titleMap, null, null,
+				serviceContext);
 
 		AssetCategory assetCategory = AssetCategoryLocalServiceUtil.addCategory(
-			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-			assetVocabulary.getVocabularyId(), serviceContext);
+			TestPropsValues.getUserId(), _group.getGroupId(),
+			RandomTestUtil.randomString(), assetVocabulary.getVocabularyId(),
+			serviceContext);
 
 		serviceContext.setAssetCategoryIds(
 			new long[] {assetCategory.getCategoryId()});
@@ -93,17 +95,17 @@ public class AssetCategoryLocalServiceTest {
 			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), serviceContext);
 
-		AssetTestIndexer assetTestIndexer = new AssetTestIndexer();
+		TestAssetIndexer testAssetIndexer = new TestAssetIndexer();
 
-		assetTestIndexer.setExpectedValues(
+		testAssetIndexer.setExpectedValues(
 			BlogsEntry.class.getName(), blogsEntry.getEntryId());
 
-		IndexerRegistryUtil.register(assetTestIndexer);
+		IndexerRegistryUtil.register(testAssetIndexer);
 
 		AssetCategoryLocalServiceUtil.deleteCategory(assetCategory, true);
 	}
 
-	private Indexer _blogsIndexer;
+	private Indexer<BlogsEntry> _blogsEntryIndexer;
 
 	@DeleteAfterTestRun
 	private Group _group;

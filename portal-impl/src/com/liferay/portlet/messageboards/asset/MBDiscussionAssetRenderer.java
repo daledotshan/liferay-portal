@@ -24,10 +24,9 @@ import com.liferay.portlet.messageboards.model.MBMessage;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Jorge Ferrer
@@ -39,6 +38,24 @@ public class MBDiscussionAssetRenderer extends MBMessageAssetRenderer {
 		super(message);
 
 		_message = message;
+	}
+
+	@Override
+	public String getJspPath(HttpServletRequest request, String template) {
+		if (template.equals(TEMPLATE_ABSTRACT) ||
+			template.equals(TEMPLATE_FULL_CONTENT)) {
+
+			return "/html/portlet/message_boards/asset/discussion_" +
+				template + ".jsp";
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public int getStatus() {
+		return _message.getStatus();
 	}
 
 	@Override
@@ -75,24 +92,14 @@ public class MBDiscussionAssetRenderer extends MBMessageAssetRenderer {
 	}
 
 	@Override
-	public String render(
-			RenderRequest renderRequest, RenderResponse renderResponse,
+	public boolean include(
+			HttpServletRequest request, HttpServletResponse response,
 			String template)
 		throws Exception {
 
-		if (template.equals(TEMPLATE_ABSTRACT) ||
-			template.equals(TEMPLATE_FULL_CONTENT)) {
+		request.setAttribute(WebKeys.MESSAGE_BOARDS_MESSAGE, _message);
 
-			renderRequest.setAttribute(
-				WebKeys.MESSAGE_BOARDS_MESSAGE, _message);
-
-			return
-				"/html/portlet/message_boards/asset/discussion_" + template +
-					".jsp";
-		}
-		else {
-			return null;
-		}
+		return super.include(request, response, template);
 	}
 
 	private final MBMessage _message;

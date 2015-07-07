@@ -40,11 +40,13 @@ public class DDMTemplateSoap implements Serializable {
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setUserId(model.getUserId());
 		soapModel.setUserName(model.getUserName());
+		soapModel.setVersionUserId(model.getVersionUserId());
+		soapModel.setVersionUserName(model.getVersionUserName());
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
 		soapModel.setClassNameId(model.getClassNameId());
 		soapModel.setClassPK(model.getClassPK());
-		soapModel.setSourceClassNameId(model.getSourceClassNameId());
+		soapModel.setResourceClassNameId(model.getResourceClassNameId());
 		soapModel.setTemplateKey(model.getTemplateKey());
 		soapModel.setVersion(model.getVersion());
 		soapModel.setName(model.getName());
@@ -157,6 +159,22 @@ public class DDMTemplateSoap implements Serializable {
 		_userName = userName;
 	}
 
+	public long getVersionUserId() {
+		return _versionUserId;
+	}
+
+	public void setVersionUserId(long versionUserId) {
+		_versionUserId = versionUserId;
+	}
+
+	public String getVersionUserName() {
+		return _versionUserName;
+	}
+
+	public void setVersionUserName(String versionUserName) {
+		_versionUserName = versionUserName;
+	}
+
 	public Date getCreateDate() {
 		return _createDate;
 	}
@@ -189,12 +207,12 @@ public class DDMTemplateSoap implements Serializable {
 		_classPK = classPK;
 	}
 
-	public long getSourceClassNameId() {
-		return _sourceClassNameId;
+	public long getResourceClassNameId() {
+		return _resourceClassNameId;
 	}
 
-	public void setSourceClassNameId(long sourceClassNameId) {
-		_sourceClassNameId = sourceClassNameId;
+	public void setResourceClassNameId(long resourceClassNameId) {
+		_resourceClassNameId = resourceClassNameId;
 	}
 
 	public String getTemplateKey() {
@@ -307,11 +325,13 @@ public class DDMTemplateSoap implements Serializable {
 	private long _companyId;
 	private long _userId;
 	private String _userName;
+	private long _versionUserId;
+	private String _versionUserName;
 	private Date _createDate;
 	private Date _modifiedDate;
 	private long _classNameId;
 	private long _classPK;
-	private long _sourceClassNameId;
+	private long _resourceClassNameId;
 	private String _templateKey;
 	private String _version;
 	private String _name;
