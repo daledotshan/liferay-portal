@@ -1443,7 +1443,7 @@ public class PortalImpl implements Portal {
 	public String getCDNHostHttp(long companyId) {
 		String cdnHostHttp = _cdnHostHttpMap.get(companyId);
 
-		if (cdnHostHttp != null) {
+		if (Validator.isNotNull(cdnHostHttp)) {
 			return cdnHostHttp;
 		}
 
@@ -1454,7 +1454,7 @@ public class PortalImpl implements Portal {
 		catch (Exception e) {
 		}
 
-		if ((cdnHostHttp == null) || cdnHostHttp.startsWith("${") ||
+		if ((Validator.isNull(cdnHostHttp)) || cdnHostHttp.startsWith("${") ||
 			!Validator.isUrl(cdnHostHttp)) {
 
 			cdnHostHttp = StringPool.BLANK;
@@ -1469,7 +1469,7 @@ public class PortalImpl implements Portal {
 	public String getCDNHostHttps(long companyId) {
 		String cdnHostHttps = _cdnHostHttpsMap.get(companyId);
 
-		if (cdnHostHttps != null) {
+		if (Validator.isNotNull(cdnHostHttps)) {
 			return cdnHostHttps;
 		}
 
@@ -1481,7 +1481,7 @@ public class PortalImpl implements Portal {
 		catch (SystemException se) {
 		}
 
-		if ((cdnHostHttps == null) || cdnHostHttps.startsWith("${") ||
+		if ((Validator.isNull(cdnHostHttps)) || cdnHostHttps.startsWith("${") ||
 			!Validator.isUrl(cdnHostHttps)) {
 
 			cdnHostHttps = StringPool.BLANK;
