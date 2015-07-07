@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortletKeys;
@@ -41,8 +42,6 @@ import javax.servlet.http.HttpServletRequest;
 @OSGiBeanProperties
 public class DirectoryOpenSearchImpl extends HitsOpenSearchImpl {
 
-	public static final String SEARCH_PATH = "/c/directory/open_search";
-
 	public static final String TITLE = "Liferay Directory Search: ";
 
 	@Override
@@ -51,13 +50,13 @@ public class DirectoryOpenSearchImpl extends HitsOpenSearchImpl {
 	}
 
 	@Override
-	public Indexer getIndexer() {
+	public Indexer<User> getIndexer() {
 		return IndexerRegistryUtil.getIndexer(User.class);
 	}
 
 	@Override
 	public String getSearchPath() {
-		return SEARCH_PATH;
+		return StringPool.BLANK;
 	}
 
 	@Override

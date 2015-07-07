@@ -26,7 +26,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.wiki.service.WikiPageServiceUtil} service utility. The
+ * {@link WikiPageServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -61,7 +61,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see WikiPageServiceHttp
  * @see com.liferay.wiki.model.WikiPageSoap
- * @see com.liferay.wiki.service.WikiPageServiceUtil
+ * @see WikiPageServiceUtil
  * @generated
  */
 @ProviderType
@@ -493,8 +493,8 @@ public class WikiPageServiceSoap {
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getPagesRSS(long, long,
-	String, int, String, double, String, String, String, String,
+	* @deprecated As of 6.2.0, replaced by {@link #getPagesRSS(long, String,
+	int, String, double, String, String, String, String,
 	java.util.Locale)}
 	*/
 	@Deprecated
@@ -516,16 +516,15 @@ public class WikiPageServiceSoap {
 		}
 	}
 
-	public static java.lang.String getPagesRSS(long companyId, long nodeId,
+	public static java.lang.String getPagesRSS(long nodeId,
 		java.lang.String title, int max, java.lang.String type, double version,
 		java.lang.String displayStyle, java.lang.String feedURL,
 		java.lang.String entryURL, java.lang.String attachmentURLPrefix,
 		String locale) throws RemoteException {
 		try {
-			java.lang.String returnValue = WikiPageServiceUtil.getPagesRSS(companyId,
-					nodeId, title, max, type, version, displayStyle, feedURL,
-					entryURL, attachmentURLPrefix,
-					LocaleUtil.fromLanguageId(locale));
+			java.lang.String returnValue = WikiPageServiceUtil.getPagesRSS(nodeId,
+					title, max, type, version, displayStyle, feedURL, entryURL,
+					attachmentURLPrefix, LocaleUtil.fromLanguageId(locale));
 
 			return returnValue;
 		}

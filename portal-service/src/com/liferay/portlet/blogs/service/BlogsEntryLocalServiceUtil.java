@@ -76,7 +76,7 @@ public class BlogsEntryLocalServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #addEntry(long, String,
 	String, String, String, int, int, int, int, int, boolean,
-	boolean, String[], ImageSelector, ImageSelector,
+	boolean, String[], String, ImageSelector, ImageSelector,
 	ServiceContext)}
 	*/
 	@Deprecated
@@ -103,6 +103,7 @@ public class BlogsEntryLocalServiceUtil {
 		java.lang.String description, java.lang.String content,
 		java.util.Date displayDate, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -110,7 +111,8 @@ public class BlogsEntryLocalServiceUtil {
 		return getService()
 				   .addEntry(userId, title, subtitle, description, content,
 			displayDate, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static com.liferay.portlet.blogs.model.BlogsEntry addEntry(
@@ -119,6 +121,7 @@ public class BlogsEntryLocalServiceUtil {
 		int displayDateMonth, int displayDateDay, int displayDateYear,
 		int displayDateHour, int displayDateMinute, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -127,7 +130,8 @@ public class BlogsEntryLocalServiceUtil {
 				   .addEntry(userId, title, subtitle, description, content,
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static void addEntryResources(
@@ -300,6 +304,11 @@ public class BlogsEntryLocalServiceUtil {
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
 		com.liferay.portal.kernel.dao.orm.Projection projection) {
 		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
+	public static com.liferay.portal.kernel.repository.model.Folder fetchAttachmentsFolder(
+		long userId, long groupId) {
+		return getService().fetchAttachmentsFolder(userId, groupId);
 	}
 
 	public static com.liferay.portlet.blogs.model.BlogsEntry fetchBlogsEntry(
@@ -485,7 +494,7 @@ public class BlogsEntryLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -827,8 +836,8 @@ public class BlogsEntryLocalServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, long,
 	String, String, String, String, int, int, int, int, int,
-	boolean, boolean, String[], ImageSelector, ImageSelector,
-	ServiceContext)}
+	boolean, boolean, String[], String, ImageSelector,
+	ImageSelector, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portlet.blogs.model.BlogsEntry updateEntry(
@@ -855,7 +864,7 @@ public class BlogsEntryLocalServiceUtil {
 		java.lang.String subtitle, java.lang.String description,
 		java.lang.String content, java.util.Date displayDate,
 		boolean allowPingbacks, boolean allowTrackbacks,
-		java.lang.String[] trackbacks,
+		java.lang.String[] trackbacks, java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -863,7 +872,8 @@ public class BlogsEntryLocalServiceUtil {
 		return getService()
 				   .updateEntry(userId, entryId, title, subtitle, description,
 			content, displayDate, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static com.liferay.portlet.blogs.model.BlogsEntry updateEntry(
@@ -872,7 +882,7 @@ public class BlogsEntryLocalServiceUtil {
 		java.lang.String content, int displayDateMonth, int displayDateDay,
 		int displayDateYear, int displayDateHour, int displayDateMinute,
 		boolean allowPingbacks, boolean allowTrackbacks,
-		java.lang.String[] trackbacks,
+		java.lang.String[] trackbacks, java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -881,8 +891,8 @@ public class BlogsEntryLocalServiceUtil {
 				   .updateEntry(userId, entryId, title, subtitle, description,
 			content, displayDateMonth, displayDateDay, displayDateYear,
 			displayDateHour, displayDateMinute, allowPingbacks,
-			allowTrackbacks, trackbacks, coverImageImageSelector,
-			smallImageImageSelector, serviceContext);
+			allowTrackbacks, trackbacks, coverImageCaption,
+			coverImageImageSelector, smallImageImageSelector, serviceContext);
 	}
 
 	public static void updateEntryResources(

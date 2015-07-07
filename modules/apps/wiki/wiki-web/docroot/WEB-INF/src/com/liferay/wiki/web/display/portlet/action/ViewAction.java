@@ -23,7 +23,7 @@ import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.wiki.configuration.WikiConfiguration;
+import com.liferay.wiki.configuration.WikiGroupServiceConfiguration;
 import com.liferay.wiki.constants.WikiWebKeys;
 import com.liferay.wiki.exception.NoSuchNodeException;
 import com.liferay.wiki.exception.NoSuchPageException;
@@ -31,7 +31,7 @@ import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.service.WikiNodeServiceUtil;
 import com.liferay.wiki.service.WikiPageServiceUtil;
-import com.liferay.wiki.web.settings.WikiWebSettingsProvider;
+import com.liferay.wiki.web.util.WikiWebComponentProvider;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletPreferences;
@@ -61,16 +61,16 @@ public class ViewAction extends PortletAction {
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
 
-			WikiWebSettingsProvider wikiWebSettingsProvider =
-				WikiWebSettingsProvider.getWikiWebSettingsProvider();
+			WikiWebComponentProvider wikiWebComponentProvider =
+				WikiWebComponentProvider.getWikiWebComponentProvider();
 
-			WikiConfiguration wikiConfiguration =
-				wikiWebSettingsProvider.getWikiConfiguration();
+			WikiGroupServiceConfiguration wikiGroupServiceConfiguration =
+				wikiWebComponentProvider.getWikiGroupServiceConfiguration();
 
 			String title = ParamUtil.getString(
 				renderRequest, "title",
 				portletPreferences.getValue(
-					"title", wikiConfiguration.frontPageName()));
+					"title", wikiGroupServiceConfiguration.frontPageName()));
 			double version = ParamUtil.getDouble(renderRequest, "version");
 
 			WikiNode node = getNode(renderRequest);
@@ -85,7 +85,8 @@ public class ViewAction extends PortletAction {
 
 			if ((page == null) || page.isInTrash()) {
 				page = WikiPageServiceUtil.getPage(
-					node.getNodeId(), wikiConfiguration.frontPageName());
+					node.getNodeId(),
+					wikiGroupServiceConfiguration.frontPageName());
 			}
 
 			renderRequest.setAttribute(WikiWebKeys.WIKI_NODE, node);

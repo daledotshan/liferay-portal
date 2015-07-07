@@ -15,12 +15,12 @@
 package com.liferay.sync.engine.documentlibrary.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.liferay.sync.engine.documentlibrary.event.Event;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.session.Session;
 import com.liferay.sync.engine.session.SessionManager;
+import com.liferay.sync.engine.util.JSONUtil;
 import com.liferay.sync.engine.util.StreamUtil;
 
 import java.io.InputStream;
@@ -89,10 +89,7 @@ public class DownloadFilesHandler extends BaseHandler {
 				String zipEntryName = zipEntry.getName();
 
 				if (zipEntryName.equals("errors.json")) {
-					ObjectMapper objectMapper = new ObjectMapper();
-
-					JsonNode rootJsonNode = objectMapper.readTree(
-						zipInputStream);
+					JsonNode rootJsonNode = JSONUtil.readTree(zipInputStream);
 
 					Iterator<Map.Entry<String, JsonNode>> fields =
 						rootJsonNode.fields();
@@ -102,12 +99,13 @@ public class DownloadFilesHandler extends BaseHandler {
 
 						Handler<Void> handler = handlers.get(field.getKey());
 
-						JsonNode fieldValue = field.getValue();
+						JsonNode valueJsonNode = field.getValue();
 
-						String exception = handler.getException(
-							fieldValue.textValue());
+						JsonNode exceptionJsonNode = valueJsonNode.get(
+							"exception");
 
-						handler.handlePortalException(exception);
+						handler.handlePortalException(
+							exceptionJsonNode.textValue());
 					}
 
 					break;
@@ -130,9 +128,14 @@ public class DownloadFilesHandler extends BaseHandler {
 							syncFile.getFilePathName());
 				}
 
-				downloadFileHandler.copyFile(
-					syncFile, Paths.get(syncFile.getFilePathName()),
-					new CloseShieldInputStream(zipInputStream));
+				try {
+					downloadFileHandler.copyFile(
+						syncFile, Paths.get(syncFile.getFilePathName()),
+						new CloseShieldInputStream(zipInputStream));
+				}
+				catch (Exception e) {
+					_logger.error(e.getMessage(), e);
+				}
 			}
 		}
 		catch (Exception e) {

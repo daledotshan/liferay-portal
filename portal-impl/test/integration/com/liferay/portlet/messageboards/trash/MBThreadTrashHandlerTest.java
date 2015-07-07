@@ -41,6 +41,9 @@ import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
 import com.liferay.portlet.messageboards.service.MBThreadServiceUtil;
 import com.liferay.portlet.messageboards.util.test.MBTestUtil;
 import com.liferay.portlet.trash.test.BaseTrashHandlerTestCase;
+import com.liferay.portlet.trash.test.WhenHasRecentBaseModelCount;
+import com.liferay.portlet.trash.test.WhenIsAssetableBaseModel;
+import com.liferay.portlet.trash.test.WhenIsIndexableBaseModel;
 
 import java.io.InputStream;
 
@@ -58,7 +61,10 @@ import org.junit.Test;
  * @author Eduardo Garcia
  */
 @Sync
-public class MBThreadTrashHandlerTest extends BaseTrashHandlerTestCase {
+public class MBThreadTrashHandlerTest
+	extends BaseTrashHandlerTestCase
+	implements WhenHasRecentBaseModelCount, WhenIsAssetableBaseModel,
+			   WhenIsIndexableBaseModel {
 
 	@ClassRule
 	@Rule
@@ -66,6 +72,16 @@ public class MBThreadTrashHandlerTest extends BaseTrashHandlerTestCase {
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
+
+	@Override
+	public int getRecentBaseModelsCount(long groupId) throws Exception {
+		Calendar calendar = Calendar.getInstance();
+
+		calendar.add(Calendar.HOUR, -1);
+
+		return MBThreadServiceUtil.getGroupThreadsCount(
+			groupId, 0, calendar.getTime(), WorkflowConstants.STATUS_APPROVED);
+	}
 
 	@Test
 	public void testCategoryMessageCount() throws Exception {
@@ -103,46 +119,145 @@ public class MBThreadTrashHandlerTest extends BaseTrashHandlerTestCase {
 			getMessageCount((Long)parentBaseModel.getPrimaryKeyObj()));
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
-	public void testTrashAndDeleteDraft() throws Exception {
+	public void testTrashAndDeleteWithDraftStatus() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
-	public void testTrashAndRestoreDraft() throws Exception {
+	public void testTrashAndDeleteWithDraftStatusIndexable() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
+	@Override
+	@Test
+	public void testTrashAndDeleteWithDraftStatusIsNotFound() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashAndRestoreWithDraftStatus() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashAndRestoreWithDraftStatusIndexable() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashAndRestoreWithDraftStatusIsNotVisible()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashAndRestoreWithDraftStatusRestoreStatus()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashAndRestoreWithDraftStatusRestoreUniqueTitle()
+		throws Exception {
+	}
+
+	@Ignore
 	@Override
 	@Test
 	public void testTrashDuplicate() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testTrashVersionBaseModelAndDelete() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionBaseModelAndDeleteIndexable() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionBaseModelAndDeleteIsNotFound()
+		throws Exception {
+	}
+
+	@Ignore
 	@Override
 	@Test
 	public void testTrashVersionBaseModelAndRestore() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionBaseModelAndRestoreIndexable()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionBaseModelAndRestoreIsVisible()
+		throws Exception {
+	}
+
+	@Ignore
 	@Override
 	@Test
 	public void testTrashVersionParentBaseModel() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionParentBaseModelAndCustomRestore()
+		throws Exception {
+	}
+
+	@Ignore
 	@Override
 	@Test
 	public void testTrashVersionParentBaseModelAndRestore() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionParentBaseModelAndRestoreIsNotInTrashContainer()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionParentBaseModelAndRestoreIsVisible()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionParentBaseModelIndexable() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testTrashVersionParentBaseModelIsNotVisible() throws Exception {
 	}
 
 	@Override
@@ -249,16 +364,6 @@ public class MBThreadTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Override
-	protected int getRecentBaseModelsCount(long groupId) throws Exception {
-		Calendar calendar = Calendar.getInstance();
-
-		calendar.add(Calendar.HOUR, -1);
-
-		return MBThreadServiceUtil.getGroupThreadsCount(
-			groupId, 0, calendar.getTime(), WorkflowConstants.STATUS_APPROVED);
-	}
-
-	@Override
 	protected String getSearchKeywords() {
 		return _SUBJECT;
 	}
@@ -266,11 +371,6 @@ public class MBThreadTrashHandlerTest extends BaseTrashHandlerTestCase {
 	@Override
 	protected String getUniqueTitle(BaseModel<?> baseModel) {
 		return null;
-	}
-
-	@Override
-	protected boolean isAssetableParentModel() {
-		return false;
 	}
 
 	@Override
