@@ -156,15 +156,23 @@ public class ServicePreAction extends Action {
 
 		// CDN host
 
-		String cdnHost = PortalUtil.getCDNHost(request);
+		String cdnHost = StringPool.BLANK;
 
 		String dynamicResourcesCDNHost = StringPool.BLANK;
+
+		String friendlyURL = (String)request.getAttribute("FRIENDLY_URL");
 
 		boolean cdnDynamicResourceEnabled =
 			PortalUtil.isCDNDynamicResourcesEnabled(request);
 
-		if (cdnDynamicResourceEnabled) {
-			dynamicResourcesCDNHost = cdnHost;
+		if (Validator.isNotNull(friendlyURL) &&
+			!friendlyURL.contains(GroupConstants.CONTROL_PANEL_FRIENDLY_URL)) {
+
+			cdnHost = PortalUtil.getCDNHost(request);
+
+			if (cdnDynamicResourceEnabled) {
+				dynamicResourcesCDNHost = cdnHost;
+			}
 		}
 
 		// Portal URL
