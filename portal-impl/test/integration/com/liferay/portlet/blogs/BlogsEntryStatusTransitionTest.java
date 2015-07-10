@@ -78,8 +78,7 @@ public class BlogsEntryStatusTransitionTest {
 	public void setUp() throws Exception {
 		group = GroupTestUtil.addGroup();
 
-		user = UserTestUtil.addUser(
-			RandomTestUtil.randomString(), group.getGroupId());
+		user = UserTestUtil.addUser(group.getGroupId());
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -408,7 +407,8 @@ public class BlogsEntryStatusTransitionTest {
 	}
 
 	protected int searchBlogsEntriesCount(long groupId) throws Exception {
-		Indexer indexer = IndexerRegistryUtil.getIndexer(BlogsEntry.class);
+		Indexer<BlogsEntry> indexer = IndexerRegistryUtil.getIndexer(
+			BlogsEntry.class);
 
 		SearchContext searchContext = SearchContextTestUtil.getSearchContext();
 
