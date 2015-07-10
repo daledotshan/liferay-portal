@@ -16,9 +16,10 @@ package com.liferay.portlet.dynamicdatamapping.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -60,11 +61,13 @@ public class DDMTemplateWrapper implements DDMTemplate,
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
 		attributes.put("userName", getUserName());
+		attributes.put("versionUserId", getVersionUserId());
+		attributes.put("versionUserName", getVersionUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
-		attributes.put("sourceClassNameId", getSourceClassNameId());
+		attributes.put("resourceClassNameId", getResourceClassNameId());
 		attributes.put("templateKey", getTemplateKey());
 		attributes.put("version", getVersion());
 		attributes.put("name", getName());
@@ -119,6 +122,18 @@ public class DDMTemplateWrapper implements DDMTemplate,
 			setUserName(userName);
 		}
 
+		Long versionUserId = (Long)attributes.get("versionUserId");
+
+		if (versionUserId != null) {
+			setVersionUserId(versionUserId);
+		}
+
+		String versionUserName = (String)attributes.get("versionUserName");
+
+		if (versionUserName != null) {
+			setVersionUserName(versionUserName);
+		}
+
 		Date createDate = (Date)attributes.get("createDate");
 
 		if (createDate != null) {
@@ -143,10 +158,10 @@ public class DDMTemplateWrapper implements DDMTemplate,
 			setClassPK(classPK);
 		}
 
-		Long sourceClassNameId = (Long)attributes.get("sourceClassNameId");
+		Long resourceClassNameId = (Long)attributes.get("resourceClassNameId");
 
-		if (sourceClassNameId != null) {
-			setSourceClassNameId(sourceClassNameId);
+		if (resourceClassNameId != null) {
+			setResourceClassNameId(resourceClassNameId);
 		}
 
 		String templateKey = (String)attributes.get("templateKey");
@@ -294,7 +309,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @return the create date of this d d m template
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _ddmTemplate.getCreateDate();
 	}
 
@@ -377,7 +392,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @return the locales and localized descriptions of this d d m template
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _ddmTemplate.getDescriptionMap();
 	}
 
@@ -422,7 +437,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @return the modified date of this d d m template
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _ddmTemplate.getModifiedDate();
 	}
 
@@ -499,7 +514,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @return the locales and localized names of this d d m template
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _ddmTemplate.getNameMap();
 	}
 
@@ -516,6 +531,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public java.io.Serializable getPrimaryKeyObj() {
 		return _ddmTemplate.getPrimaryKeyObj();
+	}
+
+	/**
+	* Returns the resource class name ID of this d d m template.
+	*
+	* @return the resource class name ID of this d d m template
+	*/
+	@Override
+	public long getResourceClassNameId() {
+		return _ddmTemplate.getResourceClassNameId();
 	}
 
 	/**
@@ -565,16 +590,6 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	}
 
 	/**
-	* Returns the source class name ID of this d d m template.
-	*
-	* @return the source class name ID of this d d m template
-	*/
-	@Override
-	public long getSourceClassNameId() {
-		return _ddmTemplate.getSourceClassNameId();
-	}
-
-	/**
 	* Returns the template ID of this d d m template.
 	*
 	* @return the template ID of this d d m template
@@ -598,6 +613,12 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public java.lang.String getTemplateKey() {
 		return _ddmTemplate.getTemplateKey();
+	}
+
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplateVersion getTemplateVersion()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _ddmTemplate.getTemplateVersion();
 	}
 
 	/**
@@ -658,6 +679,36 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public java.lang.String getVersion() {
 		return _ddmTemplate.getVersion();
+	}
+
+	/**
+	* Returns the version user ID of this d d m template.
+	*
+	* @return the version user ID of this d d m template
+	*/
+	@Override
+	public long getVersionUserId() {
+		return _ddmTemplate.getVersionUserId();
+	}
+
+	/**
+	* Returns the version user name of this d d m template.
+	*
+	* @return the version user name of this d d m template
+	*/
+	@Override
+	public java.lang.String getVersionUserName() {
+		return _ddmTemplate.getVersionUserName();
+	}
+
+	/**
+	* Returns the version user uuid of this d d m template.
+	*
+	* @return the version user uuid of this d d m template
+	*/
+	@Override
+	public java.lang.String getVersionUserUuid() {
+		return _ddmTemplate.getVersionUserUuid();
 	}
 
 	/**
@@ -790,7 +841,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @param createDate the create date of this d d m template
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_ddmTemplate.setCreateDate(createDate);
 	}
 
@@ -841,7 +892,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_ddmTemplate.setDescriptionMap(descriptionMap);
 	}
 
@@ -853,7 +904,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_ddmTemplate.setDescriptionMap(descriptionMap, defaultLocale);
 	}
@@ -912,7 +963,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @param modifiedDate the modified date of this d d m template
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_ddmTemplate.setModifiedDate(modifiedDate);
 	}
 
@@ -961,8 +1012,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @param nameMap the locales and localized names of this d d m template
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_ddmTemplate.setNameMap(nameMap);
 	}
 
@@ -973,8 +1023,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_ddmTemplate.setNameMap(nameMap, defaultLocale);
 	}
@@ -997,6 +1046,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
 		_ddmTemplate.setPrimaryKeyObj(primaryKeyObj);
+	}
+
+	/**
+	* Sets the resource class name ID of this d d m template.
+	*
+	* @param resourceClassNameId the resource class name ID of this d d m template
+	*/
+	@Override
+	public void setResourceClassNameId(long resourceClassNameId) {
+		_ddmTemplate.setResourceClassNameId(resourceClassNameId);
 	}
 
 	/**
@@ -1042,16 +1101,6 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public void setSmallImageURL(java.lang.String smallImageURL) {
 		_ddmTemplate.setSmallImageURL(smallImageURL);
-	}
-
-	/**
-	* Sets the source class name ID of this d d m template.
-	*
-	* @param sourceClassNameId the source class name ID of this d d m template
-	*/
-	@Override
-	public void setSourceClassNameId(long sourceClassNameId) {
-		_ddmTemplate.setSourceClassNameId(sourceClassNameId);
 	}
 
 	/**
@@ -1132,6 +1181,36 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public void setVersion(java.lang.String version) {
 		_ddmTemplate.setVersion(version);
+	}
+
+	/**
+	* Sets the version user ID of this d d m template.
+	*
+	* @param versionUserId the version user ID of this d d m template
+	*/
+	@Override
+	public void setVersionUserId(long versionUserId) {
+		_ddmTemplate.setVersionUserId(versionUserId);
+	}
+
+	/**
+	* Sets the version user name of this d d m template.
+	*
+	* @param versionUserName the version user name of this d d m template
+	*/
+	@Override
+	public void setVersionUserName(java.lang.String versionUserName) {
+		_ddmTemplate.setVersionUserName(versionUserName);
+	}
+
+	/**
+	* Sets the version user uuid of this d d m template.
+	*
+	* @param versionUserUuid the version user uuid of this d d m template
+	*/
+	@Override
+	public void setVersionUserUuid(java.lang.String versionUserUuid) {
+		_ddmTemplate.setVersionUserUuid(versionUserUuid);
 	}
 
 	@Override

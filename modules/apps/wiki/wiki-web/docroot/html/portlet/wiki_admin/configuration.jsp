@@ -31,8 +31,16 @@ MailTemplatesHelper mailTemplatesHelper = new MailTemplatesHelper(wikiRequestHel
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value="<%= configurationRenderURL %>" />
 
+	<%
+	String tabs2Names = "email-from,page-added-email,page-updated-email";
+
+	if (PortalUtil.isRSSFeedsEnabled()) {
+		tabs2Names += ",rss";
+	}
+	%>
+
 	<liferay-ui:tabs
-		names="email-from,page-added-email,page-updated-email"
+		names="<%= tabs2Names %>"
 		refresh="<%= false %>"
 	>
 		<liferay-ui:error key="emailFromAddress" message="please-enter-a-valid-email-address" />
@@ -44,9 +52,9 @@ MailTemplatesHelper mailTemplatesHelper = new MailTemplatesHelper(wikiRequestHel
 
 		<liferay-ui:section>
 			<aui:fieldset>
-				<aui:input cssClass="lfr-input-text-container" label="name" name="preferences--emailFromName--" value="<%= wikiSettings.getEmailFromName() %>" />
+				<aui:input cssClass="lfr-input-text-container" label="name" name="preferences--emailFromName--" value="<%= wikiGroupServiceSettings.emailFromName() %>" />
 
-				<aui:input cssClass="lfr-input-text-container" label="address" name="preferences--emailFromAddress--" value="<%= wikiSettings.getEmailFromAddress() %>" />
+				<aui:input cssClass="lfr-input-text-container" label="address" name="preferences--emailFromAddress--" value="<%= wikiGroupServiceSettings.emailFromAddress() %>" />
 			</aui:fieldset>
 
 			<aui:fieldset cssClass="definition-of-terms">
@@ -83,23 +91,34 @@ MailTemplatesHelper mailTemplatesHelper = new MailTemplatesHelper(wikiRequestHel
 
 		<liferay-ui:section>
 			<liferay-ui:email-notification-settings
-				emailBody="<%= wikiSettings.getEmailPageAddedBodyXml() %>"
+				emailBody="<%= wikiGroupServiceSettings.emailPageAddedBodyXml() %>"
 				emailDefinitionTerms="<%= definitionTerms %>"
-				emailEnabled="<%= wikiSettings.isEmailPageAddedEnabled() %>"
+				emailEnabled="<%= wikiGroupServiceSettings.emailPageAddedEnabled() %>"
 				emailParam="emailPageAdded"
-				emailSubject="<%= wikiSettings.getEmailPageAddedSubjectXml() %>"
+				emailSubject="<%= wikiGroupServiceSettings.emailPageAddedSubjectXml() %>"
 			/>
 		</liferay-ui:section>
 
 		<liferay-ui:section>
 			<liferay-ui:email-notification-settings
-				emailBody="<%= wikiSettings.getEmailPageUpdatedBodyXml() %>"
+				emailBody="<%= wikiGroupServiceSettings.emailPageUpdatedBodyXml() %>"
 				emailDefinitionTerms="<%= definitionTerms %>"
-				emailEnabled="<%= wikiSettings.isEmailPageUpdatedEnabled() %>"
+				emailEnabled="<%= wikiGroupServiceSettings.emailPageUpdatedEnabled() %>"
 				emailParam="emailPageUpdated"
-				emailSubject="<%= wikiSettings.getEmailPageUpdatedSubjectXml() %>"
+				emailSubject="<%= wikiGroupServiceSettings.emailPageUpdatedSubjectXml() %>"
 			/>
 		</liferay-ui:section>
+
+		<c:if test="<%= PortalUtil.isRSSFeedsEnabled() %>">
+			<liferay-ui:section>
+				<liferay-ui:rss-settings
+					delta="<%= GetterUtil.getInteger(wikiGroupServiceSettings.rssDelta()) %>"
+					displayStyle="<%= wikiGroupServiceSettings.rssDisplayStyle() %>"
+					enabled="<%= wikiGroupServiceSettings.enableRss() %>"
+					feedType="<%= wikiGroupServiceSettings.rssFeedType() %>"
+				/>
+			</liferay-ui:section>
+		</c:if>
 	</liferay-ui:tabs>
 
 	<aui:button-row>

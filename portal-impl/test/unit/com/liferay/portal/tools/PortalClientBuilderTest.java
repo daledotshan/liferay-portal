@@ -49,18 +49,16 @@ public class PortalClientBuilderTest {
 		finally {
 			FileUtil.deltree(outputPath.toFile());
 
-			for (String line : StringUtil.splitLines(
-				ConsoleTestUtil.restoreStdOut(unsyncByteArrayOutputStream))) {
+			String output = ConsoleTestUtil.restoreStdOut(
+				unsyncByteArrayOutputStream);
 
+			for (String line : StringUtil.splitLines(output)) {
 				line = line.trim();
 
-				if (line.startsWith("Loading ") ||
-					line.startsWith("WSDL2Java ")) {
-
-					continue;
-				}
-
-				Assert.fail("Unexpected output " + line);
+				Assert.assertTrue(
+					"Unexpected output " + output,
+					line.startsWith("Loading ") ||
+						line.startsWith("WSDL2Java "));
 			}
 		}
 	}

@@ -14,7 +14,9 @@
 
 package com.liferay.journal.ratings.definition;
 
-import com.liferay.portal.util.PortletKeys;
+import com.liferay.journal.model.JournalArticle;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portlet.ratings.RatingsType;
 import com.liferay.portlet.ratings.definition.PortletRatingsDefinition;
 
@@ -24,9 +26,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Roberto Díaz
  */
 @Component(
-	property = {
-		"model.class.name=com.liferay.portlet.journal.model.JournalArticle"
-	}
+	property = {"model.class.name=com.liferay.journal.model.JournalArticle"}
 )
 public class JournalPortletRatingsDefinition
 	implements PortletRatingsDefinition {
@@ -38,7 +38,8 @@ public class JournalPortletRatingsDefinition
 
 	@Override
 	public String getPortletId() {
-		return PortletKeys.JOURNAL;
+		return PortletProviderUtil.getPortletId(
+			JournalArticle.class.getName(), PortletProvider.Action.EDIT);
 	}
 
 }
