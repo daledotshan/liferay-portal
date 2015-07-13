@@ -15,7 +15,6 @@
 package com.liferay.portlet.usersadmin.lar;
 
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -68,9 +67,16 @@ public class OrganizationStagedModelDataHandlerTest
 	public void tearDown() throws Exception {
 		super.tearDown();
 
-		_organization =
-			OrganizationLocalServiceUtil.fetchOrganizationByUuidAndCompanyId(
-				_organization.getUuid(), _organization.getCompanyId());
+		if (_organization != null) {
+			_organization =
+				OrganizationLocalServiceUtil.
+					fetchOrganizationByUuidAndCompanyId(
+						_organization.getUuid(), _organization.getCompanyId());
+
+			if (_organization != null) {
+				deleteOrganizations(_organization);
+			}
+		}
 	}
 
 	@Override
@@ -121,6 +127,20 @@ public class OrganizationStagedModelDataHandlerTest
 			dependentStagedModelsMap, Website.class, website);
 
 		return _organization;
+	}
+
+	protected void deleteOrganizations(Organization organization)
+		throws Exception {
+
+		List<Organization> childOrganizations =
+			OrganizationLocalServiceUtil.getOrganizations(
+				organization.getCompanyId(), organization.getOrganizationId());
+
+		for (Organization childOrganization : childOrganizations) {
+			deleteOrganizations(childOrganization);
+		}
+
+		OrganizationLocalServiceUtil.deleteOrganization(organization);
 	}
 
 	@Override
@@ -264,7 +284,6 @@ public class OrganizationStagedModelDataHandlerTest
 			organization.getOrganizationId(), importedWebsite.getClassPK());
 	}
 
-	@DeleteAfterTestRun
 	private Organization _organization;
 
 }

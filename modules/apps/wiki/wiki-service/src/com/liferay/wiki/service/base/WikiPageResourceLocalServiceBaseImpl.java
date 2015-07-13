@@ -211,6 +211,19 @@ public abstract class WikiPageResourceLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the wiki page resource matching the UUID and group.
+	 *
+	 * @param uuid the wiki page resource's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching wiki page resource, or <code>null</code> if a matching wiki page resource could not be found
+	 */
+	@Override
+	public WikiPageResource fetchWikiPageResourceByUuidAndGroupId(String uuid,
+		long groupId) {
+		return wikiPageResourcePersistence.fetchByUUID_G(uuid, groupId);
+	}
+
+	/**
 	 * Returns the wiki page resource with the primary key.
 	 *
 	 * @param resourcePrimKey the primary key of the wiki page resource
@@ -261,6 +274,20 @@ public abstract class WikiPageResourceLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the wiki page resource matching the UUID and group.
+	 *
+	 * @param uuid the wiki page resource's UUID
+	 * @param groupId the primary key of the group
+	 * @return the matching wiki page resource
+	 * @throws PortalException if a matching wiki page resource could not be found
+	 */
+	@Override
+	public WikiPageResource getWikiPageResourceByUuidAndGroupId(String uuid,
+		long groupId) throws PortalException {
+		return wikiPageResourcePersistence.findByUUID_G(uuid, groupId);
+	}
+
+	/**
 	 * Returns a range of all the wiki page resources.
 	 *
 	 * <p>
@@ -304,7 +331,7 @@ public abstract class WikiPageResourceLocalServiceBaseImpl
 	 *
 	 * @return the wiki page resource local service
 	 */
-	public com.liferay.wiki.service.WikiPageResourceLocalService getWikiPageResourceLocalService() {
+	public WikiPageResourceLocalService getWikiPageResourceLocalService() {
 		return wikiPageResourceLocalService;
 	}
 
@@ -314,7 +341,7 @@ public abstract class WikiPageResourceLocalServiceBaseImpl
 	 * @param wikiPageResourceLocalService the wiki page resource local service
 	 */
 	public void setWikiPageResourceLocalService(
-		com.liferay.wiki.service.WikiPageResourceLocalService wikiPageResourceLocalService) {
+		WikiPageResourceLocalService wikiPageResourceLocalService) {
 		this.wikiPageResourceLocalService = wikiPageResourceLocalService;
 	}
 
@@ -418,8 +445,8 @@ public abstract class WikiPageResourceLocalServiceBaseImpl
 		}
 	}
 
-	@BeanReference(type = com.liferay.wiki.service.WikiPageResourceLocalService.class)
-	protected com.liferay.wiki.service.WikiPageResourceLocalService wikiPageResourceLocalService;
+	@BeanReference(type = WikiPageResourceLocalService.class)
+	protected WikiPageResourceLocalService wikiPageResourceLocalService;
 	@BeanReference(type = WikiPageResourcePersistence.class)
 	protected WikiPageResourcePersistence wikiPageResourcePersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)

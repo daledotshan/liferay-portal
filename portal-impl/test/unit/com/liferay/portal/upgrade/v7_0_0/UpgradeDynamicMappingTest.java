@@ -20,9 +20,14 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.Props;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.security.xml.SecureXMLFactoryProviderImpl;
 import com.liferay.portal.security.xml.SecureXMLFactoryProviderUtil;
 import com.liferay.portal.util.LocalizationImpl;
@@ -69,6 +74,7 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 		setUpLanguageUtil();
 		setUpLocaleUtil();
 		setUpLocalizationUtil();
+		setUpPropsUtil();
 		setUpSecureXMLFactoryProviderUtil();
 		setUpSAXReaderUtil();
 		setUpJSONFactoryUtil();
@@ -151,12 +157,8 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 
 		addDynamicElementElement(
 			rootElement, "Text",
-			new String[] {
-				"En Text Value 1", "En Text Value 2"
-			},
-			new String[] {
-				"Pt Text Value 1", "Pt Text Value 2"
-			}
+			new String[] {"En Text Value 1", "En Text Value 2"},
+			new String[] {"Pt Text Value 1", "Pt Text Value 2"}
 		);
 		addDynamicElementElement(
 			rootElement, "TextArea",
@@ -184,8 +186,12 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 		UpgradeDynamicDataMapping upgradeDynamicDataMapping =
 			new UpgradeDynamicDataMapping();
 
+		DDMFormValues actualDDMFormValues =
+			upgradeDynamicDataMapping.getDDMFormValues(
+				ddmForm, document.asXML());
+
 		String actualJSON = upgradeDynamicDataMapping.toJSON(
-			ddmForm, document.asXML());
+			actualDDMFormValues);
 
 		JSONAssert.assertEquals(expectedJSON, actualJSON, false);
 	}
@@ -274,12 +280,8 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 
 		addDynamicElementElement(
 			rootElement, "Text",
-			new String[] {
-				"En Text Value 1", "En Text Value 2"
-			},
-			new String[] {
-				"Pt Text Value 1", "Pt Text Value 2"
-			}
+			new String[] {"En Text Value 1", "En Text Value 2"},
+			new String[] {"Pt Text Value 1", "Pt Text Value 2"}
 		);
 		addDynamicElementElement(
 			rootElement, "TextArea",
@@ -293,10 +295,7 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 			}
 		);
 		addDynamicElementElement(
-			rootElement, "Integer",
-			new String[] {
-				"1"
-			}
+			rootElement, "Integer", new String[] {"1"}
 		);
 		addDynamicElementElement(
 			rootElement, "_fieldsDisplay",
@@ -313,8 +312,12 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 		UpgradeDynamicDataMapping upgradeDynamicDataMapping =
 			new UpgradeDynamicDataMapping();
 
+		DDMFormValues actualDDMFormValues =
+			upgradeDynamicDataMapping.getDDMFormValues(
+				ddmForm, document.asXML());
+
 		String actualJSON = upgradeDynamicDataMapping.toJSON(
-			ddmForm, document.asXML());
+			actualDDMFormValues);
 
 		JSONAssert.assertEquals(expectedJSON, actualJSON, false);
 	}
@@ -374,10 +377,7 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 		rootElement.addAttribute("available-locales", "en_US");
 
 		addDynamicElementElement(
-			rootElement, "Text",
-			new String[] {
-				"Text Value"
-			}
+			rootElement, "Text", new String[] {"Text Value"}
 		);
 		addDynamicElementElement(
 			rootElement, "TextArea",
@@ -399,8 +399,12 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 		UpgradeDynamicDataMapping upgradeDynamicDataMapping =
 			new UpgradeDynamicDataMapping();
 
+		DDMFormValues actualDDMFormValues =
+			upgradeDynamicDataMapping.getDDMFormValues(
+				ddmForm, document.asXML());
+
 		String actualJSON = upgradeDynamicDataMapping.toJSON(
-			ddmForm, document.asXML());
+			actualDDMFormValues);
 
 		JSONAssert.assertEquals(expectedJSON, actualJSON, false);
 	}
@@ -509,7 +513,7 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 		whenLanguageGetLanguageId(LocaleUtil.BRAZIL, "pt_BR");
 
 		whenLanguageGetAvailableLocalesThen(
-			new Locale[] {LocaleUtil.BRAZIL, LocaleUtil.US});
+			SetUtil.fromArray(new Locale[] {LocaleUtil.BRAZIL, LocaleUtil.US}));
 
 		LanguageUtil languageUtil = new LanguageUtil();
 
@@ -574,10 +578,33 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 		localizationUtil.setLocalization(new LocalizationImpl());
 	}
 
+	protected void setUpPropsUtil() {
+		Props props = mock(Props.class);
+
+		when(
+			props.get(PropsKeys.XML_SECURITY_ENABLED)
+		).thenReturn(
+			Boolean.TRUE.toString()
+		);
+
+		PropsUtil.setProps(props);
+	}
+
 	protected void setUpSAXReaderUtil() {
 		SAXReaderUtil saxReaderUtil = new SAXReaderUtil();
 
-		saxReaderUtil.setSecureSAXReader(new SAXReaderImpl());
+		SAXReaderImpl secureSAXReader = new SAXReaderImpl();
+
+		secureSAXReader.setSecure(true);
+
+		saxReaderUtil.setSAXReader(secureSAXReader);
+
+		UnsecureSAXReaderUtil unsecureSAXReaderUtil =
+			new UnsecureSAXReaderUtil();
+
+		SAXReaderImpl unsecureSAXReader = new SAXReaderImpl();
+
+		unsecureSAXReaderUtil.setSAXReader(unsecureSAXReader);
 	}
 
 	protected void setUpSecureXMLFactoryProviderUtil() {
@@ -589,7 +616,7 @@ public class UpgradeDynamicMappingTest extends PowerMockito {
 	}
 
 	protected void whenLanguageGetAvailableLocalesThen(
-		Locale[] availableLocales) {
+		Set<Locale> availableLocales) {
 
 		when(
 			_language.getAvailableLocales()

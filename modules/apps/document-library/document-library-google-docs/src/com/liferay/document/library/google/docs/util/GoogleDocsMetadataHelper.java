@@ -18,7 +18,6 @@ import com.liferay.counter.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.documentlibrary.NoSuchFileEntryMetadataException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
@@ -39,12 +38,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Iv·n Zaera
+ * @author Iv√°n Zaera
  */
 public class GoogleDocsMetadataHelper {
 
 	public static DDMStructure getGoogleDocsDDMStructure(
 		DLFileEntryType dlFileEntryType) {
+
+		if (dlFileEntryType == null) {
+			return null;
+		}
 
 		List<DDMStructure> ddmStructures = dlFileEntryType.getDDMStructures();
 
@@ -201,8 +204,6 @@ public class GoogleDocsMetadataHelper {
 
 			_dlFileEntryMetadata.setDDMStorageId(ddmStorageId);
 			_dlFileEntryMetadata.setDDMStructureId(ddmStructureId);
-			_dlFileEntryMetadata.setFileEntryTypeId(
-				dlFileEntry.getFileEntryTypeId());
 			_dlFileEntryMetadata.setFileEntryId(dlFileEntry.getFileEntryId());
 			_dlFileEntryMetadata.setFileVersionId(
 				_dlFileVersion.getFileVersionId());
@@ -230,20 +231,13 @@ public class GoogleDocsMetadataHelper {
 
 		_fieldsMap = new HashMap<>();
 
-		try {
-			_dlFileEntryMetadata =
-				_dlFileEntryMetadataLocalService.getFileEntryMetadata(
-					_ddmStructure.getStructureId(),
-					_dlFileVersion.getFileVersionId());
-		}
-		catch (NoSuchFileEntryMetadataException nsfeme) {
+		_dlFileEntryMetadata =
+			_dlFileEntryMetadataLocalService.fetchFileEntryMetadata(
+				_ddmStructure.getStructureId(),
+				_dlFileVersion.getFileVersionId());
+
+		if (_dlFileEntryMetadata == null) {
 			addGoogleDocsDLFileEntryMetadata();
-		}
-		catch (PortalException pe) {
-			throw new SystemException(
-				"Unable to load file entry metadata for file version " +
-					_dlFileVersion.getFileVersionId(),
-				pe);
 		}
 
 		try {
