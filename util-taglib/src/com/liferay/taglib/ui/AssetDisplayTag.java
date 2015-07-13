@@ -16,11 +16,9 @@ package com.liferay.taglib.ui;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.portlet.PortletBag;
-import com.liferay.portal.kernel.portlet.PortletBagPool;
+import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.PortletConstants;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetRenderer;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
@@ -28,15 +26,45 @@ import com.liferay.portlet.asset.model.Renderer;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.taglib.util.IncludeTag;
 
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspException;
 
 /**
  * @author Julio Camarero
  */
 public class AssetDisplayTag extends IncludeTag {
+
+	@Override
+	public int doEndTag() throws JspException {
+		try {
+			callSetAttributes();
+
+			doInclude(null, false);
+
+			return EVAL_PAGE;
+		}
+		catch (Exception e) {
+			throw new JspException(e);
+		}
+		finally {
+			clearDynamicAttributes();
+			clearParams();
+			clearProperties();
+
+			cleanUpSetAttributes();
+
+			if (!ServerDetector.isResin()) {
+				setPage(null);
+				setUseCustomPage(true);
+
+				cleanUp();
+			}
+		}
+	}
 
 	public int getAbstractLength() {
 		return _abstractLength;
@@ -153,6 +181,25 @@ public class AssetDisplayTag extends IncludeTag {
 	}
 
 	@Override
+	protected void includePage(String page, HttpServletResponse response)
+		throws IOException, ServletException {
+
+		try {
+			boolean include = _renderer.include(request, response, _template);
+
+			if (include) {
+				return;
+			}
+		}
+		catch (Exception e) {
+			_log.error(e);
+		}
+
+		super.includePage(
+			"/html/taglib/ui/asset_display/" + _template + ".jsp", response);
+	}
+
+	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute(
 			"liferay-ui:asset-display:abstractLength", _abstractLength);
@@ -170,36 +217,20 @@ public class AssetDisplayTag extends IncludeTag {
 			}
 		}
 
-		request.setAttribute(
-			"liferay-ui:asset-display:assetEntry", _assetEntry);
+		request.setAttribute("liferay-ui:asset-display:assetEntry", assetEntry);
 
-		Renderer renderer = _renderer;
-
-		if ((renderer == null) && (assetEntry != null)) {
-			renderer = assetEntry.getAssetRenderer();
+		if ((_renderer == null) && (assetEntry != null)) {
+			_renderer = assetEntry.getAssetRenderer();
 		}
 
-		if (renderer instanceof AssetRenderer) {
-			AssetRenderer assetRenderer = (AssetRenderer)renderer;
+		if (_renderer instanceof AssetRenderer) {
+			AssetRenderer assetRenderer = (AssetRenderer)_renderer;
 
 			request.setAttribute(WebKeys.ASSET_RENDERER, assetRenderer);
 		}
 		else {
-			request.setAttribute("liferay-ui:asset-display:renderer", renderer);
-		}
-
-		try {
-			_page = renderer.render(
-				(RenderRequest)pageContext.getAttribute("renderRequest"),
-				(RenderResponse)pageContext.getAttribute("renderResponse"),
-				_template);
-		}
-		catch (Exception e) {
-			_log.error(e);
-		}
-
-		if (Validator.isNull(_page)) {
-			_page = "/html/taglib/ui/asset_diplay/" + _template + ".jsp";
+			request.setAttribute(
+				"liferay-ui:asset-display:renderer", _renderer);
 		}
 
 		AssetRendererFactory assetRendererFactory = _assetRendererFactory;
@@ -208,16 +239,9 @@ public class AssetDisplayTag extends IncludeTag {
 			assetRendererFactory = assetEntry.getAssetRendererFactory();
 		}
 
-		request.setAttribute(
-			WebKeys.ASSET_RENDERER_FACTORY, assetRendererFactory);
-
-		if (Validator.isNotNull(assetRendererFactory.getPortletId())) {
-			String rootPortletId = PortletConstants.getRootPortletId(
-				assetRendererFactory.getPortletId());
-
-			PortletBag portletBag = PortletBagPool.get(rootPortletId);
-
-			servletContext = portletBag.getServletContext();
+		if (assetRendererFactory != null) {
+			request.setAttribute(
+				WebKeys.ASSET_RENDERER_FACTORY, assetRendererFactory);
 		}
 
 		request.setAttribute(WebKeys.ASSET_ENTRY_VIEW_URL, _viewURL);

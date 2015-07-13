@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner.selenium;
 
+import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
 import com.liferay.poshi.runner.util.AntCommands;
 import com.liferay.poshi.runner.util.DateUtil;
 import com.liferay.poshi.runner.util.EmailCommands;
@@ -21,9 +22,9 @@ import com.liferay.poshi.runner.util.FileUtil;
 import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.LocaleUtil;
+import com.liferay.poshi.runner.util.OSDetector;
 import com.liferay.poshi.runner.util.PropsValues;
 import com.liferay.poshi.runner.util.RuntimeVariables;
-import com.liferay.poshi.runner.util.StringPool;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
@@ -60,8 +61,12 @@ import org.dom4j.io.SAXReader;
 
 import org.sikuli.api.DesktopScreenRegion;
 import org.sikuli.api.ImageTarget;
+import org.sikuli.api.Location;
 import org.sikuli.api.ScreenRegion;
+import org.sikuli.api.robot.Key;
+import org.sikuli.api.robot.Keyboard;
 import org.sikuli.api.robot.Mouse;
+import org.sikuli.api.robot.desktop.DesktopKeyboard;
 import org.sikuli.api.robot.desktop.DesktopMouse;
 import org.sikuli.api.visual.Canvas;
 import org.sikuli.api.visual.CanvasBuilder.ElementAdder;
@@ -261,7 +266,7 @@ public class LiferaySeleniumHelper {
 
 				Element throwableElement = eventElement.element("throwable");
 
-				Exception exception;
+				Exception exception = null;
 
 				if (throwableElement != null) {
 					exception = new Exception(
@@ -458,6 +463,19 @@ public class LiferaySeleniumHelper {
 		}
 	}
 
+	public static void assertPartialConfirmation(
+			LiferaySelenium liferaySelenium, String pattern)
+		throws Exception {
+
+		String confirmation = liferaySelenium.getConfirmation();
+
+		if (!confirmation.contains(pattern)) {
+			throw new Exception(
+				"\"" + confirmation + "\" does not contain \"" + pattern +
+					"\"");
+		}
+	}
+
 	public static void assertPartialText(
 			LiferaySelenium liferaySelenium, String locator, String pattern)
 		throws Exception {
@@ -550,6 +568,10 @@ public class LiferaySeleniumHelper {
 	}
 
 	public static void captureScreen(String fileName) throws Exception {
+		if (!PropsValues.SAVE_SCREENSHOT) {
+			return;
+		}
+
 		File file = new File(fileName);
 
 		file.mkdirs();
@@ -592,20 +614,23 @@ public class LiferaySeleniumHelper {
 		return EmailCommands.getEmailSubject(GetterUtil.getInteger(index));
 	}
 
+	public static ImageTarget getImageTarget(
+			LiferaySelenium liferaySelenium, String image)
+		throws Exception {
+
+		File file = new File(
+			_TEST_BASE_DIR_NAME + "/" +
+				liferaySelenium.getSikuliImagesDirName() + image);
+
+		return new ImageTarget(file);
+	}
+
 	public static String getNumberDecrement(String value) {
 		return StringUtil.valueOf(GetterUtil.getInteger(value) - 1);
 	}
 
 	public static String getNumberIncrement(String value) {
 		return StringUtil.valueOf(GetterUtil.getInteger(value) + 1);
-	}
-
-	public static String getPortalRootDirName() throws Exception {
-		File file = new File("../../../" + StringPool.PERIOD);
-
-		String absolutePath = file.getAbsolutePath();
-
-		return absolutePath.substring(0, absolutePath.length() - 1);
 	}
 
 	public static boolean isConfirmation(
@@ -630,12 +655,6 @@ public class LiferaySeleniumHelper {
 		Matcher matcher = pattern.matcher(content);
 
 		return matcher.find();
-	}
-
-	public static boolean isElementNotPresent(
-		LiferaySelenium liferaySelenium, String locator) {
-
-		return !liferaySelenium.isElementPresent(locator);
 	}
 
 	public static boolean isElementPresentAfterWait(
@@ -734,7 +753,7 @@ public class LiferaySeleniumHelper {
 				return true;
 			}
 
-			if (line.matches(".*[TrueZIP InputStream Reader].*")) {
+			if (line.matches(".*\\[TrueZIP InputStream Reader\\].*")) {
 				return true;
 			}
 		}
@@ -754,7 +773,7 @@ public class LiferaySeleniumHelper {
 		if (line.contains(
 				"Exception sending context destroyed event to listener " +
 					"instance of class com.liferay.portal.spring.context." +
-					"PortalContextLoaderListener")) {
+						"PortalContextLoaderListener")) {
 
 			return true;
 		}
@@ -801,12 +820,6 @@ public class LiferaySeleniumHelper {
 		// LPS-37574
 
 		if (line.contains("java.util.zip.ZipException: ZipFile closed")) {
-			return true;
-		}
-
-		// LPS-39742
-
-		if (line.contains("java.lang.IllegalStateException")) {
 			return true;
 		}
 
@@ -968,7 +981,7 @@ public class LiferaySeleniumHelper {
 
 		// LPS-50936
 
-		if (line.matches(
+		if (line.contains(
 				"Liferay does not have the Xuggler native libraries " +
 					"installed.")) {
 
@@ -986,6 +999,97 @@ public class LiferaySeleniumHelper {
 
 				return true;
 			}
+		}
+
+		// LPS-52346
+
+		if (line.matches(
+				".*The web application \\[\\] created a ThreadLocal with key " +
+					"of type.*")) {
+
+			if (line.contains(
+					"[org.apache.jasper.runtime.JspWriterImpl." +
+						"CharBufferThreadLocalPool]")) {
+
+				return true;
+			}
+		}
+
+		// LPS-52699
+
+		if (line.matches(
+				".*The web application \\[/saml-portlet\\] created a " +
+					"ThreadLocal with key of type.*")) {
+
+			if (line.matches(
+					".*\\[org.apache.xml.security.algorithms." +
+						"MessageDigestAlgorithm\\$[0-9]+\\].*")) {
+
+				return true;
+			}
+
+			if (line.matches(
+					".*\\[org.apache.xml.security.algorithms." +
+						"SignatureAlgorithm\\$[0-9]+\\].*")) {
+
+				return true;
+			}
+
+			if (line.matches(
+					".*\\[org.apache.xml.security.utils." +
+						"UnsyncBufferedOutputStream\\$[0-9]+\\].*")) {
+
+				return true;
+			}
+
+			if (line.matches(
+					".*\\[org.apache.xml.security.utils." +
+						"UnsyncByteArrayOutputStream\\$[0-9]+\\].*")) {
+
+				return true;
+			}
+		}
+
+		// LPS-54539
+
+		if (line.matches(
+				".*The web application \\[/agent\\] appears to have started " +
+					"a thread.*")) {
+
+			if (line.matches(".*\\[http-bio.*\\].*")) {
+				return true;
+			}
+
+			if (line.matches(".*\\[scheduler_Worker-[0-9]+\\].*")) {
+				return true;
+			}
+
+			if (line.matches(".*\\[SocketListener.*\\].*")) {
+				return true;
+			}
+		}
+
+		// LPS-54680
+
+		if (line.contains(
+				"The web application [/reports-portlet] appears to have " +
+					"started a thread named [C3P0PooledConnectionPool")) {
+
+			return true;
+		}
+
+		// LRQA-14442, temporary workaround until Kiyoshi Lee fixes it
+
+		if (line.contains("Framework Event Dispatcher: Equinox Container:")) {
+			if (line.contains("[org_eclipse_equinox_http_servlet")) {
+				return true;
+			}
+		}
+
+		// WCM-202
+
+		if (line.contains("No score point assigners available")) {
+			return true;
 		}
 
 		if (Validator.equals(PropsValues.LIFERAY_PORTAL_BUNDLE, "6.2.10.1") ||
@@ -1035,7 +1139,11 @@ public class LiferaySeleniumHelper {
 	}
 
 	public static boolean isMobileDeviceEnabled() {
-		return PropsValues.MOBILE_DEVICE_ENABLED;
+		if (Validator.isNull(PropsValues.MOBILE_DEVICE_TYPE)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public static boolean isNotChecked(
@@ -1094,6 +1202,10 @@ public class LiferaySeleniumHelper {
 	public static void saveScreenshot(LiferaySelenium liferaySelenium)
 		throws Exception {
 
+		if (!PropsValues.SAVE_SCREENSHOT) {
+			return;
+		}
+
 		_screenshotCount++;
 
 		captureScreen(
@@ -1105,6 +1217,10 @@ public class LiferaySeleniumHelper {
 	public static void saveScreenshotBeforeAction(
 			LiferaySelenium liferaySelenium, boolean actionFailed)
 		throws Exception {
+
+		if (!PropsValues.SAVE_SCREENSHOT) {
+			return;
+		}
 
 		if (actionFailed) {
 			_screenshotErrorCount++;
@@ -1132,13 +1248,7 @@ public class LiferaySeleniumHelper {
 
 		ScreenRegion screenRegion = new DesktopScreenRegion();
 
-		liferaySelenium.pause("1000");
-
-		File file = new File(
-			getPortalRootDirName() + liferaySelenium.getSikuliImagesDirName() +
-				image);
-
-		ImageTarget imageTarget = new ImageTarget(file);
+		ImageTarget imageTarget = getImageTarget(liferaySelenium, image);
 
 		if (screenRegion.wait(imageTarget, 5000) != null) {
 			throw new Exception("Element is present");
@@ -1151,13 +1261,7 @@ public class LiferaySeleniumHelper {
 
 		ScreenRegion screenRegion = new DesktopScreenRegion();
 
-		liferaySelenium.pause("1000");
-
-		File file = new File(
-			getPortalRootDirName() + liferaySelenium.getSikuliImagesDirName() +
-				image);
-
-		ImageTarget imageTarget = new ImageTarget(file);
+		ImageTarget imageTarget = getImageTarget(liferaySelenium, image);
 
 		screenRegion = screenRegion.wait(imageTarget, 5000);
 
@@ -1180,14 +1284,54 @@ public class LiferaySeleniumHelper {
 			LiferaySelenium liferaySelenium, String image)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		Mouse mouse = new DesktopMouse();
+
+		ScreenRegion screenRegion = new DesktopScreenRegion();
+
+		ImageTarget imageTarget = getImageTarget(liferaySelenium, image);
+
+		List<ScreenRegion> imageTargetScreenRegions = screenRegion.findAll(
+			imageTarget);
+
+		for (ScreenRegion imageTargetScreenRegion : imageTargetScreenRegions) {
+			mouse.click(imageTargetScreenRegion.getCenter());
+		}
 	}
 
 	public static void sikuliDragAndDrop(
 			LiferaySelenium liferaySelenium, String image, String coordString)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		ScreenRegion screenRegion = new DesktopScreenRegion();
+
+		ImageTarget imageTarget = getImageTarget(liferaySelenium, image);
+
+		screenRegion = screenRegion.find(imageTarget);
+
+		Mouse mouse = new DesktopMouse();
+
+		mouse.move(screenRegion.getCenter());
+
+		Robot robot = new Robot();
+
+		robot.delay(1000);
+
+		mouse.press();
+
+		robot.delay(2000);
+
+		String[] coords = coordString.split(",");
+
+		Location location = screenRegion.getCenter();
+
+		int x = location.getX() + GetterUtil.getInteger(coords[0]);
+		int y = location.getY() + GetterUtil.getInteger(coords[1]);
+
+		robot.mouseMove(x, y);
+
+		robot.delay(1000);
+
+		mouse.release();
 	}
 
 	public static void sikuliLeftMouseDown(LiferaySelenium liferaySelenium)
@@ -1214,7 +1358,15 @@ public class LiferaySeleniumHelper {
 			LiferaySelenium liferaySelenium, String image)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		ScreenRegion screenRegion = new DesktopScreenRegion();
+
+		ImageTarget imageTarget = getImageTarget(liferaySelenium, image);
+
+		screenRegion = screenRegion.find(imageTarget);
+
+		Mouse mouse = new DesktopMouse();
+
+		mouse.move(screenRegion.getCenter());
 	}
 
 	public static void sikuliRightMouseDown(LiferaySelenium liferaySelenium)
@@ -1241,61 +1393,132 @@ public class LiferaySeleniumHelper {
 			LiferaySelenium liferaySelenium, String image, String value)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		sikuliClick(liferaySelenium, image);
+
+		liferaySelenium.pause("1000");
+
+		Keyboard keyboard = new DesktopKeyboard();
+
+		if (value.contains("${line.separator}")) {
+			String[] tokens = StringUtil.split(value, "${line.separator}");
+
+			for (int i = 0; i < tokens.length; i++) {
+				keyboard.type(tokens[i]);
+
+				if ((i + 1) < tokens.length) {
+					keyboard.type(Key.ENTER);
+				}
+			}
+
+			if (value.endsWith("${line.separator}")) {
+				keyboard.type(Key.ENTER);
+			}
+		}
+		else {
+			keyboard.type(value);
+		}
 	}
 
 	public static void sikuliUploadCommonFile(
 			LiferaySelenium liferaySelenium, String image, String value)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		sikuliClick(liferaySelenium, image);
+
+		Keyboard keyboard = new DesktopKeyboard();
+
+		keyboard.keyDown(Key.CTRL);
+
+		keyboard.type("a");
+
+		keyboard.keyUp(Key.CTRL);
+
+		sikuliType(
+			liferaySelenium, image,
+			_TEST_BASE_DIR_NAME + "/" + _TEST_DEPENDENCIES_DIR_NAME + value);
+
+		keyboard.type(Key.ENTER);
 	}
 
 	public static void sikuliUploadTCatFile(
 			LiferaySelenium liferaySelenium, String image, String value)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		String tCatAdminFileName =
+			PropsValues.TCAT_ADMIN_REPOSITORY + "/" + value;
+
+		if (OSDetector.isWindows()) {
+			tCatAdminFileName = tCatAdminFileName.replace("/", "\\");
+		}
+
+		sikuliType(liferaySelenium, image, tCatAdminFileName);
+
+		Keyboard keyboard = new DesktopKeyboard();
+
+		keyboard.type(Key.ENTER);
 	}
 
 	public static void sikuliUploadTempFile(
 			LiferaySelenium liferaySelenium, String image, String value)
 		throws Exception {
 
-		throw new UnsupportedOperationException();
+		sikuliClick(liferaySelenium, image);
+
+		Keyboard keyboard = new DesktopKeyboard();
+
+		keyboard.keyDown(Key.CTRL);
+
+		keyboard.type("a");
+
+		keyboard.keyUp(Key.CTRL);
+
+		String slash = "/";
+
+		if (OSDetector.isWindows()) {
+			slash = "\\";
+		}
+
+		sikuliType(
+			liferaySelenium, image,
+			liferaySelenium.getOutputDirName() + slash + value);
+
+		keyboard.type(Key.ENTER);
 	}
 
 	public static void typeAceEditor(
 		LiferaySelenium liferaySelenium, String locator, String value) {
 
+		liferaySelenium.typeKeys(locator, "");
+
+		Keyboard keyboard = new DesktopKeyboard();
+
+		Matcher matcher = _aceEditorPattern.matcher(value);
+
 		int x = 0;
-		int y = value.indexOf("${line.separator}");
 
-		String line = value;
+		while (matcher.find()) {
+			int y = matcher.start();
 
-		if (y != -1) {
-			line = value.substring(x, y);
-		}
+			String line = value.substring(x, y);
 
-		liferaySelenium.typeKeys(locator, line.trim());
+			keyboard.type(line.trim());
 
-		liferaySelenium.keyPress(locator, "\\RETURN");
+			String specialCharacter = matcher.group();
 
-		while (y != -1) {
-			x = value.indexOf("}", x) + 1;
-			y = value.indexOf("${line.separator}", x);
-
-			if (y != -1) {
-				line = value.substring(x, y);
+			if (specialCharacter.equals("(")) {
+				keyboard.type("(");
 			}
-			else {
-				line = value.substring(x, value.length());
+			else if (specialCharacter.equals("${line.separator}")) {
+				liferaySelenium.keyPress(locator, "\\SPACE");
+				liferaySelenium.keyPress(locator, "\\RETURN");
 			}
 
-			liferaySelenium.typeKeys(locator, line.trim());
-
-			liferaySelenium.keyPress(locator, "\\RETURN");
+			x = y + specialCharacter.length();
 		}
+
+		String line = value.substring(x);
+
+		keyboard.type(line.trim());
 	}
 
 	public static void typeFrame(
@@ -1324,6 +1547,29 @@ public class LiferaySeleniumHelper {
 
 	public static void typeScreen(String value) {
 		throw new UnsupportedOperationException();
+	}
+
+	public static void waitForConfirmation(
+			LiferaySelenium liferaySelenium, String pattern)
+		throws Exception {
+
+		int timeout =
+			PropsValues.TIMEOUT_EXPLICIT_WAIT /
+				PropsValues.TIMEOUT_IMPLICIT_WAIT;
+
+		for (int second = 0;; second++) {
+			if (second >= timeout) {
+				assertConfirmation(liferaySelenium, pattern);
+			}
+
+			try {
+				if (isConfirmation(liferaySelenium, pattern)) {
+					break;
+				}
+			}
+			catch (Exception e) {
+			}
+		}
 	}
 
 	public static void waitForElementNotPresent(
@@ -1640,6 +1886,14 @@ public class LiferaySeleniumHelper {
 		}
 	}
 
+	private static final String _TEST_BASE_DIR_NAME =
+		PoshiRunnerGetterUtil.getCanonicalPath(PropsValues.TEST_BASE_DIR_NAME);
+
+	private static final String _TEST_DEPENDENCIES_DIR_NAME =
+		PropsValues.TEST_DEPENDENCIES_DIR_NAME;
+
+	private static final Pattern _aceEditorPattern = Pattern.compile(
+		"\\(|\\$\\{line\\.separator\\}");
 	private static final List<Exception> _javaScriptExceptions =
 		new ArrayList<>();
 	private static final List<Exception> _liferayExceptions = new ArrayList<>();
