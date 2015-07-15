@@ -16,7 +16,6 @@ package com.liferay.portal.model.impl;
 
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
-import com.liferay.portal.kernel.dao.shard.ShardUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -101,14 +100,7 @@ public class UserImpl extends UserBaseImpl {
 
 	@Override
 	public Contact fetchContact() {
-		try {
-			ShardUtil.pushCompanyService(getCompanyId());
-
-			return ContactLocalServiceUtil.fetchContact(getContactId());
-		}
-		finally {
-			ShardUtil.popCompanyService();
-		}
+		return ContactLocalServiceUtil.fetchContact(getContactId());
 	}
 
 	/**
@@ -156,14 +148,7 @@ public class UserImpl extends UserBaseImpl {
 	 */
 	@Override
 	public Contact getContact() throws PortalException {
-		try {
-			ShardUtil.pushCompanyService(getCompanyId());
-
-			return ContactLocalServiceUtil.getContact(getContactId());
-		}
-		finally {
-			ShardUtil.popCompanyService();
-		}
+		return ContactLocalServiceUtil.getContact(getContactId());
 	}
 
 	/**
@@ -324,28 +309,6 @@ public class UserImpl extends UserBaseImpl {
 		if (Validator.isNotNull(profileFriendlyURL)) {
 			return portalURL.concat(PortalUtil.getPathContext()).concat(
 				profileFriendlyURL);
-		}
-
-		Group group = getGroup();
-
-		int publicLayoutsPageCount = group.getPublicLayoutsPageCount();
-
-		if (publicLayoutsPageCount > 0) {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append(portalURL);
-			sb.append(mainPath);
-			sb.append("/my_sites/view?groupId=");
-			sb.append(group.getGroupId());
-
-			if (privateLayout) {
-				sb.append("&privateLayout=1");
-			}
-			else {
-				sb.append("&privateLayout=0");
-			}
-
-			return sb.toString();
 		}
 
 		return StringPool.BLANK;

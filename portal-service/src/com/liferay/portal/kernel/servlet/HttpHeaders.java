@@ -27,6 +27,9 @@ public interface HttpHeaders {
 
 	public static final String ACCEPT_RANGES = "Accept-Ranges";
 
+	public static final String ACCESS_CONTROL_ALLOW_ORIGIN =
+		"Access-Control-Allow-Origin";
+
 	public static final String AUTHORIZATION = "Authorization";
 
 	public static final String CACHE_CONTROL = "Cache-Control";
@@ -67,6 +70,8 @@ public interface HttpHeaders {
 
 	public static final String LOCATION = "Location";
 
+	public static final String ORIGIN = "Origin";
+
 	public static final String PRAGMA = "Pragma";
 
 	public static final String RANGE = "Range";
@@ -81,6 +86,8 @@ public interface HttpHeaders {
 
 	public static final String X_CONTENT_TYPE_OPTIONS =
 		"X-Content-Type-Options";
+
+	public static final String X_FORWARDED_FOR = "X-Forwarded-For";
 
 	public static final String X_FRAME_OPTIONS = "X-Frame-Options";
 

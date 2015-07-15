@@ -14,26 +14,31 @@
 
 package com.liferay.portal.kernel.servlet;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.SortedProperties;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.Company;
 import com.liferay.portal.util.PortalUtil;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -76,6 +81,7 @@ public class SanitizedServletResponse extends HttpServletResponseWrapper {
 	public static HttpServletResponse getSanitizedServletResponse(
 		HttpServletRequest request, HttpServletResponse response) {
 
+		setAccessControlAllowOrigin(request, response);
 		setXContentOptions(request, response);
 		setXFrameOptions(request, response);
 		setXXSSProtection(request, response);
@@ -112,6 +118,40 @@ public class SanitizedServletResponse extends HttpServletResponseWrapper {
 	public void setHeader(String name, String value) {
 		super.setHeader(
 			HttpUtil.sanitizeHeader(name), HttpUtil.sanitizeHeader(value));
+	}
+
+	protected static void setAccessControlAllowOrigin(
+		HttpServletRequest request, HttpServletResponse response) {
+
+		if (!_ACCESS_CONTROL_ALLOW_ORIGIN_ENABLED) {
+			return;
+		}
+
+		String originalHost = request.getHeader(HttpHeaders.ORIGIN);
+
+		if (Validator.isNull(originalHost)) {
+			return;
+		}
+
+		Set<String> allowedHostsSet = SetUtil.fromArray(
+			_ACCESS_CONTROL_ALLOW_ORIGIN_HOSTS);
+
+		if (allowedHostsSet.isEmpty()) {
+			allowedHostsSet.add(StringPool.STAR);
+		}
+		else {
+			for (String allowedHost : allowedHostsSet) {
+
+				if (allowedHost.equals(StringPool.STAR) ||
+					allowedHost.equals(originalHost)) {
+
+					response.setHeader(
+						HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, allowedHost);
+
+					return;
+				}
+			}
+		}
 	}
 
 	protected static void setXContentOptions(
@@ -187,26 +227,41 @@ public class SanitizedServletResponse extends HttpServletResponseWrapper {
 		super(response);
 	}
 
+	private static final boolean _ACCESS_CONTROL_ALLOW_ORIGIN_ENABLED =
+		GetterUtil.getBoolean(
+			SystemProperties.get(
+				"http.header.secure.access.control.allow.origin.enabled"),
+			false);
+
+	private static final String[] _ACCESS_CONTROL_ALLOW_ORIGIN_HOSTS =
+		StringUtil.split(
+			SystemProperties.get(
+				"http.header.secure.access.control.allow.origin.hosts"));
+
 	private static final String _DISABLE_XSS_AUDITOR =
 		SanitizedServletResponse.class.getName() + "DISABLE_XSS_AUDITOR";
 
 	private static final boolean _X_CONTENT_TYPE_OPTIONS =
 		GetterUtil.getBoolean(
-			PropsUtil.get(PropsKeys.HTTP_HEADER_SECURE_X_CONTENT_TYPE_OPTIONS),
+			SystemProperties.get("http.header.secure.x.content.type.options"),
 			true);
 
 	private static final String[] _X_CONTENT_TYPE_OPTIONS_URLS_EXCLUDES =
-		PropsUtil.getArray(
-			PropsKeys.HTTP_HEADER_SECURE_X_CONTENT_TYPE_OPTIONS_URLS_EXCLUDES);
+		StringUtil.split(
+			SystemProperties.get(
+				"http.header.secure.x.content.type.options.urls.excludes"));
 
 	private static final boolean _X_FRAME_OPTIONS;
 
-	private static final String _X_XSS_PROTECTION = PropsUtil.get(
-		PropsKeys.HTTP_HEADER_SECURE_X_XSS_PROTECTION);
+	private static final String _X_XSS_PROTECTION = SystemProperties.get(
+		"http.header.secure.x.xss.protection");
 
 	private static final KeyValuePair[] _xFrameOptionKVPs;
 
 	static {
+		String httpHeaderSecureXFrameOptionsKey =
+			"http.header.secure.x.frame.options";
+
 		Properties properties = new SortedProperties(
 			new Comparator<String>() {
 
@@ -217,9 +272,9 @@ public class SanitizedServletResponse extends HttpServletResponseWrapper {
 				}
 
 			},
-			PropsUtil.getProperties(
-				PropsKeys.HTTP_HEADER_SECURE_X_FRAME_OPTIONS +
-					StringPool.PERIOD,
+			PropertiesUtil.getProperties(
+				SystemProperties.getProperties(),
+				httpHeaderSecureXFrameOptionsKey.concat(StringPool.PERIOD),
 				true));
 
 		List<KeyValuePair> xFrameOptionKVPs = new ArrayList<>(
@@ -264,8 +319,7 @@ public class SanitizedServletResponse extends HttpServletResponseWrapper {
 		}
 		else {
 			_X_FRAME_OPTIONS = GetterUtil.getBoolean(
-				PropsUtil.get(PropsKeys.HTTP_HEADER_SECURE_X_FRAME_OPTIONS),
-				true);
+				SystemProperties.get(httpHeaderSecureXFrameOptionsKey), true);
 		}
 	}
 

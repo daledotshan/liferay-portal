@@ -21,6 +21,7 @@ import com.liferay.portal.UserActiveException;
 import com.liferay.portal.UserEmailAddressException;
 import com.liferay.portal.UserLockoutException;
 import com.liferay.portal.UserReminderQueryException;
+import com.liferay.portal.kernel.captcha.CaptchaConfigurationException;
 import com.liferay.portal.kernel.captcha.CaptchaException;
 import com.liferay.portal.kernel.captcha.CaptchaTextException;
 import com.liferay.portal.kernel.captcha.CaptchaUtil;
@@ -70,7 +71,7 @@ public class ForgotPasswordAction extends PortletAction {
 		Company company = themeDisplay.getCompany();
 
 		if (!company.isSendPassword() && !company.isSendPasswordResetLink()) {
-			throw new PrincipalException();
+			throw new PrincipalException("Unable to reset password");
 		}
 
 		try {
@@ -84,7 +85,8 @@ public class ForgotPasswordAction extends PortletAction {
 			}
 		}
 		catch (Exception e) {
-			if (e instanceof CaptchaTextException ||
+			if (e instanceof CaptchaConfigurationException ||
+				e instanceof CaptchaTextException ||
 				e instanceof UserEmailAddressException) {
 
 				SessionErrors.add(actionRequest, e.getClass());
@@ -217,18 +219,15 @@ public class ForgotPasswordAction extends PortletAction {
 				user = UserLocalServiceUtil.getUserById(userId);
 			}
 			else {
-				throw new NoSuchUserException();
+				throw new NoSuchUserException("User does not exist");
 			}
 		}
 
 		if (!user.isActive()) {
-			throw new UserActiveException();
+			throw new UserActiveException("Inactive user " + user.getUuid());
 		}
 
-		if (user.isLockout()) {
-			throw new UserLockoutException.PasswordPolicyLockout(
-				user, user.getPasswordPolicy());
-		}
+		UserLocalServiceUtil.checkLockout(user);
 
 		return user;
 	}
@@ -261,7 +260,8 @@ public class ForgotPasswordAction extends PortletAction {
 			String answer = ParamUtil.getString(actionRequest, "answer");
 
 			if (!user.getReminderQueryAnswer().equals(answer)) {
-				throw new UserReminderQueryException();
+				throw new UserReminderQueryException(
+					"Reminder query answer does not match answer");
 			}
 		}
 
