@@ -35,6 +35,8 @@ public interface LiferaySelenium extends Selenium {
 
 	public void assertConsoleTextPresent(String text) throws Exception;
 
+	public void assertEditable(String locator) throws Exception;
+
 	public void assertElementNotPresent(String locator) throws Exception;
 
 	public void assertElementPresent(String locator) throws Exception;
@@ -63,6 +65,8 @@ public interface LiferaySelenium extends Selenium {
 
 	public void assertNotChecked(String locator) throws Exception;
 
+	public void assertNotEditable(String locator) throws Exception;
+
 	public void assertNotLocation(String pattern) throws Exception;
 
 	public void assertNotPartialText(String locator, String pattern)
@@ -76,6 +80,8 @@ public interface LiferaySelenium extends Selenium {
 	public void assertNotValue(String locator, String pattern) throws Exception;
 
 	public void assertNotVisible(String locator) throws Exception;
+
+	public void assertPartialConfirmation(String pattern) throws Exception;
 
 	public void assertPartialText(String locator, String pattern)
 		throws Exception;
@@ -151,6 +157,8 @@ public interface LiferaySelenium extends Selenium {
 	public boolean isMobileDeviceEnabled();
 
 	public boolean isNotChecked(String locator);
+
+	public boolean isNotEditable(String locator);
 
 	public boolean isNotPartialText(String locator, String value);
 
@@ -240,6 +248,8 @@ public interface LiferaySelenium extends Selenium {
 
 	public void sikuliClick(String image) throws Exception;
 
+	public void sikuliClickByIndex(String image, String index) throws Exception;
+
 	public void sikuliDragAndDrop(String image, String coordString)
 		throws Exception;
 
@@ -270,7 +280,9 @@ public interface LiferaySelenium extends Selenium {
 
 	public void typeAceEditor(String locator, String value);
 
-	public void typeFrame(String locator, String value);
+	public void typeAlloyEditor(String locator, String value);
+
+	public void typeCKEditor(String locator, String value);
 
 	public void typeScreen(String value);
 

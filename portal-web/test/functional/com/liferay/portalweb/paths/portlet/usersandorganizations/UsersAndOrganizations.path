@@ -9,16 +9,6 @@
 </thead>
 <tbody>
 <tr>
-	<td>PAGE_NAME</td>
-	<td></td>
-	<td>UsersAndOrganizations</td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
 	<td>ALL_ORGANIZATIONS_TAB</td>
 	<td>//ul[contains(@class,'nav') and contains(@class,'nav-tabs')]/li/a[contains(.,'All Organizations')]/span</td>
 	<td></td>
@@ -61,6 +51,11 @@
 <tr>
 	<td>ADVANCED_SEARCH_ICON</td>
 	<td>//a[@id='toggle_id_users_admin_organization_searchtoggleAdvanced']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BACK</td>
+	<td>//a[contains(@id,'TabsBack')]</td>
 	<td></td>
 </tr>
 <tr>

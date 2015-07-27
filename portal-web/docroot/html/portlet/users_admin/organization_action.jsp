@@ -61,7 +61,7 @@ if (row == null) {
 
 	<c:if test="<%= hasUpdatePermission %>">
 		<portlet:renderURL var="editOrganizationURL">
-			<portlet:param name="struts_action" value="/users_admin/edit_organization" />
+			<portlet:param name="mvcRenderCommandName" value="/users_admin/edit_organization" />
 			<portlet:param name="redirect" value="<%= redirect %>" />
 			<portlet:param name="organizationId" value="<%= String.valueOf(organizationId) %>" />
 		</portlet:renderURL>
@@ -92,36 +92,42 @@ if (row == null) {
 	</c:if>--%>
 
 	<c:if test="<%= organizationGroup.isSite() && (GroupPermissionUtil.contains(permissionChecker, organizationGroup, ActionKeys.MANAGE_STAGING) || hasUpdatePermission) %>">
-		<liferay-portlet:renderURL doAsGroupId="<%= organizationGroupId %>" portletName="<%= PortletKeys.SITE_SETTINGS %>" var="editSettingsURL">
-			<portlet:param name="struts_action" value="/sites_admin/edit_site" />
-			<portlet:param name="viewOrganizationsRedirect" value="<%= currentURL %>" />
-		</liferay-portlet:renderURL>
+
+		<%
+		LiferayPortletURL editSettingsURL = (LiferayPortletURL)PortletProviderUtil.getPortletURL(request, Group.class.getName(), PortletProvider.Action.EDIT);
+
+		editSettingsURL.setDoAsGroupId(organizationGroupId);
+		editSettingsURL.setParameter("viewOrganizationsRedirect", currentURL);
+		%>
 
 		<liferay-ui:icon
 			iconCssClass="icon-cog"
 			message="manage-site"
-			url="<%= editSettingsURL %>"
+			url="<%= editSettingsURL.toString() %>"
 		/>
 	</c:if>
 
 	<c:if test="<%= permissionChecker.isGroupOwner(organizationGroupId) || OrganizationPermissionUtil.contains(permissionChecker, organization, ActionKeys.ASSIGN_USER_ROLES) %>">
-		<portlet:renderURL var="assignUserRolesURL">
-			<portlet:param name="struts_action" value="/users_admin/edit_user_roles" />
-			<portlet:param name="redirect" value="<%= redirect %>" />
-			<portlet:param name="groupId" value="<%= String.valueOf(organizationGroupId) %>" />
-			<portlet:param name="roleType" value="<%= String.valueOf(RoleConstants.TYPE_ORGANIZATION) %>" />
-		</portlet:renderURL>
+
+		<%
+		PortletURL assignUserRolesURL = PortletProviderUtil.getPortletURL(request, UserGroupRole.class.getName(), PortletProvider.Action.EDIT);
+
+		assignUserRolesURL.setParameter("className", User.class.getName());
+		assignUserRolesURL.setParameter("groupId", String.valueOf(organizationGroupId));
+		assignUserRolesURL.setWindowState(LiferayWindowState.POP_UP);
+		%>
 
 		<liferay-ui:icon
 			iconCssClass="icon-signin"
 			message="assign-organization-roles"
-			url="<%= assignUserRolesURL %>"
+			url="<%= assignUserRolesURL.toString() %>"
+			useDialog="<%= true %>"
 		/>
 	</c:if>
 
 	<c:if test="<%= OrganizationPermissionUtil.contains(permissionChecker, organization, ActionKeys.ASSIGN_MEMBERS) %>">
 		<portlet:renderURL var="assignMembersURL">
-			<portlet:param name="struts_action" value="/users_admin/edit_organization_assignments" />
+			<portlet:param name="mvcRenderCommandName" value="/users_admin/edit_organization_assignments" />
 			<portlet:param name="redirect" value="<%= redirect %>" />
 			<portlet:param name="organizationId" value="<%= String.valueOf(organizationId) %>" />
 		</portlet:renderURL>
@@ -135,7 +141,7 @@ if (row == null) {
 
 	<c:if test="<%= OrganizationPermissionUtil.contains(permissionChecker, organization, ActionKeys.MANAGE_USERS) %>">
 		<portlet:renderURL var="addUserURL">
-			<portlet:param name="struts_action" value="/users_admin/edit_user" />
+			<portlet:param name="mvcRenderCommandName" value="/users_admin/edit_user" />
 			<portlet:param name="redirect" value="<%= redirect %>" />
 			<portlet:param name="organizationsSearchContainerPrimaryKeys" value="<%= String.valueOf(organizationId) %>" />
 		</portlet:renderURL>
@@ -157,7 +163,7 @@ if (row == null) {
 
 			<c:if test="<%= OrganizationPermissionUtil.contains(permissionChecker, organization, ActionKeys.ADD_ORGANIZATION) %>">
 				<portlet:renderURL var="addSuborganizationURL">
-					<portlet:param name="struts_action" value="/users_admin/edit_organization" />
+					<portlet:param name="mvcRenderCommandName" value="/users_admin/edit_organization" />
 					<portlet:param name="redirect" value="<%= redirect %>" />
 					<portlet:param name="parentOrganizationSearchContainerPrimaryKeys" value="<%= String.valueOf(organizationId) %>" />
 					<portlet:param name="type" value="<%= childrenType %>" />
