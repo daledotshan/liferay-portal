@@ -35,11 +35,10 @@ import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerUtil;
+import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
 import com.liferay.portlet.dynamicdatamapping.model.UnlocalizedValue;
 import com.liferay.portlet.dynamicdatamapping.storage.DDMFormFieldValue;
@@ -89,7 +88,7 @@ public class DLFileEntryDDMFormValuesReaderTest {
 	protected DLFileEntryType addDLFileEntryType(ServiceContext serviceContext)
 		throws Exception {
 
-		return DLAppTestUtil.addDLFileEntryType(
+		return DLFileEntryTypeLocalServiceUtil.addFileEntryType(
 			TestPropsValues.getUserId(), _group.getGroupId(),
 			RandomTestUtil.randomString(), StringPool.BLANK, new long[0],
 			serviceContext);
@@ -201,8 +200,7 @@ public class DLFileEntryDDMFormValuesReaderTest {
 
 		DDMForm ddmForm = createDDMForm();
 
-		serviceContext.setAttribute(
-			"definition", DDMFormXSDSerializerUtil.serialize(ddmForm));
+		serviceContext.setAttribute("ddmForm", ddmForm);
 
 		User user = TestPropsValues.getUser();
 

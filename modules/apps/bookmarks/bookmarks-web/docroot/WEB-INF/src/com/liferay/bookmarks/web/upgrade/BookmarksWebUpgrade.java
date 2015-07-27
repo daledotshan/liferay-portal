@@ -14,7 +14,6 @@
 
 package com.liferay.bookmarks.web.upgrade;
 
-import com.liferay.bookmarks.service.configuration.configurator.BookmarksServiceConfigurator;
 import com.liferay.bookmarks.web.upgrade.v1_0_0.UpgradeAdminPortlets;
 import com.liferay.bookmarks.web.upgrade.v1_0_0.UpgradePortletPreferences;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -24,6 +23,8 @@ import com.liferay.portal.service.ReleaseLocalService;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -31,21 +32,18 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Miguel Pastor
  */
-@Component(
-	immediate = true, service = BookmarksWebUpgrade.class
-)
+@Component(immediate = true, service = BookmarksWebUpgrade.class)
 public class BookmarksWebUpgrade {
-
-	@Reference(unbind = "-")
-	protected void setBookmarksServiceConfigurator(
-		BookmarksServiceConfigurator bookmarksServiceConfigurator) {
-	}
 
 	@Reference(unbind = "-")
 	protected void setReleaseLocalService(
 		ReleaseLocalService releaseLocalService) {
 
 		_releaseLocalService = releaseLocalService;
+	}
+
+	@Reference(target = "(original.bean=*)", unbind = "-")
+	protected void setServletContext(ServletContext servletContext) {
 	}
 
 	@Activate
@@ -56,7 +54,7 @@ public class BookmarksWebUpgrade {
 		upgradeProcesses.add(new UpgradePortletPreferences());
 
 		_releaseLocalService.updateRelease(
-			"com.liferay.bookmarks.web", upgradeProcesses, 1, 0, false);
+			"com.liferay.bookmarks.web", upgradeProcesses, 1, 1, false);
 	}
 
 	private ReleaseLocalService _releaseLocalService;
