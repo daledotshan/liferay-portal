@@ -112,7 +112,6 @@ import java.io.File;
 import java.io.Serializable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -157,6 +156,24 @@ public class ServicePreAction extends Action {
 		String cdnHost = PortalUtil.getCDNHost(request);
 
 		String dynamicResourcesCDNHost = StringPool.BLANK;
+
+		String friendlyURL = (String)request.getAttribute("FRIENDLY_URL");
+
+		if (Validator.isNotNull(friendlyURL)) {
+			Boolean isInCDNExcludePaths = false;
+
+			for (String cdnExcludePath : _cdnExcludePathsArray) {
+				if (friendlyURL.contains(cdnExcludePath)) {
+					isInCDNExcludePaths = true;
+
+					break;
+				}
+			}
+
+			if (isInCDNExcludePaths) {
+				cdnHost = StringPool.BLANK;
+			}
+		}
 
 		boolean cdnDynamicResourceEnabled =
 			PortalUtil.isCDNDynamicResourcesEnabled(request);
@@ -2357,5 +2374,8 @@ public class ServicePreAction extends Action {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ServicePreAction.class);
+
+	private static final String[] _cdnExcludePathsArray =
+		PropsValues.CDN_EXCLUDE_PATHS;
 
 }
