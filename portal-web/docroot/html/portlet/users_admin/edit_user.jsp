@@ -52,10 +52,19 @@ List<Organization> organizations = Collections.emptyList();
 
 if (selUser != null) {
 	organizations = selUser.getOrganizations();
-}
 
-if (filterManageableOrganizations) {
-	organizations = UsersAdminUtil.filterOrganizations(permissionChecker, organizations);
+	if (filterManageableOrganizations) {
+		organizations = UsersAdminUtil.filterOrganizations(permissionChecker, organizations);
+	}
+}
+else {
+	String organizationIdsString = ParamUtil.getString(request, "organizationsSearchContainerPrimaryKeys");
+
+	if (Validator.isNotNull(organizationIdsString)) {
+		long[] organizationIds = StringUtil.split(organizationIdsString, 0L);
+
+		organizations = OrganizationLocalServiceUtil.getOrganizations(organizationIds);
+	}
 }
 
 List<Role> roles = Collections.emptyList();
@@ -137,25 +146,6 @@ for (Group group : allGroups) {
 	}
 }
 
-String[] mainSections = PropsValues.USERS_FORM_ADD_MAIN;
-String[] identificationSections = PropsValues.USERS_FORM_ADD_IDENTIFICATION;
-String[] miscellaneousSections = PropsValues.USERS_FORM_ADD_MISCELLANEOUS;
-
-if (selUser != null) {
-	if (portletName.equals(PortletKeys.MY_ACCOUNT)) {
-		mainSections = PropsValues.USERS_FORM_MY_ACCOUNT_MAIN;
-		identificationSections = PropsValues.USERS_FORM_MY_ACCOUNT_IDENTIFICATION;
-		miscellaneousSections = PropsValues.USERS_FORM_MY_ACCOUNT_MISCELLANEOUS;
-	}
-	else {
-		mainSections = PropsValues.USERS_FORM_UPDATE_MAIN;
-		identificationSections = PropsValues.USERS_FORM_UPDATE_IDENTIFICATION;
-		miscellaneousSections = PropsValues.USERS_FORM_UPDATE_MISCELLANEOUS;
-	}
-}
-
-String[][] categorySections = {mainSections, identificationSections, miscellaneousSections};
-
 if (organizations.size() == 1) {
 	UsersAdminUtil.addPortletBreadcrumbEntries(organizations.get(0), request, renderResponse);
 }
@@ -188,12 +178,10 @@ if (selUser != null) {
 	/>
 </c:if>
 
-<portlet:actionURL var="editUserActionURL">
-	<portlet:param name="struts_action" value="/users_admin/edit_user" />
-</portlet:actionURL>
+<portlet:actionURL name="/users_admin/edit_user" var="editUserActionURL" />
 
 <portlet:renderURL var="editUserRenderURL">
-	<portlet:param name="struts_action" value="/users_admin/edit_user" />
+	<portlet:param name="mvcRenderCommandName" value="/users_admin/edit_user" />
 	<portlet:param name="backURL" value="<%= backURL %>" />
 </portlet:renderURL>
 
@@ -250,7 +238,21 @@ if (selUser != null) {
 	</liferay-util:buffer>
 
 	<liferay-util:buffer var="htmlBottom">
-		<c:if test="<%= (selUser != null) && (passwordPolicy != null) && selUser.getLockout() %>">
+
+		<%
+		boolean lockedOut = false;
+
+		if ((selUser != null) && (passwordPolicy != null)) {
+			try {
+				UserLocalServiceUtil.checkLockout(selUser);
+			}
+			catch (UserLockoutException.PasswordPolicyLockout ule) {
+				lockedOut = true;
+			}
+		}
+		%>
+
+		<c:if test="<%= lockedOut %>">
 			<aui:button-row>
 				<div class="alert alert-warning"><liferay-ui:message key="this-user-account-has-been-locked-due-to-excessive-failed-login-attempts" /></div>
 
@@ -265,11 +267,10 @@ if (selUser != null) {
 
 	<liferay-ui:form-navigator
 		backURL="<%= backURL %>"
-		categoryNames="<%= _CATEGORY_NAMES %>"
-		categorySections="<%= categorySections %>"
+		formModelBean="<%= selUser %>"
 		htmlBottom="<%= htmlBottom %>"
 		htmlTop="<%= htmlTop %>"
-		jspPath="/html/portlet/users_admin/user/"
+		id="<%= FormNavigatorConstants.FORM_NAVIGATOR_ID_USERS %>"
 	/>
 </aui:form>
 
@@ -290,7 +291,3 @@ if (selUser != null) {
 		submitForm(document.<portlet:namespace />fm);
 	}
 </aui:script>
-
-<%!
-private static final String[] _CATEGORY_NAMES = {"user-information", "identification", "miscellaneous"};
-%>

@@ -53,17 +53,16 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
-	* @param sourceClassNameId the primary key of the class name for
-	template's source model
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param nameMap the template's locales and localized names
 	* @param descriptionMap the template's locales and localized descriptions
 	* @param type the template's type. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param mode the template's mode. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param language the template's script language. For more information,
-	see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	see {@link DDMTemplateConstants}.
 	* @param script the template's script
 	* @param serviceContext the service context to be applied. Can set the
 	UUID, creation date, modification date, guest permissions, and
@@ -74,7 +73,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	@Override
 	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate addTemplate(
 		long userId, long groupId, long classNameId, long classPK,
-		long sourceClassNameId,
+		long resourceClassNameId,
 		java.util.Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String type, java.lang.String mode,
@@ -82,7 +81,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _ddmTemplateLocalService.addTemplate(userId, groupId,
-			classNameId, classPK, sourceClassNameId, nameMap, descriptionMap,
+			classNameId, classPK, resourceClassNameId, nameMap, descriptionMap,
 			type, mode, language, script, serviceContext);
 	}
 
@@ -94,19 +93,18 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
-	* @param sourceClassNameId the primary key of the class name for
-	template's source model
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param templateKey the unique string identifying the template
 	(optionally <code>null</code>)
 	* @param nameMap the template's locales and localized names
 	* @param descriptionMap the template's locales and localized descriptions
 	* @param type the template's type. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param mode the template's mode. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param language the template's script language. For more information,
-	see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	see {@link DDMTemplateConstants}.
 	* @param script the template's script
 	* @param cacheable whether the template is cacheable
 	* @param smallImage whether the template has a small image
@@ -123,7 +121,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	@Override
 	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate addTemplate(
 		long userId, long groupId, long classNameId, long classPK,
-		long sourceClassNameId, java.lang.String templateKey,
+		long resourceClassNameId, java.lang.String templateKey,
 		java.util.Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String type, java.lang.String mode,
@@ -133,7 +131,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _ddmTemplateLocalService.addTemplate(userId, groupId,
-			classNameId, classPK, sourceClassNameId, templateKey, nameMap,
+			classNameId, classPK, resourceClassNameId, templateKey, nameMap,
 			descriptionMap, type, mode, language, script, cacheable,
 			smallImage, smallImageURL, smallImageFile, serviceContext);
 	}
@@ -159,17 +157,15 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* Adds the model resources with the permissions to the template.
 	*
 	* @param template the template to add resources to
-	* @param groupPermissions the group permissions to be added
-	* @param guestPermissions the guest permissions to be added
+	* @param modelPermissions the model permissions to be added
 	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public void addTemplateResources(
 		com.liferay.portlet.dynamicdatamapping.model.DDMTemplate template,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		_ddmTemplateLocalService.addTemplateResources(template,
-			groupPermissions, guestPermissions);
+		_ddmTemplateLocalService.addTemplateResources(template, modelPermissions);
 	}
 
 	/**
@@ -219,7 +215,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param oldClassPK the primary key of the old template's related entity
 	* @param newClassPK the primary key of the new template's related entity
 	* @param type the template's type. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param serviceContext the service context to be applied. Can set the
 	creation date, modification date, guest permissions, and group
 	permissions for the new templates.
@@ -587,7 +583,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _ddmTemplateLocalService.getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -729,7 +725,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	related model
 	* @param classPK the primary key of the template's related entity
 	* @param type the template's type. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @return the matching templates
 	*/
 	@Override
@@ -748,9 +744,9 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	related model
 	* @param classPK the primary key of the template's related entity
 	* @param type the template's type. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param mode the template's mode. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @return the matching templates
 	*/
 	@Override
@@ -888,6 +884,15 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 			classPK);
 	}
 
+	@Override
+	public void revertTemplate(long userId, long templateId,
+		java.lang.String version,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_ddmTemplateLocalService.revertTemplate(userId, templateId, version,
+			serviceContext);
+	}
+
 	/**
 	* Returns an ordered range of all the templates matching the group, class
 	* name ID, class PK, type, and mode, and matching the keywords in the
@@ -908,14 +913,14 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param keywords the keywords (space separated), which may occur in the
 	template's name or description (optionally <code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param start the lower bound of the range of templates to return
 	* @param end the upper bound of the range of templates to return (not
 	inclusive)
@@ -926,11 +931,12 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	@Override
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> search(
 		long companyId, long groupId, long classNameId, long classPK,
-		java.lang.String keywords, java.lang.String type,
-		java.lang.String mode, int start, int end,
+		long resourceClassNameId, java.lang.String keywords,
+		java.lang.String type, java.lang.String mode, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> orderByComparator) {
 		return _ddmTemplateLocalService.search(companyId, groupId, classNameId,
-			classPK, keywords, type, mode, start, end, orderByComparator);
+			classPK, resourceClassNameId, keywords, type, mode, start, end,
+			orderByComparator);
 	}
 
 	/**
@@ -953,18 +959,18 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param name the name keywords (optionally <code>null</code>)
 	* @param description the description keywords (optionally
 	<code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param language the template's script language (optionally
 	<code>null</code>). For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param andOperator whether every field must match its keywords, or just
 	one field
 	* @param start the lower bound of the range of templates to return
@@ -977,13 +983,14 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	@Override
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> search(
 		long companyId, long groupId, long classNameId, long classPK,
-		java.lang.String name, java.lang.String description,
-		java.lang.String type, java.lang.String mode,
-		java.lang.String language, boolean andOperator, int start, int end,
+		long resourceClassNameId, java.lang.String name,
+		java.lang.String description, java.lang.String type,
+		java.lang.String mode, java.lang.String language, boolean andOperator,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> orderByComparator) {
 		return _ddmTemplateLocalService.search(companyId, groupId, classNameId,
-			classPK, name, description, type, mode, language, andOperator,
-			start, end, orderByComparator);
+			classPK, resourceClassNameId, name, description, type, mode,
+			language, andOperator, start, end, orderByComparator);
 	}
 
 	/**
@@ -1006,14 +1013,14 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameIds the primary keys of the entity's instances the
 	templates are related to
 	* @param classPKs the primary keys of the template's related entities
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param keywords the keywords (space separated), which may occur in the
 	template's name or description (optionally <code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param start the lower bound of the range of templates to return
 	* @param end the upper bound of the range of templates to return (not
 	inclusive)
@@ -1024,12 +1031,12 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	@Override
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> search(
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
-		java.lang.String keywords, java.lang.String type,
-		java.lang.String mode, int start, int end,
+		long resourceClassNameId, java.lang.String keywords,
+		java.lang.String type, java.lang.String mode, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> orderByComparator) {
 		return _ddmTemplateLocalService.search(companyId, groupIds,
-			classNameIds, classPKs, keywords, type, mode, start, end,
-			orderByComparator);
+			classNameIds, classPKs, resourceClassNameId, keywords, type, mode,
+			start, end, orderByComparator);
 	}
 
 	/**
@@ -1052,18 +1059,18 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameIds the primary keys of the entity's instances the
 	templates are related to
 	* @param classPKs the primary keys of the template's related entities
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param name the name keywords (optionally <code>null</code>)
 	* @param description the description keywords (optionally
 	<code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param language the template's script language (optionally
 	<code>null</code>). For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param andOperator whether every field must match its keywords, or just
 	one field.
 	* @param start the lower bound of the range of templates to return
@@ -1076,13 +1083,14 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	@Override
 	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> search(
 		long companyId, long[] groupIds, long[] classNameIds, long[] classPKs,
-		java.lang.String name, java.lang.String description,
-		java.lang.String type, java.lang.String mode,
-		java.lang.String language, boolean andOperator, int start, int end,
+		long resourceClassNameId, java.lang.String name,
+		java.lang.String description, java.lang.String type,
+		java.lang.String mode, java.lang.String language, boolean andOperator,
+		int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.dynamicdatamapping.model.DDMTemplate> orderByComparator) {
 		return _ddmTemplateLocalService.search(companyId, groupIds,
-			classNameIds, classPKs, name, description, type, mode, language,
-			andOperator, start, end, orderByComparator);
+			classNameIds, classPKs, resourceClassNameId, name, description,
+			type, mode, language, andOperator, start, end, orderByComparator);
 	}
 
 	/**
@@ -1095,22 +1103,22 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param keywords the keywords (space separated), which may occur in the
 	template's name or description (optionally <code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @return the number of matching templates
 	*/
 	@Override
 	public int searchCount(long companyId, long groupId, long classNameId,
-		long classPK, java.lang.String keywords, java.lang.String type,
-		java.lang.String mode) {
+		long classPK, long resourceClassNameId, java.lang.String keywords,
+		java.lang.String type, java.lang.String mode) {
 		return _ddmTemplateLocalService.searchCount(companyId, groupId,
-			classNameId, classPK, keywords, type, mode);
+			classNameId, classPK, resourceClassNameId, keywords, type, mode);
 	}
 
 	/**
@@ -1122,30 +1130,30 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameId the primary key of the class name for the template's
 	related model
 	* @param classPK the primary key of the template's related entity
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param name the name keywords (optionally <code>null</code>)
 	* @param description the description keywords (optionally
 	<code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param language the template's script language (optionally
 	<code>null</code>). For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param andOperator whether every field must match its keywords, or just
 	one field.
 	* @return the number of matching templates
 	*/
 	@Override
 	public int searchCount(long companyId, long groupId, long classNameId,
-		long classPK, java.lang.String name, java.lang.String description,
-		java.lang.String type, java.lang.String mode,
-		java.lang.String language, boolean andOperator) {
+		long classPK, long resourceClassNameId, java.lang.String name,
+		java.lang.String description, java.lang.String type,
+		java.lang.String mode, java.lang.String language, boolean andOperator) {
 		return _ddmTemplateLocalService.searchCount(companyId, groupId,
-			classNameId, classPK, name, description, type, mode, language,
-			andOperator);
+			classNameId, classPK, resourceClassNameId, name, description, type,
+			mode, language, andOperator);
 	}
 
 	/**
@@ -1158,22 +1166,22 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameIds the primary keys of the entity's instance the
 	templates are related to
 	* @param classPKs the primary keys of the template's related entities
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param keywords the keywords (space separated), which may occur in the
 	template's name or description (optionally <code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @return the number of matching templates
 	*/
 	@Override
 	public int searchCount(long companyId, long[] groupIds,
-		long[] classNameIds, long[] classPKs, java.lang.String keywords,
-		java.lang.String type, java.lang.String mode) {
+		long[] classNameIds, long[] classPKs, long resourceClassNameId,
+		java.lang.String keywords, java.lang.String type, java.lang.String mode) {
 		return _ddmTemplateLocalService.searchCount(companyId, groupIds,
-			classNameIds, classPKs, keywords, type, mode);
+			classNameIds, classPKs, resourceClassNameId, keywords, type, mode);
 	}
 
 	/**
@@ -1185,30 +1193,31 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	* @param classNameIds the primary keys of the entity's instance the
 	templates are related to
 	* @param classPKs the primary keys of the template's related entities
+	* @param resourceClassNameId the primary key of the class name for
+	template's resource model
 	* @param name the name keywords (optionally <code>null</code>)
 	* @param description the description keywords (optionally
 	<code>null</code>)
 	* @param type the template's type (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param mode the template's mode (optionally <code>null</code>). For more
-	information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	information, see {@link DDMTemplateConstants}.
 	* @param language the template's script language (optionally
 	<code>null</code>). For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param andOperator whether every field must match its keywords, or just
 	one field.
 	* @return the number of matching templates
 	*/
 	@Override
 	public int searchCount(long companyId, long[] groupIds,
-		long[] classNameIds, long[] classPKs, java.lang.String name,
-		java.lang.String description, java.lang.String type,
-		java.lang.String mode, java.lang.String language, boolean andOperator) {
+		long[] classNameIds, long[] classPKs, long resourceClassNameId,
+		java.lang.String name, java.lang.String description,
+		java.lang.String type, java.lang.String mode,
+		java.lang.String language, boolean andOperator) {
 		return _ddmTemplateLocalService.searchCount(companyId, groupIds,
-			classNameIds, classPKs, name, description, type, mode, language,
-			andOperator);
+			classNameIds, classPKs, resourceClassNameId, name, description,
+			type, mode, language, andOperator);
 	}
 
 	/**
@@ -1236,18 +1245,18 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	/**
 	* Updates the template matching the ID.
 	*
+	* @param userId the primary key of the template's creator/owner
 	* @param templateId the primary key of the template
 	* @param classPK the primary key of the template's related entity
 	* @param nameMap the template's new locales and localized names
 	* @param descriptionMap the template's new locales and localized
 	description
 	* @param type the template's type. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param mode the template's mode. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param language the template's script language. For more information,
-	see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	see {@link DDMTemplateConstants}.
 	* @param script the template's script
 	* @param cacheable whether the template is cacheable
 	* @param serviceContext the service context to be applied. Can set the
@@ -1257,33 +1266,33 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*/
 	@Override
 	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate updateTemplate(
-		long templateId, long classPK,
+		long userId, long templateId, long classPK,
 		java.util.Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String type, java.lang.String mode,
 		java.lang.String language, java.lang.String script, boolean cacheable,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _ddmTemplateLocalService.updateTemplate(templateId, classPK,
-			nameMap, descriptionMap, type, mode, language, script, cacheable,
-			serviceContext);
+		return _ddmTemplateLocalService.updateTemplate(userId, templateId,
+			classPK, nameMap, descriptionMap, type, mode, language, script,
+			cacheable, serviceContext);
 	}
 
 	/**
 	* Updates the template matching the ID.
 	*
+	* @param userId the primary key of the template's creator/owner
 	* @param templateId the primary key of the template
 	* @param classPK the primary key of the template's related entity
 	* @param nameMap the template's new locales and localized names
 	* @param descriptionMap the template's new locales and localized
 	description
 	* @param type the template's type. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param mode the template's mode. For more information, see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	DDMTemplateConstants}.
 	* @param language the template's script language. For more information,
-	see {@link
-	com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants}.
+	see {@link DDMTemplateConstants}.
 	* @param script the template's script
 	* @param cacheable whether the template is cacheable
 	* @param smallImage whether the template has a small image
@@ -1298,7 +1307,7 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 	*/
 	@Override
 	public com.liferay.portlet.dynamicdatamapping.model.DDMTemplate updateTemplate(
-		long templateId, long classPK,
+		long userId, long templateId, long classPK,
 		java.util.Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String type, java.lang.String mode,
@@ -1307,9 +1316,9 @@ public class DDMTemplateLocalServiceWrapper implements DDMTemplateLocalService,
 		java.io.File smallImageFile,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _ddmTemplateLocalService.updateTemplate(templateId, classPK,
-			nameMap, descriptionMap, type, mode, language, script, cacheable,
-			smallImage, smallImageURL, smallImageFile, serviceContext);
+		return _ddmTemplateLocalService.updateTemplate(userId, templateId,
+			classPK, nameMap, descriptionMap, type, mode, language, script,
+			cacheable, smallImage, smallImageURL, smallImageFile, serviceContext);
 	}
 
 	/**
