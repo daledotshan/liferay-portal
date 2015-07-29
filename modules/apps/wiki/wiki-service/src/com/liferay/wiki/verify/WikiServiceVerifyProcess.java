@@ -25,7 +25,6 @@ import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.model.WikiPageResource;
 import com.liferay.wiki.service.WikiPageLocalService;
 import com.liferay.wiki.service.WikiPageResourceLocalService;
-import com.liferay.wiki.service.configuration.configurator.WikiServiceConfigurator;
 import com.liferay.wiki.util.comparator.PageVersionComparator;
 import com.liferay.wiki.verify.model.WikiNodeVerifiableModel;
 import com.liferay.wiki.verify.model.WikiPageResourceVerifiableModel;
@@ -41,9 +40,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @author Iván Zaera
  */
-@Component(
-	service = WikiServiceVerifyProcess.class
-)
+@Component(service = WikiServiceVerifyProcess.class)
 public class WikiServiceVerifyProcess extends VerifyProcess {
 
 	@Override
@@ -66,11 +63,6 @@ public class WikiServiceVerifyProcess extends VerifyProcess {
 		WikiPageResourceLocalService wikiPageResourceLocalService) {
 
 		_wikiPageResourceLocalService = wikiPageResourceLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setWikiServiceConfigurator(
-		WikiServiceConfigurator wikiServiceConfigurator) {
 	}
 
 	protected void verifyCreateDate() throws Exception {

@@ -16,10 +16,12 @@ package com.liferay.portlet.documentlibrary.service.persistence;
 
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -35,7 +37,6 @@ import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
-import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
 import java.util.List;
 
@@ -62,7 +63,8 @@ public class DLFolderFinderTest {
 		_group = GroupTestUtil.addGroup();
 
 		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
 
 		_folder = DLAppLocalServiceUtil.addFolder(
 			TestPropsValues.getUserId(), _group.getGroupId(),
@@ -81,18 +83,22 @@ public class DLFolderFinderTest {
 
 		DLAppServiceUtil.moveFolderToTrash(folder.getFolderId());
 
-		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
-			_group.getGroupId(), _folder.getFolderId(), "FE1.txt", "FE1.txt");
+		FileEntry fileEntry = addFileEntry(
+			_group.getGroupId(), _folder.getFolderId(), "FE1.txt",
+			ContentTypes.TEXT_PLAIN);
 
-		_dlFileShortcut = DLAppTestUtil.addDLFileShortcut(
-			_group.getGroupId(), fileEntry);
+		_fileShortcut = DLAppLocalServiceUtil.addFileShortcut(
+			TestPropsValues.getUserId(), _group.getGroupId(),
+			fileEntry.getFolderId(), fileEntry.getFileEntryId(),
+			serviceContext);
 
-		DLAppTestUtil.addFileEntry(
+		addFileEntry(
 			_group.getGroupId(), _folder.getFolderId(), "FE2.pdf",
-			ContentTypes.APPLICATION_PDF, "FE2.pdf");
+			ContentTypes.APPLICATION_PDF);
 
-		fileEntry = DLAppTestUtil.addFileEntry(
-			_group.getGroupId(), _folder.getFolderId(), "FE3.txt", "FE3.txt");
+		fileEntry = addFileEntry(
+			_group.getGroupId(), _folder.getFolderId(), "FE3.txt",
+			ContentTypes.TEXT_PLAIN);
 
 		DLAppServiceUtil.moveFileEntryToTrash(fileEntry.getFileEntryId());
 	}
@@ -281,16 +287,22 @@ public class DLFolderFinderTest {
 		Assert.assertEquals(3, results.size());
 
 		for (Object result : results) {
+			Assert.assertTrue(
+				String.valueOf(result.getClass()),
+				result instanceof DLFileEntry ||
+					result instanceof DLFileShortcut ||
+						result instanceof DLFolder);
+
 			if (result instanceof DLFileEntry) {
 				DLFileEntry dlFileEntry = (DLFileEntry)result;
 
 				Assert.assertEquals("FE1.txt", dlFileEntry.getTitle());
 			}
-			else if (result instanceof DLFileShortcut) {
-				DLFileShortcut fileShortcut = (DLFileShortcut)result;
+			else if (result instanceof FileShortcut) {
+				FileShortcut fileShortcut = (FileShortcut)result;
 
 				Assert.assertEquals(
-					_dlFileShortcut.getFileShortcutId(),
+					this._fileShortcut.getFileShortcutId(),
 					fileShortcut.getFileShortcutId());
 			}
 			else if (result instanceof DLFolder) {
@@ -298,13 +310,23 @@ public class DLFolderFinderTest {
 
 				Assert.assertEquals("Folder B", dlFolder.getName());
 			}
-			else {
-				Assert.fail(String.valueOf(result.getClass()));
-			}
 		}
 	}
 
-	private DLFileShortcut _dlFileShortcut;
+	protected FileEntry addFileEntry(
+			long groupId, long folderId, String sourceFileName, String mimeType)
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				groupId, TestPropsValues.getUserId());
+
+		return DLAppLocalServiceUtil.addFileEntry(
+			TestPropsValues.getUserId(), groupId, folderId, sourceFileName,
+			mimeType, RandomTestUtil.randomBytes(), serviceContext);
+	}
+
+	private FileShortcut _fileShortcut;
 	private Folder _folder;
 	private Group _group;
 

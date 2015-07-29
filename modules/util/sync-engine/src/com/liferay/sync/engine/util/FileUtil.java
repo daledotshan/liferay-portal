@@ -14,19 +14,15 @@
 
 package com.liferay.sync.engine.util;
 
-import ch.securityvision.xattrj.Xattrj;
-
 import com.liferay.sync.engine.documentlibrary.util.FileEventUtil;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.service.SyncFileService;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -37,7 +33,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -59,6 +54,30 @@ import org.slf4j.LoggerFactory;
  */
 public class FileUtil {
 
+	public static void checkFilePath(Path filePath) {
+
+		// Check to see if the file or folder is still being written to. If
+		// it is, wait until the process is finished before making any future
+		// modifications. This is used to prevent file system interruptions.
+
+		try {
+			while (true) {
+				long size1 = FileUtils.sizeOf(filePath.toFile());
+
+				Thread.sleep(1000);
+
+				long size2 = FileUtils.sizeOf(filePath.toFile());
+
+				if (size1 == size2) {
+					break;
+				}
+			}
+		}
+		catch (Exception e) {
+			_logger.error(e.getMessage(), e);
+		}
+	}
+
 	public static boolean checksumsEqual(String checksum1, String checksum2) {
 		if ((checksum1 == null) || (checksum2 == null) ||
 			checksum1.isEmpty() || checksum2.isEmpty()) {
@@ -67,6 +86,44 @@ public class FileUtil {
 		}
 
 		return checksum1.equals(checksum2);
+	}
+
+	public static void deleteFile(Path filePath) {
+		try {
+			deleteFile(filePath, true);
+		}
+		catch (Exception e) {
+		}
+	}
+
+	public static void deleteFile(final Path filePath, boolean retry)
+		throws IOException {
+
+		try {
+			Files.deleteIfExists(filePath);
+		}
+		catch (Exception e) {
+			if (!retry) {
+				throw e;
+			}
+
+			PathCallable pathCallable = new PathCallable(filePath) {
+
+				@Override
+				public Object call() throws Exception {
+					FileTime fileTime = Files.getLastModifiedTime(filePath);
+
+					if (fileTime.toMillis() <= getStartTime()) {
+						Files.deleteIfExists(filePath);
+					}
+
+					return null;
+				}
+
+			};
+
+			FileLockRetryUtil.registerPathCallable(pathCallable);
+		}
 	}
 
 	public static void fireDeleteEvents(Path filePath) throws IOException {
@@ -85,7 +142,7 @@ public class FileUtil {
 
 					if (syncFile == null) {
 						syncFile = SyncFileService.fetchSyncFile(
-							FileUtil.getFileKey(filePath));
+							FileKeyUtil.getFileKey(filePath));
 					}
 
 					if (syncFile != null) {
@@ -106,7 +163,7 @@ public class FileUtil {
 
 					if (syncFile == null) {
 						syncFile = SyncFileService.fetchSyncFile(
-							FileUtil.getFileKey(filePath));
+							FileKeyUtil.getFileKey(filePath));
 					}
 
 					if (syncFile != null) {
@@ -125,6 +182,12 @@ public class FileUtil {
 			filePath.toString(), startTime);
 
 		for (SyncFile deletedSyncFile : deletedSyncFiles) {
+			if (!Files.notExists(
+					Paths.get(deletedSyncFile.getFilePathName()))) {
+
+				continue;
+			}
+
 			if (deletedSyncFile.getTypePK() == 0) {
 				SyncFileService.deleteSyncFile(deletedSyncFile, false);
 
@@ -161,54 +224,14 @@ public class FileUtil {
 		}
 	}
 
-	public static long getFileKey(Path filePath) {
-		if (!Files.exists(filePath)) {
-			return -1;
-		}
-
+	public static FileLock getFileLock(FileChannel fileChannel) {
 		try {
-			if (OSDetector.isApple()) {
-				Xattrj xattrj = getXattrj();
-
-				if (xattrj == null) {
-					return -1;
-				}
-
-				String fileKey = xattrj.readAttribute(
-					filePath.toFile(), "fileKey");
-
-				if (fileKey == null) {
-					return -1;
-				}
-
-				return Long.parseLong(fileKey);
-			}
-			else {
-				UserDefinedFileAttributeView userDefinedFileAttributeView =
-					Files.getFileAttributeView(
-						filePath, UserDefinedFileAttributeView.class);
-
-				List<String> list = userDefinedFileAttributeView.list();
-
-				if (!list.contains("fileKey")) {
-					return -1;
-				}
-
-				ByteBuffer byteBuffer = ByteBuffer.allocate(
-					userDefinedFileAttributeView.size("fileKey"));
-
-				userDefinedFileAttributeView.read("fileKey", byteBuffer);
-
-				CharBuffer charBuffer = _CHARSET.decode(
-					(ByteBuffer)byteBuffer.flip());
-
-				return Long.parseLong(charBuffer.toString());
-			}
+			return fileChannel.tryLock();
 		}
 		catch (Exception e) {
 			_logger.error(e.getMessage(), e);
 
-			return -1;
+			return null;
 		}
 	}
 
@@ -321,8 +344,9 @@ public class FileUtil {
 	public static boolean isIgnoredFilePath(Path filePath) {
 		String fileName = String.valueOf(filePath.getFileName());
 
-		if (_syncFileIgnoreNames.contains(fileName) ||
-			isOfficeTempFile(fileName, filePath) ||
+		if (_syncFileIgnoreNames.contains(
+				StringEscapeUtils.escapeJava(fileName)) ||
+			MSOfficeFileUtil.isTempCreatedFile(filePath) ||
 			(PropsValues.SYNC_FILE_IGNORE_HIDDEN && isHidden(filePath)) ||
 			Files.isSymbolicLink(filePath) || fileName.endsWith(".lnk")) {
 
@@ -355,21 +379,8 @@ public class FileUtil {
 	}
 
 	public static boolean isModified(SyncFile syncFile, Path filePath) {
-		if (filePath == null) {
+		if ((filePath == null) || Files.notExists(filePath)) {
 			return true;
-		}
-
-		try {
-			if ((syncFile.getSize() > 0) &&
-				(syncFile.getSize() != Files.size(filePath))) {
-
-				return true;
-			}
-		}
-		catch (IOException ioe) {
-			if (_logger.isDebugEnabled()) {
-				_logger.debug(ioe.getMessage(), ioe);
-			}
 		}
 
 		try {
@@ -381,10 +392,23 @@ public class FileUtil {
 				modifiedTime = modifiedTime / 1000 * 1000;
 			}
 
-			if ((fileTime.toMillis() == modifiedTime) &&
-				(getFileKey(filePath) == syncFile.getSyncFileId())) {
+			if ((fileTime.toMillis() <= modifiedTime) &&
+				FileKeyUtil.hasFileKey(filePath, syncFile.getSyncFileId())) {
 
 				return false;
+			}
+		}
+		catch (IOException ioe) {
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(ioe.getMessage(), ioe);
+			}
+		}
+
+		try {
+			if ((syncFile.getSize() > 0) &&
+				(syncFile.getSize() != Files.size(filePath))) {
+
+				return true;
 			}
 		}
 		catch (IOException ioe) {
@@ -454,15 +478,63 @@ public class FileUtil {
 	}
 
 	public static void moveFile(Path sourceFilePath, Path targetFilePath) {
-		checkFilePath(sourceFilePath);
+		try {
+			moveFile(sourceFilePath, targetFilePath, true);
+		}
+		catch (Exception e) {
+		}
+	}
+
+	public static void moveFile(
+			final Path sourceFilePath, final Path targetFilePath, boolean retry)
+		throws IOException {
 
 		try {
 			Files.move(
-				sourceFilePath, targetFilePath,
+				sourceFilePath, targetFilePath, StandardCopyOption.ATOMIC_MOVE,
 				StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch (Exception e) {
-			_logger.error(e.getMessage(), e);
+			if (!retry) {
+				throw e;
+			}
+
+			PathCallable pathCallable = new PathCallable(sourceFilePath) {
+
+				@Override
+				public Object call() throws Exception {
+					FileTime fileTime = Files.getLastModifiedTime(
+						targetFilePath);
+
+					if (fileTime.toMillis() <= getStartTime()) {
+						Files.move(
+							sourceFilePath, targetFilePath,
+							StandardCopyOption.ATOMIC_MOVE,
+							StandardCopyOption.REPLACE_EXISTING);
+					}
+					else {
+						Files.deleteIfExists(sourceFilePath);
+					}
+
+					return null;
+				}
+
+			};
+
+			FileLockRetryUtil.registerPathCallable(pathCallable);
+		}
+	}
+
+	public static void releaseFileLock(FileLock fileLock) {
+		try {
+			if (fileLock != null) {
+				fileLock.release();
+			}
+		}
+		catch (Exception e) {
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -478,105 +550,10 @@ public class FileUtil {
 		Files.setLastModifiedTime(filePath, fileTime);
 	}
 
-	public static void writeFileKey(Path filePath, String fileKey) {
-		if (OSDetector.isApple()) {
-			Xattrj xattrj = getXattrj();
-
-			if (xattrj == null) {
-				return;
-			}
-
-			File file = filePath.toFile();
-
-			if (!file.canWrite()) {
-				file.setWritable(true);
-			}
-
-			xattrj.writeAttribute(file, "fileKey", fileKey);
-		}
-		else {
-			File file = filePath.toFile();
-
-			if (!file.canWrite()) {
-				file.setWritable(true);
-			}
-
-			UserDefinedFileAttributeView userDefinedFileAttributeView =
-				Files.getFileAttributeView(
-					filePath, UserDefinedFileAttributeView.class);
-
-			try {
-				userDefinedFileAttributeView.write(
-					"fileKey", _CHARSET.encode(CharBuffer.wrap(fileKey)));
-			}
-			catch (Exception e) {
-				_logger.error(e.getMessage(), e);
-			}
-		}
-	}
-
-	protected static void checkFilePath(Path filePath) {
-
-		// Check to see if the file or folder is still being written to. If
-		// it is, wait until the process is finished before making any future
-		// modifications. This is used to prevent file system interruptions.
-
-		try {
-			while (true) {
-				long size1 = FileUtils.sizeOf(filePath.toFile());
-
-				Thread.sleep(1000);
-
-				long size2 = FileUtils.sizeOf(filePath.toFile());
-
-				if (size1 == size2) {
-					break;
-				}
-			}
-		}
-		catch (Exception e) {
-			_logger.error(e.getMessage(), e);
-		}
-	}
-
-	protected static Xattrj getXattrj() {
-		if (_xattrj != null) {
-			return _xattrj;
-		}
-
-		try {
-			_xattrj = new Xattrj();
-
-			return _xattrj;
-		}
-		catch (IOException ioe) {
-			_logger.error(ioe.getMessage(), ioe);
-
-			return null;
-		}
-	}
-
-	protected static boolean isOfficeTempFile(String fileName, Path filePath) {
-		if (Files.isDirectory(filePath)) {
-			return false;
-		}
-
-		if (fileName.startsWith("~$") ||
-			(fileName.startsWith("~") && fileName.endsWith(".tmp"))) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private static final Charset _CHARSET = Charset.forName("UTF-8");
-
 	private static final Logger _logger = LoggerFactory.getLogger(
 		FileUtil.class);
 
 	private static final Set<String> _syncFileIgnoreNames = new HashSet<>(
 		Arrays.asList(PropsValues.SYNC_FILE_IGNORE_NAMES));
-	private static Xattrj _xattrj;
 
 }

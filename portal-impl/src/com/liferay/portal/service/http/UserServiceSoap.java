@@ -25,7 +25,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portal.service.UserServiceUtil} service utility. The
+ * {@link UserServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see UserServiceHttp
  * @see com.liferay.portal.model.UserSoap
- * @see com.liferay.portal.service.UserServiceUtil
+ * @see UserServiceUtil
  * @generated
  */
 @ProviderType
@@ -638,6 +638,20 @@ public class UserServiceSoap {
 			int returnValue = UserServiceUtil.getCompanyUsersCount(companyId);
 
 			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.model.UserSoap getCurrentUser()
+		throws RemoteException {
+		try {
+			com.liferay.portal.model.User returnValue = UserServiceUtil.getCurrentUser();
+
+			return com.liferay.portal.model.UserSoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
@@ -1570,10 +1584,9 @@ public class UserServiceSoap {
 	* @return the user
 	* @throws PortalException if a user with the primary key could not be
 	found, if the current user was updating her own status to
-	anything but {@link
-	com.liferay.portal.kernel.workflow.WorkflowConstants#STATUS_APPROVED},
-	or if the current user did not have permission to update the
-	user's workflow status.
+	anything but {@link WorkflowConstants#STATUS_APPROVED}, or if
+	the current user did not have permission to update the user's
+	workflow status.
 	* @deprecated As of 7.0.0, replaced by {@link #updateStatus(long, int,
 	ServiceContext)}
 	*/
@@ -1604,10 +1617,9 @@ public class UserServiceSoap {
 	* @return the user
 	* @throws PortalException if a user with the primary key could not be
 	found, if the current user was updating her own status to
-	anything but {@link
-	com.liferay.portal.kernel.workflow.WorkflowConstants#STATUS_APPROVED},
-	or if the current user did not have permission to update the
-	user's workflow status.
+	anything but {@link WorkflowConstants#STATUS_APPROVED}, or if the
+	current user did not have permission to update the user's
+	workflow status.
 	*/
 	public static com.liferay.portal.model.UserSoap updateStatus(long userId,
 		int status, com.liferay.portal.service.ServiceContext serviceContext)
@@ -1815,10 +1827,8 @@ public class UserServiceSoap {
 	long, String, boolean, byte[], String, String, String,
 	String, String, String, String, int, int, boolean, int, int,
 	int, String, String, String, String, String, String, String,
-	String, String, String, String, long[], long[], long[],
-	java.util.List, long[], java.util.List, java.util.List,
-	java.util.List, java.util.List, java.util.List,
-	com.liferay.portal.service.ServiceContext)}
+	String, String, String, String, long[], long[], long[], List,
+	long[], List, List, List, List, List, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.model.UserSoap updateUser(long userId,

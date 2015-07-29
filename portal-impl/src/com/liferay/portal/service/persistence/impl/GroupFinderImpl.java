@@ -256,17 +256,17 @@ public class GroupFinderImpl
 		boolean doUnion = Validator.isNotNull(userId);
 
 		if (doUnion) {
-			params2 = new LinkedHashMap<String, Object>(params1);
+			params2 = new LinkedHashMap<>(params1);
 
 			params2.remove("usersGroups");
 			params2.put("groupOrg", userId);
 
-			params3 = new LinkedHashMap<String, Object>(params1);
+			params3 = new LinkedHashMap<>(params1);
 
 			params3.remove("usersGroups");
 			params3.put("groupsOrgs", userId);
 
-			params4 = new LinkedHashMap<String, Object>(params1);
+			params4 = new LinkedHashMap<>(params1);
 
 			params4.remove("usersGroups");
 			params4.put("groupsUserGroups", userId);
@@ -483,17 +483,17 @@ public class GroupFinderImpl
 		boolean doUnion = Validator.isNotNull(userId) && inherit;
 
 		if (doUnion) {
-			params2 = new LinkedHashMap<String, Object>(params1);
+			params2 = new LinkedHashMap<>(params1);
 
 			params2.remove("usersGroups");
 			params2.put("groupOrg", userId);
 
-			params3 = new LinkedHashMap<String, Object>(params1);
+			params3 = new LinkedHashMap<>(params1);
 
 			params3.remove("usersGroups");
 			params3.put("groupsOrgs", userId);
 
-			params4 = new LinkedHashMap<String, Object>(params1);
+			params4 = new LinkedHashMap<>(params1);
 
 			params4.remove("usersGroups");
 			params4.put("groupsUserGroups", userId);
@@ -717,17 +717,17 @@ public class GroupFinderImpl
 		boolean doUnion = Validator.isNotNull(userId) && inherit;
 
 		if (doUnion) {
-			params2 = new LinkedHashMap<String, Object>(params1);
+			params2 = new LinkedHashMap<>(params1);
 
 			params2.remove("usersGroups");
 			params2.put("groupOrg", userId);
 
-			params3 = new LinkedHashMap<String, Object>(params1);
+			params3 = new LinkedHashMap<>(params1);
 
 			params3.remove("usersGroups");
 			params3.put("groupsOrgs", userId);
 
-			params4 = new LinkedHashMap<String, Object>(params1);
+			params4 = new LinkedHashMap<>(params1);
 
 			params4.remove("usersGroups");
 			params4.put("groupsUserGroups", userId);
@@ -1082,13 +1082,8 @@ public class GroupFinderImpl
 
 		if (params.isEmpty()) {
 			return StringUtil.replace(
-				sql,
-				new String[] {
-					"[$JOIN$]", "[$WHERE$]"
-				},
-				new String[] {
-					StringPool.BLANK, StringPool.BLANK
-				});
+				sql, new String[] {"[$JOIN$]", "[$WHERE$]"},
+				new String[] {StringPool.BLANK, StringPool.BLANK});
 		}
 
 		String cacheKey = _getCacheKey(sql, params);
@@ -1463,7 +1458,7 @@ public class GroupFinderImpl
 	}
 
 	private final LinkedHashMap<String, Object> _emptyLinkedHashMap =
-		new LinkedHashMap<String, Object>(0);
+		new LinkedHashMap<>(0);
 	private final Map<String, String> _findByC_C_PG_N_DSQLCache =
 		new ConcurrentHashMap<>();
 	private final Map<String, String> _findByCompanyIdSQLCache =
