@@ -25,7 +25,7 @@ User selUser = PortalUtil.getSelectedUser(request);
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/users_admin/select_organization");
+portletURL.setParameter("mvcPath", "/html/portlet/users_admin/select_organization.jsp");
 
 if (selUser != null) {
 	portletURL.setParameter("p_u_i_d", String.valueOf(selUser.getUserId()));
@@ -47,9 +47,7 @@ if (Validator.isNotNull(target)) {
 		searchContainer="<%= new OrganizationSearch(renderRequest, portletURL) %>"
 		var="organizationSearchContainer"
 	>
-		<liferay-ui:search-form
-			page="/html/portlet/users_admin/organization_search.jsp"
-		/>
+		<liferay-ui:organization-search-form />
 
 		<%
 		OrganizationSearchTerms searchTerms = (OrganizationSearchTerms)organizationSearchContainer.getSearchTerms();

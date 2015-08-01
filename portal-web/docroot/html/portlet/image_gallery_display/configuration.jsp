@@ -20,9 +20,7 @@
 DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletInstanceSettingsHelper(igRequestHelper);
 %>
 
-<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="configurationActionURL">
-	<liferay-portlet:param name="settingsScope" value="portletInstance" />
-</liferay-portlet:actionURL>
+<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="configurationActionURL" />
 
 <liferay-portlet:renderURL portletConfiguration="<%= true %>" var="configurationRenderURL" />
 
@@ -58,13 +56,8 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 				</aui:field-wrapper>
 
 				<div class="display-template">
-
-					<%
-					TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(FileEntry.class.getName());
-					%>
-
-					<liferay-ui:ddm-template-selector
-						classNameId="<%= PortalUtil.getClassNameId(templateHandler.getClassName()) %>"
+					<liferay-ddm:template-selector
+						className="<%= FileEntry.class.getName() %>"
 						displayStyle="<%= displayStyle %>"
 						displayStyleGroupId="<%= displayStyleGroupId %>"
 						refreshURL="<%= configurationRenderURL %>"
@@ -118,7 +111,7 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 					title: '<liferay-ui:message arguments="folder" key="select-x" />',
 
 					<liferay-portlet:renderURL portletName="<%= portletResource %>" var="selectFolderURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-						<portlet:param name="struts_action" value='<%= "/image_gallery_display/select_folder" %>' />
+						<portlet:param name="mvcRenderCommandName" value='<%= "/image_gallery_display/select_folder" %>' />
 					</liferay-portlet:renderURL>
 
 					uri: '<%= selectFolderURL.toString() %>'

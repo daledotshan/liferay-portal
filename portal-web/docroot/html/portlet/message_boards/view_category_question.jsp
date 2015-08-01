@@ -30,7 +30,7 @@ Set<Long> threadSubscriptionClassPKs = (Set<Long>)request.getAttribute("view.jsp
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/message_boards/view");
+portletURL.setParameter("mvcRenderCommandName", "/message_boards/view");
 portletURL.setParameter("topLink", topLink);
 portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 %>
@@ -63,7 +63,7 @@ portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 					<liferay-ui:search-container-row-parameter name="categorySubscriptionClassPKs" value="<%= categorySubscriptionClassPKs %>" />
 
 					<liferay-portlet:renderURL varImpl="rowURL">
-						<portlet:param name="struts_action" value="/message_boards/view" />
+						<portlet:param name="mvcRenderCommandName" value="/message_boards/view" />
 						<portlet:param name="mbCategoryId" value="<%= String.valueOf(curCategory.getCategoryId()) %>" />
 					</liferay-portlet:renderURL>
 
@@ -94,12 +94,9 @@ portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 	>
 
 		<%
-		MBMessage message = null;
+		MBMessage message = MBMessageLocalServiceUtil.fetchMBMessage(thread.getRootMessageId());
 
-		try {
-			message = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
-		}
-		catch (NoSuchMessageException nsme) {
+		if (message == null) {
 			_log.error("Thread requires missing root message id " + thread.getRootMessageId());
 
 			message = new MBMessageImpl();
@@ -113,7 +110,7 @@ portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 		%>
 
 		<liferay-portlet:renderURL varImpl="rowURL">
-			<portlet:param name="struts_action" value="/message_boards/view_message" />
+			<portlet:param name="mvcRenderCommandName" value="/message_boards/view_message" />
 			<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
 		</liferay-portlet:renderURL>
 

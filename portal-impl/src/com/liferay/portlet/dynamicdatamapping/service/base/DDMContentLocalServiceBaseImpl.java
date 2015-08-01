@@ -26,15 +26,9 @@ import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
-import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -262,61 +256,6 @@ public abstract class DDMContentLocalServiceBaseImpl
 		actionableDynamicQuery.setPrimaryKeyPropertyName("contentId");
 	}
 
-	@Override
-	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		final PortletDataContext portletDataContext) {
-		final ExportActionableDynamicQuery exportActionableDynamicQuery = new ExportActionableDynamicQuery() {
-				@Override
-				public long performCount() throws PortalException {
-					ManifestSummary manifestSummary = portletDataContext.getManifestSummary();
-
-					StagedModelType stagedModelType = getStagedModelType();
-
-					long modelAdditionCount = super.performCount();
-
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
-						modelAdditionCount);
-
-					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
-							stagedModelType);
-
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
-						modelDeletionCount);
-
-					return modelAdditionCount;
-				}
-			};
-
-		initActionableDynamicQuery(exportActionableDynamicQuery);
-
-		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
-				@Override
-				public void addCriteria(DynamicQuery dynamicQuery) {
-					portletDataContext.addDateRangeCriteria(dynamicQuery,
-						"modifiedDate");
-				}
-			});
-
-		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
-
-		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
-
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
-				@Override
-				public void performAction(Object object)
-					throws PortalException {
-					DDMContent stagedModel = (DDMContent)object;
-
-					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
-				}
-			});
-		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
-				PortalUtil.getClassNameId(DDMContent.class.getName())));
-
-		return exportActionableDynamicQuery;
-	}
-
 	/**
 	 * @throws PortalException
 	 */
@@ -420,7 +359,7 @@ public abstract class DDMContentLocalServiceBaseImpl
 	 *
 	 * @return the d d m content local service
 	 */
-	public com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService getDDMContentLocalService() {
+	public DDMContentLocalService getDDMContentLocalService() {
 		return ddmContentLocalService;
 	}
 
@@ -430,7 +369,7 @@ public abstract class DDMContentLocalServiceBaseImpl
 	 * @param ddmContentLocalService the d d m content local service
 	 */
 	public void setDDMContentLocalService(
-		com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService ddmContentLocalService) {
+		DDMContentLocalService ddmContentLocalService) {
 		this.ddmContentLocalService = ddmContentLocalService;
 	}
 
@@ -609,7 +548,7 @@ public abstract class DDMContentLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService.class)
-	protected com.liferay.portlet.dynamicdatamapping.service.DDMContentLocalService ddmContentLocalService;
+	protected DDMContentLocalService ddmContentLocalService;
 	@BeanReference(type = DDMContentPersistence.class)
 	protected DDMContentPersistence ddmContentPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)

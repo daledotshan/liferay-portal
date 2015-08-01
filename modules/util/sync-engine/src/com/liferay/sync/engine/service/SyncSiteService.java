@@ -55,7 +55,8 @@ public class SyncSiteService {
 		syncSite.setActive(true);
 
 		if (reset) {
-			syncSite.setRemoteSyncTime(0);
+			syncSite.setRemoteSyncTime(-1);
+			syncSite.setUiEvent(SyncSite.UI_EVENT_NONE);
 		}
 
 		update(syncSite);

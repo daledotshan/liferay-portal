@@ -40,6 +40,8 @@ public class DDMStructureSoap implements Serializable {
 		soapModel.setCompanyId(model.getCompanyId());
 		soapModel.setUserId(model.getUserId());
 		soapModel.setUserName(model.getUserName());
+		soapModel.setVersionUserId(model.getVersionUserId());
+		soapModel.setVersionUserName(model.getVersionUserName());
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
 		soapModel.setParentStructureId(model.getParentStructureId());
@@ -51,6 +53,7 @@ public class DDMStructureSoap implements Serializable {
 		soapModel.setDefinition(model.getDefinition());
 		soapModel.setStorageType(model.getStorageType());
 		soapModel.setType(model.getType());
+		soapModel.setLastPublishDate(model.getLastPublishDate());
 
 		return soapModel;
 	}
@@ -151,6 +154,22 @@ public class DDMStructureSoap implements Serializable {
 		_userName = userName;
 	}
 
+	public long getVersionUserId() {
+		return _versionUserId;
+	}
+
+	public void setVersionUserId(long versionUserId) {
+		_versionUserId = versionUserId;
+	}
+
+	public String getVersionUserName() {
+		return _versionUserName;
+	}
+
+	public void setVersionUserName(String versionUserName) {
+		_versionUserName = versionUserName;
+	}
+
 	public Date getCreateDate() {
 		return _createDate;
 	}
@@ -239,12 +258,22 @@ public class DDMStructureSoap implements Serializable {
 		_type = type;
 	}
 
+	public Date getLastPublishDate() {
+		return _lastPublishDate;
+	}
+
+	public void setLastPublishDate(Date lastPublishDate) {
+		_lastPublishDate = lastPublishDate;
+	}
+
 	private String _uuid;
 	private long _structureId;
 	private long _groupId;
 	private long _companyId;
 	private long _userId;
 	private String _userName;
+	private long _versionUserId;
+	private String _versionUserName;
 	private Date _createDate;
 	private Date _modifiedDate;
 	private long _parentStructureId;
@@ -256,4 +285,5 @@ public class DDMStructureSoap implements Serializable {
 	private String _definition;
 	private String _storageType;
 	private int _type;
+	private Date _lastPublishDate;
 }

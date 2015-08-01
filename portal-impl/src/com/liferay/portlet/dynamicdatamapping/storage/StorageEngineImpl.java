@@ -14,7 +14,9 @@
 
 package com.liferay.portlet.dynamicdatamapping.storage;
 
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.service.ServiceContext;
+import com.liferay.portlet.dynamicdatamapping.NoSuchStructureException;
 import com.liferay.portlet.dynamicdatamapping.StorageException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStorageLink;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
@@ -24,6 +26,7 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUt
 /**
  * @author Eduardo Lundgren
  */
+@OSGiBeanProperties(service = StorageEngine.class)
 public class StorageEngineImpl implements StorageEngine {
 
 	@Override
@@ -90,6 +93,9 @@ public class StorageEngineImpl implements StorageEngine {
 
 			return getStorageAdapter(ddmStorageLink.getStorageType());
 		}
+		catch (NoSuchStructureException nsse) {
+			return StorageAdapterRegistryUtil.getDefaultStorageAdapter();
+		}
 		catch (StorageException se) {
 			throw se;
 		}
@@ -117,6 +123,9 @@ public class StorageEngineImpl implements StorageEngine {
 				DDMStructureLocalServiceUtil.getDDMStructure(ddmStructureId);
 
 			return getStorageAdapter(ddmStructure.getStorageType());
+		}
+		catch (NoSuchStructureException nsse) {
+			return StorageAdapterRegistryUtil.getDefaultStorageAdapter();
 		}
 		catch (StorageException se) {
 			throw se;

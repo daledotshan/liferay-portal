@@ -182,6 +182,49 @@ public interface DDMTemplateModel extends AttachedModel, BaseModel<DDMTemplate>,
 	public void setUserName(String userName);
 
 	/**
+	 * Returns the version user ID of this d d m template.
+	 *
+	 * @return the version user ID of this d d m template
+	 */
+	public long getVersionUserId();
+
+	/**
+	 * Sets the version user ID of this d d m template.
+	 *
+	 * @param versionUserId the version user ID of this d d m template
+	 */
+	public void setVersionUserId(long versionUserId);
+
+	/**
+	 * Returns the version user uuid of this d d m template.
+	 *
+	 * @return the version user uuid of this d d m template
+	 */
+	public String getVersionUserUuid();
+
+	/**
+	 * Sets the version user uuid of this d d m template.
+	 *
+	 * @param versionUserUuid the version user uuid of this d d m template
+	 */
+	public void setVersionUserUuid(String versionUserUuid);
+
+	/**
+	 * Returns the version user name of this d d m template.
+	 *
+	 * @return the version user name of this d d m template
+	 */
+	@AutoEscape
+	public String getVersionUserName();
+
+	/**
+	 * Sets the version user name of this d d m template.
+	 *
+	 * @param versionUserName the version user name of this d d m template
+	 */
+	public void setVersionUserName(String versionUserName);
+
+	/**
 	 * Returns the create date of this d d m template.
 	 *
 	 * @return the create date of this d d m template
@@ -256,18 +299,18 @@ public interface DDMTemplateModel extends AttachedModel, BaseModel<DDMTemplate>,
 	public void setClassPK(long classPK);
 
 	/**
-	 * Returns the source class name ID of this d d m template.
+	 * Returns the resource class name ID of this d d m template.
 	 *
-	 * @return the source class name ID of this d d m template
+	 * @return the resource class name ID of this d d m template
 	 */
-	public long getSourceClassNameId();
+	public long getResourceClassNameId();
 
 	/**
-	 * Sets the source class name ID of this d d m template.
+	 * Sets the resource class name ID of this d d m template.
 	 *
-	 * @param sourceClassNameId the source class name ID of this d d m template
+	 * @param resourceClassNameId the resource class name ID of this d d m template
 	 */
-	public void setSourceClassNameId(long sourceClassNameId);
+	public void setResourceClassNameId(long resourceClassNameId);
 
 	/**
 	 * Returns the template key of this d d m template.
@@ -628,6 +671,20 @@ public interface DDMTemplateModel extends AttachedModel, BaseModel<DDMTemplate>,
 	 * @param smallImageURL the small image u r l of this d d m template
 	 */
 	public void setSmallImageURL(String smallImageURL);
+
+	/**
+	 * Returns the last publish date of this d d m template.
+	 *
+	 * @return the last publish date of this d d m template
+	 */
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this d d m template.
+	 *
+	 * @param lastPublishDate the last publish date of this d d m template
+	 */
+	public void setLastPublishDate(Date lastPublishDate);
 
 	@Override
 	public boolean isNew();

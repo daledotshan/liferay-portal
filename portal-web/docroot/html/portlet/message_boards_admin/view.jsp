@@ -27,7 +27,7 @@ MBCategoryDisplay categoryDisplay = new MBCategoryDisplayImpl(scopeGroupId, cate
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/message_boards/view");
+portletURL.setParameter("mvcRenderCommandName", "/message_boards/view");
 portletURL.setParameter("topLink", topLink);
 portletURL.setParameter("mbCategoryId", String.valueOf(categoryId));
 
@@ -38,7 +38,13 @@ if ((category != null) && layout.isTypeControlPanel()) {
 }
 %>
 
-<liferay-ui:trash-undo />
+<portlet:actionURL name="/message_boards/edit_category" var="restoreTrashEntriesURL">
+	<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.RESTORE %>" />
+</portlet:actionURL>
+
+<liferay-ui:trash-undo
+	portletURL="<%= restoreTrashEntriesURL %>"
+/>
 
 <liferay-util:include page="/html/portlet/message_boards/top_links.jsp" />
 
@@ -61,7 +67,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 			<div class="category-buttons">
 				<c:if test="<%= showAddCategoryButton %>">
 					<portlet:renderURL var="editCategoryURL">
-						<portlet:param name="struts_action" value="/message_boards/edit_category" />
+						<portlet:param name="mvcRenderCommandName" value="/message_boards/edit_category" />
 						<portlet:param name="redirect" value="<%= currentURL %>" />
 						<portlet:param name="parentCategoryId" value="<%= String.valueOf(categoryId) %>" />
 					</portlet:renderURL>
@@ -71,7 +77,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 
 				<c:if test="<%= showAddMessageButton %>">
 					<portlet:renderURL var="editMessageURL">
-						<portlet:param name="struts_action" value="/message_boards/edit_message" />
+						<portlet:param name="mvcRenderCommandName" value="/message_boards/edit_message" />
 						<portlet:param name="redirect" value="<%= currentURL %>" />
 						<portlet:param name="mbCategoryId" value="<%= String.valueOf(categoryId) %>" />
 					</portlet:renderURL>
@@ -121,7 +127,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 			%>
 
 			<portlet:renderURL var="backURL">
-				<portlet:param name="struts_action" value="/message_boards/view" />
+				<portlet:param name="mvcRenderCommandName" value="/message_boards/view" />
 				<portlet:param name="mbCategoryId" value="<%= String.valueOf(parentCategoryId) %>" />
 			</portlet:renderURL>
 
@@ -166,7 +172,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 								modelVar="curCategory"
 							>
 								<liferay-portlet:renderURL varImpl="rowURL">
-									<portlet:param name="struts_action" value="/message_boards/view" />
+									<portlet:param name="mvcRenderCommandName" value="/message_boards/view" />
 									<portlet:param name="mbCategoryId" value="<%= String.valueOf(curCategory.getCategoryId()) %>" />
 								</liferay-portlet:renderURL>
 
@@ -220,12 +226,9 @@ if ((category != null) && layout.isTypeControlPanel()) {
 						>
 
 							<%
-							MBMessage message = null;
+							MBMessage message = MBMessageLocalServiceUtil.fetchMBMessage(thread.getRootMessageId());
 
-							try {
-								message = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
-							}
-							catch (NoSuchMessageException nsme) {
+							if (message == null) {
 								_log.error("Thread requires missing root message id " + thread.getRootMessageId());
 
 								message = new MBMessageImpl();
@@ -240,7 +243,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 							%>
 
 							<liferay-portlet:renderURL varImpl="rowURL">
-								<portlet:param name="struts_action" value="/message_boards/view_message" />
+								<portlet:param name="mvcRenderCommandName" value="/message_boards/view_message" />
 								<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
 							</liferay-portlet:renderURL>
 
@@ -249,8 +252,16 @@ if ((category != null) && layout.isTypeControlPanel()) {
 							<liferay-ui:search-container-column-text
 								href="<%= rowURL %>"
 								name="flag"
-								value='<%= MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId()) ? LanguageUtil.get(request, "resolved") : LanguageUtil.get(request, "waiting-for-an-answer") %>'
-							/>
+							>
+								<c:choose>
+									<c:when test="<%= MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId()) %>">
+										<liferay-ui:message key="resolved" />
+									</c:when>
+									<c:when test="<%= thread.isQuestion() %>">
+										<liferay-ui:message key="waiting-for-an-answer" />
+									</c:when>
+								</c:choose>
+							</liferay-ui:search-container-column-text>
 
 							<liferay-ui:search-container-column-text
 								href="<%= rowURL %>"
@@ -381,12 +392,9 @@ if ((category != null) && layout.isTypeControlPanel()) {
 				>
 
 					<%
-					MBMessage message = null;
+					MBMessage message = MBMessageLocalServiceUtil.fetchMBMessage(thread.getRootMessageId());
 
-					try {
-						message = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
-					}
-					catch (NoSuchMessageException nsme) {
+					if (message == null) {
 						_log.error("Thread requires missing root message id " + thread.getRootMessageId());
 
 						continue;
@@ -400,7 +408,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 					%>
 
 					<liferay-portlet:renderURL varImpl="rowURL">
-						<portlet:param name="struts_action" value="/message_boards/view_message" />
+						<portlet:param name="mvcRenderCommandName" value="/message_boards/view_message" />
 						<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
 					</liferay-portlet:renderURL>
 
@@ -586,7 +594,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 			form.fm('<%= Constants.CMD %>').val('<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>');
 			form.fm('deleteCategoryIds').val(Liferay.Util.listCheckedExcept(form, '<portlet:namespace />allRowIds'));
 
-			submitForm(form, '<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/edit_category" /></portlet:actionURL>');
+			submitForm(form, '<portlet:actionURL name="/message_boards/edit_category" />');
 		}
 	}
 
@@ -598,7 +606,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 			form.fm('<%= Constants.CMD %>').val('<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>');
 			form.fm('threadIds').val(Liferay.Util.listCheckedExcept(form, '<portlet:namespace />allRowIds'));
 
-			submitForm(form, '<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/delete_thread" /></portlet:actionURL>');
+			submitForm(form, '<portlet:actionURL name="/message_boards/delete_thread" />');
 		}
 	}
 
@@ -609,7 +617,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 		form.fm('<%= Constants.CMD %>').val('<%= Constants.LOCK %>');
 		form.fm('threadIds').val(Liferay.Util.listCheckedExcept(form, '<portlet:namespace />allRowIds'));
 
-		submitForm(form, '<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/edit_message" /></portlet:actionURL>');
+		submitForm(form, '<portlet:actionURL name="/message_boards/edit_message" />');
 	}
 
 	function <portlet:namespace />unlockThreads() {
@@ -619,7 +627,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 		form.fm('<%= Constants.CMD %>').val('<%= Constants.UNLOCK %>');
 		form.fm('threadIds').val(Liferay.Util.listCheckedExcept(form, '<portlet:namespace />allRowIds'));
 
-		submitForm(form, '<portlet:actionURL><portlet:param name="struts_action" value="/message_boards_admin/edit_message" /></portlet:actionURL>');
+		submitForm(form, '<portlet:actionURL name="/message_boards/edit_message" />');
 	}
 </aui:script>
 

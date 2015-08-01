@@ -101,10 +101,12 @@ public class DDMStructureServiceWrapper implements DDMStructureService,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		com.liferay.portlet.dynamicdatamapping.model.DDMForm ddmForm,
 		com.liferay.portlet.dynamicdatamapping.model.DDMFormLayout ddmFormLayout,
+		java.lang.String storageType,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _ddmStructureService.addStructure(userId, groupId, classNameId,
-			nameMap, descriptionMap, ddmForm, ddmFormLayout, serviceContext);
+			nameMap, descriptionMap, ddmForm, ddmFormLayout, storageType,
+			serviceContext);
 	}
 
 	/**
@@ -285,6 +287,15 @@ public class DDMStructureServiceWrapper implements DDMStructureService,
 			structureKey);
 	}
 
+	@Override
+	public com.liferay.portlet.dynamicdatamapping.model.DDMStructure fetchStructure(
+		long groupId, long classNameId, java.lang.String structureKey,
+		boolean includeAncestorStructures)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _ddmStructureService.fetchStructure(groupId, classNameId,
+			structureKey, includeAncestorStructures);
+	}
+
 	/**
 	* Returns the Spring bean ID for this bean.
 	*
@@ -293,14 +304,6 @@ public class DDMStructureServiceWrapper implements DDMStructureService,
 	@Override
 	public java.lang.String getBeanIdentifier() {
 		return _ddmStructureService.getBeanIdentifier();
-	}
-
-	@Override
-	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getJournalFolderStructures(
-		long[] groupIds, long journalFolderId, int restrictionType)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _ddmStructureService.getJournalFolderStructures(groupIds,
-			journalFolderId, restrictionType);
 	}
 
 	/**
@@ -417,6 +420,14 @@ public class DDMStructureServiceWrapper implements DDMStructureService,
 		long[] groupIds, long classNameId, int start, int end) {
 		return _ddmStructureService.getStructures(groupIds, classNameId, start,
 			end);
+	}
+
+	@Override
+	public void revertStructure(long structureId, java.lang.String version,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_ddmStructureService.revertStructure(structureId, version,
+			serviceContext);
 	}
 
 	/**

@@ -18,17 +18,19 @@ import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.language.UnicodeLanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.taglib.ui.DeleteMenuItem;
-import com.liferay.portal.kernel.servlet.taglib.ui.JavascriptMenuItem;
-import com.liferay.portal.kernel.servlet.taglib.ui.JavascriptToolbarItem;
-import com.liferay.portal.kernel.servlet.taglib.ui.JavascriptUIItem;
+import com.liferay.portal.kernel.servlet.taglib.ui.JavaScriptMenuItem;
+import com.liferay.portal.kernel.servlet.taglib.ui.JavaScriptToolbarItem;
+import com.liferay.portal.kernel.servlet.taglib.ui.JavaScriptUIItem;
 import com.liferay.portal.kernel.servlet.taglib.ui.MenuItem;
 import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
 import com.liferay.portal.kernel.servlet.taglib.ui.URLMenuItem;
@@ -52,7 +54,6 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.PortletURLUtil;
 import com.liferay.portlet.documentlibrary.display.context.DLUIItemKeys;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
-import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.taglib.security.PermissionsURLTag;
@@ -67,17 +68,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author Iv�n Zaera
+ * @author Iván Zaera
  */
 public class UIItemsBuilder {
 
 	public UIItemsBuilder(
 			HttpServletRequest request, HttpServletResponse response,
-			DLFileShortcut dlFileShortcut)
+			FileShortcut fileShortcut)
 		throws PortalException {
 
-		this(
-			request, response, dlFileShortcut.getFileVersion(), dlFileShortcut);
+		this(request, response, fileShortcut.getFileVersion(), fileShortcut);
 	}
 
 	public UIItemsBuilder(
@@ -113,11 +113,11 @@ public class UIItemsBuilder {
 			return;
 		}
 
-		_addJavascriptUIItem(
-			new JavascriptToolbarItem(), toolbarItems, "icon-undo",
+		_addJavaScriptUIItem(
+			new JavaScriptToolbarItem(), toolbarItems, "icon-undo",
 			DLUIItemKeys.CANCEL_CHECKOUT,
-			UnicodeLanguageUtil.get(_request, "cancel-checkout[document]"),
-			getSubmitFormJavascript(Constants.CANCEL_CHECKOUT, null));
+			LanguageUtil.get(_request, "cancel-checkout[document]"),
+			getSubmitFormJavaScript(Constants.CANCEL_CHECKOUT, null));
 	}
 
 	public void addCheckinMenuItem(List<MenuItem> menuItems)
@@ -141,10 +141,10 @@ public class UIItemsBuilder {
 			return;
 		}
 
-		_addJavascriptUIItem(
-			new JavascriptToolbarItem(), toolbarItems, "icon-lock",
-			DLUIItemKeys.CHECKIN, UnicodeLanguageUtil.get(_request, "checkin"),
-			getSubmitFormJavascript(Constants.CHECKIN, null));
+		_addJavaScriptUIItem(
+			new JavaScriptToolbarItem(), toolbarItems, "icon-lock",
+			DLUIItemKeys.CHECKIN, LanguageUtil.get(_request, "checkin"),
+			getSubmitFormJavaScript(Constants.CHECKIN, null));
 	}
 
 	public void addCheckoutMenuItem(List<MenuItem> menuItems)
@@ -172,11 +172,11 @@ public class UIItemsBuilder {
 			return;
 		}
 
-		_addJavascriptUIItem(
-			new JavascriptToolbarItem(), toolbarItems, "icon-unlock",
+		_addJavaScriptUIItem(
+			new JavaScriptToolbarItem(), toolbarItems, "icon-unlock",
 			DLUIItemKeys.CHECKOUT,
-			UnicodeLanguageUtil.get(_request, "checkout[document]"),
-			getSubmitFormJavascript(Constants.CHECKOUT, null));
+			LanguageUtil.get(_request, "checkout[document]"),
+			getSubmitFormJavaScript(Constants.CHECKOUT, null));
 	}
 
 	public void addDeleteMenuItem(List<MenuItem> menuItems)
@@ -218,7 +218,8 @@ public class UIItemsBuilder {
 
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
-		portletURL.setParameter("struts_action", "/document_library/view");
+		portletURL.setParameter(
+			"mvcRenderCommandName", "/document_library/view");
 		portletURL.setParameter(
 			"folderId", String.valueOf(_fileEntry.getFolderId()));
 
@@ -230,12 +231,12 @@ public class UIItemsBuilder {
 				_request, "are-you-sure-you-want-to-delete-this"));
 		sb.append("')) {");
 		sb.append(
-			getSubmitFormJavascript(Constants.DELETE, portletURL.toString()));
+			getSubmitFormJavaScript(Constants.DELETE, portletURL.toString()));
 		sb.append("}");
 
-		_addJavascriptUIItem(
-			new JavascriptToolbarItem(), toolbarItems, "icon-remove",
-			DLUIItemKeys.DELETE, UnicodeLanguageUtil.get(_request, "delete"),
+		_addJavaScriptUIItem(
+			new JavaScriptToolbarItem(), toolbarItems, "icon-remove",
+			DLUIItemKeys.DELETE, LanguageUtil.get(_request, "delete"),
 			sb.toString());
 	}
 
@@ -272,8 +273,7 @@ public class UIItemsBuilder {
 
 		_addURLUIItem(
 			new URLToolbarItem(), toolbarItems, "icon-download",
-			DLUIItemKeys.DOWNLOAD,
-			UnicodeLanguageUtil.get(_request, "download"),
+			DLUIItemKeys.DOWNLOAD, LanguageUtil.get(_request, "download"),
 			DLUtil.getDownloadURL(
 				_fileEntry, _fileVersion, _themeDisplay, StringPool.BLANK));
 	}
@@ -307,7 +307,7 @@ public class UIItemsBuilder {
 
 		_addURLUIItem(
 			new URLToolbarItem(), toolbarItems, "icon-edit", DLUIItemKeys.EDIT,
-			UnicodeLanguageUtil.get(_request, "edit"), portletURL.toString());
+			LanguageUtil.get(_request, "edit"), portletURL.toString());
 	}
 
 	public void addMoveMenuItem(List<MenuItem> menuItems)
@@ -323,11 +323,12 @@ public class UIItemsBuilder {
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
 		portletURL.setParameter(
-			"struts_action", "/document_library/move_entry");
+			"mvcRenderCommandName", "/document_library/move_entry");
 
 		PortletURL redirectURL = liferayPortletResponse.createRenderURL();
 
-		redirectURL.setParameter("struts_action", "/document_library/view");
+		redirectURL.setParameter(
+			"mvcRenderCommandName", "/document_library/view");
 		redirectURL.setParameter("folderId", String.valueOf(_folderId));
 
 		portletURL.setParameter("redirect", redirectURL.toString());
@@ -351,7 +352,7 @@ public class UIItemsBuilder {
 
 		_addURLUIItem(
 			new URLToolbarItem(), toolbarItems, "icon-move", DLUIItemKeys.MOVE,
-			UnicodeLanguageUtil.get(_request, "move"), portletURL.toString());
+			LanguageUtil.get(_request, "move"), portletURL.toString());
 	}
 
 	public void addMoveToTheRecycleBinToolbarItem(
@@ -367,15 +368,16 @@ public class UIItemsBuilder {
 
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
-		portletURL.setParameter("struts_action", "/document_library/view");
+		portletURL.setParameter(
+			"mvcRenderCommandName", "/document_library/view");
 		portletURL.setParameter(
 			"folderId", String.valueOf(_fileEntry.getFolderId()));
 
-		_addJavascriptUIItem(
-			new JavascriptToolbarItem(), toolbarItems, "icon-trash",
+		_addJavaScriptUIItem(
+			new JavaScriptToolbarItem(), toolbarItems, "icon-trash",
 			DLUIItemKeys.MOVE_TO_THE_RECYCLE_BIN,
-			UnicodeLanguageUtil.get(_request, "move-to-the-recycle-bin"),
-			getSubmitFormJavascript(
+			LanguageUtil.get(_request, "move-to-the-recycle-bin"),
+			getSubmitFormJavaScript(
 				Constants.MOVE_TO_TRASH, portletURL.toString()));
 	}
 
@@ -394,8 +396,8 @@ public class UIItemsBuilder {
 
 		String onClick = getNamespace() + "openDocument('" + webDavURL + "');";
 
-		JavascriptMenuItem javascriptMenuItem = _addJavascriptUIItem(
-			new JavascriptMenuItem(), menuItems, "icon-file-alt",
+		JavaScriptMenuItem javascriptMenuItem = _addJavaScriptUIItem(
+			new JavaScriptMenuItem(), menuItems, "icon-file-alt",
 			DLUIItemKeys.OPEN_IN_MS_OFFICE, "open-in-ms-office", onClick);
 
 		String javaScript =
@@ -421,7 +423,7 @@ public class UIItemsBuilder {
 
 		template.processTemplate(unsyncStringWriter);
 
-		javascriptMenuItem.setJavascript(unsyncStringWriter.toString());
+		javascriptMenuItem.setJavaScript(unsyncStringWriter.toString());
 	}
 
 	public void addOpenInMsOfficeToolbarItem(List<ToolbarItem> toolbarItems)
@@ -443,11 +445,10 @@ public class UIItemsBuilder {
 		sb.append(webDavURL);
 		sb.append("');");
 
-		_addJavascriptUIItem(
-			new JavascriptToolbarItem(), toolbarItems, "icon-file-alt",
+		_addJavaScriptUIItem(
+			new JavaScriptToolbarItem(), toolbarItems, "icon-file-alt",
 			DLUIItemKeys.OPEN_IN_MS_OFFICE,
-			UnicodeLanguageUtil.get(_request, "open-in-ms-office"),
-			sb.toString());
+			LanguageUtil.get(_request, "open-in-ms-office"), sb.toString());
 	}
 
 	public void addPermissionsMenuItem(List<MenuItem> menuItems)
@@ -508,14 +509,14 @@ public class UIItemsBuilder {
 		sb.append(permissionsURL);
 		sb.append("'});");
 
-		_addJavascriptUIItem(
-			new JavascriptToolbarItem(), toolbarItems, "icon-lock",
-			DLUIItemKeys.PERMISSIONS,
-			UnicodeLanguageUtil.get(_request, "permissions"), sb.toString());
+		_addJavaScriptUIItem(
+			new JavaScriptToolbarItem(), toolbarItems, "icon-lock",
+			DLUIItemKeys.PERMISSIONS, LanguageUtil.get(_request, "permissions"),
+			sb.toString());
 	}
 
 	public void addViewOriginalFileMenuItem(List<MenuItem> menuItems) {
-		if (_dlFileShortcut == null) {
+		if (_fileShortcut == null) {
 			return;
 		}
 
@@ -524,7 +525,7 @@ public class UIItemsBuilder {
 
 		portletURL.setParameter("redirect", _getCurrentURL());
 		portletURL.setParameter(
-			"fileEntryId", String.valueOf(_dlFileShortcut.getToFileEntryId()));
+			"fileEntryId", String.valueOf(_fileShortcut.getToFileEntryId()));
 
 		_addURLUIItem(
 			new URLMenuItem(), menuItems, "icon-search",
@@ -539,7 +540,7 @@ public class UIItemsBuilder {
 		return liferayPortletResponse.getNamespace();
 	}
 
-	protected String getSubmitFormJavascript(String cmd, String redirect) {
+	protected String getSubmitFormJavaScript(String cmd, String redirect) {
 		StringBundler sb = new StringBundler(18);
 
 		sb.append("document.");
@@ -603,12 +604,12 @@ public class UIItemsBuilder {
 
 	private UIItemsBuilder(
 		HttpServletRequest request, HttpServletResponse response,
-		FileVersion fileVersion, DLFileShortcut dlFileShortcut) {
+		FileVersion fileVersion, FileShortcut fileShortcut) {
 
 		try {
 			_request = request;
 			_fileVersion = fileVersion;
-			_dlFileShortcut = dlFileShortcut;
+			_fileShortcut = fileShortcut;
 
 			FileEntry fileEntry = null;
 
@@ -634,7 +635,7 @@ public class UIItemsBuilder {
 		}
 	}
 
-	private <T extends JavascriptUIItem> T _addJavascriptUIItem(
+	private <T extends JavaScriptUIItem> T _addJavaScriptUIItem(
 		T javascriptUIItem, List<? super T> javascriptUIItems, String icon,
 		String key, String label, String onClick ) {
 
@@ -662,13 +663,13 @@ public class UIItemsBuilder {
 		return urlUIItem;
 	}
 
-	private String _getActionURL(String strutsAction, String cmd) {
+	private String _getActionURL(String mvcActionCommandName, String cmd) {
 		LiferayPortletResponse liferayPortletResponse =
 			_getLiferayPortletResponse();
 
 		PortletURL portletURL = liferayPortletResponse.createActionURL();
 
-		portletURL.setParameter("struts_action", strutsAction);
+		portletURL.setParameter("javax.portlet.action", mvcActionCommandName);
 		portletURL.setParameter(Constants.CMD, cmd);
 		portletURL.setParameter("redirect", _getCurrentURL());
 		portletURL.setParameter(
@@ -711,13 +712,13 @@ public class UIItemsBuilder {
 		return PortalUtil.getLiferayPortletResponse(portletResponse);
 	}
 
-	private PortletURL _getRenderURL(String strutsAction) {
+	private PortletURL _getRenderURL(String mvcRenderCommandName) {
 		LiferayPortletResponse liferayPortletResponse =
 			_getLiferayPortletResponse();
 
 		PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
-		portletURL.setParameter("struts_action", strutsAction);
+		portletURL.setParameter("mvcRenderCommandName", mvcRenderCommandName);
 		portletURL.setParameter("redirect", _getCurrentURL());
 		portletURL.setParameter(
 			"fileEntryId", String.valueOf(_fileEntry.getFileEntryId()));
@@ -759,9 +760,9 @@ public class UIItemsBuilder {
 	}
 
 	private String _currentURL;
-	private DLFileShortcut _dlFileShortcut;
 	private final FileEntry _fileEntry;
 	private final FileEntryDisplayContextHelper _fileEntryDisplayContextHelper;
+	private FileShortcut _fileShortcut;
 	private final FileVersion _fileVersion;
 	private final FileVersionDisplayContextHelper
 		_fileVersionDisplayContextHelper;

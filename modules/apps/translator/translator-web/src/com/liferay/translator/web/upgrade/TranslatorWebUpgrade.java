@@ -31,9 +31,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Raymond Augé
  * @author Peter Fellwock
  */
-@Component(
-	immediate = true, service = TranslatorWebUpgrade.class
-)
+@Component(immediate = true, service = TranslatorWebUpgrade.class)
 public class TranslatorWebUpgrade {
 
 	@Reference(unbind = "-")
@@ -65,7 +63,7 @@ public class TranslatorWebUpgrade {
 
 		_releaseLocalService.updateRelease(
 			"com.liferay.translator.web",
-			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 0,
+			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 1,
 			false);
 	}
 

@@ -14,8 +14,8 @@
 
 package com.liferay.portal.security.sso;
 
+import com.liferay.portal.kernel.security.sso.SSO;
 import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.Registry;
@@ -26,10 +26,7 @@ import com.liferay.registry.ServiceTrackerCustomizer;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Raymond Augé
@@ -39,16 +36,6 @@ public class SSOUtil {
 	public static String getSessionExpirationRedirectURL(
 		long companyId, String sessionExpirationRedirectURL) {
 
-		if (PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-					PropsValues.OPEN_SSO_AUTH_ENABLED) &&
-			PropsValues.OPEN_SSO_LOGOUT_ON_SESSION_EXPIRATION) {
-
-			return PrefsPropsUtil.getString(
-					companyId, PropsKeys.OPEN_SSO_LOGOUT_URL,
-					PropsValues.OPEN_SSO_LOGOUT_URL);
-		}
-
 		if (_instance._ssoMap.isEmpty()) {
 			return sessionExpirationRedirectURL;
 		}
@@ -57,13 +44,6 @@ public class SSOUtil {
 	}
 
 	public static String getSignInURL(long companyId, String signInURL) {
-		if (PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-				PropsValues.OPEN_SSO_AUTH_ENABLED)) {
-
-			return signInURL;
-		}
-
 		if (_instance._ssoMap.isEmpty()) {
 			return null;
 		}
@@ -71,37 +51,10 @@ public class SSOUtil {
 		return _instance._getSignInUrl(companyId, signInURL);
 	}
 
-	public static boolean isAccessAllowed(
-		HttpServletRequest request, Set<String> hostsAllowed) {
-
-		if (hostsAllowed.isEmpty()) {
-			return true;
-		}
-
-		String remoteAddr = request.getRemoteAddr();
-
-		if (hostsAllowed.contains(remoteAddr)) {
-			return true;
-		}
-
-		String computerAddress = PortalUtil.getComputerAddress();
-
-		if (computerAddress.equals(remoteAddr) &&
-			hostsAllowed.contains(_SERVER_IP)) {
-
-			return true;
-		}
-
-		return false;
-	}
-
 	public static boolean isLoginRedirectRequired(long companyId) {
 		if (PrefsPropsUtil.getBoolean(
 				companyId, PropsKeys.LOGIN_DIALOG_DISABLED,
-				PropsValues.LOGIN_DIALOG_DISABLED) ||
-			PrefsPropsUtil.getBoolean(
-				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-				PropsValues.OPEN_SSO_AUTH_ENABLED)) {
+				PropsValues.LOGIN_DIALOG_DISABLED)) {
 
 			return true;
 		}
@@ -131,7 +84,7 @@ public class SSOUtil {
 
 		if (PrefsPropsUtil.getBoolean(
 				companyId, PropsKeys.OPEN_SSO_AUTH_ENABLED,
-					PropsValues.OPEN_SSO_AUTH_ENABLED) &&
+				PropsValues.OPEN_SSO_AUTH_ENABLED) &&
 			PropsValues.OPEN_SSO_LOGOUT_ON_SESSION_EXPIRATION) {
 
 			return true;
@@ -203,8 +156,6 @@ public class SSOUtil {
 
 		return false;
 	}
-
-	private static final String _SERVER_IP = "SERVER_IP";
 
 	private static final SSOUtil _instance = new SSOUtil();
 

@@ -32,9 +32,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Raymond Augé
  * @author Peter Fellwock
  */
-@Component(
-	immediate = true, service = InvitationWebUpgrade.class
-)
+@Component(immediate = true, service = InvitationWebUpgrade.class)
 public class InvitationWebUpgrade {
 
 	@Reference(unbind = "-")
@@ -63,7 +61,7 @@ public class InvitationWebUpgrade {
 
 		_releaseLocalService.updateRelease(
 			"com.liferay.invitation.web",
-			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 0,
+			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 1,
 			false);
 	}
 

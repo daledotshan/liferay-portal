@@ -16,7 +16,6 @@ package com.liferay.portlet.dynamicdatamapping.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
@@ -179,7 +178,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	* @return the create date of this d d m content
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _ddmContent.getCreateDate();
 	}
 
@@ -229,7 +228,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	* @return the modified date of this d d m content
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _ddmContent.getModifiedDate();
 	}
 
@@ -306,7 +305,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	* @return the locales and localized names of this d d m content
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _ddmContent.getNameMap();
 	}
 
@@ -434,7 +433,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	* @param createDate the create date of this d d m content
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_ddmContent.setCreateDate(createDate);
 	}
 
@@ -492,7 +491,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	* @param modifiedDate the modified date of this d d m content
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_ddmContent.setModifiedDate(modifiedDate);
 	}
 
@@ -541,8 +540,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	* @param nameMap the locales and localized names of this d d m content
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_ddmContent.setNameMap(nameMap);
 	}
 
@@ -553,8 +551,7 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_ddmContent.setNameMap(nameMap, defaultLocale);
 	}
@@ -661,11 +658,6 @@ public class DDMContentWrapper implements DDMContent, ModelWrapper<DDMContent> {
 		}
 
 		return false;
-	}
-
-	@Override
-	public StagedModelType getStagedModelType() {
-		return _ddmContent.getStagedModelType();
 	}
 
 	/**

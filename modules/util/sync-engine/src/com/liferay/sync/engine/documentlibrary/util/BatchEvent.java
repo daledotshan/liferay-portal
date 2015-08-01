@@ -14,8 +14,6 @@
 
 package com.liferay.sync.engine.documentlibrary.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.liferay.sync.engine.documentlibrary.event.Event;
 import com.liferay.sync.engine.documentlibrary.event.UpdateFileEntriesEvent;
 import com.liferay.sync.engine.documentlibrary.handler.Handler;
@@ -23,10 +21,10 @@ import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.util.FileUtil;
+import com.liferay.sync.engine.util.JSONUtil;
 import com.liferay.sync.engine.util.PropsValues;
 import com.liferay.sync.engine.util.StreamUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -83,7 +81,7 @@ public class BatchEvent {
 			parameters.put("urlPath", event.getURLPath());
 			parameters.put("zipFileId", zipFileId);
 
-			parameters = new HashMap<String, Object>(parameters);
+			parameters = new HashMap<>(parameters);
 
 			parameters.remove("deltaFilePath");
 			parameters.remove("filePath");
@@ -106,7 +104,9 @@ public class BatchEvent {
 			return true;
 		}
 		catch (IOException ioe) {
-			_logger.debug(ioe.getMessage(), ioe);
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(ioe.getMessage(), ioe);
+			}
 
 			return false;
 		}
@@ -118,13 +118,9 @@ public class BatchEvent {
 				return;
 			}
 
-			ObjectMapper objectMapper = new ObjectMapper();
-
 			Path filePath = Files.createTempFile("manifest", ".json");
 
-			File file = filePath.toFile();
-
-			objectMapper.writeValue(file, _batchParameters);
+			JSONUtil.writeValue(filePath.toFile(), _batchParameters);
 
 			writeFilePathToZip(filePath, "manifest.json");
 
@@ -143,7 +139,9 @@ public class BatchEvent {
 			_closed = true;
 		}
 		catch (Exception e) {
-			_logger.debug(e.getMessage(), e);
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -203,7 +201,9 @@ public class BatchEvent {
 			}
 		}
 		finally {
-			_zipOutputStream.closeEntry();
+			if (_zipOutputStream != null) {
+				_zipOutputStream.closeEntry();
+			}
 
 			StreamUtil.cleanUp(inputStream);
 		}
