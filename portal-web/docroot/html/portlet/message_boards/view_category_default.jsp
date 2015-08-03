@@ -61,7 +61,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 					<liferay-ui:search-container-row-parameter name="categorySubscriptionClassPKs" value="<%= categorySubscriptionClassPKs %>" />
 
 					<liferay-portlet:renderURL varImpl="rowURL">
-						<portlet:param name="struts_action" value="/message_boards/view" />
+						<portlet:param name="mvcRenderCommandName" value="/message_boards/view" />
 						<portlet:param name="mbCategoryId" value="<%= String.valueOf(curCategory.getCategoryId()) %>" />
 					</liferay-portlet:renderURL>
 
@@ -92,12 +92,9 @@ if ((category != null) && layout.isTypeControlPanel()) {
 			>
 
 				<%
-				MBMessage message = null;
+				MBMessage message = MBMessageLocalServiceUtil.fetchMBMessage(thread.getRootMessageId());
 
-				try {
-					message = MBMessageLocalServiceUtil.getMessage(thread.getRootMessageId());
-				}
-				catch (NoSuchMessageException nsme) {
+				if (message == null) {
 					_log.error("Thread requires missing root message id " + thread.getRootMessageId());
 
 					message = new MBMessageImpl();
@@ -113,7 +110,7 @@ if ((category != null) && layout.isTypeControlPanel()) {
 				%>
 
 				<liferay-portlet:renderURL varImpl="rowURL">
-					<portlet:param name="struts_action" value="/message_boards/view_message" />
+					<portlet:param name="mvcRenderCommandName" value="/message_boards/view_message" />
 					<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
 				</liferay-portlet:renderURL>
 

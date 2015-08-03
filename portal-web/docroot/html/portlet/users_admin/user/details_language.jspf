@@ -17,9 +17,7 @@
 <aui:select label="language" name="languageId">
 
 	<%
-	Locale[] locales = LanguageUtil.getAvailableLocales();
-
-	for (Locale curLocale : locales) {
+	for (Locale curLocale : LanguageUtil.getAvailableLocales()) {
 	%>
 
 		<aui:option label="<%= curLocale.getDisplayName(curLocale) %>" lang="<%= LocaleUtil.toW3cLanguageId(curLocale) %>" selected="<%= (userLocale.getLanguage().equals(curLocale.getLanguage()) && userLocale.getCountry().equals(curLocale.getCountry())) %>" value="<%= LocaleUtil.toLanguageId(curLocale) %>" />
@@ -30,19 +28,14 @@
 
 </aui:select>
 
-<portlet:renderURL var="userDetailsURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
-	<portlet:param name="struts_action" value="<%= detailsLanguageStrutsAction %>" />
-	<portlet:param name="p_u_i_d" value="<%= Validator.isNotNull(selUser) ? String.valueOf(selUser.getUserId()) : String.valueOf(0) %>" />
-</portlet:renderURL>
-
 <aui:script sandbox="<%= true %>" use="liferay-portlet-url">
 	var formData = {};
 
 	var select = $('#<portlet:namespace />languageId');
 
-	var userDetailsURL = Liferay.PortletURL.createURL('<%= userDetailsURL %>');
+	var userDetailsURL = Liferay.PortletURL.createURL('<%= themeDisplay.getURLCurrent() %>');
 
-	var userNameFields =$('#<portlet:namespace />userNameFields');
+	var userNameFields = $('#<portlet:namespace />userNameFields');
 
 	select.on(
 		'change',
@@ -85,7 +78,7 @@
 					},
 					timeout: 5000
 				}
-			)
+			);
 		}
 	);
 </aui:script>

@@ -56,12 +56,8 @@ import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
-import com.liferay.portlet.documentlibrary.util.comparator.FileVersionVersionComparator;
+import com.liferay.portlet.documentlibrary.util.comparator.DLFileVersionVersionComparator;
 import com.liferay.portlet.documentlibrary.webdav.DLWebDAVStorageImpl;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalServiceUtil;
-import com.liferay.portlet.dynamicdatamapping.storage.StorageAdapter;
-import com.liferay.portlet.dynamicdatamapping.storage.StorageAdapterRegistryUtil;
-import com.liferay.portlet.dynamicdatamapping.storage.StorageType;
 
 import java.io.InputStream;
 
@@ -157,13 +153,9 @@ public class VerifyDocumentLibrary extends VerifyProcess {
 			return;
 		}
 
-		Date now = new Date();
-
 		dlFileEntryType = DLFileEntryTypeLocalServiceUtil.createDLFileEntryType(
 			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
 
-		dlFileEntryType.setCreateDate(now);
-		dlFileEntryType.setModifiedDate(now);
 		dlFileEntryType.setFileEntryTypeKey(
 			StringUtil.toUpperCase(
 				DLFileEntryTypeConstants.NAME_BASIC_DOCUMENT));
@@ -408,9 +400,6 @@ public class VerifyDocumentLibrary extends VerifyProcess {
 			return;
 		}
 
-		FileVersionVersionComparator comparator =
-			new FileVersionVersionComparator();
-
 		List<DLFileVersion> dlFileVersions = dlFileEntry.getFileVersions(
 			WorkflowConstants.STATUS_APPROVED);
 
@@ -427,7 +416,7 @@ public class VerifyDocumentLibrary extends VerifyProcess {
 
 		dlFileVersions = ListUtil.copy(dlFileVersions);
 
-		Collections.sort(dlFileVersions, comparator);
+		Collections.sort(dlFileVersions, new DLFileVersionVersionComparator());
 
 		DLFileVersion dlFileVersion = dlFileVersions.get(0);
 
@@ -470,17 +459,8 @@ public class VerifyDocumentLibrary extends VerifyProcess {
 			DLFileEntryMetadata dlFileEntryMetadata)
 		throws Exception {
 
-		DLFileEntryMetadataLocalServiceUtil.deleteDLFileEntryMetadata(
+		DLFileEntryMetadataLocalServiceUtil.deleteFileEntryMetadata(
 			dlFileEntryMetadata);
-
-		StorageAdapter storageAdapter =
-			StorageAdapterRegistryUtil.getStorageAdapter(
-				StorageType.JSON.toString());
-
-		storageAdapter.deleteByClass(dlFileEntryMetadata.getDDMStorageId());
-
-		DDMStructureLinkLocalServiceUtil.deleteClassStructureLink(
-			dlFileEntryMetadata.getFileEntryMetadataId());
 	}
 
 	@Override

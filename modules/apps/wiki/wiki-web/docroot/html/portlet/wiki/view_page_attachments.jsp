@@ -64,7 +64,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "attachm
 	/>
 </c:if>
 
-<c:if test="<%= WikiNodePermission.contains(permissionChecker, node.getNodeId(), ActionKeys.ADD_ATTACHMENT) %>">
+<c:if test="<%= WikiNodePermissionChecker.contains(permissionChecker, node.getNodeId(), ActionKeys.ADD_ATTACHMENT) %>">
 	<c:choose>
 		<c:when test="<%= viewTrashAttachments %>">
 			<portlet:actionURL var="emptyTrashURL">
@@ -90,7 +90,6 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "attachm
 			<c:if test="<%= TrashUtil.isTrashEnabled(scopeGroupId) && (deletedAttachmentsCount > 0) %>">
 				<portlet:renderURL var="viewTrashAttachmentsURL">
 					<portlet:param name="struts_action" value="/wiki/view_page_attachments" />
-					<portlet:param name="tabs1" value="attachments" />
 					<portlet:param name="redirect" value="<%= currentURL %>" />
 					<portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" />
 					<portlet:param name="title" value="<%= wikiPage.getTitle() %>" />
@@ -140,6 +139,7 @@ PortletURL iteratorURL = renderResponse.createRenderURL();
 iteratorURL.setParameter("struts_action", "/wiki/view_page_attachments");
 iteratorURL.setParameter("redirect", currentURL);
 iteratorURL.setParameter("nodeId", String.valueOf(node.getNodeId()));
+iteratorURL.setParameter("title", wikiPage.getTitle());
 iteratorURL.setParameter("viewTrashAttachments", String.valueOf(viewTrashAttachments));
 %>
 
@@ -213,9 +213,22 @@ iteratorURL.setParameter("viewTrashAttachments", String.valueOf(viewTrashAttachm
 	<liferay-ui:search-iterator />
 </liferay-ui:search-container>
 
-<liferay-ui:restore-entry
-	duplicateEntryAction="/wiki/restore_entry"
-	overrideMessage="overwrite-the-existing-attachment-with-the-removed-one"
-	renameMessage="keep-both-attachments-and-rename-the-removed-attachment-as"
-	restoreEntryAction="/wiki/restore_page_attachment"
-/>
+<portlet:actionURL var="checkEntryURL">
+	<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.CHECK %>" />
+	<portlet:param name="struts_action" value="/wiki/edit_page_attachment" />
+</portlet:actionURL>
+
+<portlet:renderURL var="duplicateEntryURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
+	<portlet:param name="struts_action" value="/wiki/restore_entry" />
+	<portlet:param name="redirect" value="<%= currentURL %>" />
+</portlet:renderURL>
+
+<aui:script use="liferay-restore-entry">
+	new Liferay.RestoreEntry(
+		{
+			checkEntryURL: '<%= checkEntryURL.toString() %>',
+			duplicateEntryURL: '<%= duplicateEntryURL.toString() %>',
+			namespace: '<portlet:namespace />'
+		}
+	);
+</aui:script>

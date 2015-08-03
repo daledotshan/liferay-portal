@@ -31,9 +31,9 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.security.jaas.JAASHelper;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.servlet.MainServlet;
-import com.liferay.portal.test.mock.AutoDeployMockServletContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.MainServletTestRule;
+import com.liferay.portal.test.rule.callback.MainServletTestCallback;
 import com.liferay.portal.util.PropsValues;
 
 import java.lang.reflect.Field;
@@ -57,7 +57,6 @@ import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -68,11 +67,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletConfig;
-import org.springframework.mock.web.MockServletContext;
 
 /**
  * @author Raymond Augé
@@ -119,12 +115,7 @@ public class JAASTest {
 		LoginContext loginContext = getLoginContext(
 			_user.getEmailAddress(), _user.getPassword());
 
-		try {
-			loginContext.login();
-		}
-		catch (Exception e) {
-			Assert.fail();
-		}
+		loginContext.login();
 
 		validateSubject(loginContext.getSubject(), _user.getEmailAddress());
 	}
@@ -136,12 +127,7 @@ public class JAASTest {
 		LoginContext loginContext = getLoginContext(
 			_user.getEmailAddress(), _user.getPassword());
 
-		try {
-			loginContext.login();
-		}
-		catch (Exception e) {
-			Assert.fail();
-		}
+		loginContext.login();
 
 		validateSubject(loginContext.getSubject(), _user.getEmailAddress());
 	}
@@ -217,12 +203,7 @@ public class JAASTest {
 		LoginContext loginContext = getLoginContext(
 			_user.getScreenName(), _user.getPassword());
 
-		try {
-			loginContext.login();
-		}
-		catch (Exception e) {
-			Assert.fail();
-		}
+		loginContext.login();
 
 		validateSubject(loginContext.getSubject(), _user.getScreenName());
 	}
@@ -298,12 +279,7 @@ public class JAASTest {
 		LoginContext loginContext = getLoginContext(
 			String.valueOf(_user.getUserId()), _user.getPassword());
 
-		try {
-			loginContext.login();
-		}
-		catch (Exception e) {
-			Assert.fail();
-		}
+		loginContext.login();
 
 		validateSubject(
 			loginContext.getSubject(), String.valueOf(_user.getUserId()));
@@ -333,21 +309,7 @@ public class JAASTest {
 			}
 		);
 
-		MainServlet mainServlet = new MainServlet();
-
-		MockServletContext mockServletContext =
-			new AutoDeployMockServletContext(new FileSystemResourceLoader());
-
-		MockServletConfig mockServletConfig = new MockServletConfig(
-			mockServletContext);
-
-		try {
-			mainServlet.init(mockServletConfig);
-		}
-		catch (ServletException se) {
-			throw new RuntimeException(
-				"The main servlet could not be initialized");
-		}
+		MainServlet mainServlet = MainServletTestCallback.getMainServlet();
 
 		Date lastLoginDate = _user.getLastLoginDate();
 

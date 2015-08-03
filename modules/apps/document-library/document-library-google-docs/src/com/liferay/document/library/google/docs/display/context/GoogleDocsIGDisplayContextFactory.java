@@ -18,11 +18,12 @@ import com.liferay.document.library.google.docs.util.GoogleDocsMetadataHelper;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.FileVersion;
-import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.service.DLAppService;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalService;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalService;
 import com.liferay.portlet.dynamicdatamapping.storage.StorageEngine;
 import com.liferay.portlet.imagegallerydisplay.display.context.IGDisplayContextFactory;
 import com.liferay.portlet.imagegallerydisplay.display.context.IGViewFileVersionDisplayContext;
@@ -34,11 +35,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * @author Iv·n Zaera
+ * @author Iv√°n Zaera
  */
-@Component(
-	immediate = true, service = IGDisplayContextFactory.class
-)
+@Component(immediate = true, service = IGDisplayContextFactory.class)
 public class GoogleDocsIGDisplayContextFactory
 	implements IGDisplayContextFactory {
 
@@ -46,10 +45,10 @@ public class GoogleDocsIGDisplayContextFactory
 	public IGViewFileVersionDisplayContext getIGViewFileVersionDisplayContext(
 		IGViewFileVersionDisplayContext parentIGViewFileVersionDisplayContext,
 		HttpServletRequest request, HttpServletResponse response,
-		DLFileShortcut dlFileShortcut) {
+		FileShortcut fileShortcut) {
 
 		try {
-			long fileEntryId = dlFileShortcut.getToFileEntryId();
+			long fileEntryId = fileShortcut.getToFileEntryId();
 
 			FileEntry fileEntry = _dlAppService.getFileEntry(fileEntryId);
 
@@ -62,7 +61,8 @@ public class GoogleDocsIGDisplayContextFactory
 		catch (PortalException pe) {
 			throw new SystemException(
 				"Unable to build GoogleDocsDLViewFileVersionDisplayContext " +
-					"for shortcut " + dlFileShortcut.getToTitle(), pe);
+					"for shortcut " + fileShortcut.getPrimaryKey(),
+				pe);
 		}
 	}
 
@@ -74,6 +74,7 @@ public class GoogleDocsIGDisplayContextFactory
 
 		GoogleDocsMetadataHelper googleDocsMetadataHelper =
 			new GoogleDocsMetadataHelper(
+				_ddmStructureLocalService,
 				(DLFileVersion)fileVersion.getModel(),
 				_dlFileEntryMetadataLocalService, _storageEngine);
 
@@ -84,6 +85,13 @@ public class GoogleDocsIGDisplayContextFactory
 		}
 
 		return parentIGViewFileVersionDisplayContext;
+	}
+
+	@Reference
+	public void setDDMStructureLocalService(
+		DDMStructureLocalService ddmStructureLocalService) {
+
+		_ddmStructureLocalService = ddmStructureLocalService;
 	}
 
 	@Reference
@@ -103,6 +111,7 @@ public class GoogleDocsIGDisplayContextFactory
 		_storageEngine = storageEngine;
 	}
 
+	private DDMStructureLocalService _ddmStructureLocalService;
 	private DLAppService _dlAppService;
 	private DLFileEntryMetadataLocalService _dlFileEntryMetadataLocalService;
 	private StorageEngine _storageEngine;

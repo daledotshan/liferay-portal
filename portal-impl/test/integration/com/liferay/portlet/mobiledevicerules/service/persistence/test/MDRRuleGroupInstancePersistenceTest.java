@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.mobiledevicerules.NoSuchRuleGroupInstanceException;
 import com.liferay.portlet.mobiledevicerules.model.MDRRuleGroupInstance;
@@ -140,6 +139,8 @@ public class MDRRuleGroupInstancePersistenceTest {
 
 		newMDRRuleGroupInstance.setPriority(RandomTestUtil.nextInt());
 
+		newMDRRuleGroupInstance.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_mdrRuleGroupInstances.add(_persistence.update(newMDRRuleGroupInstance));
 
 		MDRRuleGroupInstance existingMDRRuleGroupInstance = _persistence.findByPrimaryKey(newMDRRuleGroupInstance.getPrimaryKey());
@@ -170,113 +171,74 @@ public class MDRRuleGroupInstancePersistenceTest {
 			newMDRRuleGroupInstance.getRuleGroupId());
 		Assert.assertEquals(existingMDRRuleGroupInstance.getPriority(),
 			newMDRRuleGroupInstance.getPriority());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingMDRRuleGroupInstance.getLastPublishDate()),
+			Time.getShortTimestamp(newMDRRuleGroupInstance.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByRuleGroupId() {
-		try {
-			_persistence.countByRuleGroupId(RandomTestUtil.nextLong());
+	public void testCountByRuleGroupId() throws Exception {
+		_persistence.countByRuleGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByRuleGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRuleGroupId(0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_C_C() {
-		try {
-			_persistence.countByG_C_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByG_C_C() throws Exception {
+		_persistence.countByG_C_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByG_C_C(0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_C_C(0L, 0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_C_R() {
-		try {
-			_persistence.countByC_C_R(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByC_C_R() throws Exception {
+		_persistence.countByC_C_R(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByC_C_R(0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C_R(0L, 0L, 0L);
 	}
 
 	@Test
@@ -289,40 +251,23 @@ public class MDRRuleGroupInstancePersistenceTest {
 			newMDRRuleGroupInstance);
 	}
 
-	@Test
+	@Test(expected = NoSuchRuleGroupInstanceException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchRuleGroupInstanceException");
-		}
-		catch (NoSuchRuleGroupInstanceException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	@Test
 	public void testFilterFindByGroupId() throws Exception {
-		try {
-			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, getOrderByComparator());
 	}
 
 	protected OrderByComparator<MDRRuleGroupInstance> getOrderByComparator() {
@@ -330,7 +275,7 @@ public class MDRRuleGroupInstancePersistenceTest {
 			"uuid", true, "ruleGroupInstanceId", true, "groupId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
 			true, "modifiedDate", true, "classNameId", true, "classPK", true,
-			"ruleGroupId", true, "priority", true);
+			"ruleGroupId", true, "priority", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -533,10 +478,6 @@ public class MDRRuleGroupInstancePersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		MDRRuleGroupInstance newMDRRuleGroupInstance = addMDRRuleGroupInstance();
 
 		_persistence.clearCache();
@@ -589,6 +530,8 @@ public class MDRRuleGroupInstancePersistenceTest {
 		mdrRuleGroupInstance.setRuleGroupId(RandomTestUtil.nextLong());
 
 		mdrRuleGroupInstance.setPriority(RandomTestUtil.nextInt());
+
+		mdrRuleGroupInstance.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_mdrRuleGroupInstances.add(_persistence.update(mdrRuleGroupInstance));
 

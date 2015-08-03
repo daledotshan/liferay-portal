@@ -718,7 +718,7 @@ public class HtmlImpl implements Html {
 
 	protected boolean isTag(char[] tag, String text, int pos) {
 		if ((pos + tag.length + 1) <= text.length()) {
-			char item;
+			char item = '\0';
 
 			for (int i = 0; i < tag.length; i++) {
 				item = text.charAt(pos++);
@@ -798,7 +798,8 @@ public class HtmlImpl implements Html {
 
 	private static final char[] _XPATH_TOKENS = {
 		'(', ')', '[', ']', '.', '@', ',', ':', '/', '|', '+', '-', '=', '!',
-		'<', '>', '*', '$', '"', '"', ' ', 9, 10, 13, 133, 8232};
+		'<', '>', '*', '$', '"', '"', ' ', 9, 10, 13, 133, 8232
+	};
 
 	private static final Map<String, String> _unescapeMap = new HashMap<>();
 

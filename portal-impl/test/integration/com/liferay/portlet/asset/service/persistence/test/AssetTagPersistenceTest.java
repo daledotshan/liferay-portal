@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.asset.NoSuchTagException;
 import com.liferay.portlet.asset.model.AssetTag;
@@ -118,6 +117,8 @@ public class AssetTagPersistenceTest {
 
 		AssetTag newAssetTag = _persistence.create(pk);
 
+		newAssetTag.setUuid(RandomTestUtil.randomString());
+
 		newAssetTag.setGroupId(RandomTestUtil.nextLong());
 
 		newAssetTag.setCompanyId(RandomTestUtil.nextLong());
@@ -134,10 +135,13 @@ public class AssetTagPersistenceTest {
 
 		newAssetTag.setAssetCount(RandomTestUtil.nextInt());
 
+		newAssetTag.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_assetTags.add(_persistence.update(newAssetTag));
 
 		AssetTag existingAssetTag = _persistence.findByPrimaryKey(newAssetTag.getPrimaryKey());
 
+		Assert.assertEquals(existingAssetTag.getUuid(), newAssetTag.getUuid());
 		Assert.assertEquals(existingAssetTag.getTagId(), newAssetTag.getTagId());
 		Assert.assertEquals(existingAssetTag.getGroupId(),
 			newAssetTag.getGroupId());
@@ -156,68 +160,72 @@ public class AssetTagPersistenceTest {
 		Assert.assertEquals(existingAssetTag.getName(), newAssetTag.getName());
 		Assert.assertEquals(existingAssetTag.getAssetCount(),
 			newAssetTag.getAssetCount());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingAssetTag.getLastPublishDate()),
+			Time.getShortTimestamp(newAssetTag.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid(StringPool.NULL);
+
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByGroupIdArrayable() {
-		try {
-			_persistence.countByGroupId(new long[] { RandomTestUtil.nextLong(), 0L });
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
+
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
+
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByG_N() {
-		try {
-			_persistence.countByG_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByG_N(0L, StringPool.NULL);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByG_N(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByG_LikeN() {
-		try {
-			_persistence.countByG_LikeN(RandomTestUtil.nextLong(),
-				StringPool.BLANK);
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByG_LikeN(0L, StringPool.NULL);
-
-			_persistence.countByG_LikeN(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByG_LikeNArrayable() {
-		try {
-			_persistence.countByG_LikeN(new long[] { RandomTestUtil.nextLong(), 0L },
-				RandomTestUtil.randomString());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByGroupIdArrayable() throws Exception {
+		_persistence.countByGroupId(new long[] { RandomTestUtil.nextLong(), 0L });
+	}
+
+	@Test
+	public void testCountByG_N() throws Exception {
+		_persistence.countByG_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+
+		_persistence.countByG_N(0L, StringPool.NULL);
+
+		_persistence.countByG_N(0L, (String)null);
+	}
+
+	@Test
+	public void testCountByG_LikeN() throws Exception {
+		_persistence.countByG_LikeN(RandomTestUtil.nextLong(), StringPool.BLANK);
+
+		_persistence.countByG_LikeN(0L, StringPool.NULL);
+
+		_persistence.countByG_LikeN(0L, (String)null);
+	}
+
+	@Test
+	public void testCountByG_LikeNArrayable() throws Exception {
+		_persistence.countByG_LikeN(new long[] { RandomTestUtil.nextLong(), 0L },
+			RandomTestUtil.randomString());
 	}
 
 	@Test
@@ -229,46 +237,30 @@ public class AssetTagPersistenceTest {
 		Assert.assertEquals(existingAssetTag, newAssetTag);
 	}
 
-	@Test
+	@Test(expected = NoSuchTagException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchTagException");
-		}
-		catch (NoSuchTagException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	@Test
 	public void testFilterFindByGroupId() throws Exception {
-		try {
-			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, getOrderByComparator());
 	}
 
 	protected OrderByComparator<AssetTag> getOrderByComparator() {
-		return OrderByComparatorFactoryUtil.create("AssetTag", "tagId", true,
-			"groupId", true, "companyId", true, "userId", true, "userName",
-			true, "createDate", true, "modifiedDate", true, "name", true,
-			"assetCount", true);
+		return OrderByComparatorFactoryUtil.create("AssetTag", "uuid", true,
+			"tagId", true, "groupId", true, "companyId", true, "userId", true,
+			"userName", true, "createDate", true, "modifiedDate", true, "name",
+			true, "assetCount", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -467,15 +459,18 @@ public class AssetTagPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		AssetTag newAssetTag = addAssetTag();
 
 		_persistence.clearCache();
 
 		AssetTag existingAssetTag = _persistence.findByPrimaryKey(newAssetTag.getPrimaryKey());
+
+		Assert.assertTrue(Validator.equals(existingAssetTag.getUuid(),
+				ReflectionTestUtil.invoke(existingAssetTag, "getOriginalUuid",
+					new Class<?>[0])));
+		Assert.assertEquals(existingAssetTag.getGroupId(),
+			ReflectionTestUtil.invoke(existingAssetTag, "getOriginalGroupId",
+				new Class<?>[0]));
 
 		Assert.assertEquals(existingAssetTag.getGroupId(),
 			ReflectionTestUtil.invoke(existingAssetTag, "getOriginalGroupId",
@@ -489,6 +484,8 @@ public class AssetTagPersistenceTest {
 		long pk = RandomTestUtil.nextLong();
 
 		AssetTag assetTag = _persistence.create(pk);
+
+		assetTag.setUuid(RandomTestUtil.randomString());
 
 		assetTag.setGroupId(RandomTestUtil.nextLong());
 
@@ -505,6 +502,8 @@ public class AssetTagPersistenceTest {
 		assetTag.setName(RandomTestUtil.randomString());
 
 		assetTag.setAssetCount(RandomTestUtil.nextInt());
+
+		assetTag.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_assetTags.add(_persistence.update(assetTag));
 

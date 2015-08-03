@@ -16,9 +16,10 @@ package com.liferay.wiki.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -72,6 +73,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 		attributes.put("head", getHead());
 		attributes.put("parentTitle", getParentTitle());
 		attributes.put("redirectTitle", getRedirectTitle());
+		attributes.put("lastPublishDate", getLastPublishDate());
 		attributes.put("status", getStatus());
 		attributes.put("statusByUserId", getStatusByUserId());
 		attributes.put("statusByUserName", getStatusByUserName());
@@ -196,6 +198,12 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 			setRedirectTitle(redirectTitle);
 		}
 
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
+
 		Integer status = (Integer)attributes.get("status");
 
 		if (status != null) {
@@ -257,18 +265,21 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	@Override
-	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getAttachmentsFileEntries() {
+	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getAttachmentsFileEntries()
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _wikiPage.getAttachmentsFileEntries();
 	}
 
 	@Override
 	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getAttachmentsFileEntries(
-		int start, int end) {
+		int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _wikiPage.getAttachmentsFileEntries(start, end);
 	}
 
 	@Override
-	public int getAttachmentsFileEntriesCount() {
+	public int getAttachmentsFileEntriesCount()
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _wikiPage.getAttachmentsFileEntriesCount();
 	}
 
@@ -328,23 +339,26 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	* @return the create date of this wiki page
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _wikiPage.getCreateDate();
 	}
 
 	@Override
-	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getDeletedAttachmentsFileEntries() {
+	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getDeletedAttachmentsFileEntries()
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _wikiPage.getDeletedAttachmentsFileEntries();
 	}
 
 	@Override
 	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getDeletedAttachmentsFileEntries(
-		int start, int end) {
+		int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _wikiPage.getDeletedAttachmentsFileEntries(start, end);
 	}
 
 	@Override
-	public int getDeletedAttachmentsFileEntriesCount() {
+	public int getDeletedAttachmentsFileEntriesCount()
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _wikiPage.getDeletedAttachmentsFileEntriesCount();
 	}
 
@@ -384,6 +398,16 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	/**
+	* Returns the last publish date of this wiki page.
+	*
+	* @return the last publish date of this wiki page
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _wikiPage.getLastPublishDate();
+	}
+
+	/**
 	* Returns the minor edit of this wiki page.
 	*
 	* @return the minor edit of this wiki page
@@ -399,7 +423,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	* @return the modified date of this wiki page
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _wikiPage.getModifiedDate();
 	}
 
@@ -551,7 +575,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	* @return the status date of this wiki page
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _wikiPage.getStatusDate();
 	}
 
@@ -877,7 +901,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	* @param createDate the create date of this wiki page
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_wikiPage.setCreateDate(createDate);
 	}
 
@@ -930,6 +954,16 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	}
 
 	/**
+	* Sets the last publish date of this wiki page.
+	*
+	* @param lastPublishDate the last publish date of this wiki page
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_wikiPage.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets whether this wiki page is minor edit.
 	*
 	* @param minorEdit the minor edit of this wiki page
@@ -945,7 +979,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	* @param modifiedDate the modified date of this wiki page
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_wikiPage.setModifiedDate(modifiedDate);
 	}
 
@@ -1075,7 +1109,7 @@ public class WikiPageWrapper implements WikiPage, ModelWrapper<WikiPage> {
 	* @param statusDate the status date of this wiki page
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_wikiPage.setStatusDate(statusDate);
 	}
 

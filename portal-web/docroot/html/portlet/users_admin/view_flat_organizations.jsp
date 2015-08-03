@@ -60,7 +60,7 @@ if (filterManageableOrganizations) {
 			<c:if test="<%= usersListView.equals(UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS) %>">
 				<aui:nav cssClass="nav-tabs">
 					<portlet:renderURL var="viewUsersTreeURL">
-						<portlet:param name="struts_action" value="/users_admin/view" />
+						<portlet:param name="mvcRenderCommandName" value="/users_admin/view" />
 						<portlet:param name="toolbarItem" value="browse" />
 						<portlet:param name="usersListView" value="<%= UserConstants.LIST_VIEW_TREE %>" />
 						<portlet:param name="saveUsersListView" value="<%= Boolean.TRUE.toString() %>" />
@@ -69,7 +69,7 @@ if (filterManageableOrganizations) {
 					<aui:nav-item href="<%= viewUsersTreeURL %>" label="browse" />
 
 					<portlet:renderURL var="viewOrganizationsFlatURL">
-						<portlet:param name="struts_action" value="/users_admin/view" />
+						<portlet:param name="mvcRenderCommandName" value="/users_admin/view" />
 						<portlet:param name="toolbarItem" value="view-all-organizations" />
 						<portlet:param name="usersListView" value="<%= UserConstants.LIST_VIEW_FLAT_ORGANIZATIONS %>" />
 						<portlet:param name="saveUsersListView" value="<%= Boolean.TRUE.toString() %>" />
@@ -78,7 +78,7 @@ if (filterManageableOrganizations) {
 					<aui:nav-item href="<%= viewOrganizationsFlatURL %>" label="all-organizations" selected="<%= true %>" />
 
 					<portlet:renderURL var="viewUsersFlatURL">
-						<portlet:param name="struts_action" value="/users_admin/view" />
+						<portlet:param name="mvcRenderCommandName" value="/users_admin/view" />
 						<portlet:param name="toolbarItem" value="view-all-users" />
 						<portlet:param name="usersListView" value="<%= UserConstants.LIST_VIEW_FLAT_USERS %>" />
 						<portlet:param name="saveUsersListView" value="<%= Boolean.TRUE.toString() %>" />
@@ -95,7 +95,9 @@ if (filterManageableOrganizations) {
 
 					<liferay-util:include page="/html/portlet/users_admin/toolbar.jsp" />
 
-					<aui:nav-bar-search file="/html/portlet/users_admin/organization_search.jsp" searchContainer="<%= organizationSearchContainer %>" />
+					<aui:nav-bar-search>
+						<liferay-ui:organization-search-form />
+					</aui:nav-bar-search>
 				</aui:nav-bar>
 
 				<div id="breadcrumb">
@@ -131,7 +133,7 @@ if (filterManageableOrganizations) {
 				modelVar="organization"
 			>
 				<liferay-portlet:renderURL varImpl="rowURL">
-					<portlet:param name="struts_action" value="/users_admin/view" />
+					<portlet:param name="mvcRenderCommandName" value="/users_admin/view" />
 					<portlet:param name="toolbarItem" value="view-all-organizations" />
 					<portlet:param name="redirect" value="<%= organizationSearchContainer.getIteratorURL().toString() %>" />
 					<portlet:param name="organizationId" value="<%= String.valueOf(organization.getOrganizationId()) %>" />

@@ -20,9 +20,7 @@
 DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletInstanceSettingsHelper(dlRequestHelper);
 %>
 
-<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="configurationActionURL">
-	<liferay-portlet:param name="settingsScope" value="portletInstance" />
-</liferay-portlet:actionURL>
+<liferay-portlet:actionURL portletConfiguration="<%= true %>" var="configurationActionURL" />
 
 <liferay-portlet:renderURL portletConfiguration="<%= true %>" var="configurationRenderURL" />
 
@@ -126,7 +124,8 @@ DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletI
 								title: '<liferay-ui:message arguments="folder" key="select-x" />',
 
 								<liferay-portlet:renderURL portletName="<%= portletResource %>" var="selectFolderURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-									<portlet:param name="struts_action" value="/document_library/select_folder" />
+									<portlet:param name="mvcRenderCommandName" value="/document_library/select_folder" />
+									<portlet:param name="folderId" value="<%= String.valueOf(rootFolderId) %>" />
 									<portlet:param name="ignoreRootFolder" value="<%= Boolean.TRUE.toString() %>" />
 								</liferay-portlet:renderURL>
 

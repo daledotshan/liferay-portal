@@ -29,7 +29,7 @@ MBUtil.addPortletBreadcrumbEntries(message, request, renderResponse);
 
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/message_boards/edit_message");
+portletURL.setParameter("mvcRenderCommandName", "/message_boards/edit_message");
 portletURL.setParameter("messageId", String.valueOf(message.getMessageId()));
 
 PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "edit"), portletURL.toString());
@@ -38,7 +38,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "removed
 
 PortletURL iteratorURL = renderResponse.createRenderURL();
 
-iteratorURL.setParameter("struts_action", "/message_boards/view_deleted_message_attachments");
+iteratorURL.setParameter("mvcRenderCommandName", "/message_boards/view_deleted_message_attachments");
 iteratorURL.setParameter("redirect", currentURL);
 iteratorURL.setParameter("messageId", String.valueOf(messageId));
 %>
@@ -48,8 +48,7 @@ iteratorURL.setParameter("messageId", String.valueOf(messageId));
 	title="removed-attachments"
 />
 
-<portlet:actionURL var="emptyTrashURL">
-	<portlet:param name="struts_action" value="/message_boards/edit_message_attachments" />
+<portlet:actionURL name="/message_boards/edit_message_attachments" var="emptyTrashURL">
 	<portlet:param name="messageId" value="<%= String.valueOf(message.getMessageId()) %>" />
 </portlet:actionURL>
 
@@ -116,9 +115,21 @@ iteratorURL.setParameter("messageId", String.valueOf(messageId));
 	<liferay-ui:search-iterator />
 </liferay-ui:search-container>
 
-<liferay-ui:restore-entry
-	duplicateEntryAction="/message_boards/restore_entry"
-	overrideMessage="overwrite-the-existing-attachment-with-the-removed-one"
-	renameMessage="keep-both-attachments-and-rename-the-removed-attachment-as"
-	restoreEntryAction="/message_boards/restore_message_attachment"
-/>
+<portlet:actionURL name="/message_boards/edit_message_attachments" var="checkEntryURL">
+	<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.CHECK %>" />
+</portlet:actionURL>
+
+<portlet:renderURL var="duplicateEntryURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
+	<portlet:param name="mvcRenderCommandName" value="/message_boards/restore_entry" />
+	<portlet:param name="redirect" value="<%= currentURL %>" />
+</portlet:renderURL>
+
+<aui:script use="liferay-restore-entry">
+	new Liferay.RestoreEntry(
+	{
+			checkEntryURL: '<%= checkEntryURL.toString() %>',
+			duplicateEntryURL: '<%= duplicateEntryURL.toString() %>',
+			namespace: '<portlet:namespace />'
+		}
+	);
+</aui:script>

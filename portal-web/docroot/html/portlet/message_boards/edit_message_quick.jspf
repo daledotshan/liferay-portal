@@ -52,9 +52,7 @@ boolean quote = ParamUtil.getBoolean(request, "quote");
 boolean splitThread = ParamUtil.getBoolean(request, "splitThread");
 %>
 
-<portlet:actionURL var="editMessageURL">
-	<portlet:param name="struts_action" value="/message_boards/edit_message" />
-</portlet:actionURL>
+<portlet:actionURL name="/message_boards/edit_message" var="editMessageURL" />
 
 <aui:form action="<%= editMessageURL %>" method="post" name="addQuickReplyFm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveMessage();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.ADD %>" />
@@ -83,7 +81,7 @@ boolean splitThread = ParamUtil.getBoolean(request, "splitThread");
 		</aui:field-wrapper>
 
 		<c:if test="<%= themeDisplay.isSignedIn() && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBThread.class.getName(), threadId) && !SubscriptionLocalServiceUtil.isSubscribed(themeDisplay.getCompanyId(), user.getUserId(), MBCategory.class.getName(), categoryId) %>">
-			<aui:input helpMessage="message-boards-message-subscribe-me-help" label="subscribe-me" name="subscribe" type='<%= (mbSettings.isEmailMessageAddedEnabled() || mbSettings.isEmailMessageUpdatedEnabled()) ? "checkbox" : "hidden" %>' value="<%= subscribeByDefault %>" />
+			<aui:input helpMessage="message-boards-message-subscribe-me-help" label="subscribe-me" name="subscribe" type='<%= (mbGroupServiceSettings.isEmailMessageAddedEnabled() || mbGroupServiceSettings.isEmailMessageUpdatedEnabled()) ? "checkbox" : "hidden" %>' value="<%= subscribeByDefault %>" />
 		</c:if>
 
 		<liferay-ui:custom-attributes-available className="<%= MBMessage.class.getName() %>">
