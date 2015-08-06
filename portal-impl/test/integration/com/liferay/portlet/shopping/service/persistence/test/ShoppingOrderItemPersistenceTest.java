@@ -161,15 +161,10 @@ public class ShoppingOrderItemPersistenceTest {
 	}
 
 	@Test
-	public void testCountByOrderId() {
-		try {
-			_persistence.countByOrderId(RandomTestUtil.nextLong());
+	public void testCountByOrderId() throws Exception {
+		_persistence.countByOrderId(RandomTestUtil.nextLong());
 
-			_persistence.countByOrderId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByOrderId(0L);
 	}
 
 	@Test
@@ -181,35 +176,24 @@ public class ShoppingOrderItemPersistenceTest {
 		Assert.assertEquals(existingShoppingOrderItem, newShoppingOrderItem);
 	}
 
-	@Test
+	@Test(expected = NoSuchOrderItemException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchOrderItemException");
-		}
-		catch (NoSuchOrderItemException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ShoppingOrderItem> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("ShoppingOrderItem",
-			"orderItemId", true, "orderId", true, "itemId", true, "sku", true,
-			"name", true, "description", true, "properties", true, "price",
-			true, "quantity", true, "shippedDate", true);
+			"orderItemId", true, "orderId", true, "sku", true, "name", true,
+			"description", true, "properties", true, "price", true, "quantity",
+			true, "shippedDate", true);
 	}
 
 	@Test

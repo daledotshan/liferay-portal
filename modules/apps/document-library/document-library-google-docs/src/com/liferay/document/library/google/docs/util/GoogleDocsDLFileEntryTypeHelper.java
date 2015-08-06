@@ -14,6 +14,12 @@
 
 package com.liferay.document.library.google.docs.util;
 
+import com.liferay.dynamic.data.mapping.io.DDMFormXSDDeserializerUtil;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.storage.StorageType;
+import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.model.Company;
@@ -23,9 +29,8 @@ import com.liferay.portal.service.UserLocalService;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalService;
+import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
+import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayout;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +73,10 @@ public class GoogleDocsDLFileEntryTypeHelper {
 		String definition = ResourceUtil.get(
 			this, "dependencies/ddm_structure_google_docs.xml");
 
+		DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(definition);
+
+		DDMFormLayout ddmFormLayout = DDMUtil.getDefaultDDMFormLayout(ddmForm);
+
 		ServiceContext serviceContext = new ServiceContext();
 
 		serviceContext.setAddGuestPermissions(true);
@@ -80,7 +89,7 @@ public class GoogleDocsDLFileEntryTypeHelper {
 			DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
 			_dlFileEntryMetadataClassNameId,
 			GoogleDocsConstants.DDM_STRUCTURE_KEY_GOOGLE_DOCS, nameMap,
-			descriptionMap, definition, "xml",
+			descriptionMap, ddmForm, ddmFormLayout, StorageType.JSON.toString(),
 			DDMStructureConstants.TYPE_DEFAULT, serviceContext);
 	}
 
@@ -96,7 +105,7 @@ public class GoogleDocsDLFileEntryTypeHelper {
 		}
 
 		List<DLFileEntryType> dlFileEntryTypes =
-			_dlFileEntryTypeLocalService.getDDMStructureDLFileEntryTypes(
+			_dlFileEntryTypeLocalService.getFileEntryTypes(
 				ddmStructure.getStructureId());
 
 		if (!dlFileEntryTypes.isEmpty()) {

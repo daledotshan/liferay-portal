@@ -22,6 +22,7 @@ import com.liferay.registry.ServiceRegistration;
 import com.liferay.registry.ServiceTracker;
 import com.liferay.registry.ServiceTrackerCustomizer;
 import com.liferay.registry.collections.ServiceRegistrationMap;
+import com.liferay.registry.collections.ServiceRegistrationMapImpl;
 import com.liferay.registry.collections.ServiceTrackerList;
 
 import java.lang.reflect.Array;
@@ -85,8 +86,7 @@ public class ServiceTrackerCollectionImpl<S> implements ServiceTrackerList<S> {
 			throw new IllegalStateException();
 		}
 
-		Map<String, Object> properties = new HashMap<String, Object>(
-			_properties);
+		Map<String, Object> properties = new HashMap<>(_properties);
 
 		Registry registry = RegistryUtil.getRegistry();
 
@@ -104,7 +104,7 @@ public class ServiceTrackerCollectionImpl<S> implements ServiceTrackerList<S> {
 			throw new IllegalArgumentException("Service is null");
 		}
 
-		properties = new HashMap<String, Object>(properties);
+		properties = new HashMap<>(properties);
 
 		properties.putAll(_properties);
 
@@ -318,7 +318,7 @@ public class ServiceTrackerCollectionImpl<S> implements ServiceTrackerList<S> {
 	private final Filter _filter;
 	private final Map<String, Object> _properties;
 	private final ServiceRegistrationMap<S> _serviceRegistrations =
-		new ServiceRegistrationMap<>();
+		new ServiceRegistrationMapImpl<>();
 	private final List<EntryWrapper> _services = new CopyOnWriteArrayList<>();
 	private final ServiceTracker<S, S> _serviceTracker;
 

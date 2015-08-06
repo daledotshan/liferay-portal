@@ -15,8 +15,8 @@
 package com.liferay.poshi.runner.selenium;
 
 import com.liferay.poshi.runner.util.GetterUtil;
-import com.liferay.poshi.runner.util.ListUtil;
 import com.liferay.poshi.runner.util.StringUtil;
+import com.liferay.poshi.runner.util.Validator;
 
 import com.thoughtworks.selenium.Selenium;
 
@@ -224,7 +224,7 @@ public class WebDriverToSeleniumBridge
 		int offsetX = 0;
 		int offsetY = 0;
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			offsetX = GetterUtil.getInteger(coords[0]);
@@ -358,7 +358,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);
@@ -726,8 +726,18 @@ public class WebDriverToSeleniumBridge
 		List<WebElement> allSelectedOptionsWebElements =
 			select.getAllSelectedOptions();
 
-		return StringUtil.split(
-			ListUtil.toString(allSelectedOptionsWebElements, "text"));
+		String[] selectedOptionsWebElements =
+			new String[allSelectedOptionsWebElements.size()];
+
+		for (int i = 0; i < allSelectedOptionsWebElements.size(); i++) {
+			WebElement webElement = allSelectedOptionsWebElements.get(i);
+
+			if (webElement != null) {
+				selectedOptionsWebElements[i] = webElement.getText();
+			}
+		}
+
+		return selectedOptionsWebElements;
 	}
 
 	@Override
@@ -877,7 +887,9 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public boolean isEditable(String locator) {
-		throw new UnsupportedOperationException();
+		WebElement webElement = getWebElement(locator);
+
+		return webElement.isEnabled();
 	}
 
 	@Override
@@ -1060,7 +1072,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);
@@ -1126,7 +1138,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);
@@ -1221,7 +1233,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);

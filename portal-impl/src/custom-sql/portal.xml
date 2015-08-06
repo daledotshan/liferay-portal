@@ -44,7 +44,7 @@
 			INNER JOIN
 				(
 					SELECT
-						scope, primKey, roleId, ownerId
+						primKey
 					FROM
 						ResourcePermission
 					WHERE
@@ -554,18 +554,7 @@
 					(PortletPreferences.portletId = ?) OR
 					(PortletPreferences.portletId LIKE ?)
 				) AND
-				(PortletPreferences.preferences LIKE ?)
-		]]>
-	</sql>
-	<sql id="com.liferay.portal.service.persistence.LockFinder.findByC_K">
-		<![CDATA[
-			SELECT
-				lock
-			FROM
-				Lock lock
-			WHERE
-				(lock.className = ?) AND
-				(lock.key = ?)
+				(CAST_CLOB_TEXT(PortletPreferences.preferences) LIKE ?)
 		]]>
 	</sql>
 	<sql id="com.liferay.portal.service.persistence.OrganizationFinder.countByGroupId">
@@ -840,7 +829,7 @@
 					(PortletPreferences.portletId = ?) OR
 					(PortletPreferences.portletId LIKE ?)
 				) AND
-				(PortletPreferences.preferences != '[$PORTLET_PREFERENCES_PREFERENCES_DEFAULT$]')
+				(CAST_CLOB_TEXT(PortletPreferences.preferences) != '[$PORTLET_PREFERENCES_PREFERENCES_DEFAULT$]')
 		]]>
 	</sql>
 	<sql id="com.liferay.portal.service.persistence.PortletPreferencesFinder.countByO_O_P_P_P">
@@ -857,7 +846,7 @@
 					(PortletPreferences.portletId LIKE ?)
 				) AND
 				(PortletPreferences.plid = ?) AND
-				(PortletPreferences.preferences != '[$PORTLET_PREFERENCES_PREFERENCES_DEFAULT$]')
+				(CAST_CLOB_TEXT(PortletPreferences.preferences) != '[$PORTLET_PREFERENCES_PREFERENCES_DEFAULT$]')
 		]]>
 	</sql>
 	<sql id="com.liferay.portal.service.persistence.PortletPreferencesFinder.findByPortletId">
@@ -930,7 +919,7 @@
 				(ResourcePermission.scope = ?) AND
 				(ResourcePermission.primKey = ?) AND
 				(ResourcePermission.roleId = ?) AND
-				(BITAND(CAST_LONG(ResourcePermission.actionIds, ?)) = ?)
+				(BITAND(CAST_LONG(ResourcePermission.actionIds), ?) = ?)
 		]]>
 	</sql>
 	<sql id="com.liferay.portal.service.persistence.ResourcePermissionFinder.findByResource">
@@ -1305,6 +1294,26 @@
 					(Users_Roles.roleId = Role_.roleId)
 			WHERE
 				(Users_Roles.userId = ?)
+		]]>
+	</sql>
+	<sql id="com.liferay.portal.service.persistence.ServiceComponentFinder.findByMaxBuildNumber">
+		<![CDATA[
+			SELECT
+				{ServiceComponent.*}
+			FROM
+				ServiceComponent
+			WHERE
+				buildNumber =
+					(
+						SELECT
+							MAX(buildNumber)
+						FROM
+							ServiceComponent tempServiceComponent
+						WHERE
+							ServiceComponent.buildNamespace = tempServiceComponent.buildNamespace
+					)
+			ORDER BY
+				buildNamespace DESC
 		]]>
 	</sql>
 	<sql id="com.liferay.portal.service.persistence.TeamFinder.countByG_N_D">

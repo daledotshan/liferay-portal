@@ -15,6 +15,8 @@
 package com.liferay.wiki.web.wiki.portlet.action;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
+import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
@@ -29,7 +31,7 @@ import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.wiki.configuration.WikiConfiguration;
+import com.liferay.wiki.configuration.WikiGroupServiceConfiguration;
 import com.liferay.wiki.constants.WikiWebKeys;
 import com.liferay.wiki.exception.NoSuchNodeException;
 import com.liferay.wiki.exception.NoSuchPageException;
@@ -40,10 +42,10 @@ import com.liferay.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.wiki.service.WikiNodeServiceUtil;
 import com.liferay.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.wiki.service.WikiPageServiceUtil;
-import com.liferay.wiki.service.permission.WikiNodePermission;
+import com.liferay.wiki.service.permission.WikiNodePermissionChecker;
 import com.liferay.wiki.util.WikiUtil;
 import com.liferay.wiki.web.settings.WikiPortletInstanceSettings;
-import com.liferay.wiki.web.settings.WikiWebSettingsProvider;
+import com.liferay.wiki.web.util.WikiWebComponentProvider;
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,21 +73,28 @@ public class ActionUtil {
 
 		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
 
-		WikiPortletInstanceSettings wikiPortletInstanceSettings =
-			WikiPortletInstanceSettings.getInstance(
-				themeDisplay.getLayout(), portletDisplay.getId());
+		WikiWebComponentProvider wikiWebComponentProvider =
+			WikiWebComponentProvider.getWikiWebComponentProvider();
 
-		String[] visibleNodeNames =
-			wikiPortletInstanceSettings.getVisibleNodes();
+		SettingsFactory settingsFactory =
+			wikiWebComponentProvider.getSettingsFactory();
+
+		WikiPortletInstanceSettings wikiPortletInstanceSettings =
+			settingsFactory.getSettings(
+				WikiPortletInstanceSettings.class,
+				new PortletInstanceSettingsLocator(
+					themeDisplay.getLayout(), portletDisplay.getId()));
+
+		String[] visibleNodeNames = wikiPortletInstanceSettings.visibleNodes();
 
 		nodes = WikiUtil.orderNodes(nodes, visibleNodeNames);
 
-		String[] hiddenNodes = wikiPortletInstanceSettings.getHiddenNodes();
+		String[] hiddenNodes = wikiPortletInstanceSettings.hiddenNodes();
 		Arrays.sort(hiddenNodes);
 
 		for (WikiNode node : nodes) {
 			if ((Arrays.binarySearch(hiddenNodes, node.getName()) < 0) &&
-				WikiNodePermission.contains(
+				WikiNodePermissionChecker.contains(
 					permissionChecker, node, ActionKeys.VIEW)) {
 
 				return node;
@@ -144,14 +153,14 @@ public class ActionUtil {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		WikiWebSettingsProvider wikiWebSettingsProvider =
-			WikiWebSettingsProvider.getWikiWebSettingsProvider();
+		WikiWebComponentProvider wikiWebComponentProvider =
+			WikiWebComponentProvider.getWikiWebComponentProvider();
 
-		WikiConfiguration wikiConfiguration =
-			wikiWebSettingsProvider.getWikiConfiguration();
+		WikiGroupServiceConfiguration wikiGroupServiceConfiguration =
+			wikiWebComponentProvider.getWikiGroupServiceConfiguration();
 
 		WikiPage page = WikiPageLocalServiceUtil.fetchPage(
-			nodeId, wikiConfiguration.frontPageName(), 0);
+			nodeId, wikiGroupServiceConfiguration.frontPageName(), 0);
 
 		if (page == null) {
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(
@@ -175,7 +184,7 @@ public class ActionUtil {
 
 				page = WikiPageLocalServiceUtil.addPage(
 					themeDisplay.getDefaultUserId(), nodeId,
-					wikiConfiguration.frontPageName(), null,
+					wikiGroupServiceConfiguration.frontPageName(), null,
 					WikiPageConstants.NEW, true, serviceContext);
 			}
 			finally {
@@ -247,14 +256,14 @@ public class ActionUtil {
 			}
 		}
 
-		WikiWebSettingsProvider wikiWebSettingsProvider =
-			WikiWebSettingsProvider.getWikiWebSettingsProvider();
+		WikiWebComponentProvider wikiWebComponentProvider =
+			WikiWebComponentProvider.getWikiWebComponentProvider();
 
-		WikiConfiguration wikiConfiguration =
-			wikiWebSettingsProvider.getWikiConfiguration();
+		WikiGroupServiceConfiguration wikiGroupServiceConfiguration =
+			wikiWebComponentProvider.getWikiGroupServiceConfiguration();
 
 		if (Validator.isNull(title)) {
-			title = wikiConfiguration.frontPageName();
+			title = wikiGroupServiceConfiguration.frontPageName();
 		}
 
 		WikiPage page = null;
@@ -277,7 +286,7 @@ public class ActionUtil {
 			}
 		}
 		catch (NoSuchPageException nspe) {
-			if (title.equals(wikiConfiguration.frontPageName()) &&
+			if (title.equals(wikiGroupServiceConfiguration.frontPageName()) &&
 				(version == 0)) {
 
 				page = getFirstVisiblePage(nodeId, portletRequest);
