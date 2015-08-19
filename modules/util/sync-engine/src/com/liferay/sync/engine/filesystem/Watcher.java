@@ -42,8 +42,6 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.io.FilenameUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,33 +206,12 @@ public abstract class Watcher implements Runnable {
 
 		String fileName = String.valueOf(filePath.getFileName());
 
-		if (FileUtil.isIgnoredFilePath(filePath) ||
-			((Files.isDirectory(filePath) && (fileName.length() > 100)) ||
-			 (!Files.isDirectory(filePath) && (fileName.length() > 255)))) {
-
+		if (FileUtil.isIgnoredFilePath(filePath) || (fileName.length() > 255)) {
 			if (_logger.isDebugEnabled()) {
 				_logger.debug("Ignored file path {}", filePath);
 			}
 
 			return true;
-		}
-
-		if (!OSDetector.isWindows()) {
-			String sanitizedFileName = FileUtil.getSanitizedFileName(
-				fileName, FilenameUtils.getExtension(fileName));
-
-			if (!sanitizedFileName.equals(fileName)) {
-				String sanitizedFilePathName = FileUtil.getFilePathName(
-					String.valueOf(filePath.getParent()), sanitizedFileName);
-
-				sanitizedFilePathName = FileUtil.getNextFilePathName(
-					sanitizedFilePathName);
-
-				FileUtil.moveFile(
-					filePath, java.nio.file.Paths.get(sanitizedFilePathName));
-
-				return true;
-			}
 		}
 
 		return false;
@@ -282,6 +259,11 @@ public abstract class Watcher implements Runnable {
 			syncAccount.getFilePathName());
 
 		if (Files.notExists(syncAccountFilePath)) {
+			if (_logger.isTraceEnabled()) {
+				_logger.trace(
+					"Missing sync account file path {}", syncAccountFilePath);
+			}
+
 			syncAccount.setActive(false);
 			syncAccount.setUiEvent(
 				SyncAccount.UI_EVENT_SYNC_ACCOUNT_FOLDER_MISSING);
@@ -292,17 +274,27 @@ public abstract class Watcher implements Runnable {
 			SyncSite syncSite = SyncSiteService.fetchSyncSite(
 				missingFilePath.toString(), syncAccount.getSyncAccountId());
 
-			if (syncSite != null) {
-				syncSite.setActive(false);
+			if ((syncSite != null) && syncSite.isActive() &&
+				Files.notExists(missingFilePath)) {
+
+				if (_logger.isTraceEnabled()) {
+					_logger.trace(
+						"Missing sync site file path {}", missingFilePath);
+				}
+
 				syncSite.setUiEvent(SyncSite.UI_EVENT_SYNC_SITE_FOLDER_MISSING);
 
 				SyncSiteService.update(syncSite);
+
+				SyncSiteService.deactivateSyncSite(syncSite.getSyncSiteId());
 			}
 		}
 	}
 
 	protected void processWatchEvent(String eventType, Path filePath)
 		throws IOException {
+
+		_watcherEventsLogger.trace("{}: {}", eventType, filePath);
 
 		if (!OSDetector.isLinux() &&
 			filePath.startsWith(_baseFilePath.resolve(".data"))) {
@@ -323,11 +315,17 @@ public abstract class Watcher implements Runnable {
 
 			fireWatchEventListener(eventType, filePath);
 
-			if (Files.isDirectory(filePath)) {
+			if (!OSDetector.isApple() && Files.isDirectory(filePath)) {
 				walkFileTree(filePath);
 			}
 		}
 		else if (eventType.equals(SyncWatchEvent.EVENT_TYPE_DELETE)) {
+			if (Files.exists(filePath)) {
+				return;
+			}
+
+			removeCreatedFilePathName(filePath.toString());
+
 			processMissingFilePath(filePath);
 
 			if (Files.notExists(filePath.getParent())) {
@@ -348,11 +346,17 @@ public abstract class Watcher implements Runnable {
 			fireWatchEventListener(SyncWatchEvent.EVENT_TYPE_MODIFY, filePath);
 		}
 		else if (eventType.equals(SyncWatchEvent.EVENT_TYPE_RENAME_FROM)) {
+			removeCreatedFilePathName(filePath.toString());
+
+			processMissingFilePath(filePath);
+
 			fireWatchEventListener(
 				SyncWatchEvent.EVENT_TYPE_RENAME_FROM, filePath);
 		}
 		else if (eventType.equals(SyncWatchEvent.EVENT_TYPE_RENAME_TO)) {
-			if (isIgnoredFilePath(filePath)) {
+			if (_downloadedFilePathNames.remove(filePath.toString()) ||
+				isIgnoredFilePath(filePath)) {
+
 				return;
 			}
 
@@ -371,6 +375,9 @@ public abstract class Watcher implements Runnable {
 
 	private static final Logger _logger = LoggerFactory.getLogger(
 		Watcher.class);
+
+	private static final Logger _watcherEventsLogger = LoggerFactory.getLogger(
+		"WATCHER_EVENTS_LOGGER");
 
 	private final Path _baseFilePath;
 	private final ConcurrentNavigableMap<Long, String> _createdFilePathNames =

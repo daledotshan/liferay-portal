@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.ratings.NoSuchEntryException;
 import com.liferay.portlet.ratings.model.RatingsEntry;
@@ -136,6 +135,8 @@ public class RatingsEntryPersistenceTest {
 
 		newRatingsEntry.setScore(RandomTestUtil.nextDouble());
 
+		newRatingsEntry.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_ratingsEntries.add(_persistence.update(newRatingsEntry));
 
 		RatingsEntry existingRatingsEntry = _persistence.findByPrimaryKey(newRatingsEntry.getPrimaryKey());
@@ -162,74 +163,51 @@ public class RatingsEntryPersistenceTest {
 			newRatingsEntry.getClassPK());
 		AssertUtils.assertEquals(existingRatingsEntry.getScore(),
 			newRatingsEntry.getScore());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingRatingsEntry.getLastPublishDate()),
+			Time.getShortTimestamp(newRatingsEntry.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByU_C_C() {
-		try {
-			_persistence.countByU_C_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByU_C_C() throws Exception {
+		_persistence.countByU_C_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByU_C_C(0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_C_C(0L, 0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_C_S() {
-		try {
-			_persistence.countByC_C_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextDouble());
+	public void testCountByC_C_S() throws Exception {
+		_persistence.countByC_C_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextDouble());
 
-			_persistence.countByC_C_S(0L, 0L, 0D);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C_S(0L, 0L, 0D);
 	}
 
 	@Test
@@ -241,35 +219,25 @@ public class RatingsEntryPersistenceTest {
 		Assert.assertEquals(existingRatingsEntry, newRatingsEntry);
 	}
 
-	@Test
+	@Test(expected = NoSuchEntryException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchEntryException");
-		}
-		catch (NoSuchEntryException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<RatingsEntry> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("RatingsEntry", "uuid",
 			true, "entryId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
-			"classNameId", true, "classPK", true, "score", true);
+			"classNameId", true, "classPK", true, "score", true,
+			"lastPublishDate", true);
 	}
 
 	@Test
@@ -468,10 +436,6 @@ public class RatingsEntryPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		RatingsEntry newRatingsEntry = addRatingsEntry();
 
 		_persistence.clearCache();
@@ -511,6 +475,8 @@ public class RatingsEntryPersistenceTest {
 		ratingsEntry.setClassPK(RandomTestUtil.nextLong());
 
 		ratingsEntry.setScore(RandomTestUtil.nextDouble());
+
+		ratingsEntry.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_ratingsEntries.add(_persistence.update(ratingsEntry));
 

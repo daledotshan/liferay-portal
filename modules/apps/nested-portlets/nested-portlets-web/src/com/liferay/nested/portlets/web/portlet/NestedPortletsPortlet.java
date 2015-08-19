@@ -17,10 +17,12 @@ package com.liferay.nested.portlets.web.portlet;
 import aQute.bnd.annotation.metatype.Configurable;
 
 import com.liferay.nested.portlets.web.configuration.NestedPortletsConfiguration;
+import com.liferay.nested.portlets.web.display.context.NestedPortletsDisplayContext;
 import com.liferay.nested.portlets.web.upgrade.NestedPortletWebUpgrade;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.settings.SettingsException;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -34,7 +36,9 @@ import com.liferay.portal.model.LayoutTypePortletConstants;
 import com.liferay.portal.model.Theme;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutTemplateLocalServiceUtil;
+import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
 
 import java.io.IOException;
@@ -47,7 +51,6 @@ import java.util.regex.Pattern;
 
 import javax.portlet.Portlet;
 import javax.portlet.PortletException;
-import javax.portlet.PortletPreferences;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -73,11 +76,9 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.private-session-attributes=false",
 		"com.liferay.portlet.render-weight=1",
 		"com.liferay.portlet.single-page-application=false",
-		"com.liferay.portlet.struts-path=nested_portlets",
 		"com.liferay.portlet.use-default-template=true",
 		"javax.portlet.display-name=Nested Portlets",
 		"javax.portlet.expiration-cache=0",
-		"javax.portlet.init-param.config-template=/configuration.jsp",
 		"javax.portlet.init-param.template-path=/",
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.resource-bundle=content.Language",
@@ -95,11 +96,22 @@ public class NestedPortletsPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		PortletPreferences portletPreferences = renderRequest.getPreferences();
+		String layoutTemplateId = StringPool.BLANK;
 
-		String layoutTemplateId = portletPreferences.getValue(
-			"layoutTemplateId",
-			_nestedPortletsConfiguration.layoutTemplateDefault());
+		try {
+			NestedPortletsDisplayContext nestedPortletsDisplayContext =
+				new NestedPortletsDisplayContext(
+					PortalUtil.getHttpServletRequest(renderRequest),
+					_nestedPortletsConfiguration);
+
+			layoutTemplateId =
+				nestedPortletsDisplayContext.getLayoutTemplateId();
+		}
+		catch (SettingsException e) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(e, e);
+			}
+		}
 
 		String templateId = StringPool.BLANK;
 		String templateContent = StringPool.BLANK;
@@ -150,20 +162,26 @@ public class NestedPortletsPortlet extends MVCPortlet {
 
 		checkLayout(themeDisplay.getLayout(), columnIds.values());
 
+		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
+
 		renderRequest.setAttribute(
-			NestedPortletsConfiguration.TEMPLATE_ID, templateId);
+			NestedPortletsConfiguration.TEMPLATE_ID + portletDisplay.getId(),
+			templateId);
 		renderRequest.setAttribute(
-			NestedPortletsConfiguration.TEMPLATE_CONTENT, templateContent);
+			NestedPortletsConfiguration.TEMPLATE_CONTENT +
+				portletDisplay.getId(),
+			templateContent);
 
 		Map<String, Object> vmVariables =
 			(Map<String, Object>)renderRequest.getAttribute(
-				WebKeys.VM_VARIABLES);
+				WebKeys.VM_VARIABLES + portletDisplay.getId());
 
 		if (vmVariables != null) {
 			vmVariables.putAll(columnIds);
 		}
 		else {
-			renderRequest.setAttribute(WebKeys.VM_VARIABLES, columnIds);
+			renderRequest.setAttribute(
+				WebKeys.VM_VARIABLES + portletDisplay.getId(), columnIds);
 		}
 
 		renderRequest.setAttribute(

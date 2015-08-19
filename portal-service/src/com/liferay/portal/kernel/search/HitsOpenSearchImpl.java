@@ -16,6 +16,8 @@ package com.liferay.portal.kernel.search;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -23,8 +25,6 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portlet.asset.provider.PortletProvider;
-import com.liferay.portlet.asset.provider.PortletProviderUtil;
 import com.liferay.portlet.ratings.model.RatingsStats;
 import com.liferay.portlet.ratings.service.RatingsStatsLocalServiceUtil;
 
@@ -41,7 +41,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public abstract class HitsOpenSearchImpl extends BaseOpenSearchImpl {
 
-	public Indexer getIndexer() {
+	public Indexer<?> getIndexer() {
 		if (_log.isWarnEnabled()) {
 			_log.warn(getClass() + " does not implement getIndexer()");
 		}
@@ -52,7 +52,8 @@ public abstract class HitsOpenSearchImpl extends BaseOpenSearchImpl {
 	public abstract String getSearchPath();
 
 	public Summary getSummary(
-			Indexer indexer, Document document, Locale locale, String snippet)
+			Indexer<?> indexer, Document document, Locale locale,
+			String snippet)
 		throws SearchException {
 
 		return indexer.getSummary(document, snippet, null, null);
@@ -105,7 +106,7 @@ public abstract class HitsOpenSearchImpl extends BaseOpenSearchImpl {
 
 			searchContext.setUserId(userId);
 
-			Indexer indexer = getIndexer();
+			Indexer<?> indexer = getIndexer();
 
 			Hits results = indexer.search(searchContext);
 

@@ -17,6 +17,9 @@ package com.liferay.portal.kernel.trash;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.search.Query;
+import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.model.ContainerModel;
 import com.liferay.portal.model.SystemEvent;
 import com.liferay.portal.model.TrashedModel;
@@ -72,8 +75,8 @@ import javax.portlet.PortletRequest;
  * com.liferay.portlet.documentlibrary.trash.DLFolderTrashHandler}
  * </li>
  * <li>
- * MBThread via {@link
- * com.liferay.portlet.messageboards.trash.MBThreadTrashHandler}
+ * MBThread via <code>com.liferay.message.boards.trash.MBThreadTrashHandler
+ * </code> located in Liferay Portal's external <code>modules</code> directory.
  * </li>
  * <li>
  * WikiNode via <code>com.liferay.wiki.trash.WikiNodeTrashHandler</code> located
@@ -277,6 +280,15 @@ public interface TrashHandler {
 
 	public long getDestinationContainerModelId(
 		long classPK, long destinationContainerModelId);
+
+	public Filter getExcludeFilter(SearchContext searchContext);
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getExcludeFilter(SearchContext)}
+	 */
+	@Deprecated
+	public Query getExcludeQuery(SearchContext searchContext);
 
 	/**
 	 * Returns the parent container model of the model entity with the primary

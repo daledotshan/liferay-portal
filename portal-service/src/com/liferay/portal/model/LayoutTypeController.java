@@ -28,14 +28,19 @@ public interface LayoutTypeController extends Serializable {
 
 	public String[] getConfigurationActionUpdate();
 
-	public String getEditPage();
-
 	public String getURL();
+
+	public String includeEditContent(
+			HttpServletRequest request, HttpServletResponse response,
+			Layout layout)
+		throws Exception;
 
 	public boolean includeLayoutContent(
 			HttpServletRequest request, HttpServletResponse response,
 			Layout layout)
 		throws Exception;
+
+	public boolean isBrowsable();
 
 	public boolean isFirstPageable();
 

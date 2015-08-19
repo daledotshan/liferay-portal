@@ -26,7 +26,6 @@ AssetTag tag = (AssetTag)row.getObject();
 	<c:if test="<%= AssetTagPermission.contains(permissionChecker, tag, ActionKeys.UPDATE) %>">
 		<portlet:renderURL var="editURL">
 			<portlet:param name="mvcPath" value="/edit_tag.jsp" />
-			<portlet:param name="redirect" value="<%= currentURL %>" />
 			<portlet:param name="tagId" value="<%= String.valueOf(tag.getTagId()) %>" />
 		</portlet:renderURL>
 
@@ -35,6 +34,18 @@ AssetTag tag = (AssetTag)row.getObject();
 			label="<%= true %>"
 			message="edit"
 			url="<%= editURL %>"
+		/>
+
+		<portlet:renderURL var="mergeURL">
+			<portlet:param name="mvcPath" value="/merge_tag.jsp" />
+			<portlet:param name="mergeTagIds" value="<%= String.valueOf(tag.getTagId()) %>" />
+		</portlet:renderURL>
+
+		<liferay-ui:icon
+			iconCssClass="icon-random"
+			label="<%= true %>"
+			message="merge"
+			url="<%= mergeURL %>"
 		/>
 	</c:if>
 

@@ -17,23 +17,9 @@
 <%@ include file="/html/portlet/portal_settings/init.jsp" %>
 
 <%
-String[] configurationSections = PropsValues.COMPANY_SETTINGS_FORM_CONFIGURATION;
-String[] identificationSections = PropsValues.COMPANY_SETTINGS_FORM_IDENTIFICATION;
-String[] miscellaneousSections = PropsValues.COMPANY_SETTINGS_FORM_MISCELLANEOUS;
-
-PortletRatingsDefinitionDisplayContextHelper portletRatingsDefinitionDisplayContextHelper = new PortletRatingsDefinitionDisplayContextHelper();
-
-if (!portletRatingsDefinitionDisplayContextHelper.showRatingsSection(miscellaneousSections)) {
-	miscellaneousSections = ArrayUtil.remove(miscellaneousSections, "ratings");
-}
-
-String[] socialSections = PropsValues.COMPANY_SETTINGS_FORM_SOCIAL;
-
-String[][] categorySections = {configurationSections, identificationSections, miscellaneousSections, socialSections};
-
 PortletURL portletURL = renderResponse.createRenderURL();
 
-portletURL.setParameter("struts_action", "/portal_settings/view");
+portletURL.setParameter("mvcRenderCommandName", "/portal_settings/view");
 
 request.setAttribute("addresses.className", Account.class.getName());
 request.setAttribute("emailAddresses.className", Account.class.getName());
@@ -46,13 +32,11 @@ request.setAttribute("phones.classPK", company.getAccountId());
 request.setAttribute("websites.classPK", company.getAccountId());
 %>
 
-<portlet:actionURL var="editCompanyURL">
-	<portlet:param name="struts_action" value="/portal_settings/edit_company" />
-</portlet:actionURL>
+<portlet:actionURL name="/portal_settings/edit_company" var="editCompanyURL" />
 
 <aui:form action="<%= editCompanyURL %>" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveCompany();" %>'>
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
-	<aui:input name="redirect" type="hidden" />
+	<aui:input name="redirect" type="hidden" value="<%= portletURL.toString() %>" />
 
 	<liferay-util:buffer var="htmlTop">
 		<div class="company-info">
@@ -65,10 +49,9 @@ request.setAttribute("websites.classPK", company.getAccountId());
 	</liferay-util:buffer>
 
 	<liferay-ui:form-navigator
-		categoryNames="<%= _CATEGORY_NAMES %>"
-		categorySections="<%= categorySections %>"
+		formModelBean="<%= company %>"
 		htmlTop="<%= htmlTop %>"
-		jspPath="/html/portlet/portal_settings/"
+		id="<%= FormNavigatorConstants.FORM_NAVIGATOR_ID_COMPANY_SETTINGS %>"
 		showButtons="<%= RoleLocalServiceUtil.hasUserRole(user.getUserId(), company.getCompanyId(), RoleConstants.ADMINISTRATOR, true) %>"
 	/>
 </aui:form>
@@ -103,7 +86,3 @@ request.setAttribute("websites.classPK", company.getAccountId());
 		form.fm('<%= PropsKeys.LOCALES %>').val(Liferay.Util.listSelect(form.fm('currentLanguageIds')));
 	}
 </aui:script>
-
-<%!
-private static final String[] _CATEGORY_NAMES = {"configuration", "identification", "miscellaneous", "social"};
-%>

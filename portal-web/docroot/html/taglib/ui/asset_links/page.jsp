@@ -49,7 +49,7 @@ if (assetEntryId > 0) {
 
 				assetLinkEntry = assetLinkEntry.toEscapedModel();
 
-				AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassNameId(assetLinkEntry.getClassNameId());
+				AssetRendererFactory<?> assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassNameId(assetLinkEntry.getClassNameId());
 
 				if (Validator.isNull(assetRendererFactory)) {
 					if (_log.isWarnEnabled()) {
@@ -63,16 +63,13 @@ if (assetEntryId > 0) {
 					continue;
 				}
 
-				AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(assetLinkEntry.getClassPK());
+				AssetRenderer<?> assetRenderer = assetRendererFactory.getAssetRenderer(assetLinkEntry.getClassPK());
 
 				if (assetRenderer.hasViewPermission(permissionChecker)) {
 					String asseLinktEntryTitle = assetLinkEntry.getTitle(locale);
 
-					String portletId = PortletProviderUtil.getPortletId(assetRenderer.getClassName(), PortletProvider.Action.VIEW);
+					PortletURL assetPublisherURL = PortletProviderUtil.getPortletURL(request, assetRenderer.getClassName(), PortletProvider.Action.VIEW);
 
-					LiferayPortletURL assetPublisherURL = new PortletURLImpl(request, portletId, plid, PortletRequest.RENDER_PHASE);
-
-					assetPublisherURL.setParameter("mvcPath", "/html/portlet/asset_publisher/view_content.jsp");
 					assetPublisherURL.setParameter("redirect", currentURL);
 					assetPublisherURL.setParameter("assetEntryId", String.valueOf(assetLinkEntry.getEntryId()));
 					assetPublisherURL.setParameter("type", assetRendererFactory.getType());

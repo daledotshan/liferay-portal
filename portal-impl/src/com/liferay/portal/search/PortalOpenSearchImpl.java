@@ -16,6 +16,8 @@ package com.liferay.portal.search;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.search.BaseOpenSearchImpl;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
@@ -34,8 +36,6 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.asset.provider.PortletProvider;
-import com.liferay.portlet.asset.provider.PortletProviderUtil;
 
 import java.util.Date;
 
@@ -49,7 +49,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 
-	public static final String SEARCH_PATH = "/c/search/open_search";
+	public PortalOpenSearchImpl(
+		String openSearchURL, String openSearchDescriptionURL) {
+
+		super(openSearchURL, openSearchDescriptionURL);
+	}
 
 	@Override
 	public String search(
@@ -73,7 +77,7 @@ public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 
 			Object[] values = addSearchResults(
 				queryTerms, keywords, startPage, itemsPerPage, total, start,
-				"Liferay Portal Search: " + keywords, SEARCH_PATH, format,
+				"Liferay Portal Search: " + keywords, StringPool.BLANK, format,
 				themeDisplay);
 
 			com.liferay.portal.kernel.xml.Document doc =
@@ -125,7 +129,7 @@ public class PortalOpenSearchImpl extends BaseOpenSearchImpl {
 
 				String content = StringPool.BLANK;
 
-				Indexer indexer = IndexerRegistryUtil.getIndexer(
+				Indexer<?> indexer = IndexerRegistryUtil.getIndexer(
 					entryClassName);
 
 				if (indexer != null) {

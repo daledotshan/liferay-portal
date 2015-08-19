@@ -23,8 +23,8 @@ List<WikiNode> nodes = wikiPortletInstanceSettingsHelper.getAllPermittedNodes();
 
 boolean print = ParamUtil.getString(request, "viewMode").equals(Constants.PRINT);
 
-WikiURLHelper wikiURLHelper = new WikiURLHelper(wikiRequestHelper, renderResponse, wikiConfiguration);
-WikiVisualizationHelper wikiVisualizationHelper = new WikiVisualizationHelper(wikiRequestHelper, wikiPortletInstanceSettingsHelper, wikiConfiguration);
+WikiURLHelper wikiURLHelper = new WikiURLHelper(wikiRequestHelper, renderResponse, wikiGroupServiceConfiguration);
+WikiVisualizationHelper wikiVisualizationHelper = new WikiVisualizationHelper(wikiRequestHelper, wikiPortletInstanceSettingsHelper, wikiGroupServiceConfiguration);
 %>
 
 <c:if test="<%= wikiVisualizationHelper.isUndoTrashControlVisible() %>">
@@ -79,7 +79,7 @@ WikiVisualizationHelper wikiVisualizationHelper = new WikiVisualizationHelper(wi
 			<%
 			PortletURL frontPageURL = wikiURLHelper.getFrontPageURL(node);
 
-			String label = wikiConfiguration.frontPageName();
+			String label = wikiGroupServiceConfiguration.frontPageName();
 			boolean selected = wikiVisualizationHelper.isFrontPageNavItemSelected();
 			%>
 
@@ -129,7 +129,7 @@ WikiVisualizationHelper wikiVisualizationHelper = new WikiVisualizationHelper(wi
 		<aui:nav-bar-search>
 			<div class="form-search">
 				<aui:form action="<%= searchURL %>" method="get" name="searchFm">
-					<liferay-portlet:renderURLParams varImpl="searchURL" />
+					<liferay-portlet:renderURLParams portletURL="<%= searchURL %>" />
 					<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 					<aui:input name="nodeId" type="hidden" value="<%= node.getNodeId() %>" />
 
