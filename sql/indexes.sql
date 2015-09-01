@@ -44,7 +44,9 @@ create unique index IX_8F542794 on AssetLink (entryId1, entryId2, type_);
 create index IX_14D5A20D on AssetLink (entryId1, type_);
 create index IX_91F132C on AssetLink (entryId2, type_);
 
-create index IX_D63322F9 on AssetTag (groupId, name);
+create unique index IX_D63322F9 on AssetTag (groupId, name);
+create index IX_84C501E4 on AssetTag (uuid_, companyId);
+create unique index IX_B6ACB166 on AssetTag (uuid_, groupId);
 
 create index IX_50702693 on AssetTagStats (classNameId);
 create unique index IX_56682CC4 on AssetTagStats (tagId, classNameId);
@@ -53,14 +55,6 @@ create index IX_B22D908C on AssetVocabulary (companyId);
 create unique index IX_C0AAD74D on AssetVocabulary (groupId, name);
 create index IX_C4E6FD10 on AssetVocabulary (uuid_, companyId);
 create unique index IX_1B2B8792 on AssetVocabulary (uuid_, groupId);
-
-create index IX_C5A6C78F on BackgroundTask (companyId);
-create index IX_579C63B0 on BackgroundTask (groupId, name, taskExecutorClassName, completed);
-create index IX_C71C3B7 on BackgroundTask (groupId, status);
-create index IX_7A9FF471 on BackgroundTask (groupId, taskExecutorClassName, completed);
-create index IX_7E757D70 on BackgroundTask (groupId, taskExecutorClassName, status);
-create index IX_75638CDF on BackgroundTask (status);
-create index IX_2FCFE748 on BackgroundTask (taskExecutorClassName, status);
 
 create index IX_BB0C2905 on BlogsEntry (companyId, displayDate, status);
 create index IX_EB2DCE27 on BlogsEntry (companyId, status);
@@ -104,60 +98,6 @@ create unique index IX_717B9BA2 on Country (a3);
 create index IX_25D734CD on Country (active_);
 create unique index IX_19DA007B on Country (name);
 
-create index IX_6A6C1C85 on DDLRecord (companyId);
-create index IX_AAC564D3 on DDLRecord (recordSetId, userId);
-create index IX_384AB6F7 on DDLRecord (uuid_, companyId);
-create unique index IX_B4328F39 on DDLRecord (uuid_, groupId);
-
-create unique index IX_56DAB121 on DDLRecordSet (groupId, recordSetKey);
-create index IX_5938C39F on DDLRecordSet (uuid_, companyId);
-create unique index IX_270BA5E1 on DDLRecordSet (uuid_, groupId);
-
-create index IX_762ADC7 on DDLRecordVersion (recordId, status);
-create unique index IX_C79E347 on DDLRecordVersion (recordId, version);
-
-create index IX_E3BAF436 on DDMContent (companyId);
-create index IX_50BF1038 on DDMContent (groupId);
-create index IX_3A9C0626 on DDMContent (uuid_, companyId);
-create unique index IX_EB9BDE28 on DDMContent (uuid_, groupId);
-
-create unique index IX_702D1AD5 on DDMStorageLink (classPK);
-create index IX_81776090 on DDMStorageLink (structureId);
-create index IX_32A18526 on DDMStorageLink (uuid_);
-
-create index IX_31817A62 on DDMStructure (classNameId);
-create index IX_4FBAC092 on DDMStructure (companyId, classNameId);
-create unique index IX_C8785130 on DDMStructure (groupId, classNameId, structureKey);
-create index IX_43395316 on DDMStructure (groupId, parentStructureId);
-create index IX_657899A8 on DDMStructure (parentStructureId);
-create index IX_20FDE04C on DDMStructure (structureKey);
-create index IX_F9FB8D60 on DDMStructure (uuid_, companyId);
-create unique index IX_85C7EBE2 on DDMStructure (uuid_, groupId);
-
-create unique index IX_B7158C0A on DDMStructureLayout (structureVersionId);
-create index IX_A90FF72A on DDMStructureLayout (uuid_, companyId);
-create unique index IX_C9A0402C on DDMStructureLayout (uuid_, groupId);
-
-create index IX_D43E4208 on DDMStructureLink (classNameId);
-create unique index IX_C803899D on DDMStructureLink (classPK);
-create index IX_17692B58 on DDMStructureLink (structureId);
-
-create unique index IX_64C3C42 on DDMStructureVersion (structureId, version);
-
-create index IX_B6356F93 on DDMTemplate (classNameId, classPK, type_);
-create index IX_32F83D16 on DDMTemplate (classPK);
-create index IX_F0C3449 on DDMTemplate (groupId, classNameId, classPK, type_, mode_);
-create unique index IX_E6DFAB84 on DDMTemplate (groupId, classNameId, templateKey);
-create index IX_B1C33EA6 on DDMTemplate (groupId, classPK);
-create index IX_33BEF579 on DDMTemplate (language);
-create index IX_127A35B0 on DDMTemplate (smallImageId);
-create index IX_CAE41A28 on DDMTemplate (templateKey);
-create index IX_C4F283C8 on DDMTemplate (type_);
-create index IX_D4C2C221 on DDMTemplate (uuid_, companyId);
-create unique index IX_1AA75CE3 on DDMTemplate (uuid_, groupId);
-
-create unique index IX_8854A128 on DDMTemplateVersion (templateId, version);
-
 create unique index IX_FDD1AAA8 on DLContent (companyId, repositoryId, path_, version);
 
 create index IX_5444C427 on DLFileEntry (companyId, fileEntryTypeId);
@@ -176,16 +116,12 @@ create unique index IX_BC2E7E6A on DLFileEntry (uuid_, groupId);
 
 create unique index IX_7332B44F on DLFileEntryMetadata (DDMStructureId, fileVersionId);
 create index IX_4F40FE5E on DLFileEntryMetadata (fileEntryId);
-create index IX_F8E90438 on DLFileEntryMetadata (fileEntryTypeId);
 create index IX_1FE9C04 on DLFileEntryMetadata (fileVersionId);
 create index IX_D49AB5D1 on DLFileEntryMetadata (uuid_);
 
 create unique index IX_5B6BEF5F on DLFileEntryType (groupId, fileEntryTypeKey);
 create index IX_5B03E942 on DLFileEntryType (uuid_, companyId);
 create unique index IX_1399D844 on DLFileEntryType (uuid_, groupId);
-
-create index IX_8373EC7C on DLFileEntryTypes_DDMStructures (fileEntryTypeId);
-create index IX_F147CF3F on DLFileEntryTypes_DDMStructures (structureId);
 
 create index IX_5BB6AD6C on DLFileEntryTypes_DLFolders (fileEntryTypeId);
 create index IX_6E00A2EC on DLFileEntryTypes_DLFolders (folderId);
@@ -269,58 +205,6 @@ create index IX_3B69160F on Groups_UserGroups (userGroupId);
 
 create index IX_6A925A4D on Image (size_);
 
-create index IX_17806804 on JournalArticle (DDMStructureKey);
-create index IX_75CCA4D1 on JournalArticle (DDMTemplateKey);
-create index IX_C761B675 on JournalArticle (classNameId, DDMTemplateKey);
-create index IX_323DF109 on JournalArticle (companyId, status);
-create index IX_E82F322B on JournalArticle (companyId, version, status);
-create index IX_EA05E9E1 on JournalArticle (displayDate, status);
-create index IX_D8EB0D84 on JournalArticle (groupId, DDMStructureKey);
-create index IX_31B74F51 on JournalArticle (groupId, DDMTemplateKey);
-create index IX_4D5CD982 on JournalArticle (groupId, articleId, status);
-create unique index IX_85C52EEC on JournalArticle (groupId, articleId, version);
-create index IX_353BD560 on JournalArticle (groupId, classNameId, DDMStructureKey);
-create index IX_6E801BF5 on JournalArticle (groupId, classNameId, DDMTemplateKey);
-create index IX_9CE6E0FA on JournalArticle (groupId, classNameId, classPK);
-create index IX_A2534AC2 on JournalArticle (groupId, classNameId, layoutUuid);
-create index IX_F35391E8 on JournalArticle (groupId, folderId, status);
-create index IX_3C028C1E on JournalArticle (groupId, layoutUuid);
-create index IX_301D024B on JournalArticle (groupId, status);
-create index IX_D2D249E8 on JournalArticle (groupId, urlTitle, status);
-create index IX_43A0F80F on JournalArticle (groupId, userId, classNameId);
-create index IX_3F1EA19E on JournalArticle (layoutUuid);
-create index IX_451D63EC on JournalArticle (resourcePrimKey, indexable, status);
-create index IX_3E2765FC on JournalArticle (resourcePrimKey, status);
-create index IX_EF9B7028 on JournalArticle (smallImageId);
-create index IX_71520099 on JournalArticle (uuid_, companyId);
-create unique index IX_3463D95B on JournalArticle (uuid_, groupId);
-
-create unique index IX_103D6207 on JournalArticleImage (groupId, articleId, version, elInstanceId, elName, languageId);
-create index IX_D4121315 on JournalArticleImage (tempImage);
-
-create unique index IX_88DF994A on JournalArticleResource (groupId, articleId);
-create unique index IX_84AB0309 on JournalArticleResource (uuid_, groupId);
-
-create index IX_9207CB31 on JournalContentSearch (articleId);
-create index IX_6838E427 on JournalContentSearch (groupId, articleId);
-create index IX_7CC7D73E on JournalContentSearch (groupId, privateLayout, articleId);
-create unique index IX_C3AA93B8 on JournalContentSearch (groupId, privateLayout, layoutId, portletId, articleId);
-create index IX_8DAF8A35 on JournalContentSearch (portletId);
-
-create unique index IX_65576CBC on JournalFeed (groupId, feedId);
-create index IX_CB37A10F on JournalFeed (uuid_, companyId);
-create unique index IX_39031F51 on JournalFeed (uuid_, groupId);
-
-create index IX_C36B0443 on JournalFolder (companyId, status);
-create index IX_E988689E on JournalFolder (groupId, name);
-create unique index IX_65026705 on JournalFolder (groupId, parentFolderId, name);
-create index IX_EFD9CAC on JournalFolder (groupId, parentFolderId, status);
-create index IX_54F89E1F on JournalFolder (uuid_, companyId);
-create unique index IX_E002061 on JournalFolder (uuid_, groupId);
-
-create index IX_96F1BE5F on JournalFolders_DDMStructures (folderId);
-create index IX_6159D3DC on JournalFolders_DDMStructures (structureId);
-
 create index IX_C7FBC998 on Layout (companyId);
 create unique index IX_BC2C4231 on Layout (groupId, privateLayout, friendlyURL);
 create unique index IX_7162C27C on Layout (groupId, privateLayout, layoutId);
@@ -365,10 +249,6 @@ create index IX_D9FFCA84 on LayoutSetPrototype (uuid_, companyId);
 
 create index IX_77729718 on ListType (name, type_);
 create index IX_2932DD37 on ListType (type_);
-
-create unique index IX_228562AD on Lock_ (className, key_);
-create index IX_E3F1286B on Lock_ (expirationDate);
-create index IX_2C418EAE on Lock_ (uuid_, companyId);
 
 create index IX_69951A25 on MBBan (banUserId);
 create unique index IX_8ABC4E3B on MBBan (groupId, banUserId);
@@ -424,24 +304,6 @@ create index IX_8CB0A24A on MBThreadFlag (threadId);
 create unique index IX_33781904 on MBThreadFlag (userId, threadId);
 create index IX_DCE308C5 on MBThreadFlag (uuid_, companyId);
 create unique index IX_FEB0FC87 on MBThreadFlag (uuid_, groupId);
-
-create index IX_FD90786C on MDRAction (ruleGroupInstanceId);
-create index IX_C58A516B on MDRAction (uuid_, companyId);
-create unique index IX_75BE36AD on MDRAction (uuid_, groupId);
-
-create index IX_4F4293F1 on MDRRule (ruleGroupId);
-create index IX_7DEA8DF1 on MDRRule (uuid_, companyId);
-create unique index IX_F3EFDCB3 on MDRRule (uuid_, groupId);
-
-create index IX_5849891C on MDRRuleGroup (groupId);
-create index IX_CC14DC2 on MDRRuleGroup (uuid_, companyId);
-create unique index IX_46665CC4 on MDRRuleGroup (uuid_, groupId);
-
-create unique index IX_808A0036 on MDRRuleGroupInstance (classNameId, classPK, ruleGroupId);
-create index IX_22DAB85C on MDRRuleGroupInstance (groupId, classNameId, classPK);
-create index IX_BF3E642B on MDRRuleGroupInstance (ruleGroupId);
-create index IX_25C9D1F7 on MDRRuleGroupInstance (uuid_, companyId);
-create unique index IX_9CBC6A39 on MDRRuleGroupInstance (uuid_, groupId);
 
 create index IX_C28C72EC on MembershipRequest (groupId, statusId);
 create index IX_35AA8FA6 on MembershipRequest (groupId, userId, statusId);
@@ -515,6 +377,7 @@ create unique index IX_D63D20BB on ResourceBlockPermission (resourceBlockId, rol
 create index IX_20A2E3D9 on ResourceBlockPermission (roleId);
 
 create unique index IX_8D83D0CE on ResourcePermission (companyId, name, scope, primKey, roleId);
+create index IX_49AEC6F3 on ResourcePermission (companyId, name, scope, primKeyId, roleId, viewActionId);
 create index IX_26284944 on ResourcePermission (companyId, primKey);
 create index IX_A37A0588 on ResourcePermission (roleId);
 create index IX_F4555981 on ResourcePermission (scope);
@@ -554,34 +417,6 @@ create index IX_7020130F on SCProductVersion (directDownloadURL);
 create index IX_8377A211 on SCProductVersion (productEntryId);
 
 create unique index IX_4F0315B8 on ServiceComponent (buildNamespace, buildNumber);
-
-create index IX_DA5F4359 on Shard (classNameId, classPK);
-create index IX_941BA8C3 on Shard (name);
-
-create unique index IX_FC46FE16 on ShoppingCart (groupId, userId);
-create index IX_54101CC8 on ShoppingCart (userId);
-
-create index IX_6A84467D on ShoppingCategory (groupId, name);
-create index IX_1E6464F5 on ShoppingCategory (groupId, parentCategoryId);
-
-create unique index IX_DC60CFAE on ShoppingCoupon (code_);
-create index IX_3251AF16 on ShoppingCoupon (groupId);
-
-create unique index IX_1C717CA6 on ShoppingItem (companyId, sku);
-create index IX_FEFE7D76 on ShoppingItem (groupId, categoryId);
-create index IX_903DC750 on ShoppingItem (largeImageId);
-create index IX_D217AB30 on ShoppingItem (mediumImageId);
-create index IX_FF203304 on ShoppingItem (smallImageId);
-
-create index IX_6D5F9B87 on ShoppingItemField (itemId);
-
-create index IX_EA6FD516 on ShoppingItemPrice (itemId);
-
-create index IX_119B5630 on ShoppingOrder (groupId, userId, ppPaymentStatus);
-create unique index IX_D7D6E87A on ShoppingOrder (number_);
-create index IX_F474FD89 on ShoppingOrder (ppTxnId);
-
-create index IX_B5F82C7A on ShoppingOrderItem (orderId);
 
 create index IX_F542E9BC on SocialActivity (activitySetId);
 create index IX_D0E9029E on SocialActivity (classNameId, classPK, type_);
@@ -639,6 +474,8 @@ create index IX_FFCBB747 on SystemEvent (groupId, classNameId, classPK, type_);
 create index IX_A19C89FF on SystemEvent (groupId, systemEventSetKey);
 
 create unique index IX_143DC786 on Team (groupId, name);
+create index IX_5D47F637 on Team (uuid_, companyId);
+create unique index IX_39F69E79 on Team (uuid_, groupId);
 
 create index IX_1E8DFB2E on Ticket (classNameId, classPK, type_);
 create index IX_B2468446 on Ticket (key_);

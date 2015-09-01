@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.messageboards.NoSuchBanException;
 import com.liferay.portlet.messageboards.model.MBBan;
@@ -134,6 +133,8 @@ public class MBBanPersistenceTest {
 
 		newMBBan.setBanUserId(RandomTestUtil.nextLong());
 
+		newMBBan.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_mbBans.add(_persistence.update(newMBBan));
 
 		MBBan existingMBBan = _persistence.findByPrimaryKey(newMBBan.getPrimaryKey());
@@ -153,99 +154,65 @@ public class MBBanPersistenceTest {
 			Time.getShortTimestamp(newMBBan.getModifiedDate()));
 		Assert.assertEquals(existingMBBan.getBanUserId(),
 			newMBBan.getBanUserId());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingMBBan.getLastPublishDate()),
+			Time.getShortTimestamp(newMBBan.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByBanUserId() {
-		try {
-			_persistence.countByBanUserId(RandomTestUtil.nextLong());
+	public void testCountByBanUserId() throws Exception {
+		_persistence.countByBanUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByBanUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByBanUserId(0L);
 	}
 
 	@Test
-	public void testCountByG_B() {
-		try {
-			_persistence.countByG_B(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByG_B() throws Exception {
+		_persistence.countByG_B(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByG_B(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_B(0L, 0L);
 	}
 
 	@Test
@@ -257,35 +224,24 @@ public class MBBanPersistenceTest {
 		Assert.assertEquals(existingMBBan, newMBBan);
 	}
 
-	@Test
+	@Test(expected = NoSuchBanException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchBanException");
-		}
-		catch (NoSuchBanException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<MBBan> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("MBBan", "uuid", true,
 			"banId", true, "groupId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
-			"banUserId", true);
+			"banUserId", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -479,10 +435,6 @@ public class MBBanPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		MBBan newMBBan = addMBBan();
 
 		_persistence.clearCache();
@@ -524,6 +476,8 @@ public class MBBanPersistenceTest {
 		mbBan.setModifiedDate(RandomTestUtil.nextDate());
 
 		mbBan.setBanUserId(RandomTestUtil.nextLong());
+
+		mbBan.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_mbBans.add(_persistence.update(mbBan));
 

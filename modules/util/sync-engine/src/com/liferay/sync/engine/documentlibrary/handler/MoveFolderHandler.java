@@ -14,12 +14,10 @@
 
 package com.liferay.sync.engine.documentlibrary.handler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.liferay.sync.engine.documentlibrary.event.Event;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.service.SyncFileService;
+import com.liferay.sync.engine.util.JSONUtil;
 
 /**
  * @author Shinn Lok
@@ -32,14 +30,13 @@ public class MoveFolderHandler extends BaseJSONHandler {
 
 	@Override
 	public void processResponse(String response) throws Exception {
+		SyncFile remoteSyncFile = JSONUtil.readValue(response, SyncFile.class);
+
 		SyncFile localSyncFile = getLocalSyncFile();
 
-		ObjectMapper objectMapper = new ObjectMapper();
-
-		SyncFile remoteSyncFile = objectMapper.readValue(
-			response, new TypeReference<SyncFile>() {});
-
 		localSyncFile.setModifiedTime(remoteSyncFile.getModifiedTime());
+		localSyncFile.setState(SyncFile.STATE_SYNCED);
+		localSyncFile.setUiEvent(SyncFile.UI_EVENT_UPLOADED);
 
 		SyncFileService.update(localSyncFile);
 	}
