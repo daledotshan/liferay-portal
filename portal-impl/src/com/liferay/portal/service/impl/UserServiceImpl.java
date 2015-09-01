@@ -106,8 +106,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			return;
 		}
 
+		PermissionChecker permissionChecker = getPermissionChecker();
+
 		if (!GroupPermissionUtil.contains(
-				getPermissionChecker(), groupId, ActionKeys.ASSIGN_MEMBERS)) {
+				permissionChecker, groupId, ActionKeys.ASSIGN_MEMBERS)) {
 
 			// Allow any user to join open sites
 
@@ -130,7 +132,9 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			}
 
 			if (!hasPermission) {
-				throw new PrincipalException();
+				throw new PrincipalException.MustHavePermission(
+					permissionChecker, Group.class.getName(), groupId,
+					ActionKeys.ASSIGN_MEMBERS);
 			}
 		}
 
@@ -642,7 +646,7 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 				user.getUserId(), announcementsDelivers);
 
 			if (indexingEnabled) {
-				Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+				Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 					User.class);
 
 				indexer.reindex(user);
@@ -718,7 +722,7 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		PermissionChecker permissionChecker = getPermissionChecker();
 
 		if (!permissionChecker.isCompanyAdmin(companyId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustBeCompanyAdmin(permissionChecker);
 		}
 
 		return userPersistence.findByCompanyId(companyId, start, end);
@@ -729,10 +733,15 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		PermissionChecker permissionChecker = getPermissionChecker();
 
 		if (!permissionChecker.isCompanyAdmin(companyId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustBeCompanyAdmin(permissionChecker);
 		}
 
 		return userPersistence.countByCompanyId(companyId);
+	}
+
+	@Override
+	public User getCurrentUser() throws PortalException {
+		return getUser();
 	}
 
 	/**
@@ -1230,8 +1239,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			return;
 		}
 
+		PermissionChecker permissionChecker = getPermissionChecker();
+
 		if (!GroupPermissionUtil.contains(
-				getPermissionChecker(), groupId, ActionKeys.ASSIGN_MEMBERS)) {
+				permissionChecker, groupId, ActionKeys.ASSIGN_MEMBERS)) {
 
 			// Allow any user to leave open and restricted sites
 
@@ -1256,7 +1267,9 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			}
 
 			if (!hasPermission) {
-				throw new PrincipalException();
+				throw new PrincipalException.MustHavePermission(
+					permissionChecker, Group.class.getName(), groupId,
+					ActionKeys.ASSIGN_MEMBERS);
 			}
 		}
 
@@ -1684,10 +1697,9 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 	 * @return     the user
 	 * @throws     PortalException if a user with the primary key could not be
 	 *             found, if the current user was updating her own status to
-	 *             anything but {@link
-	 *             com.liferay.portal.kernel.workflow.WorkflowConstants#STATUS_APPROVED},
-	 *             or if the current user did not have permission to update the
-	 *             user's workflow status.
+	 *             anything but {@link WorkflowConstants#STATUS_APPROVED}, or if
+	 *             the current user did not have permission to update the user's
+	 *             workflow status.
 	 * @deprecated As of 7.0.0, replaced by {@link #updateStatus(long, int,
 	 *             ServiceContext)}
 	 */
@@ -1708,10 +1720,9 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 	 * @return the user
 	 * @throws PortalException if a user with the primary key could not be
 	 *         found, if the current user was updating her own status to
-	 *         anything but {@link
-	 *         com.liferay.portal.kernel.workflow.WorkflowConstants#STATUS_APPROVED},
-	 *         or if the current user did not have permission to update the
-	 *         user's workflow status.
+	 *         anything but {@link WorkflowConstants#STATUS_APPROVED}, or if the
+	 *         current user did not have permission to update the user's
+	 *         workflow status.
 	 */
 	@Override
 	public User updateStatus(
@@ -2157,10 +2168,8 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 	 *             long, String, boolean, byte[], String, String, String,
 	 *             String, String, String, String, int, int, boolean, int, int,
 	 *             int, String, String, String, String, String, String, String,
-	 *             String, String, String, String, long[], long[], long[],
-	 *             java.util.List, long[], java.util.List, java.util.List,
-	 *             java.util.List, java.util.List, java.util.List,
-	 *             com.liferay.portal.service.ServiceContext)}
+	 *             String, String, String, String, long[], long[], long[], List,
+	 *             long[], List, List, List, List, List, ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -2315,13 +2324,17 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		if (((creatorUserId != 0) && (creatorUserId != defaultUserId)) ||
 			(!company.isStrangers() && !anonymousUser)) {
 
+			PermissionChecker permissionChecker = getPermissionChecker();
+
 			if (!PortalPermissionUtil.contains(
-					getPermissionChecker(), ActionKeys.ADD_USER) &&
+					permissionChecker, ActionKeys.ADD_USER) &&
 				!OrganizationPermissionUtil.contains(
 					getPermissionChecker(), organizationIds,
 					ActionKeys.ASSIGN_MEMBERS)) {
 
-				throw new PrincipalException();
+				throw new PrincipalException.MustHavePermission(
+					permissionChecker, Organization.class.getName(), 0,
+					ActionKeys.ADD_USER, ActionKeys.ASSIGN_MEMBERS);
 			}
 		}
 
@@ -2445,10 +2458,10 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 						permissionChecker, organization,
 						ActionKeys.ASSIGN_MEMBERS) ||
 					 OrganizationMembershipPolicyUtil.isMembershipProtected(
-						permissionChecker, userId,
-						organization.getOrganizationId()) ||
+						 permissionChecker, userId,
+						 organization.getOrganizationId()) ||
 					 OrganizationMembershipPolicyUtil.isMembershipRequired(
-						userId, organization.getOrganizationId()))) {
+						 userId, organization.getOrganizationId()))) {
 
 					organizationIds = ArrayUtil.append(
 						organizationIds, organization.getOrganizationId());
@@ -2503,7 +2516,7 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 						permissionChecker, role.getRoleId(),
 						ActionKeys.ASSIGN_MEMBERS) ||
 					 RoleMembershipPolicyUtil.isRoleRequired(
-						userId, role.getRoleId()))) {
+						 userId, role.getRoleId()))) {
 
 					roleIds = ArrayUtil.append(roleIds, role.getRoleId());
 				}
@@ -2559,7 +2572,7 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 						permissionChecker, userGroup.getUserGroupId(),
 						ActionKeys.ASSIGN_MEMBERS) ||
 					 UserGroupMembershipPolicyUtil.isMembershipRequired(
-						userId, userGroup.getUserGroupId()))) {
+						 userId, userGroup.getUserGroupId()))) {
 
 					userGroupIds = ArrayUtil.append(
 						userGroupIds, userGroup.getUserGroupId());
@@ -2741,7 +2754,9 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			}
 
 			if (!allowed) {
-				throw new PrincipalException();
+				throw new PrincipalException.MustHavePermission(
+					permissionChecker, Organization.class.getName(), 0,
+					ActionKeys.MANAGE_USERS);
 			}
 		}
 	}

@@ -50,6 +50,8 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 
 		Filter filter = new Filter(type);
 
+		_browsable = GetterUtil.getBoolean(
+			PropsUtil.get(PropsKeys.LAYOUT_BROWSABLE, filter), true);
 		_configurationActionDelete = StringUtil.split(
 			GetterUtil.getString(
 				PropsUtil.get(
@@ -85,11 +87,6 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 	}
 
 	@Override
-	public String getEditPage() {
-		return StrutsUtil.TEXT_HTML_DIR + _editPage;
-	}
-
-	@Override
 	public String getURL() {
 		return _url;
 	}
@@ -107,9 +104,6 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 			if (_type.equals(LayoutConstants.TYPE_PANEL)) {
 				path += "/portal/layout/view/panel.jsp";
 			}
-			else if (_type.equals(LayoutConstants.TYPE_CONTROL_PANEL)) {
-				path += "/portal/layout/view/control_panel.jsp";
-			}
 			else {
 				path += "/portal/layout/view/portlet.jsp";
 			}
@@ -119,6 +113,28 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 		}
 
 		return path;
+	}
+
+	@Override
+	public String includeEditContent(
+			HttpServletRequest request, HttpServletResponse response,
+			Layout layout)
+		throws Exception {
+
+		ServletContext servletContext = (ServletContext)request.getAttribute(
+			WebKeys.CTX);
+
+		RequestDispatcher requestDispatcher =
+			servletContext.getRequestDispatcher(getEditPage());
+
+		UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter();
+
+		PipingServletResponse pipingServletResponse = new PipingServletResponse(
+			response, unsyncStringWriter);
+
+		requestDispatcher.include(request, pipingServletResponse);
+
+		return unsyncStringWriter.toString();
 	}
 
 	@Override
@@ -157,6 +173,11 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 	}
 
 	@Override
+	public boolean isBrowsable() {
+		return _browsable;
+	}
+
+	@Override
 	public boolean isFirstPageable() {
 		return _firstPageable;
 	}
@@ -192,6 +213,11 @@ public class LayoutTypeControllerImpl implements LayoutTypeController {
 		}
 	}
 
+	protected String getEditPage() {
+		return StrutsUtil.TEXT_HTML_DIR + _editPage;
+	}
+
+	private final boolean _browsable;
 	private final String[] _configurationActionDelete;
 	private final String[] _configurationActionUpdate;
 	private final String _editPage;

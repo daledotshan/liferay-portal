@@ -28,7 +28,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.model.AuditedModel;
@@ -60,6 +60,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.sql.DataSource;
@@ -216,7 +217,9 @@ public class ResourceBlockLocalServiceImpl
 		resourceBlockPermissionLocalService.deleteResourceBlockPermissions(
 			resourceBlock.getPrimaryKey());
 
-		return resourceBlockPersistence.remove(resourceBlock);
+		resourceBlockPersistence.remove(resourceBlock);
+
+		return resourceBlock;
 	}
 
 	@Override
@@ -354,6 +357,34 @@ public class ResourceBlockLocalServiceImpl
 	}
 
 	@Override
+	public List<Role> getRoles(String name, long primKey, String actionId)
+		throws PortalException {
+
+		long actionIdLong = getActionId(name, actionId);
+
+		ResourceBlock resourceBlock = getResourceBlock(name, primKey);
+
+		ResourceBlockPermissionsContainer resourceBlockPermissionsContainer =
+			resourceBlockPermissionLocalService.
+				getResourceBlockPermissionsContainer(
+					resourceBlock.getResourceBlockId());
+
+		Set<Long> roleIds = resourceBlockPermissionsContainer.getRoleIds();
+
+		List<Role> roles = new ArrayList<>(roleIds.size());
+
+		for (long roleId : roleIds) {
+			if (resourceBlockPermissionsContainer.hasPermission(
+					roleId, actionIdLong)) {
+
+				roles.add(roleLocalService.getRole(roleId));
+			}
+		}
+
+		return roles;
+	}
+
+	@Override
 	public boolean hasPermission(
 			String name, long primKey, String actionId,
 			ResourceBlockIdsBag resourceBlockIdsBag)
@@ -444,6 +475,11 @@ public class ResourceBlockLocalServiceImpl
 						qPos.add(resourceBlockId);
 
 						sqlQuery.executeUpdate();
+
+						PermissionCacheUtil.clearResourceBlockCache(
+							resourceBlock.getCompanyId(),
+							resourceBlock.getGroupId(),
+							resourceBlock.getName());
 					}
 				}
 
@@ -674,9 +710,12 @@ public class ResourceBlockLocalServiceImpl
 			Map<Long, String[]> roleIdsToActionIds)
 		throws PortalException {
 
-		boolean flushEnabled = PermissionThreadLocal.isFlushEnabled();
+		boolean flushResourceBlockEnabled =
+			PermissionThreadLocal.isFlushResourceBlockEnabled(
+				companyId, groupId, name);
 
-		PermissionThreadLocal.setIndexEnabled(false);
+		PermissionThreadLocal.setFlushResourceBlockEnabled(
+			companyId, groupId, name, false);
 
 		try {
 			PermissionedModel permissionedModel = getPermissionedModel(
@@ -698,9 +737,11 @@ public class ResourceBlockLocalServiceImpl
 			}
 		}
 		finally {
-			PermissionThreadLocal.setIndexEnabled(flushEnabled);
+			PermissionThreadLocal.setFlushResourceBlockEnabled(
+				companyId, groupId, name, flushResourceBlockEnabled);
 
-			PermissionCacheUtil.clearCache();
+			PermissionCacheUtil.clearResourceBlockCache(
+				companyId, groupId, name);
 		}
 	}
 
@@ -737,7 +778,7 @@ public class ResourceBlockLocalServiceImpl
 			updateCompanyScopeResourceTypePermissions(
 				companyId, name, roleId, actionIdsLong, operator);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearResourceCache();
 	}
 
 	@Override
@@ -749,7 +790,7 @@ public class ResourceBlockLocalServiceImpl
 			updateGroupScopeResourceTypePermissions(
 				companyId, groupId, name, roleId, actionIdsLong, operator);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearResourceCache();
 	}
 
 	@Override
@@ -805,7 +846,7 @@ public class ResourceBlockLocalServiceImpl
 			companyId, groupId, name, permissionedModel, permissionsHash,
 			resourceBlockPermissionsContainer);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearResourceBlockCache(companyId, groupId, name);
 	}
 
 	@Override
@@ -934,7 +975,7 @@ public class ResourceBlockLocalServiceImpl
 
 		};
 
-		TransactionCommitCallbackRegistryUtil.registerCallback(callable);
+		TransactionCommitCallbackUtil.registerCallback(callable);
 
 		return resourceBlock;
 	}

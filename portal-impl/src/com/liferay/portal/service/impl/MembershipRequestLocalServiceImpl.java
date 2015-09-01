@@ -57,7 +57,6 @@ public class
 		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		Date now = new Date();
 
 		validate(comments);
 
@@ -68,7 +67,7 @@ public class
 
 		membershipRequest.setCompanyId(user.getCompanyId());
 		membershipRequest.setUserId(userId);
-		membershipRequest.setCreateDate(now);
+		membershipRequest.setCreateDate(new Date());
 		membershipRequest.setGroupId(groupId);
 		membershipRequest.setComments(comments);
 		membershipRequest.setStatusId(
@@ -338,7 +337,6 @@ public class
 		subscriptionSender.setScopeGroupId(membershipRequest.getGroupId());
 		subscriptionSender.setServiceContext(serviceContext);
 		subscriptionSender.setSubject(subject);
-		subscriptionSender.setUserId(userId);
 
 		subscriptionSender.addRuntimeSubscribers(toAddress, toName);
 

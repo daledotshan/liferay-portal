@@ -26,15 +26,23 @@ import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.SynchronousDestination;
 import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
 import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.rule.callback.SynchronousDestinationTestCallback.SyncHandler;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionAttribute;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
+import com.liferay.registry.Filter;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.dependency.ServiceDependencyManager;
+
+import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.Test;
 import org.junit.runner.Description;
 
 /**
@@ -51,6 +59,34 @@ public class SynchronousDestinationTestCallback
 		Description description, SyncHandler syncHandler, Object target) {
 
 		syncHandler.restorePreviousSync();
+	}
+
+	@Override
+	public SyncHandler doBeforeClass(Description description) throws Throwable {
+		Class<?> testClass = description.getTestClass();
+
+		if (testClass.getAnnotation(Sync.class) == null) {
+			boolean hasSyncedMethod = false;
+
+			for (Method method : testClass.getMethods()) {
+				if ((method.getAnnotation(Sync.class) != null) &&
+					(method.getAnnotation(Test.class) != null)) {
+
+					hasSyncedMethod = true;
+
+					break;
+				}
+			}
+
+			if (!hasSyncedMethod) {
+				throw new AssertionError(
+					testClass + " uses " +
+						SynchronousDestinationTestRule.class +
+							" without any usage of " + Sync.class);
+			}
+		}
+
+		return super.doBeforeClass(description);
 	}
 
 	@Override
@@ -78,7 +114,7 @@ public class SynchronousDestinationTestCallback
 		public BaseDestination createSynchronousDestination(
 			String destinationName) {
 
-			SynchronousDestination synchronousDestination;
+			SynchronousDestination synchronousDestination = null;
 
 			if ((_sync != null) && _sync.cleanTransaction()) {
 				synchronousDestination =
@@ -98,6 +134,29 @@ public class SynchronousDestinationTestCallback
 				return;
 			}
 
+			ServiceDependencyManager serviceDependencyManager =
+				new ServiceDependencyManager();
+
+			Filter asyncFilter = _registerDestinationFilter(
+				DestinationNames.ASYNC_SERVICE);
+			Filter backgroundTaskFilter = _registerDestinationFilter(
+				DestinationNames.BACKGROUND_TASK);
+			Filter mailFilter = _registerDestinationFilter(
+				DestinationNames.MAIL);
+			Filter pdfProcessorFilter = _registerDestinationFilter(
+				DestinationNames.DOCUMENT_LIBRARY_PDF_PROCESSOR);
+			Filter rawMetaDataProcessorFilter = _registerDestinationFilter(
+				DestinationNames.DOCUMENT_LIBRARY_RAW_METADATA_PROCESSOR);
+			Filter subscrpitionSenderFilter = _registerDestinationFilter(
+				DestinationNames.SUBSCRIPTION_SENDER);
+
+			serviceDependencyManager.registerDependencies(
+				asyncFilter, backgroundTaskFilter, mailFilter,
+				pdfProcessorFilter, rawMetaDataProcessorFilter,
+				subscrpitionSenderFilter);
+
+			serviceDependencyManager.waitForDependencies();
+
 			ProxyModeThreadLocal.setForceSync(true);
 
 			replaceDestination(DestinationNames.ASYNC_SERVICE);
@@ -108,6 +167,7 @@ public class SynchronousDestinationTestCallback
 			replaceDestination(
 				DestinationNames.DOCUMENT_LIBRARY_SYNC_EVENT_PROCESSOR);
 			replaceDestination(DestinationNames.MAIL);
+			replaceDestination(DestinationNames.SCHEDULER_ENGINE);
 			replaceDestination(DestinationNames.SEARCH_READER);
 			replaceDestination(DestinationNames.SEARCH_WRITER);
 			replaceDestination(DestinationNames.SUBSCRIPTION_SENDER);
@@ -123,7 +183,7 @@ public class SynchronousDestinationTestCallback
 				_asyncServiceDestinations.add(destination);
 
 				messageBus.replace(
-					createSynchronousDestination(destinationName));
+					createSynchronousDestination(destinationName), false);
 			}
 
 			if (destination == null) {
@@ -160,6 +220,14 @@ public class SynchronousDestinationTestCallback
 
 		public void setSync(Sync sync) {
 			_sync = sync;
+		}
+
+		private Filter _registerDestinationFilter(String destinationName) {
+			Registry registry = RegistryUtil.getRegistry();
+
+			return registry.getFilter(
+				"(&(destination.name=" + destinationName +
+					")(objectClass=" + Destination.class.getName() + "))");
 		}
 
 		private final List<String> _absentDestinationNames = new ArrayList<>();

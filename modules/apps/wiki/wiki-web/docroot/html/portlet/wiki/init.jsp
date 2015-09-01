@@ -16,10 +16,12 @@
 
 <%@ include file="/html/portlet/init.jsp" %>
 
-<%@ page import="com.liferay.wiki.configuration.WikiConfiguration" %><%@
+<%@ page import="com.liferay.wiki.configuration.WikiGroupServiceConfiguration" %><%@
+page import="com.liferay.wiki.configuration.WikiGroupServiceOverriddenConfiguration" %><%@
 page import="com.liferay.wiki.constants.WikiConstants" %><%@
 page import="com.liferay.wiki.constants.WikiPortletKeys" %><%@
 page import="com.liferay.wiki.constants.WikiWebKeys" %><%@
+page import="com.liferay.wiki.display.context.WikiListPagesDisplayContext" %><%@
 page import="com.liferay.wiki.exception.DuplicateNodeNameException" %><%@
 page import="com.liferay.wiki.exception.DuplicatePageException" %><%@
 page import="com.liferay.wiki.exception.ImportFilesException" %><%@
@@ -44,34 +46,36 @@ page import="com.liferay.wiki.service.WikiNodeServiceUtil" %><%@
 page import="com.liferay.wiki.service.WikiPageLocalServiceUtil" %><%@
 page import="com.liferay.wiki.service.WikiPageResourceLocalServiceUtil" %><%@
 page import="com.liferay.wiki.service.WikiPageServiceUtil" %><%@
-page import="com.liferay.wiki.service.permission.WikiNodePermission" %><%@
-page import="com.liferay.wiki.service.permission.WikiPagePermission" %><%@
-page import="com.liferay.wiki.service.permission.WikiPermission" %><%@
-page import="com.liferay.wiki.settings.WikiSettings" %><%@
+page import="com.liferay.wiki.service.permission.WikiNodePermissionChecker" %><%@
+page import="com.liferay.wiki.service.permission.WikiPagePermissionChecker" %><%@
+page import="com.liferay.wiki.service.permission.WikiResourcePermissionChecker" %><%@
 page import="com.liferay.wiki.social.WikiActivityKeys" %><%@
 page import="com.liferay.wiki.util.WikiCacheUtil" %><%@
 page import="com.liferay.wiki.util.WikiPageAttachmentsUtil" %><%@
 page import="com.liferay.wiki.util.WikiUtil" %><%@
 page import="com.liferay.wiki.util.comparator.PageVersionComparator" %><%@
+page import="com.liferay.wiki.web.configuration.WikiPortletInstanceOverriddenConfiguration" %><%@
+page import="com.liferay.wiki.web.display.context.WikiDisplayContextProvider" %><%@
 page import="com.liferay.wiki.web.display.context.logic.MailTemplatesHelper" %><%@
 page import="com.liferay.wiki.web.display.context.logic.WikiPortletInstanceSettingsHelper" %><%@
 page import="com.liferay.wiki.web.display.context.logic.WikiVisualizationHelper" %><%@
 page import="com.liferay.wiki.web.display.context.util.WikiRequestHelper" %><%@
 page import="com.liferay.wiki.web.display.context.util.WikiURLHelper" %><%@
-page import="com.liferay.wiki.web.settings.WikiPortletInstanceSettings" %><%@
-page import="com.liferay.wiki.web.settings.WikiWebSettingsProvider" %>
+page import="com.liferay.wiki.web.util.WikiWebComponentProvider" %>
 
 <%
 WikiRequestHelper wikiRequestHelper = new WikiRequestHelper(request);
 
-WikiPortletInstanceSettings wikiPortletInstanceSettings = wikiRequestHelper.getWikiPortletInstanceSettings();
-WikiSettings wikiSettings = wikiRequestHelper.getWikiSettings();
+WikiPortletInstanceOverriddenConfiguration wikiPortletInstanceOverriddenConfiguration = wikiRequestHelper.getWikiPortletInstanceOverridenConfiguration();
+WikiGroupServiceOverriddenConfiguration wikiGroupServiceOverriddenConfiguration = wikiRequestHelper.getWikiGroupServiceOverriddenConfiguration();
 
 WikiPortletInstanceSettingsHelper wikiPortletInstanceSettingsHelper = new WikiPortletInstanceSettingsHelper(wikiRequestHelper);
 
-WikiWebSettingsProvider wikiWebSettingsProvider = WikiWebSettingsProvider.getWikiWebSettingsProvider();
+WikiWebComponentProvider wikiWebComponentProvider = WikiWebComponentProvider.getWikiWebComponentProvider();
 
-WikiConfiguration wikiConfiguration = wikiWebSettingsProvider.getWikiConfiguration();
+WikiDisplayContextProvider wikiDisplayContextProvider = wikiWebComponentProvider.getWikiDisplayContextProvider();
+
+WikiGroupServiceConfiguration wikiGroupServiceConfiguration = wikiWebComponentProvider.getWikiGroupServiceConfiguration();
 
 Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZone);
 %>

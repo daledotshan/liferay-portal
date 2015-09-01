@@ -170,11 +170,11 @@ if (type.equals("all_pages")) {
 	orderableHeaders.put("page", "title");
 	orderableHeaders.put("date", "modifiedDate");
 
-	total = WikiPageServiceUtil.getPagesCount(themeDisplay.getScopeGroupId(), node.getNodeId(), true);
+	total = WikiPageServiceUtil.getPagesCount(themeDisplay.getScopeGroupId(), node.getNodeId(), true, themeDisplay.getUserId(), true, WorkflowConstants.STATUS_APPROVED);
 
 	searchContainer.setTotal(total);
 
-	results = WikiPageServiceUtil.getPages(themeDisplay.getScopeGroupId(), node.getNodeId(), true, WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(), searchContainer.getEnd(), orderByComparator);
+	results = WikiPageServiceUtil.getPages(themeDisplay.getScopeGroupId(), node.getNodeId(), true, themeDisplay.getUserId(), true, WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(), searchContainer.getEnd(), orderByComparator);
 }
 else if (type.equals("categorized_pages") || type.equals("tagged_pages")) {
 	orderableHeaders.put("page", "title");
@@ -271,8 +271,6 @@ List resultRows = searchContainer.getResultRows();
 for (int i = 0; i < results.size(); i++) {
 	WikiPage curWikiPage = results.get(i);
 
-	curWikiPage = curWikiPage.toEscapedModel();
-
 	ResultRow row = new ResultRow(curWikiPage, String.valueOf(curWikiPage.getVersion()), i);
 
 	PortletURL rowURL = renderResponse.createRenderURL();
@@ -294,7 +292,7 @@ for (int i = 0; i < results.size(); i++) {
 		rowURL.setParameter("nodeId", String.valueOf(curWikiPage.getNodeId()));
 	}
 
-	rowURL.setParameter("title", HtmlUtil.unescape(curWikiPage.getTitle()));
+	rowURL.setParameter("title", curWikiPage.getTitle());
 
 	if (type.equals("history")) {
 		rowURL.setParameter("version", String.valueOf(curWikiPage.getVersion()));
@@ -302,7 +300,7 @@ for (int i = 0; i < results.size(); i++) {
 
 	// Title
 
-	row.addText(curWikiPage.getTitle(), rowURL);
+	row.addText(HtmlUtil.escape(curWikiPage.getTitle()), rowURL);
 
 	// Status
 
@@ -326,7 +324,7 @@ for (int i = 0; i < results.size(); i++) {
 	// User
 
 	if (!curWikiPage.isNew()) {
-		row.addText(PortalUtil.getUserName(curWikiPage), rowURL);
+		row.addText(HtmlUtil.escape(PortalUtil.getUserName(curWikiPage)), rowURL);
 	}
 	else {
 		row.addText(StringPool.BLANK);
@@ -345,7 +343,7 @@ for (int i = 0; i < results.size(); i++) {
 
 	if (type.equals("history") || type.equals("recent_changes")) {
 		if (Validator.isNotNull(curWikiPage.getSummary())) {
-			row.addText(curWikiPage.getSummary());
+			row.addText(HtmlUtil.escape(curWikiPage.getSummary()));
 		}
 		else {
 			row.addText(StringPool.BLANK);
@@ -379,18 +377,37 @@ for (int i = 0; i < results.size(); i++) {
 	</aui:button-row>
 </c:if>
 
-<c:if test='<%= type.equals("all_pages") && WikiNodePermission.contains(permissionChecker, node.getNodeId(), ActionKeys.ADD_PAGE) %>'>
-	<aui:button-row>
-		<liferay-portlet:renderURL allowEmptyParam="<%= true %>" var="addPageURL">
-			<liferay-portlet:param name="struts_action" value="/wiki/edit_page" />
-			<liferay-portlet:param name="redirect" value="<%= currentURL %>" />
-			<liferay-portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" />
-			<liferay-portlet:param name="title" value="<%= StringPool.BLANK %>" />
-			<liferay-portlet:param name="editTitle" value="1" />
-		</liferay-portlet:renderURL>
+<c:if test='<%= type.equals("all_pages") && WikiNodePermissionChecker.contains(permissionChecker, node.getNodeId(), ActionKeys.ADD_PAGE) %>'>
+	<liferay-ui:app-view-toolbar>
+		<aui:button-row cssClass="wiki-page-toolbar" id='<%= renderResponse.getNamespace() + "wikiPageToolbar" %>' />
+	</liferay-ui:app-view-toolbar>
 
-		<aui:button href="<%= addPageURL %>" name="addPageButton" value="add-page" />
-	</aui:button-row>
+	<aui:script use="aui-toolbar">
+		var buttonRow = A.one('#<portlet:namespace />wikiPageToolbar');
+
+		var wikiPageButtonGroup = [];
+
+		<%
+		WikiListPagesDisplayContext wikiListPagesDisplayContext = wikiDisplayContextProvider.getWikiListPagesDisplayContext(request, response, node);
+
+		for (ToolbarItem toolbarItem : wikiListPagesDisplayContext.getToolbarItems()) {
+		%>
+
+			<liferay-ui:toolbar-item toolbarItem="<%= toolbarItem %>" var="wikiPageButtonGroup" />
+
+		<%
+		}
+		%>
+
+		var wikiPageToolbar = new A.Toolbar(
+			{
+				boundingBox: buttonRow,
+				children: [wikiPageButtonGroup]
+			}
+		).render();
+
+		buttonRow.setData('wikiPageToolbar', wikiPageToolbar);
+	</aui:script>
 </c:if>
 
 <liferay-ui:categorization-filter
@@ -450,12 +467,12 @@ for (int i = 0; i < results.size(); i++) {
 
 					var rowIdsSize = rowIds.length;
 
-					if ((rowIdsSize == 0) || (rowIdsSize == 2)) {
-						if (rowIdsSize == 0) {
+					if (rowIdsSize === 0 || rowIdsSize === 2) {
+						if (rowIdsSize === 0) {
 							uri = Liferay.Util.addParams('<portlet:namespace />sourceVersion=<%= latestWikiPage.getVersion() %>', uri);
 							uri = Liferay.Util.addParams('<portlet:namespace />targetVersion=<%= wikiPage.getVersion() %>', uri);
 						}
-						else if (rowIdsSize == 2) {
+						else if (rowIdsSize === 2) {
 							uri = Liferay.Util.addParams('<portlet:namespace />sourceVersion=' + rowIds.eq(1).val(), uri);
 							uri = Liferay.Util.addParams('<portlet:namespace />targetVersion=' + rowIds.eq(0).val(), uri);
 						}

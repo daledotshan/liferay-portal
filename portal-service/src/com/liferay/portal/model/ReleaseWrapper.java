@@ -56,6 +56,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("servletContextName", getServletContextName());
+		attributes.put("version", getVersion());
 		attributes.put("buildNumber", getBuildNumber());
 		attributes.put("buildDate", getBuildDate());
 		attributes.put("verified", getVerified());
@@ -95,6 +96,12 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 
 		if (servletContextName != null) {
 			setServletContextName(servletContextName);
+		}
+
+		String version = (String)attributes.get("version");
+
+		if (version != null) {
+			setVersion(version);
 		}
 
 		Integer buildNumber = (Integer)attributes.get("buildNumber");
@@ -144,7 +151,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @return the build date of this release
 	*/
 	@Override
-	public java.util.Date getBuildDate() {
+	public Date getBuildDate() {
 		return _release.getBuildDate();
 	}
 
@@ -164,7 +171,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @return the create date of this release
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _release.getCreateDate();
 	}
 
@@ -179,7 +186,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @return the modified date of this release
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _release.getModifiedDate();
 	}
 
@@ -258,6 +265,16 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 		return _release.getVerified();
 	}
 
+	/**
+	* Returns the version of this release.
+	*
+	* @return the version of this release
+	*/
+	@Override
+	public java.lang.String getVersion() {
+		return _release.getVersion();
+	}
+
 	@Override
 	public int hashCode() {
 		return _release.hashCode();
@@ -299,7 +316,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @param buildDate the build date of this release
 	*/
 	@Override
-	public void setBuildDate(java.util.Date buildDate) {
+	public void setBuildDate(Date buildDate) {
 		_release.setBuildDate(buildDate);
 	}
 
@@ -324,13 +341,12 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @param createDate the create date of this release
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_release.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_release.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -352,7 +368,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @param modifiedDate the modified date of this release
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_release.setModifiedDate(modifiedDate);
 	}
 
@@ -436,8 +452,18 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 		_release.setVerified(verified);
 	}
 
+	/**
+	* Sets the version of this release.
+	*
+	* @param version the version of this release
+	*/
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Release> toCacheModel() {
+	public void setVersion(java.lang.String version) {
+		_release.setVersion(version);
+	}
+
+	@Override
+	public CacheModel<com.liferay.portal.model.Release> toCacheModel() {
 		return _release.toCacheModel();
 	}
 
