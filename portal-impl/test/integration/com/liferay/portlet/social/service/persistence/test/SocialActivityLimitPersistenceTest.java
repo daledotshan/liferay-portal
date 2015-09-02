@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.social.NoSuchActivityLimitException;
 import com.liferay.portlet.social.model.SocialActivityLimit;
@@ -158,57 +157,37 @@ public class SocialActivityLimitPersistenceTest {
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_U_C_C_A_A() {
-		try {
-			_persistence.countByG_U_C_C_A_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt(),
-				StringPool.BLANK);
+	public void testCountByG_U_C_C_A_A() throws Exception {
+		_persistence.countByG_U_C_C_A_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt(),
+			StringPool.BLANK);
 
-			_persistence.countByG_U_C_C_A_A(0L, 0L, 0L, 0L, 0, StringPool.NULL);
+		_persistence.countByG_U_C_C_A_A(0L, 0L, 0L, 0L, 0, StringPool.NULL);
 
-			_persistence.countByG_U_C_C_A_A(0L, 0L, 0L, 0L, 0, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U_C_C_A_A(0L, 0L, 0L, 0L, 0, (String)null);
 	}
 
 	@Test
@@ -220,29 +199,17 @@ public class SocialActivityLimitPersistenceTest {
 		Assert.assertEquals(existingSocialActivityLimit, newSocialActivityLimit);
 	}
 
-	@Test
+	@Test(expected = NoSuchActivityLimitException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchActivityLimitException");
-		}
-		catch (NoSuchActivityLimitException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<SocialActivityLimit> getOrderByComparator() {
@@ -450,30 +417,31 @@ public class SocialActivityLimitPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		SocialActivityLimit newSocialActivityLimit = addSocialActivityLimit();
 
 		_persistence.clearCache();
 
 		SocialActivityLimit existingSocialActivityLimit = _persistence.findByPrimaryKey(newSocialActivityLimit.getPrimaryKey());
 
-		Assert.assertEquals(existingSocialActivityLimit.getGroupId(),
-			ReflectionTestUtil.invoke(existingSocialActivityLimit,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityLimit.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityLimit,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityLimit.getUserId(),
-			ReflectionTestUtil.invoke(existingSocialActivityLimit,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityLimit.getUserId()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityLimit,
 				"getOriginalUserId", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityLimit.getClassNameId(),
-			ReflectionTestUtil.invoke(existingSocialActivityLimit,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityLimit.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityLimit,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityLimit.getClassPK(),
-			ReflectionTestUtil.invoke(existingSocialActivityLimit,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityLimit.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityLimit,
 				"getOriginalClassPK", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityLimit.getActivityType(),
-			ReflectionTestUtil.invoke(existingSocialActivityLimit,
+		Assert.assertEquals(Integer.valueOf(
+				existingSocialActivityLimit.getActivityType()),
+			ReflectionTestUtil.<Integer>invoke(existingSocialActivityLimit,
 				"getOriginalActivityType", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingSocialActivityLimit.getActivityCounterName(),
