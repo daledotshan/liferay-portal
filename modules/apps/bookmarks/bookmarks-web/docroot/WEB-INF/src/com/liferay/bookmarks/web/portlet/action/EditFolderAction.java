@@ -29,6 +29,7 @@ import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.WebKeys;
+import com.liferay.portlet.trash.service.TrashEntryServiceUtil;
 import com.liferay.portlet.trash.util.TrashUtil;
 
 import java.util.ArrayList;
@@ -67,6 +68,9 @@ public class EditFolderAction extends PortletAction {
 			}
 			else if (cmd.equals(Constants.MOVE_TO_TRASH)) {
 				deleteFolders(actionRequest, true);
+			}
+			else if (cmd.equals(Constants.RESTORE)) {
+				restoreTrashEntries(actionRequest);
 			}
 			else if (cmd.equals(Constants.SUBSCRIBE)) {
 				subscribeFolder(actionRequest);
@@ -159,6 +163,17 @@ public class EditFolderAction extends PortletAction {
 		}
 	}
 
+	protected void restoreTrashEntries(ActionRequest actionRequest)
+		throws Exception {
+
+		long[] restoreTrashEntryIds = StringUtil.split(
+			ParamUtil.getString(actionRequest, "restoreTrashEntryIds"), 0L);
+
+		for (long restoreTrashEntryId : restoreTrashEntryIds) {
+			TrashEntryServiceUtil.restoreEntry(restoreTrashEntryId);
+		}
+	}
+
 	protected void subscribeFolder(ActionRequest actionRequest)
 		throws Exception {
 
@@ -198,19 +213,15 @@ public class EditFolderAction extends PortletAction {
 			BookmarksFolder.class.getName(), actionRequest);
 
 		if (folderId <= 0) {
-
-			// Add folder
-
 			BookmarksFolderServiceUtil.addFolder(
 				parentFolderId, name, description, serviceContext);
 		}
+		else if (mergeWithParentFolder) {
+			BookmarksFolderServiceUtil.mergeFolders(folderId, parentFolderId);
+		}
 		else {
-
-			// Update folder
-
 			BookmarksFolderServiceUtil.updateFolder(
-				folderId, parentFolderId, name, description,
-				mergeWithParentFolder, serviceContext);
+				folderId, parentFolderId, name, description, serviceContext);
 		}
 	}
 

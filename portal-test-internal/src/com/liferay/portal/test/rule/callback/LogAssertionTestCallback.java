@@ -14,8 +14,11 @@
 
 package com.liferay.portal.test.rule.callback;
 
+import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.test.rule.callback.BaseTestCallback;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.ExpectedLog;
@@ -23,6 +26,9 @@ import com.liferay.portal.test.rule.ExpectedLogs;
 import com.liferay.portal.test.rule.ExpectedType;
 import com.liferay.portal.test.rule.LogAssertionAppender;
 import com.liferay.portal.test.rule.LogAssertionHandler;
+import com.liferay.portal.test.rule.LogAssertionUncaughtExceptionHandler;
+
+import java.lang.Thread.UncaughtExceptionHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,6 +60,72 @@ public class LogAssertionTestCallback
 		else {
 			throw error;
 		}
+	}
+
+	public static void endAssert(
+		ExpectedLogs expectedLogs, CaptureAppender captureAppender) {
+
+		if (expectedLogs != null) {
+			try {
+				for (LoggingEvent loggingEvent :
+						captureAppender.getLoggingEvents()) {
+
+					String renderedMessage = loggingEvent.getRenderedMessage();
+
+					if (!isExpected(expectedLogs, renderedMessage)) {
+						Assert.fail(renderedMessage);
+					}
+				}
+			}
+			finally {
+				captureAppender.close();
+			}
+		}
+
+		Thread.setDefaultUncaughtExceptionHandler(_uncaughtExceptionHandler);
+
+		_thread = null;
+
+		try {
+			for (Map.Entry<Thread, Error> entry :
+					_concurrentFailures.entrySet()) {
+
+				Thread thread = entry.getKey();
+				Error error = entry.getValue();
+
+				Assert.fail(
+					"Thread " + thread + " caught concurrent failure: " +
+						error);
+
+				throw error;
+			}
+		}
+		finally {
+			_concurrentFailures.clear();
+		}
+	}
+
+	public static CaptureAppender startAssert(ExpectedLogs expectedLogs) {
+		_thread = Thread.currentThread();
+		_uncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+
+		Thread.setDefaultUncaughtExceptionHandler(
+			new LogAssertionUncaughtExceptionHandler(
+				_uncaughtExceptionHandler));
+
+		CaptureAppender captureAppender = null;
+
+		if (expectedLogs != null) {
+			Class<?> clazz = expectedLogs.loggerClass();
+
+			captureAppender = Log4JLoggerTestUtil.configureLog4JLogger(
+				clazz.getName(), Level.toLevel(expectedLogs.level()));
+		}
+
+		installJdk14Handler();
+		installLog4jAppender();
+
+		return captureAppender;
 	}
 
 	@Override
@@ -89,47 +161,6 @@ public class LogAssertionTestCallback
 		return doBeforeClass(description);
 	}
 
-	protected static void endAssert(
-		ExpectedLogs expectedLogs, CaptureAppender captureAppender) {
-
-		if (expectedLogs != null) {
-			try {
-				for (LoggingEvent loggingEvent :
-						captureAppender.getLoggingEvents()) {
-
-					String renderedMessage = loggingEvent.getRenderedMessage();
-
-					if (!isExpected(expectedLogs, renderedMessage)) {
-						Assert.fail(renderedMessage);
-					}
-				}
-			}
-			finally {
-				captureAppender.close();
-			}
-		}
-
-		_thread = null;
-
-		try {
-			for (Map.Entry<Thread, Error> entry :
-					_concurrentFailures.entrySet()) {
-
-				Thread thread = entry.getKey();
-				Error error = entry.getValue();
-
-				Assert.fail(
-					"Thread " + thread + " caught concurrent failure: " +
-						error);
-
-				throw error;
-			}
-		}
-		finally {
-			_concurrentFailures.clear();
-		}
-	}
-
 	protected static void installJdk14Handler() {
 		Logger logger = Logger.getLogger(StringPool.BLANK);
 
@@ -151,6 +182,16 @@ public class LogAssertionTestCallback
 		ExpectedLogs expectedLogs, String renderedMessage) {
 
 		for (ExpectedLog expectedLog : expectedLogs.expectedLogs()) {
+			String dbType = expectedLog.dbType();
+
+			if (Validator.isNotNull(dbType)) {
+				DB db = DBFactoryUtil.getDB();
+
+				if (!Validator.equals(dbType, db.getType())) {
+					continue;
+				}
+			}
+
 			ExpectedType expectedType = expectedLog.expectedType();
 
 			if (expectedType == ExpectedType.EXACT) {
@@ -173,29 +214,12 @@ public class LogAssertionTestCallback
 		return false;
 	}
 
-	protected static CaptureAppender startAssert(ExpectedLogs expectedLogs) {
-		_thread = Thread.currentThread();
-
-		CaptureAppender captureAppender = null;
-
-		if (expectedLogs != null) {
-			Class<?> clazz = expectedLogs.loggerClass();
-
-			captureAppender = Log4JLoggerTestUtil.configureLog4JLogger(
-				clazz.getName(), Level.toLevel(expectedLogs.level()));
-		}
-
-		installJdk14Handler();
-		installLog4jAppender();
-
-		return captureAppender;
-	}
-
 	private LogAssertionTestCallback() {
 	}
 
 	private static final Map<Thread, Error> _concurrentFailures =
 		new ConcurrentHashMap<>();
 	private static volatile Thread _thread;
+	private static volatile UncaughtExceptionHandler _uncaughtExceptionHandler;
 
 }

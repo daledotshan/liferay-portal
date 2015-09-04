@@ -179,13 +179,15 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testContainsStringArray() throws Exception {
-		String[] array = {"a", "b"};
+		String[] array = {"a", "b", null};
 
 		Assert.assertFalse(ArrayUtil.contains(array, "c", true));
 		Assert.assertFalse(ArrayUtil.contains(array, "C", false));
 		Assert.assertTrue(ArrayUtil.contains(array, "a", true));
 		Assert.assertTrue(ArrayUtil.contains(array, "a", false));
 		Assert.assertTrue(ArrayUtil.contains(array, "A", true));
+		Assert.assertTrue(ArrayUtil.contains(array, null, true));
+		Assert.assertTrue(ArrayUtil.contains(array, null, false));
 	}
 
 	@Test
@@ -194,10 +196,11 @@ public class ArrayUtilTest {
 		User julio = new User("julio", 20);
 		User sergio = new User("sergio", 20);
 
-		User[] array = {julio, sergio};
+		User[] array = {julio, sergio, null};
 
 		Assert.assertFalse(ArrayUtil.contains(array, brian));
 		Assert.assertTrue(ArrayUtil.contains(array, julio));
+		Assert.assertTrue(ArrayUtil.contains(array, null));
 	}
 
 	@Test
@@ -503,7 +506,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, (byte)3);
 
-		Assert.assertArrayEquals(new byte[]{1, 2}, array);
+		Assert.assertArrayEquals(new byte[] {1, 2}, array);
 	}
 
 	@Test
@@ -530,7 +533,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, 'c');
 
-		Assert.assertArrayEquals(new char[]{'a', 'b'}, array);
+		Assert.assertArrayEquals(new char[] {'a', 'b'}, array);
 	}
 
 	@Test
@@ -557,7 +560,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, 3.0D);
 
-		Assert.assertArrayEquals(new double[]{1.0D, 2.0D}, array, 0);
+		Assert.assertArrayEquals(new double[] {1.0D, 2.0D}, array, 0);
 	}
 
 	@Test
@@ -584,7 +587,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, 3.5f);
 
-		Assert.assertArrayEquals(new float[]{1.5f, 2.5f}, array, 0);
+		Assert.assertArrayEquals(new float[] {1.5f, 2.5f}, array, 0);
 	}
 
 	@Test
@@ -611,7 +614,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, (byte)3);
 
-		Assert.assertArrayEquals(new int[]{1, 2}, array);
+		Assert.assertArrayEquals(new int[] {1, 2}, array);
 	}
 
 	@Test
@@ -638,7 +641,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, 3L);
 
-		Assert.assertArrayEquals(new long[]{1L, 2L}, array);
+		Assert.assertArrayEquals(new long[] {1L, 2L}, array);
 	}
 
 	@Test
@@ -665,7 +668,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, (short)3);
 
-		Assert.assertArrayEquals(new short[]{1, 2}, array);
+		Assert.assertArrayEquals(new short[] {1, 2}, array);
 	}
 
 	@Test
@@ -692,7 +695,7 @@ public class ArrayUtilTest {
 
 		array = ArrayUtil.remove(array, "c");
 
-		Assert.assertArrayEquals(new String[]{"a", "b"}, array);
+		Assert.assertArrayEquals(new String[] {"a", "b"}, array);
 	}
 
 	@Test

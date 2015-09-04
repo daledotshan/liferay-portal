@@ -14,12 +14,13 @@
 
 package com.liferay.sync.engine.documentlibrary.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.liferay.sync.engine.documentlibrary.event.DownloadFileEvent;
 import com.liferay.sync.engine.documentlibrary.event.DownloadFilesEvent;
 import com.liferay.sync.engine.documentlibrary.handler.DownloadFileHandler;
+import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
+import com.liferay.sync.engine.service.SyncAccountService;
+import com.liferay.sync.engine.util.JSONUtil;
 import com.liferay.sync.engine.util.PropsValues;
 
 import java.util.ArrayList;
@@ -40,7 +41,10 @@ public class BatchDownloadEvent {
 	}
 
 	public synchronized boolean addEvent(DownloadFileEvent downloadFileEvent) {
-		if (!PropsValues.SYNC_BATCH_EVENTS_ENABLED) {
+		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
+			_syncAccountId);
+
+		if (syncAccount.getBatchFileMaxSize() <= 0) {
 			return false;
 		}
 
@@ -59,7 +63,7 @@ public class BatchDownloadEvent {
 			size = syncFile.getSize();
 		}
 
-		if (size >= PropsValues.SYNC_BATCH_EVENTS_MAX_FILE_SIZE) {
+		if (size >= (syncAccount.getBatchFileMaxSize() / 10)) {
 			return false;
 		}
 
@@ -79,7 +83,7 @@ public class BatchDownloadEvent {
 
 		parameters.put("zipFileId", zipFileId);
 
-		parameters = new HashMap<String, Object>(parameters);
+		parameters = new HashMap<>(parameters);
 
 		parameters.remove("syncFile");
 
@@ -88,9 +92,8 @@ public class BatchDownloadEvent {
 		_handlers.put(
 			zipFileId, (DownloadFileHandler)downloadFileEvent.getHandler());
 
-		if ((_eventCount >= PropsValues.SYNC_BATCH_EVENTS_MAX_COUNT) ||
-			(_totalFileSize >=
-				PropsValues.SYNC_BATCH_EVENTS_MAX_TOTAL_FILE_SIZE)) {
+		if ((_eventCount >= 250) ||
+			(_totalFileSize >= syncAccount.getBatchFileMaxSize())) {
 
 			fireBatchEvent();
 		}
@@ -104,14 +107,11 @@ public class BatchDownloadEvent {
 				return;
 			}
 
-			ObjectMapper objectMapper = new ObjectMapper();
-
 			Map<String, Object> parameters = new HashMap<>();
 
 			parameters.put("handlers", _handlers);
 			parameters.put(
-				"zipFileIds",
-				objectMapper.writeValueAsString(_batchParameters));
+				"zipFileIds", JSONUtil.writeValueAsString(_batchParameters));
 
 			DownloadFilesEvent downloadFilesEvent = new DownloadFilesEvent(
 				_syncAccountId, parameters);
@@ -121,7 +121,9 @@ public class BatchDownloadEvent {
 			_closed = true;
 		}
 		catch (Exception e) {
-			_logger.debug(e.getMessage(), e);
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(e.getMessage(), e);
+			}
 		}
 	}
 
