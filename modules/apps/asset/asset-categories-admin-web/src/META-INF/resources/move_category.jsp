@@ -53,6 +53,7 @@ List<AssetVocabulary> vocabularies = AssetVocabularyServiceUtil.getGroupVocabula
 
 <portlet:actionURL name="moveCategory" var="moveCategoryURL">
 	<portlet:param name="redirect" value="<%= redirect %>" />
+	<portlet:param name="mvcPath" value="/move_category.jsp" />
 </portlet:actionURL>
 
 <aui:form action="<%= moveCategoryURL %>" name="fm" onSubmit="event.preventDefault();">
@@ -88,7 +89,7 @@ List<AssetVocabulary> vocabularies = AssetVocabularyServiceUtil.getGroupVocabula
 					{
 						contentBox: '#<portlet:namespace />assetCategoriesSelector<%= curVocabulary.getVocabularyId() %>',
 
-						<c:if test="<%= ((curVocabulary.getVocabularyId() == vocabularyId) && (parentCategory != null)) %>">
+						<c:if test="<%= (curVocabulary.getVocabularyId() == vocabularyId) && (parentCategory != null) %>">
 							curEntries: '<%= parentCategory.getTitle(locale) %>',
 							curEntryIds: '<%= parentCategory.getCategoryId() %>',
 						</c:if>

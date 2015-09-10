@@ -16,11 +16,13 @@ package com.liferay.taglib.ui;
 
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.util.IncludeTag;
 
 import java.util.Date;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -35,6 +37,12 @@ public class AppViewEntryTag extends IncludeTag {
 
 	public void setActionJsp(String actionJsp) {
 		_actionJsp = actionJsp;
+	}
+
+	public void setActionJspServletContext(
+		ServletContext actionJspServletContext) {
+
+		_actionJspServletContext = actionJspServletContext;
 	}
 
 	public void setAssetCategoryClassName(String assetCategoryClassName) {
@@ -171,9 +179,14 @@ public class AppViewEntryTag extends IncludeTag {
 		_version = version;
 	}
 
+	public void setView(String view) {
+		_view = view;
+	}
+
 	@Override
 	protected void cleanUp() {
 		_actionJsp = null;
+		_actionJspServletContext = null;
 		_assetCategoryClassName = null;
 		_assetCategoryClassPK = 0;
 		_assetTagClassName = null;
@@ -185,7 +198,7 @@ public class AppViewEntryTag extends IncludeTag {
 		_data = null;
 		_description = null;
 		_displayDate = null;
-		_displayStyle = null;
+		_displayStyle = "descriptive";
 		_expirationDate = null;
 		_folder = false;
 		_groupId = 0;
@@ -207,11 +220,25 @@ public class AppViewEntryTag extends IncludeTag {
 		_title = null;
 		_url = null;
 		_version = null;
+		_view = null;
+	}
+
+	protected ServletContext getActionJspServletContext() {
+		if (_actionJspServletContext != null) {
+			return _actionJspServletContext;
+		}
+
+		return servletContext;
 	}
 
 	@Override
 	protected String getPage() {
-		return _PAGE;
+		if (Validator.isNotNull(_view)) {
+			return "/html/taglib/ui/app_view_entry/" + _view + "/" +
+				_displayStyle + ".jsp";
+		}
+
+		return "/html/taglib/ui/app_view_entry/" + _displayStyle + ".jsp";
 	}
 
 	@Override
@@ -222,6 +249,9 @@ public class AppViewEntryTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute("liferay-ui:app-view-entry:actionJsp", _actionJsp);
+		request.setAttribute(
+			"liferay-ui:app-view-entry:actionJspServletContext",
+			getActionJspServletContext());
 		request.setAttribute(
 			"liferay-ui:app-view-entry:assetCategoryClassName",
 			_assetCategoryClassName);
@@ -285,10 +315,8 @@ public class AppViewEntryTag extends IncludeTag {
 
 	private static final boolean _CLEAN_UP_SET_ATTRIBUTES = true;
 
-	private static final String _PAGE =
-		"/html/taglib/ui/app_view_entry/page.jsp";
-
 	private String _actionJsp;
+	private ServletContext _actionJspServletContext;
 	private String _assetCategoryClassName;
 	private long _assetCategoryClassPK;
 	private String _assetTagClassName;
@@ -300,7 +328,7 @@ public class AppViewEntryTag extends IncludeTag {
 	private Map<String, Object> _data;
 	private String _description;
 	private Date _displayDate;
-	private String _displayStyle;
+	private String _displayStyle = "descriptive";
 	private Date _expirationDate;
 	private boolean _folder;
 	private long _groupId;
@@ -322,5 +350,6 @@ public class AppViewEntryTag extends IncludeTag {
 	private String _title;
 	private String _url;
 	private String _version;
+	private String _view;
 
 }

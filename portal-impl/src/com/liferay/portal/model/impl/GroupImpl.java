@@ -18,8 +18,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.staging.StagingConstants;
-import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -59,10 +57,14 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.service.permission.GroupPermissionUtil;
 import com.liferay.portal.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.exportimport.lar.PortletDataHandler;
+import com.liferay.portlet.exportimport.staging.StagingConstants;
+import com.liferay.portlet.exportimport.staging.StagingUtil;
 
 import java.io.IOException;
 
@@ -72,6 +74,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletURL;
 
 /**
  * Represents either a site or a generic resource container.
@@ -105,6 +110,20 @@ public class GroupImpl extends GroupBaseImpl {
 	@Override
 	public void clearStagingGroup() {
 		_stagingGroup = null;
+	}
+
+	@Override
+	public PortletURL getAdministrationURL(ThemeDisplay themeDisplay) {
+		Portlet portlet = PortalUtil.getFirstSiteAdministrationPortlet(
+			themeDisplay);
+
+		if (portlet == null) {
+			return null;
+		}
+
+		return PortalUtil.getControlPanelPortletURL(
+			themeDisplay.getRequest(), this, portlet.getPortletId(), 0,
+			PortletRequest.RENDER_PHASE);
 	}
 
 	@Override
@@ -277,27 +296,44 @@ public class GroupImpl extends GroupBaseImpl {
 	public String getDisplayURL(
 		ThemeDisplay themeDisplay, boolean privateLayout) {
 
-		String portalURL = themeDisplay.getPortalURL();
+		if (!privateLayout && (getPublicLayoutsPageCount() > 0)) {
+			try {
+				String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
+					getPublicLayoutSet(), themeDisplay);
 
-		if ((privateLayout && (getPrivateLayoutsPageCount() > 0)) ||
-			(!privateLayout && (getPublicLayoutsPageCount() > 0))) {
-
-			StringBundler sb = new StringBundler(5);
-
-			sb.append(portalURL);
-			sb.append(themeDisplay.getPathMain());
-			sb.append("/my_sites/view?groupId=");
-			sb.append(getGroupId());
-
-			if (privateLayout) {
-				sb.append("&privateLayout=1");
+				return PortalUtil.addPreservedParameters(
+					themeDisplay, groupFriendlyURL);
 			}
-			else {
-				sb.append("&privateLayout=0");
+			catch (PortalException pe) {
+				_log.error(pe, pe);
 			}
+		}
+		else if (privateLayout && (getPrivateLayoutsPageCount() > 0)) {
+			try {
+				String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
+					getPrivateLayoutSet(), themeDisplay);
 
-			return PortalUtil.addPreservedParameters(
-				themeDisplay, sb.toString());
+				return PortalUtil.addPreservedParameters(
+					themeDisplay, groupFriendlyURL);
+			}
+			catch (PortalException pe) {
+				_log.error(pe);
+			}
+		}
+		else {
+			try {
+				if (GroupPermissionUtil.contains(
+						themeDisplay.getPermissionChecker(), this,
+						ActionKeys.VIEW_SITE_ADMINISTRATION)) {
+
+					PortletURL portletURL = getAdministrationURL(themeDisplay);
+
+					return portletURL.toString();
+				}
+			}
+			catch (PortalException pe) {
+				_log.error(pe);
+			}
 		}
 
 		return StringPool.BLANK;
@@ -1001,8 +1037,12 @@ public class GroupImpl extends GroupBaseImpl {
 		try {
 			Portlet portlet = PortletLocalServiceUtil.getPortletById(portletId);
 
-			String portletDataHandlerClass =
-				portlet.getPortletDataHandlerClass();
+			PortletDataHandler portletDataHandler =
+				portlet.getPortletDataHandlerInstance();
+
+			if (portletDataHandler == null) {
+				return false;
+			}
 
 			for (Map.Entry<String, String> entry :
 					typeSettingsProperties.entrySet()) {
@@ -1019,8 +1059,8 @@ public class GroupImpl extends GroupBaseImpl {
 				Portlet stagedPortlet = PortletLocalServiceUtil.getPortletById(
 					stagedPortletId);
 
-				if (portletDataHandlerClass.equals(
-						stagedPortlet.getPortletDataHandlerClass())) {
+				if (portletDataHandler.equals(
+						stagedPortlet.getPortletDataHandlerInstance())) {
 
 					return GetterUtil.getBoolean(entry.getValue());
 				}
@@ -1056,18 +1096,6 @@ public class GroupImpl extends GroupBaseImpl {
 	@Override
 	public boolean isUserGroup() {
 		return hasClassName(UserGroup.class);
-	}
-
-	@Override
-	public boolean isUserPersonalPanel() {
-		String groupKey = getGroupKey();
-
-		if (groupKey.equals(GroupConstants.USER_PERSONAL_PANEL)) {
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	@Override
