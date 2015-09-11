@@ -1,0 +1,102 @@
+@import "bourbon";
+@import "mixins";
+
+.portlet-asset-tag-admin {
+	.merge-tags-container {
+		border: 1px solid transparent;
+		padding: 5px;
+	}
+
+	.merge-tags-label {
+		margin-bottom: 10px;
+	}
+
+	.merge-tags-label, .target-tag-label {
+		display: block;
+	}
+
+	.merge-tags-container {
+		margin-bottom: 50px;
+		overflow: hidden;
+
+		.merge-tag {
+			float: left;
+			margin-right: 10px;
+			padding: 5px;
+
+			.icon-remove-sign {
+				cursor: pointer;
+			}
+		}
+	}
+
+	.target-tag-container {
+		.target-tag {
+			border-width: 0;
+			padding: 5px;
+		}
+
+		.target-tag-msg {
+			display: block;
+			margin-bottom: 10px;
+		}
+	}
+
+	.management-bar-container {
+		overflow: hidden;
+		position: relative;
+
+		.management-bar {
+			&.management-bar-no-collapse {
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: -100%;
+				@include transition(all 300ms ease);
+
+				&.on {
+					top: 0;
+				}
+			}
+
+			.form-group {
+				margin-bottom: 0;
+			}
+
+			.input-select-wrapper {
+				margin-top: 10px;
+
+				select {
+					border-bottom: 0;
+				}
+			}
+		}
+	}
+}
+
+/* Skin */
+
+.portlet-asset-tag-admin {
+	.merge-tags-container {
+		border-color: #CCC;
+	}
+
+	.merge-tags-label, .control-label {
+		color: #8D8D8D;
+		font-weight: 800;
+	}
+
+	.merge-tags-container {
+		.merge-tag {
+			background-color: #009AE5;
+			color: #FFF;
+		}
+	}
+
+	.target-tag-container {
+		.target-tag {
+			background-color: #009AE5;
+			color: #FFF;
+		}
+	}
+}

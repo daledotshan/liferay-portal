@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
@@ -135,6 +134,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 	 * @return the permission checker bag for the guest user
 	 * @throws Exception if an exception occurred
 	 */
+	@Override
 	public PermissionCheckerBag getGuestUserBag() throws Exception {
 		Group guestGroup = GroupLocalServiceUtil.getGroup(
 			getCompanyId(), GroupConstants.GUEST);
@@ -159,7 +159,8 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 			// as this implies group membership which is incorrect in the case
 			// of unauthenticated users.
 
-			bag = new PermissionCheckerBagImpl(defaultUserId, roles);
+			bag = new PermissionCheckerBagImpl(
+				defaultUserId, SetUtil.fromList(roles));
 		}
 		finally {
 			if (bag == null) {
@@ -313,6 +314,60 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		}
 	}
 
+	public UserPermissionCheckerBag getUserBag() throws Exception {
+		UserPermissionCheckerBag userPermissionCheckerBag =
+			PermissionCacheUtil.getUserBag(user.getUserId());
+
+		if (userPermissionCheckerBag != null) {
+			return userPermissionCheckerBag;
+		}
+
+		try {
+			List<Group> userGroups = GroupLocalServiceUtil.getUserGroups(
+				user.getUserId(), true);
+
+			List<Organization> userOrgs = getUserOrgs(user.getUserId());
+
+			Set<Group> userOrgGroups = SetUtil.fromList(
+				GroupLocalServiceUtil.getOrganizationsGroups(userOrgs));
+
+			List<UserGroup> userUserGroups =
+				UserGroupLocalServiceUtil.getUserUserGroups(user.getUserId());
+
+			List<Group> userUserGroupGroups =
+				GroupLocalServiceUtil.getUserGroupsGroups(userUserGroups);
+
+			Set<Role> userRoles = new HashSet<>();
+
+			if (!userGroups.isEmpty()) {
+				List<Role> userRelatedRoles =
+					RoleLocalServiceUtil.getUserRelatedRoles(
+						user.getUserId(), userGroups);
+
+				userRoles.addAll(userRelatedRoles);
+			}
+			else {
+				userRoles.addAll(
+					RoleLocalServiceUtil.getUserRoles(user.getUserId()));
+			}
+
+			userPermissionCheckerBag = new UserPermissionCheckerBagImpl(
+				user.getUserId(), SetUtil.fromList(userGroups), userOrgs,
+				userOrgGroups, userUserGroupGroups, userRoles);
+
+			return userPermissionCheckerBag;
+		}
+		finally {
+			if (userPermissionCheckerBag == null) {
+				userPermissionCheckerBag = new UserPermissionCheckerBagImpl(
+					user.getUserId());
+			}
+
+			PermissionCacheUtil.putUserBag(
+				user.getUserId(), userPermissionCheckerBag);
+		}
+	}
+
 	/**
 	 * Returns the permission checker bag for the user and group. Users can have
 	 * different roles and permissions in different groups.
@@ -323,6 +378,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 	 * @throws Exception if a user or group with the primary key could not be
 	 *         found
 	 */
+	@Override
 	public PermissionCheckerBag getUserBag(long userId, long groupId)
 		throws Exception {
 
@@ -349,45 +405,11 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 				}
 			}
 
-			UserPermissionCheckerBag userPermissionCheckerBag =
-				PermissionCacheUtil.getUserBag(userId);
-
-			if (userPermissionCheckerBag == null) {
-				Set<Group> userGroups = SetUtil.fromList(
-					GroupLocalServiceUtil.getUserGroups(userId, true));
-
-				List<Organization> userOrgs = getUserOrgs(userId);
-
-				Set<Group> userOrgGroups = SetUtil.fromList(
-					GroupLocalServiceUtil.getOrganizationsGroups(userOrgs));
-
-				List<UserGroup> userUserGroups =
-					UserGroupLocalServiceUtil.getUserUserGroups(userId);
-
-				List<Group> userUserGroupGroups =
-					GroupLocalServiceUtil.getUserGroupsGroups(userUserGroups);
-
-				userPermissionCheckerBag = new UserPermissionCheckerBagImpl(
-					userId, userGroups, userOrgs, userOrgGroups,
-					userUserGroupGroups);
-
-				PermissionCacheUtil.putUserBag(
-					userId, userPermissionCheckerBag);
-			}
-
-			List<Group> groups = userPermissionCheckerBag.getGroups();
+			UserPermissionCheckerBag userPermissionCheckerBag = getUserBag();
 
 			Set<Role> roles = new HashSet<>();
 
-			if (!groups.isEmpty()) {
-				List<Role> userRelatedRoles =
-					RoleLocalServiceUtil.getUserRelatedRoles(userId, groups);
-
-				roles.addAll(userRelatedRoles);
-			}
-			else {
-				roles.addAll(RoleLocalServiceUtil.getUserRoles(userId));
-			}
+			roles.addAll(userPermissionCheckerBag.getRoles());
 
 			List<Role> userGroupRoles = RoleLocalServiceUtil.getUserGroupRoles(
 				userId, groupId);
@@ -439,16 +461,14 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 					roles.add(siteMemberRole);
 				}
 
-				if ((group.isOrganization() &&
-					 userOrgGroups.contains(group)) ||
+				if ((group.isOrganization() && userOrgGroups.contains(group)) ||
 					(group.isSite() && userGroups.contains(group))) {
 
 					addTeamRoles(userId, group, roles);
 				}
 			}
 
-			bag = new PermissionCheckerBagImpl(
-				userPermissionCheckerBag, ListUtil.fromCollection(roles));
+			bag = new PermissionCheckerBagImpl(userPermissionCheckerBag, roles);
 
 			return bag;
 		}
