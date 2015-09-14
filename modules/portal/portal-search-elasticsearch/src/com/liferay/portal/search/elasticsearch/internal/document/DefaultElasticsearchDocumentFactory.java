@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.geolocation.GeoLocationPoint;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.elasticsearch.document.ElasticsearchDocumentFactory;
 
@@ -81,7 +82,7 @@ public class DefaultElasticsearchDocumentFactory
 					continue;
 				}
 
-				valuesList.add(value.trim());
+				valuesList.add(StringUtil.trim(value));
 			}
 
 			if (valuesList.isEmpty()) {
@@ -115,7 +116,7 @@ public class DefaultElasticsearchDocumentFactory
 				String defaultLanguageId = LocaleUtil.toLanguageId(
 					LocaleUtil.getDefault());
 
-				value = value.trim();
+				value = StringUtil.trim(value);
 
 				if (languageId.equals(defaultLanguageId)) {
 					addField(xContentBuilder, field, name, value);

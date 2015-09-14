@@ -773,7 +773,7 @@ public class WebDriverToSeleniumBridge
 
 		String text = webElement.getText();
 
-		text = text.trim();
+		text = StringUtil.trim(text);
 
 		return text.replace("\n", " ");
 	}

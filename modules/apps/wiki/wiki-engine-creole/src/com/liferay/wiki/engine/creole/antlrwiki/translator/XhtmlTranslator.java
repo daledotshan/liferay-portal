@@ -264,7 +264,7 @@ public class XhtmlTranslator extends XhtmlTranslationVisitor {
 		sb.append(_HEADING_ANCHOR_PREFIX);
 		sb.append(prefix);
 		sb.append(StringPool.DASH);
-		sb.append(text.trim());
+		sb.append(StringUtil.trim(text));
 
 		return StringUtil.replace(
 			sb.toString(), StringPool.SPACE, StringPool.PLUS);

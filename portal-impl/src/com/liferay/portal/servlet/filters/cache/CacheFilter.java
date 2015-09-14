@@ -149,7 +149,7 @@ public class CacheFilter extends BasePortalFilter {
 		sb.append(StringPool.POUND);
 		sb.append(BrowserSnifferUtil.acceptsGzip(request));
 
-		return StringUtil.toUpperCase(sb.toString().trim());
+		return StringUtil.toUpperCase(StringUtil.trim(sb.toString()));
 	}
 
 	protected long getPlid(

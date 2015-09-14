@@ -18,6 +18,7 @@ import com.liferay.currency.converter.web.model.CurrencyConverter;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.webcache.WebCacheException;
 import com.liferay.portal.kernel.webcache.WebCacheItem;
@@ -69,7 +70,7 @@ public class CurrencyConverterWebCacheItem implements WebCacheItem {
 			st.nextToken();
 
 			rate = GetterUtil.getDouble(
-				st.nextToken().replace('"', ' ').trim());
+				StringUtil.trim(st.nextToken().replace('"', ' ')));
 		}
 		catch (Exception e) {
 			throw new WebCacheException(e);

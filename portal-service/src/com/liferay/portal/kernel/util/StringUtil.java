@@ -1878,7 +1878,7 @@ public class StringUtil {
 				sb.append(delimiter);
 			}
 
-			sb.append(String.valueOf(array[i]).trim());
+			sb.append(trim(String.valueOf(array[i])));
 		}
 
 		return sb.toString();
@@ -2109,7 +2109,7 @@ public class StringUtil {
 				}
 			}
 
-			return sb.toString().trim();
+			return trim(sb.toString());
 		}
 
 		InputStream is = classLoader.getResourceAsStream(name);
@@ -2143,7 +2143,7 @@ public class StringUtil {
 			}
 		}
 
-		return sb.toString().trim();
+		return trim(sb.toString());
 	}
 
 	public static void readLines(InputStream is, Collection<String> lines)
@@ -3216,7 +3216,7 @@ public class StringUtil {
 			return _emptyStringArray;
 		}
 
-		s = s.trim();
+		s = trim(s);
 
 		if (s.length() == 0) {
 			return _emptyStringArray;
@@ -3352,7 +3352,7 @@ public class StringUtil {
 			return _emptyStringArray;
 		}
 
-		s = s.trim();
+		s = trim(s);
 
 		if (s.equals(delimiter)) {
 			return _emptyStringArray;
@@ -3593,7 +3593,7 @@ public class StringUtil {
 			return _emptyStringArray;
 		}
 
-		s = s.trim();
+		s = trim(s);
 
 		List<String> lines = new ArrayList<>();
 

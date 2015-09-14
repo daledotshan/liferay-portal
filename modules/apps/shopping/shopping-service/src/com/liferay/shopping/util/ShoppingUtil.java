@@ -814,7 +814,7 @@ public class ShoppingUtil {
 
 			String fieldValue = fields.substring(pos + 1, fields.length());
 
-			fieldsValues.add(fieldValue.trim());
+			fieldsValues.add(StringUtil.trim(fieldValue));
 		}
 
 		List<String> names = new ArrayList<>();
@@ -853,7 +853,9 @@ public class ShoppingUtil {
 					 arrayPos = arrayPos - vArray.length) {
 				}
 
-				if (!fieldsValues.contains(vArray[arrayPos].trim())) {
+				if (!fieldsValues.contains(
+						StringUtil.trim(vArray[arrayPos]))) {
+
 					match = false;
 
 					break;

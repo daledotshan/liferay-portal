@@ -17,6 +17,7 @@ package com.liferay.taglib.aui;
 import com.liferay.portal.kernel.servlet.taglib.aui.ValidatorTag;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelHintsUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -107,7 +108,7 @@ public class ValidatorTagImpl
 			return StringPool.DOUBLE_APOSTROPHE;
 		}
 
-		return _body.trim();
+		return StringUtil.trim(_body);
 	}
 
 	@Override

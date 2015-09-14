@@ -687,7 +687,7 @@ public class JournalConverterImpl implements JournalConverter {
 
 				updateDynamicContentValue(
 					dynamicContentElement, fieldType, multiple,
-					valueString.trim());
+					StringUtil.trim(valueString));
 			}
 		}
 

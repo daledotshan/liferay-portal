@@ -540,7 +540,7 @@ public class WabProcessor {
 				value = value.substring(0, index);
 			}
 
-			_importPackageNames.add(value.trim());
+			_importPackageNames.add(StringUtil.trim(value));
 		}
 	}
 
@@ -924,7 +924,7 @@ public class WabProcessor {
 			while (matcher.find()) {
 				String value = matcher.group(1);
 
-				value = value.trim();
+				value = StringUtil.trim(value);
 
 				processClass(
 					new ClassLoaderSource(_classLoader), dependencyVisitor,
@@ -1030,7 +1030,7 @@ public class WabProcessor {
 			for (Node node : nodes) {
 				String text = node.getText();
 
-				text = text.trim();
+				text = StringUtil.trim(text);
 
 				processClass(
 					new ClassLoaderSource(_classLoader), dependencyVisitor,

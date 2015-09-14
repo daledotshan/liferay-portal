@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.geolocation.GeoLocationPoint;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.solr.document.SolrDocumentFactory;
 
@@ -51,7 +52,7 @@ public class DefaultSolrDocumentFactory implements SolrDocumentFactory {
 						continue;
 					}
 
-					value = value.trim();
+					value = StringUtil.trim(value);
 
 					addField(solrInputDocument, field, value, name);
 				}
@@ -69,7 +70,7 @@ public class DefaultSolrDocumentFactory implements SolrDocumentFactory {
 						continue;
 					}
 
-					value = value.trim();
+					value = StringUtil.trim(value);
 
 					Locale locale = entry.getKey();
 

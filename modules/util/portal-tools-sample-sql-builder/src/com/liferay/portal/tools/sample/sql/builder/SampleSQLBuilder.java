@@ -223,7 +223,7 @@ public class SampleSQLBuilder {
 			while ((_freeMarkerThrowable == null) &&
 				   ((s = unsyncBufferedReader.readLine()) != null)) {
 
-				s = s.trim();
+				s = StringUtil.trim(s);
 
 				if (s.length() > 0) {
 					if (s.startsWith("insert into ")) {

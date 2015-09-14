@@ -252,7 +252,7 @@ public abstract class BaseDB implements DB {
 			for (int i = 0; i < sqls.length; i++) {
 				String sql = buildSQL(sqls[i]);
 
-				sql = SQLTransformer.transform(sql.trim());
+				sql = SQLTransformer.transform(StringUtil.trim(sql));
 
 				if (sql.endsWith(";")) {
 					sql = sql.substring(0, sql.length() - 1);
@@ -803,7 +803,7 @@ public abstract class BaseDB implements DB {
 			String line = null;
 
 			while ((line = unsyncBufferedReader.readLine()) != null) {
-				line = line.trim();
+				line = StringUtil.trim(line);
 
 				sb.append(line);
 				sb.append("\n");
@@ -958,7 +958,7 @@ public abstract class BaseDB implements DB {
 
 					for (int i = 0; i < columns.length; i++) {
 						if (portalTableData.contains(
-								columns[i].trim() + " BOOLEAN")) {
+								StringUtil.trim(columns[i]) + " BOOLEAN")) {
 
 							append = false;
 

@@ -246,7 +246,7 @@ public class LangBuilder {
 			String line = null;
 
 			while ((line = unsyncBufferedReader.readLine()) != null) {
-				line = line.trim();
+				line = StringUtil.trim(line);
 
 				int pos = line.indexOf("=");
 
@@ -511,7 +511,7 @@ public class LangBuilder {
 
 	private String _fixTranslation(String value) {
 		value = StringUtil.replace(
-			value.trim(),
+			StringUtil.trim(value),
 			new String[] {
 				"  ", "<b>", "</b>", "<i>", "</i>", " url ", "&#39;", "&#39 ;",
 				"&quot;", "&quot ;", "ReCaptcha", "Captcha"

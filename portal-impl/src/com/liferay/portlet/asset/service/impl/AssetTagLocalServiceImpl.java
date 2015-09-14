@@ -84,7 +84,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		tag.setUserId(user.getUserId());
 		tag.setUserName(user.getFullName());
 
-		name = name.trim();
+		name = StringUtil.trim(name);
 		name = StringUtil.toLowerCase(name);
 
 		if (hasTag(groupId, name)) {
@@ -709,7 +709,7 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 
 		String oldName = tag.getName();
 
-		name = name.trim();
+		name = StringUtil.trim(name);
 		name = StringUtil.toLowerCase(name);
 
 		if (!name.equals(tag.getName()) && hasTag(tag.getGroupId(), name)) {

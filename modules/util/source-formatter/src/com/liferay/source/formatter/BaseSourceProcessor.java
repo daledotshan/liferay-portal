@@ -683,7 +683,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			x = x + s.length();
 
-			String substring = match.substring(x).trim();
+			String substring = StringUtil.trim(match.substring(x));
 
 			String quote = StringPool.BLANK;
 
@@ -1717,7 +1717,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected String trimLine(String line, boolean allowLeadingSpaces) {
-		if (line.trim().length() == 0) {
+		if (StringUtil.trim(line).length() == 0) {
 			return StringPool.BLANK;
 		}
 

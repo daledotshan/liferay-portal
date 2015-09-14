@@ -392,7 +392,7 @@ public class EhcacheConfigurationHelperUtil {
 			propertySeparator = StringPool.COMMA;
 		}
 
-		String propertyLines = propertiesString.trim();
+		String propertyLines = StringUtil.trim(propertiesString);
 
 		propertyLines = StringUtil.replace(
 			propertyLines, propertySeparator, StringPool.NEW_LINE);

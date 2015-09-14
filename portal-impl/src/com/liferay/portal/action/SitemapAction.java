@@ -79,7 +79,7 @@ public class SitemapAction extends Action {
 				String host = PortalUtil.getHost(request);
 
 				host = StringUtil.toLowerCase(host);
-				host = host.trim();
+				host = StringUtil.trim(host);
 
 				VirtualHost virtualHost =
 					VirtualHostLocalServiceUtil.getVirtualHost(host);

@@ -904,7 +904,7 @@ public class JavadocFormatter {
 
 		cdata = sb.toString();
 
-		return cdata.trim();
+		return StringUtil.trim(cdata);
 	}
 
 	private String _formatInlines(String text) {
@@ -1014,7 +1014,7 @@ public class JavadocFormatter {
 
 		cdata = sb.toString();
 
-		return cdata.trim();
+		return StringUtil.trim(cdata);
 	}
 
 	private String _getClassName(String fileName) {
@@ -1617,7 +1617,7 @@ public class JavadocFormatter {
 
 		String formattedContent = sb.toString();
 
-		return formattedContent.trim();
+		return StringUtil.trim(formattedContent);
 	}
 
 	private boolean _hasAnnotation(
@@ -1858,7 +1858,7 @@ public class JavadocFormatter {
 				blankLines++;
 			}
 
-			line = line.trim();
+			line = StringUtil.trim(line);
 
 			if (line.endsWith("*/")) {
 				while (true) {
@@ -1868,7 +1868,7 @@ public class JavadocFormatter {
 						break;
 					}
 
-					line = lines[--pos].trim();
+					line = StringUtil.trim(lines[--pos]);
 				}
 
 				for (int i = 0; i < blankLines; i++) {
@@ -1888,7 +1888,7 @@ public class JavadocFormatter {
 
 		content = sb.toString();
 
-		return content.trim();
+		return StringUtil.trim(content);
 	}
 
 	private void _sortElementsByChildElement(
@@ -1951,7 +1951,7 @@ public class JavadocFormatter {
 		StringBundler sb = new StringBundler();
 
 		for (int i = 0; i < lines.length; i++) {
-			String line = lines[i].trim();
+			String line = StringUtil.trim(lines[i]);
 
 			sb.append(line);
 

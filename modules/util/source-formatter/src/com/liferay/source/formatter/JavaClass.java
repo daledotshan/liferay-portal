@@ -865,7 +865,7 @@ public class JavaClass {
 			line = line.substring(0, pos);
 		}
 
-		line = line.trim();
+		line = StringUtil.trim(line);
 
 		pos = line.lastIndexOf(CharPool.SPACE);
 

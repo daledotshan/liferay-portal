@@ -196,7 +196,7 @@ public class LuceneRepositorySearchQueryTermBuilder
 			}
 
 			TermQuery termQuery = new TermQueryImpl(
-				terms[0].field(), sb.toString().trim());
+				terms[0].field(), StringUtil.trim(sb.toString()));
 
 			booleanQuery.add(termQuery, booleanClauseOccur);
 		}

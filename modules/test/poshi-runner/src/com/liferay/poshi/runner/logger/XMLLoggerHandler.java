@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner.logger;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.poshi.runner.PoshiRunnerContext;
 import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
 import com.liferay.poshi.runner.PoshiRunnerStackTraceUtil;
@@ -468,7 +469,7 @@ public final class XMLLoggerHandler {
 
 		String innerText = element.getText();
 
-		innerText = innerText.trim();
+		innerText = StringUtil.trim(innerText)
 
 		if (elements.isEmpty() && Validator.isNull(innerText)) {
 			sb.append(_getLineItemText("misc", "/&gt;"));

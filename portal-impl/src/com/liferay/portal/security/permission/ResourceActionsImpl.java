@@ -649,7 +649,8 @@ public class ResourceActionsImpl implements ResourceActions {
 		Element rootElement = document.getRootElement();
 
 		for (Element resourceElement : rootElement.elements("resource")) {
-			String file = resourceElement.attributeValue("file").trim();
+			String file = StringUtil.trim(
+				resourceElement.attributeValue("file"));
 
 			read(servletContextName, classLoader, file);
 

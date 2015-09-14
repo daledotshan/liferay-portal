@@ -1558,7 +1558,7 @@ public class LiferaySeleniumHelper {
 
 			String line = value.substring(x, y);
 
-			keyboard.type(line.trim());
+			keyboard.type(StringUtil.trim(line));
 
 			String specialCharacter = matcher.group();
 
@@ -1575,7 +1575,7 @@ public class LiferaySeleniumHelper {
 
 		String line = value.substring(x);
 
-		keyboard.type(line.trim());
+		keyboard.type(StringUtil.trim(line));
 	}
 
 	public static void typeCKEditor(

@@ -107,7 +107,7 @@ public class ServiceLoader {
 					line = line.substring(0, comment);
 				}
 
-				String name = line.trim();
+				String name = StringUtil.trim(line);
 
 				if (name.length() == 0) {
 					continue;

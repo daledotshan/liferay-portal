@@ -79,7 +79,7 @@ public class HighlightUtil {
 		StringBundler sb = new StringBundler(2 * queryTerms.length - 1);
 
 		for (int i = 0; i < queryTerms.length; i++) {
-			sb.append(Pattern.quote(queryTerms[i].trim()));
+			sb.append(Pattern.quote(StringUtil.trim(queryTerms[i])));
 
 			if ((i + 1) < queryTerms.length) {
 				sb.append(StringPool.PIPE);

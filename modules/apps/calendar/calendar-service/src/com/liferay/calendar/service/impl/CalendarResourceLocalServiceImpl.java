@@ -79,7 +79,7 @@ public class CalendarResourceLocalServiceImpl
 			code = String.valueOf(calendarResourceId);
 		}
 		else {
-			code = code.trim();
+			code = StringUtil.trim(code);
 			code = StringUtil.toUpperCase(code);
 		}
 

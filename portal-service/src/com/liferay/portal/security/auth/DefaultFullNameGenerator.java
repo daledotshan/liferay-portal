@@ -96,7 +96,7 @@ public class DefaultFullNameGenerator implements FullNameGenerator {
 
 		if (name.length > 2) {
 			for (int i = 1; i < name.length - 1; i++) {
-				if (Validator.isNull(name[i].trim())) {
+				if (Validator.isNull(StringUtil.trim(name[i]))) {
 					continue;
 				}
 
@@ -104,7 +104,7 @@ public class DefaultFullNameGenerator implements FullNameGenerator {
 					middleName += StringPool.SPACE;
 				}
 
-				middleName += name[i].trim();
+				middleName += StringUtil.trim(name[i]);
 			}
 		}
 

@@ -60,7 +60,7 @@ public class DefaultCollatorImpl implements Collator {
 
 		String collatedValue = sb.toString();
 
-		return collatedValue.trim();
+		return StringUtil.trim(collatedValue);
 	}
 
 }

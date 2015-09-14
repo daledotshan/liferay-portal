@@ -103,7 +103,7 @@ public class SQLServerLimitStringUtil {
 		String[] orderByColumns = StringUtil.split(orderBy, CharPool.COMMA);
 
 		for (String orderByColumn : orderByColumns) {
-			orderByColumn = orderByColumn.trim();
+			orderByColumn = StringUtil.trim(orderByColumn);
 
 			String orderByColumnName = orderByColumn;
 			String orderByType = "ASC";

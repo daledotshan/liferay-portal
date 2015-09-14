@@ -440,7 +440,7 @@ public class SCProductEntryLocalServiceImpl
 	}
 
 	protected String getTags(String tags) {
-		tags = StringUtil.toLowerCase(tags.trim());
+		tags = StringUtil.toLowerCase(StringUtil.trim(tags));
 
 		return StringUtil.merge(StringUtil.split(tags), ", ");
 	}

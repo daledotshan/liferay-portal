@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.poshi.runner.selenium.LiferaySelenium;
 import com.liferay.poshi.runner.selenium.SeleniumUtil;
 import com.liferay.poshi.runner.util.FileUtil;
@@ -305,7 +306,7 @@ public class PoshiRunnerGetterUtil {
 			Integer[] integers = new Integer[parameters.length];
 
 			for (int i = 0; i < parameters.length; i++) {
-				integers[i] = Integer.parseInt(parameters[i].trim());
+				integers[i] = Integer.parseInt(StringUtil.trim(parameters[i]));
 			}
 
 			Method[] methods = MathUtil.class.getDeclaredMethods();

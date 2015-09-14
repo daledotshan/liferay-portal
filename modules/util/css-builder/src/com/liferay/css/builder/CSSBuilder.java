@@ -144,7 +144,7 @@ public class CSSBuilder {
 			SassFile sassFile, String fileName, String sassContent)
 		throws Exception {
 
-		sassContent = sassContent.trim();
+		sassContent = StringUtil.trim(sassContent);
 
 		if (sassContent.isEmpty()) {
 			return;

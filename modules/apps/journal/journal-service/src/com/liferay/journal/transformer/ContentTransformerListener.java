@@ -149,7 +149,7 @@ public class ContentTransformerListener extends BaseTransformerListener {
 
 				text = HtmlUtil.stripComments(text);
 				text = HtmlUtil.stripHtml(text);
-				text = text.trim();
+				text = StringUtil.trim(text);
 
 				// [@articleId;elementName@]
 

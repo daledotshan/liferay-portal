@@ -481,10 +481,10 @@ public class JSONWebServiceInvokerAction implements JSONWebServiceAction {
 		int x = assignment.indexOf(StringPool.EQUAL);
 
 		if (x == -1) {
-			statement.setMethod(assignment.trim());
+			statement.setMethod(StringUtil.trim(assignment));
 		}
 		else {
-			String name = assignment.substring(0, x).trim();
+			String name = StringUtil.trim(assignment.substring(0, x));
 
 			int y = name.indexOf(StringPool.OPEN_BRACKET);
 
@@ -495,7 +495,7 @@ public class JSONWebServiceInvokerAction implements JSONWebServiceAction {
 				String[] whiteList = StringUtil.split(whitelistString);
 
 				for (int i = 0; i < whiteList.length; i++) {
-					whiteList[i] = whiteList[i].trim();
+					whiteList[i] = StringUtil.trim(whiteList[i]);
 				}
 
 				statement.setWhitelist(whiteList);
@@ -505,7 +505,7 @@ public class JSONWebServiceInvokerAction implements JSONWebServiceAction {
 
 			statement.setName(name);
 
-			statement.setMethod(assignment.substring(x + 1).trim());
+			statement.setMethod(StringUtil.trim(assignment.substring(x + 1)));
 		}
 
 		HashMap<String, Object> parameterMap = new HashMap<>(

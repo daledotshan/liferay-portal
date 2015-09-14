@@ -3432,7 +3432,7 @@ public class PortletImpl extends PortletBaseImpl {
 			// Trim this because XDoclet generates preferences validators with
 			// extra white spaces
 
-			_preferencesValidator = preferencesValidator.trim();
+			_preferencesValidator = StringUtil.trim(preferencesValidator);
 		}
 		else {
 			_preferencesValidator = null;

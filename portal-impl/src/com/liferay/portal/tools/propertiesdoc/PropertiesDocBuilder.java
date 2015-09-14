@@ -137,12 +137,12 @@ public class PropertiesDocBuilder {
 		StringBundler sb = new StringBundler();
 
 		for (String line : lines) {
-			String trimmedLine = line.trim();
+			String trimmedLine = StringUtil.trim(line);
 
 			if (trimmedLine.startsWith("## ")) {
 				trimmedLine = trimmedLine.substring(2);
 
-				sb.append(trimmedLine.trim());
+				sb.append(StringUtil.trim(trimmedLine));
 			}
 
 			if (trimmedLine.length() < 3) {
@@ -194,7 +194,7 @@ public class PropertiesDocBuilder {
 		boolean previousLineIsExample = false;
 
 		for (String line : lines) {
-			String trimmedLine = line.trim();
+			String trimmedLine = StringUtil.trim(line);
 
 			if (!previousLineIsExample) {
 				if (line.startsWith(INDENT + "# ") || trimmedLine.equals("#")) {
@@ -243,7 +243,7 @@ public class PropertiesDocBuilder {
 				break;
 			}
 
-			String trimmedLine = line.trim();
+			String trimmedLine = StringUtil.trim(line);
 
 			if (trimmedLine.startsWith("# " + INDENT)) {
 				if (previousLineIsPreformatted) {
@@ -274,7 +274,7 @@ public class PropertiesDocBuilder {
 					trimmedLine = StringUtil.replaceFirst(
 						trimmedLine, "#", StringPool.BLANK);
 
-					sb.append(trimmedLine.trim());
+					sb.append(StringUtil.trim(trimmedLine));
 				}
 				else {
 					if (sb.length() > 0) {
@@ -283,7 +283,7 @@ public class PropertiesDocBuilder {
 
 					line = StringUtil.replaceFirst(line, "#", StringPool.BLANK);
 
-					sb.append(line.trim());
+					sb.append(StringUtil.trim(line));
 				}
 
 				sb.append(StringPool.NEW_LINE);
@@ -316,7 +316,7 @@ public class PropertiesDocBuilder {
 
 		title = StringUtil.replaceFirst(title, "##", StringPool.BLANK);
 
-		return title.trim();
+		return StringUtil.trim(title);
 	}
 
 	protected int getLineCount(String sectionString) {

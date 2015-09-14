@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner.selenium;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
@@ -717,7 +718,7 @@ public class WebDriverToSeleniumBridge
 
 		String text = webElement.getText();
 
-		text = text.trim();
+		text = StringUtil.trim(text);
 
 		return text.replace("\n", " ");
 	}

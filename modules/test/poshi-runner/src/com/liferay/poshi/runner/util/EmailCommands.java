@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner.util;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import com.sun.mail.imap.IMAPFolder;
 
 import java.util.Properties;
@@ -83,7 +84,7 @@ public class EmailCommands {
 
 		String body = (String)message.getContent();
 
-		return body.trim();
+		return StringUtil.trim(body);
 	}
 
 	public static String getEmailSubject(int index) throws Exception {

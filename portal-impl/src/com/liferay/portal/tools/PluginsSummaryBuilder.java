@@ -491,7 +491,7 @@ public class PluginsSummaryBuilder {
 				relengProperties.getProperty("dependent-apps"));
 
 			for (String dependentApp : dependentApps) {
-				dependentApp = dependentApp.trim();
+				dependentApp = StringUtil.trim(dependentApp);
 
 				if (dependentApp.equals("resources-impoter-web")) {
 					continue;

@@ -58,7 +58,8 @@ public class SCProductVersionLocalServiceImpl
 		User user = userPersistence.findByPrimaryKey(userId);
 		SCProductEntry productEntry =
 			scProductEntryPersistence.findByPrimaryKey(productEntryId);
-		directDownloadURL = StringUtil.toLowerCase(directDownloadURL.trim());
+		directDownloadURL = StringUtil.toLowerCase(
+			StringUtil.trim(directDownloadURL));
 
 		validate(
 			0, version, changeLog, downloadPageURL, directDownloadURL,
@@ -167,7 +168,8 @@ public class SCProductVersionLocalServiceImpl
 
 		// Product version
 
-		directDownloadURL = StringUtil.toLowerCase(directDownloadURL.trim());
+		directDownloadURL = StringUtil.toLowerCase(
+			StringUtil.trim(directDownloadURL));
 
 		validate(
 			productVersionId, version, changeLog, downloadPageURL,

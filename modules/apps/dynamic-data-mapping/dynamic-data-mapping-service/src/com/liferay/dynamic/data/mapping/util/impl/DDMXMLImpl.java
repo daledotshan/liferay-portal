@@ -355,7 +355,7 @@ public class DDMXMLImpl implements DDMXML {
 
 		String valueString = String.valueOf(fieldValue);
 
-		dynamicContentElement.addCDATA(valueString.trim());
+		dynamicContentElement.addCDATA(StringUtil.trim(valueString));
 	}
 
 	protected void validate(Document document) throws Exception {

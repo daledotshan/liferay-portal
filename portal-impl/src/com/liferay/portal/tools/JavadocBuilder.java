@@ -103,7 +103,7 @@ public class JavadocBuilder {
 
 			int pos = comment.indexOf("</a>");
 
-			comment = comment.substring(pos + 4).trim();
+			comment = StringUtil.trim(comment.substring(pos + 4));
 		}
 
 		commentElement.addCDATA(comment);
@@ -315,7 +315,7 @@ public class JavadocBuilder {
 			cdata = StringUtil.replace(cdata, "  ", " ");
 		}
 
-		return cdata.trim();
+		return StringUtil.trim(cdata);
 	}
 
 	private String _getFieldKey(Element fieldElement) {
@@ -695,7 +695,7 @@ public class JavadocBuilder {
 		for (int lineNumber : lineNumbers) {
 			int pos = lineNumber - 2;
 
-			String line = lines[pos].trim();
+			String line = StringUtil.trim(lines[pos]);
 
 			if (line.endsWith("*/")) {
 				while (true) {
@@ -705,7 +705,7 @@ public class JavadocBuilder {
 						break;
 					}
 
-					line = lines[--pos].trim();
+					line = StringUtil.trim(lines[--pos]);
 				}
 			}
 		}
@@ -719,7 +719,7 @@ public class JavadocBuilder {
 			}
 		}
 
-		String newContent = sb.toString().trim();
+		String newContent = StringUtil.trim(sb.toString());
 
 		if ((oldContent == null) || !oldContent.equals(newContent)) {
 			_fileUtil.write(file, newContent);
@@ -844,7 +844,7 @@ public class JavadocBuilder {
 			sb.append("\n");
 		}
 
-		String newContent = sb.toString().trim();
+		String newContent = StringUtil.trim(sb.toString());
 
 		if ((oldContent == null) || !oldContent.equals(newContent)) {
 			_fileUtil.write(file, newContent);

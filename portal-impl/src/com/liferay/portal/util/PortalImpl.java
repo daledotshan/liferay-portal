@@ -2634,7 +2634,7 @@ public class PortalImpl implements Portal {
 		String host = request.getHeader("Host");
 
 		if (host != null) {
-			host = StringUtil.toLowerCase(host.trim());
+			host = StringUtil.toLowerCase(StringUtil.trim(host));
 
 			int pos = host.indexOf(':');
 
@@ -6595,7 +6595,7 @@ public class PortalImpl implements Portal {
 			return false;
 		}
 
-		groupName = groupName.trim();
+		groupName = StringUtil.trim(groupName);
 
 		int pos = Arrays.binarySearch(
 			_sortedSystemGroups, groupName, new StringComparator());
@@ -6614,7 +6614,7 @@ public class PortalImpl implements Portal {
 			return false;
 		}
 
-		roleName = roleName.trim();
+		roleName = StringUtil.trim(roleName);
 
 		int pos = Arrays.binarySearch(
 			_sortedSystemRoles, roleName, new StringComparator());
@@ -8350,7 +8350,8 @@ public class PortalImpl implements Portal {
 
 	protected boolean isValidVirtualHostname(String virtualHostname) {
 		try {
-			virtualHostname = StringUtil.toLowerCase(virtualHostname.trim());
+			virtualHostname = StringUtil.toLowerCase(
+				StringUtil.trim(virtualHostname));
 
 			VirtualHost virtualHost =
 				VirtualHostLocalServiceUtil.fetchVirtualHost(virtualHostname);

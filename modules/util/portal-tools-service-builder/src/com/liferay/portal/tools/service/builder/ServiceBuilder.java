@@ -595,7 +595,7 @@ public class ServiceBuilder {
 				_portletShortName = namespaceElement.getText();
 			}
 
-			_portletShortName = _portletShortName.trim();
+			_portletShortName = StringUtil.trim(_portletShortName);
 
 			for (char c : _portletShortName.toCharArray()) {
 				if (!Validator.isChar(c) && (c != CharPool.UNDERLINE)) {
@@ -1732,7 +1732,7 @@ public class ServiceBuilder {
 		List<Element> elements = xPath.selectNodes(rootElement);
 
 		for (Element element : elements) {
-			resourceActionModels.add(element.getText().trim());
+			resourceActionModels.add(StringUtil.trim(element.getText()));
 		}
 	}
 
@@ -3240,7 +3240,7 @@ public class ServiceBuilder {
 					break;
 				}
 
-				indexSQL = indexSQL.trim();
+				indexSQL = StringUtil.trim(indexSQL);
 
 				if (Validator.isNull(indexSQL)) {
 					continue;
@@ -3548,7 +3548,7 @@ public class ServiceBuilder {
 
 		String content = _read(sqlFile);
 
-		ToolsUtil.writeFileRaw(sqlFile, content.trim(), _modifiedFileNames);
+		ToolsUtil.writeFileRaw(sqlFile, StringUtil.trim(content), _modifiedFileNames);
 	}
 
 	private void _createSQLTables(
@@ -3674,7 +3674,7 @@ public class ServiceBuilder {
 				sb.append('\n');
 			}
 
-			return sb.toString().trim();
+			return StringUtil.trim(sb.toString());
 		}
 	}
 

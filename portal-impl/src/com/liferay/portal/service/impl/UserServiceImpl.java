@@ -1860,7 +1860,7 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		long curUserId = getUserId();
 
 		if (curUserId == userId) {
-			emailAddress = StringUtil.toLowerCase(emailAddress.trim());
+			emailAddress = StringUtil.toLowerCase(StringUtil.trim(emailAddress));
 
 			if (!StringUtil.equalsIgnoreCase(
 					emailAddress, user.getEmailAddress())) {

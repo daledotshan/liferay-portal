@@ -211,7 +211,7 @@ public class CompanyImpl extends CompanyBaseImpl {
 
 	@Override
 	public boolean hasCompanyMx(String emailAddress) {
-		emailAddress = StringUtil.toLowerCase(emailAddress.trim());
+		emailAddress = StringUtil.toLowerCase(StringUtil.trim(emailAddress));
 
 		int pos = emailAddress.indexOf(CharPool.AT);
 

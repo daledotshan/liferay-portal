@@ -26,6 +26,7 @@ import com.liferay.gradle.util.GradleUtil;
 import com.liferay.gradle.util.StringUtil;
 import com.liferay.gradle.util.Validator;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import groovy.util.Node;
 import groovy.util.NodeList;
 import groovy.util.XmlParser;
@@ -354,7 +355,7 @@ public class InitGradleTask extends DefaultTask {
 			String[] importSharedArray = importShared.split(",");
 
 			for (String projectFileName : importSharedArray) {
-				projectFileName = projectFileName.trim();
+				projectFileName = StringUtil.trim(projectFileName);
 
 				String projectName = projectFileName;
 

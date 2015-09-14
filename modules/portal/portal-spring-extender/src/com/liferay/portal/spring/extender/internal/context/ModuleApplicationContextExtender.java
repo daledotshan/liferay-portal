@@ -186,7 +186,7 @@ public class ModuleApplicationContextExtender extends AbstractExtender {
 			StringUtil.readLines(url.openStream(), lines);
 
 			for (String line : lines) {
-				line = line.trim();
+				line = StringUtil.trim(line);
 
 				String[] array = line.split(" ");
 

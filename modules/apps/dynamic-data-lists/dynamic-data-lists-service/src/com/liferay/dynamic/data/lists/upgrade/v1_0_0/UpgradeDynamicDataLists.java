@@ -113,7 +113,7 @@ public class UpgradeDynamicDataLists extends UpgradeProcess {
 
 				dynamicContentElement.addAttribute(
 					"language-id", LanguageUtil.getLanguageId(entry.getKey()));
-				dynamicContentElement.addCDATA(value.trim());
+				dynamicContentElement.addCDATA(StringUtil.trim(value));
 			}
 		}
 	}

@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.template.TemplateContextHelper;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
@@ -164,7 +165,7 @@ public class TemplateManagerTest {
 
 		template.processTemplate(unsyncStringWriter);
 
-		String result = unsyncStringWriter.toString().trim();
+		String result = StringUtil.trim(unsyncStringWriter.toString());
 
 		Assert.assertEquals("PASS", result);
 	}

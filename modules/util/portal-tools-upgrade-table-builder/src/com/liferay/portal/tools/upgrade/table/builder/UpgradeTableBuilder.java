@@ -16,6 +16,7 @@ package com.liferay.portal.tools.upgrade.table.builder;
 
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.ArgumentsUtil;
 
 import java.io.BufferedReader;
@@ -201,7 +202,7 @@ public class UpgradeTableBuilder {
 				if (line.contains(" on " + tableName + " (") ||
 					line.contains(" on " + tableName + "_ (")) {
 
-					String sql = line.trim();
+					String sql = StringUtil.trim(line);
 
 					if (sql.endsWith(";")) {
 						sql = sql.substring(0, sql.length() - 1);
@@ -222,7 +223,7 @@ public class UpgradeTableBuilder {
 			int y = content.indexOf("*", x + 1);
 
 			if (y != -1) {
-				return content.substring(x + 10, y).trim();
+				return StringUtil.trim(content.substring(x + 10, y));
 			}
 		}
 

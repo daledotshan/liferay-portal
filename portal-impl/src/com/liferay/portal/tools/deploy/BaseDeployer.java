@@ -388,7 +388,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				properties.getProperty("portal.dependency.jars")));
 
 		for (String portalJar : portalJars) {
-			portalJar = portalJar.trim();
+			portalJar = StringUtil.trim(portalJar);
 
 			portalJar = fixPortalDependencyJar(portalJar);
 
@@ -415,7 +415,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				properties.getProperty("portal.dependency.tlds")));
 
 		for (String portalTld : portalTlds) {
-			portalTld = portalTld.trim();
+			portalTld = StringUtil.trim(portalTld);
 
 			if (_log.isDebugEnabled()) {
 				_log.debug("Copy portal TLD " + portalTld);
@@ -751,7 +751,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			String deployExcludes = properties.getProperty("deploy-excludes");
 
 			if (deployExcludes != null) {
-				excludes += deployExcludes.trim();
+				excludes += StringUtil.trim(deployExcludes);
 
 				if (!excludes.endsWith(",")) {
 					excludes += ",";
@@ -762,7 +762,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				"deploy-excludes-" + appServerType);
 
 			if (deployExcludes != null) {
-				excludes += deployExcludes.trim();
+				excludes += StringUtil.trim(deployExcludes);
 
 				if (!excludes.endsWith(",")) {
 					excludes += ",";

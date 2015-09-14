@@ -68,7 +68,7 @@ public class SimpleKeywordTokenizer implements KeywordTokenizer {
 		String keyword, List<String> tokens, int start, int end) {
 
 		if ((start == -1) || (end == -1)) {
-			keyword = keyword.trim();
+			keyword = StringUtil.trim(keyword);
 
 			if (!keyword.isEmpty()) {
 				tokenizeBySpace(keyword, tokens);
@@ -79,7 +79,7 @@ public class SimpleKeywordTokenizer implements KeywordTokenizer {
 
 		String token = keyword.substring(0, start);
 
-		token = token.trim();
+		token = StringUtil.trim(token);
 
 		if (!token.isEmpty()) {
 			tokenizeBySpace(token, tokens);
@@ -87,7 +87,7 @@ public class SimpleKeywordTokenizer implements KeywordTokenizer {
 
 		token = keyword.substring(start, end + 1);
 
-		token = token.trim();
+		token = StringUtil.trim(token);
 
 		if (!token.isEmpty()) {
 			tokens.add(token);
@@ -99,7 +99,7 @@ public class SimpleKeywordTokenizer implements KeywordTokenizer {
 
 		keyword = keyword.substring(end + 1, keyword.length());
 
-		keyword = keyword.trim();
+		keyword = StringUtil.trim(keyword);
 
 		if (keyword.isEmpty()) {
 			return;
@@ -116,7 +116,7 @@ public class SimpleKeywordTokenizer implements KeywordTokenizer {
 		String[] keywordTokens = StringUtil.split(keyword, CharPool.SPACE);
 
 		for (String keywordToken : keywordTokens) {
-			keyword = keywordToken.trim();
+			keyword = StringUtil.trim(keywordToken);
 
 			if (!keyword.isEmpty()) {
 				tokens.add(keyword);

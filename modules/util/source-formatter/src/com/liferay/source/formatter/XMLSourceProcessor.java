@@ -1185,7 +1185,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 			String variableBlock = matcher.group(1);
 
-			variableBlock = variableBlock.trim();
+			variableBlock = StringUtil.trim(variableBlock);
 
 			Matcher variableLineMatcher = _poshiVariableLinePattern.matcher(
 				variableBlock);
@@ -1227,7 +1227,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 			String newVariableBlock = sb.toString();
 
-			newVariableBlock = newVariableBlock.trim();
+			newVariableBlock = StringUtil.trim(newVariableBlock);
 
 			content = StringUtil.replaceFirst(
 				content, variableBlock, newVariableBlock);

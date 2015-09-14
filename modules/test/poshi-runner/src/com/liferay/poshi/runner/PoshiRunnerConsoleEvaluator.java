@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.poshi.runner.selenium.LiferaySeleniumHelper;
 import com.liferay.poshi.runner.util.FileUtil;
 import com.liferay.poshi.runner.util.PropsValues;
@@ -37,7 +38,7 @@ public class PoshiRunnerConsoleEvaluator {
 			String poshiWarningsFileContent = FileUtil.read(
 				_TEST_POSHI_WARNINGS_FILE_NAME);
 
-			sb.append(poshiWarningsFileContent.trim());
+			sb.append(StringUtil.trim(poshiWarningsFileContent));
 		}
 
 		String consoleShutDownFileContent = FileUtil.read(
@@ -57,7 +58,7 @@ public class PoshiRunnerConsoleEvaluator {
 
 			if (line.contains("ERROR") || line.contains("SEVERE")) {
 				sb.append("\n<value><![CDATA[SHUT_DOWN_ERROR: ");
-				sb.append(line.trim());
+				sb.append(StringUtil.trim(line));
 				sb.append("]]></value>");
 			}
 		}
@@ -65,7 +66,8 @@ public class PoshiRunnerConsoleEvaluator {
 		String poshiWarningsFileContent = sb.toString();
 
 		FileUtil.write(
-			_TEST_POSHI_WARNINGS_FILE_NAME, poshiWarningsFileContent.trim());
+			_TEST_POSHI_WARNINGS_FILE_NAME, StringUtil.trim(
+				poshiWarningsFileContent));
 	}
 
 	private static final String _TEST_CONSOLE_SHUT_DOWN_FILE_NAME =

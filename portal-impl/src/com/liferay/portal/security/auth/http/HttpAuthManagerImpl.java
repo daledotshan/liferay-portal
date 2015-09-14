@@ -326,12 +326,12 @@ public class HttpAuthManagerImpl implements HttpAuthManager {
 		String[] loginAndPassword = StringUtil.split(
 			credentials, CharPool.COLON);
 
-		String login = HttpUtil.decodeURL(loginAndPassword[0].trim());
+		String login = HttpUtil.decodeURL(StringUtil.trim(loginAndPassword[0]));
 
 		String password = null;
 
 		if (loginAndPassword.length > 1) {
-			password = loginAndPassword[1].trim();
+			password = StringUtil.trim(loginAndPassword[1]);
 		}
 
 		HttpAuthorizationHeader httpAuthorizationHeader =

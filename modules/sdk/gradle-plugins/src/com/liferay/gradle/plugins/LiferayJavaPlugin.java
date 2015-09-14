@@ -57,11 +57,13 @@ import com.liferay.gradle.util.GradleUtil;
 import com.liferay.gradle.util.StringUtil;
 import com.liferay.gradle.util.Validator;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import groovy.lang.Closure;
 
 import java.io.File;
 import java.io.IOException;
 
+import java.lang.String;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
@@ -392,7 +394,7 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 
 					String output = processResult.outputUTF8();
 
-					return Long.parseLong(output.trim());
+					return Long.parseLong(StringUtil.trim(output));
 				}
 
 			});

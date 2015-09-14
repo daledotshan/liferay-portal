@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.poshi.runner.util.OSDetector;
 import com.liferay.poshi.runner.util.PropsUtil;
 import com.liferay.poshi.runner.util.PropsValues;
@@ -1059,10 +1060,12 @@ public class PoshiRunnerValidation {
 			StringUtil.split(element.attributeValue("value")));
 
 		for (String propertyValue : propertyValues) {
-			if (!possiblePropertyValues.contains(propertyValue.trim())) {
+			if (!possiblePropertyValues.contains(
+					StringUtil.trim(propertyValue))) {
+
 				_exceptions.add(
 					new Exception(
-						"Invalid " + propertyValue.trim() +
+						"Invalid " + StringUtil.trim(propertyValue) +
 							" property value\n" + filePath + ":" +
 								element.attributeValue("line-number")));
 			}

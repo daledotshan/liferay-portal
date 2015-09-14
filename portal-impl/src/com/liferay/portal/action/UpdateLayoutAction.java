@@ -323,7 +323,7 @@ public class UpdateLayoutAction extends JSONAction {
 
 			String portletHTML = bufferCacheServletResponse.getString();
 
-			portletHTML = portletHTML.trim();
+			portletHTML = StringUtil.trim(portletHTML);
 
 			PortletJSONUtil.populatePortletJSONObject(
 				request, portletHTML, portlet, jsonObject);

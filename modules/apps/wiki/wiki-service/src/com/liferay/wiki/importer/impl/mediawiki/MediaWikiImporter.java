@@ -291,7 +291,7 @@ public class MediaWikiImporter implements WikiImporter {
 	}
 
 	protected String normalize(String categoryName, int length) {
-		categoryName = AssetUtil.toWord(categoryName.trim());
+		categoryName = AssetUtil.toWord(StringUtil.trim(categoryName));
 
 		return StringUtil.shorten(categoryName, length);
 	}

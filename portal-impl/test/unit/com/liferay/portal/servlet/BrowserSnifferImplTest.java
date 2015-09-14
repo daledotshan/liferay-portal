@@ -42,7 +42,7 @@ public class BrowserSnifferImplTest {
 		String line = null;
 
 		while ((line = unsyncBufferedReader.readLine()) != null) {
-			line = line.trim();
+			line = StringUtil.trim(line);
 
 			if (line.isEmpty()) {
 				continue;
@@ -91,7 +91,7 @@ public class BrowserSnifferImplTest {
 		String line = null;
 
 		while ((line = unsyncBufferedReader.readLine()) != null) {
-			line = line.trim();
+			line = StringUtil.trim(line);
 
 			if (line.isEmpty()) {
 				continue;
@@ -138,7 +138,7 @@ public class BrowserSnifferImplTest {
 		String line = null;
 
 		while ((line = unsyncBufferedReader.readLine()) != null) {
-			line = line.trim();
+			line = StringUtil.trim(line);
 
 			if (line.isEmpty()) {
 				continue;
@@ -190,7 +190,7 @@ public class BrowserSnifferImplTest {
 			String line = null;
 
 			while ((line = unsyncBufferedReader.readLine()) != null) {
-				line = line.trim();
+				line = StringUtil.trim(line);
 
 				if (line.isEmpty() || (line.charAt(0) == CharPool.POUND)) {
 					continue;
@@ -202,16 +202,18 @@ public class BrowserSnifferImplTest {
 					continue;
 				}
 
-				String userAgent = parts[3].trim();
+				String userAgent = StringUtil.trim(parts[3]);
 
 				Assert.assertEquals(
-					parts[0].trim() + " version", parts[1].trim(),
+					StringUtil.trim(parts[0]) + " version",
+					StringUtil.trim(parts[1]),
 					BrowserSnifferImpl.parseVersion(
 						userAgent, BrowserSnifferImpl.versionLeadings,
 						BrowserSnifferImpl.versionSeparators));
 
 				Assert.assertEquals(
-					parts[0].trim() + " revision", parts[2].trim(),
+					StringUtil.trim(parts[0]) + " revision",
+					StringUtil.trim(parts[2]),
 					BrowserSnifferImpl.parseVersion(
 						userAgent, BrowserSnifferImpl.revisionLeadings,
 						BrowserSnifferImpl.revisionSeparators));

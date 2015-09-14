@@ -281,7 +281,7 @@ public class CustomSQL {
 			keywords = StringUtil.toLowerCase(keywords);
 		}
 
-		keywords = keywords.trim();
+		keywords = StringUtil.trim(keywords);
 
 		List<String> keywordsList = new ArrayList<>();
 
@@ -825,7 +825,7 @@ public class CustomSQL {
 			String line = null;
 
 			while ((line = unsyncBufferedReader.readLine()) != null) {
-				sb.append(line.trim());
+				sb.append(StringUtil.trim(line));
 				sb.append(StringPool.SPACE);
 			}
 		}

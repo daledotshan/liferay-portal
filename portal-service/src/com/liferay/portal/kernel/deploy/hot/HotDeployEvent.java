@@ -135,7 +135,7 @@ public class HotDeployEvent {
 					pluginPackgeRequiredDeploymentContexts) {
 
 				_dependentServletContextNames.add(
-					pluginPackageRequiredDeploymentContext.trim());
+					StringUtil.trim(pluginPackageRequiredDeploymentContext));
 			}
 		}
 

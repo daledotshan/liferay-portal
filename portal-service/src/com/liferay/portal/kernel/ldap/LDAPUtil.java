@@ -190,7 +190,7 @@ public class LDAPUtil {
 			return true;
 		}
 
-		filter = filter.trim();
+		filter = StringUtil.trim(filter);
 
 		if (filter.equals(StringPool.STAR)) {
 			return true;

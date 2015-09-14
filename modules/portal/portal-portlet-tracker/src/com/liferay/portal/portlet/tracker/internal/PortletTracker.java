@@ -1343,7 +1343,7 @@ public class PortletTracker
 	protected String toLowerCase(Object object) {
 		String string = String.valueOf(object);
 
-		return StringUtil.toLowerCase(string.trim());
+		return StringUtil.toLowerCase(StringUtil.trim(string));
 	}
 
 	protected Set<String> toLowerCaseSet(String string) {

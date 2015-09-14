@@ -61,7 +61,7 @@ if (Validator.isNull(redirect)) {
 						<em class="restore-entry-title"><aui:a href="<%= restoreLinks.get(i) %>" label="<%= HtmlUtil.escape(restoreMessages.get(i)) %>" /></em>
 					</liferay-util:buffer>
 
-					<liferay-ui:message arguments="<%= new Object[] {type, entityLink.trim(), link.trim()} %>" key="the-x-x-was-restored-to-x" translateArguments="<%= false %>" />
+					<liferay-ui:message arguments="<%= new Object[] {type, StringUtil.trim(entityLink), StringUtil.trim(link)} %>" key="the-x-x-was-restored-to-x" translateArguments="<%= false %>" />
 
 				<%
 				}

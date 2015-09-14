@@ -16,6 +16,7 @@ package com.liferay.portal.typeconverter;
 
 import java.math.BigDecimal;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import jodd.typeconverter.TypeConversionException;
 import jodd.typeconverter.TypeConverter;
 
@@ -37,7 +38,7 @@ public class NumberConverter implements TypeConverter<Number> {
 		try {
 			String valueString = value.toString();
 
-			valueString = valueString.trim();
+			valueString = StringUtil.trim(valueString);
 
 			return new BigDecimal(valueString);
 		}

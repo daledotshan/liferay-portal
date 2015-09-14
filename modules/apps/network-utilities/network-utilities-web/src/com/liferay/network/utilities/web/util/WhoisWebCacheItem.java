@@ -66,7 +66,7 @@ public class WhoisWebCacheItem implements WebCacheItem {
 
 			whois = new Whois(
 				_domain,
-				StringUtil.replace(sb.toString().trim(), "\n\n", "\n"));
+				StringUtil.replace(StringUtil.trim(sb.toString()), "\n\n", "\n"));
 		}
 		catch (Exception e) {
 			throw new WebCacheException(_domain + " " + e.toString());

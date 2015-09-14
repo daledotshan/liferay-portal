@@ -317,7 +317,7 @@ public class SeleniumBuilderFileUtil {
 		content = sb.toString();
 
 		if (content != null) {
-			content = content.trim();
+			content = StringUtil.trim(content);
 			content = StringUtil.replace(content, "\n", "");
 			content = StringUtil.replace(content, "\r\n", "");
 			content = StringUtil.replace(content, "\t", " ");

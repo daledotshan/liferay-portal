@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -147,7 +148,7 @@ public class LibraryReferenceTest {
 					Paths.get(_LIB_DIR_NAME, "/versions-ignore.txt"),
 					Charset.forName("UTF-8"))) {
 
-			line = line.trim();
+			line = StringUtil.trim(line);
 
 			if (!line.isEmpty()) {
 				_excludeJars.add(line);

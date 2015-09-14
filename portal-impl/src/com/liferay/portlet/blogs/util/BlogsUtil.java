@@ -243,7 +243,7 @@ public class BlogsUtil {
 			return String.valueOf(entryId);
 		}
 
-		title = StringUtil.toLowerCase(title.trim());
+		title = StringUtil.toLowerCase(StringUtil.trim(title));
 
 		if (Validator.isNull(title) || Validator.isNumber(title) ||
 			title.equals("rss")) {

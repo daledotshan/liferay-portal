@@ -53,7 +53,7 @@ public class PortalClientBuilderTest {
 				unsyncByteArrayOutputStream);
 
 			for (String line : StringUtil.splitLines(output)) {
-				line = line.trim();
+				line = StringUtil.trim(line);
 
 				Assert.assertTrue(
 					"Unexpected output " + output,

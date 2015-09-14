@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.servlet;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -466,14 +467,14 @@ public class MetaInfoCacheServletResponse extends HttpServletResponseWrapper {
 		if (index != -1) {
 			String firstPart = contentType.substring(0, index);
 
-			_metaData._contentType = firstPart.trim();
+			_metaData._contentType = StringUtil.trim(firstPart);
 
 			index = contentType.indexOf("charset=");
 
 			if (index != -1) {
 				String charsetName = contentType.substring(index + 8);
 
-				charsetName = charsetName.trim();
+				charsetName = StringUtil.trim(charsetName);
 
 				setCharacterEncoding(charsetName);
 			}

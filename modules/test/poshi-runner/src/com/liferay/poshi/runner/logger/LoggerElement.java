@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner.logger;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
@@ -317,7 +318,7 @@ public class LoggerElement {
 
 		className = sb.toString();
 
-		return className.trim();
+		return StringUtil.trim(className);
 	}
 
 	private static final Set<String> _usedIds = new HashSet<>();

@@ -116,7 +116,7 @@ public abstract class BaseBooleanQueryImpl
 					keywords.add(values.substring(0, pos));
 
 					values = values.substring(pos + 1);
-					values = values.trim();
+					values = StringUtil.trim(values);
 				}
 			}
 			else {
@@ -126,7 +126,7 @@ public abstract class BaseBooleanQueryImpl
 					keywords.add(values.substring(0, pos));
 
 					values = values.substring(pos + 1);
-					values = values.trim();
+					values = StringUtil.trim(values);
 				}
 				else {
 					keywords.add(values);
