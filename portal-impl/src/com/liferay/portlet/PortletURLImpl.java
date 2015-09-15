@@ -22,6 +22,8 @@ import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletModeFactory;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.portlet.WindowStateFactory;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Base64;
@@ -52,9 +54,9 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.WebKeys;
+import com.liferay.portlet.admin.util.PortalProductMenuApplicationType;
 import com.liferay.portlet.social.util.FacebookUtil;
 import com.liferay.util.Encryptor;
 import com.liferay.util.EncryptorException;
@@ -93,10 +95,30 @@ public class PortletURLImpl
 	implements LiferayPortletURL, PortletURL, ResourceURL, Serializable {
 
 	public PortletURLImpl(
+		HttpServletRequest request, String portletId, Layout layout,
+		String lifecycle) {
+
+		this(request, portletId, null, layout.getPlid(), lifecycle);
+
+		_layout = layout;
+	}
+
+	public PortletURLImpl(
 		HttpServletRequest request, String portletId, long plid,
 		String lifecycle) {
 
 		this(request, portletId, null, plid, lifecycle);
+	}
+
+	public PortletURLImpl(
+		PortletRequest portletRequest, String portletId, Layout layout,
+		String lifecycle) {
+
+		this(
+			PortalUtil.getHttpServletRequest(portletRequest), portletId,
+			portletRequest, layout.getPlid(), lifecycle);
+
+		_layout = layout;
 	}
 
 	public PortletURLImpl(
@@ -209,6 +231,10 @@ public class PortletURLImpl
 		Portlet portlet = getPortlet();
 
 		if (portlet != null) {
+			if (portlet.isUndeployedPortlet()) {
+				return portletFriendlyURLPath;
+			}
+
 			FriendlyURLMapper friendlyURLMapper =
 				portlet.getFriendlyURLMapperInstance();
 
@@ -827,7 +853,11 @@ public class PortletURLImpl
 			}
 		}
 
-		if (_portletId.equals(PortletKeys.CONTROL_PANEL_MENU)) {
+		String controlPanelMenuPortletId = PortletProviderUtil.getPortletId(
+			PortalProductMenuApplicationType.ProductMenu.CLASS_NAME,
+			PortletProvider.Action.VIEW);
+
+		if (_portletId.equals(controlPanelMenuPortletId)) {
 			return;
 		}
 
@@ -849,6 +879,15 @@ public class PortletURLImpl
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		if (themeDisplay == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to generate string because theme display is null");
+			}
+
+			return StringPool.BLANK;
+		}
 
 		String portalURL = null;
 

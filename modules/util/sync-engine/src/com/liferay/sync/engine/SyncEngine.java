@@ -37,10 +37,11 @@ import com.liferay.sync.engine.service.SyncWatchEventService;
 import com.liferay.sync.engine.service.persistence.SyncAccountPersistence;
 import com.liferay.sync.engine.upgrade.util.UpgradeUtil;
 import com.liferay.sync.engine.util.ConnectionRetryUtil;
+import com.liferay.sync.engine.util.FileKeyUtil;
+import com.liferay.sync.engine.util.FileLockRetryUtil;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.LoggerUtil;
 import com.liferay.sync.engine.util.OSDetector;
-import com.liferay.sync.engine.util.PropsValues;
 import com.liferay.sync.engine.util.SyncEngineUtil;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ import java.nio.file.Paths;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -69,9 +71,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SyncEngine {
 
-	public static synchronized void cancelSyncAccountTasks(long syncAccountId)
-		throws Exception {
-
+	public static synchronized void cancelSyncAccountTasks(long syncAccountId) {
 		if (!_running) {
 			return;
 		}
@@ -99,6 +99,10 @@ public class SyncEngine {
 
 	public static ExecutorService getEventProcessorExecutorService() {
 		return _eventProcessorExecutorService;
+	}
+
+	public static ExecutorService getExecutorService() {
+		return _executorService;
 	}
 
 	public static synchronized boolean isRunning() {
@@ -161,12 +165,24 @@ public class SyncEngine {
 		SyncAccount syncAccount = ServerEventUtil.synchronizeSyncAccount(
 			syncAccountId);
 
-		Path filePath = Paths.get(syncAccount.getFilePathName());
+		syncAccount.setState(SyncAccount.STATE_CONNECTED);
+		syncAccount.setUiEvent(SyncAccount.UI_EVENT_NONE);
 
-		SyncFile syncFile = SyncFileService.fetchSyncFile(
+		SyncAccountService.update(syncAccount);
+
+		Path syncAccountFilePath = Paths.get(syncAccount.getFilePathName());
+
+		SyncFile syncAccountFile = SyncFileService.fetchSyncFile(
 			syncAccount.getFilePathName());
 
-		if (FileUtil.getFileKey(filePath) != syncFile.getSyncFileId()) {
+		if (!FileKeyUtil.hasFileKey(
+				syncAccountFilePath, syncAccountFile.getSyncFileId())) {
+
+			if (_logger.isTraceEnabled()) {
+				_logger.trace(
+					"Missing sync account file path {}", syncAccountFilePath);
+			}
+
 			syncAccount.setActive(false);
 			syncAccount.setUiEvent(
 				SyncAccount.UI_EVENT_SYNC_ACCOUNT_FOLDER_MISSING);
@@ -181,6 +197,29 @@ public class SyncEngine {
 			return;
 		}
 
+		List<SyncSite> syncSites = SyncSiteService.findSyncSites(syncAccountId);
+
+		for (SyncSite syncSite : syncSites) {
+			if (!syncSite.isActive() || (syncSite.getRemoteSyncTime() == -1)) {
+				continue;
+			}
+
+			Path syncSiteFilePath = Paths.get(syncSite.getFilePathName());
+
+			if (Files.notExists(syncSiteFilePath)) {
+				if (_logger.isTraceEnabled()) {
+					_logger.trace(
+						"Missing sync site file path {}", syncSiteFilePath);
+				}
+
+				syncSite.setUiEvent(SyncSite.UI_EVENT_SYNC_SITE_FOLDER_MISSING);
+
+				SyncSiteService.update(syncSite);
+
+				SyncSiteService.deactivateSyncSite(syncSite.getSyncSiteId());
+			}
+		}
+
 		SyncWatchEventService.deleteSyncWatchEvents(syncAccountId);
 
 		Path dataFilePath = FileUtil.getFilePath(
@@ -191,11 +230,6 @@ public class SyncEngine {
 		}
 
 		if (!ConnectionRetryUtil.retryInProgress(syncAccountId)) {
-			syncAccount.setState(SyncAccount.STATE_CONNECTED);
-			syncAccount.setUiEvent(SyncAccount.UI_EVENT_NONE);
-
-			SyncAccountService.update(syncAccount);
-
 			ServerEventUtil.synchronizeSyncSites(syncAccountId);
 		}
 
@@ -203,7 +237,7 @@ public class SyncEngine {
 			new SyncWatchEventProcessor(syncAccountId);
 
 		ScheduledFuture<?> scheduledFuture =
-			_localEventsScheduledExecutorService.scheduleAtFixedRate(
+			_localEventsScheduledExecutorService.scheduleWithFixedDelay(
 				syncWatchEventProcessor, 0, 3, TimeUnit.SECONDS);
 
 		WatchEventListener watchEventListener = new SyncSiteWatchEventListener(
@@ -212,16 +246,17 @@ public class SyncEngine {
 		Watcher watcher = null;
 
 		if (OSDetector.isApple()) {
-			watcher = new BarbaryWatcher(filePath, watchEventListener);
+			watcher = new BarbaryWatcher(
+				syncAccountFilePath, watchEventListener);
 		}
 		else {
-			watcher = new JPathWatcher(filePath, watchEventListener);
+			watcher = new JPathWatcher(syncAccountFilePath, watchEventListener);
 		}
 
 		_executorService.execute(watcher);
 
 		if (!ConnectionRetryUtil.retryInProgress(syncAccountId)) {
-			synchronizeSyncFiles(filePath, syncAccountId);
+			synchronizeSyncFiles(syncAccountFilePath, syncAccountId);
 		}
 
 		scheduleGetSyncDLObjectUpdateEvent(
@@ -234,11 +269,13 @@ public class SyncEngine {
 		SyncEngineUtil.fireSyncEngineStateChanged(
 			SyncEngineUtil.SYNC_ENGINE_STATE_STARTING);
 
-		LoggerUtil.initLogger();
+		LoggerUtil.init();
 
-		_logger.info("Starting {}", PropsValues.SYNC_PRODUCT_NAME);
+		_logger.info("Starting Sync engine");
 
 		UpgradeUtil.upgrade();
+
+		FileLockRetryUtil.init();
 
 		for (SyncAccount syncAccount : SyncAccountService.findAll()) {
 			scheduleSyncAccountTasks(syncAccount.getSyncAccountId());
@@ -252,7 +289,7 @@ public class SyncEngine {
 		SyncEngineUtil.fireSyncEngineStateChanged(
 			SyncEngineUtil.SYNC_ENGINE_STATE_STOPPING);
 
-		_logger.info("Stopping {}", PropsValues.SYNC_PRODUCT_NAME);
+		_logger.info("Stopping Sync engine");
 
 		for (long syncAccountId : _syncAccountTasks.keySet()) {
 			cancelSyncAccountTasks(syncAccountId);
@@ -262,6 +299,10 @@ public class SyncEngine {
 		_executorService.shutdownNow();
 		_localEventsScheduledExecutorService.shutdownNow();
 		_remoteEventsScheduledExecutorService.shutdownNow();
+
+		FileLockRetryUtil.shutdown();
+
+		LoggerUtil.shutdown();
 
 		SyncAccountPersistence syncAccountPersistence =
 			SyncAccountService.getSyncAccountPersistence();
@@ -336,7 +377,7 @@ public class SyncEngine {
 		};
 
 		ScheduledFuture<?> remoteEventsScheduledFuture =
-			_remoteEventsScheduledExecutorService.scheduleAtFixedRate(
+			_remoteEventsScheduledExecutorService.scheduleWithFixedDelay(
 				runnable, 0, syncAccount.getPollInterval(), TimeUnit.SECONDS);
 
 		_syncAccountTasks.put(
