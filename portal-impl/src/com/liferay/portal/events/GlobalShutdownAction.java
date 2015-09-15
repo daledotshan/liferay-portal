@@ -20,7 +20,6 @@ import com.liferay.portal.im.AIMConnector;
 import com.liferay.portal.im.ICQConnector;
 import com.liferay.portal.im.MSNConnector;
 import com.liferay.portal.im.YMConnector;
-import com.liferay.portal.jcr.JCRFactoryUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -37,14 +36,14 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.resiliency.mpi.MPIHelperUtil;
-import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
 import com.liferay.portal.kernel.util.CentralizedThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.search.lucene.LuceneHelperUtil;
+import com.liferay.portal.struts.AuthPublicPathRegistry;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.zip.TrueZIPHelperUtil;
 import com.liferay.portlet.documentlibrary.util.DocumentConversionUtil;
 import com.liferay.util.ThirdPartyThreadLocalRegistry;
 
@@ -102,6 +101,10 @@ public class GlobalShutdownAction extends SimpleAction {
 
 	protected void shutdownLevel1() {
 
+		// Authentication
+
+		AuthPublicPathRegistry.unregister(PropsValues.AUTH_PUBLIC_PATHS);
+
 		// Instant messenger AIM
 
 		try {
@@ -154,22 +157,6 @@ public class GlobalShutdownAction extends SimpleAction {
 
 		JavadocManagerUtil.unload(StringPool.BLANK);
 
-		// JCR
-
-		try {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Shutting down JCR");
-			}
-
-			JCRFactoryUtil.shutdown();
-		}
-		catch (Exception e) {
-		}
-
-		// Lucene
-
-		LuceneHelperUtil.shutdown();
-
 		// OpenOffice
 
 		DocumentConversionUtil.disconnect();
@@ -177,23 +164,6 @@ public class GlobalShutdownAction extends SimpleAction {
 		// Plugins
 
 		RequiredPluginsUtil.stopCheckingRequiredPlugins();
-
-		// Scheduler engine
-
-		try {
-			SchedulerEngineHelperUtil.shutdown();
-		}
-		catch (Exception e) {
-		}
-
-		// Wait 1 second so Quartz threads can cleanly shutdown
-
-		try {
-			Thread.sleep(1000);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	protected void shutdownLevel2() {
@@ -270,6 +240,10 @@ public class GlobalShutdownAction extends SimpleAction {
 		// Portal executors
 
 		PortalExecutorManagerUtil.shutdown(true);
+
+		// TrueZip
+
+		TrueZIPHelperUtil.shutdown();
 	}
 
 	protected void shutdownLevel6() {
