@@ -17,6 +17,7 @@ package com.liferay.network.utilities.web.util;
 import com.liferay.network.utilities.web.model.DNSLookup;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.webcache.WebCacheException;
 import com.liferay.portal.kernel.webcache.WebCacheItem;
@@ -39,7 +40,7 @@ public class DNSLookupWebCacheItem implements WebCacheItem {
 		try {
 			String results = null;
 
-			char[] array = _domain.trim().toCharArray();
+			char[] array = StringUtil.trim(_domain).toCharArray();
 
 			for (int i = 0; i < array.length; i++) {
 				if ((array[i] != '.') && !Character.isDigit(array[i])) {

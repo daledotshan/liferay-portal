@@ -190,7 +190,7 @@ public class LDAPUtil {
 			return true;
 		}
 
-		filter = filter.trim();
+		filter = StringUtil.trim(filter);
 
 		if (filter.equals(StringPool.STAR)) {
 			return true;
@@ -273,7 +273,7 @@ public class LDAPUtil {
 				 (date.indexOf(CharPool.PLUS) != -1)) {
 
 			if (date.indexOf(CharPool.PERIOD) != -1) {
-				format = "yyyyMMddHHmmss.SZ";
+				format = "yyyyMMddHHmmss.SSSZ";
 			}
 			else {
 				format = "yyyyMMddHHmmssZ";

@@ -6,19 +6,15 @@
 		<portlet-name>36</portlet-name>
 		<icon>/html/icons/wiki.png</icon>
 		<struts-path>wiki</struts-path>
-		<configuration-action-class>com.liferay.wiki.web.wiki.portlet.action.WikiSettingsConfigurationAction</configuration-action-class>
+		<configuration-action-class>com.liferay.wiki.web.wiki.portlet.action.WikiGroupServiceSettingsConfigurationAction</configuration-action-class>
 		<friendly-url-mapper-class>com.liferay.wiki.web.wiki.portlet.route.WikiFriendlyURLMapper</friendly-url-mapper-class>
 		<friendly-url-mapping>wiki</friendly-url-mapping>
 		<friendly-url-routes>com/liferay/wiki/web/wiki/portlet/route/wiki-friendly-url-routes.xml</friendly-url-routes>
-		<portlet-data-handler-class>com.liferay.wiki.lar.WikiPortletDataHandler</portlet-data-handler-class>
-		<staged-model-data-handler-class>com.liferay.wiki.lar.WikiNodeStagedModelDataHandler</staged-model-data-handler-class>
-		<staged-model-data-handler-class>com.liferay.wiki.lar.WikiPageStagedModelDataHandler</staged-model-data-handler-class>
 		<template-handler>com.liferay.wiki.web.wiki.portlet.template.WikiPortletDisplayTemplateHandler</template-handler>
 		<social-activity-interpreter-class>com.liferay.wiki.social.WikiActivityInterpreter</social-activity-interpreter-class>
-		<user-notification-definitions>com/liferay/wiki/web/wiki-user-notification-definitions.xml</user-notification-definitions>
+		<user-notification-definitions>com/liferay/wiki/notifications/wiki-user-notification-definitions.xml</user-notification-definitions>
 		<user-notification-handler-class>com.liferay.wiki.notifications.WikiUserNotificationHandler</user-notification-handler-class>
-		<asset-renderer-factory>com.liferay.wiki.asset.WikiPageAssetRendererFactory</asset-renderer-factory>
-		<custom-attributes-display>com.liferay.wiki.web.WikiPageCustomAttributesDisplay</custom-attributes-display>
+		<custom-attributes-display>com.liferay.wiki.web.custom.attributes.WikiPageCustomAttributesDisplay</custom-attributes-display>
 		<permission-propagator>com.liferay.wiki.web.security.permission.WikiPermissionPropagatorImpl</permission-propagator>
 		<trash-handler>com.liferay.wiki.trash.WikiNodeTrashHandler</trash-handler>
 		<trash-handler>com.liferay.wiki.trash.WikiPageTrashHandler</trash-handler>
@@ -29,7 +25,7 @@
 		<private-request-attributes>false</private-request-attributes>
 		<private-session-attributes>false</private-session-attributes>
 		<render-weight>50</render-weight>
-		<header-portlet-css>/html/portlet/wiki/css/main.css</header-portlet-css>
+		<header-portlet-css>/css/main.css</header-portlet-css>
 		<css-class-wrapper>portlet-wiki</css-class-wrapper>
 		<add-default-resource>true</add-default-resource>
 	</portlet>
@@ -37,9 +33,9 @@
 		<portlet-name>54</portlet-name>
 		<icon>/html/icons/wiki_display.png</icon>
 		<struts-path>wiki_display</struts-path>
+		<parent-struts-path>wiki</parent-struts-path>
 		<configuration-action-class>com.liferay.portal.kernel.portlet.DefaultConfigurationAction</configuration-action-class>
 		<portlet-url-class>com.liferay.portal.struts.StrutsActionPortletURL</portlet-url-class>
-		<portlet-data-handler-class>com.liferay.wiki.lar.WikiDisplayPortletDataHandler</portlet-data-handler-class>
 		<permission-propagator>com.liferay.wiki.web.security.permission.WikiPermissionPropagatorImpl</permission-propagator>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>true</use-default-template>
@@ -48,18 +44,16 @@
 		<private-request-attributes>false</private-request-attributes>
 		<private-session-attributes>false</private-session-attributes>
 		<render-weight>50</render-weight>
-		<header-portlet-css>/html/portlet/wiki/css/main.css</header-portlet-css>
+		<header-portlet-css>/css/main.css</header-portlet-css>
 		<css-class-wrapper>portlet-wiki</css-class-wrapper>
 	</portlet>
 	<portlet>
 		<portlet-name>154</portlet-name>
 		<icon>/html/icons/wiki.png</icon>
 		<struts-path>wiki_admin</struts-path>
-		<configuration-action-class>com.liferay.wiki.web.admin.portlet.action.WikiSettingsConfigurationAction</configuration-action-class>
+		<parent-struts-path>wiki</parent-struts-path>
+		<configuration-action-class>com.liferay.wiki.web.admin.portlet.action.WikiGroupServiceSettingsConfigurationAction</configuration-action-class>
 		<portlet-url-class>com.liferay.portal.struts.StrutsActionPortletURL</portlet-url-class>
-		<portlet-data-handler-class>com.liferay.wiki.lar.WikiPortletDataHandler</portlet-data-handler-class>
-		<control-panel-entry-category>site_administration.content</control-panel-entry-category>
-		<control-panel-entry-weight>7.0</control-panel-entry-weight>
 		<permission-propagator>com.liferay.wiki.web.security.permission.WikiPermissionPropagatorImpl</permission-propagator>
 		<preferences-unique-per-layout>false</preferences-unique-per-layout>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
@@ -67,7 +61,7 @@
 		<scopeable>true</scopeable>
 		<private-request-attributes>false</private-request-attributes>
 		<private-session-attributes>false</private-session-attributes>
-		<header-portlet-css>/html/portlet/wiki/css/main.css</header-portlet-css>
+		<header-portlet-css>/css/main.css</header-portlet-css>
 		<css-class-wrapper>portlet-wiki</css-class-wrapper>
 	</portlet>
 	<role-mapper>

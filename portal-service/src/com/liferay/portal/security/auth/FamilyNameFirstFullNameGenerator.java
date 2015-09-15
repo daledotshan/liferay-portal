@@ -47,7 +47,7 @@ public class FamilyNameFirstFullNameGenerator extends DefaultFullNameGenerator {
 
 		if (name.length > 2) {
 			for (int i = 2; i < name.length; i++) {
-				if (Validator.isNull(name[i].trim())) {
+				if (Validator.isNull(StringUtil.trim(name[i]))) {
 					continue;
 				}
 
@@ -55,7 +55,7 @@ public class FamilyNameFirstFullNameGenerator extends DefaultFullNameGenerator {
 					middleName += StringPool.SPACE;
 				}
 
-				middleName += name[i].trim();
+				middleName += StringUtil.trim(name[i]);
 			}
 		}
 

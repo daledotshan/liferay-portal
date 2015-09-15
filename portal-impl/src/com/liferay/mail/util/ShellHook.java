@@ -88,9 +88,7 @@ public class ShellHook implements Hook {
 	@Override
 	public void deleteUser(long companyId, long userId) {
 		execute(
-			new String[] {
-				SHELL_SCRIPT, "deleteUser", String.valueOf(userId)
-			}
+			new String[] {SHELL_SCRIPT, "deleteUser", String.valueOf(userId)}
 		);
 	}
 
@@ -129,7 +127,7 @@ public class ShellHook implements Hook {
 
 	protected void execute(String[] cmdLine) {
 		for (int i = 0; i < cmdLine.length; i++) {
-			if (cmdLine[i].trim().length() == 0) {
+			if (StringUtil.trim(cmdLine[i]).length() == 0) {
 				cmdLine[i] = StringPool.UNDERLINE;
 			}
 		}

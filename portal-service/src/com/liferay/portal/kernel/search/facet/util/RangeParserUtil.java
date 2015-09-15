@@ -28,17 +28,15 @@ public class RangeParserUtil {
 			new String[] {
 				StringPool.OPEN_CURLY_BRACE, StringPool.CLOSE_CURLY_BRACE
 			},
-			new String[] {
-				StringPool.OPEN_BRACKET, StringPool.CLOSE_BRACKET
-			}
+			new String[] {StringPool.OPEN_BRACKET, StringPool.CLOSE_BRACKET}
 		);
 
 		int x = range.indexOf(StringPool.OPEN_BRACKET);
 		int y = range.indexOf(" TO ");
 		int z = range.indexOf(StringPool.CLOSE_BRACKET);
 
-		String lower = range.substring(x + 1, y).trim();
-		String upper = range.substring(y + 4, z).trim();
+		String lower = StringUtil.trim(range.substring(x + 1, y));
+		String upper = StringUtil.trim(range.substring(y + 4, z));
 
 		return new String[] {lower, upper};
 	}

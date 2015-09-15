@@ -16,6 +16,7 @@ package com.liferay.portal.util;
 
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.MainServletTestRule;
 
@@ -145,7 +146,7 @@ public class FileImplExtractTest {
 
 		String text = FileUtil.extractText(inputStream, fileName);
 
-		return text.trim();
+		return StringUtil.trim(text);
 	}
 
 }

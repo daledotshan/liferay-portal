@@ -119,14 +119,14 @@ public class UnicodeProperties extends HashMap<String, String> {
 	}
 
 	public void put(String line) {
-		line = line.trim();
+		line = StringUtil.trim(line);
 
 		if (!_isComment(line)) {
 			int pos = line.indexOf(CharPool.EQUAL);
 
 			if (pos != -1) {
-				String key = line.substring(0, pos).trim();
-				String value = line.substring(pos + 1).trim();
+				String key = StringUtil.trim(line.substring(0, pos));
+				String value = StringUtil.trim(line.substring(pos + 1));
 
 				if (_safe) {
 					value = _decode(value);

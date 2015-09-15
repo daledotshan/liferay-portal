@@ -18,6 +18,7 @@ import com.liferay.markdown.converter.internal.pegdown.ast.PicWithCaptionNode;
 
 import java.util.List;
 
+import com.liferay.portal.kernel.util.StringUtil;
 import org.pegdown.LinkRenderer;
 import org.pegdown.ToHtmlSerializer;
 import org.pegdown.ast.HeaderNode;
@@ -57,7 +58,7 @@ public class LiferayToHtmlSerializer extends ToHtmlSerializer {
 
 					text = text.replaceAll("[^a-z0-9 ]", "");
 
-					text = text.trim();
+					text = StringUtil.trim(text);
 
 					text = text.replace(' ', '-');
 

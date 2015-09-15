@@ -121,7 +121,7 @@ public class AssetVocabularyFinderImpl
 		long groupId, String name, int start, int end,
 		OrderByComparator<AssetVocabulary> obc, boolean inlineSQLHelper) {
 
-		name = StringUtil.toLowerCase(name.trim());
+		name = StringUtil.toLowerCase(StringUtil.trim(name));
 
 		Session session = null;
 

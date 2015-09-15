@@ -96,7 +96,7 @@ public class TextFormatter {
 			return null;
 		}
 
-		s = s.trim();
+		s = StringUtil.trim(s);
 
 		if (style == A) {
 			return _formatA(s);
@@ -182,7 +182,8 @@ public class TextFormatter {
 			return name;
 		}
 
-		char[] chars = StringUtil.toLowerCase(name).trim().toCharArray();
+		char[] chars = StringUtil.trim(
+			StringUtil.toLowerCase(name)).toCharArray();
 
 		if (chars.length > 0) {
 			chars[0] = Character.toUpperCase(chars[0]);
@@ -307,7 +308,7 @@ public class TextFormatter {
 			}
 		}
 
-		return sb.toString().trim();
+		return StringUtil.trim(sb.toString());
 	}
 
 	private static String _formatI(String s) {

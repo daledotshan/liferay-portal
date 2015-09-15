@@ -485,7 +485,8 @@ public class PluginPackageUtil {
 	private void _indexPluginPackage(PluginPackage pluginPackage)
 		throws PortalException {
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(PluginPackage.class);
+		Indexer<PluginPackage> indexer = IndexerRegistryUtil.getIndexer(
+			PluginPackage.class);
 
 		indexer.reindex(pluginPackage);
 	}
@@ -831,7 +832,8 @@ public class PluginPackageUtil {
 		}
 
 		for (Element element : parentElement.elements(name)) {
-			String text = StringUtil.toLowerCase(element.getText().trim());
+			String text = StringUtil.toLowerCase(
+				StringUtil.trim(element.getText()));
 
 			list.add(text);
 		}
@@ -925,7 +927,7 @@ public class PluginPackageUtil {
 		for (int i = 0; i < licensesArray.length; i++) {
 			License license = new License();
 
-			license.setName(licensesArray[i].trim());
+			license.setName(StringUtil.trim(licensesArray[i]));
 			license.setOsiApproved(true);
 
 			licenses.add(license);
@@ -937,7 +939,7 @@ public class PluginPackageUtil {
 			properties.getProperty("liferay-versions"));
 
 		for (String liferayVersion : liferayVersionsArray) {
-			liferayVersions.add(liferayVersion.trim());
+			liferayVersions.add(StringUtil.trim(liferayVersion));
 		}
 
 		if (liferayVersions.isEmpty()) {
@@ -949,7 +951,7 @@ public class PluginPackageUtil {
 		String[] tagsArray = StringUtil.split(properties.getProperty("tags"));
 
 		for (String tag : tagsArray) {
-			tags.add(tag.trim());
+			tags.add(StringUtil.trim(tag));
 		}
 
 		String shortDescription = GetterUtil.getString(
@@ -1288,7 +1290,8 @@ public class PluginPackageUtil {
 			}
 		}
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(PluginPackage.class);
+		Indexer<PluginPackage> indexer = IndexerRegistryUtil.getIndexer(
+			PluginPackage.class);
 
 		indexer.reindex(new String[0]);
 
@@ -1327,7 +1330,8 @@ public class PluginPackageUtil {
 
 		searchContext.setStart(start);
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(PluginPackage.class);
+		Indexer<PluginPackage> indexer = IndexerRegistryUtil.getIndexer(
+			PluginPackage.class);
 
 		return indexer.search(searchContext);
 	}

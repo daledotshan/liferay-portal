@@ -19,7 +19,6 @@ import com.liferay.portal.CompanyMxException;
 import com.liferay.portal.CompanyVirtualHostException;
 import com.liferay.portal.CompanyWebIdException;
 import com.liferay.portal.LocaleException;
-import com.liferay.portal.NoSuchShardException;
 import com.liferay.portal.NoSuchVirtualHostException;
 import com.liferay.portal.RequiredCompanyException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -39,7 +38,7 @@ import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.facet.AssetEntriesFacet;
 import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.search.facet.ScopeFacet;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -67,7 +66,6 @@ import com.liferay.portal.model.PortalPreferences;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.Shard;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.VirtualHost;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
@@ -87,6 +85,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -112,7 +111,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	 * @param  webId the the company's web domain
 	 * @param  virtualHostname the company's virtual host name
 	 * @param  mx the company's mail domain
-	 * @param  shardName the company's shard
 	 * @param  system whether the company is the very first company (i.e., the
 	 *         super company)
 	 * @param  maxUsers the max number of company users (optionally
@@ -124,13 +122,14 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	 */
 	@Override
 	public Company addCompany(
-			String webId, String virtualHostname, String mx, String shardName,
-			boolean system, int maxUsers, boolean active)
+			String webId, String virtualHostname, String mx, boolean system,
+			int maxUsers, boolean active)
 		throws PortalException {
 
 		// Company
 
-		virtualHostname = StringUtil.toLowerCase(virtualHostname.trim());
+		virtualHostname = StringUtil.toLowerCase(
+			StringUtil.trim(virtualHostname));
 
 		if (Validator.isNull(webId) ||
 			webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID) ||
@@ -142,7 +141,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		validateVirtualHost(webId, virtualHostname);
 		validateMx(mx);
 
-		Company company = checkCompany(webId, mx, shardName);
+		Company company = checkCompany(webId, mx);
 
 		company.setMx(mx);
 		company.setSystem(system);
@@ -161,8 +160,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	/**
 	 * Returns the company with the web domain.
 	 *
-	 * The method sets mail domain to the web domain, and the shard name to
-	 * the default name set in portal.properties
+	 * The method sets mail domain to the web domain to the default name set in
+	 * portal.properties
 	 *
 	 * @param  webId the company's web domain
 	 * @return the company with the web domain
@@ -172,25 +171,23 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	public Company checkCompany(String webId) throws PortalException {
 		String mx = webId;
 
-		return companyLocalService.checkCompany(
-			webId, mx, PropsValues.SHARD_DEFAULT_NAME);
+		return companyLocalService.checkCompany(webId, mx);
 	}
 
 	/**
-	 * Returns the company with the web domain, mail domain, and shard. If no
-	 * such company exits, the method will create a new company.
+	 * Returns the company with the web domain and mail domain. If no such
+	 * company exits, the method will create a new company.
 	 *
 	 * The method goes through a series of checks to ensure that the company
 	 * contains default users, groups, etc.
 	 *
 	 * @param  webId the company's web domain
 	 * @param  mx the company's mail domain
-	 * @param  shardName the company's shard
-	 * @return the company with the web domain, mail domain, and shard
+	 * @return the company with the web domain and mail domain
 	 * @throws PortalException if a portal exception occurred
 	 */
 	@Override
-	public Company checkCompany(String webId, String mx, String shardName)
+	public Company checkCompany(String webId, String mx)
 		throws PortalException {
 
 		// Company
@@ -216,11 +213,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			company.setActive(true);
 
 			companyPersistence.update(company);
-
-			// Shard
-
-			shardLocalService.addShard(
-				Company.class.getName(), companyId, shardName);
 
 			// Account
 
@@ -279,16 +271,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 				}
 			}
 		}
-		else {
-			try {
-				shardLocalService.getShard(
-					Company.class.getName(), company.getCompanyId());
-			}
-			catch (NoSuchShardException nsse) {
-				shardLocalService.addShard(
-					Company.class.getName(), company.getCompanyId(), shardName);
-			}
-		}
 
 		// Search engine
 
@@ -317,8 +299,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			defaultUser = userPersistence.create(userId);
 
 			defaultUser.setCompanyId(companyId);
-			defaultUser.setCreateDate(now);
-			defaultUser.setModifiedDate(now);
 			defaultUser.setDefaultUser(true);
 			defaultUser.setContactId(counterLocalService.increment());
 			defaultUser.setPassword("password");
@@ -363,8 +343,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			defaultContact.setCompanyId(defaultUser.getCompanyId());
 			defaultContact.setUserId(defaultUser.getUserId());
 			defaultContact.setUserName(StringPool.BLANK);
-			defaultContact.setCreateDate(now);
-			defaultContact.setModifiedDate(now);
 			defaultContact.setClassName(User.class.getName());
 			defaultContact.setClassPK(defaultUser.getUserId());
 			defaultContact.setAccountId(company.getAccountId());
@@ -514,7 +492,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	 */
 	@Override
 	public Company fetchCompanyByVirtualHost(String virtualHostname) {
-		virtualHostname = StringUtil.toLowerCase(virtualHostname.trim());
+		virtualHostname = StringUtil.toLowerCase(
+			StringUtil.trim(virtualHostname));
 
 		VirtualHost virtualHost = virtualHostPersistence.fetchByHostname(
 			virtualHostname);
@@ -617,7 +596,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		throws PortalException {
 
 		try {
-			virtualHostname = StringUtil.toLowerCase(virtualHostname.trim());
+			virtualHostname = StringUtil.toLowerCase(
+				StringUtil.trim(virtualHostname));
 
 			VirtualHost virtualHost = virtualHostPersistence.findByHostname(
 				virtualHostname);
@@ -799,7 +779,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 			// Search
 
-			Indexer indexer = FacetedSearcher.getInstance();
+			Indexer<?> indexer = FacetedSearcher.getInstance();
 
 			return indexer.search(searchContext);
 		}
@@ -829,7 +809,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		// Company
 
-		virtualHostname = StringUtil.toLowerCase(virtualHostname.trim());
+		virtualHostname = StringUtil.toLowerCase(
+			StringUtil.trim(virtualHostname));
 
 		if (!active) {
 			if (companyId == PortalInstances.getDefaultCompanyId()) {
@@ -897,7 +878,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		// Company
 
-		virtualHostname = StringUtil.toLowerCase(virtualHostname.trim());
+		virtualHostname = StringUtil.toLowerCase(
+			StringUtil.trim(virtualHostname));
 
 		Company company = companyPersistence.findByPrimaryKey(companyId);
 
@@ -915,7 +897,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		company.setHomeURL(homeURL);
 
-		PortalUtil.updateImageId(company, logo, logoBytes, "logoId",0 ,0, 0);
+		PortalUtil.updateImageId(company, logo, logoBytes, "logoId", 0, 0, 0);
 
 		companyPersistence.update(company);
 
@@ -1065,7 +1047,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	 *
 	 * @param  companyId the primary key of the company
 	 * @param  properties the company's properties. See {@link
-	 *         com.liferay.portal.kernel.util.UnicodeProperties}
+	 *         UnicodeProperties}
 	 * @throws PortalException if the properties contained new locales that were
 	 *         not supported
 	 */
@@ -1360,13 +1342,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		portletLocalService.removeCompanyPortletsPool(companyId);
 
-		// Shard
-
-		Shard shard = shardLocalService.getShard(
-			Company.class.getName(), company.getCompanyId());
-
-		shardLocalService.deleteShard(shard);
-
 		// Users
 
 		ActionableDynamicQuery userActionableDynamicQuery =
@@ -1415,7 +1390,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		};
 
-		TransactionCommitCallbackRegistryUtil.registerCallback(callable);
+		TransactionCommitCallbackUtil.registerCallback(callable);
 
 		return company;
 	}
@@ -1424,8 +1399,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		Company company, String name, String legalName, String legalId,
 		String legalType, String sicCode, String tickerSymbol, String industry,
 		String type, String size) {
-
-		Date now = new Date();
 
 		Account account = accountPersistence.fetchByPrimaryKey(
 			company.getAccountId());
@@ -1436,7 +1409,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			account = accountPersistence.create(accountId);
 
 			account.setCompanyId(company.getCompanyId());
-			account.setCreateDate(now);
 			account.setUserId(0);
 			account.setUserName(StringPool.BLANK);
 
@@ -1445,7 +1417,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			companyPersistence.update(company);
 		}
 
-		account.setModifiedDate(now);
 		account.setName(name);
 		account.setLegalName(legalName);
 		account.setLegalId(legalId);
@@ -1500,9 +1471,11 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					LocaleException.TYPE_DISPLAY_SETTINGS);
 
 				le.setSourceAvailableLocales(
-					LocaleUtil.fromLanguageIds(PropsValues.LOCALES));
+					Arrays.asList(
+						LocaleUtil.fromLanguageIds(PropsValues.LOCALES)));
 				le.setTargetAvailableLocales(
-					LocaleUtil.fromLanguageIds(languageIdsArray));
+					Arrays.asList(
+						LocaleUtil.fromLanguageIds(languageIdsArray)));
 
 				throw le;
 			}

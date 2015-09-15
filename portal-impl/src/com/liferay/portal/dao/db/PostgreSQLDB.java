@@ -77,7 +77,7 @@ public class PostgreSQLDB extends BaseDB {
 				String indexName = rs.getString("indexname");
 				String tableName = rs.getString("tablename");
 				String indexSQL = StringUtil.toLowerCase(
-					rs.getString("indexdef").trim());
+					StringUtil.trim(rs.getString("indexdef")));
 
 				boolean unique = true;
 
@@ -159,7 +159,8 @@ public class PostgreSQLDB extends BaseDB {
 
 					line = StringUtil.replace(
 						"alter table @table@ rename @old-column@ to " +
-							"@new-column@;", REWORD_TEMPLATE, template);
+							"@new-column@;",
+						REWORD_TEMPLATE, template);
 				}
 				else if (line.startsWith(ALTER_COLUMN_TYPE)) {
 					String[] template = buildColumnTypeTokens(line);

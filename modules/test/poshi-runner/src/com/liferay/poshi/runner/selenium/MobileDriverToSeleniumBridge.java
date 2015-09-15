@@ -14,11 +14,12 @@
 
 package com.liferay.poshi.runner.selenium;
 
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.poshi.runner.util.PropsValues;
+
 import com.thoughtworks.selenium.Selenium;
 
 import io.appium.java_client.MobileDriver;
-
-import java.io.IOException;
 
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void addSelection(String locator, String optionLocator) {
-		throw new UnsupportedOperationException();
+		WebDriverHelper.addSelection(this, locator, optionLocator);
 	}
 
 	@Override
@@ -118,7 +119,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void check(String locator) {
-		throw new UnsupportedOperationException();
+		WebDriverHelper.check(this, locator);
 	}
 
 	@Override
@@ -158,7 +159,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void close() {
-		throw new UnsupportedOperationException();
+		super.close();
 	}
 
 	@Override
@@ -291,7 +292,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public String getConfirmation() {
-		throw new UnsupportedOperationException();
+		return WebDriverHelper.getConfirmation(this);
 	}
 
 	@Override
@@ -408,16 +409,16 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public String getSelectedLabel(String selectLocator) {
-		throw new UnsupportedOperationException();
+		return getSelectedLabel(selectLocator, null);
 	}
 
 	public String getSelectedLabel(String selectLocator, String timeout) {
-		throw new UnsupportedOperationException();
+		return WebDriverHelper.getSelectedLabel(this, selectLocator, timeout);
 	}
 
 	@Override
 	public String[] getSelectedLabels(String selectLocator) {
-		throw new UnsupportedOperationException();
+		return WebDriverHelper.getSelectedLabels(this, selectLocator);
 	}
 
 	@Override
@@ -459,23 +460,29 @@ public class MobileDriverToSeleniumBridge
 
 		String text = webElement.getText();
 
-		text = text.trim();
+		text = StringUtil.trim(text);
 
 		return text.replace("\n", " ");
 	}
 
 	@Override
 	public String getTitle() {
-		throw new UnsupportedOperationException();
+		return super.getTitle();
 	}
 
 	@Override
 	public String getValue(String locator) {
-		throw new UnsupportedOperationException();
+		return getValue(locator, null);
 	}
 
 	public String getValue(String locator, String timeout) {
-		throw new UnsupportedOperationException();
+		WebElement webElement = getWebElement(locator, timeout);
+
+		if (!isInViewport(locator)) {
+			swipeWebElementIntoView(locator);
+		}
+
+		return webElement.getAttribute("value");
 	}
 
 	@Override
@@ -499,7 +506,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void goBack() {
-		throw new UnsupportedOperationException();
+		WebDriverHelper.goBack(this);
 	}
 
 	@Override
@@ -519,7 +526,17 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public boolean isChecked(String locator) {
-		throw new UnsupportedOperationException();
+		WebElement webElement = getWebElement(locator, "1");
+
+		if (!webElement.isDisplayed()) {
+			return webElement.isDisplayed();
+		}
+
+		if (!isInViewport(locator)) {
+			swipeWebElementIntoView(locator);
+		}
+
+		return webElement.isSelected();
 	}
 
 	@Override
@@ -585,15 +602,20 @@ public class MobileDriverToSeleniumBridge
 	public boolean isVisible(String locator) {
 		WebElement webElement = getWebElement(locator, "1");
 
-		if (!webElement.isDisplayed()) {
+		if (PropsValues.MOBILE_DEVICE_TYPE.equals("android")) {
+			if (!isInViewport(locator)) {
+				swipeWebElementIntoView(locator);
+			}
+
+			return isInViewport(locator);
+		}
+		else {
+			if (!webElement.isDisplayed()) {
+				WebDriverHelper.scrollWebElementIntoView(this, webElement);
+			}
+
 			return webElement.isDisplayed();
 		}
-
-		if (!isInViewport(locator)) {
-			swipeWebElementIntoView(locator);
-		}
-
-		return isInViewport(locator);
 	}
 
 	@Override
@@ -707,7 +729,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void openWindow(String url, String windowID) {
-		throw new UnsupportedOperationException();
+		open(url);
 	}
 
 	@Override
@@ -747,7 +769,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void select(String selectLocator, String optionLocator) {
-		throw new UnsupportedOperationException();
+		WebDriverHelper.select(this, selectLocator, optionLocator);
 	}
 
 	@Override
@@ -850,7 +872,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void stop() {
-		throw new UnsupportedOperationException();
+		quit();
 	}
 
 	@Override
@@ -874,7 +896,7 @@ public class MobileDriverToSeleniumBridge
 
 	@Override
 	public void uncheck(String locator) {
-		throw new UnsupportedOperationException();
+		WebDriverHelper.uncheck(this, locator);
 	}
 
 	@Override
@@ -929,81 +951,12 @@ public class MobileDriverToSeleniumBridge
 	}
 
 	protected void swipeWebElementIntoView(String locator) {
-		int elementPositionCenterY = WebDriverHelper.getElementPositionCenterY(
-			this, locator);
+		WebElement webElement = getWebElement(locator, "1");
 
-		for (int i = 0; i < 25; i++) {
-			int viewportPositionBottom =
-				WebDriverHelper.getViewportPositionBottom(this);
-
-			int viewportPositionTop = WebDriverHelper.getScrollOffsetY(this);
-
-			if (elementPositionCenterY >= viewportPositionBottom) {
-				try {
-					Runtime runtime = Runtime.getRuntime();
-
-					runtime.exec(
-						"adb -s emulator-5554 shell /data/local/swipe_up.sh");
-				}
-				catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-			}
-			else if (elementPositionCenterY <= viewportPositionTop ) {
-				try {
-					Runtime runtime = Runtime.getRuntime();
-
-					runtime.exec(
-						"adb -s emulator-5554 shell /data/local/swipe_down.sh");
-				}
-				catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-			}
-			else {
-				break;
-			}
-
-			try {
-				LiferaySeleniumHelper.pause("1000");
-			}
-			catch (Exception e) {
-			}
-		}
+		WebDriverHelper.scrollWebElementIntoView(this, webElement);
 	}
 
 	protected void tap(String locator) {
-		try {
-			Runtime runtime = Runtime.getRuntime();
-
-			StringBuilder sb = new StringBuilder(4);
-
-			sb.append("adb -s emulator-5554 shell /data/local/tap.sh ");
-
-			int elementPositionCenterX =
-				WebDriverHelper.getElementPositionCenterX(this, locator);
-
-			int screenPositionX = elementPositionCenterX * 3 / 2;
-
-			sb.append(screenPositionX);
-
-			sb.append(" ");
-
-			int elementPositionCenterY =
-				WebDriverHelper.getElementPositionCenterY(this, locator);
-
-			int viewportPositionTop = WebDriverHelper.getScrollOffsetY(this);
-
-			int screenPositionY =
-				(elementPositionCenterY - viewportPositionTop) * 3 / 2 + 116;
-
-			sb.append(screenPositionY);
-
-			runtime.exec(sb.toString());
-		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
 	}
 
 }

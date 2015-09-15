@@ -108,7 +108,7 @@ public class MicrosoftTranslatorImpl implements MicrosoftTranslator {
 
 		String toText = text.substring(x, y);
 
-		toText = toText.trim();
+		toText = StringUtil.trim(toText);
 
 		return StringUtil.replace(toText, CharPool.NEW_LINE, CharPool.SPACE);
 	}

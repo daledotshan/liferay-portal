@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MethodParameter;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.service.ServiceContext;
 
 import java.lang.reflect.Array;
@@ -168,7 +169,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			else {
 				String valueString = value.toString();
 
-				valueString = valueString.trim();
+				valueString = StringUtil.trim(valueString);
 
 				if (!valueString.startsWith(StringPool.OPEN_BRACKET)) {
 					valueString = StringPool.OPEN_BRACKET.concat(
@@ -188,7 +189,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 
 			String valueString = value.toString();
 
-			valueString = valueString.trim();
+			valueString = StringUtil.trim(valueString);
 
 			long timeInMillis = GetterUtil.getLong(valueString);
 
@@ -205,7 +206,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			else {
 				String valueString = value.toString();
 
-				valueString = valueString.trim();
+				valueString = StringUtil.trim(valueString);
 
 				if (!valueString.startsWith(StringPool.OPEN_BRACKET)) {
 					valueString = StringPool.OPEN_BRACKET.concat(
@@ -221,7 +222,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 		else if (parameterType.equals(Locale.class)) {
 			String valueString = value.toString();
 
-			valueString = valueString.trim();
+			valueString = StringUtil.trim(valueString);
 
 			return LocaleUtil.fromLanguageId(valueString);
 		}
@@ -234,7 +235,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			else {
 				String valueString = value.toString();
 
-				valueString = valueString.trim();
+				valueString = StringUtil.trim(valueString);
 
 				map = JSONFactoryUtil.looseDeserialize(
 					valueString, HashMap.class);
@@ -265,7 +266,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 				else {
 					String valueString = value.toString();
 
-					valueString = valueString.trim();
+					valueString = StringUtil.trim(valueString);
 
 					if (!valueString.startsWith(StringPool.OPEN_CURLY_BRACE)) {
 						throw new ClassCastException(e1.getMessage());
@@ -316,7 +317,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			return list;
 		}
 
-		List<Object> newList = new ArrayList<Object>(list.size());
+		List<Object> newList = new ArrayList<>(list.size());
 
 		for (Object entry : list) {
 			if (entry != null) {
@@ -338,7 +339,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			return map;
 		}
 
-		Map<Object, Object> newMap = new HashMap<Object, Object>(map.size());
+		Map<Object, Object> newMap = new HashMap<>(map.size());
 
 		for (Map.Entry<?, ?> entry : map.entrySet()) {
 			Object key = _convertType(entry.getKey(), types[0]);

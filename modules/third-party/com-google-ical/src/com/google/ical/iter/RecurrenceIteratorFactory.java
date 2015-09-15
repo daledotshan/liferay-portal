@@ -528,13 +528,13 @@ public class RecurrenceIteratorFactory {
   private static IcalObject[] parseContentLines(
       String rdata, TimeZone tzid, boolean strict)
       throws ParseException {
-    String unfolded = FOLD.matcher(rdata).replaceAll("").trim();
+    String unfolded = StringUtil.trim(FOLD.matcher(rdata).replaceAll(""));
     if ("".equals(unfolded)) { return new IcalObject[0]; }
     String[] lines = NEWLINE.split(unfolded);
     IcalObject[] out = new IcalObject[lines.length];
     int nbad = 0;
     for (int i = 0; i < lines.length; ++i) {
-      String line = lines[i].trim();
+      String line = StringUtil.trim(lines[i]);
       try {
         if (RULE.matcher(line).find()) {
           out[i] = new RRule(line);

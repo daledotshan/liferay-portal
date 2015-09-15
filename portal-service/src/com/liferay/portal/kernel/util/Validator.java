@@ -420,7 +420,7 @@ public class Validator {
 			return false;
 		}
 
-		for (char c : name.trim().toCharArray()) {
+		for (char c : StringUtil.trim(name).toCharArray()) {
 			if (!isChar(c) && !isDigit(c) && !Character.isWhitespace(c)) {
 				return false;
 			}
@@ -996,7 +996,7 @@ public class Validator {
 			return false;
 		}
 
-		for (char c : name.trim().toCharArray()) {
+		for (char c : StringUtil.trim(name).toCharArray()) {
 			if (!isChar(c) && !Character.isWhitespace(c)) {
 				return false;
 			}

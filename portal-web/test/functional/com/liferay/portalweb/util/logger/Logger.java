@@ -539,7 +539,7 @@ public class Logger {
 			generateXPath(xPathIdStack) + "/div/h3");
 
 		sb.append("in test case command <b>");
-		sb.append(testCaseCommand.trim());
+		sb.append(StringUtil.trim(testCaseCommand));
 		sb.append("</b><br />");
 		sb.append("<textarea cols=\"85\" rows=\"7\" wrap=\"off\">");
 		sb.append(throwable.getMessage());

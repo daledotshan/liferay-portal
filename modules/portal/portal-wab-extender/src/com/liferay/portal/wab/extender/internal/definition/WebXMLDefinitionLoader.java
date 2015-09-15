@@ -15,6 +15,7 @@
 package com.liferay.portal.wab.extender.internal.definition;
 
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.InputStream;
 
@@ -93,7 +94,7 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 			String dispatcher = String.valueOf(_stack.pop());
 
 			dispatcher = dispatcher.toUpperCase();
-			dispatcher = dispatcher.trim();
+			dispatcher = StringUtil.trim(dispatcher);
 
 			_filterMapping.dispatchers.add(dispatcher);
 		}
@@ -108,7 +109,7 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 		else if (qName.equals("filter-class")) {
 			String filterClassName = String.valueOf(_stack.pop());
 
-			Filter filter = _getFilterInstance(filterClassName.trim());
+			Filter filter = _getFilterInstance(StringUtil.trim(filterClassName));
 
 			_filterDefinition.setFilter(filter);
 		}
@@ -138,12 +139,12 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 			if (_filterMapping != null) {
 				String filterName = String.valueOf(_stack.pop());
 
-				_filterMapping.filterName = filterName.trim();
+				_filterMapping.filterName = StringUtil.trim(filterName);
 			}
 			else if (_filterDefinition != null) {
 				String filterName = String.valueOf(_stack.pop());
 
-				_filterDefinition.setName(filterName.trim());
+				_filterDefinition.setName(StringUtil.trim(filterName));
 			}
 		}
 		else if (qName.equals("init-param")) {
@@ -179,11 +180,11 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 		}
 		else if (qName.equals("param-name")) {
 			_paramName = String.valueOf(_stack.pop());
-			_paramName = _paramName.trim();
+			_paramName = StringUtil.trim(_paramName);
 		}
 		else if (qName.equals("param-value")) {
 			_paramValue = String.valueOf(_stack.pop());
-			_paramValue = _paramValue.trim();
+			_paramValue = StringUtil.trim(_paramValue);
 		}
 		else if (qName.equals("servlet")) {
 			if (_servletDefinition.getServlet() != null) {
@@ -196,7 +197,7 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 		else if (qName.equals("servlet-class")) {
 			String servletClassName = String.valueOf(_stack.pop());
 
-			Servlet servlet = _getServletInstance(servletClassName.trim());
+			Servlet servlet = _getServletInstance(StringUtil.trim(servletClassName));
 
 			_servletDefinition.setServlet(servlet);
 		}
@@ -217,17 +218,17 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 			if (_filterMapping != null) {
 				String servletName = String.valueOf(_stack.pop());
 
-				_filterMapping.servletName = servletName.trim();
+				_filterMapping.servletName = StringUtil.trim(servletName);
 			}
 			else if (_servletDefinition != null) {
 				String servletName = String.valueOf(_stack.pop());
 
-				_servletDefinition.setName(servletName.trim());
+				_servletDefinition.setName(StringUtil.trim(servletName));
 			}
 			else if (_servletMapping != null) {
 				String servletName = String.valueOf(_stack.pop());
 
-				_servletMapping.servletName = servletName.trim();
+				_servletMapping.servletName = StringUtil.trim(servletName);
 			}
 		}
 		else if (qName.equals("taglib")) {
@@ -246,12 +247,12 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 			if (_filterMapping != null) {
 				String urlPattern = String.valueOf(_stack.pop());
 
-				_filterMapping.urlPatterns.add(urlPattern.trim());
+				_filterMapping.urlPatterns.add(StringUtil.trim(urlPattern));
 			}
 			else if (_servletMapping != null) {
 				String urlPattern = String.valueOf(_stack.pop());
 
-				_servletMapping.urlPatterns.add(urlPattern.trim());
+				_servletMapping.urlPatterns.add(StringUtil.trim(urlPattern));
 			}
 		}
 	}
@@ -273,6 +274,17 @@ public class WebXMLDefinitionLoader extends DefaultHandler {
 				xmlReader.setContentHandler(this);
 
 				xmlReader.parse(new InputSource(inputStream));
+			}
+			catch (SAXParseException e) {
+				String message = e.getMessage();
+
+				if (message.contains("DOCTYPE is disallowed")) {
+					throw new Exception(
+						"WEB-INF/web.xml must be updated to the Servlet 2.4 " +
+							"specification");
+				}
+
+				throw e;
 			}
 		}
 

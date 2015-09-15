@@ -165,7 +165,7 @@ public class PropertiesUtil {
 			// Server.
 
 			if (value != null) {
-				value = value.trim();
+				value = StringUtil.trim(value);
 
 				properties.setProperty(key, value);
 			}
@@ -258,7 +258,7 @@ public class PropertiesUtil {
 			String key = enu.nextElement();
 			String value = properties.getProperty(key);
 
-			String trimmedKey = key.trim();
+			String trimmedKey = StringUtil.trim(key);
 
 			if (!key.equals(trimmedKey)) {
 				properties.remove(key);

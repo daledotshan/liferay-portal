@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.search.HitsOpenSearchImpl;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 
 /**
@@ -25,8 +26,6 @@ import com.liferay.portlet.documentlibrary.model.DLFileEntry;
  */
 @OSGiBeanProperties
 public class DLOpenSearchImpl extends HitsOpenSearchImpl {
-
-	public static final String SEARCH_PATH = "/c/document_library/open_search";
 
 	public static final String TITLE = "Liferay Documents and Media Search: ";
 
@@ -36,13 +35,13 @@ public class DLOpenSearchImpl extends HitsOpenSearchImpl {
 	}
 
 	@Override
-	public Indexer getIndexer() {
+	public Indexer<DLFileEntry> getIndexer() {
 		return IndexerRegistryUtil.getIndexer(DLFileEntry.class);
 	}
 
 	@Override
 	public String getSearchPath() {
-		return SEARCH_PATH;
+		return StringPool.BLANK;
 	}
 
 	@Override

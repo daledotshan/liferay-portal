@@ -293,12 +293,12 @@ public class HttpClientSPIAgent implements SPIAgent {
 			String[] headerKeyValuePair = StringUtil.split(
 				line, CharPool.COLON);
 
-			String headerName = headerKeyValuePair[0].trim();
+			String headerName = StringUtil.trim(headerKeyValuePair[0]);
 
 			headerName = StringUtil.toLowerCase(headerName);
 
 			if (headerName.equals("connection")) {
-				String headerValue = headerKeyValuePair[1].trim();
+				String headerValue = StringUtil.trim(headerKeyValuePair[1]);
 
 				headerValue = StringUtil.toLowerCase(headerValue);
 

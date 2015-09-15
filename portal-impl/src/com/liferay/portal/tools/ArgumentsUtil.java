@@ -14,11 +14,15 @@
 
 package com.liferay.portal.tools;
 
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringUtil;
+
 import java.util.Map;
 
 /**
  * @author Shuyang Zhou
  * @author Raymond Augé
+ * @author Gregory Amerson
  */
 public class ArgumentsUtil {
 
@@ -32,8 +36,8 @@ public class ArgumentsUtil {
 				throw new IllegalArgumentException("Bad argument " + arg);
 			}
 
-			String key = arg.substring(0, pos).trim();
-			String value = arg.substring(pos + 1).trim();
+			String key = StringUtil.trim(arg.substring(0, pos));
+			String value = StringUtil.trim(arg.substring(pos + 1));
 
 			if (key.startsWith("-D")) {
 				key = key.substring(2);
@@ -46,6 +50,19 @@ public class ArgumentsUtil {
 		}
 
 		return arguments;
+	}
+
+	public static void processMainException(
+			Map<String, String> arguments, Exception e)
+		throws Exception {
+
+		String throwMainException = arguments.get("tools.throw.main.exception");
+
+		if (GetterUtil.getBoolean(throwMainException, true)) {
+			throw e;
+		}
+
+		e.printStackTrace();
 	}
 
 }

@@ -107,7 +107,7 @@ public class PluginsGitSvnSyncer {
 			String line = unsyncBufferedReader.readLine();
 
 			while (line != null) {
-				line = line.trim();
+				line = StringUtil.trim(line);
 
 				if (Validator.isNotNull(line)) {
 					list.add(line);

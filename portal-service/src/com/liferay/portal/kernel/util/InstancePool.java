@@ -50,7 +50,7 @@ public class InstancePool {
 	}
 
 	private boolean _contains(String className) {
-		className = className.trim();
+		className = StringUtil.trim(className);
 
 		return _instances.containsKey(className);
 	}
@@ -60,7 +60,7 @@ public class InstancePool {
 	}
 
 	private Object _get(String className, boolean logErrors) {
-		className = className.trim();
+		className = StringUtil.trim(className);
 
 		Object instance = _instances.get(className);
 
@@ -112,7 +112,7 @@ public class InstancePool {
 	}
 
 	private void _put(String className, Object obj) {
-		className = className.trim();
+		className = StringUtil.trim(className);
 
 		_instances.put(className, obj);
 	}

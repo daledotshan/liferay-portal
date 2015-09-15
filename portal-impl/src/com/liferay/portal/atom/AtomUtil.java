@@ -93,7 +93,7 @@ public class AtomUtil {
 		portletTitle = portletTitle.concat(
 			PortalUtil.getPortletTitle(portletId, user));
 
-		portletTitle = portletTitle.trim();
+		portletTitle = StringUtil.trim(portletTitle);
 
 		return portletTitle;
 	}
