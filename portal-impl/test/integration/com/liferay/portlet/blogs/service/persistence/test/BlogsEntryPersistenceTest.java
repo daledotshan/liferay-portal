@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.blogs.NoSuchEntryException;
 import com.liferay.portlet.blogs.model.BlogsEntry;
@@ -150,6 +149,8 @@ public class BlogsEntryPersistenceTest {
 
 		newBlogsEntry.setTrackbacks(RandomTestUtil.randomString());
 
+		newBlogsEntry.setCoverImageCaption(RandomTestUtil.randomString());
+
 		newBlogsEntry.setCoverImageFileEntryId(RandomTestUtil.nextLong());
 
 		newBlogsEntry.setCoverImageURL(RandomTestUtil.randomString());
@@ -161,6 +162,8 @@ public class BlogsEntryPersistenceTest {
 		newBlogsEntry.setSmallImageId(RandomTestUtil.nextLong());
 
 		newBlogsEntry.setSmallImageURL(RandomTestUtil.randomString());
+
+		newBlogsEntry.setLastPublishDate(RandomTestUtil.nextDate());
 
 		newBlogsEntry.setStatus(RandomTestUtil.nextInt());
 
@@ -211,6 +214,8 @@ public class BlogsEntryPersistenceTest {
 			newBlogsEntry.getAllowTrackbacks());
 		Assert.assertEquals(existingBlogsEntry.getTrackbacks(),
 			newBlogsEntry.getTrackbacks());
+		Assert.assertEquals(existingBlogsEntry.getCoverImageCaption(),
+			newBlogsEntry.getCoverImageCaption());
 		Assert.assertEquals(existingBlogsEntry.getCoverImageFileEntryId(),
 			newBlogsEntry.getCoverImageFileEntryId());
 		Assert.assertEquals(existingBlogsEntry.getCoverImageURL(),
@@ -223,6 +228,9 @@ public class BlogsEntryPersistenceTest {
 			newBlogsEntry.getSmallImageId());
 		Assert.assertEquals(existingBlogsEntry.getSmallImageURL(),
 			newBlogsEntry.getSmallImageURL());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingBlogsEntry.getLastPublishDate()),
+			Time.getShortTimestamp(newBlogsEntry.getLastPublishDate()));
 		Assert.assertEquals(existingBlogsEntry.getStatus(),
 			newBlogsEntry.getStatus());
 		Assert.assertEquals(existingBlogsEntry.getStatusByUserId(),
@@ -235,335 +243,207 @@ public class BlogsEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByG_UT() {
-		try {
-			_persistence.countByG_UT(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByG_UT() throws Exception {
+		_persistence.countByG_UT(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByG_UT(0L, StringPool.NULL);
+		_persistence.countByG_UT(0L, StringPool.NULL);
 
-			_persistence.countByG_UT(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_UT(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByG_LtD() {
-		try {
-			_persistence.countByG_LtD(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate());
+	public void testCountByG_LtD() throws Exception {
+		_persistence.countByG_LtD(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate());
 
-			_persistence.countByG_LtD(0L, RandomTestUtil.nextDate());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_LtD(0L, RandomTestUtil.nextDate());
 	}
 
 	@Test
-	public void testCountByG_S() {
-		try {
-			_persistence.countByG_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_S() throws Exception {
+		_persistence.countByG_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByG_S(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_S(0L, 0);
 	}
 
 	@Test
-	public void testCountByG_NotS() {
-		try {
-			_persistence.countByG_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_NotS() throws Exception {
+		_persistence.countByG_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByG_NotS(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_NotS(0L, 0);
 	}
 
 	@Test
-	public void testCountByC_U() {
-		try {
-			_persistence.countByC_U(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_U() throws Exception {
+		_persistence.countByC_U(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_U(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_U(0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_LtD() {
-		try {
-			_persistence.countByC_LtD(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate());
+	public void testCountByC_LtD() throws Exception {
+		_persistence.countByC_LtD(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate());
 
-			_persistence.countByC_LtD(0L, RandomTestUtil.nextDate());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_LtD(0L, RandomTestUtil.nextDate());
 	}
 
 	@Test
-	public void testCountByC_S() {
-		try {
-			_persistence.countByC_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByC_S() throws Exception {
+		_persistence.countByC_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_S(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_S(0L, 0);
 	}
 
 	@Test
-	public void testCountByC_NotS() {
-		try {
-			_persistence.countByC_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByC_NotS() throws Exception {
+		_persistence.countByC_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_NotS(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_NotS(0L, 0);
 	}
 
 	@Test
-	public void testCountByLtD_S() {
-		try {
-			_persistence.countByLtD_S(RandomTestUtil.nextDate(),
-				RandomTestUtil.nextInt());
+	public void testCountByLtD_S() throws Exception {
+		_persistence.countByLtD_S(RandomTestUtil.nextDate(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByLtD_S(RandomTestUtil.nextDate(), 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByLtD_S(RandomTestUtil.nextDate(), 0);
 	}
 
 	@Test
-	public void testCountByG_U_LtD() {
-		try {
-			_persistence.countByG_U_LtD(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextDate());
+	public void testCountByG_U_LtD() throws Exception {
+		_persistence.countByG_U_LtD(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextDate());
 
-			_persistence.countByG_U_LtD(0L, 0L, RandomTestUtil.nextDate());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U_LtD(0L, 0L, RandomTestUtil.nextDate());
 	}
 
 	@Test
-	public void testCountByG_U_S() {
-		try {
-			_persistence.countByG_U_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByG_U_S() throws Exception {
+		_persistence.countByG_U_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_U_S(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U_S(0L, 0L, 0);
 	}
 
 	@Test
-	public void testCountByG_U_NotS() {
-		try {
-			_persistence.countByG_U_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByG_U_NotS() throws Exception {
+		_persistence.countByG_U_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_U_NotS(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U_NotS(0L, 0L, 0);
 	}
 
 	@Test
-	public void testCountByG_LtD_S() {
-		try {
-			_persistence.countByG_LtD_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
+	public void testCountByG_LtD_S() throws Exception {
+		_persistence.countByG_LtD_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_LtD_S(0L, RandomTestUtil.nextDate(), 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_LtD_S(0L, RandomTestUtil.nextDate(), 0);
 	}
 
 	@Test
-	public void testCountByG_LtD_NotS() {
-		try {
-			_persistence.countByG_LtD_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
+	public void testCountByG_LtD_NotS() throws Exception {
+		_persistence.countByG_LtD_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_LtD_NotS(0L, RandomTestUtil.nextDate(), 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_LtD_NotS(0L, RandomTestUtil.nextDate(), 0);
 	}
 
 	@Test
-	public void testCountByC_U_S() {
-		try {
-			_persistence.countByC_U_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByC_U_S() throws Exception {
+		_persistence.countByC_U_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByC_U_S(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_U_S(0L, 0L, 0);
 	}
 
 	@Test
-	public void testCountByC_U_NotS() {
-		try {
-			_persistence.countByC_U_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByC_U_NotS() throws Exception {
+		_persistence.countByC_U_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByC_U_NotS(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_U_NotS(0L, 0L, 0);
 	}
 
 	@Test
-	public void testCountByC_LtD_S() {
-		try {
-			_persistence.countByC_LtD_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
+	public void testCountByC_LtD_S() throws Exception {
+		_persistence.countByC_LtD_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByC_LtD_S(0L, RandomTestUtil.nextDate(), 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_LtD_S(0L, RandomTestUtil.nextDate(), 0);
 	}
 
 	@Test
-	public void testCountByC_LtD_NotS() {
-		try {
-			_persistence.countByC_LtD_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
+	public void testCountByC_LtD_NotS() throws Exception {
+		_persistence.countByC_LtD_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByC_LtD_NotS(0L, RandomTestUtil.nextDate(), 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_LtD_NotS(0L, RandomTestUtil.nextDate(), 0);
 	}
 
 	@Test
-	public void testCountByG_U_LtD_S() {
-		try {
-			_persistence.countByG_U_LtD_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextDate(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_U_LtD_S() throws Exception {
+		_persistence.countByG_U_LtD_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextDate(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByG_U_LtD_S(0L, 0L, RandomTestUtil.nextDate(), 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U_LtD_S(0L, 0L, RandomTestUtil.nextDate(), 0);
 	}
 
 	@Test
-	public void testCountByG_U_LtD_NotS() {
-		try {
-			_persistence.countByG_U_LtD_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextDate(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_U_LtD_NotS() throws Exception {
+		_persistence.countByG_U_LtD_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextDate(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByG_U_LtD_NotS(0L, 0L, RandomTestUtil.nextDate(),
-				0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U_LtD_NotS(0L, 0L, RandomTestUtil.nextDate(), 0);
 	}
 
 	@Test
@@ -575,39 +455,23 @@ public class BlogsEntryPersistenceTest {
 		Assert.assertEquals(existingBlogsEntry, newBlogsEntry);
 	}
 
-	@Test
+	@Test(expected = NoSuchEntryException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchEntryException");
-		}
-		catch (NoSuchEntryException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	@Test
 	public void testFilterFindByGroupId() throws Exception {
-		try {
-			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, getOrderByComparator());
 	}
 
 	protected OrderByComparator<BlogsEntry> getOrderByComparator() {
@@ -615,12 +479,12 @@ public class BlogsEntryPersistenceTest {
 			"entryId", true, "groupId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
 			"title", true, "subtitle", true, "urlTitle", true, "description",
-			true, "content", true, "displayDate", true, "allowPingbacks", true,
-			"allowTrackbacks", true, "trackbacks", true,
+			true, "displayDate", true, "allowPingbacks", true,
+			"allowTrackbacks", true, "coverImageCaption", true,
 			"coverImageFileEntryId", true, "coverImageURL", true, "smallImage",
 			true, "smallImageFileEntryId", true, "smallImageId", true,
-			"smallImageURL", true, "status", true, "statusByUserId", true,
-			"statusByUserName", true, "statusDate", true);
+			"smallImageURL", true, "lastPublishDate", true, "status", true,
+			"statusByUserId", true, "statusByUserName", true, "statusDate", true);
 	}
 
 	@Test
@@ -819,10 +683,6 @@ public class BlogsEntryPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		BlogsEntry newBlogsEntry = addBlogsEntry();
 
 		_persistence.clearCache();
@@ -832,13 +692,13 @@ public class BlogsEntryPersistenceTest {
 		Assert.assertTrue(Validator.equals(existingBlogsEntry.getUuid(),
 				ReflectionTestUtil.invoke(existingBlogsEntry,
 					"getOriginalUuid", new Class<?>[0])));
-		Assert.assertEquals(existingBlogsEntry.getGroupId(),
-			ReflectionTestUtil.invoke(existingBlogsEntry, "getOriginalGroupId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingBlogsEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingBlogsEntry,
+				"getOriginalGroupId", new Class<?>[0]));
 
-		Assert.assertEquals(existingBlogsEntry.getGroupId(),
-			ReflectionTestUtil.invoke(existingBlogsEntry, "getOriginalGroupId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingBlogsEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingBlogsEntry,
+				"getOriginalGroupId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingBlogsEntry.getUrlTitle(),
 				ReflectionTestUtil.invoke(existingBlogsEntry,
 					"getOriginalUrlTitle", new Class<?>[0])));
@@ -881,6 +741,8 @@ public class BlogsEntryPersistenceTest {
 
 		blogsEntry.setTrackbacks(RandomTestUtil.randomString());
 
+		blogsEntry.setCoverImageCaption(RandomTestUtil.randomString());
+
 		blogsEntry.setCoverImageFileEntryId(RandomTestUtil.nextLong());
 
 		blogsEntry.setCoverImageURL(RandomTestUtil.randomString());
@@ -892,6 +754,8 @@ public class BlogsEntryPersistenceTest {
 		blogsEntry.setSmallImageId(RandomTestUtil.nextLong());
 
 		blogsEntry.setSmallImageURL(RandomTestUtil.randomString());
+
+		blogsEntry.setLastPublishDate(RandomTestUtil.nextDate());
 
 		blogsEntry.setStatus(RandomTestUtil.nextInt());
 

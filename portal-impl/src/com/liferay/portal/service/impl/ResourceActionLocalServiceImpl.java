@@ -41,6 +41,29 @@ public class ResourceActionLocalServiceImpl
 	extends ResourceActionLocalServiceBaseImpl {
 
 	@Override
+	public ResourceAction addResourceAction(
+		String name, String actionId, long bitwiseValue) {
+
+		ResourceAction resourceAction = resourceActionPersistence.fetchByN_A(
+			name, actionId);
+
+		if (resourceAction == null) {
+			long resourceActionId = counterLocalService.increment(
+				ResourceAction.class.getName());
+
+			resourceAction = resourceActionPersistence.create(resourceActionId);
+
+			resourceAction.setName(name);
+			resourceAction.setActionId(actionId);
+			resourceAction.setBitwiseValue(bitwiseValue);
+
+			resourceActionPersistence.update(resourceAction);
+		}
+
+		return resourceAction;
+	}
+
+	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public void checkResourceActions() {
 		List<ResourceAction> resourceActions =
@@ -102,17 +125,16 @@ public class ResourceActionLocalServiceImpl
 					bitwiseValue = lastBitwiseValue;
 				}
 
-				long resourceActionId = counterLocalService.increment(
-					ResourceAction.class.getName());
-
-				resourceAction = resourceActionPersistence.create(
-					resourceActionId);
-
-				resourceAction.setName(name);
-				resourceAction.setActionId(actionId);
-				resourceAction.setBitwiseValue(bitwiseValue);
-
-				resourceActionPersistence.update(resourceAction);
+				try {
+					resourceAction =
+						resourceActionLocalService.addResourceAction(
+							name, actionId, bitwiseValue);
+				}
+				catch (Throwable t) {
+					resourceAction =
+						resourceActionLocalService.addResourceAction(
+							name, actionId, bitwiseValue);
+				}
 
 				if (newResourceActions == null) {
 					newResourceActions = new ArrayList<>();
@@ -169,6 +191,22 @@ public class ResourceActionLocalServiceImpl
 				name, RoleConstants.SITE_MEMBER,
 				ResourceConstants.SCOPE_INDIVIDUAL, siteMemberBitwiseValue);
 		}
+	}
+
+	@Override
+	public ResourceAction deleteResourceAction(long resourceActionId)
+		throws PortalException {
+
+		return deleteResourceAction(
+			resourceActionPersistence.findByPrimaryKey(resourceActionId));
+	}
+
+	@Override
+	public ResourceAction deleteResourceAction(ResourceAction resourceAction) {
+		_resourceActions.remove(
+			encodeKey(resourceAction.getName(), resourceAction.getActionId()));
+
+		return resourceActionPersistence.remove(resourceAction);
 	}
 
 	@Override

@@ -16,37 +16,56 @@
 
 <%@ include file="/init.jsp" %>
 
-<aui:form name="fm">
+<%
+String displayStyle = ParamUtil.getString(request, "displayStyle", "list");
+%>
+
+<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
+	<aui:nav cssClass="navbar-nav">
+		<aui:nav-item cssClass="active" label="tags" />
+	</aui:nav>
+
+	<aui:nav-bar-search>
+		<liferay-ui:input-search markupView="lexicon" />
+	</aui:nav-bar-search>
+</aui:nav-bar>
+
+<div class="management-bar-container">
+	<liferay-frontend:management-bar
+		includeCheckBox="<%= true %>"
+	>
+		<liferay-frontend:management-bar-buttons>
+			<liferay-portlet:renderURL varImpl="portletURL" />
+
+			<liferay-frontend:management-bar-display-buttons
+				displayStyleURL="<%= portletURL %>"
+				displayViews='<%= new String[]{"list"} %>'
+				selectedDisplayStyle="<%= displayStyle %>"
+			/>
+		</liferay-frontend:management-bar-buttons>
+	</liferay-frontend:management-bar>
+
+	<liferay-frontend:management-bar
+		cssClass="management-bar-no-collapse"
+		id="tagsActionsButton"
+	>
+
+		<liferay-frontend:management-bar-buttons>
+			<aui:a cssClass="btn" href="javascript:;" iconCssClass="icon-random" id="mergeSelectedTags" />
+
+			<aui:a cssClass="btn" href="javascript:;" iconCssClass="icon-trash" id="deleteSelectedTags" />
+		</liferay-frontend:management-bar-buttons>
+	</liferay-frontend:management-bar>
+</div>
+
+<aui:form cssClass="container-fluid-1280" name="fm">
 	<aui:input name="deleteTagIds" type="hidden" />
 
 	<liferay-ui:search-container
 		emptyResultsMessage="there-are-no-tags"
+		id="assetTags"
 		rowChecker="<%= new RowChecker(renderResponse) %>"
 	>
-		<aui:nav-bar>
-			<aui:nav cssClass="navbar-nav">
-				<c:if test="<%= AssetPermission.contains(permissionChecker, themeDisplay.getSiteGroupId(), ActionKeys.ADD_TAG) %>">
-					<portlet:renderURL var="editTagURL">
-						<portlet:param name="mvcPath" value="/edit_tag.jsp" />
-						<portlet:param name="redirect" value="<%= currentURL %>" />
-					</portlet:renderURL>
-
-					<aui:nav-item href="<%= editTagURL %>" iconCssClass="icon-plus" label="add-tag" />
-				</c:if>
-
-				<aui:nav-item cssClass="hide" dropdown="<%= true %>" id="tagsActionsButton" label="actions">
-					<aui:nav-item iconCssClass="icon-random" id="mergeSelectedTags" label="merge" />
-
-					<aui:nav-item cssClass="item-remove" iconCssClass="icon-remove" id="deleteSelectedTags" label="delete" />
-				</aui:nav-item>
-			</aui:nav>
-
-			<aui:nav-bar-search>
-				<div class="form-search">
-					<liferay-ui:input-search />
-				</div>
-			</aui:nav-bar-search>
-		</aui:nav-bar>
 
 		<liferay-ui:search-container-results>
 
@@ -88,27 +107,37 @@
 			</liferay-ui:search-container-column-text>
 
 			<liferay-ui:search-container-column-jsp
-				cssClass="entry-action"
+				cssClass="checkbox-cell entry-action"
 				path="/tag_action.jsp"
 			/>
 		</liferay-ui:search-container-row>
 
-		<liferay-ui:search-iterator />
+		<liferay-ui:search-iterator markupView="lexicon" />
 	</liferay-ui:search-container>
 </aui:form>
+
+<c:if test="<%= AssetPermission.contains(permissionChecker, themeDisplay.getSiteGroupId(), ActionKeys.ADD_TAG) %>">
+	<portlet:renderURL var="editTagURL">
+		<portlet:param name="mvcPath" value="/edit_tag.jsp" />
+	</portlet:renderURL>
+
+	<liferay-frontend:add-menu>
+		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "add-tag") %>' url="<%= editTagURL.toString() %>" />
+	</liferay-frontend:add-menu>
+</c:if>
 
 <aui:script sandbox="<%= true %>">
 	var Util = Liferay.Util;
 
 	var form = $(document.<portlet:namespace />fm);
 
-	$('#<portlet:namespace /><%= searchContainerReference.getId() %>SearchContainer').on(
+	$('#<portlet:namespace />assetTagsSearchContainer').on(
 		'click',
 		'input[type=checkbox]',
 		function() {
 			var hide = (Util.listCheckedExcept(form, '<portlet:namespace /><%= RowChecker.ALL_ROW_IDS %>').length == 0);
 
-			$('#<portlet:namespace />tagsActionsButton').toggleClass('hide', hide);
+			$('#<portlet:namespace />tagsActionsButton').toggleClass('on', !hide);
 		}
 	);
 
@@ -130,17 +159,14 @@
 	$('#<portlet:namespace />mergeSelectedTags').on(
 		'click',
 		function() {
-			if (form.fm('rowIds').filter(':checked').length > 1) {
-				<portlet:renderURL var="mergeURL">
-					<portlet:param name="mvcPath" value="/merge_tag.jsp" />
-					<portlet:param name="redirect" value="<%= currentURL %>" />
-				</portlet:renderURL>
+			<portlet:renderURL var="mergeURL">
+				<portlet:param name="mvcPath" value="/merge_tag.jsp" />
+				<portlet:param name="mergeTagIds" value="[$MERGE_TAGS_IDS$]" />
+			</portlet:renderURL>
 
-				location.href = '<%= mergeURL %>' + '&<portlet:namespace />mergeTagIds=' + Util.listCheckedExcept(form, '<portlet:namespace />allRowIds');
-			}
-			else {
-				alert('<liferay-ui:message arguments="<%= 2 %>" key="please-choose-at-least-x-tags" />');
-			}
+			var mergeURL = '<%= mergeURL %>';
+
+			location.href = mergeURL.replace(escape('[$MERGE_TAGS_IDS$]'), Util.listCheckedExcept(form, '<portlet:namespace />allRowIds'));
 		}
 	);
 </aui:script>

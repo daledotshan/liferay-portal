@@ -91,6 +91,13 @@ public class DLFileEntryMetadataLocalServiceWrapper
 	}
 
 	@Override
+	public void deleteFileEntryMetadata(
+		com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata fileEntryMetadata)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_dlFileEntryMetadataLocalService.deleteFileEntryMetadata(fileEntryMetadata);
+	}
+
+	@Override
 	public void deleteFileVersionFileEntryMetadata(long fileVersionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_dlFileEntryMetadataLocalService.deleteFileVersionFileEntryMetadata(fileVersionId);
@@ -346,20 +353,20 @@ public class DLFileEntryMetadataLocalServiceWrapper
 
 	@Override
 	public void updateFileEntryMetadata(long companyId,
-		java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> ddmStructures,
-		long fileEntryTypeId, long fileEntryId, long fileVersionId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
+		java.util.List<com.liferay.portlet.dynamicdatamapping.DDMStructure> ddmStructures,
+		long fileEntryId, long fileVersionId,
+		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.DDMFormValues> ddmFormValuesMap,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_dlFileEntryMetadataLocalService.updateFileEntryMetadata(companyId,
-			ddmStructures, fileEntryTypeId, fileEntryId, fileVersionId,
-			ddmFormValuesMap, serviceContext);
+			ddmStructures, fileEntryId, fileVersionId, ddmFormValuesMap,
+			serviceContext);
 	}
 
 	@Override
 	public void updateFileEntryMetadata(long fileEntryTypeId, long fileEntryId,
 		long fileVersionId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
+		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.DDMFormValues> ddmFormValuesMap,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_dlFileEntryMetadataLocalService.updateFileEntryMetadata(fileEntryTypeId,
