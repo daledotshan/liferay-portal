@@ -16,17 +16,18 @@ package com.liferay.portal.velocity;
 
 import aQute.bnd.annotation.metatype.Configurable;
 
-import com.liferay.portal.cache.MultiVMPoolImpl;
-import com.liferay.portal.cache.SingleVMPoolImpl;
-import com.liferay.portal.cache.memory.MemoryPortalCacheManager;
-import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
-import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
+import com.liferay.portal.cache.test.TestPortalCacheManager;
+import com.liferay.portal.kernel.cache.MultiVMPool;
+import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.cache.PortalCacheManager;
+import com.liferay.portal.kernel.cache.SingleVMPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.template.StringTemplateResource;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateException;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.template.TemplateResourceLoader;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.template.TemplateContextHelper;
 import com.liferay.portal.template.velocity.FastExtendedProperties;
@@ -36,7 +37,7 @@ import com.liferay.portal.template.velocity.LiferayResourceManager;
 import com.liferay.portal.template.velocity.VelocityTemplate;
 import com.liferay.portal.template.velocity.VelocityTemplateResourceLoader;
 import com.liferay.portal.template.velocity.configuration.VelocityEngineConfiguration;
-import com.liferay.registry.BasicRegistryImpl;
+import com.liferay.portal.tools.ToolDependencies;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceRegistration;
@@ -67,6 +68,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 /**
  * @author Tina Tian
  * @author Raymond Augé
@@ -75,28 +80,7 @@ public class VelocityTemplateTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		RegistryUtil.setRegistry(new BasicRegistryImpl());
-
-		MultiVMPoolUtil multiVMPoolUtil = new MultiVMPoolUtil();
-
-		MultiVMPoolImpl multiVMPoolImpl = new MultiVMPoolImpl();
-
-		multiVMPoolImpl.setPortalCacheManager(
-			MemoryPortalCacheManager.
-				<Serializable, Serializable>createMemoryPortalCacheManager(
-					"multi.vm.pool"));
-
-		multiVMPoolUtil.setMultiVMPool(multiVMPoolImpl);
-
-		SingleVMPoolUtil singleVMPoolUtil = new SingleVMPoolUtil();
-
-		SingleVMPoolImpl singleVMPoolImpl = new SingleVMPoolImpl();
-
-		singleVMPoolImpl.setPortalCacheManager(
-			MemoryPortalCacheManager.createMemoryPortalCacheManager(
-				"single.vm.pool"));
-
-		singleVMPoolUtil.setSingleVMPool(singleVMPoolImpl);
+		ToolDependencies.wireCaches();
 
 		_templateResourceLoader = new MockTemplateResourceLoader();
 
@@ -263,16 +247,10 @@ public class VelocityTemplateTest {
 
 			Assert.fail();
 		}
-		catch (Exception e) {
-			if (e instanceof TemplateException) {
-				String message = e.getMessage();
+		catch (TemplateException te) {
+			String message = te.getMessage();
 
-				Assert.assertTrue(message.contains(_WRONG_TEMPLATE_ID));
-
-				return;
-			}
-
-			Assert.fail();
+			Assert.assertTrue(message.contains(_WRONG_TEMPLATE_ID));
 		}
 	}
 
@@ -346,16 +324,10 @@ public class VelocityTemplateTest {
 
 			Assert.fail();
 		}
-		catch (Exception e) {
-			if (e instanceof TemplateException) {
-				String message = e.getMessage();
+		catch (TemplateException te) {
+			String message = te.getMessage();
 
-				Assert.assertTrue(message.contains(_WRONG_ERROR_TEMPLATE_ID));
-
-				return;
-			}
-
-			Assert.fail();
+			Assert.assertTrue(message.contains(_WRONG_ERROR_TEMPLATE_ID));
 		}
 	}
 
@@ -422,6 +394,57 @@ public class VelocityTemplateTest {
 
 		@Override
 		protected void activate(Map<String, Object> properties) {
+			MultiVMPool multiVMPool = Mockito.mock(MultiVMPool.class);
+
+			final PortalCacheManager
+				<? extends Serializable, ? extends Serializable>
+				portalCacheManager =
+					TestPortalCacheManager.createTestPortalCacheManager(
+						RandomTestUtil.randomString());
+
+			Mockito.when(
+				multiVMPool.getPortalCache(Mockito.anyString())
+			).thenAnswer(
+				new Answer
+					<PortalCache
+						<? extends Serializable, ? extends Serializable>>() {
+
+					@Override
+					public PortalCache
+						<? extends Serializable, ? extends Serializable> answer(
+							InvocationOnMock invocationOnMock)
+						throws Throwable {
+
+						return portalCacheManager.getPortalCache(
+							RandomTestUtil.randomString());
+					}
+
+				});
+
+			setMultiVMPool(multiVMPool);
+
+			SingleVMPool singleVMPool = Mockito.mock(SingleVMPool.class);
+
+			Mockito.when(
+				singleVMPool.getPortalCache(Mockito.anyString())
+			).thenAnswer(
+				new Answer
+					<PortalCache
+						<? extends Serializable, ? extends Serializable>>() {
+
+					@Override
+					public PortalCache
+						<? extends Serializable, ? extends Serializable> answer(
+							InvocationOnMock invocationOnMock)
+						throws Throwable {
+
+						return portalCacheManager.getPortalCache("test");
+					}
+
+				});
+
+			setSingleVMPool(singleVMPool);
+
 			super.activate(properties);
 		}
 
