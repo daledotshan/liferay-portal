@@ -62,15 +62,6 @@ public abstract class BaseTrashRenderer implements TrashRenderer {
 	}
 
 	@Override
-	public String render(
-			RenderRequest renderRequest, RenderResponse renderResponse,
-			String template)
-		throws Exception {
-
-		return null;
-	}
-
-	@Override
 	public String renderActions(
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws Exception {

@@ -15,8 +15,8 @@
 package com.liferay.poshi.runner.selenium;
 
 import com.liferay.poshi.runner.util.GetterUtil;
-import com.liferay.poshi.runner.util.ListUtil;
 import com.liferay.poshi.runner.util.StringUtil;
+import com.liferay.poshi.runner.util.Validator;
 
 import com.thoughtworks.selenium.Selenium;
 
@@ -48,7 +48,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
@@ -99,21 +98,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void addSelection(String locator, String optionLocator) {
-		Select select = new Select(getWebElement(locator));
-
-		if (optionLocator.startsWith("index=")) {
-			select.selectByIndex(
-				GetterUtil.getInteger(optionLocator.substring(6)));
-		}
-		else if (optionLocator.startsWith("label=")) {
-			select.selectByVisibleText(optionLocator.substring(6));
-		}
-		else if (optionLocator.startsWith("value=")) {
-			select.selectByValue(optionLocator.substring(6));
-		}
-		else {
-			select.selectByVisibleText(optionLocator);
-		}
+		WebDriverHelper.addSelection(this, locator, optionLocator);
 	}
 
 	@Override
@@ -173,11 +158,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void check(String locator) {
-		WebElement webElement = getWebElement(locator);
-
-		if (!webElement.isSelected()) {
-			webElement.click();
-		}
+		WebDriverHelper.check(this, locator);
 	}
 
 	@Override
@@ -224,7 +205,7 @@ public class WebDriverToSeleniumBridge
 		int offsetX = 0;
 		int offsetY = 0;
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			offsetX = GetterUtil.getInteger(coords[0]);
@@ -358,7 +339,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);
@@ -518,23 +499,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public String getConfirmation() {
-		switchTo();
-
-		WebDriverWait webDriverWait = new WebDriverWait(this, 1);
-
-		try {
-			Alert alert = webDriverWait.until(
-				ExpectedConditions.alertIsPresent());
-
-			String confirmation = alert.getText();
-
-			alert.accept();
-
-			return confirmation;
-		}
-		catch (Exception e) {
-			throw new WebDriverException();
-		}
+		return WebDriverHelper.getConfirmation(this);
 	}
 
 	@Override
@@ -701,33 +666,12 @@ public class WebDriverToSeleniumBridge
 	}
 
 	public String getSelectedLabel(String selectLocator, String timeout) {
-		try {
-			WebElement selectLocatorWebElement = getWebElement(
-				selectLocator, timeout);
-
-			Select select = new Select(selectLocatorWebElement);
-
-			WebElement firstSelectedOptionWebElement =
-				select.getFirstSelectedOption();
-
-			return firstSelectedOptionWebElement.getText();
-		}
-		catch (Exception e) {
-			return null;
-		}
+		return WebDriverHelper.getSelectedLabel(this, selectLocator, timeout);
 	}
 
 	@Override
 	public String[] getSelectedLabels(String selectLocator) {
-		WebElement selectLocatorWebElement = getWebElement(selectLocator);
-
-		Select select = new Select(selectLocatorWebElement);
-
-		List<WebElement> allSelectedOptionsWebElements =
-			select.getAllSelectedOptions();
-
-		return StringUtil.split(
-			ListUtil.toString(allSelectedOptionsWebElements, "text"));
+		return WebDriverHelper.getSelectedLabels(this, selectLocator);
 	}
 
 	@Override
@@ -819,9 +763,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void goBack() {
-		WebDriver.Navigation navigation = navigate();
-
-		navigation.back();
+		WebDriverHelper.goBack(this);
 	}
 
 	@Override
@@ -877,7 +819,9 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public boolean isEditable(String locator) {
-		throw new UnsupportedOperationException();
+		WebElement webElement = getWebElement(locator);
+
+		return webElement.isEnabled();
 	}
 
 	@Override
@@ -1060,7 +1004,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);
@@ -1126,7 +1070,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);
@@ -1221,7 +1165,7 @@ public class WebDriverToSeleniumBridge
 
 		Actions actions = new Actions(webDriver);
 
-		if (coordString.contains(",")) {
+		if (Validator.isNotNull(coordString) && coordString.contains(",")) {
 			String[] coords = coordString.split(",");
 
 			int x = GetterUtil.getInteger(coords[0]);
@@ -1302,58 +1246,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void select(String selectLocator, String optionLocator) {
-		WebElement webElement = getWebElement(selectLocator);
-
-		Select select = new Select(webElement);
-
-		String label = optionLocator;
-
-		if (optionLocator.startsWith("index=")) {
-			String indexString = optionLocator.substring(6);
-
-			int index = GetterUtil.getInteger(indexString);
-
-			select.selectByIndex(index - 1);
-		}
-		else if (optionLocator.startsWith("value=")) {
-			String value = optionLocator.substring(6);
-
-			if (value.startsWith("regexp:")) {
-				String regexp = value.substring(7);
-
-				selectByRegexpValue(selectLocator, regexp);
-			}
-			else {
-				List<WebElement> optionWebElements = select.getOptions();
-
-				for (WebElement optionWebElement : optionWebElements) {
-					String optionWebElementValue =
-						optionWebElement.getAttribute("value");
-
-					if (optionWebElementValue.equals(value)) {
-						label = optionWebElement.getText();
-
-						break;
-					}
-				}
-
-				select.selectByValue(label);
-			}
-		}
-		else {
-			if (optionLocator.startsWith("label=")) {
-				label = optionLocator.substring(6);
-			}
-
-			if (label.startsWith("regexp:")) {
-				String regexp = label.substring(7);
-
-				selectByRegexpText(selectLocator, regexp);
-			}
-			else {
-				select.selectByVisibleText(label);
-			}
-		}
+		WebDriverHelper.select(this, selectLocator, optionLocator);
 	}
 
 	@Override
@@ -1482,7 +1375,15 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void type(String locator, String value) {
-		WebDriverHelper.type(this, locator, value);
+		WebElement webElement = getWebElement(locator);
+
+		if (!webElement.isEnabled()) {
+			return;
+		}
+
+		webElement.clear();
+
+		typeKeys(locator, value);
 	}
 
 	@Override
@@ -1504,12 +1405,13 @@ public class WebDriverToSeleniumBridge
 		for (int specialCharIndex : specialCharIndexes) {
 			webElement.sendKeys(value.substring(i, specialCharIndex));
 
-			webElement.sendKeys(Keys.ESCAPE);
-
 			String specialChar = String.valueOf(value.charAt(specialCharIndex));
 
 			if (specialChar.equals("-")) {
 				webElement.sendKeys(Keys.SUBTRACT);
+			}
+			else if (specialChar.equals("\t")) {
+				webElement.sendKeys(Keys.TAB);
 			}
 			else {
 				webElement.sendKeys(
@@ -1524,11 +1426,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void uncheck(String locator) {
-		WebElement webElement = getWebElement(locator);
-
-		if (webElement.isSelected()) {
-			webElement.click();
-		}
+		WebDriverHelper.uncheck(this, locator);
 	}
 
 	@Override
@@ -1629,13 +1527,14 @@ public class WebDriverToSeleniumBridge
 	protected Set<Integer> getSpecialCharIndexes(String value) {
 		Set<Integer> specialCharIndexes = new TreeSet<>();
 
-		while (value.contains("-")) {
-			specialCharIndexes.add(value.indexOf("-"));
+		Set<String> specialChars = new TreeSet<>();
 
-			value = StringUtil.replaceFirst(value, "-", " ");
-		}
+		specialChars.addAll(_keysSpecialChars.keySet());
 
-		for (String specialChar : _keysSpecialChars.keySet()) {
+		specialChars.add("-");
+		specialChars.add("\t");
+
+		for (String specialChar : specialChars) {
 			while (value.contains(specialChar)) {
 				specialCharIndexes.add(value.indexOf(specialChar));
 
