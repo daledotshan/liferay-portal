@@ -15,6 +15,8 @@
 package com.liferay.portal.struts;
 
 import com.liferay.portal.NoSuchLayoutException;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -26,7 +28,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.PortletConstants;
+import com.liferay.portal.model.PortletInstance;
 import com.liferay.portal.model.impl.VirtualLayout;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
@@ -34,7 +36,6 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.test.LayoutTestUtil;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
@@ -45,6 +46,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,16 +68,30 @@ public class FindActionTest {
 			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
 			SynchronousDestinationTestRule.INSTANCE);
 
+	@Before
+	public void setUp() throws Exception {
+		_portletIds = new String[] {
+			PortletProviderUtil.getPortletId(
+				BlogsEntry.class.getName(), PortletProvider.Action.MANAGE),
+			PortletProviderUtil.getPortletId(
+				BlogsEntry.class.getName(), PortletProvider.Action.VIEW)
+		};
+	}
+
 	@Test
 	public void testGetPlidAndPortletIdViewInContext() throws Exception {
 		addLayouts(true, false);
 
-		Object[] plidAndPorltetId = FindAction.getPlidAndPortletId(
+		Object[] plidAndPorltetId = BaseFindActionHelper.getPlidAndPortletId(
 			getThemeDisplay(), _blogsEntry.getGroupId(), _assetLayout.getPlid(),
-			_PORTLET_IDS);
+			_portletIds);
 
 		Assert.assertEquals(_blogLayout.getPlid(), plidAndPorltetId[0]);
-		Assert.assertEquals(PortletKeys.BLOGS, plidAndPorltetId[1]);
+
+		String portletId = PortletProviderUtil.getPortletId(
+			BlogsEntry.class.getName(), PortletProvider.Action.VIEW);
+
+		Assert.assertEquals(portletId, plidAndPorltetId[1]);
 	}
 
 	@Test
@@ -85,9 +101,9 @@ public class FindActionTest {
 		addLayouts(false, false);
 
 		try {
-			FindAction.getPlidAndPortletId(
+			BaseFindActionHelper.getPlidAndPortletId(
 				getThemeDisplay(), _blogsEntry.getGroupId(),
-				_assetLayout.getPlid(), _PORTLET_IDS);
+				_assetLayout.getPlid(), _portletIds);
 
 			Assert.fail();
 		}
@@ -101,7 +117,7 @@ public class FindActionTest {
 
 		HttpServletRequest request = getHttpServletRequest();
 
-		FindAction.setTargetLayout(
+		BaseFindActionHelper.setTargetLayout(
 			request, _blogsEntry.getGroupId(), _blogLayout.getPlid());
 
 		Layout layout = (Layout)request.getAttribute(WebKeys.LAYOUT);
@@ -116,7 +132,7 @@ public class FindActionTest {
 
 		HttpServletRequest request = getHttpServletRequest();
 
-		FindAction.setTargetLayout(
+		BaseFindActionHelper.setTargetLayout(
 			request, _blogsEntry.getGroupId(), _blogLayout.getPlid());
 
 		Layout layout = (Layout)request.getAttribute(WebKeys.LAYOUT);
@@ -134,19 +150,23 @@ public class FindActionTest {
 		_assetLayout = LayoutTestUtil.addLayout(_group);
 
 		if (portletExists) {
-			LayoutTestUtil.addPortletToLayout(_blogLayout, PortletKeys.BLOGS);
+			String portletId = PortletProviderUtil.getPortletId(
+				BlogsEntry.class.getName(), PortletProvider.Action.VIEW);
+
+			LayoutTestUtil.addPortletToLayout(_blogLayout, portletId);
 		}
 
 		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		preferenceMap.put("assetLinkBehavior", new String[] {"viewInPortlet"});
 
-		_assetPublisherPortletId =
-			PortletKeys.ASSET_PUBLISHER + PortletConstants.INSTANCE_SEPARATOR +
-				RandomTestUtil.randomString();
+		PortletInstance portletInstance = new PortletInstance(
+			com.liferay.portlet.util.test.PortletKeys.TEST);
+
+		_testPortletId = portletInstance.getPortletInstanceKey();
 
 		LayoutTestUtil.addPortletToLayout(
-			TestPropsValues.getUserId(), _assetLayout, _assetPublisherPortletId,
+			TestPropsValues.getUserId(), _assetLayout, _testPortletId,
 			"column-1", preferenceMap);
 
 		Group group = _group;
@@ -187,16 +207,15 @@ public class FindActionTest {
 		return themeDisplay;
 	}
 
-	private static final String[] _PORTLET_IDS = {
-		PortletKeys.BLOGS_ADMIN, PortletKeys.BLOGS, PortletKeys.BLOGS_AGGREGATOR
-	};
+	private static String[] _portletIds;
 
 	private Layout _assetLayout;
-	private String _assetPublisherPortletId;
 	private Layout _blogLayout;
 	private BlogsEntry _blogsEntry;
 
 	@DeleteAfterTestRun
 	private Group _group;
+
+	private String _testPortletId;
 
 }

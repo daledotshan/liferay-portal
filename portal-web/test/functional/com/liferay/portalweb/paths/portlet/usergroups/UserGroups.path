@@ -9,33 +9,13 @@
 </thead>
 <tbody>
 <tr>
-	<td>PAGE_NAME</td>
-	<td></td>
-	<td>UserGroups</td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
 	<td>OPTIONS_ICON</td>
-	<td>//menu[@class='portlet-topper-toolbar']/div/a/i</td>
+	<td>//div[@id='main-content']//menu[@class='portlet-topper-toolbar']/div/a/i</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ADD</td>
 	<td>//div[@class='navbar-inner' or contains(@class,'navbar-default')]//a[contains(.,'Add')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>SEARCH_FIELD</td>
-	<td>//input[@name='_127_keywords']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>SEARCH_BUTTON</td>
-	<td>//button[contains(.,'Search')]</td>
 	<td></td>
 </tr>
 <tr>
