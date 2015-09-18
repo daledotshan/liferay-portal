@@ -16,10 +16,12 @@ package com.liferay.asset.categories.navigation.web.portlet.template;
 
 import com.liferay.asset.categories.navigation.web.configuration.AssetCategoriesNavigationWebConfigurationValues;
 import com.liferay.asset.categories.navigation.web.constants.AssetCategoriesNavigationPortletKeys;
+import com.liferay.asset.categories.navigation.web.display.context.AssetCategoriesNavigationDisplayContext;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portletdisplaytemplate.BasePortletDisplayTemplateHandler;
 import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.template.TemplateVariableGroup;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.asset.model.AssetCategory;
@@ -28,7 +30,7 @@ import com.liferay.portlet.asset.service.AssetCategoryLocalService;
 import com.liferay.portlet.asset.service.AssetCategoryService;
 import com.liferay.portlet.asset.service.AssetVocabularyLocalService;
 import com.liferay.portlet.asset.service.AssetVocabularyService;
-import com.liferay.portlet.portletdisplaytemplate.util.PortletDisplayTemplateConstants;
+import com.liferay.portlet.display.template.PortletDisplayTemplateConstants;
 
 import java.util.List;
 import java.util.Locale;
@@ -57,8 +59,8 @@ public class AssetCategoriesNavigationPortletDisplayTemplateHandler
 
 	@Override
 	public String getName(Locale locale) {
-		ResourceBundle resourceBundle = ResourceBundle.getBundle(
-			"content.Language");
+		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+			"content.Language", locale, getClass());
 
 		String portletTitle = PortalUtil.getPortletTitle(
 			AssetCategoriesNavigationPortletKeys.ASSET_CATEGORIES_NAVIGATION,
@@ -86,6 +88,10 @@ public class AssetCategoriesNavigationPortletDisplayTemplateHandler
 
 		templateVariableGroup.empty();
 
+		templateVariableGroup.addVariable(
+			"asset-categories-navigation-display-context",
+			AssetCategoriesNavigationDisplayContext.class,
+			"assetCategoriesNavigationDisplayContext");
 		templateVariableGroup.addCollectionVariable(
 			"vocabularies", List.class, PortletDisplayTemplateConstants.ENTRIES,
 			"vocabulary", AssetVocabulary.class, "curVocabulary", "name");

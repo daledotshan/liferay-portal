@@ -70,6 +70,8 @@ public interface Sites {
 	public static final String MERGE_FAIL_FRIENDLY_URL_LAYOUTS =
 		"merge-fail-friendly-url-layouts";
 
+	public static final String SCOPE_ID_GROUP_PREFIX = "Group_";
+
 	public void addMergeFailFriendlyURLLayout(Layout layout)
 		throws PortalException;
 
@@ -167,6 +169,8 @@ public interface Sites {
 	public boolean isLayoutSortable(Layout layout);
 
 	public boolean isLayoutUpdateable(Layout layout);
+
+	public boolean isUserGroupLayout(Layout layout) throws PortalException;
 
 	public boolean isUserGroupLayoutSetViewable(
 			PermissionChecker permissionChecker, Group userGroupGroup)

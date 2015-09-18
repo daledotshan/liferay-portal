@@ -14,6 +14,7 @@
 
 package com.liferay.poshi.runner.selenium;
 
+import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
 import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.OSDetector;
 import com.liferay.poshi.runner.util.PropsValues;
@@ -21,9 +22,7 @@ import com.liferay.poshi.runner.util.StringPool;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Keys;
@@ -46,17 +45,12 @@ public abstract class BaseWebDriverImpl
 
 		System.setProperty("java.awt.headless", "false");
 
-		String dependenciesDirName =
-			"portal-web//test//functional//com//liferay//portalweb//" +
-				"dependencies//";
-
-		String outputDirName = PropsValues.OUTPUT_DIR_NAME;
-
-		String sikuliImagesDirName = dependenciesDirName + "sikuli//linux//";
+		String outputDirName = _OUTPUT_DIR_NAME;
+		String sikuliImagesDirName =
+			_TEST_DEPENDENCIES_DIR_NAME + "//sikuli//linux//";
+		String testDependenciesDirName = _TEST_DEPENDENCIES_DIR_NAME;
 
 		if (OSDetector.isWindows()) {
-			dependenciesDirName = StringUtil.replace(
-				dependenciesDirName, "//", "\\");
 			outputDirName = StringUtil.replace(outputDirName, "//", "\\");
 			projectDirName = StringUtil.replace(projectDirName, "//", "\\");
 
@@ -64,23 +58,21 @@ public abstract class BaseWebDriverImpl
 				sikuliImagesDirName, "//", "\\");
 			sikuliImagesDirName = StringUtil.replace(
 				sikuliImagesDirName, "linux", "windows");
+
+			testDependenciesDirName = StringUtil.replace(
+				testDependenciesDirName, "//", "\\");
 		}
 
-		_dependenciesDirName = dependenciesDirName;
 		_outputDirName = outputDirName;
 		_projectDirName = projectDirName;
 		_sikuliImagesDirName = sikuliImagesDirName;
+		_testDependenciesDirName = testDependenciesDirName;
 
-		if (!PropsValues.MOBILE_DEVICE_ENABLED) {
-			WebDriver.Options options = webDriver.manage();
+		WebDriver.Options options = webDriver.manage();
 
-			WebDriver.Window window = options.window();
+		WebDriver.Window window = options.window();
 
-			int x = 1280;
-			int y = 1040;
-
-			window.setSize(new Dimension(x, y));
-		}
+		window.setSize(new Dimension(1280, 1040));
 
 		webDriver.get(browserURL);
 	}
@@ -118,6 +110,19 @@ public abstract class BaseWebDriverImpl
 	@Override
 	public void assertConsoleTextPresent(String text) throws Exception {
 		LiferaySeleniumHelper.assertConsoleTextPresent(text);
+	}
+
+	@Override
+	public void assertCssValue(
+			String locator, String cssAttribute, String cssValue)
+		throws Exception {
+
+		WebDriverHelper.assertCssValue(this, locator, cssAttribute, cssValue);
+	}
+
+	@Override
+	public void assertEditable(String locator) throws Exception {
+		LiferaySeleniumHelper.assertEditable(this, locator);
 	}
 
 	@Override
@@ -161,10 +166,6 @@ public abstract class BaseWebDriverImpl
 
 	@Override
 	public void assertLiferayErrors() throws Exception {
-		if (!PropsValues.TEST_ASSERT_LIFERAY_ERRORS) {
-			return;
-		}
-
 		LiferaySeleniumHelper.assertLiferayErrors();
 	}
 
@@ -191,6 +192,11 @@ public abstract class BaseWebDriverImpl
 	@Override
 	public void assertNotChecked(String locator) throws Exception {
 		LiferaySeleniumHelper.assertNotChecked(this, locator);
+	}
+
+	@Override
+	public void assertNotEditable(String locator) throws Exception {
+		LiferaySeleniumHelper.assertNotEditable(this, locator);
 	}
 
 	@Override
@@ -228,6 +234,11 @@ public abstract class BaseWebDriverImpl
 	@Override
 	public void assertNotVisible(String locator) throws Exception {
 		LiferaySeleniumHelper.assertNotVisible(this, locator);
+	}
+
+	@Override
+	public void assertPartialConfirmation(String pattern) throws Exception {
+		LiferaySeleniumHelper.assertPartialConfirmation(this, pattern);
 	}
 
 	@Override
@@ -336,11 +347,6 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
-	public String getDependenciesDirName() {
-		return _dependenciesDirName;
-	}
-
-	@Override
 	public String getEmailBody(String index) throws Exception {
 		return LiferaySeleniumHelper.getEmailBody(index);
 	}
@@ -421,6 +427,11 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public String getTestDependenciesDirName() {
+		return _testDependenciesDirName;
+	}
+
+	@Override
 	public void goBackAndWait() {
 		super.goBack();
 		super.waitForPageToLoad("30000");
@@ -433,7 +444,7 @@ public abstract class BaseWebDriverImpl
 
 	@Override
 	public boolean isElementNotPresent(String locator) {
-		return LiferaySeleniumHelper.isElementNotPresent(this, locator);
+		return WebDriverHelper.isElementNotPresent(this, locator);
 	}
 
 	@Override
@@ -457,21 +468,18 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public boolean isNotEditable(String locator) {
+		return !isEditable(locator);
+	}
+
+	@Override
 	public boolean isNotPartialText(String locator, String value) {
 		return LiferaySeleniumHelper.isNotPartialText(this, locator, value);
 	}
 
 	@Override
 	public boolean isNotSelectedLabel(String selectLocator, String pattern) {
-		if (isElementNotPresent(selectLocator)) {
-			return false;
-		}
-
-		String[] selectedLabels = getSelectedLabels(selectLocator);
-
-		List<String> selectedLabelsList = Arrays.asList(selectedLabels);
-
-		return !selectedLabelsList.contains(pattern);
+		return WebDriverHelper.isNotSelectedLabel(this, selectLocator, pattern);
 	}
 
 	@Override
@@ -491,20 +499,17 @@ public abstract class BaseWebDriverImpl
 
 	@Override
 	public boolean isPartialText(String locator, String value) {
-		WebElement webElement = getWebElement(locator, "1");
-
-		String text = webElement.getText();
-
-		return text.contains(value);
+		return WebDriverHelper.isPartialText(this, locator, value);
 	}
 
 	@Override
 	public boolean isSelectedLabel(String selectLocator, String pattern) {
-		if (isElementNotPresent(selectLocator)) {
-			return false;
-		}
+		return WebDriverHelper.isSelectedLabel(this, selectLocator, pattern);
+	}
 
-		return pattern.equals(getSelectedLabel(selectLocator, "1"));
+	@Override
+	public boolean isSikuliImagePresent(String image) throws Exception {
+		return LiferaySeleniumHelper.isSikuliImagePresent(this, image);
 	}
 
 	@Override
@@ -525,6 +530,16 @@ public abstract class BaseWebDriverImpl
 	@Override
 	public boolean isValue(String locator, String value) {
 		return value.equals(getValue(locator, "1"));
+	}
+
+	@Override
+	public void javaScriptMouseDown(String locator) {
+		WebDriverHelper.executeJavaScriptMouseEvent(this, locator, "mousedown");
+	}
+
+	@Override
+	public void javaScriptMouseUp(String locator) {
+		WebDriverHelper.executeJavaScriptMouseEvent(this, locator, "mouseup");
 	}
 
 	@Override
@@ -720,6 +735,13 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public void sikuliClickByIndex(String image, String index)
+		throws Exception {
+
+		LiferaySeleniumHelper.sikuliClickByIndex(this, image, index);
+	}
+
+	@Override
 	public void sikuliDragAndDrop(String image, String coordString)
 		throws Exception {
 
@@ -799,8 +821,13 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
-	public void typeFrame(String locator, String value) {
-		LiferaySeleniumHelper.typeFrame(this, locator, value);
+	public void typeAlloyEditor(String locator, String value) {
+		WebDriverHelper.typeAlloyEditor(this, locator, value);
+	}
+
+	@Override
+	public void typeCKEditor(String locator, String value) {
+		LiferaySeleniumHelper.typeCKEditor(this, locator, value);
 	}
 
 	@Override
@@ -810,7 +837,16 @@ public abstract class BaseWebDriverImpl
 
 	@Override
 	public void uploadCommonFile(String location, String value) {
-		uploadFile(location, _projectDirName + _dependenciesDirName + value);
+		String slash = "/";
+
+		if (OSDetector.isWindows()) {
+			slash = "\\";
+		}
+
+		uploadFile(
+			location,
+			_TEST_BASE_DIR_NAME + slash + _testDependenciesDirName + slash +
+				value);
 	}
 
 	@Override
@@ -835,23 +871,7 @@ public abstract class BaseWebDriverImpl
 
 	@Override
 	public void waitForConfirmation(String pattern) throws Exception {
-		int timeout =
-			PropsValues.TIMEOUT_EXPLICIT_WAIT /
-				PropsValues.TIMEOUT_IMPLICIT_WAIT;
-
-		for (int second = 0;; second++) {
-			if (second >= timeout) {
-				assertConfirmation(pattern);
-			}
-
-			try {
-				if (isConfirmation(pattern)) {
-					break;
-				}
-			}
-			catch (Exception e) {
-			}
-		}
+		LiferaySeleniumHelper.waitForConfirmation(this, pattern);
 	}
 
 	@Override
@@ -940,11 +960,19 @@ public abstract class BaseWebDriverImpl
 		super.waitForPageToLoad("30000");
 	}
 
+	private static final String _OUTPUT_DIR_NAME = PropsValues.OUTPUT_DIR_NAME;
+
+	private static final String _TEST_BASE_DIR_NAME =
+		PoshiRunnerGetterUtil.getCanonicalPath(PropsValues.TEST_BASE_DIR_NAME);
+
+	private static final String _TEST_DEPENDENCIES_DIR_NAME =
+		PropsValues.TEST_DEPENDENCIES_DIR_NAME;
+
 	private String _clipBoard = "";
-	private final String _dependenciesDirName;
 	private final String _outputDirName;
 	private String _primaryTestSuiteName;
 	private final String _projectDirName;
 	private final String _sikuliImagesDirName;
+	private final String _testDependenciesDirName;
 
 }

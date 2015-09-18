@@ -22,6 +22,16 @@ long[] selectedGroupIds = StringUtil.split(ParamUtil.getString(request, "selecte
 long refererAssetEntryId = ParamUtil.getLong(request, "refererAssetEntryId");
 String typeSelection = ParamUtil.getString(request, "typeSelection");
 long subtypeSelectionId = ParamUtil.getLong(request, "subtypeSelectionId");
+boolean showNonindexable = ParamUtil.getBoolean(request, "showNonindexable");
+
+Boolean listable = null;
+
+String listableValue = ParamUtil.getString(request, "listable", null);
+
+if (Validator.isNotNull(listableValue)) {
+	listable = ParamUtil.getBoolean(request, "listable", true);
+}
+
 String eventName = ParamUtil.getString(request, "eventName", liferayPortletResponse.getNamespace() + "selectAsset");
 
 PortletURL portletURL = renderResponse.createRenderURL();
@@ -30,6 +40,11 @@ portletURL.setParameter("selectedGroupIds", StringUtil.merge(selectedGroupIds));
 portletURL.setParameter("refererAssetEntryId", String.valueOf(refererAssetEntryId));
 portletURL.setParameter("typeSelection", typeSelection);
 portletURL.setParameter("subtypeSelectionId", String.valueOf(subtypeSelectionId));
+
+if (listable != null) {
+	portletURL.setParameter("listable", String.valueOf(listable));
+}
+
 portletURL.setParameter("eventName", eventName);
 
 request.setAttribute("view.jsp-portletURL", portletURL);
@@ -52,14 +67,14 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 				</aui:nav>
 
 				<aui:nav-bar-search>
-					<%@ include file="/search.jsp" %>
+					<%@ include file="/search.jspf" %>
 				</aui:nav-bar-search>
 			</aui:nav-bar>
 
 			<%
 			AssetBrowserSearchTerms searchTerms = (AssetBrowserSearchTerms)searchContainer.getSearchTerms();
 
-			AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(typeSelection);
+			AssetRendererFactory<?> assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(typeSelection);
 			%>
 
 			<liferay-ui:search-container-results>
@@ -67,11 +82,11 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 					<c:when test="<%= AssetBrowserWebConfigurationValues.SEARCH_WITH_DATABASE %>">
 
 						<%
-						int assetEntriesTotal = AssetEntryLocalServiceUtil.getEntriesCount(selectedGroupIds, new long[] {assetRendererFactory.getClassNameId()}, searchTerms.getKeywords(), searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), searchTerms.isAdvancedSearch(), searchTerms.isAndOperator());
+						int assetEntriesTotal = AssetEntryLocalServiceUtil.getEntriesCount(selectedGroupIds, new long[] {assetRendererFactory.getClassNameId()}, searchTerms.getKeywords(), searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), listable, searchTerms.isAdvancedSearch(), searchTerms.isAndOperator());
 
 						searchContainer.setTotal(assetEntriesTotal);
 
-						List<AssetEntry> assetEntries = AssetEntryLocalServiceUtil.getEntries(selectedGroupIds, new long[] {assetRendererFactory.getClassNameId()}, searchTerms.getKeywords(), searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), searchTerms.isAdvancedSearch(), searchTerms.isAndOperator(), searchContainer.getStart(), searchContainer.getEnd(), "modifiedDate", "title", "DESC", "ASC");
+						List<AssetEntry> assetEntries = AssetEntryLocalServiceUtil.getEntries(selectedGroupIds, new long[] {assetRendererFactory.getClassNameId()}, searchTerms.getKeywords(), searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), listable, searchTerms.isAdvancedSearch(), searchTerms.isAndOperator(), searchContainer.getStart(), searchContainer.getEnd(), "modifiedDate", "title", "DESC", "ASC");
 
 						searchContainer.setResults(assetEntries);
 						%>
@@ -83,10 +98,10 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 						Hits hits = null;
 
 						if (searchTerms.isAdvancedSearch()) {
-							hits = AssetEntryLocalServiceUtil.search(themeDisplay.getCompanyId(), new long[] {searchTerms.getGroupId()}, themeDisplay.getUserId(), assetRendererFactory.getClassName(), subtypeSelectionId, searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), null, null, WorkflowConstants.STATUS_APPROVED, searchTerms.isAndOperator(), searchContainer.getStart(), searchContainer.getEnd());
+							hits = AssetEntryLocalServiceUtil.search(themeDisplay.getCompanyId(), new long[] {searchTerms.getGroupId()}, themeDisplay.getUserId(), assetRendererFactory.getClassName(), subtypeSelectionId, searchTerms.getUserName(), searchTerms.getTitle(), searchTerms.getDescription(), null, null, showNonindexable, WorkflowConstants.STATUS_APPROVED, searchTerms.isAndOperator(), searchContainer.getStart(), searchContainer.getEnd());
 						}
 						else {
-							hits = AssetEntryLocalServiceUtil.search(themeDisplay.getCompanyId(), selectedGroupIds, themeDisplay.getUserId(), assetRendererFactory.getClassName(), subtypeSelectionId, searchTerms.getKeywords(), WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(), searchContainer.getEnd());
+							hits = AssetEntryLocalServiceUtil.search(themeDisplay.getCompanyId(), selectedGroupIds, themeDisplay.getUserId(), assetRendererFactory.getClassName(), subtypeSelectionId, searchTerms.getKeywords(), showNonindexable, WorkflowConstants.STATUS_APPROVED, searchContainer.getStart(), searchContainer.getEnd());
 						}
 
 						List<AssetEntry> assetEntries = AssetUtil.getAssetEntries(hits);
@@ -142,6 +157,7 @@ request.setAttribute("view.jsp-portletURL", portletURL);
 
 						data.put("assetentryid", assetEntry.getEntryId());
 						data.put("assetclassname", assetEntry.getClassName());
+						data.put("assetclasspk", assetEntry.getClassPK());
 						data.put("assettype", assetRendererFactory.getTypeName(locale, subtypeSelectionId));
 						data.put("assettitle", assetEntry.getTitle(locale));
 						data.put("groupdescriptivename", group.getDescriptiveName(locale));
