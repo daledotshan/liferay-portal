@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.SearchContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
@@ -107,7 +108,7 @@ public class DocumentImplTest {
 				"user", StringPool.BLANK);
 
 			User user = UserTestUtil.addUser(
-				screenName, false, firstName, "Smith", null);
+				screenName, LocaleUtil.getDefault(), firstName, "Smith", null);
 
 			_indexer.reindex(user);
 		}
@@ -520,7 +521,7 @@ public class DocumentImplTest {
 	@DeleteAfterTestRun
 	private Group _group;
 
-	private Indexer _indexer;
+	private Indexer<User> _indexer;
 	private IndexerPostProcessor _indexerPostProcessor;
 	private final Map<String, Integer[]> _integerArrays = new HashMap<>();
 	private final Map<String, Integer> _integers = new HashMap<>();

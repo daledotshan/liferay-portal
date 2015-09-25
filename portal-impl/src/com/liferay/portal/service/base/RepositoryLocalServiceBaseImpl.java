@@ -32,11 +32,6 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -62,10 +57,16 @@ import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryFinder
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryPersistence;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypeFinder;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypePersistence;
+import com.liferay.portlet.documentlibrary.service.persistence.DLFileShortcutPersistence;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileVersionPersistence;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFolderFinder;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFolderPersistence;
 import com.liferay.portlet.expando.service.persistence.ExpandoValuePersistence;
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -293,13 +294,13 @@ public abstract class RepositoryLocalServiceBaseImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -316,12 +317,18 @@ public abstract class RepositoryLocalServiceBaseImpl
 
 					StagedModelType stagedModelType = exportActionableDynamicQuery.getStagedModelType();
 
-					if (stagedModelType.getReferrerClassNameId() >= 0) {
-						Property classNameIdProperty = PropertyFactoryUtil.forName(
-								"classNameId");
+					long referrerClassNameId = stagedModelType.getReferrerClassNameId();
 
+					Property classNameIdProperty = PropertyFactoryUtil.forName(
+							"classNameId");
+
+					if ((referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ALL) &&
+							(referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ANY)) {
 						dynamicQuery.add(classNameIdProperty.eq(
 								stagedModelType.getReferrerClassNameId()));
+					}
+					else if (referrerClassNameId == StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
+						dynamicQuery.add(classNameIdProperty.isNotNull());
 					}
 				}
 			});
@@ -341,7 +348,8 @@ public abstract class RepositoryLocalServiceBaseImpl
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
-				PortalUtil.getClassNameId(Repository.class.getName())));
+				PortalUtil.getClassNameId(Repository.class.getName()),
+				StagedModelType.REFERRER_CLASS_NAME_ID_ALL));
 
 		return exportActionableDynamicQuery;
 	}
@@ -449,7 +457,7 @@ public abstract class RepositoryLocalServiceBaseImpl
 	 *
 	 * @return the repository local service
 	 */
-	public com.liferay.portal.service.RepositoryLocalService getRepositoryLocalService() {
+	public RepositoryLocalService getRepositoryLocalService() {
 		return repositoryLocalService;
 	}
 
@@ -459,7 +467,7 @@ public abstract class RepositoryLocalServiceBaseImpl
 	 * @param repositoryLocalService the repository local service
 	 */
 	public void setRepositoryLocalService(
-		com.liferay.portal.service.RepositoryLocalService repositoryLocalService) {
+		RepositoryLocalService repositoryLocalService) {
 		this.repositoryLocalService = repositoryLocalService;
 	}
 
@@ -953,6 +961,63 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the document library file shortcut local service.
+	 *
+	 * @return the document library file shortcut local service
+	 */
+	public com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService getDLFileShortcutLocalService() {
+		return dlFileShortcutLocalService;
+	}
+
+	/**
+	 * Sets the document library file shortcut local service.
+	 *
+	 * @param dlFileShortcutLocalService the document library file shortcut local service
+	 */
+	public void setDLFileShortcutLocalService(
+		com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService dlFileShortcutLocalService) {
+		this.dlFileShortcutLocalService = dlFileShortcutLocalService;
+	}
+
+	/**
+	 * Returns the document library file shortcut remote service.
+	 *
+	 * @return the document library file shortcut remote service
+	 */
+	public com.liferay.portlet.documentlibrary.service.DLFileShortcutService getDLFileShortcutService() {
+		return dlFileShortcutService;
+	}
+
+	/**
+	 * Sets the document library file shortcut remote service.
+	 *
+	 * @param dlFileShortcutService the document library file shortcut remote service
+	 */
+	public void setDLFileShortcutService(
+		com.liferay.portlet.documentlibrary.service.DLFileShortcutService dlFileShortcutService) {
+		this.dlFileShortcutService = dlFileShortcutService;
+	}
+
+	/**
+	 * Returns the document library file shortcut persistence.
+	 *
+	 * @return the document library file shortcut persistence
+	 */
+	public DLFileShortcutPersistence getDLFileShortcutPersistence() {
+		return dlFileShortcutPersistence;
+	}
+
+	/**
+	 * Sets the document library file shortcut persistence.
+	 *
+	 * @param dlFileShortcutPersistence the document library file shortcut persistence
+	 */
+	public void setDLFileShortcutPersistence(
+		DLFileShortcutPersistence dlFileShortcutPersistence) {
+		this.dlFileShortcutPersistence = dlFileShortcutPersistence;
+	}
+
+	/**
 	 * Returns the document library file version local service.
 	 *
 	 * @return the document library file version local service
@@ -1372,7 +1437,7 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.RepositoryLocalService.class)
-	protected com.liferay.portal.service.RepositoryLocalService repositoryLocalService;
+	protected RepositoryLocalService repositoryLocalService;
 	@BeanReference(type = com.liferay.portal.service.RepositoryService.class)
 	protected com.liferay.portal.service.RepositoryService repositoryService;
 	@BeanReference(type = RepositoryPersistence.class)
@@ -1425,6 +1490,12 @@ public abstract class RepositoryLocalServiceBaseImpl
 	protected DLFileEntryTypePersistence dlFileEntryTypePersistence;
 	@BeanReference(type = DLFileEntryTypeFinder.class)
 	protected DLFileEntryTypeFinder dlFileEntryTypeFinder;
+	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService.class)
+	protected com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService dlFileShortcutLocalService;
+	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileShortcutService.class)
+	protected com.liferay.portlet.documentlibrary.service.DLFileShortcutService dlFileShortcutService;
+	@BeanReference(type = DLFileShortcutPersistence.class)
+	protected DLFileShortcutPersistence dlFileShortcutPersistence;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileVersionLocalService.class)
 	protected com.liferay.portlet.documentlibrary.service.DLFileVersionLocalService dlFileVersionLocalService;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileVersionService.class)

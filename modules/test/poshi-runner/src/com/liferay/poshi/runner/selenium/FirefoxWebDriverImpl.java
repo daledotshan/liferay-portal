@@ -28,8 +28,8 @@ import org.openqa.selenium.firefox.FirefoxProfile;
  */
 public class FirefoxWebDriverImpl extends BaseWebDriverImpl {
 
-	public FirefoxWebDriverImpl(String projectDirName, String browserURL) {
-		super(projectDirName, browserURL, new FirefoxDriver(_firefoxProfile));
+	public FirefoxWebDriverImpl(String browserURL) {
+		super(browserURL, new FirefoxDriver(_firefoxProfile));
 	}
 
 	private static final FirefoxProfile _firefoxProfile = new FirefoxProfile();
@@ -50,9 +50,8 @@ public class FirefoxWebDriverImpl extends BaseWebDriverImpl {
 			}
 
 			_firefoxProfile.addExtension(
-				new File(
-					PropsValues.SELENIUM_EXECUTABLE_DIR_NAME +
-						"addons/jserrorcollector.xpi"));
+				FirefoxWebDriverImpl.class,
+				"/META-INF/resources/firefox/extensions/jserrorcollector.xpi");
 		}
 		catch (Exception e) {
 		}
@@ -71,12 +70,6 @@ public class FirefoxWebDriverImpl extends BaseWebDriverImpl {
 				"application/zip,audio/mpeg3,image/jpeg,image/png,text/plain");
 		_firefoxProfile.setPreference("dom.max_chrome_script_run_time", 300);
 		_firefoxProfile.setPreference("dom.max_script_run_time", 300);
-
-		if (PropsValues.MOBILE_DEVICE_ENABLED) {
-			_firefoxProfile.setPreference(
-				"general.useragent.override",
-				PropsValues.MOBILE_DEVICE_USER_AGENT);
-		}
 	}
 
 }

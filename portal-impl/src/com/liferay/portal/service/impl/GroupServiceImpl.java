@@ -17,13 +17,13 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Organization;
@@ -34,7 +34,6 @@ import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.security.membershippolicy.SiteMembershipPolicyUtil;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.GroupServiceBaseImpl;
 import com.liferay.portal.service.permission.GroupPermissionUtil;
@@ -46,6 +45,7 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetTag;
 import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.staging.StagingUtil;
 import com.liferay.portlet.ratings.transformer.RatingsDataTransformerUtil;
 
 import java.io.Serializable;
@@ -235,7 +235,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		throws PortalException {
 
 		RolePermissionUtil.check(
-			getPermissionChecker(), roleId, ActionKeys.UPDATE);
+			getPermissionChecker(), roleId, ActionKeys.ASSIGN_MEMBERS);
 
 		groupLocalService.addRoleGroups(roleId, groupIds);
 	}
@@ -518,8 +518,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -544,7 +543,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #getUserSitesGroups(long,
-	 *             String[], boolean, int)}
+	 *             String[], int)}
 	 */
 	@Deprecated
 	@Override
@@ -553,7 +552,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			int max)
 		throws PortalException {
 
-		return getUserSitesGroups(userId, classNames, includeControlPanel, max);
+		return getUserSitesGroups(userId, classNames, max);
 	}
 
 	/**
@@ -677,109 +676,18 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		return getUserSitesGroups(null, QueryUtil.ALL_POS);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getUserSitesGroups(
+	 *             long, String[], int)}
+	 */
+	@Deprecated
 	@Override
 	public List<Group> getUserSitesGroups(
 			long userId, String[] classNames, boolean includeControlPanel,
 			int max)
 		throws PortalException {
 
-		User user = userPersistence.fetchByPrimaryKey(userId);
-
-		if (user.isDefaultUser()) {
-			return Collections.emptyList();
-		}
-
-		List<Group> userSiteGroups = new ArrayList<>();
-
-		int start = QueryUtil.ALL_POS;
-		int end = QueryUtil.ALL_POS;
-
-		if (max != QueryUtil.ALL_POS) {
-			start = 0;
-			end = max;
-		}
-
-		if ((classNames == null) ||
-			ArrayUtil.contains(classNames, Group.class.getName())) {
-
-			LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
-
-			groupParams.put("active", true);
-			groupParams.put("usersGroups", userId);
-
-			userSiteGroups.addAll(
-				groupLocalService.search(
-					user.getCompanyId(), null, groupParams, start, end));
-		}
-
-		if ((classNames == null) ||
-			ArrayUtil.contains(classNames, Organization.class.getName())) {
-
-			List<Organization> userOrgs =
-				organizationLocalService.getOrganizations(
-					userId, start, end, null);
-
-			for (Organization organization : userOrgs) {
-				if (!organization.hasPrivateLayouts() &&
-					!organization.hasPublicLayouts()) {
-
-					userSiteGroups.remove(organization.getGroup());
-				}
-				else {
-					userSiteGroups.add(0, organization.getGroup());
-				}
-
-				if (!PropsValues.ORGANIZATIONS_MEMBERSHIP_STRICT) {
-					for (Organization ancestorOrganization :
-							organization.getAncestors()) {
-
-						if (!ancestorOrganization.hasPrivateLayouts() &&
-							!ancestorOrganization.hasPublicLayouts()) {
-
-							continue;
-						}
-
-						userSiteGroups.add(0, ancestorOrganization.getGroup());
-					}
-				}
-			}
-		}
-
-		if ((classNames == null) ||
-			ArrayUtil.contains(classNames, User.class.getName())) {
-
-			if (PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED ||
-				PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) {
-
-				Group userGroup = user.getGroup();
-
-				userSiteGroups.add(0, userGroup);
-			}
-		}
-
-		PermissionChecker permissionChecker = getPermissionChecker();
-
-		if (permissionChecker.getUserId() != userId) {
-			try {
-				permissionChecker = PermissionCheckerFactoryUtil.create(user);
-			}
-			catch (Exception e) {
-				throw new PrincipalException(e);
-			}
-		}
-
-		if (includeControlPanel &&
-			PortalPermissionUtil.contains(
-				permissionChecker, ActionKeys.VIEW_CONTROL_PANEL)) {
-
-			Group controlPanelGroup = groupLocalService.getGroup(
-				user.getCompanyId(), GroupConstants.CONTROL_PANEL);
-
-			userSiteGroups.add(0, controlPanelGroup);
-		}
-
-		return Collections.unmodifiableList(
-			ListUtil.subList(ListUtil.unique(userSiteGroups), start, end));
+		return getUserSitesGroups(userId, classNames, max);
 	}
 
 	/**
@@ -810,7 +718,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * @param  userId the primary key of the user
 	 * @param  classNames the group entity class names (optionally
 	 *         <code>null</code>). For more information see {@link
-	 *         #getUserSitesGroups(long, String[], boolean, int)}.
+	 *         #getUserSitesGroups(long, String[], int)}.
 	 * @param  max the maximum number of groups to return
 	 * @return the user's groups &quot;sites&quot;
 	 * @throws PortalException if a portal exception occurred
@@ -820,7 +728,121 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			long userId, String[] classNames, int max)
 		throws PortalException {
 
-		return getUserSitesGroups(userId, classNames, false, max);
+		User user = userPersistence.fetchByPrimaryKey(userId);
+
+		if (user.isDefaultUser()) {
+			return Collections.emptyList();
+		}
+
+		List<Group> userSiteGroups = new ArrayList<>();
+
+		int start = QueryUtil.ALL_POS;
+		int end = QueryUtil.ALL_POS;
+
+		if (max != QueryUtil.ALL_POS) {
+			start = 0;
+			end = max;
+		}
+
+		if ((classNames == null) ||
+			ArrayUtil.contains(classNames, User.class.getName())) {
+
+			if (PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED ||
+				PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) {
+
+				Group userGroup = user.getGroup();
+
+				userSiteGroups.add(userGroup);
+
+				if ((max != QueryUtil.ALL_POS) &&
+					(userSiteGroups.size() >= max)) {
+
+					return Collections.unmodifiableList(
+						ListUtil.subList(
+							ListUtil.unique(userSiteGroups), start, end));
+				}
+			}
+		}
+
+		if ((classNames == null) ||
+			ArrayUtil.contains(classNames, Company.class.getName())) {
+
+			userSiteGroups.addAll(
+				groupLocalService.search(
+					user.getCompanyId(),
+					new long[] {
+						classNameLocalService.getClassNameId(Company.class)
+					},
+					null, new LinkedHashMap<String, Object>(), start, end));
+
+			if ((max != QueryUtil.ALL_POS) && (userSiteGroups.size() >= max)) {
+				return Collections.unmodifiableList(
+					ListUtil.subList(
+						ListUtil.unique(userSiteGroups), start, end));
+			}
+		}
+
+		if ((classNames == null) ||
+			ArrayUtil.contains(classNames, Group.class.getName())) {
+
+			LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
+
+			groupParams.put("active", true);
+			groupParams.put("usersGroups", userId);
+
+			userSiteGroups.addAll(
+				groupLocalService.search(
+					user.getCompanyId(),
+					new long[] {
+						classNameLocalService.getClassNameId(Group.class)
+					},
+					null, groupParams, start, end));
+
+			if ((max != QueryUtil.ALL_POS) && (userSiteGroups.size() >= max)) {
+				return Collections.unmodifiableList(
+					ListUtil.subList(
+						ListUtil.unique(userSiteGroups), start, end));
+			}
+		}
+
+		if ((classNames == null) ||
+			ArrayUtil.contains(classNames, Organization.class.getName())) {
+
+			List<Organization> userOrgs =
+				organizationLocalService.getOrganizations(
+					userId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+
+			for (Organization organization : userOrgs) {
+				if (organization.hasPrivateLayouts() ||
+					organization.hasPublicLayouts()) {
+
+					userSiteGroups.add(organization.getGroup());
+				}
+
+				if (!PropsValues.ORGANIZATIONS_MEMBERSHIP_STRICT) {
+					for (Organization ancestorOrganization :
+							organization.getAncestors()) {
+
+						if (ancestorOrganization.hasPrivateLayouts() ||
+							ancestorOrganization.hasPublicLayouts()) {
+
+							userSiteGroups.add(ancestorOrganization.getGroup());
+						}
+					}
+				}
+
+				if ((max != QueryUtil.ALL_POS) &&
+					(userSiteGroups.size() >= max)) {
+
+					return Collections.unmodifiableList(
+						ListUtil.subList(
+							ListUtil.unique(userSiteGroups), start, end));
+				}
+			}
+		}
+
+		return Collections.unmodifiableList(
+			ListUtil.subList(ListUtil.unique(userSiteGroups), start, end));
 	}
 
 	/**
@@ -850,7 +872,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 *
 	 * @param  classNames the group entity class names (optionally
 	 *         <code>null</code>). For more information see {@link
-	 *         #getUserSitesGroups(long, String[], boolean, int)}.
+	 *         #getUserSitesGroups(long, String[], int)}.
 	 * @param  max the maximum number of groups to return
 	 * @return the user's groups &quot;sites&quot;
 	 * @throws PortalException if a portal exception occurred
@@ -859,7 +881,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	public List<Group> getUserSitesGroups(String[] classNames, int max)
 		throws PortalException {
 
-		return getUserSitesGroups(getGuestOrUserId(), classNames, false, max);
+		return getUserSitesGroups(getGuestOrUserId(), classNames, max);
 	}
 
 	/**
@@ -874,7 +896,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	@Override
 	public int getUserSitesGroupsCount() throws PortalException {
 		List<Group> userSitesGroups = getUserSitesGroups(
-			getGuestOrUserId(), null, true, QueryUtil.ALL_POS);
+			getGuestOrUserId(), null, QueryUtil.ALL_POS);
 
 		return userSitesGroups.size();
 	}
@@ -946,8 +968,7 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
