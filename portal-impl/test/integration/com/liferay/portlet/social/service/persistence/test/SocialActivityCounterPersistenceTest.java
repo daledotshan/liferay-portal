@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.social.NoSuchActivityCounterException;
 import com.liferay.portlet.social.model.SocialActivityCounter;
@@ -175,76 +174,49 @@ public class SocialActivityCounterPersistenceTest {
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_C_C_O() {
-		try {
-			_persistence.countByG_C_C_O(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_C_C_O() throws Exception {
+		_persistence.countByG_C_C_O(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByG_C_C_O(0L, 0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_C_C_O(0L, 0L, 0L, 0);
 	}
 
 	@Test
-	public void testCountByG_C_C_N_O_S() {
-		try {
-			_persistence.countByG_C_C_N_O_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextInt(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_C_C_N_O_S() throws Exception {
+		_persistence.countByG_C_C_N_O_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextInt(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_C_C_N_O_S(0L, 0L, 0L, StringPool.NULL, 0, 0);
+		_persistence.countByG_C_C_N_O_S(0L, 0L, 0L, StringPool.NULL, 0, 0);
 
-			_persistence.countByG_C_C_N_O_S(0L, 0L, 0L, (String)null, 0, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_C_C_N_O_S(0L, 0L, 0L, (String)null, 0, 0);
 	}
 
 	@Test
-	public void testCountByG_C_C_N_O_E() {
-		try {
-			_persistence.countByG_C_C_N_O_E(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextInt(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_C_C_N_O_E() throws Exception {
+		_persistence.countByG_C_C_N_O_E(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextInt(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_C_C_N_O_E(0L, 0L, 0L, StringPool.NULL, 0, 0);
+		_persistence.countByG_C_C_N_O_E(0L, 0L, 0L, StringPool.NULL, 0, 0);
 
-			_persistence.countByG_C_C_N_O_E(0L, 0L, 0L, (String)null, 0, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_C_C_N_O_E(0L, 0L, 0L, (String)null, 0, 0);
 	}
 
 	@Test
@@ -257,29 +229,17 @@ public class SocialActivityCounterPersistenceTest {
 			newSocialActivityCounter);
 	}
 
-	@Test
+	@Test(expected = NoSuchActivityCounterException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchActivityCounterException");
-		}
-		catch (NoSuchActivityCounterException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<SocialActivityCounter> getOrderByComparator() {
@@ -492,54 +452,60 @@ public class SocialActivityCounterPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		SocialActivityCounter newSocialActivityCounter = addSocialActivityCounter();
 
 		_persistence.clearCache();
 
 		SocialActivityCounter existingSocialActivityCounter = _persistence.findByPrimaryKey(newSocialActivityCounter.getPrimaryKey());
 
-		Assert.assertEquals(existingSocialActivityCounter.getGroupId(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityCounter.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityCounter,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityCounter.getClassNameId(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityCounter.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityCounter,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityCounter.getClassPK(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityCounter.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityCounter,
 				"getOriginalClassPK", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingSocialActivityCounter.getName(),
 				ReflectionTestUtil.invoke(existingSocialActivityCounter,
 					"getOriginalName", new Class<?>[0])));
-		Assert.assertEquals(existingSocialActivityCounter.getOwnerType(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Integer.valueOf(
+				existingSocialActivityCounter.getOwnerType()),
+			ReflectionTestUtil.<Integer>invoke(existingSocialActivityCounter,
 				"getOriginalOwnerType", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityCounter.getStartPeriod(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Integer.valueOf(
+				existingSocialActivityCounter.getStartPeriod()),
+			ReflectionTestUtil.<Integer>invoke(existingSocialActivityCounter,
 				"getOriginalStartPeriod", new Class<?>[0]));
 
-		Assert.assertEquals(existingSocialActivityCounter.getGroupId(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityCounter.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityCounter,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityCounter.getClassNameId(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityCounter.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityCounter,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityCounter.getClassPK(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Long.valueOf(
+				existingSocialActivityCounter.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingSocialActivityCounter,
 				"getOriginalClassPK", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingSocialActivityCounter.getName(),
 				ReflectionTestUtil.invoke(existingSocialActivityCounter,
 					"getOriginalName", new Class<?>[0])));
-		Assert.assertEquals(existingSocialActivityCounter.getOwnerType(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Integer.valueOf(
+				existingSocialActivityCounter.getOwnerType()),
+			ReflectionTestUtil.<Integer>invoke(existingSocialActivityCounter,
 				"getOriginalOwnerType", new Class<?>[0]));
-		Assert.assertEquals(existingSocialActivityCounter.getEndPeriod(),
-			ReflectionTestUtil.invoke(existingSocialActivityCounter,
+		Assert.assertEquals(Integer.valueOf(
+				existingSocialActivityCounter.getEndPeriod()),
+			ReflectionTestUtil.<Integer>invoke(existingSocialActivityCounter,
 				"getOriginalEndPeriod", new Class<?>[0]));
 	}
 

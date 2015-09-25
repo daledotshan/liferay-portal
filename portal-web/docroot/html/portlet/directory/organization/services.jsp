@@ -17,9 +17,9 @@
 <%@ include file="/html/portlet/directory/init.jsp" %>
 
 <%
-Organization organization = (Organization)request.getAttribute(WebKeys.ORGANIZATION);
+long organizationId = ParamUtil.getLong(request, "organizationId");
 
-long organizationId = (organization != null) ? organization.getOrganizationId() : 0;
+Organization organization = OrganizationServiceUtil.fetchOrganization(organizationId);
 
 List<OrgLabor> orgLabors = OrgLaborServiceUtil.getOrgLabors(organizationId);
 
@@ -52,7 +52,7 @@ Format timeFormat = FastDateFormatFactoryUtil.getSimpleDateFormat("HH:mm", local
 
 		<ul class="property-list">
 			<li>
-				<h4><%= LanguageUtil.get(request,ListTypeServiceUtil.getListType(orgLabor.getTypeId()).getName()) %></h4>
+				<h4><%= LanguageUtil.get(request, ListTypeServiceUtil.getListType(orgLabor.getTypeId()).getName()) %></h4>
 
 				<table border="1" class="org-labor-table">
 				<tr>

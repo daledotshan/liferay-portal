@@ -14,72 +14,183 @@
 
 package com.liferay.poshi.runner;
 
+import com.liferay.poshi.runner.logger.CommandLoggerHandler;
+import com.liferay.poshi.runner.logger.LoggerUtil;
+import com.liferay.poshi.runner.logger.SummaryLoggerHandler;
+import com.liferay.poshi.runner.logger.XMLLoggerHandler;
+import com.liferay.poshi.runner.selenium.LiferaySeleniumHelper;
 import com.liferay.poshi.runner.selenium.SeleniumUtil;
 import com.liferay.poshi.runner.util.PropsValues;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.dom4j.Element;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * @author Brian Wing Shun Chan
  * @author Michael Hashimoto
  * @author Karen Dang
  */
-public class PoshiRunner extends TestCase {
+@RunWith(Parameterized.class)
+public class PoshiRunner {
 
-	@Override
-	public void setUp() throws Exception {
+	@Parameters(name = "{0}")
+	public static List<String> getList() throws Exception {
+		PoshiRunnerContext.readFiles();
+
+		String testName = PropsValues.TEST_NAME;
+
+		PoshiRunnerValidation.validate(testName);
+
+		List<String> classCommandNames = new ArrayList<>();
+
+		if (testName.contains("#")) {
+			classCommandNames.add(testName);
+		}
+		else {
+			String className = testName;
+
+			Element rootElement = PoshiRunnerContext.getTestCaseRootElement(
+				className);
+
+			List<Element> commandElements = rootElement.elements("command");
+
+			for (Element commandElement : commandElements) {
+				classCommandNames.add(
+					className + "#" + commandElement.attributeValue("name"));
+			}
+		}
+
+		return classCommandNames;
+	}
+
+	public PoshiRunner(String classCommandName) throws Exception {
+		System.out.println();
+		System.out.println("###");
+		System.out.println("### " + classCommandName);
+		System.out.println("###");
+		System.out.println();
+
+		_testClassCommandName = classCommandName;
+		_testClassName = PoshiRunnerGetterUtil.getClassNameFromClassCommandName(
+			_testClassCommandName);
+
+		PoshiRunnerContext.setTestCaseCommandName(_testClassCommandName);
+		PoshiRunnerContext.setTestCaseName(_testClassName);
+
+		XMLLoggerHandler.generateXMLLog(classCommandName);
+
+		LoggerUtil.startLogger();
+
 		SeleniumUtil.startSelenium();
+	}
 
-		Element testcaseRootElement = PoshiRunnerContext.getTestcaseRootElement(
-			_TEST_CLASS_NAME);
+	@Test
+	public void test() throws Exception {
+		try {
+			CommandLoggerHandler.startRunning();
 
-		List<Element> rootVarElements = testcaseRootElement.elements("var");
+			_runSetUp();
 
-		for (Element rootVarElement : rootVarElements) {
-			String name = rootVarElement.attributeValue("name");
-			String value = rootVarElement.attributeValue("value");
+			_runCommand();
+
+			LiferaySeleniumHelper.writePoshiWarnings();
+
+			LiferaySeleniumHelper.assertNoPoshiWarnings();
+		}
+		catch (Exception e) {
+			PoshiRunnerStackTraceUtil.printStackTrace(e.getMessage());
+
+			PoshiRunnerStackTraceUtil.emptyStackTrace();
+
+			throw new Exception(e.getMessage(), e);
+		}
+		finally {
+			LoggerUtil.createSummary();
+
+			try {
+				if (!PropsValues.TEST_SKIP_TEAR_DOWN) {
+					_runTearDown();
+				}
+			}
+			catch (Exception e) {
+				PoshiRunnerStackTraceUtil.printStackTrace(e.getMessage());
+
+				PoshiRunnerStackTraceUtil.emptyStackTrace();
+			}
+			finally {
+				CommandLoggerHandler.stopRunning();
+
+				LoggerUtil.stopLogger();
+
+				SeleniumUtil.stopSelenium();
+			}
+		}
+	}
+
+	private void _runClassCommandName(String classCommandName)
+		throws Exception {
+
+		Element rootElement = PoshiRunnerContext.getTestCaseRootElement(
+			_testClassName);
+
+		List<Element> varElements = rootElement.elements("var");
+
+		for (Element varElement : varElements) {
+			String name = varElement.attributeValue("name");
+			String value = varElement.attributeValue("value");
 
 			PoshiRunnerVariablesUtil.putIntoExecuteMap(name, value);
 		}
 
 		PoshiRunnerVariablesUtil.pushCommandMap();
 
-		Element setUpElement = PoshiRunnerContext.getTestcaseCommandElement(
-			_TEST_CLASS_NAME + "#set-up");
+		Element commandElement = PoshiRunnerContext.getTestCaseCommandElement(
+			classCommandName);
 
-		if (setUpElement != null) {
-			PoshiRunnerExecutor.parseElement(setUpElement);
+		if (commandElement != null) {
+			PoshiRunnerStackTraceUtil.startStackTrace(
+				classCommandName, "test-case");
+
+			XMLLoggerHandler.updateStatus(commandElement, "pending");
+
+			PoshiRunnerExecutor.parseElement(commandElement);
+
+			XMLLoggerHandler.updateStatus(commandElement, "pass");
+
+			PoshiRunnerStackTraceUtil.emptyStackTrace();
 		}
 	}
 
-	@Override
-	public void tearDown() throws Exception {
-		Element tearDownElement = PoshiRunnerContext.getTestcaseCommandElement(
-			_TEST_CLASS_NAME + "#tear-down");
+	private void _runCommand() throws Exception {
+		CommandLoggerHandler.logClassCommandName(_testClassCommandName);
 
-		if (tearDownElement != null) {
-			PoshiRunnerExecutor.parseElement(tearDownElement);
-		}
-
-		SeleniumUtil.stopSelenium();
+		_runClassCommandName(_testClassCommandName);
 	}
 
-	public void testPoshiRunner() throws Exception {
-		Element commandElement = PoshiRunnerContext.getTestcaseCommandElement(
-			_TEST_CLASS_COMMAND_NAME);
+	private void _runSetUp() throws Exception {
+		CommandLoggerHandler.logClassCommandName(_testClassName + "#set-up");
 
-		PoshiRunnerExecutor.parseElement(commandElement);
+		SummaryLoggerHandler.startMajorSteps();
+
+		_runClassCommandName(_testClassName + "#set-up");
 	}
 
-	private static final String _TEST_CLASS_COMMAND_NAME =
-		PropsValues.TEST_CLASS_COMMAND_NAME;
+	private void _runTearDown() throws Exception {
+		CommandLoggerHandler.logClassCommandName(_testClassName + "#tear-down");
 
-	private static final String _TEST_CLASS_NAME =
-		PoshiRunnerGetterUtil.getClassNameFromClassCommandName(
-			_TEST_CLASS_COMMAND_NAME);
+		SummaryLoggerHandler.startMajorSteps();
+
+		_runClassCommandName(_testClassName + "#tear-down");
+	}
+
+	private final String _testClassCommandName;
+	private final String _testClassName;
 
 }

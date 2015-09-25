@@ -14,15 +14,14 @@
 
 package com.liferay.sync.engine.documentlibrary.handler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.liferay.sync.engine.documentlibrary.event.Event;
 import com.liferay.sync.engine.documentlibrary.model.SyncContext;
 import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncUser;
 import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.service.SyncUserService;
+import com.liferay.sync.engine.util.GetterUtil;
+import com.liferay.sync.engine.util.JSONUtil;
 
 import java.util.Map;
 
@@ -44,10 +43,8 @@ public class GetSyncContextHandler extends BaseJSONHandler {
 	}
 
 	protected SyncContext doProcessResponse(String response) throws Exception {
-		ObjectMapper objectMapper = new ObjectMapper();
-
-		SyncContext syncContext = objectMapper.readValue(
-			response, new TypeReference<SyncContext>() {});
+		SyncContext syncContext = JSONUtil.readValue(
+			response, SyncContext.class);
 
 		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
 			getSyncAccountId());
@@ -62,6 +59,39 @@ public class GetSyncContextHandler extends BaseJSONHandler {
 		SyncUser localSyncUser = SyncUserService.fetchSyncUser(
 			syncAccount.getSyncAccountId());
 
+		if ((localSyncUser.getUserId() > 0) &&
+			(localSyncUser.getUserId() != remoteSyncUser.getUserId())) {
+
+			syncAccount.setState(SyncAccount.STATE_DISCONNECTED);
+			syncAccount.setUiEvent(
+				SyncAccount.UI_EVENT_AUTHENTICATION_EXCEPTION);
+
+			SyncAccountService.update(syncAccount);
+
+			return syncContext;
+		}
+
+		String login = syncAccount.getLogin();
+
+		String authType = syncContext.getAuthType();
+
+		if (authType.equals(SyncContext.AUTH_TYPE_EMAIL_ADDRESS)) {
+			if (!login.equals(remoteSyncUser.getEmailAddress())) {
+				syncAccount.setLogin(remoteSyncUser.getEmailAddress());
+			}
+		}
+		else if (authType.equals(SyncContext.AUTH_TYPE_SCREEN_NAME)) {
+			if (!login.equals(remoteSyncUser.getScreenName())) {
+				syncAccount.setLogin(remoteSyncUser.getScreenName());
+			}
+		}
+		else if (authType.equals(SyncContext.AUTH_TYPE_USER_ID)) {
+			if (!login.equals(String.valueOf(remoteSyncUser.getUserId()))) {
+				syncAccount.setLogin(
+					String.valueOf(remoteSyncUser.getUserId()));
+			}
+		}
+
 		remoteSyncUser.setSyncAccountId(localSyncUser.getSyncAccountId());
 		remoteSyncUser.setSyncUserId(localSyncUser.getSyncUserId());
 
@@ -70,15 +100,22 @@ public class GetSyncContextHandler extends BaseJSONHandler {
 		Map<String, String> portletPreferencesMap =
 			syncContext.getPortletPreferencesMap();
 
-		int maxConnections = Integer.parseInt(
+		int batchFileMaxSize = GetterUtil.getInteger(
 			portletPreferencesMap.get(
-				SyncContext.PREFERENCE_KEY_MAX_CONNECTIONS));
+				SyncContext.PREFERENCE_KEY_BATCH_FILE_MAX_SIZE));
+
+		syncAccount.setBatchFileMaxSize(batchFileMaxSize);
+
+		int maxConnections = GetterUtil.getInteger(
+			portletPreferencesMap.get(
+				SyncContext.PREFERENCE_KEY_MAX_CONNECTIONS),
+			1);
 
 		syncAccount.setMaxConnections(maxConnections);
 
-		int pollInterval = Integer.parseInt(
-			portletPreferencesMap.get(
-				SyncContext.PREFERENCE_KEY_POLL_INTERVAL));
+		int pollInterval = GetterUtil.getInteger(
+			portletPreferencesMap.get(SyncContext.PREFERENCE_KEY_POLL_INTERVAL),
+			5);
 
 		syncAccount.setPollInterval(pollInterval);
 
@@ -88,6 +125,11 @@ public class GetSyncContextHandler extends BaseJSONHandler {
 		SyncAccountService.update(syncAccount);
 
 		return syncContext;
+	}
+
+	@Override
+	protected void logResponse(String response) {
+		super.logResponse("");
 	}
 
 }

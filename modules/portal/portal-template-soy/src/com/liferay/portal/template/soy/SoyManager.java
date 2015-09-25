@@ -14,8 +14,6 @@
 
 package com.liferay.portal.template.soy;
 
-import com.google.template.soy.SoyFileSet;
-
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateManager;
@@ -32,7 +30,11 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Bruno Basto
  */
-@Component(immediate = true, service = TemplateManager.class)
+@Component(
+	immediate = true,
+	property = {"language.type=" + TemplateConstants.LANG_TYPE_SOY},
+	service = TemplateManager.class
+)
 public class SoyManager extends BaseTemplateManager {
 
 	@Override
@@ -72,7 +74,7 @@ public class SoyManager extends BaseTemplateManager {
 
 		Template template = new SoyTemplate(
 			templateResource, errorTemplateResource, helperUtilities,
-			new SoyFileSet.Builder(), templateContextHelper, privileged);
+			templateContextHelper, privileged);
 
 		if (restricted) {
 			template = new RestrictedTemplate(
