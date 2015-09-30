@@ -16,16 +16,20 @@ package com.liferay.portlet.documentlibrary.lar;
 
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.lar.test.BaseStagedModelDataHandlerTestCase;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.StagedModel;
+import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.MainServletTestRule;
+import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.DDMStructureManagerUtil;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
 
 import java.util.HashMap;
@@ -58,10 +62,11 @@ public class DLFileEntryTypeStagedModelDataHandlerTest
 			new HashMap<>();
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			group.getGroupId(), DLFileEntryType.class.getName());
+			group.getGroupId(), DLFileEntryMetadata.class.getName());
 
 		addDependentStagedModel(
-			dependentStagedModelsMap, DDMStructure.class, ddmStructure);
+			dependentStagedModelsMap,
+			DDMStructureManagerUtil.getDDMStructureModelClass(), ddmStructure);
 
 		return dependentStagedModelsMap;
 	}
@@ -72,13 +77,22 @@ public class DLFileEntryTypeStagedModelDataHandlerTest
 			Map<String, List<StagedModel>> dependentStagedModelsMap)
 		throws Exception {
 
+		Class<?> ddmStructureClass =
+			DDMStructureManagerUtil.getDDMStructureModelClass();
+
 		List<StagedModel> dependentStagedModels = dependentStagedModelsMap.get(
-			DDMStructure.class.getSimpleName());
+			ddmStructureClass.getSimpleName());
 
 		DDMStructure ddmStructure = (DDMStructure)dependentStagedModels.get(0);
 
-		return DLAppTestUtil.addDLFileEntryType(
-			group.getGroupId(), ddmStructure.getStructureId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				group.getGroupId(), TestPropsValues.getUserId());
+
+		return DLFileEntryTypeLocalServiceUtil.addFileEntryType(
+			TestPropsValues.getUserId(), group.getGroupId(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			new long[] {ddmStructure.getStructureId()}, serviceContext);
 	}
 
 	@Override
@@ -103,14 +117,17 @@ public class DLFileEntryTypeStagedModelDataHandlerTest
 			Group group)
 		throws Exception {
 
+		Class<?> ddmStructureClass =
+			DDMStructureManagerUtil.getDDMStructureModelClass();
+
 		List<StagedModel> dependentStagedModels = dependentStagedModelsMap.get(
-			DDMStructure.class.getSimpleName());
+			ddmStructureClass.getSimpleName());
 
 		Assert.assertEquals(1, dependentStagedModels.size());
 
 		DDMStructure ddmStructure = (DDMStructure)dependentStagedModels.get(0);
 
-		DDMStructureLocalServiceUtil.getDDMStructureByUuidAndGroupId(
+		DDMStructureManagerUtil.getStructureByUuidAndGroupId(
 			ddmStructure.getUuid(), group.getGroupId());
 	}
 

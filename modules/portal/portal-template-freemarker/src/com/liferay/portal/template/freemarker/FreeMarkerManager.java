@@ -38,6 +38,8 @@ import com.liferay.taglib.util.VelocityTaglibImpl;
 
 import freemarker.cache.TemplateCache;
 
+import freemarker.core.TemplateClassResolver;
+
 import freemarker.debug.impl.DebuggerService;
 
 import freemarker.ext.beans.BeansWrapper;
@@ -92,6 +94,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	configurationPid = "com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration",
 	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
+	property = {"language.type=" + TemplateConstants.LANG_TYPE_FTL},
 	service = TemplateManager.class
 )
 public class FreeMarkerManager extends BaseTemplateManager {
@@ -239,8 +242,7 @@ public class FreeMarkerManager extends BaseTemplateManager {
 		_configuration.setDefaultEncoding(StringPool.UTF8);
 		_configuration.setLocalizedLookup(
 			_freemarkerEngineConfiguration.localizedLookup());
-		_configuration.setNewBuiltinClassResolver(
-			new LiferayTemplateClassResolver());
+		_configuration.setNewBuiltinClassResolver(_templateClassResolver);
 		_configuration.setObjectWrapper(new LiferayObjectWrapper());
 
 		try {
@@ -259,6 +261,13 @@ public class FreeMarkerManager extends BaseTemplateManager {
 		if (isEnableDebuggerService()) {
 			DebuggerService.getBreakpoints("*");
 		}
+	}
+
+	@Reference
+	public void setTemplateClassResolver(
+		TemplateClassResolver templateClassResolver) {
+
+		_templateClassResolver = templateClassResolver;
 	}
 
 	@Override
@@ -339,9 +348,7 @@ public class FreeMarkerManager extends BaseTemplateManager {
 		return false;
 	}
 
-	private static final Class<?>[] _INTERFACES = {
-		ServletContext.class
-	};
+	private static final Class<?>[] _INTERFACES = {ServletContext.class};
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		FreeMarkerManager.class);
@@ -351,6 +358,7 @@ public class FreeMarkerManager extends BaseTemplateManager {
 	private Configuration _configuration;
 	private volatile FreeMarkerEngineConfiguration
 		_freemarkerEngineConfiguration;
+	private volatile TemplateClassResolver _templateClassResolver;
 	private final Map<String, TemplateModel> _templateModels =
 		new ConcurrentHashMap<>();
 

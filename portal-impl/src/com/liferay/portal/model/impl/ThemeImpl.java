@@ -16,9 +16,10 @@ package com.liferay.portal.model.impl;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.servlet.PortalWebResourceConstants;
+import com.liferay.portal.kernel.servlet.PortalWebResourcesUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.template.TemplateConstants;
-import com.liferay.portal.kernel.util.ContextPathUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -144,7 +145,7 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 			ServletContext servletContext = ServletContextPool.get(
 				servletContextName);
 
-			return ContextPathUtil.getContextPath(servletContext);
+			return servletContext.getContextPath();
 		}
 
 		return StringPool.SLASH.concat(servletContextName);
@@ -305,10 +306,23 @@ public class ThemeImpl extends PluginBaseImpl implements Theme {
 			return proxyPath.concat(virtualPath);
 		}
 
-		String contextPath = getContextPath();
+		if (isWARFile()) {
+			return getContextPath();
+		}
 
-		if (!isWARFile()) {
-			return contextPath;
+		String contextPath = null;
+
+		if (_themeId.equals("admin")) {
+			contextPath = PortalWebResourcesUtil.getContextPath(
+				PortalWebResourceConstants.RESOURCE_TYPE_THEME_ADMIN);
+		}
+		else if (_themeId.equals("classic")) {
+			contextPath = PortalWebResourcesUtil.getContextPath(
+				PortalWebResourceConstants.RESOURCE_TYPE_THEME_CLASSIC);
+		}
+
+		if (Validator.isNull(contextPath)) {
+			return proxyPath;
 		}
 
 		return proxyPath.concat(contextPath);

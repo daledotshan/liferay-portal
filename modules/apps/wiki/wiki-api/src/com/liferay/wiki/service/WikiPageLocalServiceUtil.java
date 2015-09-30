@@ -64,28 +64,31 @@ public class WikiPageLocalServiceUtil {
 			minorEdit, format, head, parentTitle, redirectTitle, serviceContext);
 	}
 
-	public static void addPageAttachment(long userId, long nodeId,
-		java.lang.String title, java.lang.String fileName, java.io.File file,
-		java.lang.String mimeType)
+	public static com.liferay.portal.kernel.repository.model.FileEntry addPageAttachment(
+		long userId, long nodeId, java.lang.String title,
+		java.lang.String fileName, java.io.File file, java.lang.String mimeType)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService()
-			.addPageAttachment(userId, nodeId, title, fileName, file, mimeType);
-	}
-
-	public static void addPageAttachment(long userId, long nodeId,
-		java.lang.String title, java.lang.String fileName,
-		java.io.InputStream inputStream, java.lang.String mimeType)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		getService()
-			.addPageAttachment(userId, nodeId, title, fileName, inputStream,
+		return getService()
+				   .addPageAttachment(userId, nodeId, title, fileName, file,
 			mimeType);
 	}
 
-	public static void addPageAttachments(long userId, long nodeId,
-		java.lang.String title,
+	public static com.liferay.portal.kernel.repository.model.FileEntry addPageAttachment(
+		long userId, long nodeId, java.lang.String title,
+		java.lang.String fileName, java.io.InputStream inputStream,
+		java.lang.String mimeType)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addPageAttachment(userId, nodeId, title, fileName,
+			inputStream, mimeType);
+	}
+
+	public static java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> addPageAttachments(
+		long userId, long nodeId, java.lang.String title,
 		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService().addPageAttachments(userId, nodeId, title, inputStreamOVPs);
+		return getService()
+				   .addPageAttachments(userId, nodeId, title, inputStreamOVPs);
 	}
 
 	public static void addPageResources(long nodeId, java.lang.String title,
@@ -116,12 +119,13 @@ public class WikiPageLocalServiceUtil {
 		getService().addPageResources(page, groupPermissions, guestPermissions);
 	}
 
-	public static void addTempFileEntry(long groupId, long userId,
-		java.lang.String folderName, java.lang.String fileName,
-		java.io.InputStream inputStream, java.lang.String mimeType)
+	public static com.liferay.portal.kernel.repository.model.FileEntry addTempFileEntry(
+		long groupId, long userId, java.lang.String folderName,
+		java.lang.String fileName, java.io.InputStream inputStream,
+		java.lang.String mimeType)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService()
-			.addTempFileEntry(groupId, userId, folderName, fileName,
+		return getService()
+				   .addTempFileEntry(groupId, userId, folderName, fileName,
 			inputStream, mimeType);
 	}
 
@@ -450,7 +454,7 @@ public class WikiPageLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -691,9 +695,15 @@ public class WikiPageLocalServiceUtil {
 		return getService().getRecentChangesCount(nodeId);
 	}
 
-	public static java.util.List<com.liferay.wiki.model.WikiPage> getRedirectPages(
+	public static java.util.List<com.liferay.wiki.model.WikiPage> getRedirectorPages(
 		long nodeId, boolean head, java.lang.String redirectTitle, int status) {
-		return getService().getRedirectPages(nodeId, head, redirectTitle, status);
+		return getService()
+				   .getRedirectorPages(nodeId, head, redirectTitle, status);
+	}
+
+	public static java.util.List<com.liferay.wiki.model.WikiPage> getRedirectorPages(
+		long nodeId, java.lang.String redirectTitle) {
+		return getService().getRedirectorPages(nodeId, redirectTitle);
 	}
 
 	public static java.lang.String[] getTempFileNames(long groupId,

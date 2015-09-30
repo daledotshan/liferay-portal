@@ -32,18 +32,19 @@ AssetVocabulary vocabulary = null;
 if (vocabularyId > 0) {
 	vocabulary = AssetVocabularyServiceUtil.fetchVocabulary(vocabularyId);
 }
+
+portletDisplay.setShowBackIcon(true);
+portletDisplay.setURLBack(redirect);
+
+renderResponse.setTitle(((vocabulary == null) ? LanguageUtil.get(request, "add-new-vocabulary") : vocabulary.getTitle(locale)));
 %>
 
-<liferay-ui:header
-	backURL="<%= redirect %>"
-	title='<%= (vocabulary != null) ? vocabulary.getTitle(locale) : "add-new-vocabulary" %>'
-/>
-
 <portlet:actionURL name="editVocabulary" var="editVocabularyURL">
-	<portlet:param name="redirect" value="<%= redirect %>" />
+	<portlet:param name="mvcPath" value="/edit_vocabulary.jsp" />
 </portlet:actionURL>
 
-<aui:form action="<%= editVocabularyURL %>" name="fm">
+<aui:form action="<%= editVocabularyURL %>" cssClass="container-fluid-1280" name="fm">
+	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="vocabularyId" type="hidden" value="<%= vocabularyId %>" />
 
 	<liferay-ui:error exception="<%= DuplicateVocabularyException.class %>" message="please-enter-a-unique-name" />
@@ -71,9 +72,9 @@ if (vocabularyId > 0) {
 				</c:choose>
 
 				<aui:button-row>
-					<aui:button type="submit" />
+					<aui:button cssClass="btn-lg" type="submit" />
 
-					<aui:button href="<%= redirect %>" type="cancel" />
+					<aui:button cssClass="btn-lg" href="<%= redirect %>" type="cancel" />
 				</aui:button-row>
 			</div>
 		</div>

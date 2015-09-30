@@ -32,11 +32,6 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -51,6 +46,12 @@ import com.liferay.portal.service.persistence.ListTypePersistence;
 import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.util.PortalUtil;
+
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -279,13 +280,13 @@ public abstract class EmailAddressLocalServiceBaseImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -302,12 +303,18 @@ public abstract class EmailAddressLocalServiceBaseImpl
 
 					StagedModelType stagedModelType = exportActionableDynamicQuery.getStagedModelType();
 
-					if (stagedModelType.getReferrerClassNameId() >= 0) {
-						Property classNameIdProperty = PropertyFactoryUtil.forName(
-								"classNameId");
+					long referrerClassNameId = stagedModelType.getReferrerClassNameId();
 
+					Property classNameIdProperty = PropertyFactoryUtil.forName(
+							"classNameId");
+
+					if ((referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ALL) &&
+							(referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ANY)) {
 						dynamicQuery.add(classNameIdProperty.eq(
 								stagedModelType.getReferrerClassNameId()));
+					}
+					else if (referrerClassNameId == StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
+						dynamicQuery.add(classNameIdProperty.isNotNull());
 					}
 				}
 			});
@@ -325,7 +332,8 @@ public abstract class EmailAddressLocalServiceBaseImpl
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
-				PortalUtil.getClassNameId(EmailAddress.class.getName())));
+				PortalUtil.getClassNameId(EmailAddress.class.getName()),
+				StagedModelType.REFERRER_CLASS_NAME_ID_ALL));
 
 		return exportActionableDynamicQuery;
 	}
@@ -402,7 +410,7 @@ public abstract class EmailAddressLocalServiceBaseImpl
 	 *
 	 * @return the email address local service
 	 */
-	public com.liferay.portal.service.EmailAddressLocalService getEmailAddressLocalService() {
+	public EmailAddressLocalService getEmailAddressLocalService() {
 		return emailAddressLocalService;
 	}
 
@@ -412,7 +420,7 @@ public abstract class EmailAddressLocalServiceBaseImpl
 	 * @param emailAddressLocalService the email address local service
 	 */
 	public void setEmailAddressLocalService(
-		com.liferay.portal.service.EmailAddressLocalService emailAddressLocalService) {
+		EmailAddressLocalService emailAddressLocalService) {
 		this.emailAddressLocalService = emailAddressLocalService;
 	}
 
@@ -723,7 +731,7 @@ public abstract class EmailAddressLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.EmailAddressLocalService.class)
-	protected com.liferay.portal.service.EmailAddressLocalService emailAddressLocalService;
+	protected EmailAddressLocalService emailAddressLocalService;
 	@BeanReference(type = com.liferay.portal.service.EmailAddressService.class)
 	protected com.liferay.portal.service.EmailAddressService emailAddressService;
 	@BeanReference(type = EmailAddressPersistence.class)

@@ -1,0 +1,132 @@
+<definition component-name="portal-user-interface">
+	<property name="testray.main.component.name" value="User Interface" />
+
+	<set-up>
+		<execute macro="User#firstLoginPG" />
+	</set-up>
+
+	<command name="CannotViewViewAllCP" priority="4">
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="User Groups" />
+		</execute>
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Roles" />
+		</execute>
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Password Policies" />
+		</execute>
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Site Templates" />
+		</execute>
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Site Templates" />
+		</execute>
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Blogs" />
+		</execute>
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Documents and Media" />
+		</execute>
+
+		<execute function="AssertClick#waitForDMHomeAssertTextEqualsClick" locator1="DocumentsAndMedia#TOOLBAR_MANAGE" value1="Manage" />
+		<execute function="AssertClick" locator1="MenuItem#DOCUMENT_TYPES" value1="Document Types" />
+
+		<execute macro="DMDocumentType#selectDocumentTypeFrame" />
+
+		<execute function="AssertTextNotPresent" value1="View All" />
+
+		<take-screenshot />
+	</command>
+
+	<command description="Ensure that a user can access portlet options and drag and drop portlets." name="Smoke" priority="5">
+		<property name="portal.acceptance" value="true" />
+
+		<execute macro="Page#addPG">
+			<var name="pageName" value="Test Page" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Hello World" />
+		</execute>
+
+		<task summary="Close the Add Panel">
+			<execute function="Click" locator1="Icon#CLOSE" />
+		</task>
+
+		<task summary="Assert the 'Configuration' iframe of the Hello World portlet">
+			<execute macro="Portlet#gotoPortletOptions">
+				<var name="portletName" value="Hello World" />
+				<var name="portletOption" value="Configuration" />
+			</execute>
+
+			<execute function="SelectFrame" locator1="IFrame#CONFIGURATION" />
+
+			<execute function="AssertTextEquals" locator1="NavPill#PERMISSIONS" value1="Permissions" />
+
+			<execute function="SelectFrame" value1="relative=top" />
+
+			<execute function="Click" locator1="Icon#CLOSE" />
+		</task>
+
+		<task summary="Assert the 'Look and Feel' modal of the Hello World portlet">
+			<execute macro="Portlet#gotoPortletOptions">
+				<var name="portletName" value="Hello World" />
+				<var name="portletOption" value="Look and Feel" />
+			</execute>
+
+			<execute function="AssertTextEquals" locator1="NavTab#PORTLET_CONFIGURATION" value1="Portlet Configuration" />
+
+			<execute function="Click" locator1="Icon#CLOSE" />
+		</task>
+
+		<execute macro="Portlet#dragAndDropPortletToColumnPG">
+			<var name="columnNumberFrom" value="1" />
+			<var name="columnNumberTo" value="2" />
+			<var name="portletName" value="Hello World" />
+		</execute>
+
+		<execute macro="Portlet#dragAndDropPortletToColumnPG">
+			<var name="columnNumberFrom" value="2" />
+			<var name="columnNumberTo" value="1" />
+			<var name="portletName" value="Hello World" />
+		</execute>
+	</command>
+</definition>
