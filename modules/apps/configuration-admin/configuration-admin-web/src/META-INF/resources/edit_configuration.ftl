@@ -16,65 +16,44 @@
 
 <#include "init.ftl">
 
-<#assign configurationHelper = Request["configurationHelper"] />
 <#assign configurationModel = Request["configurationModel"] />
+<#assign ddmFormHTML = Request["DYNAMIC_DATA_MAPPING_FORM_HTML"] />
 
 <#assign redirectURL = renderResponse.createRenderURL() />
 
 <@portlet["actionURL"] name="bindConfiguration" varImpl="bindConfigActionURL"/>
 <@portlet["actionURL"] name="deleteConfiguration" varImpl="deleteConfigActionURL"/>
 
-<@liferay_ui["header"]
-	backURL="${redirectURL}"
-	title='${configurationModel.getName()}'
-/>
+<#assign void = portletDisplay.setShowBackIcon(true) />
+<#assign void = portletDisplay.setURLBack(redirectURL) />
 
-<@aui["form"] action="${bindConfigActionURL}" method="post" name="fm">
+<#assign void = renderResponse.setTitle(configurationModel.getName()) />
 
-	<@aui["input"] name="redirect" type="hidden" value="${redirectURL}" />
-	<@aui["input"] name="pid" type="hidden" value="${configurationModel.getID()}" />
-	<@aui["input"] name="factoryPid" type="hidden" value="${configurationModel.getFactoryPid()}" />
+<div class="container-fluid-1280">
+	<@aui["form"] action="${bindConfigActionURL}" method="post" name="fm">
+		<@aui["input"] name="redirect" type="hidden" value="${redirectURL}" />
+		<@aui["input"] name="pid" type="hidden" value="${configurationModel.getID()}" />
+		<@aui["input"] name="factoryPid" type="hidden" value="${configurationModel.getFactoryPid()}" />
 
-	<div class="lfr-ddm-container" id="lfr-ddm-container">
-		${configurationHelper.render(renderRequest, renderResponse, configurationModel)}
+		<div class="lfr-ddm-container" id="lfr-ddm-container">
+			${ddmFormHTML}
+		</div>
 
-		<#assign definition = Request["definition"] />
-		<#assign plId = Request["plId"] />
-		<#assign scopeGroupId = Request["scopeGroupId"] />
+		<@aui["button-row"]>
+			<#if configurationModel.getConfiguration()??>
+				<@aui["button"] value="update" type="submit" />
 
-		<@aui["input"] name="serializedDDMFormValues" type="hidden" />
+				<#assign deleteAttributesOnClickValue = renderResponse.getNamespace() + "deleteConfig();">
 
-		<@aui["script"] use="liferay-ddm-form">
-			new Liferay.DDM.Form(
-				{
-					container: '#lfr-ddm-container',
-					ddmFormValuesInput: '#<@portlet["namespace"]/>serializedDDMFormValues',
-					definition: ${definition},
-					doAsGroupId: ${scopeGroupId},
-					fieldsNamespace: "",
-					mode: "edit",
-					p_l_id: ${plId},
-					portletNamespace: "<@portlet["namespace"]/>",
-					repeatable: true
-				}
-			);
+				<@aui["button"] onClick=deleteAttributesOnClickValue value="delete" type="button" />
+			<#else>
+				<@aui["button"] value="save" type="submit" />
+			</#if>
+
+			<@aui["button"] href="${redirectURL}" type="cancel" />
 		</@>
-	</div>
-
-	<@aui["button-row"]>
-		<#if configurationModel.getConfiguration()??>
-			<@aui["button"] value="update" type="submit" />
-
-			<#assign deleteAttributesOnClickValue = renderResponse.getNamespace() + "deleteConfig();">
-
-			<@aui["button"] onClick=deleteAttributesOnClickValue value="delete" type="button" />
-		<#else>
-			<@aui["button"] value="save" type="submit" />
-		</#if>
-
-		<@aui["button"] href="${redirectURL}" type="cancel" />
 	</@>
-</@>
+</div>
 
 <@aui["script"]>
 	function <@portlet["namespace"] />setDDMFieldNamespaceAndSubmit(actionURL) {

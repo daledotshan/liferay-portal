@@ -156,15 +156,25 @@ public class DefaultFriendlyURLMapper extends BaseFriendlyURLMapper {
 			return;
 		}
 
+		String namespace = null;
+
 		String portletId = getPortletId(routeParameters);
 
-		if (Validator.isNull(portletId)) {
+		if (Validator.isNotNull(portletId)) {
+			namespace = PortalUtil.getPortletNamespace(portletId);
+
+			addParameter(namespace, parameterMap, "p_p_id", portletId);
+		}
+		else if (isAllPublicRenderParameters(routeParameters)) {
+
+			// Portlet namespace is not needed if all the parameters are public
+			// render parameters
+
+			addParameter(null, parameterMap, "p_p_id", getPortletId());
+		}
+		else {
 			return;
 		}
-
-		String namespace = PortalUtil.getPortletNamespace(portletId);
-
-		addParameter(namespace, parameterMap, "p_p_id", portletId);
 
 		populateParams(parameterMap, namespace, routeParameters);
 	}
@@ -299,17 +309,37 @@ public class DefaultFriendlyURLMapper extends BaseFriendlyURLMapper {
 
 		String instanceId = routeParameters.remove("instanceId");
 
-		if (Validator.isNull(instanceId)) {
-			if (_log.isErrorEnabled()) {
-				_log.error(
-					"Either p_p_id or instanceId must be provided for an " +
-						"instanceable portlet");
-			}
-
-			return null;
+		if (Validator.isNotNull(instanceId)) {
+			return PortletConstants.assemblePortletId(
+				getPortletId(), instanceId);
 		}
 
-		return PortletConstants.assemblePortletId(getPortletId(), instanceId);
+		if (!isAllPublicRenderParameters(routeParameters)) {
+			_log.error(
+				"Either p_p_id or instanceId must be provided for an " +
+					"instanceable portlet");
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns <code>true</code> if all the route parameters are public render
+	 * parameters.
+	 *
+	 * @param  routeParameters the parameter map
+	 * @return <code>true</code> if all the route parameters are public render
+	 *         parameters; <code>false</code> otherwise
+	 */
+	protected boolean isAllPublicRenderParameters(
+		Map<String, String> routeParameters) {
+
+		Set<String> routeParameterKeys = routeParameters.keySet();
+
+		Map<String, String> publicRenderParameters =
+			FriendlyURLMapperThreadLocal.getPRPIdentifiers();
+
+		return routeParameterKeys.containsAll(publicRenderParameters.keySet());
 	}
 
 	/**

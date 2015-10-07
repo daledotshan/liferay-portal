@@ -19,7 +19,12 @@
 <portlet:defineObjects />
 
 <%
-String tilesPortletContent = GetterUtil.getString(TilesAttributeUtil.getTilesAttribute(pageContext, "portlet_content"));
+String tilesPortletContent = GetterUtil.getString(request.getAttribute(WebKeys.PORTLET_CONTENT_JSP));
+
+if (Validator.isBlank(tilesPortletContent)) {
+	tilesPortletContent = GetterUtil.getString(TilesAttributeUtil.getTilesAttribute(pageContext, "portlet_content"));
+}
+
 boolean tilesPortletDecorate = GetterUtil.getBoolean(TilesAttributeUtil.getTilesAttribute(pageContext, "portlet_decorate"), true);
 
 TilesAttributeUtil.removeComponentContext(pageContext);
@@ -47,6 +52,8 @@ if (portletDecorateObj != null) {
 
 	request.removeAttribute(WebKeys.PORTLET_DECORATE);
 }
+
+portletDisplay.setPortletDecorate(portletDecorate);
 
 // Portlet title
 
@@ -121,78 +128,18 @@ boolean wsrp = ParamUtil.getBoolean(PortalUtil.getOriginalServletRequest(request
 
 			containerStyles = "style=\"height: ".concat(GetterUtil.getString(HtmlUtil.escapeAttribute(freeformStyleProps.getProperty("height")), "300px")).concat("; overflow: auto;\"");
 		}
-		else {
-			containerStyles = "style=\"\"";
-		}
 		%>
 
-		<c:choose>
-			<c:when test="<%= portletDecorate %>">
-				<liferay-theme:wrap-portlet page="portlet.jsp">
-					<div class="<%= portletDisplay.isStateMin() ? "hide" : "" %> portlet-content-container" <%= containerStyles %>>
-						<%@ include file="/html/common/themes/portlet_content_wrapper.jspf" %>
-					</div>
-				</liferay-theme:wrap-portlet>
-			</c:when>
-			<c:otherwise>
+		<liferay-theme:wrap-portlet page="portlet.jsp">
+			<div class="<%= portletDisplay.isStateMin() ? "hide" : "" %> portlet-content-container" <%= containerStyles %>>
+				<%@ include file="/html/common/themes/portlet_content_wrapper.jspf" %>
+			</div>
+		</liferay-theme:wrap-portlet>
 
-				<%
-				boolean showPortletActions =
-					(group.isLayoutPrototype() || tilesPortletDecorate) &&
-					(portletDisplay.isShowCloseIcon() ||
-					 portletDisplay.isShowConfigurationIcon() ||
-					 portletDisplay.isShowEditDefaultsIcon() ||
-					 portletDisplay.isShowEditGuestIcon() ||
-					 portletDisplay.isShowEditIcon() ||
-					 portletDisplay.isShowExportImportIcon() ||
-					 portletDisplay.isShowHelpIcon() ||
-					 portletDisplay.isShowPortletCssIcon() ||
-					 portletDisplay.isShowPrintIcon() ||
-					 portletDisplay.isShowRefreshIcon());
-				%>
-
-				<div class="portlet-borderless-container" <%= containerStyles %>>
-					<c:if test="<%= showPortletActions || portletDisplay.isShowBackIcon() %>">
-						<div class="portlet-borderless-bar">
-							<c:if test="<%= showPortletActions %>">
-								<span class="portlet-title-default"><%= HtmlUtil.escape(portletDisplay.getTitle()) %></span>
-
-								<span class="portlet-actions">
-									<span class="portlet-action">
-										<span class="portlet-action-separator">-</span>
-
-										<liferay-portlet:icon-options />
-									</span>
-
-									<c:if test="<%= portletDisplay.isShowCloseIcon() %>">
-										<span class="portlet-action">
-											<span class="portlet-action-separator">-</span>
-
-											<liferay-portlet:icon-close />
-										</span>
-									</c:if>
-
-									<c:if test="<%= portletDisplay.isShowBackIcon() %>">
-										<span class="portlet-action portlet-back">
-											<span class="portlet-action-separator">-</span>
-
-											<a href="<%= HtmlUtil.escapeAttribute(portletDisplay.getURLBack()) %>" title="<liferay-ui:message key="back" />"><liferay-ui:message key="back" /></a>
-										</span>
-									</c:if>
-								</span>
-							</c:if>
-						</div>
-					</c:if>
-
-					<%@ include file="/html/common/themes/portlet_content_wrapper.jspf" %>
-				</div>
-
-				<c:if test="<%= freeformPortlet %>">
-					<div class="portlet-resize-container">
-						<div class="portlet-resize-handle"></div>
-					</div>
-				</c:if>
-			</c:otherwise>
-		</c:choose>
+		<c:if test="<%= freeformPortlet %>">
+			<div class="portlet-resize-container">
+				<div class="portlet-resize-handle"></div>
+			</div>
+		</c:if>
 	</c:otherwise>
 </c:choose>

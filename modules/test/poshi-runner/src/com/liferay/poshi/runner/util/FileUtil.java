@@ -25,6 +25,19 @@ import org.apache.commons.io.FileUtils;
  */
 public class FileUtil {
 
+	public static void copyDirectory(File sourceDir, File destinationDir)
+		throws IOException {
+
+		FileUtils.copyDirectory(sourceDir, destinationDir);
+	}
+
+	public static void copyDirectory(
+			String sourceDirName, String destinationDirName)
+		throws IOException {
+
+		copyDirectory(new File(sourceDirName), new File(destinationDirName));
+	}
+
 	public static boolean exists(File file) {
 		return file.exists();
 	}
@@ -33,6 +46,10 @@ public class FileUtil {
 		File file = new File(fileName);
 
 		return exists(file);
+	}
+
+	public static String getSeparator() {
+		return File.separator;
 	}
 
 	public static String read(File file) throws IOException {

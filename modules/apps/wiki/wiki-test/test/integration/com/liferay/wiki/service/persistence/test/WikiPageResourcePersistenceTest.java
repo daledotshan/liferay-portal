@@ -14,7 +14,7 @@
 
 package com.liferay.wiki.service.persistence.test;
 
-import com.liferay.arquillian.bridge.junit.Arquillian;
+import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -34,7 +34,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.wiki.exception.NoSuchPageResourceException;
 import com.liferay.wiki.model.WikiPageResource;
@@ -45,6 +44,7 @@ import com.liferay.wiki.service.persistence.WikiPageResourceUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -64,8 +64,9 @@ import java.util.Set;
  */
 @RunWith(Arquillian.class)
 public class WikiPageResourcePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -124,6 +125,8 @@ public class WikiPageResourcePersistenceTest {
 
 		newWikiPageResource.setUuid(RandomTestUtil.randomString());
 
+		newWikiPageResource.setGroupId(RandomTestUtil.nextLong());
+
 		newWikiPageResource.setNodeId(RandomTestUtil.nextLong());
 
 		newWikiPageResource.setTitle(RandomTestUtil.randomString());
@@ -136,6 +139,8 @@ public class WikiPageResourcePersistenceTest {
 			newWikiPageResource.getUuid());
 		Assert.assertEquals(existingWikiPageResource.getResourcePrimKey(),
 			newWikiPageResource.getResourcePrimKey());
+		Assert.assertEquals(existingWikiPageResource.getGroupId(),
+			newWikiPageResource.getGroupId());
 		Assert.assertEquals(existingWikiPageResource.getNodeId(),
 			newWikiPageResource.getNodeId());
 		Assert.assertEquals(existingWikiPageResource.getTitle(),
@@ -143,31 +148,30 @@ public class WikiPageResourcePersistenceTest {
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByN_T() {
-		try {
-			_persistence.countByN_T(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByN_T(0L, StringPool.NULL);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByN_T(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
+	}
+
+	@Test
+	public void testCountByN_T() throws Exception {
+		_persistence.countByN_T(RandomTestUtil.nextLong(), StringPool.BLANK);
+
+		_persistence.countByN_T(0L, StringPool.NULL);
+
+		_persistence.countByN_T(0L, (String)null);
 	}
 
 	@Test
@@ -179,34 +183,23 @@ public class WikiPageResourcePersistenceTest {
 		Assert.assertEquals(existingWikiPageResource, newWikiPageResource);
 	}
 
-	@Test
+	@Test(expected = NoSuchPageResourceException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchPageResourceException");
-		}
-		catch (NoSuchPageResourceException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<WikiPageResource> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("WikiPageResource", "uuid",
-			true, "resourcePrimKey", true, "nodeId", true, "title", true);
+			true, "resourcePrimKey", true, "groupId", true, "nodeId", true,
+			"title", true);
 	}
 
 	@Test
@@ -407,18 +400,21 @@ public class WikiPageResourcePersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		WikiPageResource newWikiPageResource = addWikiPageResource();
 
 		_persistence.clearCache();
 
 		WikiPageResource existingWikiPageResource = _persistence.findByPrimaryKey(newWikiPageResource.getPrimaryKey());
 
-		Assert.assertEquals(existingWikiPageResource.getNodeId(),
-			ReflectionTestUtil.invoke(existingWikiPageResource,
+		Assert.assertTrue(Validator.equals(existingWikiPageResource.getUuid(),
+				ReflectionTestUtil.invoke(existingWikiPageResource,
+					"getOriginalUuid", new Class<?>[0])));
+		Assert.assertEquals(Long.valueOf(existingWikiPageResource.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingWikiPageResource,
+				"getOriginalGroupId", new Class<?>[0]));
+
+		Assert.assertEquals(Long.valueOf(existingWikiPageResource.getNodeId()),
+			ReflectionTestUtil.<Long>invoke(existingWikiPageResource,
 				"getOriginalNodeId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingWikiPageResource.getTitle(),
@@ -432,6 +428,8 @@ public class WikiPageResourcePersistenceTest {
 		WikiPageResource wikiPageResource = _persistence.create(pk);
 
 		wikiPageResource.setUuid(RandomTestUtil.randomString());
+
+		wikiPageResource.setGroupId(RandomTestUtil.nextLong());
 
 		wikiPageResource.setNodeId(RandomTestUtil.nextLong());
 

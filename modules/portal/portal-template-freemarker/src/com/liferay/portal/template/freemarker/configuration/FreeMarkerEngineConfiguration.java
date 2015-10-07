@@ -24,12 +24,13 @@ import aQute.bnd.annotation.metatype.Meta;
 )
 public interface FreeMarkerEngineConfiguration {
 
+	@Meta.AD(required = false)
+	public String[] allowedClasses();
+
 	@Meta.AD(deflt = "false", required = false)
 	public boolean localizedLookup();
 
-	@Meta.AD(
-		deflt = "FTL_liferay.ftl as liferay", required = false
-	)
+	@Meta.AD(deflt = "FTL_liferay.ftl as liferay", required = false)
 	public String[] macroLibrary();
 
 	@Meta.AD(deflt = "60", required = false)
@@ -41,14 +42,7 @@ public interface FreeMarkerEngineConfiguration {
 	)
 	public String[] restrictedClasses();
 
-	@Meta.AD(
-		deflt = "", required = false
-	)
-	public String[] restrictedPackages();
-
-	@Meta.AD(
-		deflt = "serviceLocator", required = false
-	)
+	@Meta.AD(deflt = "serviceLocator", required = false)
 	public String[] restrictedVariables();
 
 	@Meta.AD(deflt = "rethrow", required = false)

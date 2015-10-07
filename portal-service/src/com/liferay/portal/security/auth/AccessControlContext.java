@@ -14,6 +14,8 @@
 
 package com.liferay.portal.security.auth;
 
+import com.liferay.portal.kernel.security.auth.verifier.AuthVerifierResult;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +54,12 @@ public class AccessControlContext {
 
 	public void setResponse(HttpServletResponse response) {
 		_response = response;
+	}
+
+	public static enum Settings {
+
+		SERVICE_DEPTH
+
 	}
 
 	private AuthVerifierResult _authVerifierResult;

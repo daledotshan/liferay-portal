@@ -15,6 +15,7 @@
 package com.liferay.sync.engine.documentlibrary.handler;
 
 import com.liferay.sync.engine.documentlibrary.event.Event;
+import com.liferay.sync.engine.documentlibrary.util.FileEventUtil;
 import com.liferay.sync.engine.filesystem.Watcher;
 import com.liferay.sync.engine.filesystem.util.WatcherRegistry;
 import com.liferay.sync.engine.model.SyncAccount;
@@ -23,21 +24,27 @@ import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.service.SyncFileService;
 import com.liferay.sync.engine.session.Session;
 import com.liferay.sync.engine.session.SessionManager;
+import com.liferay.sync.engine.util.FileKeyUtil;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.IODeltaUtil;
+import com.liferay.sync.engine.util.MSOfficeFileUtil;
 import com.liferay.sync.engine.util.StreamUtil;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -58,72 +65,135 @@ public class DownloadFileHandler extends BaseHandler {
 
 	@Override
 	public void handleException(Exception e) {
-		if (!(e instanceof HttpResponseException)) {
-			super.handleException(e);
+		if (e instanceof ConnectionClosedException) {
+			String message = e.getMessage();
+
+			if (message.startsWith("Premature end of Content-Length")) {
+				_logger.error(message, e);
+
+				FileEventUtil.downloadFile(
+					getSyncAccountId(), getLocalSyncFile(), false);
+
+				return;
+			}
+		}
+		else if (e instanceof HttpResponseException) {
+			_logger.error(e.getMessage(), e);
+
+			HttpResponseException hre = (HttpResponseException)e;
+
+			int statusCode = hre.getStatusCode();
+
+			if (statusCode != HttpStatus.SC_NOT_FOUND) {
+				super.handleException(e);
+
+				return;
+			}
+
+			SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
+				getSyncAccountId());
+
+			if (syncAccount.getState() != SyncAccount.STATE_CONNECTED) {
+				super.handleException(e);
+
+				return;
+			}
+
+			SyncFile syncFile = getLocalSyncFile();
+
+			if ((boolean)getParameterValue("patch")) {
+				FileEventUtil.downloadFile(getSyncAccountId(), syncFile, false);
+			}
+			else {
+				SyncFileService.deleteSyncFile(syncFile, false);
+			}
 
 			return;
 		}
 
-		_logger.error(e.getMessage(), e);
+		super.handleException(e);
+	}
 
-		HttpResponseException hre = (HttpResponseException)e;
-
-		int statusCode = hre.getStatusCode();
-
-		if (statusCode != HttpStatus.SC_NOT_FOUND) {
-			super.handleException(e);
-
-			return;
-		}
-
-		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
-			getSyncAccountId());
-
-		if (syncAccount.getState() != SyncAccount.STATE_CONNECTED) {
-			super.handleException(e);
-
-			return;
-		}
-
+	@Override
+	public boolean handlePortalException(String exception) throws Exception {
 		SyncFile syncFile = getLocalSyncFile();
 
-		SyncFileService.deleteSyncFile(syncFile, false);
+		if (_logger.isDebugEnabled()) {
+			_logger.debug(
+				"Handling exception {} file path {}", exception,
+				syncFile.getFilePathName());
+		}
+
+		if (exception.equals(
+				"com.liferay.portal.security.auth.PrincipalException")) {
+
+			syncFile.setState(SyncFile.STATE_ERROR);
+			syncFile.setUiEvent(SyncFile.UI_EVENT_INVALID_PERMISSIONS);
+
+			SyncFileService.update(syncFile);
+
+			return true;
+		}
+		else if (exception.equals(
+					"com.liferay.portlet.documentlibrary." +
+						"NoSuchFileVersionException") &&
+				 (boolean)getParameterValue("patch")) {
+
+			FileEventUtil.downloadFile(getSyncAccountId(), syncFile, false);
+
+			return true;
+		}
+		else if (exception.equals(
+					"com.liferay.portlet.documentlibrary." +
+						"NoSuchFileEntryException") ||
+				 exception.equals(
+					 "com.liferay.portlet.documentlibrary." +
+						 "NoSuchFileException")) {
+
+			SyncFileService.deleteSyncFile(syncFile, false);
+
+			return true;
+		}
+
+		return super.handlePortalException(exception);
 	}
 
 	protected void copyFile(
-			SyncFile syncFile, Path filePath, InputStream inputStream)
+			SyncFile syncFile, Path filePath, InputStream inputStream,
+			boolean append)
 		throws Exception {
+
+		OutputStream outputStream = null;
 
 		Watcher watcher = WatcherRegistry.getWatcher(getSyncAccountId());
 
 		List<String> downloadedFilePathNames =
 			watcher.getDownloadedFilePathNames();
 
-		downloadedFilePathNames.add(filePath.toString());
-
 		try {
-			SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
-				getSyncAccountId());
-
-			Path tempFilePath = FileUtil.getFilePath(
-				syncAccount.getFilePathName(), ".data",
-				String.valueOf(syncFile.getSyncFileId()));
+			Path tempFilePath = FileUtil.getTempFilePath(syncFile);
 
 			boolean exists = Files.exists(filePath);
 
-			if (exists) {
-				Files.copy(
-					filePath, tempFilePath,
-					StandardCopyOption.REPLACE_EXISTING);
-			}
+			if (append) {
+				outputStream = Files.newOutputStream(
+					tempFilePath, StandardOpenOption.APPEND);
 
-			if ((Boolean)getParameterValue("patch")) {
-				IODeltaUtil.patch(tempFilePath, inputStream);
+				IOUtils.copyLarge(inputStream, outputStream);
 			}
 			else {
-				Files.copy(
-					inputStream, tempFilePath,
-					StandardCopyOption.REPLACE_EXISTING);
+				if (exists && (boolean)getParameterValue("patch")) {
+					Files.copy(
+						filePath, tempFilePath,
+						StandardCopyOption.REPLACE_EXISTING);
+
+					IODeltaUtil.patch(tempFilePath, inputStream);
+				}
+				else {
+					Files.copy(
+						inputStream, tempFilePath,
+						StandardCopyOption.REPLACE_EXISTING);
+				}
 			}
 
 			downloadedFilePathNames.add(filePath.toString());
@@ -135,10 +205,16 @@ public class DownloadFileHandler extends BaseHandler {
 				syncFile.setUiEvent(SyncFile.UI_EVENT_DOWNLOADED_NEW);
 			}
 
-			FileUtil.writeFileKey(
-				tempFilePath, String.valueOf(syncFile.getSyncFileId()));
+			FileKeyUtil.writeFileKey(
+				tempFilePath, String.valueOf(syncFile.getSyncFileId()), false);
 
 			FileUtil.setModifiedTime(tempFilePath, syncFile.getModifiedTime());
+
+			if (MSOfficeFileUtil.isLegacyExcelFile(filePath)) {
+				syncFile.setLocalExtraSettingsValue(
+					"lastSavedDate",
+					MSOfficeFileUtil.getLastSavedDate(tempFilePath));
+			}
 
 			Files.move(
 				tempFilePath, filePath, StandardCopyOption.ATOMIC_MOVE,
@@ -155,12 +231,17 @@ public class DownloadFileHandler extends BaseHandler {
 
 			String message = fse.getMessage();
 
+			_logger.error(message, fse);
+
 			if (message.contains("File name too long")) {
 				syncFile.setState(SyncFile.STATE_ERROR);
 				syncFile.setUiEvent(SyncFile.UI_EVENT_FILE_NAME_TOO_LONG);
 
 				SyncFileService.update(syncFile);
 			}
+		}
+		finally {
+			StreamUtil.cleanUp(outputStream);
 		}
 	}
 
@@ -206,7 +287,12 @@ public class DownloadFileHandler extends BaseHandler {
 
 			};
 
-			copyFile(syncFile, filePath, inputStream);
+			if (httpResponse.getFirstHeader("Accept-Ranges") != null) {
+				copyFile(syncFile, filePath, inputStream, true);
+			}
+			else {
+				copyFile(syncFile, filePath, inputStream, false);
+			}
 		}
 		finally {
 			StreamUtil.cleanUp(inputStream);
@@ -216,8 +302,24 @@ public class DownloadFileHandler extends BaseHandler {
 	protected boolean isUnsynced(SyncFile syncFile) {
 		syncFile = SyncFileService.fetchSyncFile(syncFile.getSyncFileId());
 
-		if ((syncFile == null) ||
-			(syncFile.getState() == SyncFile.STATE_UNSYNCED)) {
+		if (syncFile.getState() == SyncFile.STATE_UNSYNCED) {
+			_logger.debug(
+				"Skipping file {}. File is unsynced.", syncFile.getName());
+
+			return true;
+		}
+
+		Path filePath = Paths.get(syncFile.getFilePathName());
+
+		if (Files.notExists(filePath.getParent())) {
+			_logger.debug(
+				"Skipping file {}. Missing parent file path {}.",
+				syncFile.getName(), filePath.getParent());
+
+			syncFile.setState(SyncFile.STATE_ERROR);
+			syncFile.setUiEvent(SyncFile.UI_EVENT_PARENT_MISSING);
+
+			SyncFileService.update(syncFile);
 
 			return true;
 		}

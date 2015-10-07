@@ -39,6 +39,7 @@ import com.liferay.portal.test.rule.PersistenceTestRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,8 +56,9 @@ import java.util.Set;
  * @generated
  */
 public class UserTrackerPathPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -139,15 +141,10 @@ public class UserTrackerPathPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUserTrackerId() {
-		try {
-			_persistence.countByUserTrackerId(RandomTestUtil.nextLong());
+	public void testCountByUserTrackerId() throws Exception {
+		_persistence.countByUserTrackerId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserTrackerId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserTrackerId(0L);
 	}
 
 	@Test
@@ -159,29 +156,17 @@ public class UserTrackerPathPersistenceTest {
 		Assert.assertEquals(existingUserTrackerPath, newUserTrackerPath);
 	}
 
-	@Test
+	@Test(expected = NoSuchUserTrackerPathException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchUserTrackerPathException");
-		}
-		catch (NoSuchUserTrackerPathException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<UserTrackerPath> getOrderByComparator() {

@@ -1,4 +1,4 @@
-Bundle-Activator: com.liferay.portal.servlet.jsp.compiler.internal.JspFactoryActivator
+Bundle-Activator: com.liferay.portal.servlet.jsp.compiler.internal.JspFactoryBundleActivator
 Bundle-Name: Liferay Portal Servlet JSP Compiler
 Bundle-SymbolicName: com.liferay.portal.servlet.jsp.compiler
 Bundle-Version: 1.0.0
@@ -56,12 +56,13 @@ Import-Package:\
 	org.xml.sax.ext,\
 	org.xml.sax.helpers,\
 	*
-
-Provide-Capability: liferay.extender;\
+Provide-Capability:\
+	liferay.extender;\
 	liferay.extender="jsp.extender";version:Version="${Bundle-Version}"
 
 -includeresource:\
 	@lib/javax.servlet.jsp.jar,\
 	@lib/javax.servlet.jsp.jstl.jar!/META-INF/*.tld,\
 	@lib/org.apache.felix.utils.jar!/org/apache/felix/utils/log/*,\
+	@../../../portal-service/portal-service.jar!/com/liferay/portal/kernel/util/ReflectionUtil.class,\
 	classes

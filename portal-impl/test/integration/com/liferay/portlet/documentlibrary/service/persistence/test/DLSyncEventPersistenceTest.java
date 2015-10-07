@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import com.liferay.portlet.documentlibrary.NoSuchSyncEventException;
 import com.liferay.portlet.documentlibrary.model.DLSyncEvent;
@@ -41,6 +40,7 @@ import com.liferay.portlet.documentlibrary.service.persistence.DLSyncEventUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -57,8 +57,9 @@ import java.util.Set;
  * @generated
  */
 public class DLSyncEventPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -140,27 +141,17 @@ public class DLSyncEventPersistenceTest {
 	}
 
 	@Test
-	public void testCountByModifiedTime() {
-		try {
-			_persistence.countByModifiedTime(RandomTestUtil.nextLong());
+	public void testCountByModifiedTime() throws Exception {
+		_persistence.countByModifiedTime(RandomTestUtil.nextLong());
 
-			_persistence.countByModifiedTime(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByModifiedTime(0L);
 	}
 
 	@Test
-	public void testCountByTypePK() {
-		try {
-			_persistence.countByTypePK(RandomTestUtil.nextLong());
+	public void testCountByTypePK() throws Exception {
+		_persistence.countByTypePK(RandomTestUtil.nextLong());
 
-			_persistence.countByTypePK(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByTypePK(0L);
 	}
 
 	@Test
@@ -172,28 +163,17 @@ public class DLSyncEventPersistenceTest {
 		Assert.assertEquals(existingDLSyncEvent, newDLSyncEvent);
 	}
 
-	@Test
+	@Test(expected = NoSuchSyncEventException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchSyncEventException");
-		}
-		catch (NoSuchSyncEventException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<DLSyncEvent> getOrderByComparator() {
@@ -398,19 +378,15 @@ public class DLSyncEventPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		DLSyncEvent newDLSyncEvent = addDLSyncEvent();
 
 		_persistence.clearCache();
 
 		DLSyncEvent existingDLSyncEvent = _persistence.findByPrimaryKey(newDLSyncEvent.getPrimaryKey());
 
-		Assert.assertEquals(existingDLSyncEvent.getTypePK(),
-			ReflectionTestUtil.invoke(existingDLSyncEvent, "getOriginalTypePK",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingDLSyncEvent.getTypePK()),
+			ReflectionTestUtil.<Long>invoke(existingDLSyncEvent,
+				"getOriginalTypePK", new Class<?>[0]));
 	}
 
 	protected DLSyncEvent addDLSyncEvent() throws Exception {

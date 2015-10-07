@@ -34,6 +34,23 @@ public interface Portlet extends PortletModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portal.model.impl.PortletImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<Portlet, Long> ID_ACCESSOR = new Accessor<Portlet, Long>() {
+			@Override
+			public Long get(Portlet portlet) {
+				return portlet.getId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<Portlet> getTypeClass() {
+				return Portlet.class;
+			}
+		};
+
 	public static final Accessor<Portlet, String> PORTLET_ID_ACCESSOR = new Accessor<Portlet, String>() {
 			@Override
 			public String get(Portlet portlet) {
@@ -146,7 +163,7 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*
 	* @return the asset type instances of the portlet
 	*/
-	public java.util.List<com.liferay.portlet.asset.model.AssetRendererFactory> getAssetRendererFactoryInstances();
+	public java.util.List<com.liferay.portlet.asset.model.AssetRendererFactory<?>> getAssetRendererFactoryInstances();
 
 	/**
 	* Returns the names of the classes that represent atom collection adapters
@@ -270,14 +287,6 @@ public interface Portlet extends PortletModel, PersistedModel {
 	* @return the custom attribute display instances of the portlet
 	*/
 	public java.util.List<com.liferay.portlet.expando.model.CustomAttributesDisplay> getCustomAttributesDisplayInstances();
-
-	/**
-	* Returns the name of the dynamic data mapping display class of the
-	* portlet.
-	*
-	* @return the name of the dynamic data mapping display class of the portlet
-	*/
-	public java.lang.String getDDMDisplayClass();
 
 	/**
 	* Get the default plugin settings of the portlet.
@@ -446,7 +455,7 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*
 	* @return the indexer instances of the portlet
 	*/
-	public java.util.List<com.liferay.portal.kernel.search.Indexer> getIndexerInstances();
+	public java.util.List<com.liferay.portal.kernel.search.Indexer<?>> getIndexerInstances();
 
 	/**
 	* Returns the init parameters of the portlet.
@@ -616,7 +625,7 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*
 	* @return the portlet data handler instance of the portlet
 	*/
-	public com.liferay.portal.kernel.lar.PortletDataHandler getPortletDataHandlerInstance();
+	public com.liferay.portlet.exportimport.lar.PortletDataHandler getPortletDataHandlerInstance();
 
 	/**
 	* Returns the filters of the portlet.
@@ -938,7 +947,7 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*
 	* @return the staged model data handler instances of the portlet
 	*/
-	public java.util.List<com.liferay.portal.kernel.lar.StagedModelDataHandler<?>> getStagedModelDataHandlerInstances();
+	public java.util.List<com.liferay.portlet.exportimport.lar.StagedModelDataHandler<?>> getStagedModelDataHandlerInstances();
 
 	/**
 	* Returns <code>true</code> if the portlet is a static portlet that is
@@ -1267,6 +1276,8 @@ public interface Portlet extends PortletModel, PersistedModel {
 	* @return <code>true</code> if the portlet can be displayed via Ajax
 	*/
 	public boolean isAjaxable();
+
+	public boolean isFullPageDisplayable();
 
 	/**
 	* Returns <code>true</code> to include the portlet and make it available to
@@ -1617,14 +1628,6 @@ public interface Portlet extends PortletModel, PersistedModel {
 		java.util.List<java.lang.String> customAttributesDisplayClasses);
 
 	/**
-	* Sets the name of the dynamic data mapping display class of the portlet.
-	*
-	* @param ddmDisplayClass the name of dynamic data mapping display class of
-	the portlet
-	*/
-	public void setDDMDisplayClass(java.lang.String ddmDisplayClass);
-
-	/**
 	* Sets the default plugin settings of the portlet.
 	*
 	* @param pluginSetting the plugin setting
@@ -1727,6 +1730,8 @@ public interface Portlet extends PortletModel, PersistedModel {
 	URL routes of the portlet
 	*/
 	public void setFriendlyURLRoutes(java.lang.String friendlyURLRoutes);
+
+	public void setFullPageDisplayable(boolean fullPageDisplayable);
 
 	/**
 	* Sets a list of CSS files that will be referenced from the page's header
@@ -2352,4 +2357,6 @@ public interface Portlet extends PortletModel, PersistedModel {
 	portlet
 	*/
 	public void setXmlRpcMethodClass(java.lang.String xmlRpcMethodClass);
+
+	public void unsetReady();
 }

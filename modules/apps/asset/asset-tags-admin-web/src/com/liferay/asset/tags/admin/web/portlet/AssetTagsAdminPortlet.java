@@ -14,6 +14,7 @@
 
 package com.liferay.asset.tags.admin.web.portlet;
 
+import com.liferay.asset.tags.admin.web.constants.AssetTagsAdminPortletKeys;
 import com.liferay.asset.tags.admin.web.upgrade.AssetTagsAdminWebUpgrade;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.servlet.SessionErrors;
@@ -26,7 +27,8 @@ import com.liferay.portlet.asset.AssetTagException;
 import com.liferay.portlet.asset.DuplicateTagException;
 import com.liferay.portlet.asset.NoSuchTagException;
 import com.liferay.portlet.asset.model.AssetTag;
-import com.liferay.portlet.asset.service.AssetTagServiceUtil;
+import com.liferay.portlet.asset.service.AssetTagLocalService;
+import com.liferay.portlet.asset.service.AssetTagService;
 
 import java.io.IOException;
 
@@ -47,8 +49,6 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true,
 	property = {
 		"com.liferay.portlet.css-class-wrapper=portlet-asset-tag-admin",
-		"com.liferay.portlet.control-panel-entry-category=site_administration.content",
-		"com.liferay.portlet.control-panel-entry-weight=20.0",
 		"com.liferay.portlet.display-category=category.hidden",
 		"com.liferay.portlet.header-portlet-css=/css/main.css",
 		"com.liferay.portlet.icon=/icons/asset_tag_admin.png",
@@ -60,10 +60,11 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.display-name=Asset Tag Admin",
 		"javax.portlet.init-param.template-path=/",
 		"javax.portlet.init-param.view-template=/view.jsp",
+		"javax.portlet.name=" + AssetTagsAdminPortletKeys.ASSET_TAGS_ADMIN,
 		"javax.portlet.resource-bundle=content.Language",
 		"javax.portlet.security-role-ref=administrator",
 		"javax.portlet.supports.mime-type=text/html"
-		},
+	},
 	service = Portlet.class
 )
 public class AssetTagsAdminPortlet extends MVCPortlet {
@@ -85,7 +86,7 @@ public class AssetTagsAdminPortlet extends MVCPortlet {
 		}
 
 		for (long deleteTagId : deleteTagIds) {
-			AssetTagServiceUtil.deleteTag(deleteTagId);
+			_assetTagService.deleteTag(deleteTagId);
 		}
 	}
 
@@ -104,13 +105,14 @@ public class AssetTagsAdminPortlet extends MVCPortlet {
 
 			// Add tag
 
-			AssetTagServiceUtil.addTag(name, serviceContext);
+			_assetTagService.addTag(
+				serviceContext.getScopeGroupId(), name, serviceContext);
 		}
 		else {
 
 			// Update tag
 
-			AssetTagServiceUtil.updateTag(tagId, name, serviceContext);
+			_assetTagService.updateTag(tagId, name, serviceContext);
 		}
 	}
 
@@ -118,16 +120,34 @@ public class AssetTagsAdminPortlet extends MVCPortlet {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		long[] mergeTagIds = StringUtil.split(
-			ParamUtil.getString(actionRequest, "mergeTagIds"), 0L);
-		long targetTagId = ParamUtil.getLong(actionRequest, "targetTagId");
+		long groupId = ParamUtil.getLong(actionRequest, "groupId");
+		String targetTagName = ParamUtil.getString(
+			actionRequest, "targetTagName");
 
-		for (long mergeTagId : mergeTagIds) {
-			if (targetTagId == mergeTagId) {
+		AssetTag targetTag = _assetTagLocalService.fetchTag(
+			groupId, targetTagName);
+
+		if (targetTag == null) {
+			return;
+		}
+
+		String[] mergeTagNames = StringUtil.split(
+			ParamUtil.getString(actionRequest, "mergeTagNames"));
+
+		for (String mergeTagName : mergeTagNames) {
+			if (targetTagName.equals(mergeTagName)) {
 				continue;
 			}
 
-			AssetTagServiceUtil.mergeTags(mergeTagId, targetTagId);
+			AssetTag mergeTag = _assetTagLocalService.fetchTag(
+				groupId, mergeTagName);
+
+			if (mergeTag == null) {
+				continue;
+			}
+
+			_assetTagService.mergeTags(
+				mergeTag.getTagId(), targetTag.getTagId());
 		}
 	}
 
@@ -139,7 +159,7 @@ public class AssetTagsAdminPortlet extends MVCPortlet {
 		if (SessionErrors.contains(
 				renderRequest, NoSuchTagException.class.getName()) ||
 			SessionErrors.contains(
-				renderRequest, PrincipalException.class.getName())) {
+				renderRequest, PrincipalException.getNestedClasses())) {
 
 			include("/error.jsp", renderRequest, renderResponse);
 		}
@@ -162,8 +182,23 @@ public class AssetTagsAdminPortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
+	protected void setAssetTagLocalService(
+		AssetTagLocalService assetTagLocalService) {
+
+		_assetTagLocalService = assetTagLocalService;
+	}
+
+	@Reference(unbind = "-")
 	protected void setAssetTagsAdminWebUpgrade(
 		AssetTagsAdminWebUpgrade assetTagsAdminWebUpgrade) {
 	}
+
+	@Reference(unbind = "-")
+	protected void setAssetTagService(AssetTagService assetTagService) {
+		_assetTagService = assetTagService;
+	}
+
+	private AssetTagLocalService _assetTagLocalService;
+	private AssetTagService _assetTagService;
 
 }

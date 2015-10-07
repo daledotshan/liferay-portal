@@ -15,10 +15,12 @@
 package com.liferay.sync.engine.service;
 
 import com.liferay.sync.engine.model.ModelListener;
+import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.model.SyncSite;
 import com.liferay.sync.engine.model.SyncSiteModelListener;
 import com.liferay.sync.engine.service.persistence.SyncSitePersistence;
+import com.liferay.sync.engine.util.FileUtil;
 
 import java.io.IOException;
 
@@ -55,7 +57,9 @@ public class SyncSiteService {
 		syncSite.setActive(true);
 
 		if (reset) {
-			syncSite.setRemoteSyncTime(0);
+			syncSite.setRemoteSyncTime(-1);
+			syncSite.setState(SyncSite.STATE_SYNCED);
+			syncSite.setUiEvent(SyncSite.UI_EVENT_NONE);
 		}
 
 		update(syncSite);
@@ -203,6 +207,31 @@ public class SyncSiteService {
 		_syncSitePersistence.registerModelListener(modelListener);
 	}
 
+	public static SyncSite setFilePathName(long syncSiteId, String name) {
+
+		// Sync site
+
+		SyncSite syncSite = fetchSyncSite(syncSiteId);
+
+		String filePathName = syncSite.getFilePathName();
+
+		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
+			syncSite.getSyncAccountId());
+
+		syncSite.setFilePathName(
+			FileUtil.getFilePathName(syncAccount.getFilePathName(), name));
+
+		update(syncSite);
+
+		// Sync files
+
+		SyncFileService.renameSyncFiles(
+			filePathName,
+			FileUtil.getFilePathName(syncAccount.getFilePathName(), name));
+
+		return syncSite;
+	}
+
 	public static void unregisterModelListener(
 		ModelListener<SyncSite> modelListener) {
 
@@ -251,7 +280,9 @@ public class SyncSiteService {
 			syncSite.getGroupId(), syncSite.getSyncAccountId());
 
 		for (SyncFile syncFile : syncFiles) {
-			SyncFileService.deleteSyncFile(syncFile, false);
+			if (!syncFile.isSystem()) {
+				SyncFileService.deleteSyncFile(syncFile, false);
+			}
 		}
 
 		Path filePath = Paths.get(syncSite.getFilePathName());

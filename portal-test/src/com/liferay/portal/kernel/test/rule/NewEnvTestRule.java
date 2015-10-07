@@ -146,36 +146,33 @@ public class NewEnvTestRule implements TestRule {
 	protected List<String> createArguments(Description description) {
 		List<String> arguments = new ArrayList<>();
 
-		if (Boolean.getBoolean("junit.debug")) {
+		arguments.add("-Djava.net.preferIPv4Stack=true");
+
+		if (Boolean.getBoolean("jvm.debug")) {
 			arguments.add(_JPDA_OPTIONS);
-			arguments.add("-Djunit.debug=true");
+			arguments.add("-Djvm.debug=true");
 		}
 
 		arguments.add("-Dliferay.mode=test");
 
-		String agentLine = System.getProperty("junit.cobertura.agent");
+		String whipAgentLine = System.getProperty("whip.agent");
 
-		if (Validator.isNotNull(agentLine)) {
-			arguments.add(agentLine);
-			arguments.add("-Djunit.cobertura.agent=" + agentLine);
+		if (Validator.isNotNull(whipAgentLine)) {
+			arguments.add(whipAgentLine);
+			arguments.add("-Dwhip.agent=" + whipAgentLine);
 		}
 
-		if (Boolean.getBoolean("junit.code.coverage")) {
-			arguments.add("-Djunit.code.coverage=true");
-		}
-
-		if (Boolean.getBoolean("junit.code.coverage.dump")) {
-			arguments.add("-Djunit.code.coverage.dump=true");
-		}
-
-		arguments.add("-Djava.net.preferIPv4Stack=true");
-
-		String fileName = System.getProperty(
-			"net.sourceforge.cobertura.datafile");
+		String fileName = System.getProperty("whip.datafile");
 
 		if (fileName != null) {
-			arguments.add("-Dnet.sourceforge.cobertura.datafile=" + fileName);
+			arguments.add("-Dwhip.datafile=" + fileName);
 		}
+
+		if (Boolean.getBoolean("whip.instrument.dump")) {
+			arguments.add("-Dwhip.instrument.dump=true");
+		}
+
+		arguments.add("-Dwhip.static.instrument=true");
 
 		return arguments;
 	}

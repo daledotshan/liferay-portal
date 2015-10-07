@@ -33,11 +33,11 @@ public class AssetTagServiceWrapper implements AssetTagService,
 	}
 
 	@Override
-	public com.liferay.portlet.asset.model.AssetTag addTag(
+	public com.liferay.portlet.asset.model.AssetTag addTag(long groupId,
 		java.lang.String name,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetTagService.addTag(name, serviceContext);
+		return _assetTagService.addTag(groupId, name, serviceContext);
 	}
 
 	@Override
@@ -112,8 +112,7 @@ public class AssetTagServiceWrapper implements AssetTagService,
 
 	@Override
 	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
-		java.lang.String className, long classPK)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		java.lang.String className, long classPK) {
 		return _assetTagService.getTags(className, classPK);
 	}
 

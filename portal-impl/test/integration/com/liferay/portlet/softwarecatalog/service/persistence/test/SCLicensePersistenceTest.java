@@ -39,6 +39,7 @@ import com.liferay.portlet.softwarecatalog.service.persistence.SCLicenseUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,8 +56,9 @@ import java.util.Set;
  * @generated
  */
 public class SCLicensePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -140,29 +142,19 @@ public class SCLicensePersistenceTest {
 	}
 
 	@Test
-	public void testCountByActive() {
-		try {
-			_persistence.countByActive(RandomTestUtil.randomBoolean());
+	public void testCountByActive() throws Exception {
+		_persistence.countByActive(RandomTestUtil.randomBoolean());
 
-			_persistence.countByActive(RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByActive(RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByA_R() {
-		try {
-			_persistence.countByA_R(RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByA_R() throws Exception {
+		_persistence.countByA_R(RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
 
-			_persistence.countByA_R(RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByA_R(RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -174,28 +166,17 @@ public class SCLicensePersistenceTest {
 		Assert.assertEquals(existingSCLicense, newSCLicense);
 	}
 
-	@Test
+	@Test(expected = NoSuchLicenseException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchLicenseException");
-		}
-		catch (NoSuchLicenseException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<SCLicense> getOrderByComparator() {
