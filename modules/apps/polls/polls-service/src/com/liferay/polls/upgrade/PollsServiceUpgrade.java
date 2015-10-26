@@ -15,57 +15,36 @@
 package com.liferay.polls.upgrade;
 
 import com.liferay.polls.upgrade.v1_0_0.UpgradeClassNames;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.service.ReleaseLocalService;
-import com.liferay.portal.upgrade.util.UpgradePortletId;
+import com.liferay.polls.upgrade.v1_0_0.UpgradeLastPublishDate;
+import com.liferay.polls.upgrade.v1_0_0.UpgradePortletId;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
+import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import org.springframework.context.ApplicationContext;
 
 /**
  * @author Miguel Pastor
  */
-@Component(
-	immediate = true, service = PollsServiceUpgrade.class
-)
-public class PollsServiceUpgrade {
+@Component(immediate = true)
+public class PollsServiceUpgrade implements UpgradeStepRegistrator {
 
-	@Reference(
-		target =
-			"(org.springframework.context.service.name=" +
-				"com.liferay.polls.service)",
-		unbind = "-"
-	)
-	protected void setApplicationContext(
-		ApplicationContext applicationContext) {
+	@Override
+	public void register(Registry registry) {
+		registry.register(
+			"com.liferay.polls.service", "0.0.1", "1.0.0",
+			new UpgradePortletId(), new UpgradeClassNames(),
+			new UpgradeLastPublishDate());
 	}
 
-	@Reference(unbind = "-")
-	protected void setReleaseLocalService(
-		ReleaseLocalService releaseLocalService) {
-
-		_releaseLocalService = releaseLocalService;
+	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
+	protected void setModuleServiceLifecycle(
+		ModuleServiceLifecycle moduleServiceLifecycle) {
 	}
 
-	@Activate
-	protected void upgrade() throws PortalException {
-		List<UpgradeProcess> upgradeProcesses = new ArrayList<>();
-
-		upgradeProcesses.add(new UpgradePortletId());
-
-		upgradeProcesses.add(new UpgradeClassNames());
-
-		_releaseLocalService.updateRelease(
-			"com.liferay.polls.service", upgradeProcesses, 1, 0, false);
-	}
-
-	private ReleaseLocalService _releaseLocalService;
+	private static final Log _log = LogFactoryUtil.getLog(
+		PollsServiceUpgrade.class);
 
 }

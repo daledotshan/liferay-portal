@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -71,7 +72,8 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link #addEntry(String, String,
 	 *             String, String, int, int, int, int, int, boolean, boolean,
-	 *             String[], ImageSelector, ImageSelector, ServiceContext)}
+	 *             String[], String, ImageSelector, ImageSelector,
+	 *             ServiceContext)}
 	 */
 	@Deprecated
 	@Override
@@ -107,7 +109,7 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 		return addEntry(
 			title, StringPool.BLANK, description, content, displayDateMonth,
 			displayDateDay, displayDateYear, displayDateHour, displayDateMinute,
-			allowPingbacks, allowTrackbacks, trackbacks,
+			allowPingbacks, allowTrackbacks, trackbacks, StringPool.BLANK,
 			coverImageImageSelector, smallImageImageSelector, serviceContext);
 	}
 
@@ -117,7 +119,7 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			int displayDateMonth, int displayDateDay, int displayDateYear,
 			int displayDateHour, int displayDateMinute, boolean allowPingbacks,
 			boolean allowTrackbacks, String[] trackbacks,
-			ImageSelector coverImageImageSelector,
+			String coverImageCaption, ImageSelector coverImageImageSelector,
 			ImageSelector smallImageImageSelector,
 			ServiceContext serviceContext)
 		throws PortalException {
@@ -130,7 +132,8 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			getUserId(), title, subtitle, description, content,
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector, smallImageImageSelector,
+			serviceContext);
 	}
 
 	@Override
@@ -264,6 +267,21 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 	}
 
 	@Override
+	public List<BlogsEntry> getGroupEntries(
+		long groupId, int status, int start, int end,
+		OrderByComparator<BlogsEntry> obc) {
+
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return blogsEntryPersistence.filterFindByG_NotS(
+				groupId, WorkflowConstants.STATUS_IN_TRASH, start, end, obc);
+		}
+		else {
+			return blogsEntryPersistence.filterFindByG_S(
+				groupId, status, start, end, obc);
+		}
+	}
+
+	@Override
 	public int getGroupEntriesCount(
 		long groupId, Date displayDate, int status) {
 
@@ -347,6 +365,34 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 		}
 
 		return entries;
+	}
+
+	@Override
+	public List<BlogsEntry> getGroupUserEntries(
+		long groupId, long userId, int status, int start, int end,
+		OrderByComparator<BlogsEntry> obc) {
+
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return blogsEntryPersistence.filterFindByG_U_NotS(
+				groupId, userId, WorkflowConstants.STATUS_IN_TRASH, start, end,
+				obc);
+		}
+		else {
+			return blogsEntryPersistence.filterFindByG_U_S(
+				groupId, userId, status, start, end, obc);
+		}
+	}
+
+	@Override
+	public int getGroupUserEntriesCount(long groupId, long userId, int status) {
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return blogsEntryPersistence.filterCountByG_U_NotS(
+				groupId, userId, WorkflowConstants.STATUS_IN_TRASH);
+		}
+		else {
+			return blogsEntryPersistence.filterCountByG_U_S(
+				groupId, userId, status);
+		}
 	}
 
 	@Override
@@ -445,7 +491,7 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, String,
 	 *             String, String, String, int, int, int, int, int, boolean,
-	 *             boolean, String[], ImageSelector, ImageSelector,
+	 *             boolean, String[], String, ImageSelector, ImageSelector,
 	 *             ServiceContext)}
 	 */
 	@Deprecated
@@ -488,7 +534,8 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			entryId, title, StringPool.BLANK, description, content,
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			StringPool.BLANK, coverImageImageSelector, smallImageImageSelector,
+			serviceContext);
 	}
 
 	@Override
@@ -497,7 +544,8 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			String content, int displayDateMonth, int displayDateDay,
 			int displayDateYear, int displayDateHour, int displayDateMinute,
 			boolean allowPingbacks, boolean allowTrackbacks,
-			String[] trackbacks, ImageSelector coverImageImageSelector,
+			String[] trackbacks, String coverImageCaption,
+			ImageSelector coverImageImageSelector,
 			ImageSelector smallImageImageSelector,
 			ServiceContext serviceContext)
 		throws PortalException {
@@ -509,7 +557,8 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			getUserId(), entryId, title, subtitle, description, content,
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector, smallImageImageSelector,
+			serviceContext);
 	}
 
 	protected String exportToRSS(
@@ -554,10 +603,7 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			}
 			else {
 				value = StringUtil.replace(
-					entry.getContent(),
-					new String[] {
-						"href=\"/", "src=\"/"
-					},
+					entry.getContent(), new String[] {"href=\"/", "src=\"/"},
 					new String[] {
 						"href=\"" + themeDisplay.getURLPortal() + "/",
 						"src=\"" + themeDisplay.getURLPortal() + "/"
@@ -570,20 +616,14 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 
 			StringBundler sb = new StringBundler(4);
 
-			if (entryURL.endsWith("/blogs/rss")) {
-				sb.append(entryURL.substring(0, entryURL.length() - 3));
-				sb.append(entry.getUrlTitle());
-			}
-			else {
-				sb.append(entryURL);
+			sb.append(entryURL);
 
-				if (!entryURL.endsWith(StringPool.QUESTION)) {
-					sb.append(StringPool.AMPERSAND);
-				}
-
-				sb.append("entryId=");
-				sb.append(entry.getEntryId());
+			if (!entryURL.endsWith(StringPool.QUESTION)) {
+				sb.append(StringPool.AMPERSAND);
 			}
+
+			sb.append("entryId=");
+			sb.append(entry.getEntryId());
 
 			String link = sb.toString();
 
@@ -609,16 +649,6 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 
 		selfSyndLink.setHref(feedURL);
 		selfSyndLink.setRel("self");
-
-		if (feedURL.endsWith("/-/blogs/rss")) {
-			SyndLink alternateSyndLink = new SyndLinkImpl();
-
-			syndLinks.add(alternateSyndLink);
-
-			alternateSyndLink.setHref(
-				feedURL.substring(0, feedURL.length() - 12));
-			alternateSyndLink.setRel("alternate");
-		}
 
 		syndFeed.setPublishedDate(new Date());
 		syndFeed.setTitle(name);

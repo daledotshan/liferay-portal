@@ -25,7 +25,6 @@ import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.model.WikiPageResource;
 import com.liferay.wiki.service.WikiPageLocalService;
 import com.liferay.wiki.service.WikiPageResourceLocalService;
-import com.liferay.wiki.service.configuration.configurator.WikiServiceConfigurator;
 import com.liferay.wiki.util.comparator.PageVersionComparator;
 import com.liferay.wiki.verify.model.WikiNodeVerifiableModel;
 import com.liferay.wiki.verify.model.WikiPageResourceVerifiableModel;
@@ -41,9 +40,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @author Iván Zaera
  */
-@Component(
-	service = WikiServiceVerifyProcess.class
-)
+@Component(service = WikiServiceVerifyProcess.class)
 public class WikiServiceVerifyProcess extends VerifyProcess {
 
 	@Override
@@ -68,22 +65,15 @@ public class WikiServiceVerifyProcess extends VerifyProcess {
 		_wikiPageResourceLocalService = wikiPageResourceLocalService;
 	}
 
-	@Reference(unbind = "-")
-	protected void setWikiServiceConfigurator(
-		WikiServiceConfigurator wikiServiceConfigurator) {
-	}
-
 	protected void verifyCreateDate() throws Exception {
 		ActionableDynamicQuery actionableDynamicQuery =
 			_wikiPageResourceLocalService.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<WikiPageResource>() {
 
 				@Override
-				public void performAction(Object object) {
-					WikiPageResource pageResource = (WikiPageResource)object;
-
+				public void performAction(WikiPageResource pageResource) {
 					verifyCreateDate(pageResource);
 				}
 
@@ -146,8 +136,8 @@ public class WikiServiceVerifyProcess extends VerifyProcess {
 	}
 
 	protected void verifyResourcedModels() throws Exception {
-		_verifyResourcePermissions.verify(new WikiNodeVerifiableModel());
-		_verifyResourcePermissions.verify(new WikiPageVerifiableModel());
+		_verifyResourcePermissions.verify(
+			new WikiNodeVerifiableModel(), new WikiPageVerifiableModel());
 	}
 
 	protected void verifyUUIDModels() throws Exception {

@@ -30,11 +30,6 @@ import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -45,6 +40,11 @@ import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.util.PortalUtil;
 
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 import com.liferay.portlet.messageboards.model.MBThreadFlag;
 import com.liferay.portlet.messageboards.service.MBThreadFlagLocalService;
 import com.liferay.portlet.messageboards.service.persistence.MBThreadFlagPersistence;
@@ -276,13 +276,13 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -303,14 +303,12 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 
 		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
 
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBThreadFlag>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(MBThreadFlag mbThreadFlag)
 					throws PortalException {
-					MBThreadFlag stagedModel = (MBThreadFlag)object;
-
 					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
+						mbThreadFlag);
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
@@ -422,7 +420,7 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 *
 	 * @return the message boards thread flag local service
 	 */
-	public com.liferay.portlet.messageboards.service.MBThreadFlagLocalService getMBThreadFlagLocalService() {
+	public MBThreadFlagLocalService getMBThreadFlagLocalService() {
 		return mbThreadFlagLocalService;
 	}
 
@@ -432,7 +430,7 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	 * @param mbThreadFlagLocalService the message boards thread flag local service
 	 */
 	public void setMBThreadFlagLocalService(
-		com.liferay.portlet.messageboards.service.MBThreadFlagLocalService mbThreadFlagLocalService) {
+		MBThreadFlagLocalService mbThreadFlagLocalService) {
 		this.mbThreadFlagLocalService = mbThreadFlagLocalService;
 	}
 
@@ -611,7 +609,7 @@ public abstract class MBThreadFlagLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portlet.messageboards.service.MBThreadFlagLocalService.class)
-	protected com.liferay.portlet.messageboards.service.MBThreadFlagLocalService mbThreadFlagLocalService;
+	protected MBThreadFlagLocalService mbThreadFlagLocalService;
 	@BeanReference(type = MBThreadFlagPersistence.class)
 	protected MBThreadFlagPersistence mbThreadFlagPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)

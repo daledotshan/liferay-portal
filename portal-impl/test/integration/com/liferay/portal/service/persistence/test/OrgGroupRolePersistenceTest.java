@@ -33,6 +33,7 @@ import com.liferay.portal.test.rule.PersistenceTestRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -49,8 +50,9 @@ import java.util.Set;
  * @generated
  */
 public class OrgGroupRolePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -126,27 +128,17 @@ public class OrgGroupRolePersistenceTest {
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByRoleId() {
-		try {
-			_persistence.countByRoleId(RandomTestUtil.nextLong());
+	public void testCountByRoleId() throws Exception {
+		_persistence.countByRoleId(RandomTestUtil.nextLong());
 
-			_persistence.countByRoleId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRoleId(0L);
 	}
 
 	@Test
@@ -158,19 +150,12 @@ public class OrgGroupRolePersistenceTest {
 		Assert.assertEquals(existingOrgGroupRole, newOrgGroupRole);
 	}
 
-	@Test
+	@Test(expected = NoSuchOrgGroupRoleException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		OrgGroupRolePK pk = new OrgGroupRolePK(RandomTestUtil.nextLong(),
 				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchOrgGroupRoleException");
-		}
-		catch (NoSuchOrgGroupRoleException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test

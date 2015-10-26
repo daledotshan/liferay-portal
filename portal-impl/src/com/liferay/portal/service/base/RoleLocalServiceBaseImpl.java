@@ -32,11 +32,6 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -61,7 +56,6 @@ import com.liferay.portal.service.persistence.ResourceTypePermissionFinder;
 import com.liferay.portal.service.persistence.ResourceTypePermissionPersistence;
 import com.liferay.portal.service.persistence.RoleFinder;
 import com.liferay.portal.service.persistence.RolePersistence;
-import com.liferay.portal.service.persistence.ShardPersistence;
 import com.liferay.portal.service.persistence.TeamFinder;
 import com.liferay.portal.service.persistence.TeamPersistence;
 import com.liferay.portal.service.persistence.UserFinder;
@@ -73,6 +67,11 @@ import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.util.PortalUtil;
 
 import com.liferay.portlet.expando.service.persistence.ExpandoRowPersistence;
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -296,13 +295,13 @@ public abstract class RoleLocalServiceBaseImpl extends BaseLocalServiceImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -319,30 +318,34 @@ public abstract class RoleLocalServiceBaseImpl extends BaseLocalServiceImpl
 
 					StagedModelType stagedModelType = exportActionableDynamicQuery.getStagedModelType();
 
-					if (stagedModelType.getReferrerClassNameId() >= 0) {
-						Property classNameIdProperty = PropertyFactoryUtil.forName(
-								"classNameId");
+					long referrerClassNameId = stagedModelType.getReferrerClassNameId();
 
+					Property classNameIdProperty = PropertyFactoryUtil.forName(
+							"classNameId");
+
+					if ((referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ALL) &&
+							(referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ANY)) {
 						dynamicQuery.add(classNameIdProperty.eq(
 								stagedModelType.getReferrerClassNameId()));
+					}
+					else if (referrerClassNameId == StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
+						dynamicQuery.add(classNameIdProperty.isNotNull());
 					}
 				}
 			});
 
 		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
 
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Role>() {
 				@Override
-				public void performAction(Object object)
-					throws PortalException {
-					Role stagedModel = (Role)object;
-
+				public void performAction(Role role) throws PortalException {
 					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
+						role);
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
-				PortalUtil.getClassNameId(Role.class.getName())));
+				PortalUtil.getClassNameId(Role.class.getName()),
+				StagedModelType.REFERRER_CLASS_NAME_ID_ALL));
 
 		return exportActionableDynamicQuery;
 	}
@@ -673,7 +676,7 @@ public abstract class RoleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @return the role local service
 	 */
-	public com.liferay.portal.service.RoleLocalService getRoleLocalService() {
+	public RoleLocalService getRoleLocalService() {
 		return roleLocalService;
 	}
 
@@ -682,8 +685,7 @@ public abstract class RoleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param roleLocalService the role local service
 	 */
-	public void setRoleLocalService(
-		com.liferay.portal.service.RoleLocalService roleLocalService) {
+	public void setRoleLocalService(RoleLocalService roleLocalService) {
 		this.roleLocalService = roleLocalService;
 	}
 
@@ -1364,43 +1366,6 @@ public abstract class RoleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the shard local service.
-	 *
-	 * @return the shard local service
-	 */
-	public com.liferay.portal.service.ShardLocalService getShardLocalService() {
-		return shardLocalService;
-	}
-
-	/**
-	 * Sets the shard local service.
-	 *
-	 * @param shardLocalService the shard local service
-	 */
-	public void setShardLocalService(
-		com.liferay.portal.service.ShardLocalService shardLocalService) {
-		this.shardLocalService = shardLocalService;
-	}
-
-	/**
-	 * Returns the shard persistence.
-	 *
-	 * @return the shard persistence
-	 */
-	public ShardPersistence getShardPersistence() {
-		return shardPersistence;
-	}
-
-	/**
-	 * Sets the shard persistence.
-	 *
-	 * @param shardPersistence the shard persistence
-	 */
-	public void setShardPersistence(ShardPersistence shardPersistence) {
-		this.shardPersistence = shardPersistence;
-	}
-
-	/**
 	 * Returns the team local service.
 	 *
 	 * @return the team local service
@@ -1762,7 +1727,7 @@ public abstract class RoleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.RoleLocalService.class)
-	protected com.liferay.portal.service.RoleLocalService roleLocalService;
+	protected RoleLocalService roleLocalService;
 	@BeanReference(type = com.liferay.portal.service.RoleService.class)
 	protected com.liferay.portal.service.RoleService roleService;
 	@BeanReference(type = RolePersistence.class)
@@ -1835,10 +1800,6 @@ public abstract class RoleLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected com.liferay.portlet.expando.service.ExpandoRowLocalService expandoRowLocalService;
 	@BeanReference(type = ExpandoRowPersistence.class)
 	protected ExpandoRowPersistence expandoRowPersistence;
-	@BeanReference(type = com.liferay.portal.service.ShardLocalService.class)
-	protected com.liferay.portal.service.ShardLocalService shardLocalService;
-	@BeanReference(type = ShardPersistence.class)
-	protected ShardPersistence shardPersistence;
 	@BeanReference(type = com.liferay.portal.service.TeamLocalService.class)
 	protected com.liferay.portal.service.TeamLocalService teamLocalService;
 	@BeanReference(type = com.liferay.portal.service.TeamService.class)

@@ -19,6 +19,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.ShardedModel;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.service.ServiceContext;
 
@@ -42,7 +43,8 @@ import java.util.Date;
  * @generated
  */
 @ProviderType
-public interface PollsVoteModel extends BaseModel<PollsVote>, StagedGroupedModel {
+public interface PollsVoteModel extends BaseModel<PollsVote>, ShardedModel,
+	StagedGroupedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -234,6 +236,22 @@ public interface PollsVoteModel extends BaseModel<PollsVote>, StagedGroupedModel
 	 * @param choiceId the choice ID of this polls vote
 	 */
 	public void setChoiceId(long choiceId);
+
+	/**
+	 * Returns the last publish date of this polls vote.
+	 *
+	 * @return the last publish date of this polls vote
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this polls vote.
+	 *
+	 * @param lastPublishDate the last publish date of this polls vote
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
 
 	/**
 	 * Returns the vote date of this polls vote.

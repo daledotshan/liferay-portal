@@ -15,31 +15,51 @@
 package com.liferay.social.networking.web.friends.portlet;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.social.networking.model.MeetupsRegistration;
+import com.liferay.social.networking.service.MeetupsEntryLocalService;
+import com.liferay.social.networking.service.WallEntryLocalService;
 
 import javax.portlet.Portlet;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Adolfo Pérez
  */
 @Component(
 	property = {
-		"com.liferay.portlet.display-category=category.social",
-		"com.liferay.portlet.icon=/icons/friends.png",
-		"com.liferay.portlet.header-portlet-css=/friends/css/main.css",
 		"com.liferay.portlet.css-class-wrapper=social-networking-portlet-friends",
+		"com.liferay.portlet.display-category=category.social",
+		"com.liferay.portlet.header-portlet-css=/friends/css/main.css",
+		"com.liferay.portlet.icon=/icons/friends.png",
 		"javax.portlet.display-name=Friends",
-		"javax.portlet.init-param.view-template=/friends/view.jsp",
 		"javax.portlet.expiration-cache=0",
-		"javax.portlet.supports.mime-type=text/html",
-		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.info.title=Friends",
-		"javax.portlet.info.short-title=Friends",
 		"javax.portlet.info.keywords=Friends",
-		"javax.portlet.security-role-ref=administrator,guest,power-user,user"
+		"javax.portlet.info.short-title=Friends",
+		"javax.portlet.info.title=Friends",
+		"javax.portlet.init-param.view-template=/friends/view.jsp",
+		"javax.portlet.resource-bundle=content.Language",
+		"javax.portlet.security-role-ref=administrator,guest,power-user,user",
+		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
 )
 public class FriendsPortlet extends MVCPortlet {
+
+	@Reference(unbind = "-")
+	protected void setMeetupsEntryLocalService(
+		MeetupsEntryLocalService meetupsEntryLocalService) {
+	}
+
+	@Reference(unbind = "-")
+	protected void setMeetupsRegistrationLocalService(
+		MeetupsRegistration meetupsRegistrationLocalService) {
+	}
+
+	@Reference(unbind = "-")
+	protected void setWallEntryLocalService(
+		WallEntryLocalService wallEntryLocalService) {
+	}
+
 }

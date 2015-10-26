@@ -45,6 +45,9 @@ import com.liferay.portlet.social.service.SocialRelationLocalService;
 import com.liferay.portlet.social.service.SocialRequestLocalService;
 import com.liferay.social.networking.friends.social.FriendsRequestKeys;
 import com.liferay.social.networking.members.social.MembersRequestKeys;
+import com.liferay.social.networking.model.MeetupsRegistration;
+import com.liferay.social.networking.service.MeetupsEntryLocalService;
+import com.liferay.social.networking.service.WallEntryLocalService;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,20 +64,19 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
+		"com.liferay.portlet.css-class-wrapper=social-networking-portlet-summary",
 		"com.liferay.portlet.display-category=category.social",
 		"com.liferay.portlet.header-portlet-css=/summary/css/main.css",
-		"com.liferay.portlet.css-class-wrapper=social-networking-portlet-summary",
 		"javax.portlet.display-name=Summary",
-		"javax.portlet.init-param.clear-request-parameters=true",
-		"javax.portlet.init-param.config-template=/summary/configuration.jsp",
-		"javax.portlet.init-param.view-template=/summary/view.jsp",
 		"javax.portlet.expiration-cache=0",
-		"javax.portlet.supports.mime-type=text/html",
-		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.info.title=Summary",
-		"javax.portlet.info.short-title=Summary",
 		"javax.portlet.info.keywords=Summary",
-		"javax.portlet.security-role-ref=administrator,guest,power-user,user"
+		"javax.portlet.info.short-title=Summary",
+		"javax.portlet.info.title=Summary",
+		"javax.portlet.init-param.clear-request-parameters=true",
+		"javax.portlet.init-param.view-template=/summary/view.jsp",
+		"javax.portlet.resource-bundle=content.Language",
+		"javax.portlet.security-role-ref=administrator,guest,power-user,user",
+		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
 )
@@ -241,7 +243,7 @@ public class SummaryPortlet extends MVCPortlet {
 
 		_userLocalService.unsetGroupUsers(
 			themeDisplay.getScopeGroupId(),
-			new long[]{themeDisplay.getUserId()}, serviceContext);
+			new long[] {themeDisplay.getUserId()}, serviceContext);
 	}
 
 	public void leaveOrganization(
@@ -255,7 +257,7 @@ public class SummaryPortlet extends MVCPortlet {
 			themeDisplay.getScopeGroupId());
 
 		_userLocalService.unsetOrganizationUsers(
-			group.getClassPK(), new long[]{themeDisplay.getUserId()});
+			group.getClassPK(), new long[] {themeDisplay.getUserId()});
 	}
 
 	public void updateSummary(
@@ -323,6 +325,16 @@ public class SummaryPortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
+	protected void setMeetupsEntryLocalService(
+		MeetupsEntryLocalService meetupsEntryLocalService) {
+	}
+
+	@Reference(unbind = "-")
+	protected void setMeetupsRegistrationLocalService(
+		MeetupsRegistration meetupsRegistrationLocalService) {
+	}
+
+	@Reference(unbind = "-")
 	protected void setOrganizationLocalService(
 		OrganizationLocalService organizationLocalService) {
 
@@ -351,6 +363,11 @@ public class SummaryPortlet extends MVCPortlet {
 	@Reference(unbind = "-")
 	protected void setUserLocalService(UserLocalService userLocalService) {
 		_userLocalService = userLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setWallEntryLocalService(
+		WallEntryLocalService wallEntryLocalService) {
 	}
 
 	private ExpandoValueLocalService _expandoValueLocalService;

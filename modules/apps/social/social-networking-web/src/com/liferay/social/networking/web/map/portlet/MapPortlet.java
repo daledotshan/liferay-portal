@@ -17,6 +17,9 @@ package com.liferay.social.networking.web.map.portlet;
 import com.liferay.ip.geocoder.IPGeocoder;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.util.Portal;
+import com.liferay.social.networking.model.MeetupsRegistration;
+import com.liferay.social.networking.service.MeetupsEntryLocalService;
+import com.liferay.social.networking.service.WallEntryLocalService;
 import com.liferay.social.networking.web.constants.SocialNetworkingWebKeys;
 
 import java.io.IOException;
@@ -36,18 +39,15 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	property = {
-		"com.liferay.portlet.display-category=category.social",
-		"com.liferay.portlet.friendly-url-mapping=map",
-		"com.liferay.portlet.friendly-url-routes=com/liferay/social/networking/web/map/portlet/route/map-friendly-url-routes.xml",
 		"com.liferay.portlet.css-class-wrapper=social-networking-portlet-map",
-		"javax.portlet.display-name=Map",
+		"com.liferay.portlet.display-category=category.social",
+		"javax.portlet.display-name=Map", "javax.portlet.expiration-cache=0",
+		"javax.portlet.info.keywords=Map", "javax.portlet.info.short-title=Map",
+		"javax.portlet.info.title=Map",
 		"javax.portlet.init-param.view-template=/map/view.jsp",
-		"javax.portlet.expiration-cache=0",
-		"javax.portlet.supports.mime-type=text/html",
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.info.title=Map", "javax.portlet.info.short-title=Map",
-		"javax.portlet.info.keywords=Map",
-		"javax.portlet.security-role-ref=administrator,guest,power-user,user"
+		"javax.portlet.security-role-ref=administrator,guest,power-user,user",
+		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
 )
@@ -72,8 +72,23 @@ public class MapPortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
+	protected void setMeetupsEntryLocalService(
+		MeetupsEntryLocalService meetupsEntryLocalService) {
+	}
+
+	@Reference(unbind = "-")
+	protected void setMeetupsRegistrationLocalService(
+		MeetupsRegistration meetupsRegistrationLocalService) {
+	}
+
+	@Reference(unbind = "-")
 	protected void setPortal(Portal portal) {
 		_portal = portal;
+	}
+
+	@Reference(unbind = "-")
+	protected void setWallEntryLocalService(
+		WallEntryLocalService wallEntryLocalService) {
 	}
 
 	private IPGeocoder _ipGeocoder;

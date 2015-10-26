@@ -35,7 +35,8 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #addEntry(String, String,
 	String, String, int, int, int, int, int, boolean, boolean,
-	String[], ImageSelector, ImageSelector, ServiceContext)}
+	String[], String, ImageSelector, ImageSelector,
+	ServiceContext)}
 	*/
 	@Deprecated
 	@Override
@@ -63,6 +64,7 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 		int displayDateMonth, int displayDateDay, int displayDateYear,
 		int displayDateHour, int displayDateMinute, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -70,8 +72,8 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 		return _blogsEntryService.addEntry(title, subtitle, description,
 			content, displayDateMonth, displayDateDay, displayDateYear,
 			displayDateHour, displayDateMinute, allowPingbacks,
-			allowTrackbacks, trackbacks, coverImageImageSelector,
-			smallImageImageSelector, serviceContext);
+			allowTrackbacks, trackbacks, coverImageCaption,
+			coverImageImageSelector, smallImageImageSelector, serviceContext);
 	}
 
 	@Override
@@ -150,6 +152,14 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 	}
 
 	@Override
+	public java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupEntries(
+		long groupId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
+		return _blogsEntryService.getGroupEntries(groupId, status, start, end,
+			obc);
+	}
+
+	@Override
 	public int getGroupEntriesCount(long groupId, java.util.Date displayDate,
 		int status) {
 		return _blogsEntryService.getGroupEntriesCount(groupId, displayDate,
@@ -171,6 +181,20 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 		return _blogsEntryService.getGroupEntriesRSS(groupId, displayDate,
 			status, max, type, version, displayStyle, feedURL, entryURL,
 			themeDisplay);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupUserEntries(
+		long groupId, long userId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
+		return _blogsEntryService.getGroupUserEntries(groupId, userId, status,
+			start, end, obc);
+	}
+
+	@Override
+	public int getGroupUserEntriesCount(long groupId, long userId, int status) {
+		return _blogsEntryService.getGroupUserEntriesCount(groupId, userId,
+			status);
 	}
 
 	@Override
@@ -239,7 +263,7 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, String,
 	String, String, String, int, int, int, int, int, boolean,
-	boolean, String[], ImageSelector, ImageSelector,
+	boolean, String[], String, ImageSelector, ImageSelector,
 	ServiceContext)}
 	*/
 	@Deprecated
@@ -268,6 +292,7 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 		int displayDateMonth, int displayDateDay, int displayDateYear,
 		int displayDateHour, int displayDateMinute, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -275,7 +300,7 @@ public class BlogsEntryServiceWrapper implements BlogsEntryService,
 		return _blogsEntryService.updateEntry(entryId, title, subtitle,
 			description, content, displayDateMonth, displayDateDay,
 			displayDateYear, displayDateHour, displayDateMinute,
-			allowPingbacks, allowTrackbacks, trackbacks,
+			allowPingbacks, allowTrackbacks, trackbacks, coverImageCaption,
 			coverImageImageSelector, smallImageImageSelector, serviceContext);
 	}
 

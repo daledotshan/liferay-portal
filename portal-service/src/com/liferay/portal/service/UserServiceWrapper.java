@@ -497,6 +497,12 @@ public class UserServiceWrapper implements UserService,
 		return _userService.getCompanyUsersCount(companyId);
 	}
 
+	@Override
+	public com.liferay.portal.model.User getCurrentUser()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _userService.getCurrentUser();
+	}
+
 	/**
 	* Returns the primary keys of all the users belonging to the group.
 	*
@@ -1163,10 +1169,9 @@ public class UserServiceWrapper implements UserService,
 	* @return the user
 	* @throws PortalException if a user with the primary key could not be
 	found, if the current user was updating her own status to
-	anything but {@link
-	com.liferay.portal.kernel.workflow.WorkflowConstants#STATUS_APPROVED},
-	or if the current user did not have permission to update the
-	user's workflow status.
+	anything but {@link WorkflowConstants#STATUS_APPROVED}, or if
+	the current user did not have permission to update the user's
+	workflow status.
 	* @deprecated As of 7.0.0, replaced by {@link #updateStatus(long, int,
 	ServiceContext)}
 	*/
@@ -1188,10 +1193,9 @@ public class UserServiceWrapper implements UserService,
 	* @return the user
 	* @throws PortalException if a user with the primary key could not be
 	found, if the current user was updating her own status to
-	anything but {@link
-	com.liferay.portal.kernel.workflow.WorkflowConstants#STATUS_APPROVED},
-	or if the current user did not have permission to update the
-	user's workflow status.
+	anything but {@link WorkflowConstants#STATUS_APPROVED}, or if the
+	current user did not have permission to update the user's
+	workflow status.
 	*/
 	@Override
 	public com.liferay.portal.model.User updateStatus(long userId, int status,
@@ -1236,7 +1240,6 @@ public class UserServiceWrapper implements UserService,
 	* @param facebookSn the user's new Facebook screen name
 	* @param icqSn the user's new ICQ screen name
 	* @param jabberSn the user's new Jabber screen name
-	* @param msnSn the user's new MSN screen name
 	* @param mySpaceSn the user's new MySpace screen name
 	* @param skypeSn the user's new Skype screen name
 	* @param twitterSn the user's new Twitter screen name
@@ -1266,10 +1269,8 @@ public class UserServiceWrapper implements UserService,
 	long, String, boolean, byte[], String, String, String,
 	String, String, String, String, int, int, boolean, int, int,
 	int, String, String, String, String, String, String, String,
-	String, String, String, String, long[], long[], long[],
-	java.util.List, long[], java.util.List, java.util.List,
-	java.util.List, java.util.List, java.util.List,
-	com.liferay.portal.service.ServiceContext)}
+	String, String, String, String, long[], long[], long[], List,
+	long[], List, List, List, List, List, ServiceContext)}
 	*/
 	@Deprecated
 	@Override
@@ -1286,11 +1287,10 @@ public class UserServiceWrapper implements UserService,
 		long suffixId, boolean male, int birthdayMonth, int birthdayDay,
 		int birthdayYear, java.lang.String smsSn, java.lang.String aimSn,
 		java.lang.String facebookSn, java.lang.String icqSn,
-		java.lang.String jabberSn, java.lang.String msnSn,
-		java.lang.String mySpaceSn, java.lang.String skypeSn,
-		java.lang.String twitterSn, java.lang.String ymSn,
-		java.lang.String jobTitle, long[] groupIds, long[] organizationIds,
-		long[] roleIds,
+		java.lang.String jabberSn, java.lang.String mySpaceSn,
+		java.lang.String skypeSn, java.lang.String twitterSn,
+		java.lang.String ymSn, java.lang.String jobTitle, long[] groupIds,
+		long[] organizationIds, long[] roleIds,
 		java.util.List<com.liferay.portal.model.UserGroupRole> userGroupRoles,
 		long[] userGroupIds,
 		java.util.List<com.liferay.portal.model.Address> addresses,
@@ -1305,11 +1305,10 @@ public class UserServiceWrapper implements UserService,
 			reminderQueryAnswer, screenName, emailAddress, facebookId, openId,
 			languageId, timeZoneId, greeting, comments, firstName, middleName,
 			lastName, prefixId, suffixId, male, birthdayMonth, birthdayDay,
-			birthdayYear, smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn,
-			mySpaceSn, skypeSn, twitterSn, ymSn, jobTitle, groupIds,
-			organizationIds, roleIds, userGroupRoles, userGroupIds, addresses,
-			emailAddresses, phones, websites, announcementsDelivers,
-			serviceContext);
+			birthdayYear, smsSn, aimSn, facebookSn, icqSn, jabberSn, mySpaceSn,
+			skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds,
+			roleIds, userGroupRoles, userGroupIds, addresses, emailAddresses,
+			phones, websites, announcementsDelivers, serviceContext);
 	}
 
 	/**
@@ -1348,7 +1347,6 @@ public class UserServiceWrapper implements UserService,
 	* @param facebookSn the user's new Facebook screen name
 	* @param icqSn the user's new ICQ screen name
 	* @param jabberSn the user's new Jabber screen name
-	* @param msnSn the user's new MSN screen name
 	* @param mySpaceSn the user's new MySpace screen name
 	* @param skypeSn the user's new Skype screen name
 	* @param twitterSn the user's new Twitter screen name
@@ -1383,11 +1381,10 @@ public class UserServiceWrapper implements UserService,
 		long suffixId, boolean male, int birthdayMonth, int birthdayDay,
 		int birthdayYear, java.lang.String smsSn, java.lang.String aimSn,
 		java.lang.String facebookSn, java.lang.String icqSn,
-		java.lang.String jabberSn, java.lang.String msnSn,
-		java.lang.String mySpaceSn, java.lang.String skypeSn,
-		java.lang.String twitterSn, java.lang.String ymSn,
-		java.lang.String jobTitle, long[] groupIds, long[] organizationIds,
-		long[] roleIds,
+		java.lang.String jabberSn, java.lang.String mySpaceSn,
+		java.lang.String skypeSn, java.lang.String twitterSn,
+		java.lang.String ymSn, java.lang.String jobTitle, long[] groupIds,
+		long[] organizationIds, long[] roleIds,
 		java.util.List<com.liferay.portal.model.UserGroupRole> userGroupRoles,
 		long[] userGroupIds,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -1397,10 +1394,9 @@ public class UserServiceWrapper implements UserService,
 			reminderQueryAnswer, screenName, emailAddress, facebookId, openId,
 			languageId, timeZoneId, greeting, comments, firstName, middleName,
 			lastName, prefixId, suffixId, male, birthdayMonth, birthdayDay,
-			birthdayYear, smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn,
-			mySpaceSn, skypeSn, twitterSn, ymSn, jobTitle, groupIds,
-			organizationIds, roleIds, userGroupRoles, userGroupIds,
-			serviceContext);
+			birthdayYear, smsSn, aimSn, facebookSn, icqSn, jabberSn, mySpaceSn,
+			skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds,
+			roleIds, userGroupRoles, userGroupIds, serviceContext);
 	}
 
 	/**
@@ -1441,7 +1437,6 @@ public class UserServiceWrapper implements UserService,
 	* @param facebookSn the user's new Facebook screen name
 	* @param icqSn the user's new ICQ screen name
 	* @param jabberSn the user's new Jabber screen name
-	* @param msnSn the user's new MSN screen name
 	* @param mySpaceSn the user's new MySpace screen name
 	* @param skypeSn the user's new Skype screen name
 	* @param twitterSn the user's new Twitter screen name
@@ -1482,11 +1477,10 @@ public class UserServiceWrapper implements UserService,
 		int birthdayMonth, int birthdayDay, int birthdayYear,
 		java.lang.String smsSn, java.lang.String aimSn,
 		java.lang.String facebookSn, java.lang.String icqSn,
-		java.lang.String jabberSn, java.lang.String msnSn,
-		java.lang.String mySpaceSn, java.lang.String skypeSn,
-		java.lang.String twitterSn, java.lang.String ymSn,
-		java.lang.String jobTitle, long[] groupIds, long[] organizationIds,
-		long[] roleIds,
+		java.lang.String jabberSn, java.lang.String mySpaceSn,
+		java.lang.String skypeSn, java.lang.String twitterSn,
+		java.lang.String ymSn, java.lang.String jobTitle, long[] groupIds,
+		long[] organizationIds, long[] roleIds,
 		java.util.List<com.liferay.portal.model.UserGroupRole> userGroupRoles,
 		long[] userGroupIds,
 		java.util.List<com.liferay.portal.model.Address> addresses,
@@ -1502,8 +1496,8 @@ public class UserServiceWrapper implements UserService,
 			portrait, portraitBytes, languageId, timeZoneId, greeting,
 			comments, firstName, middleName, lastName, prefixId, suffixId,
 			male, birthdayMonth, birthdayDay, birthdayYear, smsSn, aimSn,
-			facebookSn, icqSn, jabberSn, msnSn, mySpaceSn, skypeSn, twitterSn,
-			ymSn, jobTitle, groupIds, organizationIds, roleIds, userGroupRoles,
+			facebookSn, icqSn, jabberSn, mySpaceSn, skypeSn, twitterSn, ymSn,
+			jobTitle, groupIds, organizationIds, roleIds, userGroupRoles,
 			userGroupIds, addresses, emailAddresses, phones, websites,
 			announcementsDelivers, serviceContext);
 	}

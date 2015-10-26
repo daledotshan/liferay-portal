@@ -24,7 +24,7 @@ import com.liferay.portlet.documentlibrary.display.context.BaseDLEditFileEntryDi
 import com.liferay.portlet.documentlibrary.display.context.DLEditFileEntryDisplayContext;
 import com.liferay.portlet.documentlibrary.display.context.DLFilePicker;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.DDMStructure;
 
 import java.util.UUID;
 
@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author Iv·n Zaera
+ * @author Iv√°n Zaera
  */
 public class GoogleDocsDLEditFileEntryDisplayContext
 	extends BaseDLEditFileEntryDisplayContext {
@@ -74,19 +74,17 @@ public class GoogleDocsDLEditFileEntryDisplayContext
 	}
 
 	@Override
-	public boolean isCancelCheckoutDocumentButtonVisible()
-		throws PortalException {
-
+	public boolean isCancelCheckoutDocumentButtonVisible() {
 		return false;
 	}
 
 	@Override
-	public boolean isCheckinButtonVisible() throws PortalException {
+	public boolean isCheckinButtonVisible() {
 		return false;
 	}
 
 	@Override
-	public boolean isCheckoutDocumentButtonVisible() throws PortalException {
+	public boolean isCheckoutDocumentButtonVisible() {
 		return false;
 	}
 

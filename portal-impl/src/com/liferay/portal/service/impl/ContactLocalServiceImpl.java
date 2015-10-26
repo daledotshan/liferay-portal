@@ -41,15 +41,14 @@ public class ContactLocalServiceImpl extends ContactLocalServiceBaseImpl {
 			String firstName, String middleName, String lastName, long prefixId,
 			long suffixId, boolean male, int birthdayMonth, int birthdayDay,
 			int birthdayYear, String smsSn, String aimSn, String facebookSn,
-			String icqSn, String jabberSn, String msnSn, String mySpaceSn,
-			String skypeSn, String twitterSn, String ymSn, String jobTitle)
+			String icqSn, String jabberSn, String mySpaceSn, String skypeSn,
+			String twitterSn, String ymSn, String jobTitle)
 		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		Date birthday = PortalUtil.getDate(
 			birthdayMonth, birthdayDay, birthdayYear,
 			ContactBirthdayException.class);
-		Date now = new Date();
 
 		validate(className, classPK);
 
@@ -60,8 +59,6 @@ public class ContactLocalServiceImpl extends ContactLocalServiceBaseImpl {
 		contact.setCompanyId(user.getCompanyId());
 		contact.setUserId(user.getUserId());
 		contact.setUserName(user.getFullName());
-		contact.setCreateDate(now);
-		contact.setModifiedDate(now);
 		contact.setClassName(className);
 		contact.setClassPK(classPK);
 		contact.setEmailAddress(emailAddress);
@@ -77,7 +74,6 @@ public class ContactLocalServiceImpl extends ContactLocalServiceBaseImpl {
 		contact.setFacebookSn(facebookSn);
 		contact.setIcqSn(icqSn);
 		contact.setJabberSn(jabberSn);
-		contact.setMsnSn(msnSn);
 		contact.setMySpaceSn(mySpaceSn);
 		contact.setSkypeSn(skypeSn);
 		contact.setTwitterSn(twitterSn);
@@ -157,8 +153,8 @@ public class ContactLocalServiceImpl extends ContactLocalServiceBaseImpl {
 			String middleName, String lastName, long prefixId, long suffixId,
 			boolean male, int birthdayMonth, int birthdayDay, int birthdayYear,
 			String smsSn, String aimSn, String facebookSn, String icqSn,
-			String jabberSn, String msnSn, String mySpaceSn, String skypeSn,
-			String twitterSn, String ymSn, String jobTitle)
+			String jabberSn, String mySpaceSn, String skypeSn, String twitterSn,
+			String ymSn, String jobTitle)
 		throws PortalException {
 
 		Date birthday = PortalUtil.getDate(
@@ -167,7 +163,6 @@ public class ContactLocalServiceImpl extends ContactLocalServiceBaseImpl {
 
 		Contact contact = contactPersistence.findByPrimaryKey(contactId);
 
-		contact.setModifiedDate(new Date());
 		contact.setEmailAddress(emailAddress);
 		contact.setFirstName(firstName);
 		contact.setMiddleName(middleName);
@@ -181,7 +176,6 @@ public class ContactLocalServiceImpl extends ContactLocalServiceBaseImpl {
 		contact.setFacebookSn(facebookSn);
 		contact.setIcqSn(icqSn);
 		contact.setJabberSn(jabberSn);
-		contact.setMsnSn(msnSn);
 		contact.setMySpaceSn(mySpaceSn);
 		contact.setSkypeSn(skypeSn);
 		contact.setTwitterSn(twitterSn);

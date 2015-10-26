@@ -133,18 +133,20 @@ public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 			trashEntryLocalService.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<TrashEntry>() {
 
 				@Override
-				public void performAction(Object object)
+				public void performAction(TrashEntry trashEntry)
 					throws PortalException {
-
-					TrashEntry trashEntry = (TrashEntry)object;
 
 					Date createDate = trashEntry.getCreateDate();
 
 					Group group = groupPersistence.fetchByPrimaryKey(
 						trashEntry.getGroupId());
+
+					if (group == null) {
+						return;
+					}
 
 					Date date = getMaxAge(group);
 
@@ -164,6 +166,15 @@ public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 			BaseActionableDynamicQuery.REQUIRES_NEW_TRANSACTION_ATTRIBUTE);
 
 		actionableDynamicQuery.performActions();
+	}
+
+	@Override
+	public void deleteEntries(long groupId) {
+		List<TrashEntry> entries = getEntries(groupId);
+
+		for (TrashEntry entry : entries) {
+			deleteEntry(entry);
+		}
 	}
 
 	/**
@@ -341,8 +352,8 @@ public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 		int end, Sort sort) {
 
 		try {
-			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				TrashEntry.class);
+			Indexer<TrashEntry> indexer =
+				IndexerRegistryUtil.nullSafeGetIndexer(TrashEntry.class);
 
 			SearchContext searchContext = buildSearchContext(
 				companyId, groupId, userId, keywords, start, end, sort);
@@ -360,8 +371,8 @@ public class TrashEntryLocalServiceImpl extends TrashEntryLocalServiceBaseImpl {
 		int end, Sort sort) {
 
 		try {
-			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				TrashEntry.class);
+			Indexer<TrashEntry> indexer =
+				IndexerRegistryUtil.nullSafeGetIndexer(TrashEntry.class);
 
 			SearchContext searchContext = buildSearchContext(
 				companyId, groupId, userId, keywords, start, end, sort);

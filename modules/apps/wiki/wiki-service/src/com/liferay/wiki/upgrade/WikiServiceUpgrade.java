@@ -14,63 +14,46 @@
 
 package com.liferay.wiki.upgrade;
 
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.service.ReleaseLocalService;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
+import com.liferay.portal.kernel.settings.SettingsFactory;
+import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradeClassNames;
+import com.liferay.wiki.upgrade.v1_0_0.UpgradeLastPublishDate;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradePortletId;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradePortletPreferences;
 import com.liferay.wiki.upgrade.v1_0_0.UpgradePortletSettings;
+import com.liferay.wiki.upgrade.v1_0_0.UpgradeWikiPageResource;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import org.springframework.context.ApplicationContext;
-
 /**
  * @author Iván Zaera
+ * @author Manuel de la Peña
  */
-@Component(
-	immediate = true, service = WikiServiceUpgrade.class
-)
-public class WikiServiceUpgrade {
+@Component(immediate = true)
+public class WikiServiceUpgrade implements UpgradeStepRegistrator {
 
-	@Reference(
-		target =
-			"(org.springframework.context.service.name=" +
-				"com.liferay.wiki.service)",
-		unbind = "-"
-	)
-	protected void setApplicationContext(
-		ApplicationContext applicationContext) {
+	@Override
+	public void register(Registry registry) {
+		registry.register(
+			"com.liferay.wiki.service", "0.0.1", "1.0.0",
+			new UpgradePortletId(), new UpgradePortletPreferences(),
+			new UpgradeClassNames(), new UpgradeLastPublishDate(),
+			new UpgradePortletSettings(_settingsFactory),
+			new UpgradeWikiPageResource());
+	}
+
+	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
+	protected void setModuleServiceLifecycle(
+		ModuleServiceLifecycle moduleServiceLifecycle) {
 	}
 
 	@Reference(unbind = "-")
-	protected void setReleaseLocalService(
-		ReleaseLocalService releaseLocalService) {
-
-		_releaseLocalService = releaseLocalService;
+	protected void setSettingsFactory(SettingsFactory settingsFactory) {
+		_settingsFactory = settingsFactory;
 	}
 
-	@Activate
-	protected void upgrade() throws PortalException {
-		List<UpgradeProcess> upgradeProcesses = new ArrayList<>();
-
-		upgradeProcesses.add(new UpgradePortletId());
-
-		upgradeProcesses.add(new UpgradePortletPreferences());
-
-		upgradeProcesses.add(new UpgradeClassNames());
-		upgradeProcesses.add(new UpgradePortletSettings());
-
-		_releaseLocalService.updateRelease(
-			"com.liferay.wiki.service", upgradeProcesses, 1, 0, false);
-	}
-
-	private ReleaseLocalService _releaseLocalService;
+	private SettingsFactory _settingsFactory;
 
 }

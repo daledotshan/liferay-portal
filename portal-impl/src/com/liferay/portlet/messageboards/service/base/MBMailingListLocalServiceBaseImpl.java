@@ -30,11 +30,6 @@ import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -45,6 +40,11 @@ import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.util.PortalUtil;
 
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 import com.liferay.portlet.messageboards.model.MBMailingList;
 import com.liferay.portlet.messageboards.service.MBMailingListLocalService;
 import com.liferay.portlet.messageboards.service.persistence.MBMailingListPersistence;
@@ -276,13 +276,13 @@ public abstract class MBMailingListLocalServiceBaseImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -301,16 +301,12 @@ public abstract class MBMailingListLocalServiceBaseImpl
 
 		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
 
-		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
-
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBMailingList>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(MBMailingList mbMailingList)
 					throws PortalException {
-					MBMailingList stagedModel = (MBMailingList)object;
-
 					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
+						mbMailingList);
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
@@ -422,7 +418,7 @@ public abstract class MBMailingListLocalServiceBaseImpl
 	 *
 	 * @return the message boards mailing list local service
 	 */
-	public com.liferay.portlet.messageboards.service.MBMailingListLocalService getMBMailingListLocalService() {
+	public MBMailingListLocalService getMBMailingListLocalService() {
 		return mbMailingListLocalService;
 	}
 
@@ -432,7 +428,7 @@ public abstract class MBMailingListLocalServiceBaseImpl
 	 * @param mbMailingListLocalService the message boards mailing list local service
 	 */
 	public void setMBMailingListLocalService(
-		com.liferay.portlet.messageboards.service.MBMailingListLocalService mbMailingListLocalService) {
+		MBMailingListLocalService mbMailingListLocalService) {
 		this.mbMailingListLocalService = mbMailingListLocalService;
 	}
 
@@ -611,7 +607,7 @@ public abstract class MBMailingListLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portlet.messageboards.service.MBMailingListLocalService.class)
-	protected com.liferay.portlet.messageboards.service.MBMailingListLocalService mbMailingListLocalService;
+	protected MBMailingListLocalService mbMailingListLocalService;
 	@BeanReference(type = MBMailingListPersistence.class)
 	protected MBMailingListPersistence mbMailingListPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)

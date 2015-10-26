@@ -17,9 +17,10 @@ package com.liferay.nested.portlets.web.portlet;
 import aQute.bnd.annotation.metatype.Configurable;
 
 import com.liferay.nested.portlets.web.configuration.NestedPortletsConfiguration;
-import com.liferay.nested.portlets.web.upgrade.NestedPortletWebUpgrade;
+import com.liferay.nested.portlets.web.display.context.NestedPortletsDisplayContext;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -32,9 +33,11 @@ import com.liferay.portal.model.LayoutTemplate;
 import com.liferay.portal.model.LayoutTemplateConstants;
 import com.liferay.portal.model.LayoutTypePortletConstants;
 import com.liferay.portal.model.Theme;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.LayoutTemplateLocalServiceUtil;
+import com.liferay.portal.service.LayoutLocalService;
+import com.liferay.portal.service.LayoutTemplateLocalService;
+import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
 
 import java.io.IOException;
@@ -47,7 +50,6 @@ import java.util.regex.Pattern;
 
 import javax.portlet.Portlet;
 import javax.portlet.PortletException;
-import javax.portlet.PortletPreferences;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -73,11 +75,9 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.private-session-attributes=false",
 		"com.liferay.portlet.render-weight=1",
 		"com.liferay.portlet.single-page-application=false",
-		"com.liferay.portlet.struts-path=nested_portlets",
 		"com.liferay.portlet.use-default-template=true",
 		"javax.portlet.display-name=Nested Portlets",
 		"javax.portlet.expiration-cache=0",
-		"javax.portlet.init-param.config-template=/configuration.jsp",
 		"javax.portlet.init-param.template-path=/",
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.resource-bundle=content.Language",
@@ -95,11 +95,22 @@ public class NestedPortletsPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		PortletPreferences portletPreferences = renderRequest.getPreferences();
+		String layoutTemplateId = StringPool.BLANK;
 
-		String layoutTemplateId = portletPreferences.getValue(
-			"layoutTemplateId",
-			_nestedPortletsConfiguration.layoutTemplateDefault());
+		try {
+			NestedPortletsDisplayContext nestedPortletsDisplayContext =
+				new NestedPortletsDisplayContext(
+					PortalUtil.getHttpServletRequest(renderRequest),
+					_nestedPortletsConfiguration);
+
+			layoutTemplateId =
+				nestedPortletsDisplayContext.getLayoutTemplateId();
+		}
+		catch (ConfigurationException ce) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(ce, ce);
+			}
+		}
 
 		String templateId = StringPool.BLANK;
 		String templateContent = StringPool.BLANK;
@@ -110,7 +121,7 @@ public class NestedPortletsPortlet extends MVCPortlet {
 			Theme theme = themeDisplay.getTheme();
 
 			LayoutTemplate layoutTemplate =
-				LayoutTemplateLocalServiceUtil.getLayoutTemplate(
+				_layoutTemplateLocalService.getLayoutTemplate(
 					layoutTemplateId, false, theme.getThemeId());
 
 			String content = layoutTemplate.getContent();
@@ -150,20 +161,26 @@ public class NestedPortletsPortlet extends MVCPortlet {
 
 		checkLayout(themeDisplay.getLayout(), columnIds.values());
 
+		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
+
 		renderRequest.setAttribute(
-			NestedPortletsConfiguration.TEMPLATE_ID, templateId);
+			NestedPortletsConfiguration.TEMPLATE_ID + portletDisplay.getId(),
+			templateId);
 		renderRequest.setAttribute(
-			NestedPortletsConfiguration.TEMPLATE_CONTENT, templateContent);
+			NestedPortletsConfiguration.TEMPLATE_CONTENT +
+				portletDisplay.getId(),
+			templateContent);
 
 		Map<String, Object> vmVariables =
 			(Map<String, Object>)renderRequest.getAttribute(
-				WebKeys.VM_VARIABLES);
+				WebKeys.VM_VARIABLES + portletDisplay.getId());
 
 		if (vmVariables != null) {
 			vmVariables.putAll(columnIds);
 		}
 		else {
-			renderRequest.setAttribute(WebKeys.VM_VARIABLES, columnIds);
+			renderRequest.setAttribute(
+				WebKeys.VM_VARIABLES + portletDisplay.getId(), columnIds);
 		}
 
 		renderRequest.setAttribute(
@@ -210,7 +227,7 @@ public class NestedPortletsPortlet extends MVCPortlet {
 			layout.setTypeSettingsProperties(typeSettingsProperties);
 
 			try {
-				LayoutLocalServiceUtil.updateLayout(
+				_layoutLocalService.updateLayout(
 					layout.getGroupId(), layout.isPrivateLayout(),
 					layout.getLayoutId(), layout.getTypeSettings());
 			}
@@ -223,8 +240,17 @@ public class NestedPortletsPortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
-	protected void setNestedPortletWebUpgrade(
-		NestedPortletWebUpgrade nestedPortletWebUpgrade) {
+	protected void setLayoutLocalService(
+		LayoutLocalService layoutLocalService) {
+
+		_layoutLocalService = layoutLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setLayoutTemplateLocalService(
+		LayoutTemplateLocalService layoutTemplateLocalService) {
+
+		_layoutTemplateLocalService = layoutTemplateLocalService;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -235,6 +261,8 @@ public class NestedPortletsPortlet extends MVCPortlet {
 	private static final Pattern _processColumnPattern = Pattern.compile(
 		"(processColumn[(]\")(.*?)(\"(?:, *\"(?:.*?)\")?[)])", Pattern.DOTALL);
 
+	private LayoutLocalService _layoutLocalService;
+	private LayoutTemplateLocalService _layoutTemplateLocalService;
 	private volatile NestedPortletsConfiguration _nestedPortletsConfiguration;
 
 }

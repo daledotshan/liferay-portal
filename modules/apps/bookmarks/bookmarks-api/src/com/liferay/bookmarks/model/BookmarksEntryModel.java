@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.ShardedModel;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.model.WorkflowedModel;
@@ -48,7 +49,7 @@ import java.util.Date;
  */
 @ProviderType
 public interface BookmarksEntryModel extends BaseModel<BookmarksEntry>,
-	StagedGroupedModel, TrashedModel, WorkflowedModel {
+	ShardedModel, StagedGroupedModel, TrashedModel, WorkflowedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -328,6 +329,22 @@ public interface BookmarksEntryModel extends BaseModel<BookmarksEntry>,
 	 * @param priority the priority of this bookmarks entry
 	 */
 	public void setPriority(int priority);
+
+	/**
+	 * Returns the last publish date of this bookmarks entry.
+	 *
+	 * @return the last publish date of this bookmarks entry
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this bookmarks entry.
+	 *
+	 * @param lastPublishDate the last publish date of this bookmarks entry
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
 
 	/**
 	 * Returns the status of this bookmarks entry.
