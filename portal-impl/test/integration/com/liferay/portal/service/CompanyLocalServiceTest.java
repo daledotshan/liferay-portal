@@ -20,10 +20,10 @@ import com.liferay.portal.CompanyVirtualHostException;
 import com.liferay.portal.NoSuchAccountException;
 import com.liferay.portal.NoSuchPasswordPolicyException;
 import com.liferay.portal.NoSuchPreferencesException;
-import com.liferay.portal.NoSuchShardException;
 import com.liferay.portal.NoSuchVirtualHostException;
 import com.liferay.portal.RequiredCompanyException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
@@ -175,12 +175,9 @@ public class CompanyLocalServiceTest {
 		Group guestGroup = GroupLocalServiceUtil.getGroup(
 			companyId, GroupConstants.GUEST);
 
-		Group companyGroup = company.getGroup();
-
 		DLFileEntryType dlFileEntryType =
 			DLFileEntryTypeLocalServiceUtil.getFileEntryType(
-				companyGroup.getGroupId(),
-				DLFileEntryTypeConstants.NAME_CONTRACT);
+				DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
 
 		ServiceContext serviceContext = getServiceContext(companyId);
 
@@ -361,9 +358,9 @@ public class CompanyLocalServiceTest {
 		CompanyLocalServiceUtil.deleteCompany(company);
 
 		for (long companyId : PortalInstances.getCompanyIds()) {
-			if (companyId == company.getCompanyId()) {
-				Assert.fail("Company instance was not deleted");
-			}
+			Assert.assertNotEquals(
+				"Company instance was not deleted", company.getCompanyId(),
+				companyId);
 		}
 	}
 
@@ -398,16 +395,6 @@ public class CompanyLocalServiceTest {
 			company.getCompanyId());
 
 		Assert.assertEquals(0, roles.size());
-	}
-
-	@Test(expected = NoSuchShardException.class)
-	public void testDeleteCompanyDeletesShard() throws Exception {
-		Company company = addCompany();
-
-		CompanyLocalServiceUtil.deleteCompany(company);
-
-		ShardLocalServiceUtil.getShard(
-			Company.class.getName(), company.getCompanyId());
 	}
 
 	@Test
@@ -494,7 +481,7 @@ public class CompanyLocalServiceTest {
 	@Test
 	public void testUpdateInvalidVirtualHostNames() throws Exception {
 		testUpdateVirtualHostNames(
-			new String[] {StringPool.BLANK, "localhost", ".abc",}, true);
+			new String[] {StringPool.BLANK, "localhost", ".abc"}, true);
 	}
 
 	@Test
@@ -524,8 +511,7 @@ public class CompanyLocalServiceTest {
 		String webId = RandomTestUtil.randomString() + "test.com";
 
 		Company company = CompanyLocalServiceUtil.addCompany(
-			webId, webId, "test.com", PropsValues.SHARD_DEFAULT_NAME, false, 0,
-			true);
+			webId, webId, "test.com", false, 0, true);
 
 		PortalInstances.initCompany(_mockServletContext, webId);
 
@@ -554,7 +540,8 @@ public class CompanyLocalServiceTest {
 		throws Exception {
 
 		return UserTestUtil.addUser(
-			companyId, userId, RandomTestUtil.randomString(), false,
+			companyId, userId,
+			RandomTestUtil.randomString(NumericStringRandomizerBumper.INSTANCE),
 			LocaleUtil.getDefault(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), new long[] {groupId},
 			serviceContext);
@@ -587,14 +574,10 @@ public class CompanyLocalServiceTest {
 					account.getTickerSymbol(), account.getIndustry(),
 					account.getType(), account.getSize());
 
-				if (expectFailure) {
-					Assert.fail();
-				}
+				Assert.assertFalse(expectFailure);
 			}
 			catch (AccountNameException ane) {
-				if (!expectFailure) {
-					Assert.fail();
-				}
+				Assert.assertTrue(expectFailure);
 			}
 		}
 	}
@@ -636,9 +619,8 @@ public class CompanyLocalServiceTest {
 			}
 		}
 		catch (CompanyMxException cme) {
-			if (valid || !mailMxUpdate) {
-				Assert.fail();
-			}
+			Assert.assertFalse(valid);
+			Assert.assertTrue(mailMxUpdate);
 		}
 		finally {
 			CompanyLocalServiceUtil.deleteCompany(company.getCompanyId());
@@ -659,14 +641,10 @@ public class CompanyLocalServiceTest {
 					company.getCompanyId(), virtualHostName, company.getMx(),
 					company.getMaxUsers(), company.getActive());
 
-				if (expectFailure) {
-					Assert.fail();
-				}
+				Assert.assertFalse(expectFailure);
 			}
 			catch (CompanyVirtualHostException cvhe) {
-				if (!expectFailure) {
-					Assert.fail();
-				}
+				Assert.assertTrue(expectFailure);
 			}
 		}
 

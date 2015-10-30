@@ -20,10 +20,10 @@ import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.BulkException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.ReleaseConstants;
-import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PropsValues;
 
 import java.sql.Connection;
@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -96,8 +95,6 @@ public abstract class VerifyProcess extends BaseDBProcess {
 				throwableAwareRunnables)
 		throws Exception {
 
-		List<Throwable> throwables = new ArrayList<>();
-
 		if (throwableAwareRunnables.size() <
 				PropsValues.VERIFY_PROCESS_CONCURRENCY_THRESHOLD) {
 
@@ -105,17 +102,13 @@ public abstract class VerifyProcess extends BaseDBProcess {
 					throwableAwareRunnables) {
 
 				throwableAwareRunnable.run();
-
-				if (throwableAwareRunnable.hasException()) {
-					throwables.add(throwableAwareRunnable.getThrowable());
-				}
 			}
 		}
 		else {
 			ExecutorService executorService = Executors.newFixedThreadPool(
 				throwableAwareRunnables.size());
 
-			List<Callable<Object>> jobs = new ArrayList<Callable<Object>>(
+			List<Callable<Object>> jobs = new ArrayList<>(
 				throwableAwareRunnables.size());
 
 			for (Runnable runnable : throwableAwareRunnables) {
@@ -126,16 +119,21 @@ public abstract class VerifyProcess extends BaseDBProcess {
 				List<Future<Object>> futures = executorService.invokeAll(jobs);
 
 				for (Future<Object> future : futures) {
-					try {
-						future.get();
-					}
-					catch (ExecutionException ee) {
-						throwables.add(ee.getCause());
-					}
+					future.get();
 				}
 			}
 			finally {
 				executorService.shutdown();
+			}
+		}
+
+		List<Throwable> throwables = new ArrayList<>();
+
+		for (ThrowableAwareRunnable throwableAwareRunnable :
+				throwableAwareRunnables) {
+
+			if (throwableAwareRunnable.hasException()) {
+				throwables.add(throwableAwareRunnable.getThrowable());
 			}
 		}
 
@@ -152,27 +150,19 @@ public abstract class VerifyProcess extends BaseDBProcess {
 	 *         com.liferay.portal.kernel.util.ReleaseInfo#getBuildNumber}
 	 */
 	protected int getBuildNumber() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		String sql =
+			"select buildNumber from Release_ where servletContextName = ?";
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
-				"select buildNumber from Release_ where servletContextName " +
-					"= ?");
+		try (Connection con = DataAccess.getUpgradeOptimizedConnection();
+			PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ps.setString(1, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
 
-			rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+				rs.next();
 
-			rs.next();
-
-			return rs.getInt(1);
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
+				return rs.getInt(1);
+			}
 		}
 	}
 

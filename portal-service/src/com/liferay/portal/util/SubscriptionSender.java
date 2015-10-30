@@ -26,7 +26,7 @@ import com.liferay.portal.kernel.mail.SMTPAccount;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.notifications.UserNotificationManagerUtil;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.EscapableObject;
@@ -145,7 +145,8 @@ public class SubscriptionSender implements Serializable {
 					}
 					catch (Exception e) {
 						_log.error(
-							"Unable to process subscription: " + subscription);
+							"Unable to process subscription: " + subscription,
+							e);
 					}
 				}
 			}
@@ -207,7 +208,7 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	public void flushNotificationsAsync() {
-		TransactionCommitCallbackRegistryUtil.registerCallback(
+		TransactionCommitCallbackUtil.registerCallback(
 			new Callable<Void>() {
 
 				@Override
@@ -230,12 +231,20 @@ public class SubscriptionSender implements Serializable {
 		return _context.get(key);
 	}
 
-	public long getContextUserId() {
-		return contextUserId;
+	public long getCurrentUserId() {
+		return currentUserId;
 	}
 
 	public String getMailId() {
 		return this.mailId;
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link getCurrentUserId()}
+	 */
+	@Deprecated
+	public long getUserId() {
+		return getCurrentUserId();
 	}
 
 	public void initialize() throws Exception {
@@ -262,13 +271,15 @@ public class SubscriptionSender implements Serializable {
 			setContextAttribute("[$SITE_NAME$]", group.getDescriptiveName());
 		}
 
-		if ((userId > 0) && Validator.isNotNull(_contextUserPrefix)) {
+		if ((creatorUserId > 0) &&
+			Validator.isNotNull(_contextCreatorUserPrefix)) {
+
 			setContextAttribute(
-				"[$" + _contextUserPrefix + "_USER_ADDRESS$]",
-				PortalUtil.getUserEmailAddress(userId));
+				"[$" + _contextCreatorUserPrefix + "_USER_ADDRESS$]",
+				PortalUtil.getUserEmailAddress(creatorUserId));
 			setContextAttribute(
-				"[$" + _contextUserPrefix + "_USER_NAME$]",
-				PortalUtil.getUserName(userId, StringPool.BLANK));
+				"[$" + _contextCreatorUserPrefix + "_USER_NAME$]",
+				PortalUtil.getUserName(creatorUserId, StringPool.BLANK));
 		}
 
 		if (uniqueMailId) {
@@ -320,12 +331,16 @@ public class SubscriptionSender implements Serializable {
 		}
 	}
 
-	public void setContextUserId(long contextUserId) {
-		this.contextUserId = contextUserId;
+	public void setContextCreatorUserPrefix(String contextCreatorUserPrefix) {
+		_contextCreatorUserPrefix = contextCreatorUserPrefix;
 	}
 
-	public void setContextUserPrefix(String contextUserPrefix) {
-		_contextUserPrefix = contextUserPrefix;
+	public void setCreatorUserId(long creatorUserId) {
+		this.creatorUserId = creatorUserId;
+	}
+
+	public void setCurrentUserId(long currentUserId) {
+		this.currentUserId = currentUserId;
 	}
 
 	public void setEntryTitle(String entryTitle) {
@@ -423,8 +438,12 @@ public class SubscriptionSender implements Serializable {
 		this.uniqueMailId = uniqueMailId;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #setCurrentUserId(long)}
+	 */
+	@Deprecated
 	public void setUserId(long userId) {
-		this.userId = userId;
+		setCurrentUserId(userId);
 	}
 
 	protected void deleteSubscription(Subscription subscription)
@@ -702,10 +721,7 @@ public class SubscriptionSender implements Serializable {
 		Company company = CompanyLocalServiceUtil.getCompany(companyId);
 
 		content = StringUtil.replace(
-			content,
-			new String[] {
-				"href=\"/", "src=\"/"
-			},
+			content, new String[] {"href=\"/", "src=\"/"},
 			new String[] {
 				"href=\"" + company.getPortalURL(groupId) + "/",
 				"src=\"" + company.getPortalURL(groupId) + "/"
@@ -822,9 +838,9 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	protected void sendNotification(User user) throws Exception {
-		if (contextUserId == user.getUserId() ) {
+		if (currentUserId == user.getUserId() ) {
 			if (_log.isDebugEnabled()) {
-				_log.debug("Skip context user " + contextUserId);
+				_log.debug("Skip user " + currentUserId);
 			}
 
 			return;
@@ -843,7 +859,7 @@ public class SubscriptionSender implements Serializable {
 		notificationEventJSONObject.put("entryTitle", _entryTitle);
 		notificationEventJSONObject.put("entryURL", _entryURL);
 		notificationEventJSONObject.put("notificationType", _notificationType);
-		notificationEventJSONObject.put("userId", user.getUserId());
+		notificationEventJSONObject.put("userId", currentUserId);
 
 		if (UserNotificationManagerUtil.isDeliver(
 				user.getUserId(), portletId, _notificationClassNameId,
@@ -871,7 +887,8 @@ public class SubscriptionSender implements Serializable {
 	protected String body;
 	protected boolean bulk;
 	protected long companyId;
-	protected long contextUserId;
+	protected long creatorUserId;
+	protected long currentUserId;
 	protected List<FileAttachment> fileAttachments = new ArrayList<>();
 	protected String fromAddress;
 	protected String fromName;
@@ -888,7 +905,6 @@ public class SubscriptionSender implements Serializable {
 	protected SMTPAccount smtpAccount;
 	protected String subject;
 	protected boolean uniqueMailId = true;
-	protected long userId;
 
 	private void readObject(ObjectInputStream objectInputStream)
 		throws ClassNotFoundException, IOException {
@@ -925,7 +941,7 @@ public class SubscriptionSender implements Serializable {
 	private long _classPK;
 	private final Map<String, EscapableObject<String>> _context =
 		new HashMap<>();
-	private String _contextUserPrefix;
+	private String _contextCreatorUserPrefix;
 	private String _entryTitle;
 	private String _entryURL;
 	private boolean _initialized;

@@ -19,9 +19,8 @@ import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portlet.calendar.model.CalEvent;
-import com.liferay.portlet.calendar.service.CalEventLocalServiceUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,51 +39,49 @@ public class VerifyCalendar extends VerifyProcess {
 
 	@Override
 	protected void doVerify() throws Exception {
-		verifyEndDate();
+		try (Connection con = DataAccess.getUpgradeOptimizedConnection()) {
+			verifyEndDate(con);
+			verifyRecurrence(con);
+		}
+
 		verifyNoAssets();
-		verifyRecurrence();
 	}
 
-	protected void updateEvent(long eventId, String recurrence)
+	protected void updateEvent(Connection con, long eventId, String recurrence)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
+		String sql = "update CalEvent set recurrence = ? where eventId = ?";
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
-				"update CalEvent set recurrence = ? where eventId = ?");
-
+		try (PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, recurrence);
 			ps.setLong(2, eventId);
 
 			ps.executeUpdate();
 		}
-		finally {
-			DataAccess.cleanUp(con, ps);
-		}
 	}
 
-	protected void verifyEndDate() throws Exception {
+	protected void verifyEndDate(Connection con) throws Exception {
 		runSQL(
+			con,
 			"update CalEvent set endDate = null where endDate is not null " +
 				"and (recurrence like '%\"until\":null%' or recurrence like " +
 					"'null')");
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void verifyNoAssets() throws Exception {
-		List<CalEvent> events = CalEventLocalServiceUtil.getNoAssetEvents();
+		List<com.liferay.portlet.calendar.model.CalEvent> events =
+			com.liferay.portlet.calendar.service.CalEventLocalServiceUtil.
+				getNoAssetEvents();
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Processing " + events.size() + " events with no asset");
 		}
 
-		for (CalEvent event : events) {
+		for (com.liferay.portlet.calendar.model.CalEvent event : events) {
 			try {
-				CalEventLocalServiceUtil.updateAsset(
-					event.getUserId(), event, null, null, null);
+				com.liferay.portlet.calendar.service.CalEventLocalServiceUtil.
+					updateAsset(event.getUserId(), event, null, null, null);
 			}
 			catch (Exception e) {
 				if (_log.isWarnEnabled()) {
@@ -100,24 +97,19 @@ public class VerifyCalendar extends VerifyProcess {
 		}
 	}
 
-	protected void verifyRecurrence() throws Exception {
+	protected void verifyRecurrence(Connection con) throws Exception {
 		JSONSerializer jsonSerializer = new JSONSerializer();
 
 		jsonSerializer.registerDefaultSerializers();
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		StringBundler sb = new StringBundler(3);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		sb.append("select eventId, recurrence from CalEvent where ");
+		sb.append("(CAST_TEXT(recurrence) != '') and recurrence not like ");
+		sb.append("'%serializable%'");
 
-			ps = con.prepareStatement(
-				"select eventId, recurrence from CalEvent where (CAST_TEXT(" +
-					"recurrence) != '') and recurrence not like " +
-						"'%serializable%'");
-
-			rs = ps.executeQuery();
+		try (PreparedStatement ps = con.prepareStatement(sb.toString());
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				long eventId = rs.getLong("eventId");
@@ -132,11 +124,8 @@ public class VerifyCalendar extends VerifyProcess {
 
 				String newRecurrence = JSONFactoryUtil.serialize(recurrenceObj);
 
-				updateEvent(eventId, newRecurrence);
+				updateEvent(con, eventId, newRecurrence);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
