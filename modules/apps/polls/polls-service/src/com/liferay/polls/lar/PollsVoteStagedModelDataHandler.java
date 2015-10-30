@@ -14,33 +14,42 @@
 
 package com.liferay.polls.lar;
 
+import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.polls.exception.DuplicateVoteException;
 import com.liferay.polls.model.PollsChoice;
 import com.liferay.polls.model.PollsQuestion;
 import com.liferay.polls.model.PollsVote;
-import com.liferay.polls.service.PollsVoteLocalServiceUtil;
+import com.liferay.polls.service.PollsVoteLocalService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
-import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
-import com.liferay.portal.kernel.lar.ExportImportPathUtil;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
+import com.liferay.portlet.exportimport.lar.ExportImportPathUtil;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandler;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelModifiedDateComparator;
 
 import java.util.List;
 import java.util.Map;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Shinn Lok
  * @author Mate Thurzo
  */
+@Component(immediate = true, service = StagedModelDataHandler.class)
 public class PollsVoteStagedModelDataHandler
 	extends BaseStagedModelDataHandler<PollsVote> {
 
 	public static final String[] CLASS_NAMES = {PollsVote.class.getName()};
+
+	@Override
+	public void deleteStagedModel(PollsVote vote) {
+		_pollsVoteLocalService.deletePollsVote(vote);
+	}
 
 	@Override
 	public void deleteStagedModel(
@@ -49,32 +58,25 @@ public class PollsVoteStagedModelDataHandler
 		PollsVote vote = fetchStagedModelByUuidAndGroupId(uuid, groupId);
 
 		if (vote != null) {
-			PollsVoteLocalServiceUtil.deletePollsVote(vote);
+			deleteStagedModel(vote);
 		}
-	}
-
-	@Override
-	public PollsVote fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<PollsVote> votes =
-			PollsVoteLocalServiceUtil.getPollsVotesByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<PollsVote>());
-
-		if (ListUtil.isEmpty(votes)) {
-			return null;
-		}
-
-		return votes.get(0);
 	}
 
 	@Override
 	public PollsVote fetchStagedModelByUuidAndGroupId(
 		String uuid, long groupId) {
 
-		return PollsVoteLocalServiceUtil.fetchPollsVoteByUuidAndGroupId(
+		return _pollsVoteLocalService.fetchPollsVoteByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public List<PollsVote> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return _pollsVoteLocalService.getPollsVotesByUuidAndCompanyId(
+			uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			new StagedModelModifiedDateComparator<PollsVote>());
 	}
 
 	@Override
@@ -134,7 +136,7 @@ public class PollsVoteStagedModelDataHandler
 		ServiceContext serviceContext = portletDataContext.createServiceContext(
 			vote);
 
-		serviceContext.setCreateDate(vote.getVoteDate());
+		serviceContext.setCreateDate(vote.getCreateDate());
 
 		if (portletDataContext.isDataStrategyMirror()) {
 			PollsVote existingVote = fetchStagedModelByUuidAndGroupId(
@@ -146,11 +148,20 @@ public class PollsVoteStagedModelDataHandler
 		}
 
 		try {
-			PollsVoteLocalServiceUtil.addVote(
+			_pollsVoteLocalService.addVote(
 				vote.getUserId(), questionId, choiceId, serviceContext);
 		}
 		catch (DuplicateVoteException dve) {
 		}
 	}
+
+	@Reference(unbind = "-")
+	protected void setPollsVoteLocalService(
+		PollsVoteLocalService pollsVoteLocalService) {
+
+		_pollsVoteLocalService = pollsVoteLocalService;
+	}
+
+	private PollsVoteLocalService _pollsVoteLocalService;
 
 }

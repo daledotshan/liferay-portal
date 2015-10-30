@@ -17,9 +17,16 @@ package com.liferay.wiki.engine;
 import com.liferay.wiki.exception.PageContentException;
 import com.liferay.wiki.model.WikiPage;
 
+import java.io.IOException;
+
+import java.util.Locale;
 import java.util.Map;
 
 import javax.portlet.PortletURL;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 /**
  * @author Jorge Ferrer
@@ -36,12 +43,15 @@ public interface WikiEngine {
 	 * @param  attachmentURLPrefix the URL prefix to use for attachments to the
 	 *         page
 	 * @return the content of the given page converted to HTML
-	 * @throws PageContentException if a page content exception occurred
 	 */
 	public String convert(
 			WikiPage page, PortletURL viewPageURL, PortletURL editPageURL,
 			String attachmentURLPrefix)
 		throws PageContentException;
+
+	public String getFormat();
+
+	public String getFormatLabel(Locale locale);
 
 	/**
 	 * Returns a map of the links included in the given page. The key of each
@@ -50,10 +60,16 @@ public interface WikiEngine {
 	 *
 	 * @param  page the page
 	 * @return a map of links included in the given page
-	 * @throws PageContentException if a page content exception occurred
 	 */
 	public Map<String, Boolean> getOutgoingLinks(WikiPage page)
 		throws PageContentException;
+
+	public String getToolbarSet();
+
+	public void renderEditPage(
+			ServletRequest servletRequest, ServletResponse servletResponse,
+			WikiPage page)
+		throws IOException, ServletException;
 
 	/**
 	 * Returns <code>true</code> if the content of a wiki page for this engine

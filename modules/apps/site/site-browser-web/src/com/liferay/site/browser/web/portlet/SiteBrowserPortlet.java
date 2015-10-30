@@ -15,12 +15,10 @@
 package com.liferay.site.browser.web.portlet;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
-import com.liferay.site.browser.web.upgrade.SiteBrowserWebUpgrade;
 
 import javax.portlet.Portlet;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -42,15 +40,9 @@ import org.osgi.service.component.annotations.Reference;
 		"javax.portlet.init-param.view-template=/view.jsp",
 		"javax.portlet.resource-bundle=content.Language",
 		"javax.portlet.security-role-ref=guest,power-user,user",
-		"javax.portlet.supports.mime-type=text/html",
+		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
 )
 public class SiteBrowserPortlet extends MVCPortlet {
-
-	@Reference(unbind = "-")
-	protected void setSiteBrowserWebUpgrade(
-		SiteBrowserWebUpgrade siteBrowserWebUpgrade) {
-	}
-
 }

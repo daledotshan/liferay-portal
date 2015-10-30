@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.ProgressTracker;
@@ -39,13 +40,12 @@ import com.liferay.portal.kernel.zip.ZipReader;
 import com.liferay.portal.kernel.zip.ZipReaderFactoryUtil;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portlet.asset.NoSuchTagException;
+import com.liferay.portal.service.UserLocalService;
 import com.liferay.portlet.asset.model.AssetTag;
-import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
+import com.liferay.portlet.asset.service.AssetTagLocalService;
 import com.liferay.portlet.asset.util.AssetUtil;
 import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
-import com.liferay.wiki.configuration.WikiConfiguration;
+import com.liferay.wiki.configuration.WikiGroupServiceConfiguration;
 import com.liferay.wiki.exception.ImportFilesException;
 import com.liferay.wiki.exception.NoSuchPageException;
 import com.liferay.wiki.importer.WikiImporter;
@@ -53,7 +53,7 @@ import com.liferay.wiki.importer.impl.WikiImporterKeys;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
 import com.liferay.wiki.model.WikiPageConstants;
-import com.liferay.wiki.service.WikiPageLocalServiceUtil;
+import com.liferay.wiki.service.WikiPageLocalService;
 import com.liferay.wiki.translator.MediaWikiToCreoleTranslator;
 
 import java.io.IOException;
@@ -78,9 +78,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jorge Ferrer
  */
 @Component(
-	property = {
-		"importer=MediaWiki", "page=/html/portlet/wiki/import/mediawiki.jsp"
-	},
+	property = {"importer=MediaWiki", "page=/wiki/import/mediawiki.jsp"},
 	service = WikiImporter.class
 )
 public class MediaWikiImporter implements WikiImporter {
@@ -100,8 +98,18 @@ public class MediaWikiImporter implements WikiImporter {
 		}
 
 		InputStream pagesInputStream = inputStreams[0];
-		InputStream usersInputStream = inputStreams[1];
-		InputStream imagesInputStream = inputStreams[2];
+
+		InputStream usersInputStream = null;
+
+		if (inputStreams.length > 1) {
+			usersInputStream = inputStreams[1];
+		}
+
+		InputStream imagesInputStream = null;
+
+		if (inputStreams.length > 2) {
+			imagesInputStream = inputStreams[2];
+		}
 
 		try {
 			Document document = SAXReaderUtil.read(pagesInputStream);
@@ -137,7 +145,7 @@ public class MediaWikiImporter implements WikiImporter {
 	@Activate
 	protected void activate() {
 		_wikiPageTitlesRemovePattern = Pattern.compile(
-			_wikiConfiguration.pageTitlesRemoveRegexp());
+			_wikiGroupServiceConfiguration.pageTitlesRemoveRegexp());
 	}
 
 	protected long getUserId(
@@ -149,11 +157,11 @@ public class MediaWikiImporter implements WikiImporter {
 		String emailAddress = usersMap.get(author);
 
 		if (Validator.isNotNull(emailAddress)) {
-			user = UserLocalServiceUtil.fetchUserByEmailAddress(
+			user = _userLocalService.fetchUserByEmailAddress(
 				node.getCompanyId(), emailAddress);
 		}
 		else {
-			user = UserLocalServiceUtil.fetchUserByScreenName(
+			user = _userLocalService.fetchUserByScreenName(
 				node.getCompanyId(), StringUtil.toLowerCase(author));
 		}
 
@@ -196,16 +204,15 @@ public class MediaWikiImporter implements WikiImporter {
 			WikiPage page = null;
 
 			try {
-				page = WikiPageLocalServiceUtil.getPage(
-					node.getNodeId(), title);
+				page = _wikiPageLocalService.getPage(node.getNodeId(), title);
 			}
 			catch (NoSuchPageException nspe) {
-				page = WikiPageLocalServiceUtil.addPage(
+				page = _wikiPageLocalService.addPage(
 					authorUserId, node.getNodeId(), title,
 					WikiPageConstants.NEW, null, true, serviceContext);
 			}
 
-			WikiPageLocalServiceUtil.updatePage(
+			_wikiPageLocalService.updatePage(
 				authorUserId, node.getNodeId(), title, page.getVersion(),
 				content, summary, true, "creole", parentTitle, redirectTitle,
 				serviceContext);
@@ -261,7 +268,7 @@ public class MediaWikiImporter implements WikiImporter {
 			frontPageTitle = normalizeTitle(frontPageTitle);
 
 			try {
-				if (WikiPageLocalServiceUtil.getPagesCount(
+				if (_wikiPageLocalService.getPagesCount(
 						node.getNodeId(), frontPageTitle, true) > 0) {
 
 					ServiceContext serviceContext = new ServiceContext();
@@ -269,9 +276,9 @@ public class MediaWikiImporter implements WikiImporter {
 					serviceContext.setAddGroupPermissions(true);
 					serviceContext.setAddGuestPermissions(true);
 
-					WikiPageLocalServiceUtil.renamePage(
+					_wikiPageLocalService.renamePage(
 						userId, node.getNodeId(), frontPageTitle,
-						_wikiConfiguration.frontPageName(), false,
+						_wikiGroupServiceConfiguration.frontPageName(), false,
 						serviceContext);
 				}
 			}
@@ -280,7 +287,7 @@ public class MediaWikiImporter implements WikiImporter {
 					StringBundler sb = new StringBundler(4);
 
 					sb.append("Could not move ");
-					sb.append(_wikiConfiguration.frontPageName());
+					sb.append(_wikiGroupServiceConfiguration.frontPageName());
 					sb.append(" to the title provided: ");
 					sb.append(frontPageTitle);
 
@@ -309,7 +316,7 @@ public class MediaWikiImporter implements WikiImporter {
 
 		title = matcher.replaceAll(StringPool.BLANK);
 
-		return StringUtil.shorten(title, 75);
+		return StringUtil.shorten(title, 255);
 	}
 
 	protected void processImages(
@@ -338,7 +345,7 @@ public class MediaWikiImporter implements WikiImporter {
 
 		if (total > 0) {
 			try {
-				WikiPageLocalServiceUtil.getPage(
+				_wikiPageLocalService.getPage(
 					node.getNodeId(), SHARED_IMAGES_TITLE);
 			}
 			catch (NoSuchPageException nspe) {
@@ -347,7 +354,7 @@ public class MediaWikiImporter implements WikiImporter {
 				serviceContext.setAddGroupPermissions(true);
 				serviceContext.setAddGuestPermissions(true);
 
-				WikiPageLocalServiceUtil.addPage(
+				_wikiPageLocalService.addPage(
 					userId, node.getNodeId(), SHARED_IMAGES_TITLE,
 					SHARED_IMAGES_CONTENT, null, true, serviceContext);
 			}
@@ -388,7 +395,7 @@ public class MediaWikiImporter implements WikiImporter {
 				count++;
 
 				if ((i % 5) == 0) {
-					WikiPageLocalServiceUtil.addPageAttachments(
+					_wikiPageLocalService.addPageAttachments(
 						userId, node.getNodeId(), SHARED_IMAGES_TITLE,
 						inputStreamOVPs);
 
@@ -396,12 +403,14 @@ public class MediaWikiImporter implements WikiImporter {
 
 					percentage = Math.min(50 + (i * 50) / total, 99);
 
-					progressTracker.setPercent(percentage);
+					if (progressTracker != null) {
+						progressTracker.setPercent(percentage);
+					}
 				}
 			}
 
 			if (!inputStreamOVPs.isEmpty()) {
-				WikiPageLocalServiceUtil.addPageAttachments(
+				_wikiPageLocalService.addPageAttachments(
 					userId, node.getNodeId(), SHARED_IMAGES_TITLE,
 					inputStreamOVPs);
 			}
@@ -535,23 +544,8 @@ public class MediaWikiImporter implements WikiImporter {
 
 			categoryName = normalize(categoryName, 75);
 
-			try {
-				AssetTagLocalServiceUtil.getTag(
-					node.getGroupId(), categoryName);
-			}
-			catch (NoSuchTagException nste) {
-				ServiceContext serviceContext = new ServiceContext();
-
-				serviceContext.setAddGroupPermissions(true);
-				serviceContext.setAddGuestPermissions(true);
-				serviceContext.setScopeGroupId(node.getGroupId());
-
-				AssetTagLocalServiceUtil.addTag(
-					userId, categoryName, serviceContext);
-			}
-			catch (SystemException se) {
-				_log.error(se, se);
-			}
+			_assetTagLocalService.checkTags(
+				userId, node.getGroupId(), new String[] {categoryName});
 
 			if ((i % 5) == 0) {
 				progressTracker.setPercent((i * 10) / pageElements.size());
@@ -572,24 +566,11 @@ public class MediaWikiImporter implements WikiImporter {
 
 			categoryName = normalize(categoryName, 75);
 
-			AssetTag assetTag = null;
+			List<AssetTag> assetTags = _assetTagLocalService.checkTags(
+				userId, node.getGroupId(), new String[] {categoryName});
 
-			try {
-				assetTag = AssetTagLocalServiceUtil.getTag(
-					node.getGroupId(), categoryName);
-			}
-			catch (NoSuchTagException nste) {
-				ServiceContext serviceContext = new ServiceContext();
-
-				serviceContext.setAddGroupPermissions(true);
-				serviceContext.setAddGuestPermissions(true);
-				serviceContext.setScopeGroupId(node.getGroupId());
-
-				assetTag = AssetTagLocalServiceUtil.addTag(
-					userId, categoryName, serviceContext);
-			}
-
-			assetTagNames.add(assetTag.getName());
+			assetTagNames.addAll(
+				ListUtil.toList(assetTags, AssetTag.NAME_ACCESSOR));
 		}
 
 		if (content.contains(_WORK_IN_PROGRESS)) {
@@ -694,9 +675,30 @@ public class MediaWikiImporter implements WikiImporter {
 		return usersMap;
 	}
 
+	@Reference(unbind = "-")
+	protected void setAssetTagLocalService(
+		AssetTagLocalService assetTagLocalService) {
+
+		_assetTagLocalService = assetTagLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setUserLocalService(UserLocalService userLocalService) {
+		_userLocalService = userLocalService;
+	}
+
 	@Reference
-	protected void setWikiConfiguration(WikiConfiguration wikiConfiguration) {
-		_wikiConfiguration = wikiConfiguration;
+	protected void setWikiGroupServiceConfiguration(
+		WikiGroupServiceConfiguration wikiGroupServiceConfiguration) {
+
+		_wikiGroupServiceConfiguration = wikiGroupServiceConfiguration;
+	}
+
+	@Reference(unbind = "-")
+	protected void setWikiPageLocalService(
+		WikiPageLocalService wikiPageLocalService) {
+
+		_wikiPageLocalService = wikiPageLocalService;
 	}
 
 	private static final String _WORK_IN_PROGRESS = "{{Work in progress}}";
@@ -715,9 +717,12 @@ public class MediaWikiImporter implements WikiImporter {
 	private static final Set<String> _specialMediaWikiDirs = SetUtil.fromArray(
 		new String[] {"archive", "temp", "thumb"});
 
+	private AssetTagLocalService _assetTagLocalService;
 	private final MediaWikiToCreoleTranslator _translator =
 		new MediaWikiToCreoleTranslator();
-	private WikiConfiguration _wikiConfiguration;
+	private UserLocalService _userLocalService;
+	private WikiGroupServiceConfiguration _wikiGroupServiceConfiguration;
+	private WikiPageLocalService _wikiPageLocalService;
 	private Pattern _wikiPageTitlesRemovePattern;
 
 }

@@ -14,17 +14,17 @@
 
 package com.liferay.configuration.admin.web.util;
 
+import com.liferay.configuration.admin.ExtendedAttributeDefinition;
+import com.liferay.configuration.admin.ExtendedObjectClassDefinition;
 import com.liferay.configuration.admin.web.model.ConfigurationModel;
-import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
+import com.liferay.dynamic.data.mapping.model.DDMFormFieldType;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
-import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
-import com.liferay.portlet.dynamicdatamapping.model.DDMFormFieldOptions;
-import com.liferay.portlet.dynamicdatamapping.model.DDMFormFieldType;
-import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -37,10 +37,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.metatype.AttributeDefinition;
-import org.osgi.service.metatype.ObjectClassDefinition;
-
 /**
  * @author Marcellus Tavares
  */
@@ -52,25 +48,25 @@ public class ConfigurationModelToDDMFormConverterTest extends Mockito {
 	}
 
 	@Test
-	public void testCreateDDMFormWithCheckboxField() {
-		ObjectClassDefinition objectClassDefinition = mock(
-			ObjectClassDefinition.class);
+	public void testGetWithCheckboxField() {
+		ExtendedObjectClassDefinition extendedObjectClassDefinition = mock(
+			ExtendedObjectClassDefinition.class);
 
-		AttributeDefinition attributeDefinition = mock(
-			AttributeDefinition.class);
+		ExtendedAttributeDefinition extendedAttributeDefinition = mock(
+			ExtendedAttributeDefinition.class);
 
-		whenObjectClassDefinitionGetAttributeDefinitions(
-			objectClassDefinition,
-			new AttributeDefinition[] {attributeDefinition},
-			ObjectClassDefinition.REQUIRED);
+		whenGetAttributeDefinitions(
+			extendedObjectClassDefinition,
+			new ExtendedAttributeDefinition[] {extendedAttributeDefinition},
+			ExtendedObjectClassDefinition.REQUIRED);
 
-		whenAttributeDefinitionGetCardinality(attributeDefinition, 0);
-		whenAttributeDefinitionGetID(attributeDefinition, "Boolean");
-		whenAttributeDefinitionGetType(
-			attributeDefinition, AttributeDefinition.BOOLEAN);
+		whenGetCardinality(extendedAttributeDefinition, 0);
+		whenGetID(extendedAttributeDefinition, "Boolean");
+		whenGetType(
+			extendedAttributeDefinition, ExtendedAttributeDefinition.BOOLEAN);
 
 		ConfigurationModel configurationModel = new ConfigurationModel(
-			objectClassDefinition, null, null, false);
+			extendedObjectClassDefinition, null, null, false);
 
 		ConfigurationModelToDDMFormConverter
 			configurationModelToDDMFormConverter =
@@ -89,33 +85,32 @@ public class ConfigurationModelToDDMFormConverterTest extends Mockito {
 		Assert.assertEquals("boolean", ddmFormField.getDataType());
 		Assert.assertFalse(ddmFormField.isRepeatable());
 		Assert.assertFalse(ddmFormField.isRequired());
+
+		Value predefinedValue = ddmFormField.getPredefinedValue();
+
+		Assert.assertEquals("false", predefinedValue.getString(_enLocale));
 	}
 
 	@Test
-	public void testCreateDDMFormWithIntegerFieldAndPredefinedValue() {
-		ObjectClassDefinition objectClassDefinition = mock(
-			ObjectClassDefinition.class);
+	public void testGetWithIntegerField() {
+		ExtendedObjectClassDefinition extendedObjectClassDefinition = mock(
+			ExtendedObjectClassDefinition.class);
 
-		AttributeDefinition attributeDefinition = mock(
-			AttributeDefinition.class);
+		ExtendedAttributeDefinition extendedAttributeDefinition = mock(
+			ExtendedAttributeDefinition.class);
 
-		whenObjectClassDefinitionGetAttributeDefinitions(
-			objectClassDefinition,
-			new AttributeDefinition[] {attributeDefinition},
-			ObjectClassDefinition.REQUIRED);
+		whenGetAttributeDefinitions(
+			extendedObjectClassDefinition,
+			new ExtendedAttributeDefinition[] {extendedAttributeDefinition},
+			ExtendedObjectClassDefinition.REQUIRED);
 
-		whenAttributeDefinitionGetCardinality(attributeDefinition, 0);
-		whenAttributeDefinitionGetID(attributeDefinition, "Integer");
-		whenAttributeDefinitionGetType(
-			attributeDefinition, AttributeDefinition.INTEGER);
-
-		String randomIntString = String.valueOf(RandomTestUtil.randomInt());
-
-		whenAttributeDefinitionGetDefaultValue(
-			attributeDefinition, new String[] {randomIntString});
+		whenGetCardinality(extendedAttributeDefinition, 0);
+		whenGetID(extendedAttributeDefinition, "Integer");
+		whenGetType(
+			extendedAttributeDefinition, ExtendedAttributeDefinition.INTEGER);
 
 		ConfigurationModel configurationModel = new ConfigurationModel(
-			objectClassDefinition, null, null, false);
+			extendedObjectClassDefinition, null, null, false);
 
 		ConfigurationModelToDDMFormConverter
 			configurationModelToDDMFormConverter =
@@ -130,7 +125,7 @@ public class ConfigurationModelToDDMFormConverterTest extends Mockito {
 		DDMFormField ddmFormField = ddmFormFieldsMap.get("Integer");
 
 		Assert.assertNotNull(ddmFormField);
-		Assert.assertEquals(DDMFormFieldType.INTEGER, ddmFormField.getType());
+		Assert.assertEquals(DDMFormFieldType.TEXT, ddmFormField.getType());
 		Assert.assertEquals("integer", ddmFormField.getDataType());
 		Assert.assertFalse(ddmFormField.isRepeatable());
 		Assert.assertTrue(ddmFormField.isRequired());
@@ -138,34 +133,33 @@ public class ConfigurationModelToDDMFormConverterTest extends Mockito {
 		LocalizedValue predefinedValue = ddmFormField.getPredefinedValue();
 
 		Assert.assertEquals(_enLocale, predefinedValue.getDefaultLocale());
-		Assert.assertEquals(
-			randomIntString, predefinedValue.getString(_enLocale));
+		Assert.assertEquals("0", predefinedValue.getString(_enLocale));
 	}
 
 	@Test
-	public void testCreateDDMFormWithSelectField() {
-		ObjectClassDefinition objectClassDefinition = mock(
-			ObjectClassDefinition.class);
+	public void testGetWithSelectField() {
+		ExtendedObjectClassDefinition extendedObjectClassDefinition = mock(
+			ExtendedObjectClassDefinition.class);
 
-		AttributeDefinition attributeDefinition = mock(
-			AttributeDefinition.class);
+		ExtendedAttributeDefinition extendedAttributeDefinition = mock(
+			ExtendedAttributeDefinition.class);
 
-		whenObjectClassDefinitionGetAttributeDefinitions(
-			objectClassDefinition,
-			new AttributeDefinition[] {attributeDefinition},
-			ObjectClassDefinition.REQUIRED);
+		whenGetAttributeDefinitions(
+			extendedObjectClassDefinition,
+			new ExtendedAttributeDefinition[] {extendedAttributeDefinition},
+			ExtendedObjectClassDefinition.REQUIRED);
 
-		whenAttributeDefinitionGetCardinality(attributeDefinition, 0);
-		whenAttributeDefinitionGetID(attributeDefinition, "Select");
-		whenAttributeDefinitionGetType(
-			attributeDefinition, AttributeDefinition.STRING);
-		whenAttributeDefinitionGetOptionLabels(
-			attributeDefinition, new String[] {"Label 1", "Label 2"});
-		whenAttributeDefinitionGetOptionValues(
-			attributeDefinition, new String[] {"Value 1", "Value 2"});
+		whenGetCardinality(extendedAttributeDefinition, 0);
+		whenGetID(extendedAttributeDefinition, "Select");
+		whenGetType(
+			extendedAttributeDefinition, ExtendedAttributeDefinition.STRING);
+		whenGetOptionLabels(
+			extendedAttributeDefinition, new String[] {"Label 1", "Label 2"});
+		whenGetOptionValues(
+			extendedAttributeDefinition, new String[] {"Value 1", "Value 2"});
 
 		ConfigurationModel configurationModel = new ConfigurationModel(
-			objectClassDefinition, null, null, false);
+			extendedObjectClassDefinition, null, null, false);
 
 		ConfigurationModelToDDMFormConverter
 			configurationModelToDDMFormConverter =
@@ -209,33 +203,25 @@ public class ConfigurationModelToDDMFormConverterTest extends Mockito {
 	}
 
 	@Test
-	public void testCreateDDMFormWithTextFieldAndPredefinedValue() {
-		ObjectClassDefinition objectClassDefinition = mock(
-			ObjectClassDefinition.class);
+	public void testGetWithTextField() {
+		ExtendedObjectClassDefinition extendedObjectClassDefinition = mock(
+			ExtendedObjectClassDefinition.class);
 
-		AttributeDefinition attributeDefinition = mock(
-			AttributeDefinition.class);
+		ExtendedAttributeDefinition extendedAttributeDefinition = mock(
+			ExtendedAttributeDefinition.class);
 
-		whenObjectClassDefinitionGetAttributeDefinitions(
-			objectClassDefinition,
-			new AttributeDefinition[] {attributeDefinition},
-			ObjectClassDefinition.OPTIONAL);
+		whenGetAttributeDefinitions(
+			extendedObjectClassDefinition,
+			new ExtendedAttributeDefinition[] {extendedAttributeDefinition},
+			ExtendedObjectClassDefinition.OPTIONAL);
 
-		whenAttributeDefinitionGetCardinality(attributeDefinition, 0);
-		whenAttributeDefinitionGetID(attributeDefinition, "Text");
-		whenAttributeDefinitionGetType(
-			attributeDefinition, AttributeDefinition.STRING);
-
-		Configuration configuration = mock(Configuration.class);
-
-		Dictionary<String, Object> properties = new Hashtable<>();
-
-		properties.put("Text", "Ella Fitzgerald");
-
-		whenConfigurationGetProperties(configuration, properties);
+		whenGetCardinality(extendedAttributeDefinition, 0);
+		whenGetID(extendedAttributeDefinition, "Text");
+		whenGetType(
+			extendedAttributeDefinition, ExtendedAttributeDefinition.STRING);
 
 		ConfigurationModel configurationModel = new ConfigurationModel(
-			objectClassDefinition, configuration, null, false);
+			extendedObjectClassDefinition, null, null, false);
 
 		ConfigurationModelToDDMFormConverter
 			configurationModelToDDMFormConverter =
@@ -254,93 +240,71 @@ public class ConfigurationModelToDDMFormConverterTest extends Mockito {
 		Assert.assertEquals("string", ddmFormField.getDataType());
 		Assert.assertFalse(ddmFormField.isRepeatable());
 		Assert.assertFalse(ddmFormField.isRequired());
-
-		LocalizedValue predefinedValue = ddmFormField.getPredefinedValue();
-
-		Assert.assertEquals(_enLocale, predefinedValue.getDefaultLocale());
-		Assert.assertEquals(
-			"Ella Fitzgerald", predefinedValue.getString(_enLocale));
 	}
 
-	protected void whenAttributeDefinitionGetCardinality(
-		AttributeDefinition attributeDefinition, int returnCardinality) {
+	protected void whenGetAttributeDefinitions(
+		ExtendedObjectClassDefinition extendedObjectClassDefinition,
+		ExtendedAttributeDefinition[] extendedAttributeDefinitions,
+		int filter) {
 
 		when(
-			attributeDefinition.getCardinality()
+			extendedObjectClassDefinition.getAttributeDefinitions(
+				Matchers.eq(filter))
 		).thenReturn(
-			returnCardinality
+			extendedAttributeDefinitions
 		);
 	}
 
-	protected void whenAttributeDefinitionGetDefaultValue(
-		AttributeDefinition attributeDefinition, String[] returnDefaultValue) {
+	protected void whenGetCardinality(
+		ExtendedAttributeDefinition extendedAttributeDefinition,
+		int cardinality) {
 
 		when(
-			attributeDefinition.getDefaultValue()
+			extendedAttributeDefinition.getCardinality()
 		).thenReturn(
-			returnDefaultValue
+			cardinality
 		);
 	}
 
-	protected void whenAttributeDefinitionGetID(
-		AttributeDefinition attributeDefinition, String returnID) {
+	protected void whenGetID(
+		ExtendedAttributeDefinition extendedAttributeDefinition, String id) {
 
 		when(
-			attributeDefinition.getID()
+			extendedAttributeDefinition.getID()
 		).thenReturn(
-			returnID
+			id
 		);
 	}
 
-	protected void whenAttributeDefinitionGetOptionLabels(
-		AttributeDefinition attributeDefinition, String[] returnOptionLabels) {
+	protected void whenGetOptionLabels(
+		ExtendedAttributeDefinition extendedAttributeDefinition,
+		String[] returnOptionLabels) {
 
 		when(
-			attributeDefinition.getOptionLabels()
+			extendedAttributeDefinition.getOptionLabels()
 		).thenReturn(
 			returnOptionLabels
 		);
 	}
 
-	protected void whenAttributeDefinitionGetOptionValues(
-		AttributeDefinition attributeDefinition, String[] returnOptionValues) {
+	protected void whenGetOptionValues(
+		ExtendedAttributeDefinition extendedAttributeDefinition,
+		String[] optionValues) {
 
 		when(
-			attributeDefinition.getOptionValues()
+			extendedAttributeDefinition.getOptionValues()
 		).thenReturn(
-			returnOptionValues
+			optionValues
 		);
 	}
 
-	protected void whenAttributeDefinitionGetType(
-		AttributeDefinition attributeDefinition, int returnType) {
+	protected void whenGetType(
+		ExtendedAttributeDefinition extendedAttributeDefinition, int type) {
 
 		when(
-			attributeDefinition.getType()
+			extendedAttributeDefinition.getType()
 		).thenReturn(
-			returnType
-		);
-	}
-
-	protected void whenConfigurationGetProperties(
-		Configuration configuration,
-		Dictionary<String, Object> returnProperties) {
-
-		when(
-			configuration.getProperties()
-		).thenReturn(
-			returnProperties
-		);
-	}
-
-	protected void whenObjectClassDefinitionGetAttributeDefinitions(
-		ObjectClassDefinition objectClassDefinition,
-		AttributeDefinition[] returnAttributeDefinitions, int filter) {
-
-		when(
-			objectClassDefinition.getAttributeDefinitions(Matchers.eq(filter))
-		).thenReturn(
-			returnAttributeDefinitions
+			type
 		);
 	}
 

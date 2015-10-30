@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.LocalizedModel;
+import com.liferay.portal.model.ShardedModel;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.service.ServiceContext;
 
@@ -47,7 +48,7 @@ import java.util.Map;
  */
 @ProviderType
 public interface PollsQuestionModel extends BaseModel<PollsQuestion>,
-	LocalizedModel, StagedGroupedModel {
+	LocalizedModel, ShardedModel, StagedGroupedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -425,6 +426,22 @@ public interface PollsQuestionModel extends BaseModel<PollsQuestion>,
 	 * @param expirationDate the expiration date of this polls question
 	 */
 	public void setExpirationDate(Date expirationDate);
+
+	/**
+	 * Returns the last publish date of this polls question.
+	 *
+	 * @return the last publish date of this polls question
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this polls question.
+	 *
+	 * @param lastPublishDate the last publish date of this polls question
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
 
 	/**
 	 * Returns the last vote date of this polls question.

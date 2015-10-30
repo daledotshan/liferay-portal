@@ -18,6 +18,7 @@ import aQute.bnd.annotation.metatype.Configurable;
 
 import com.liferay.nested.portlets.web.configuration.NestedPortletsConfiguration;
 import com.liferay.nested.portlets.web.constants.NestedPortletsPortletKeys;
+import com.liferay.nested.portlets.web.display.context.NestedPortletsDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.DefaultConfigurationAction;
@@ -28,8 +29,8 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutTemplate;
 import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.Theme;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.LayoutTemplateLocalServiceUtil;
+import com.liferay.portal.service.LayoutLocalService;
+import com.liferay.portal.service.LayoutTemplateLocalService;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
@@ -46,14 +47,16 @@ import java.util.regex.Pattern;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
-import javax.portlet.PortletPreferences;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Jorge Ferrer
@@ -71,6 +74,24 @@ public class NestedPortletsConfigurationAction
 	extends DefaultConfigurationAction {
 
 	@Override
+	public String getJspPath(HttpServletRequest request) {
+		return "/configuration.jsp";
+	}
+
+	@Override
+	public void include(
+			PortletConfig portletConfig, HttpServletRequest request,
+			HttpServletResponse response)
+		throws Exception {
+
+		request.setAttribute(
+			NestedPortletsConfiguration.class.getName(),
+			_nestedPortletsConfiguration);
+
+		super.include(portletConfig, request, response);
+	}
+
+	@Override
 	public void processAction(
 			PortletConfig portletConfig, ActionRequest actionRequest,
 			ActionResponse actionResponse)
@@ -82,11 +103,13 @@ public class NestedPortletsConfigurationAction
 		String portletResource = ParamUtil.getString(
 			actionRequest, "portletResource");
 
-		PortletPreferences portletPreferences = actionRequest.getPreferences();
+		NestedPortletsDisplayContext nestedPortletsDisplayContext =
+			new NestedPortletsDisplayContext(
+				PortalUtil.getHttpServletRequest(actionRequest),
+				_nestedPortletsConfiguration);
 
-		String oldLayoutTemplateId = portletPreferences.getValue(
-			"layoutTemplateId",
-			_nestedPortletsConfiguration.layoutTemplateDefault());
+		String oldLayoutTemplateId =
+			nestedPortletsDisplayContext.getLayoutTemplateId();
 
 		if (!oldLayoutTemplateId.equals(layoutTemplateId)) {
 			reorganizeNestedColumns(
@@ -98,16 +121,12 @@ public class NestedPortletsConfigurationAction
 	}
 
 	@Override
-	public String render(
-			PortletConfig portletConfig, RenderRequest renderRequest,
-			RenderResponse renderResponse)
-		throws Exception {
-
-		renderRequest.setAttribute(
-			NestedPortletsConfiguration.class.getName(),
-			_nestedPortletsConfiguration);
-
-		return super.render(portletConfig, renderRequest, renderResponse);
+	@Reference(
+		target = "(osgi.web.symbolicname=com.liferay.nested.portlets.web)",
+		unbind = "-"
+	)
+	public void setServletContext(ServletContext servletContext) {
+		super.setServletContext(servletContext);
 	}
 
 	@Activate
@@ -155,14 +174,14 @@ public class NestedPortletsConfigurationAction
 		Theme theme = themeDisplay.getTheme();
 
 		LayoutTemplate newLayoutTemplate =
-			LayoutTemplateLocalServiceUtil.getLayoutTemplate(
+			_layoutTemplateLocalService.getLayoutTemplate(
 				newLayoutTemplateId, false, theme.getThemeId());
 
 		List<String> newColumns = getColumnNames(
 			newLayoutTemplate.getContent(), portletResource);
 
 		LayoutTemplate oldLayoutTemplate =
-			LayoutTemplateLocalServiceUtil.getLayoutTemplate(
+			_layoutTemplateLocalService.getLayoutTemplate(
 				oldLayoutTemplateId, false, theme.getThemeId());
 
 		List<String> oldColumns = getColumnNames(
@@ -172,14 +191,30 @@ public class NestedPortletsConfigurationAction
 
 		layoutTypePortlet.setStateMax(StringPool.BLANK);
 
-		LayoutLocalServiceUtil.updateLayout(
+		_layoutLocalService.updateLayout(
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
 			layout.getTypeSettings());
+	}
+
+	@Reference(unbind = "-")
+	protected void setLayoutLocalService(
+		LayoutLocalService layoutLocalService) {
+
+		_layoutLocalService = layoutLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setLayoutTemplateLocalService(
+		LayoutTemplateLocalService layoutTemplateLocalService) {
+
+		_layoutTemplateLocalService = layoutTemplateLocalService;
 	}
 
 	private static final Pattern _pattern = Pattern.compile(
 		"processColumn[(]\"(.*?)\"(?:, *\"(?:.*?)\")?[)]", Pattern.DOTALL);
 
+	private LayoutLocalService _layoutLocalService;
+	private LayoutTemplateLocalService _layoutTemplateLocalService;
 	private volatile NestedPortletsConfiguration _nestedPortletsConfiguration;
 
 }

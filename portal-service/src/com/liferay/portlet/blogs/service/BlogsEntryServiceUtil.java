@@ -44,7 +44,8 @@ public class BlogsEntryServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #addEntry(String, String,
 	String, String, int, int, int, int, int, boolean, boolean,
-	String[], ImageSelector, ImageSelector, ServiceContext)}
+	String[], String, ImageSelector, ImageSelector,
+	ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portlet.blogs.model.BlogsEntry addEntry(
@@ -71,6 +72,7 @@ public class BlogsEntryServiceUtil {
 		int displayDateMonth, int displayDateDay, int displayDateYear,
 		int displayDateHour, int displayDateMinute, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -79,7 +81,8 @@ public class BlogsEntryServiceUtil {
 				   .addEntry(title, subtitle, description, content,
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static void deleteEntry(long entryId)
@@ -147,6 +150,12 @@ public class BlogsEntryServiceUtil {
 		return getService().getGroupEntries(groupId, status, start, end);
 	}
 
+	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupEntries(
+		long groupId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
+		return getService().getGroupEntries(groupId, status, start, end, obc);
+	}
+
 	public static int getGroupEntriesCount(long groupId,
 		java.util.Date displayDate, int status) {
 		return getService().getGroupEntriesCount(groupId, displayDate, status);
@@ -165,6 +174,18 @@ public class BlogsEntryServiceUtil {
 		return getService()
 				   .getGroupEntriesRSS(groupId, displayDate, status, max, type,
 			version, displayStyle, feedURL, entryURL, themeDisplay);
+	}
+
+	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupUserEntries(
+		long groupId, long userId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
+		return getService()
+				   .getGroupUserEntries(groupId, userId, status, start, end, obc);
+	}
+
+	public static int getGroupUserEntriesCount(long groupId, long userId,
+		int status) {
+		return getService().getGroupUserEntriesCount(groupId, userId, status);
 	}
 
 	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupsEntries(
@@ -228,7 +249,7 @@ public class BlogsEntryServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, String,
 	String, String, String, int, int, int, int, int, boolean,
-	boolean, String[], ImageSelector, ImageSelector,
+	boolean, String[], String, ImageSelector, ImageSelector,
 	ServiceContext)}
 	*/
 	@Deprecated
@@ -256,6 +277,7 @@ public class BlogsEntryServiceUtil {
 		int displayDateMonth, int displayDateDay, int displayDateYear,
 		int displayDateHour, int displayDateMinute, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -264,7 +286,8 @@ public class BlogsEntryServiceUtil {
 				   .updateEntry(entryId, title, subtitle, description, content,
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static BlogsEntryService getService() {

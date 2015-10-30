@@ -14,20 +14,12 @@
 
 package com.liferay.configuration.admin.web.util;
 
+import com.liferay.configuration.admin.ExtendedMetaTypeInformation;
+import com.liferay.configuration.admin.ExtendedMetaTypeService;
 import com.liferay.configuration.admin.web.model.ConfigurationModel;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONSerializerUtil;
-import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
-import com.liferay.portlet.dynamicdatamapping.render.DDMFormFieldRenderingContext;
-import com.liferay.portlet.dynamicdatamapping.render.DDMFormRendererUtil;
 
 import java.io.IOException;
 
@@ -36,17 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.metatype.MetaTypeInformation;
-import org.osgi.service.metatype.MetaTypeService;
 
 /**
  * @author Kamesh Sampath
@@ -56,11 +43,11 @@ public class ConfigurationHelper {
 
 	public ConfigurationHelper(
 		BundleContext bundleContext, ConfigurationAdmin configurationAdmin,
-		MetaTypeService metaTypeService, String languageId) {
+		ExtendedMetaTypeService extendedMetaTypeService, String languageId) {
 
 		_bundleContext = bundleContext;
 		_configurationAdmin = configurationAdmin;
-		_metaTypeService = metaTypeService;
+		_extendedMetaTypeService = extendedMetaTypeService;
 
 		_configurationModels = _getConfigurationModels(languageId);
 	}
@@ -76,8 +63,8 @@ public class ConfigurationHelper {
 				return configurations[0];
 			}
 		}
-		catch (InvalidSyntaxException | IOException ise) {
-			ReflectionUtil.throwException(ise);
+		catch (InvalidSyntaxException | IOException e) {
+			ReflectionUtil.throwException(e);
 		}
 
 		return null;
@@ -133,66 +120,24 @@ public class ConfigurationHelper {
 		return configurationModels;
 	}
 
-	public String render(
-			PortletRequest portletRequest, PortletResponse portletResponse,
-			ConfigurationModel configurationModel)
-		throws PortalException {
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		ConfigurationModelToDDMFormConverter
-			configurationModelToDDMFormConverter =
-				new ConfigurationModelToDDMFormConverter(
-					configurationModel, themeDisplay.getLocale());
-
-		DDMForm ddmForm = configurationModelToDDMFormConverter.getDDMForm();
-
-		DDMFormFieldRenderingContext ddmFormFieldRenderingContext =
-			new DDMFormFieldRenderingContext();
-
-		ddmFormFieldRenderingContext.setHttpServletRequest(
-			PortalUtil.getHttpServletRequest(portletRequest));
-		ddmFormFieldRenderingContext.setHttpServletResponse(
-			PortalUtil.getHttpServletResponse(portletResponse));
-		ddmFormFieldRenderingContext.setLocale(themeDisplay.getLocale());
-		ddmFormFieldRenderingContext.setPortletNamespace(
-			portletResponse.getNamespace());
-		ddmFormFieldRenderingContext.setReadOnly(false);
-
-		String definition = DDMFormJSONSerializerUtil.serialize(ddmForm);
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("DDMForm definition: " + definition);
-		}
-
-		portletRequest.setAttribute("definition", definition);
-		portletRequest.setAttribute(
-			"scopeGroupId", themeDisplay.getScopeGroupId());
-		portletRequest.setAttribute("plId", themeDisplay.getPlid());
-
-		return DDMFormRendererUtil.render(
-			ddmForm, ddmFormFieldRenderingContext);
-	}
-
 	private void _collectConfigurationModels(
 		Bundle bundle, Map<String, ConfigurationModel> modelMap, String locale,
 		boolean factory) {
 
-		MetaTypeInformation metaTypeInformation =
-			_metaTypeService.getMetaTypeInformation(bundle);
+		ExtendedMetaTypeInformation extendedMetaTypeInformation =
+			_extendedMetaTypeService.getMetaTypeInformation(bundle);
 
-		if (metaTypeInformation == null) {
+		if (extendedMetaTypeInformation == null) {
 			return;
 		}
 
 		String[] pids = null;
 
 		if (factory) {
-			pids = metaTypeInformation.getFactoryPids();
+			pids = extendedMetaTypeInformation.getFactoryPids();
 		}
 		else {
-			pids = metaTypeInformation.getPids();
+			pids = extendedMetaTypeInformation.getPids();
 		}
 
 		for (String pid : pids) {
@@ -210,8 +155,8 @@ public class ConfigurationHelper {
 	private ConfigurationModel _getConfigurationModel(
 		Bundle bundle, String pid, boolean factory, String locale) {
 
-		MetaTypeInformation metaTypeInformation =
-			_metaTypeService.getMetaTypeInformation(bundle);
+		ExtendedMetaTypeInformation metaTypeInformation =
+			_extendedMetaTypeService.getMetaTypeInformation(bundle);
 
 		if (metaTypeInformation == null) {
 			return null;
@@ -219,7 +164,7 @@ public class ConfigurationHelper {
 
 		return new ConfigurationModel(
 			metaTypeInformation.getObjectClassDefinition(pid, locale),
-			getConfiguration(pid), bundle.getLocation(), factory);
+			getConfiguration(pid), StringPool.QUESTION, factory);
 	}
 
 	private Map<String, ConfigurationModel> _getConfigurationModels(
@@ -258,12 +203,9 @@ public class ConfigurationHelper {
 		return filter.toString();
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		ConfigurationHelper.class);
-
 	private final BundleContext _bundleContext;
 	private final ConfigurationAdmin _configurationAdmin;
 	private final Map<String, ConfigurationModel> _configurationModels;
-	private final MetaTypeService _metaTypeService;
+	private final ExtendedMetaTypeService _extendedMetaTypeService;
 
 }

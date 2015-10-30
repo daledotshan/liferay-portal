@@ -28,7 +28,6 @@ import com.liferay.portlet.social.model.SocialRelationConstants;
 import com.liferay.portlet.social.service.SocialRelationLocalService;
 import com.liferay.social.networking.model.WallEntry;
 import com.liferay.social.networking.service.WallEntryLocalService;
-import com.liferay.social.networking.service.configuration.configurator.SocialNetworkingServiceConfigurator;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -36,7 +35,6 @@ import javax.portlet.Portlet;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * @author Brian Wing Shun Chan
@@ -44,19 +42,17 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 @Component(
 	immediate = true,
 	property = {
+		"com.liferay.portlet.css-class-wrapper=social-networking-portlet-wall",
 		"com.liferay.portlet.display-category=category.social",
 		"com.liferay.portlet.icon=/icons/wall.png",
-		"com.liferay.portlet.friendly-url-routes=com/liferay/social/networking/web/wall/portlet/route/wall-friendly-url-routes.xml",
-		"com.liferay.portlet.css-class-wrapper=social-networking-portlet-wall",
-		"javax.portlet.display-name=Wall",
+		"javax.portlet.display-name=Wall", "javax.portlet.expiration-cache=0",
+		"javax.portlet.info.short-title=Wall", "javax.portlet.info.title=Wall",
 		"javax.portlet.init-param.clear-request-parameters=true",
 		"javax.portlet.init-param.view-template=/wall/view.jsp",
-		"javax.portlet.expiration-cache=0",
-		"javax.portlet.supports.mime-type=text/html",
-		"javax.portlet.resource-bundle=content.Language.properties",
-		"javax.portlet.info.title=Wall", "javax.portlet.info.short-title=Wall",
 		"javax.portlet.keywords=Wall",
-		"javax.portlet.security-role-ref=administrator,guest,power-user,user"
+		"javax.portlet.resource-bundle=content.Language",
+		"javax.portlet.security-role-ref=administrator,guest,power-user,user",
+		"javax.portlet.supports.mime-type=text/html"
 	},
 	service = Portlet.class
 )
@@ -157,12 +153,6 @@ public class WallPortlet extends MVCPortlet {
 		_groupLocalService = groupLocalService;
 	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC)
-	protected void setSocialNetworkingServiceConfigurator(
-		SocialNetworkingServiceConfigurator
-			socialNetworkingServiceConfigurator) {
-	}
-
 	@Reference(unbind = "-")
 	protected void setSocialRelationLocalService(
 		SocialRelationLocalService socialRelationLocalService) {
@@ -180,11 +170,6 @@ public class WallPortlet extends MVCPortlet {
 		WallEntryLocalService wallEntryLocalService) {
 
 		_wallEntryLocalService = wallEntryLocalService;
-	}
-
-	protected void unsetSocialNetworkingServiceConfigurator(
-		SocialNetworkingServiceConfigurator
-			socialNetworkingServiceConfigurator) {
 	}
 
 	private GroupLocalService _groupLocalService;

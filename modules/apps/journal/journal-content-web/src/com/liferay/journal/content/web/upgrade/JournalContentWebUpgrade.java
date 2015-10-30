@@ -14,58 +14,30 @@
 
 package com.liferay.journal.content.web.upgrade;
 
-import com.liferay.journal.content.web.constants.JournalContentPortletKeys;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.service.ReleaseLocalService;
-import com.liferay.portal.upgrade.util.UpgradePortletId;
+import com.liferay.journal.content.web.upgrade.v1_0_0.UpgradePortletId;
+import com.liferay.journal.content.web.upgrade.v1_0_0.UpgradePortletPreferences;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
+import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
-import java.util.Collections;
-
-import javax.servlet.ServletContext;
-
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
  */
-@Component(immediate = true, service = JournalContentWebUpgrade.class)
-public class JournalContentWebUpgrade {
+@Component(immediate = true)
+public class JournalContentWebUpgrade implements UpgradeStepRegistrator {
 
-	@Reference(unbind = "-")
-	protected void setReleaseLocalService(
-		ReleaseLocalService releaseLocalService) {
-
-		_releaseLocalService = releaseLocalService;
+	@Override
+	public void register(Registry registry) {
+		registry.register(
+			"com.liferay.journal.content.web", "0.0.1", "1.0.0",
+			new UpgradePortletId(), new UpgradePortletPreferences());
 	}
 
-	@Reference(target = "(original.bean=*)", unbind = "-")
-	protected void setServletContext(ServletContext servletContext) {
+	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
+	protected void setModuleServiceLifecycle(
+		ModuleServiceLifecycle moduleServiceLifecycle) {
 	}
-
-	@Activate
-	protected void upgrade() throws PortalException {
-		UpgradePortletId upgradePortletId = new UpgradePortletId() {
-
-			@Override
-			protected String[][] getRenamePortletIdsArray() {
-				return new String[][] {
-					new String[] {
-						"56", JournalContentPortletKeys.JOURNAL_CONTENT
-					}
-				};
-			}
-
-		};
-
-		_releaseLocalService.updateRelease(
-			"com.liferay.journal.content.web",
-			Collections.<UpgradeProcess>singletonList(upgradePortletId), 1, 0,
-			false);
-	}
-
-	private ReleaseLocalService _releaseLocalService;
 
 }

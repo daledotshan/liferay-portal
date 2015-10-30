@@ -25,7 +25,7 @@ long subtypeSelectionId = ParamUtil.getLong(request, "subtypeSelectionId");
 
 PortletURL portletURL = (PortletURL)request.getAttribute("view.jsp-portletURL");
 
-AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(typeSelection);
+AssetRendererFactory<?> assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(typeSelection);
 %>
 
 <aui:nav-item href="<%= portletURL %>" label="browse" selected='<%= toolbarItem.equals("browse") %>' />
@@ -44,7 +44,6 @@ AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.get
 
 			String addPortletURLString = addPortletURL.toString();
 
-			addPortletURLString = HttpUtil.addParameter(addPortletURLString, "doAsGroupId", groupId);
 			addPortletURLString = HttpUtil.addParameter(addPortletURLString, "refererPlid", plid);
 			%>
 
@@ -64,7 +63,6 @@ AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.get
 
 			String addPortletURLString = addPortletURL.toString();
 
-			addPortletURLString = HttpUtil.addParameter(addPortletURLString, "doAsGroupId", groupId);
 			addPortletURLString = HttpUtil.addParameter(addPortletURLString, "refererPlid", plid);
 			%>
 

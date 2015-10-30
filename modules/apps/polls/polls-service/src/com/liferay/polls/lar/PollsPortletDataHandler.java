@@ -14,40 +14,53 @@
 
 package com.liferay.polls.lar;
 
+import com.liferay.polls.constants.PollsPortletKeys;
 import com.liferay.polls.model.PollsChoice;
 import com.liferay.polls.model.PollsQuestion;
 import com.liferay.polls.model.PollsVote;
 import com.liferay.polls.model.impl.PollsChoiceImpl;
 import com.liferay.polls.model.impl.PollsQuestionImpl;
 import com.liferay.polls.model.impl.PollsVoteImpl;
-import com.liferay.polls.service.PollsChoiceLocalServiceUtil;
-import com.liferay.polls.service.PollsQuestionLocalServiceUtil;
-import com.liferay.polls.service.PollsVoteLocalServiceUtil;
-import com.liferay.polls.service.permission.PollsPermission;
+import com.liferay.polls.service.PollsChoiceLocalService;
+import com.liferay.polls.service.PollsQuestionLocalService;
+import com.liferay.polls.service.PollsVoteLocalService;
+import com.liferay.polls.service.permission.PollsResourcePermissionChecker;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
-import com.liferay.portal.kernel.lar.BasePortletDataHandler;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
-import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
-import com.liferay.portal.kernel.lar.xstream.XStreamAliasRegistryUtil;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portlet.exportimport.lar.BasePortletDataHandler;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.PortletDataHandler;
+import com.liferay.portlet.exportimport.lar.PortletDataHandlerBoolean;
+import com.liferay.portlet.exportimport.lar.PortletDataHandlerControl;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+import com.liferay.portlet.exportimport.xstream.XStreamAliasRegistryUtil;
 
 import java.util.List;
 
 import javax.portlet.PortletPreferences;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Bruno Farache
  * @author Marcellus Tavares
  * @author Mate Thurzo
  */
+@Component(
+	immediate = true,
+	property = {"javax.portlet.name=" + PollsPortletKeys.POLLS},
+	service = PortletDataHandler.class
+)
 public class PollsPortletDataHandler extends BasePortletDataHandler {
 
 	public static final String NAMESPACE = "polls";
 
-	public PollsPortletDataHandler() {
+	@Activate
+	protected void activate() {
 		setDataLocalized(true);
 		setDeletionSystemEventStagedModelTypes(
 			new StagedModelType(PollsQuestion.class));
@@ -80,7 +93,7 @@ public class PollsPortletDataHandler extends BasePortletDataHandler {
 			return portletPreferences;
 		}
 
-		PollsQuestionLocalServiceUtil.deleteQuestions(
+		_pollsQuestionLocalService.deleteQuestions(
 			portletDataContext.getScopeGroupId());
 
 		return portletPreferences;
@@ -92,7 +105,8 @@ public class PollsPortletDataHandler extends BasePortletDataHandler {
 			PortletPreferences portletPreferences)
 		throws Exception {
 
-		portletDataContext.addPortletPermissions(PollsPermission.RESOURCE_NAME);
+		portletDataContext.addPortletPermissions(
+			PollsResourcePermissionChecker.RESOURCE_NAME);
 
 		Element rootElement = addExportDataRootElement(portletDataContext);
 
@@ -103,13 +117,13 @@ public class PollsPortletDataHandler extends BasePortletDataHandler {
 				PollsPortletDataHandler.NAMESPACE, "questions")) {
 
 			ActionableDynamicQuery questionActionableDynamicQuery =
-				PollsQuestionLocalServiceUtil.getExportActionableDynamicQuery(
+				_pollsQuestionLocalService.getExportActionableDynamicQuery(
 					portletDataContext);
 
 			questionActionableDynamicQuery.performActions();
 
 			ActionableDynamicQuery choiceActionableDynamicQuery =
-				PollsChoiceLocalServiceUtil.getExportActionableDynamicQuery(
+				_pollsChoiceLocalService.getExportActionableDynamicQuery(
 					portletDataContext);
 
 			choiceActionableDynamicQuery.performActions();
@@ -118,7 +132,7 @@ public class PollsPortletDataHandler extends BasePortletDataHandler {
 					PollsPortletDataHandler.NAMESPACE, "votes")) {
 
 				ActionableDynamicQuery voteActionableDynamicQuery =
-					PollsVoteLocalServiceUtil.getExportActionableDynamicQuery(
+					_pollsVoteLocalService.getExportActionableDynamicQuery(
 						portletDataContext);
 
 				voteActionableDynamicQuery.performActions();
@@ -135,7 +149,7 @@ public class PollsPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		portletDataContext.importPortletPermissions(
-			PollsPermission.RESOURCE_NAME);
+			PollsResourcePermissionChecker.RESOURCE_NAME);
 
 		Element questionsElement = portletDataContext.getImportDataGroupElement(
 			PollsQuestion.class);
@@ -183,22 +197,52 @@ public class PollsPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery choiceActionableDynamicQuery =
-			PollsChoiceLocalServiceUtil.getExportActionableDynamicQuery(
+			_pollsChoiceLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		choiceActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery questionActionableDynamicQuery =
-			PollsQuestionLocalServiceUtil.getExportActionableDynamicQuery(
+			_pollsQuestionLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		questionActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery voteActionableDynamicQuery =
-			PollsVoteLocalServiceUtil.getExportActionableDynamicQuery(
+			_pollsVoteLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		voteActionableDynamicQuery.performCount();
 	}
+
+	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
+	protected void setModuleServiceLifecycle(
+		ModuleServiceLifecycle moduleServiceLifecycle) {
+	}
+
+	@Reference(unbind = "-")
+	protected void setPollsChoiceLocalService(
+		PollsChoiceLocalService pollsChoiceLocalService) {
+
+		_pollsChoiceLocalService = pollsChoiceLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setPollsQuestionLocalService(
+		PollsQuestionLocalService pollsQuestionLocalService) {
+
+		_pollsQuestionLocalService = pollsQuestionLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setPollsVoteLocalService(
+		PollsVoteLocalService pollsVoteLocalService) {
+
+		_pollsVoteLocalService = pollsVoteLocalService;
+	}
+
+	private PollsChoiceLocalService _pollsChoiceLocalService;
+	private PollsQuestionLocalService _pollsQuestionLocalService;
+	private PollsVoteLocalService _pollsVoteLocalService;
 
 }

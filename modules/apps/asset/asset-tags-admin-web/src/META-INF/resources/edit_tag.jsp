@@ -17,21 +17,29 @@
 <%@ include file="/init.jsp" %>
 
 <%
-String redirect = ParamUtil.getString(renderRequest, "redirect");
+String redirect = ParamUtil.getString(request, "redirect");
+
+if (Validator.isNull(redirect)) {
+	PortletURL portletURL = renderResponse.createRenderURL();
+
+	redirect = portletURL.toString();
+}
 
 long tagId = ParamUtil.getLong(request, "tagId");
 
 AssetTag tag = AssetTagLocalServiceUtil.fetchAssetTag(tagId);
+
+portletDisplay.setShowBackIcon(true);
+portletDisplay.setURLBack(redirect);
+
+renderResponse.setTitle(((tag == null) ? LanguageUtil.get(request, "add-tag") : tag.getName()));
 %>
 
-<liferay-ui:header
-	title='<%= (tag != null) ? tag.getName() : "add-tag" %>'
-/>
+<portlet:actionURL name="editTag" var="editTagURL">
+	<portlet:param name="mvcPath" value="/edit_tag.jsp" />
+</portlet:actionURL>
 
-<portlet:actionURL name="editTag" var="editTagURL" />
-
-<aui:form action="<%= editTagURL %>" method="post" name="fm">
-	<aui:input name="mvcPath" type="hidden" value="/edit_tag.jsp" />
+<aui:form action="<%= editTagURL %>" cssClass="container-fluid-1280" method="post" name="fm">
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 
 	<liferay-ui:error exception="<%= AssetTagException.class %>">
@@ -57,9 +65,9 @@ AssetTag tag = AssetTagLocalServiceUtil.fetchAssetTag(tagId);
 				<aui:input autoFocus="<%= true %>" cssClass="tag-name" name="name" />
 
 				<aui:button-row>
-					<aui:button type="submit" />
+					<aui:button cssClass="btn-lg" type="submit" />
 
-					<aui:button href="<%= redirect %>" type="cancel" />
+					<aui:button cssClass="btn-lg" href="<%= redirect %>" type="cancel" />
 				</aui:button-row>
 			</div>
 		</div>

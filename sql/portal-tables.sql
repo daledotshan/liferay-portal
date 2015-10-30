@@ -94,7 +94,8 @@ create table AssetCategory (
 	name VARCHAR(75) null,
 	title STRING null,
 	description STRING null,
-	vocabularyId LONG
+	vocabularyId LONG,
+	lastPublishDate DATE null
 );
 
 create table AssetCategoryProperty (
@@ -110,15 +111,17 @@ create table AssetCategoryProperty (
 );
 
 create table AssetEntries_AssetCategories (
+	companyId LONG not null,
 	categoryId LONG not null,
 	entryId LONG not null,
-	primary key (categoryId, entryId)
+	primary key (companyId, categoryId, entryId)
 );
 
 create table AssetEntries_AssetTags (
+	companyId LONG not null,
 	entryId LONG not null,
 	tagId LONG not null,
-	primary key (entryId, tagId)
+	primary key (companyId, entryId, tagId)
 );
 
 create table AssetEntry (
@@ -164,6 +167,7 @@ create table AssetLink (
 );
 
 create table AssetTag (
+	uuid_ VARCHAR(75) null,
 	tagId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
@@ -172,7 +176,8 @@ create table AssetTag (
 	createDate DATE null,
 	modifiedDate DATE null,
 	name VARCHAR(75) null,
-	assetCount INTEGER
+	assetCount INTEGER,
+	lastPublishDate DATE null
 );
 
 create table AssetTagStats (
@@ -194,26 +199,8 @@ create table AssetVocabulary (
 	name VARCHAR(75) null,
 	title STRING null,
 	description STRING null,
-	settings_ STRING null
-);
-
-create table BackgroundTask (
-	mvccVersion LONG default 0,
-	backgroundTaskId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	name VARCHAR(255) null,
-	servletContextNames VARCHAR(255) null,
-	taskExecutorClassName VARCHAR(200) null,
-	taskContextMap TEXT null,
-	completed BOOLEAN,
-	completionDate DATE null,
-	status INTEGER,
-	statusMessage TEXT null
+	settings_ STRING null,
+	lastPublishDate DATE null
 );
 
 create table BlogsEntry (
@@ -234,12 +221,14 @@ create table BlogsEntry (
 	allowPingbacks BOOLEAN,
 	allowTrackbacks BOOLEAN,
 	trackbacks TEXT null,
+	coverImageCaption STRING null,
 	coverImageFileEntryId LONG,
-	coverImageURL VARCHAR(75) null,
+	coverImageURL STRING null,
 	smallImage BOOLEAN,
 	smallImageFileEntryId LONG,
 	smallImageId LONG,
 	smallImageURL STRING null,
+	lastPublishDate DATE null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -340,15 +329,10 @@ create table Contact_ (
 	male BOOLEAN,
 	birthday DATE null,
 	smsSn VARCHAR(75) null,
-	aimSn VARCHAR(75) null,
 	facebookSn VARCHAR(75) null,
-	icqSn VARCHAR(75) null,
 	jabberSn VARCHAR(75) null,
-	msnSn VARCHAR(75) null,
-	mySpaceSn VARCHAR(75) null,
 	skypeSn VARCHAR(75) null,
 	twitterSn VARCHAR(75) null,
-	ymSn VARCHAR(75) null,
 	employeeStatusId VARCHAR(75) null,
 	employeeNumber VARCHAR(75) null,
 	jobTitle VARCHAR(100) null,
@@ -381,177 +365,6 @@ create table CyrusUser (
 create table CyrusVirtual (
 	emailAddress VARCHAR(75) not null primary key,
 	userId VARCHAR(75) not null
-);
-
-create table DDLRecord (
-	uuid_ VARCHAR(75) null,
-	recordId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	versionUserId LONG,
-	versionUserName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	DDMStorageId LONG,
-	recordSetId LONG,
-	version VARCHAR(75) null,
-	displayIndex INTEGER
-);
-
-create table DDLRecordSet (
-	uuid_ VARCHAR(75) null,
-	recordSetId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	DDMStructureId LONG,
-	recordSetKey VARCHAR(75) null,
-	name STRING null,
-	description STRING null,
-	minDisplayRows INTEGER,
-	scope INTEGER
-);
-
-create table DDLRecordVersion (
-	recordVersionId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	DDMStorageId LONG,
-	recordSetId LONG,
-	recordId LONG,
-	version VARCHAR(75) null,
-	displayIndex INTEGER,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table DDMContent (
-	uuid_ VARCHAR(75) null,
-	contentId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	name STRING null,
-	description STRING null,
-	data_ TEXT null
-);
-
-create table DDMStorageLink (
-	uuid_ VARCHAR(75) null,
-	storageLinkId LONG not null primary key,
-	classNameId LONG,
-	classPK LONG,
-	structureId LONG
-);
-
-create table DDMStructure (
-	uuid_ VARCHAR(75) null,
-	structureId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	parentStructureId LONG,
-	classNameId LONG,
-	structureKey VARCHAR(75) null,
-	version VARCHAR(75) null,
-	name STRING null,
-	description STRING null,
-	definition TEXT null,
-	storageType VARCHAR(75) null,
-	type_ INTEGER
-);
-
-create table DDMStructureLayout (
-	uuid_ VARCHAR(75) null,
-	structureLayoutId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	structureVersionId LONG,
-	definition TEXT null
-);
-
-create table DDMStructureLink (
-	structureLinkId LONG not null primary key,
-	classNameId LONG,
-	classPK LONG,
-	structureId LONG
-);
-
-create table DDMStructureVersion (
-	structureVersionId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	structureId LONG,
-	version VARCHAR(75) null,
-	name STRING null,
-	description STRING null,
-	definition TEXT null,
-	storageType VARCHAR(75) null,
-	type_ INTEGER
-);
-
-create table DDMTemplate (
-	uuid_ VARCHAR(75) null,
-	templateId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	classNameId LONG,
-	classPK LONG,
-	sourceClassNameId LONG,
-	templateKey VARCHAR(75) null,
-	version VARCHAR(75) null,
-	name STRING null,
-	description STRING null,
-	type_ VARCHAR(75) null,
-	mode_ VARCHAR(75) null,
-	language VARCHAR(75) null,
-	script TEXT null,
-	cacheable BOOLEAN,
-	smallImage BOOLEAN,
-	smallImageId LONG,
-	smallImageURL VARCHAR(75) null
-);
-
-create table DDMTemplateVersion (
-	templateVersionId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	templateId LONG,
-	version VARCHAR(75) null,
-	name STRING null,
-	description STRING null,
-	language VARCHAR(75) null,
-	script TEXT null
 );
 
 create table DLContent (
@@ -594,7 +407,8 @@ create table DLFileEntry (
 	largeImageId LONG,
 	custom1ImageId LONG,
 	custom2ImageId LONG,
-	manualCheckInRequired BOOLEAN
+	manualCheckInRequired BOOLEAN,
+	lastPublishDate DATE null
 );
 
 create table DLFileEntryMetadata (
@@ -602,7 +416,6 @@ create table DLFileEntryMetadata (
 	fileEntryMetadataId LONG not null primary key,
 	DDMStorageId LONG,
 	DDMStructureId LONG,
-	fileEntryTypeId LONG,
 	fileEntryId LONG,
 	fileVersionId LONG
 );
@@ -618,19 +431,15 @@ create table DLFileEntryType (
 	modifiedDate DATE null,
 	fileEntryTypeKey VARCHAR(75) null,
 	name STRING null,
-	description STRING null
-);
-
-create table DLFileEntryTypes_DDMStructures (
-	structureId LONG not null,
-	fileEntryTypeId LONG not null,
-	primary key (structureId, fileEntryTypeId)
+	description STRING null,
+	lastPublishDate DATE null
 );
 
 create table DLFileEntryTypes_DLFolders (
+	companyId LONG not null,
 	fileEntryTypeId LONG not null,
 	folderId LONG not null,
-	primary key (fileEntryTypeId, folderId)
+	primary key (companyId, fileEntryTypeId, folderId)
 );
 
 create table DLFileRank (
@@ -657,6 +466,7 @@ create table DLFileShortcut (
 	toFileEntryId LONG,
 	treePath STRING null,
 	active_ BOOLEAN,
+	lastPublishDate DATE null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -687,6 +497,7 @@ create table DLFileVersion (
 	version VARCHAR(75) null,
 	size_ LONG,
 	checksum VARCHAR(75) null,
+	lastPublishDate DATE null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -712,6 +523,7 @@ create table DLFolder (
 	defaultFileEntryTypeId LONG,
 	hidden_ BOOLEAN,
 	restrictionType INTEGER,
+	lastPublishDate DATE null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -748,7 +560,7 @@ create table ExpandoColumn (
 	tableId LONG,
 	name VARCHAR(75) null,
 	type_ INTEGER,
-	defaultData STRING null,
+	defaultData TEXT null,
 	typeSettings TEXT null
 );
 
@@ -787,7 +599,7 @@ create table ExportImportConfiguration (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	name VARCHAR(75) null,
+	name VARCHAR(200) null,
 	description STRING null,
 	type_ INTEGER,
 	settings_ TEXT null,
@@ -823,21 +635,24 @@ create table Group_ (
 );
 
 create table Groups_Orgs (
+	companyId LONG not null,
 	groupId LONG not null,
 	organizationId LONG not null,
-	primary key (groupId, organizationId)
+	primary key (companyId, groupId, organizationId)
 );
 
 create table Groups_Roles (
+	companyId LONG not null,
 	groupId LONG not null,
 	roleId LONG not null,
-	primary key (groupId, roleId)
+	primary key (companyId, groupId, roleId)
 );
 
 create table Groups_UserGroups (
+	companyId LONG not null,
 	groupId LONG not null,
 	userGroupId LONG not null,
-	primary key (groupId, userGroupId)
+	primary key (companyId, groupId, userGroupId)
 );
 
 create table Image (
@@ -848,121 +663,6 @@ create table Image (
 	height INTEGER,
 	width INTEGER,
 	size_ INTEGER
-);
-
-create table JournalArticle (
-	uuid_ VARCHAR(75) null,
-	id_ LONG not null primary key,
-	resourcePrimKey LONG,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	folderId LONG,
-	classNameId LONG,
-	classPK LONG,
-	treePath STRING null,
-	articleId VARCHAR(75) null,
-	version DOUBLE,
-	title STRING null,
-	urlTitle VARCHAR(150) null,
-	description TEXT null,
-	content TEXT null,
-	DDMStructureKey VARCHAR(75) null,
-	DDMTemplateKey VARCHAR(75) null,
-	layoutUuid VARCHAR(75) null,
-	displayDate DATE null,
-	expirationDate DATE null,
-	reviewDate DATE null,
-	indexable BOOLEAN,
-	smallImage BOOLEAN,
-	smallImageId LONG,
-	smallImageURL STRING null,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table JournalArticleImage (
-	articleImageId LONG not null primary key,
-	groupId LONG,
-	articleId VARCHAR(75) null,
-	version DOUBLE,
-	elInstanceId VARCHAR(75) null,
-	elName VARCHAR(75) null,
-	languageId VARCHAR(75) null,
-	tempImage BOOLEAN
-);
-
-create table JournalArticleResource (
-	uuid_ VARCHAR(75) null,
-	resourcePrimKey LONG not null primary key,
-	groupId LONG,
-	articleId VARCHAR(75) null
-);
-
-create table JournalContentSearch (
-	contentSearchId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	privateLayout BOOLEAN,
-	layoutId LONG,
-	portletId VARCHAR(200) null,
-	articleId VARCHAR(75) null
-);
-
-create table JournalFeed (
-	uuid_ VARCHAR(75) null,
-	id_ LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	feedId VARCHAR(75) null,
-	name VARCHAR(75) null,
-	description STRING null,
-	DDMStructureKey VARCHAR(75) null,
-	DDMTemplateKey VARCHAR(75) null,
-	DDMRendererTemplateKey VARCHAR(75) null,
-	delta INTEGER,
-	orderByCol VARCHAR(75) null,
-	orderByType VARCHAR(75) null,
-	targetLayoutFriendlyUrl VARCHAR(255) null,
-	targetPortletId VARCHAR(75) null,
-	contentField VARCHAR(75) null,
-	feedFormat VARCHAR(75) null,
-	feedVersion DOUBLE
-);
-
-create table JournalFolder (
-	uuid_ VARCHAR(75) null,
-	folderId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	parentFolderId LONG,
-	treePath STRING null,
-	name VARCHAR(100) null,
-	description STRING null,
-	restrictionType INTEGER,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table JournalFolders_DDMStructures (
-	structureId LONG not null,
-	folderId LONG not null,
-	primary key (structureId, folderId)
 );
 
 create table Layout (
@@ -996,7 +696,8 @@ create table Layout (
 	priority INTEGER,
 	layoutPrototypeUuid VARCHAR(75) null,
 	layoutPrototypeLinkEnabled BOOLEAN,
-	sourcePrototypeLayoutUuid VARCHAR(75) null
+	sourcePrototypeLayoutUuid VARCHAR(75) null,
+	lastPublishDate DATE null
 );
 
 create table LayoutBranch (
@@ -1026,7 +727,8 @@ create table LayoutFriendlyURL (
 	plid LONG,
 	privateLayout BOOLEAN,
 	friendlyURL VARCHAR(255) null,
-	languageId VARCHAR(75) null
+	languageId VARCHAR(75) null,
+	lastPublishDate DATE null
 );
 
 create table LayoutPrototype (
@@ -1144,21 +846,6 @@ create table ListType (
 	type_ VARCHAR(75) null
 );
 
-create table Lock_ (
-	mvccVersion LONG default 0,
-	uuid_ VARCHAR(75) null,
-	lockId LONG not null primary key,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	className VARCHAR(75) null,
-	key_ VARCHAR(200) null,
-	owner VARCHAR(1024) null,
-	inheritable BOOLEAN,
-	expirationDate DATE null
-);
-
 create table MBBan (
 	uuid_ VARCHAR(75) null,
 	banId LONG not null primary key,
@@ -1168,7 +855,8 @@ create table MBBan (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	banUserId LONG
+	banUserId LONG,
+	lastPublishDate DATE null
 );
 
 create table MBCategory (
@@ -1187,6 +875,7 @@ create table MBCategory (
 	threadCount INTEGER,
 	messageCount INTEGER,
 	lastPostDate DATE null,
+	lastPublishDate DATE null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -1204,7 +893,8 @@ create table MBDiscussion (
 	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
-	threadId LONG
+	threadId LONG,
+	lastPublishDate DATE null
 );
 
 create table MBMailingList (
@@ -1258,6 +948,7 @@ create table MBMessage (
 	priority DOUBLE,
 	allowPingbacks BOOLEAN,
 	answer BOOLEAN,
+	lastPublishDate DATE null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -1290,6 +981,7 @@ create table MBThread (
 	lastPostDate DATE null,
 	priority DOUBLE,
 	question BOOLEAN,
+	lastPublishDate DATE null,
 	status INTEGER,
 	statusByUserId LONG,
 	statusByUserName VARCHAR(75) null,
@@ -1305,69 +997,8 @@ create table MBThreadFlag (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	threadId LONG
-);
-
-create table MDRAction (
-	uuid_ VARCHAR(75) null,
-	actionId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	classNameId LONG,
-	classPK LONG,
-	ruleGroupInstanceId LONG,
-	name STRING null,
-	description STRING null,
-	type_ VARCHAR(255) null,
-	typeSettings TEXT null
-);
-
-create table MDRRule (
-	uuid_ VARCHAR(75) null,
-	ruleId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	ruleGroupId LONG,
-	name STRING null,
-	description STRING null,
-	type_ VARCHAR(255) null,
-	typeSettings TEXT null
-);
-
-create table MDRRuleGroup (
-	uuid_ VARCHAR(75) null,
-	ruleGroupId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	name STRING null,
-	description STRING null
-);
-
-create table MDRRuleGroupInstance (
-	uuid_ VARCHAR(75) null,
-	ruleGroupInstanceId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	classNameId LONG,
-	classPK LONG,
-	ruleGroupId LONG,
-	priority INTEGER
+	threadId LONG,
+	lastPublishDate DATE null
 );
 
 create table MembershipRequest (
@@ -1593,6 +1224,7 @@ create table Release_ (
 	createDate DATE null,
 	modifiedDate DATE null,
 	servletContextName VARCHAR(75) null,
+	schemaVersion VARCHAR(75) null,
 	buildNumber INTEGER,
 	buildDate DATE null,
 	verified BOOLEAN,
@@ -1615,7 +1247,8 @@ create table Repository (
 	description STRING null,
 	portletId VARCHAR(200) null,
 	typeSettings TEXT null,
-	dlFolderId LONG
+	dlFolderId LONG,
+	lastPublishDate DATE null
 );
 
 create table RepositoryEntry (
@@ -1630,7 +1263,8 @@ create table RepositoryEntry (
 	modifiedDate DATE null,
 	repositoryId LONG,
 	mappedId VARCHAR(255) null,
-	manualCheckInRequired BOOLEAN
+	manualCheckInRequired BOOLEAN,
+	lastPublishDate DATE null
 );
 
 create table ResourceAction (
@@ -1666,9 +1300,11 @@ create table ResourcePermission (
 	name VARCHAR(255) null,
 	scope INTEGER,
 	primKey VARCHAR(255) null,
+	primKeyId LONG,
 	roleId LONG,
 	ownerId LONG,
-	actionIds LONG
+	actionIds LONG,
+	viewActionId BOOLEAN
 );
 
 create table ResourceTypePermission (
@@ -1700,9 +1336,10 @@ create table Role_ (
 );
 
 create table SCFrameworkVersi_SCProductVers (
+	companyId LONG not null,
 	frameworkVersionId LONG not null,
 	productVersionId LONG not null,
-	primary key (frameworkVersionId, productVersionId)
+	primary key (companyId, frameworkVersionId, productVersionId)
 );
 
 create table SCFrameworkVersion (
@@ -1729,9 +1366,10 @@ create table SCLicense (
 );
 
 create table SCLicenses_SCProductEntries (
+	companyId LONG not null,
 	licenseId LONG not null,
 	productEntryId LONG not null,
-	primary key (licenseId, productEntryId)
+	primary key (companyId, licenseId, productEntryId)
 );
 
 create table SCProductEntry (
@@ -1785,187 +1423,6 @@ create table ServiceComponent (
 	buildNumber LONG,
 	buildDate LONG,
 	data_ TEXT null
-);
-
-create table Shard (
-	mvccVersion LONG default 0,
-	shardId LONG not null primary key,
-	classNameId LONG,
-	classPK LONG,
-	name VARCHAR(75) null
-);
-
-create table ShoppingCart (
-	cartId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	itemIds TEXT null,
-	couponCodes VARCHAR(75) null,
-	altShipping INTEGER,
-	insure BOOLEAN
-);
-
-create table ShoppingCategory (
-	categoryId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	parentCategoryId LONG,
-	name VARCHAR(75) null,
-	description STRING null
-);
-
-create table ShoppingCoupon (
-	couponId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	code_ VARCHAR(75) null,
-	name VARCHAR(75) null,
-	description STRING null,
-	startDate DATE null,
-	endDate DATE null,
-	active_ BOOLEAN,
-	limitCategories STRING null,
-	limitSkus STRING null,
-	minOrder DOUBLE,
-	discount DOUBLE,
-	discountType VARCHAR(75) null
-);
-
-create table ShoppingItem (
-	itemId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	categoryId LONG,
-	sku VARCHAR(75) null,
-	name VARCHAR(200) null,
-	description STRING null,
-	properties STRING null,
-	fields_ BOOLEAN,
-	fieldsQuantities STRING null,
-	minQuantity INTEGER,
-	maxQuantity INTEGER,
-	price DOUBLE,
-	discount DOUBLE,
-	taxable BOOLEAN,
-	shipping DOUBLE,
-	useShippingFormula BOOLEAN,
-	requiresShipping BOOLEAN,
-	stockQuantity INTEGER,
-	featured_ BOOLEAN,
-	sale_ BOOLEAN,
-	smallImage BOOLEAN,
-	smallImageId LONG,
-	smallImageURL STRING null,
-	mediumImage BOOLEAN,
-	mediumImageId LONG,
-	mediumImageURL STRING null,
-	largeImage BOOLEAN,
-	largeImageId LONG,
-	largeImageURL STRING null
-);
-
-create table ShoppingItemField (
-	itemFieldId LONG not null primary key,
-	itemId LONG,
-	name VARCHAR(75) null,
-	values_ STRING null,
-	description STRING null
-);
-
-create table ShoppingItemPrice (
-	itemPriceId LONG not null primary key,
-	itemId LONG,
-	minQuantity INTEGER,
-	maxQuantity INTEGER,
-	price DOUBLE,
-	discount DOUBLE,
-	taxable BOOLEAN,
-	shipping DOUBLE,
-	useShippingFormula BOOLEAN,
-	status INTEGER
-);
-
-create table ShoppingOrder (
-	orderId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	number_ VARCHAR(75) null,
-	tax DOUBLE,
-	shipping DOUBLE,
-	altShipping VARCHAR(75) null,
-	requiresShipping BOOLEAN,
-	insure BOOLEAN,
-	insurance DOUBLE,
-	couponCodes VARCHAR(75) null,
-	couponDiscount DOUBLE,
-	billingFirstName VARCHAR(75) null,
-	billingLastName VARCHAR(75) null,
-	billingEmailAddress VARCHAR(75) null,
-	billingCompany VARCHAR(75) null,
-	billingStreet VARCHAR(75) null,
-	billingCity VARCHAR(75) null,
-	billingState VARCHAR(75) null,
-	billingZip VARCHAR(75) null,
-	billingCountry VARCHAR(75) null,
-	billingPhone VARCHAR(75) null,
-	shipToBilling BOOLEAN,
-	shippingFirstName VARCHAR(75) null,
-	shippingLastName VARCHAR(75) null,
-	shippingEmailAddress VARCHAR(75) null,
-	shippingCompany VARCHAR(75) null,
-	shippingStreet VARCHAR(75) null,
-	shippingCity VARCHAR(75) null,
-	shippingState VARCHAR(75) null,
-	shippingZip VARCHAR(75) null,
-	shippingCountry VARCHAR(75) null,
-	shippingPhone VARCHAR(75) null,
-	ccName VARCHAR(75) null,
-	ccType VARCHAR(75) null,
-	ccNumber VARCHAR(75) null,
-	ccExpMonth INTEGER,
-	ccExpYear INTEGER,
-	ccVerNumber VARCHAR(75) null,
-	comments TEXT null,
-	ppTxnId VARCHAR(75) null,
-	ppPaymentStatus VARCHAR(75) null,
-	ppPaymentGross DOUBLE,
-	ppReceiverEmail VARCHAR(75) null,
-	ppPayerEmail VARCHAR(75) null,
-	sendOrderEmail BOOLEAN,
-	sendShippingEmail BOOLEAN
-);
-
-create table ShoppingOrderItem (
-	orderItemId LONG not null primary key,
-	orderId LONG,
-	itemId TEXT null,
-	sku VARCHAR(75) null,
-	name VARCHAR(200) null,
-	description STRING null,
-	properties STRING null,
-	price DOUBLE,
-	quantity INTEGER,
-	shippedDate DATE null
 );
 
 create table SocialActivity (
@@ -2107,6 +1564,7 @@ create table SystemEvent (
 
 create table Team (
 	mvccVersion LONG default 0,
+	uuid_ VARCHAR(75) null,
 	teamId LONG not null primary key,
 	companyId LONG,
 	userId LONG,
@@ -2115,7 +1573,8 @@ create table Team (
 	modifiedDate DATE null,
 	groupId LONG,
 	name VARCHAR(75) null,
-	description STRING null
+	description STRING null,
+	lastPublishDate DATE null
 );
 
 create table Ticket (
@@ -2222,7 +1681,8 @@ create table UserGroup (
 	parentUserGroupId LONG,
 	name VARCHAR(75) null,
 	description STRING null,
-	addedByLDAPImport BOOLEAN
+	addedByLDAPImport BOOLEAN,
+	lastPublishDate DATE null
 );
 
 create table UserGroupGroupRole (
@@ -2242,9 +1702,10 @@ create table UserGroupRole (
 );
 
 create table UserGroups_Teams (
+	companyId LONG not null,
 	teamId LONG not null,
 	userGroupId LONG not null,
-	primary key (teamId, userGroupId)
+	primary key (companyId, teamId, userGroupId)
 );
 
 create table UserIdMapper (
@@ -2273,33 +1734,38 @@ create table UserNotificationEvent (
 );
 
 create table Users_Groups (
+	companyId LONG not null,
 	groupId LONG not null,
 	userId LONG not null,
-	primary key (groupId, userId)
+	primary key (companyId, groupId, userId)
 );
 
 create table Users_Orgs (
+	companyId LONG not null,
 	organizationId LONG not null,
 	userId LONG not null,
-	primary key (organizationId, userId)
+	primary key (companyId, organizationId, userId)
 );
 
 create table Users_Roles (
+	companyId LONG not null,
 	roleId LONG not null,
 	userId LONG not null,
-	primary key (roleId, userId)
+	primary key (companyId, roleId, userId)
 );
 
 create table Users_Teams (
+	companyId LONG not null,
 	teamId LONG not null,
 	userId LONG not null,
-	primary key (teamId, userId)
+	primary key (companyId, teamId, userId)
 );
 
 create table Users_UserGroups (
+	companyId LONG not null,
 	userId LONG not null,
 	userGroupId LONG not null,
-	primary key (userId, userGroupId)
+	primary key (companyId, userId, userGroupId)
 );
 
 create table UserTracker (
@@ -2354,7 +1820,8 @@ create table Website (
 	classPK LONG,
 	url STRING null,
 	typeId LONG,
-	primary_ BOOLEAN
+	primary_ BOOLEAN,
+	lastPublishDate DATE null
 );
 
 create table WorkflowDefinitionLink (

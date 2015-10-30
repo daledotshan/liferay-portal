@@ -26,9 +26,10 @@ import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.Team;
 import com.liferay.portal.model.User;
+import com.liferay.portal.security.permission.PermissionCacheUtil;
+import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.TeamLocalServiceBaseImpl;
 
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -37,15 +38,30 @@ import java.util.List;
  */
 public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 
+	/**
+	 * @throws     PortalException
+	 * @deprecated As of 7.0.0, replaced by {@link #addTeam(long, long, String,
+	 *             String, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public Team addTeam(
 			long userId, long groupId, String name, String description)
 		throws PortalException {
 
+		return addTeam(
+			userId, groupId, name, description, new ServiceContext());
+	}
+
+	@Override
+	public Team addTeam(
+			long userId, long groupId, String name, String description,
+			ServiceContext serviceContext)
+		throws PortalException {
+
 		// Team
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		Date now = new Date();
 
 		validate(0, groupId, name);
 
@@ -53,11 +69,10 @@ public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 
 		Team team = teamPersistence.create(teamId);
 
+		team.setUuid(serviceContext.getUuid());
 		team.setUserId(userId);
 		team.setCompanyId(user.getCompanyId());
 		team.setUserName(user.getFullName());
-		team.setCreateDate(now);
-		team.setModifiedDate(now);
 		team.setGroupId(groupId);
 		team.setName(name);
 		team.setDescription(description);
@@ -77,6 +92,76 @@ public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 			null, RoleConstants.TYPE_PROVIDER, null, null);
 
 		return team;
+	}
+
+	@Override
+	public void addUserGroupTeam(long userGroupId, long teamId) {
+		super.addUserGroupTeam(userGroupId, teamId);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void addUserGroupTeam(long userGroupId, Team team) {
+		super.addUserGroupTeam(userGroupId, team);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void addUserGroupTeams(long userGroupId, List<Team> Teams) {
+		super.addUserGroupTeams(userGroupId, Teams);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void addUserGroupTeams(long userGroupId, long[] teamIds) {
+		super.addUserGroupTeams(userGroupId, teamIds);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void addUserTeam(long userId, long teamId) {
+		super.addUserTeam(userId, teamId);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void addUserTeam(long userId, Team team) {
+		super.addUserTeam(userId, team);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void addUserTeams(long userId, List<Team> Teams) {
+		super.addUserTeams(userId, Teams);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void addUserTeams(long userId, long[] teamIds) {
+		super.addUserTeams(userId, teamIds);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void clearUserGroupTeams(long userGroupId) {
+		super.clearUserGroupTeams(userGroupId);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void clearUserTeams(long userId) {
+		super.clearUserTeams(userId);
+
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	@Override
@@ -115,6 +200,67 @@ public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 		for (Team team : teams) {
 			deleteTeam(team.getTeamId());
 		}
+	}
+
+	@Override
+	public void deleteUserGroupTeam(long userGroupId, long teamId) {
+		super.deleteUserGroupTeam(userGroupId, teamId);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void deleteUserGroupTeam(long userGroupId, Team team) {
+		super.deleteUserGroupTeam(userGroupId, team);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void deleteUserGroupTeams(long userGroupId, List<Team> Teams) {
+		super.deleteUserGroupTeams(userGroupId, Teams);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void deleteUserGroupTeams(long userGroupId, long[] teamIds) {
+		super.deleteUserGroupTeams(userGroupId, teamIds);
+
+		PermissionCacheUtil.clearCache();
+	}
+
+	@Override
+	public void deleteUserTeam(long userId, long teamId) {
+		super.deleteUserTeam(userId, teamId);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void deleteUserTeam(long userId, Team team) {
+		super.deleteUserTeam(userId, team);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void deleteUserTeams(long userId, List<Team> Teams) {
+		super.deleteUserTeams(userId, Teams);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public void deleteUserTeams(long userId, long[] teamIds) {
+		super.deleteUserTeams(userId, teamIds);
+
+		PermissionCacheUtil.clearCache(userId);
+	}
+
+	@Override
+	public Team fetchTeam(long groupId, String name) {
+		return teamPersistence.fetchByG_N(groupId, name);
 	}
 
 	@Override
@@ -160,13 +306,10 @@ public class TeamLocalServiceImpl extends TeamLocalServiceBaseImpl {
 	public Team updateTeam(long teamId, String name, String description)
 		throws PortalException {
 
-		Date now = new Date();
-
 		Team team = teamPersistence.findByPrimaryKey(teamId);
 
 		validate(teamId, team.getGroupId(), name);
 
-		team.setModifiedDate(now);
 		team.setName(name);
 		team.setDescription(description);
 
