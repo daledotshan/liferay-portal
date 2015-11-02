@@ -425,26 +425,15 @@ public class RoleLocalServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
-	/**
 	* Returns the default role for the group with the primary key.
 	*
 	* <p>
 	* If the group is a site, then the default role is {@link
-	* com.liferay.portal.model.RoleConstants#SITE_MEMBER}. If the group is an
-	* organization, then the default role is {@link
-	* com.liferay.portal.model.RoleConstants#ORGANIZATION_USER}. If the group
-	* is a user or user group, then the default role is {@link
-	* com.liferay.portal.model.RoleConstants#POWER_USER}. For all other group
-	* types, the default role is {@link
-	* com.liferay.portal.model.RoleConstants#USER}.
+	* RoleConstants#SITE_MEMBER}. If the group is an organization, then the
+	* default role is {@link RoleConstants#ORGANIZATION_USER}. If the group is
+	* a user or user group, then the default role is {@link
+	* RoleConstants#POWER_USER}. For all other group types, the default role is
+	* {@link RoleConstants#USER}.
 	* </p>
 	*
 	* @param groupId the primary key of the group
@@ -459,7 +448,7 @@ public class RoleLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -497,6 +486,15 @@ public class RoleLocalServiceUtil {
 
 	public static int getGroupRolesCount(long groupId) {
 		return getService().getGroupRolesCount(groupId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -1193,15 +1191,6 @@ public class RoleLocalServiceUtil {
 		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params) {
 		return getService()
 				   .searchCount(companyId, name, description, types, params);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static void setGroupRoles(long groupId, long[] roleIds) {

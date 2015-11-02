@@ -30,9 +30,7 @@ if (reminderAttempts == null) {
 }
 %>
 
-<portlet:actionURL var="forgotPasswordURL">
-	<portlet:param name="struts_action" value="/login/forgot_password" />
-</portlet:actionURL>
+<portlet:actionURL name="/login/forgot_password" var="forgotPasswordURL" />
 
 <aui:form action="<%= forgotPasswordURL %>" method="post" name="fm">
 	<aui:input name="saveLastPath" type="hidden" value="<%= false %>" />
@@ -41,8 +39,8 @@ if (reminderAttempts == null) {
 
 	<aui:input name="redirect" type="hidden" value="<%= redirectURL %>" />
 
+	<liferay-ui:error exception="<%= CaptchaConfigurationException.class %>" message="a-captcha-error-occurred-please-contact-an-administrator" />
 	<liferay-ui:error exception="<%= CaptchaTextException.class %>" message="text-verification-failed" />
-
 	<liferay-ui:error exception="<%= NoSuchUserException.class %>" message='<%= "the-" + TextFormatter.format(authType, TextFormatter.K) + "-you-requested-is-not-registered-in-our-database" %>' />
 	<liferay-ui:error exception="<%= RequiredReminderQueryException.class %>" message="you-have-not-configured-a-reminder-query" />
 	<liferay-ui:error exception="<%= SendPasswordException.MustBeEnabled.class %>" message="password-recovery-is-disabled" />
@@ -93,9 +91,7 @@ if (reminderAttempts == null) {
 				</aui:input>
 
 				<c:if test="<%= PropsValues.CAPTCHA_CHECK_PORTAL_SEND_PASSWORD %>">
-					<portlet:resourceURL var="captchaURL">
-						<portlet:param name="struts_action" value="/login/captcha" />
-					</portlet:resourceURL>
+					<portlet:resourceURL id="/login/captcha" var="captchaURL" />
 
 					<liferay-ui:captcha url="<%= captchaURL %>" />
 				</c:if>
@@ -126,7 +122,7 @@ if (reminderAttempts == null) {
 					%>
 
 					<div class="alert alert-info">
-						<%= LanguageUtil.format(request, "a-new-password-will-be-sent-to-x-if-you-can-correctly-answer-the-following-question", login, false) %>
+						<liferay-ui:message arguments="<%= login %>" key="a-new-password-will-be-sent-to-x-if-you-can-correctly-answer-the-following-question" translateArguments="<%= false %>" />
 					</div>
 
 					<aui:input autoFocus="<%= true %>" label="<%= HtmlUtil.escape(LanguageUtil.get(request, user2.getReminderQueryQuestion())) %>" name="answer" type="text" />
@@ -140,9 +136,7 @@ if (reminderAttempts == null) {
 					</c:when>
 					<c:otherwise>
 						<c:if test="<%= reminderAttempts >= 3 %>">
-							<portlet:resourceURL var="captchaURL">
-								<portlet:param name="struts_action" value="/login/captcha" />
-							</portlet:resourceURL>
+							<portlet:resourceURL id="/login/captcha" var="captchaURL" />
 
 							<liferay-ui:captcha url="<%= captchaURL %>" />
 						</c:if>
