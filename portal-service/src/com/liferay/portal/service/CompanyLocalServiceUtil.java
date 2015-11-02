@@ -58,7 +58,6 @@ public class CompanyLocalServiceUtil {
 	* @param webId the the company's web domain
 	* @param virtualHostname the company's virtual host name
 	* @param mx the company's mail domain
-	* @param shardName the company's shard
 	* @param system whether the company is the very first company (i.e., the
 	super company)
 	* @param maxUsers the max number of company users (optionally
@@ -70,19 +69,18 @@ public class CompanyLocalServiceUtil {
 	*/
 	public static com.liferay.portal.model.Company addCompany(
 		java.lang.String webId, java.lang.String virtualHostname,
-		java.lang.String mx, java.lang.String shardName, boolean system,
-		int maxUsers, boolean active)
+		java.lang.String mx, boolean system, int maxUsers, boolean active)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .addCompany(webId, virtualHostname, mx, shardName, system,
-			maxUsers, active);
+				   .addCompany(webId, virtualHostname, mx, system, maxUsers,
+			active);
 	}
 
 	/**
 	* Returns the company with the web domain.
 	*
-	* The method sets mail domain to the web domain, and the shard name to
-	* the default name set in portal.properties
+	* The method sets mail domain to the web domain to the default name set in
+	* portal.properties
 	*
 	* @param webId the company's web domain
 	* @return the company with the web domain
@@ -95,22 +93,21 @@ public class CompanyLocalServiceUtil {
 	}
 
 	/**
-	* Returns the company with the web domain, mail domain, and shard. If no
-	* such company exits, the method will create a new company.
+	* Returns the company with the web domain and mail domain. If no such
+	* company exits, the method will create a new company.
 	*
 	* The method goes through a series of checks to ensure that the company
 	* contains default users, groups, etc.
 	*
 	* @param webId the company's web domain
 	* @param mx the company's mail domain
-	* @param shardName the company's shard
-	* @return the company with the web domain, mail domain, and shard
+	* @return the company with the web domain and mail domain
 	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Company checkCompany(
-		java.lang.String webId, java.lang.String mx, java.lang.String shardName)
+		java.lang.String webId, java.lang.String mx)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().checkCompany(webId, mx, shardName);
+		return getService().checkCompany(webId, mx);
 	}
 
 	/**
@@ -294,15 +291,6 @@ public class CompanyLocalServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
-	/**
 	* Returns all the companies.
 	*
 	* @return the companies
@@ -459,6 +447,15 @@ public class CompanyLocalServiceUtil {
 		return getService().getCompanyIdByUserId(userId);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -525,15 +522,6 @@ public class CompanyLocalServiceUtil {
 		return getService()
 				   .search(companyId, userId, portletId, groupId, type,
 			keywords, start, end);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -722,7 +710,7 @@ public class CompanyLocalServiceUtil {
 	*
 	* @param companyId the primary key of the company
 	* @param properties the company's properties. See {@link
-	com.liferay.portal.kernel.util.UnicodeProperties}
+	UnicodeProperties}
 	* @throws PortalException if the properties contained new locales that were
 	not supported
 	*/
