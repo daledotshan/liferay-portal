@@ -66,32 +66,38 @@ if (Validator.isNotNull(viewUsersRedirect)) {
 	<c:if test="<%= organization != null %>">
 		<aui:input name="<%= UserDisplayTerms.ORGANIZATION_ID %>" type="hidden" value="<%= organization.getOrganizationId() %>" />
 
-		<h3><%= HtmlUtil.escape(LanguageUtil.format(request, "users-of-x", organization.getName(), false)) %></h3>
+		<h3>
+			<liferay-ui:message arguments="<%= HtmlUtil.escape(organization.getName()) %>" key="users-of-x" translateArguments="<%= false %>" />
+		</h3>
 	</c:if>
 
 	<c:if test="<%= userGroup != null %>">
 		<aui:input name="<%= UserDisplayTerms.USER_GROUP_ID %>" type="hidden" value="<%= userGroup.getUserGroupId() %>" />
 
-		<h3><%= LanguageUtil.format(request, "users-of-x", HtmlUtil.escape(userGroup.getName()), false) %></h3>
+		<h3>
+			<liferay-ui:message arguments="<%= HtmlUtil.escape(userGroup.getName()) %>" key="users-of-x" translateArguments="<%= false %>" />
+		</h3>
 	</c:if>
 
 	<aui:nav-bar>
-		<aui:nav-bar-search file="/html/portlet/directory/user_search.jsp" searchContainer="<%= userSearchContainer %>" />
+		<aui:nav-bar-search>
+			<liferay-ui:user-search-form />
+		</aui:nav-bar-search>
 	</aui:nav-bar>
 
 	<%
 	LinkedHashMap<String, Object> userParams = new LinkedHashMap<String, Object>();
 
 	if (organizationId > 0) {
-		userParams.put("usersOrgs", new Long(organizationId));
+		userParams.put("usersOrgs", Long.valueOf(organizationId));
 	}
 
 	if (userGroupId > 0) {
-		userParams.put("usersUserGroups", new Long(userGroupId));
+		userParams.put("usersUserGroups", Long.valueOf(userGroupId));
 	}
 
 	if (portletName.equals(PortletKeys.FRIENDS_DIRECTORY)) {
-		userParams.put("socialRelationType", new Long[] {themeDisplay.getUserId(), new Long(SocialRelationConstants.TYPE_BI_FRIEND)});
+		userParams.put("socialRelationType", new Long[] {themeDisplay.getUserId(), Long.valueOf(SocialRelationConstants.TYPE_BI_FRIEND)});
 	}
 	else if (portletName.equals(PortletKeys.MY_SITES_DIRECTORY) && (organizationId == 0) && (userGroupId == 0)) {
 		LinkedHashMap<String, Object> groupParams = new LinkedHashMap<String, Object>();
@@ -102,26 +108,17 @@ if (Validator.isNotNull(viewUsersRedirect)) {
 
 		userParams.put("inherit", Boolean.TRUE);
 
-		List<Group> groups = GroupLocalServiceUtil.search(user.getCompanyId(), groupParams, QueryUtil.ALL_POS,QueryUtil.ALL_POS);
+		List<Group> groups = GroupLocalServiceUtil.search(user.getCompanyId(), groupParams, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
 		userParams.put("usersGroups", SitesUtil.filterGroups(groups, PropsValues.MY_SITES_DIRECTORY_SITE_EXCLUDES));
 	}
 	else if (portletName.equals(PortletKeys.SITE_MEMBERS_DIRECTORY) && (organizationId == 0) && (userGroupId == 0)) {
 		userParams.put("inherit", Boolean.TRUE);
-		userParams.put("usersGroups", new Long(themeDisplay.getScopeGroupId()));
+		userParams.put("usersGroups", Long.valueOf(themeDisplay.getScopeGroupId()));
 	}
 	%>
 
-	<liferay-ui:search-container-results>
-		<c:choose>
-			<c:when test="<%= portletName.equals(PortletKeys.DIRECTORY) && PropsValues.USERS_INDEXER_ENABLED && PropsValues.USERS_SEARCH_WITH_INDEX %>">
-				<%@ include file="/html/portlet/users_admin/user_search_results_index.jspf" %>
-			</c:when>
-			<c:otherwise>
-				<%@ include file="/html/portlet/users_admin/user_search_results_database.jspf" %>
-			</c:otherwise>
-		</c:choose>
-	</liferay-ui:search-container-results>
+	<liferay-ui:user-search-container-results userParams="<%= userParams %>" />
 
 	<liferay-ui:search-container-row
 		className="com.liferay.portal.model.User"
@@ -131,7 +128,7 @@ if (Validator.isNotNull(viewUsersRedirect)) {
 		rowIdProperty="screenName"
 	>
 		<liferay-portlet:renderURL varImpl="rowURL">
-			<portlet:param name="struts_action" value="/directory/view_user" />
+			<portlet:param name="mvcRenderCommandName" value="/directory/view_user" />
 			<portlet:param name="tabs1" value="<%= HtmlUtil.escape(tabs1) %>" />
 			<portlet:param name="redirect" value="<%= userSearchContainer.getIteratorURL().toString() %>" />
 			<portlet:param name="p_u_i_d" value="<%= String.valueOf(user2.getUserId()) %>" />
