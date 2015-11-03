@@ -25,18 +25,11 @@
 		if (themeDisplay.isShowMyAccountIcon() && (themeDisplay.getURLMyAccount() != null)) {
 			String myAccountURL = String.valueOf(themeDisplay.getURLMyAccount());
 
-			if (PropsValues.DOCKBAR_ADMINISTRATIVE_LINKS_SHOW_IN_POP_UP) {
-				signedInAs = "<a class=\"signed-in\" href=\"javascript:Liferay.Util.openWindow({dialog: {destroyOnHide: true}, title: '" + HtmlUtil.escapeJS(LanguageUtil.get(request, "my-account")) + "', uri: '" + HtmlUtil.escapeJS(myAccountURL) + "'});\">" + signedInAs + "</a>";
-			}
-			else {
-				myAccountURL = HttpUtil.setParameter(myAccountURL, "controlPanelCategory", PortletCategoryKeys.MY);
-
-				signedInAs = "<a class=\"signed-in\" href=\"" + HtmlUtil.escape(myAccountURL) + "\">" + signedInAs + "</a>";
-			}
+			signedInAs = "<a class=\"signed-in\" href=\"" + HtmlUtil.escape(myAccountURL) + "\">" + signedInAs + "</a>";
 		}
 		%>
 
-		<%= LanguageUtil.format(request, "you-are-signed-in-as-x", signedInAs, false) %>
+		<liferay-ui:message arguments="<%= signedInAs %>" key="you-are-signed-in-as-x" translateArguments="<%= false %>" />
 	</c:when>
 	<c:otherwise>
 
@@ -52,11 +45,9 @@
 		}
 		%>
 
-		<portlet:actionURL secure="<%= PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS || request.isSecure() %>" var="loginURL">
-			<portlet:param name="struts_action" value="/login/login" />
-		</portlet:actionURL>
+		<portlet:actionURL name="/login/login" secure="<%= PropsValues.COMPANY_SECURITY_AUTH_REQUIRES_HTTPS || request.isSecure() %>" var="loginURL" />
 
-		<aui:form action="<%= loginURL %>" autocomplete='<%= PropsValues.COMPANY_SECURITY_LOGIN_FORM_AUTOCOMPLETE ? "on" : "off" %>' cssClass="sign-in-form" method="post" name="fm">
+		<aui:form action="<%= loginURL %>" autocomplete='<%= PropsValues.COMPANY_SECURITY_LOGIN_FORM_AUTOCOMPLETE ? "on" : "off" %>' cssClass="sign-in-form" method="post" name="fm" onSubmit="event.preventDefault();">
 			<aui:input name="saveLastPath" type="hidden" value="<%= false %>" />
 			<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 			<aui:input name="doActionAfterLogin" type="hidden" value="<%= portletName.equals(PortletKeys.FAST_LOGIN) ? true : false %>" />
@@ -72,19 +63,19 @@
 					<div class="alert alert-success">
 						<c:choose>
 							<c:when test="<%= company.isStrangersVerify() || Validator.isNull(userPassword) %>">
-								<%= LanguageUtil.get(request, "thank-you-for-creating-an-account") %>
+								<liferay-ui:message key="thank-you-for-creating-an-account" />
 
 								<c:if test="<%= company.isStrangersVerify() %>">
-									<%= LanguageUtil.format(request, "your-email-verification-code-has-been-sent-to-x", userEmailAddress, false) %>
+									<liferay-ui:message arguments="<%= userEmailAddress %>" key="your-email-verification-code-has-been-sent-to-x" translateArguments="<%= false %>" />
 								</c:if>
 							</c:when>
 							<c:otherwise>
-								<%= LanguageUtil.format(request, "thank-you-for-creating-an-account.-your-password-is-x", userPassword, false) %>
+								<liferay-ui:message arguments="<%= userPassword %>" key="thank-you-for-creating-an-account.-your-password-is-x" translateArguments="<%= false %>" />
 							</c:otherwise>
 						</c:choose>
 
 						<c:if test="<%= PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKeys.ADMIN_EMAIL_USER_ADDED_ENABLED) %>">
-							<%= LanguageUtil.format(request, "your-password-has-been-sent-to-x", userEmailAddress, false) %>
+							<liferay-ui:message arguments="<%= userEmailAddress %>" key="your-password-has-been-sent-to-x" translateArguments="<%= false %>" />
 						</c:if>
 					</div>
 				</c:when>
@@ -95,13 +86,13 @@
 					%>
 
 					<div class="alert alert-success">
-						<%= LanguageUtil.format(request, "thank-you-for-creating-an-account.-you-will-be-notified-via-email-at-x-when-your-account-has-been-approved", userEmailAddress, false) %>
+						<liferay-ui:message arguments="<%= userEmailAddress %>" key="thank-you-for-creating-an-account.-you-will-be-notified-via-email-at-x-when-your-account-has-been-approved" translateArguments="<%= false %>" />
 					</div>
 				</c:when>
 			</c:choose>
 
 			<liferay-ui:error exception="<%= AuthException.class %>" message="authentication-failed" />
-			<liferay-ui:error exception="<%= CompanyMaxUsersException.class %>" message="unable-to-login-because-the-maximum-number-of-users-has-been-reached" />
+			<liferay-ui:error exception="<%= CompanyMaxUsersException.class %>" message="unable-to-log-in-because-the-maximum-number-of-users-has-been-reached" />
 			<liferay-ui:error exception="<%= CookieNotSupportedException.class %>" message="authentication-failed-please-enable-browser-cookies" />
 			<liferay-ui:error exception="<%= NoSuchUserException.class %>" message="authentication-failed" />
 			<liferay-ui:error exception="<%= PasswordExpiredException.class %>" message="your-password-has-expired" />
@@ -158,8 +149,25 @@
 
 		<liferay-util:include page="/html/portlet/login/navigation.jsp" />
 
-		<aui:script>
-			AUI.$('#<portlet:namespace />password').on(
+		<aui:script sandbox="<%= true %>">
+			var form = AUI.$(document.<portlet:namespace />fm);
+
+			form.on(
+				'submit',
+				function(event) {
+					var redirect = form.fm('redirect');
+
+					if (redirect) {
+						var redirectVal = redirect.val();
+
+						redirect.val(redirectVal + window.location.hash);
+					}
+
+					submitForm(form);
+				}
+			);
+
+			form.fm('password').on(
 				'keypress',
 				function(event) {
 					Liferay.Util.showCapsLock(event, '<portlet:namespace />passwordCapsLockSpan');
