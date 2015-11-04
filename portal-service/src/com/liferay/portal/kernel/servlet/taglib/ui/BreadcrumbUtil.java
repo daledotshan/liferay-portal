@@ -15,9 +15,10 @@
 package com.liferay.portal.kernel.servlet.taglib.ui;
 
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CookieKeys;
-import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -27,6 +28,7 @@ import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutSet;
+import com.liferay.portal.model.LayoutType;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.GroupLocalServiceUtil;
@@ -186,23 +188,34 @@ public class BreadcrumbUtil {
 
 		String name = WebKeys.PORTLET_BREADCRUMBS;
 
+		List<BreadcrumbEntry> breadcrumbEntries =
+			(List<BreadcrumbEntry>)request.getAttribute(name);
+
 		if (Validator.isNotNull(portletDisplay.getId()) &&
-			!portletDisplay.isFocused()) {
+			!portletDisplay.isFocused() &&
+			!Validator.equals(
+				portletDisplay.getId(),
+				PortletProviderUtil.getPortletId(
+					BreadcrumbEntry.class.getName(),
+					PortletProvider.Action.VIEW))) {
 
 			name = name.concat(
 				StringPool.UNDERLINE.concat(portletDisplay.getId()));
+
+			List<BreadcrumbEntry> portletBreadcrumbEntries =
+				(List<BreadcrumbEntry>)request.getAttribute(name);
+
+			if (portletBreadcrumbEntries != null) {
+				breadcrumbEntries = portletBreadcrumbEntries;
+			}
 		}
 
-		List<BreadcrumbEntry> portletBreadcrumbEntries =
-			(List<BreadcrumbEntry>)request.getAttribute(name);
-
-		if (portletBreadcrumbEntries == null) {
+		if (breadcrumbEntries == null) {
 			return Collections.emptyList();
 		}
 
-		for (int i = 0; i < portletBreadcrumbEntries.size() - 1; i++) {
-			BreadcrumbEntry portletBreadcrumbEntry =
-				portletBreadcrumbEntries.get(i);
+		for (int i = 0; i < breadcrumbEntries.size() - 1; i++) {
+			BreadcrumbEntry portletBreadcrumbEntry = breadcrumbEntries.get(i);
 
 			String url = portletBreadcrumbEntry.getURL();
 
@@ -214,7 +227,7 @@ public class BreadcrumbUtil {
 			}
 		}
 
-		return portletBreadcrumbEntries;
+		return breadcrumbEntries;
 	}
 
 	public static BreadcrumbEntry getScopeGroupBreadcrumbEntry(
@@ -302,6 +315,12 @@ public class BreadcrumbUtil {
 
 		breadcrumbEntry.setBaseModel(layout);
 
+		LayoutType layoutType = layout.getLayoutType();
+
+		if (!layoutType.isBrowsable()) {
+			breadcrumbEntry.setBrowsable(false);
+		}
+
 		String layoutName = layout.getName(themeDisplay.getLocale());
 
 		if (layout.isTypeControlPanel()) {
@@ -318,11 +337,6 @@ public class BreadcrumbUtil {
 		if (themeDisplay.isAddSessionIdToURL()) {
 			layoutURL = PortalUtil.getURLWithSessionId(
 				layoutURL, themeDisplay.getSessionId());
-		}
-
-		if (layout.isTypeControlPanel()) {
-			layoutURL = HttpUtil.removeParameter(
-				layoutURL, "controlPanelCategory");
 		}
 
 		breadcrumbEntry.setURL(layoutURL);
