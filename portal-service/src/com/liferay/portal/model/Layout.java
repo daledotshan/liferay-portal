@@ -34,6 +34,23 @@ public interface Layout extends LayoutModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portal.model.impl.LayoutImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<Layout, Long> PLID_ACCESSOR = new Accessor<Layout, Long>() {
+			@Override
+			public Long get(Layout layout) {
+				return layout.getPlid();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<Layout> getTypeClass() {
+				return Layout.class;
+			}
+		};
+
 	public static final Accessor<Layout, Long> LAYOUT_ID_ACCESSOR = new Accessor<Layout, Long>() {
 			@Override
 			public Long get(Layout layout) {
@@ -313,6 +330,8 @@ public interface Layout extends LayoutModel, PersistedModel {
 	public boolean hasScopeGroup()
 		throws com.liferay.portal.kernel.exception.PortalException;
 
+	public boolean hasSetModifiedDate();
+
 	public boolean includeLayoutContent(
 		javax.servlet.http.HttpServletRequest request,
 		javax.servlet.http.HttpServletResponse response)
@@ -412,6 +431,10 @@ public interface Layout extends LayoutModel, PersistedModel {
 	*/
 	public boolean isSupportsEmbeddedPortlets();
 
+	/**
+	* @deprecated As of 7.0.0, with no direct replacement
+	*/
+	@java.lang.Deprecated()
 	public boolean isTypeArticle();
 
 	public boolean isTypeControlPanel();
@@ -425,8 +448,6 @@ public interface Layout extends LayoutModel, PersistedModel {
 	public boolean isTypePortlet();
 
 	public boolean isTypeURL();
-
-	public boolean isTypeUserPersonalPanel();
 
 	public boolean matches(javax.servlet.http.HttpServletRequest request,
 		java.lang.String friendlyURL);

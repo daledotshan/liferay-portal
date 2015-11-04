@@ -1,0 +1,18 @@
+$bg-color: #F5F7F8;
+
+body {
+	background-color: $bg-color;
+}
+
+#wrapper {
+	padding: 0;
+
+	.portlet-layout {
+		margin-left: 0;
+		margin-right: 0;
+
+		.portlet-column {
+			padding: 0;
+		}
+	}
+}

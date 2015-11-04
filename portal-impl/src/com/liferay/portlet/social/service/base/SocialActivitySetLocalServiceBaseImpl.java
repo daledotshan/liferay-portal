@@ -17,7 +17,6 @@ package com.liferay.portlet.social.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -29,6 +28,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -65,7 +65,7 @@ import javax.sql.DataSource;
 @ProviderType
 public abstract class SocialActivitySetLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements SocialActivitySetLocalService,
-		IdentifiableBean {
+		IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -307,7 +307,7 @@ public abstract class SocialActivitySetLocalServiceBaseImpl
 	 *
 	 * @return the social activity set local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivitySetLocalService getSocialActivitySetLocalService() {
+	public SocialActivitySetLocalService getSocialActivitySetLocalService() {
 		return socialActivitySetLocalService;
 	}
 
@@ -317,7 +317,7 @@ public abstract class SocialActivitySetLocalServiceBaseImpl
 	 * @param socialActivitySetLocalService the social activity set local service
 	 */
 	public void setSocialActivitySetLocalService(
-		com.liferay.portlet.social.service.SocialActivitySetLocalService socialActivitySetLocalService) {
+		SocialActivitySetLocalService socialActivitySetLocalService) {
 		this.socialActivitySetLocalService = socialActivitySetLocalService;
 	}
 
@@ -465,23 +465,13 @@ public abstract class SocialActivitySetLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return SocialActivitySetLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -517,7 +507,7 @@ public abstract class SocialActivitySetLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portlet.social.service.SocialActivitySetLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivitySetLocalService socialActivitySetLocalService;
+	protected SocialActivitySetLocalService socialActivitySetLocalService;
 	@BeanReference(type = SocialActivitySetPersistence.class)
 	protected SocialActivitySetPersistence socialActivitySetPersistence;
 	@BeanReference(type = SocialActivitySetFinder.class)
@@ -534,5 +524,4 @@ public abstract class SocialActivitySetLocalServiceBaseImpl
 	protected SocialActivityFinder socialActivityFinder;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }
