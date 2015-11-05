@@ -17,7 +17,6 @@ package com.liferay.portal.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -29,6 +28,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -56,7 +56,6 @@ import com.liferay.portal.service.persistence.ResourcePermissionFinder;
 import com.liferay.portal.service.persistence.ResourcePermissionPersistence;
 import com.liferay.portal.service.persistence.RoleFinder;
 import com.liferay.portal.service.persistence.RolePersistence;
-import com.liferay.portal.service.persistence.ShardPersistence;
 import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.VirtualHostPersistence;
@@ -82,7 +81,7 @@ import javax.sql.DataSource;
  */
 @ProviderType
 public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
-	implements CompanyLocalService, IdentifiableBean {
+	implements CompanyLocalService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -318,7 +317,7 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @return the company local service
 	 */
-	public com.liferay.portal.service.CompanyLocalService getCompanyLocalService() {
+	public CompanyLocalService getCompanyLocalService() {
 		return companyLocalService;
 	}
 
@@ -327,8 +326,7 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param companyLocalService the company local service
 	 */
-	public void setCompanyLocalService(
-		com.liferay.portal.service.CompanyLocalService companyLocalService) {
+	public void setCompanyLocalService(CompanyLocalService companyLocalService) {
 		this.companyLocalService = companyLocalService;
 	}
 
@@ -1216,43 +1214,6 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the shard local service.
-	 *
-	 * @return the shard local service
-	 */
-	public com.liferay.portal.service.ShardLocalService getShardLocalService() {
-		return shardLocalService;
-	}
-
-	/**
-	 * Sets the shard local service.
-	 *
-	 * @param shardLocalService the shard local service
-	 */
-	public void setShardLocalService(
-		com.liferay.portal.service.ShardLocalService shardLocalService) {
-		this.shardLocalService = shardLocalService;
-	}
-
-	/**
-	 * Returns the shard persistence.
-	 *
-	 * @return the shard persistence
-	 */
-	public ShardPersistence getShardPersistence() {
-		return shardPersistence;
-	}
-
-	/**
-	 * Sets the shard persistence.
-	 *
-	 * @param shardPersistence the shard persistence
-	 */
-	public void setShardPersistence(ShardPersistence shardPersistence) {
-		this.shardPersistence = shardPersistence;
-	}
-
-	/**
 	 * Returns the user local service.
 	 *
 	 * @return the user local service
@@ -1375,23 +1336,13 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return CompanyLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -1427,7 +1378,7 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.CompanyLocalService.class)
-	protected com.liferay.portal.service.CompanyLocalService companyLocalService;
+	protected CompanyLocalService companyLocalService;
 	@BeanReference(type = com.liferay.portal.service.CompanyService.class)
 	protected com.liferay.portal.service.CompanyService companyService;
 	@BeanReference(type = CompanyPersistence.class)
@@ -1522,10 +1473,6 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected RolePersistence rolePersistence;
 	@BeanReference(type = RoleFinder.class)
 	protected RoleFinder roleFinder;
-	@BeanReference(type = com.liferay.portal.service.ShardLocalService.class)
-	protected com.liferay.portal.service.ShardLocalService shardLocalService;
-	@BeanReference(type = ShardPersistence.class)
-	protected ShardPersistence shardPersistence;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
 	protected com.liferay.portal.service.UserLocalService userLocalService;
 	@BeanReference(type = com.liferay.portal.service.UserService.class)
@@ -1540,5 +1487,4 @@ public abstract class CompanyLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected VirtualHostPersistence virtualHostPersistence;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

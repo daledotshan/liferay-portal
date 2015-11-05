@@ -15,8 +15,6 @@
 package com.liferay.portlet.directory.asset;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
-import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.PermissionChecker;
@@ -27,21 +25,20 @@ import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.asset.model.AssetRenderer;
 import com.liferay.portlet.asset.model.BaseAssetRendererFactory;
 
-import javax.portlet.PortletURL;
-
 /**
  * @author Michael C. Han
  */
-public class UserAssetRendererFactory extends BaseAssetRendererFactory {
+public class UserAssetRendererFactory extends BaseAssetRendererFactory<User> {
 
 	public static final String TYPE = "user";
 
 	public UserAssetRendererFactory() {
+		setSearchable(true);
 		setSelectable(false);
 	}
 
 	@Override
-	public AssetRenderer getAssetRenderer(long classPK, int type)
+	public AssetRenderer<User> getAssetRenderer(long classPK, int type)
 		throws PortalException {
 
 		User user = UserLocalServiceUtil.getUserById(classPK);
@@ -54,7 +51,7 @@ public class UserAssetRendererFactory extends BaseAssetRendererFactory {
 	}
 
 	@Override
-	public AssetRenderer getAssetRenderer(long groupId, String urlTitle)
+	public AssetRenderer<User> getAssetRenderer(long groupId, String urlTitle)
 		throws PortalException {
 
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
@@ -78,14 +75,6 @@ public class UserAssetRendererFactory extends BaseAssetRendererFactory {
 	@Override
 	public String getType() {
 		return TYPE;
-	}
-
-	@Override
-	public PortletURL getURLAdd(
-		LiferayPortletRequest liferayPortletRequest,
-		LiferayPortletResponse liferayPortletResponse) {
-
-		return null;
 	}
 
 	@Override

@@ -36,7 +36,6 @@ public class CompanyServiceWrapper implements CompanyService,
 	* @param webId the company's web domain
 	* @param virtualHost the company's virtual host name
 	* @param mx the company's mail domain
-	* @param shardName the company's shard
 	* @param system whether the company is the very first company (i.e., the
 	* @param maxUsers the max number of company users (optionally
 	<code>0</code>)
@@ -48,11 +47,11 @@ public class CompanyServiceWrapper implements CompanyService,
 	*/
 	@Override
 	public com.liferay.portal.model.Company addCompany(java.lang.String webId,
-		java.lang.String virtualHost, java.lang.String mx,
-		java.lang.String shardName, boolean system, int maxUsers, boolean active)
+		java.lang.String virtualHost, java.lang.String mx, boolean system,
+		int maxUsers, boolean active)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _companyService.addCompany(webId, virtualHost, mx, shardName,
-			system, maxUsers, active);
+		return _companyService.addCompany(webId, virtualHost, mx, system,
+			maxUsers, active);
 	}
 
 	@Override
@@ -73,16 +72,6 @@ public class CompanyServiceWrapper implements CompanyService,
 	public void deleteLogo(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_companyService.deleteLogo(companyId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _companyService.getBeanIdentifier();
 	}
 
 	/**
@@ -158,6 +147,16 @@ public class CompanyServiceWrapper implements CompanyService,
 	}
 
 	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _companyService.getOSGiServiceIdentifier();
+	}
+
+	/**
 	* Removes the values that match the keys of the company's preferences.
 	*
 	* This method is called by {@link
@@ -172,16 +171,6 @@ public class CompanyServiceWrapper implements CompanyService,
 	public void removePreferences(long companyId, java.lang.String[] keys)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_companyService.removePreferences(companyId, keys);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_companyService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -372,8 +361,7 @@ public class CompanyServiceWrapper implements CompanyService,
 	* @deprecated As of 7.0.0, replaced by {@link #updateCompany(long, String,
 	String, String, boolean, byte[], String, String, String,
 	String, String, String, String, String, String, String,
-	String, java.util.List, java.util.List, java.util.List,
-	java.util.List, UnicodeProperties)}
+	String, List, List, List, List, UnicodeProperties)}
 	*/
 	@Deprecated
 	@Override
@@ -476,7 +464,7 @@ public class CompanyServiceWrapper implements CompanyService,
 	*
 	* @param companyId the primary key of the company
 	* @param properties the company's properties. See {@link
-	com.liferay.portal.kernel.util.UnicodeProperties}
+	UnicodeProperties}
 	* @throws PortalException if the user was not an administrator
 	*/
 	@Override

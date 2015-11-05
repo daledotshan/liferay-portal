@@ -47,7 +47,6 @@ public class CompanyServiceUtil {
 	* @param webId the company's web domain
 	* @param virtualHost the company's virtual host name
 	* @param mx the company's mail domain
-	* @param shardName the company's shard
 	* @param system whether the company is the very first company (i.e., the
 	* @param maxUsers the max number of company users (optionally
 	<code>0</code>)
@@ -59,12 +58,10 @@ public class CompanyServiceUtil {
 	*/
 	public static com.liferay.portal.model.Company addCompany(
 		java.lang.String webId, java.lang.String virtualHost,
-		java.lang.String mx, java.lang.String shardName, boolean system,
-		int maxUsers, boolean active)
+		java.lang.String mx, boolean system, int maxUsers, boolean active)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .addCompany(webId, virtualHost, mx, shardName, system,
-			maxUsers, active);
+				   .addCompany(webId, virtualHost, mx, system, maxUsers, active);
 	}
 
 	public static com.liferay.portal.model.Company deleteCompany(long companyId)
@@ -83,15 +80,6 @@ public class CompanyServiceUtil {
 	public static void deleteLogo(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteLogo(companyId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
 	}
 
 	/**
@@ -164,6 +152,15 @@ public class CompanyServiceUtil {
 	}
 
 	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
+	/**
 	* Removes the values that match the keys of the company's preferences.
 	*
 	* This method is called by {@link
@@ -177,15 +174,6 @@ public class CompanyServiceUtil {
 	public static void removePreferences(long companyId, java.lang.String[] keys)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().removePreferences(companyId, keys);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -376,8 +364,7 @@ public class CompanyServiceUtil {
 	* @deprecated As of 7.0.0, replaced by {@link #updateCompany(long, String,
 	String, String, boolean, byte[], String, String, String,
 	String, String, String, String, String, String, String,
-	String, java.util.List, java.util.List, java.util.List,
-	java.util.List, UnicodeProperties)}
+	String, List, List, List, List, UnicodeProperties)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.model.Company updateCompany(
@@ -476,7 +463,7 @@ public class CompanyServiceUtil {
 	*
 	* @param companyId the primary key of the company
 	* @param properties the company's properties. See {@link
-	com.liferay.portal.kernel.util.UnicodeProperties}
+	UnicodeProperties}
 	* @throws PortalException if the user was not an administrator
 	*/
 	public static void updatePreferences(long companyId,

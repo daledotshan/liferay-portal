@@ -217,16 +217,6 @@ public class GroupServiceWrapper implements GroupService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _groupService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the company group.
 	*
 	* @param companyId the primary key of the company
@@ -328,6 +318,16 @@ public class GroupServiceWrapper implements GroupService,
 	}
 
 	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _groupService.getOSGiServiceIdentifier();
+	}
+
+	/**
 	* Returns the groups associated with the organizations.
 	*
 	* @param organizations the organizations
@@ -382,8 +382,7 @@ public class GroupServiceWrapper implements GroupService,
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -446,7 +445,7 @@ public class GroupServiceWrapper implements GroupService,
 
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #getUserSitesGroups(long,
-	String[], boolean, int)}
+	String[], int)}
 	*/
 	@Deprecated
 	@Override
@@ -567,7 +566,7 @@ public class GroupServiceWrapper implements GroupService,
 	*
 	* @param classNames the group entity class names (optionally
 	<code>null</code>). For more information see {@link
-	#getUserSitesGroups(long, String[], boolean, int)}.
+	#getUserSitesGroups(long, String[], int)}.
 	* @param max the maximum number of groups to return
 	* @return the user's groups &quot;sites&quot;
 	* @throws PortalException if a portal exception occurred
@@ -577,15 +576,6 @@ public class GroupServiceWrapper implements GroupService,
 		java.lang.String[] classNames, int max)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _groupService.getUserSitesGroups(classNames, max);
-	}
-
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getUserSitesGroups(
-		long userId, java.lang.String[] classNames,
-		boolean includeControlPanel, int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _groupService.getUserSitesGroups(userId, classNames,
-			includeControlPanel, max);
 	}
 
 	/**
@@ -616,7 +606,7 @@ public class GroupServiceWrapper implements GroupService,
 	* @param userId the primary key of the user
 	* @param classNames the group entity class names (optionally
 	<code>null</code>). For more information see {@link
-	#getUserSitesGroups(long, String[], boolean, int)}.
+	#getUserSitesGroups(long, String[], int)}.
 	* @param max the maximum number of groups to return
 	* @return the user's groups &quot;sites&quot;
 	* @throws PortalException if a portal exception occurred
@@ -695,8 +685,7 @@ public class GroupServiceWrapper implements GroupService,
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -746,16 +735,6 @@ public class GroupServiceWrapper implements GroupService,
 	public int searchCount(long companyId, java.lang.String name,
 		java.lang.String description, java.lang.String[] params) {
 		return _groupService.searchCount(companyId, name, description, params);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_groupService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**

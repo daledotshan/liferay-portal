@@ -24,24 +24,20 @@ import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.NoSuchLayoutSetException;
 import com.liferay.portal.PendingBackgroundTaskException;
 import com.liferay.portal.RequiredGroupException;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTask;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskConstants;
-import com.liferay.portal.kernel.cache.ThreadLocalCachable;
+import com.liferay.portal.kernel.backgroundtask.BackgroundTaskManagerUtil;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.PortletDataContextFactoryUtil;
-import com.liferay.portal.kernel.lar.PortletDataHandler;
-import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
 import com.liferay.portal.kernel.scheduler.StorageType;
 import com.liferay.portal.kernel.spring.aop.Skip;
-import com.liferay.portal.kernel.staging.StagingConstants;
-import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -66,7 +62,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.model.Account;
-import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
@@ -95,6 +90,7 @@ import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
+import com.liferay.portal.security.permission.RolePermissions;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.GroupLocalServiceBaseImpl;
 import com.liferay.portal.theme.ThemeLoader;
@@ -106,11 +102,19 @@ import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.comparator.GroupIdComparator;
 import com.liferay.portal.util.comparator.GroupNameComparator;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.journal.model.JournalArticle;
+import com.liferay.portlet.exportimport.configuration.ExportImportConfigurationConstants;
+import com.liferay.portlet.exportimport.configuration.ExportImportConfigurationSettingsMapFactory;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.PortletDataContextFactoryUtil;
+import com.liferay.portlet.exportimport.lar.PortletDataHandler;
+import com.liferay.portlet.exportimport.lar.PortletDataHandlerKeys;
+import com.liferay.portlet.exportimport.model.ExportImportConfiguration;
+import com.liferay.portlet.exportimport.staging.StagingConstants;
+import com.liferay.portlet.exportimport.staging.StagingUtil;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.io.File;
+import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -304,8 +308,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		if (className.equals(Group.class.getName())) {
 			if (!site && (liveGroupId == 0) &&
-				!groupKey.equals(GroupConstants.CONTROL_PANEL) &&
-				!groupKey.equals(GroupConstants.USER_PERSONAL_PANEL)) {
+				!groupKey.equals(GroupConstants.CONTROL_PANEL)) {
 
 				throw new IllegalArgumentException();
 			}
@@ -621,7 +624,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	public void addUserGroups(long userId, long[] groupIds) {
 		userPersistence.addGroups(userId, groupIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -709,12 +712,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 						GroupConstants.USER_PERSONAL_SITE_FRIENDLY_URL;
 					site = false;
 				}
-				else if (groupKey.equals(GroupConstants.USER_PERSONAL_PANEL)) {
-					type = GroupConstants.TYPE_SITE_PRIVATE;
-					friendlyURL =
-						GroupConstants.USER_PERSONAL_PANEL_FRIENDLY_URL;
-					site = false;
-				}
 
 				group = groupLocalService.addGroup(
 					defaultUserId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
@@ -743,15 +740,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 				if (layoutSet.getPageCount() == 0) {
 					addDefaultGuestPublicLayouts(group);
-				}
-			}
-
-			if (group.isUserPersonalPanel()) {
-				LayoutSet layoutSet = layoutSetLocalService.getLayoutSet(
-					group.getGroupId(), true);
-
-				if (layoutSet.getPageCount() == 0) {
-					addUserPersonalPanelLayouts(group);
 				}
 			}
 
@@ -786,21 +774,19 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				 PortalUtil.isSystemGroup(group.getGroupKey())) &&
 				!CompanyThreadLocal.isDeleteInProcess()) {
 
-				throw new RequiredGroupException(
-					String.valueOf(group.getGroupId()),
-					RequiredGroupException.SYSTEM_GROUP);
+				throw new RequiredGroupException.MustNotDeleteSystemGroup(
+					group.getGroupId());
 			}
 
 			if (groupPersistence.countByC_P_S(
 					group.getCompanyId(), group.getGroupId(), true) > 0) {
 
-				throw new RequiredGroupException(
-					String.valueOf(group.getGroupId()),
-					RequiredGroupException.PARENT_GROUP);
+				throw new RequiredGroupException.MustNotDeleteGroupThatHasChild(
+					group.getGroupId());
 			}
 
 			List<BackgroundTask> backgroundTasks =
-				backgroundTaskLocalService.getBackgroundTasks(
+				BackgroundTaskManagerUtil.getBackgroundTasks(
 					group.getGroupId(),
 					BackgroundTaskConstants.STATUS_IN_PROGRESS);
 
@@ -811,7 +797,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			// Background tasks
 
-			backgroundTaskLocalService.deleteGroupBackgroundTasks(
+			BackgroundTaskManagerUtil.deleteGroupBackgroundTasks(
 				group.getGroupId());
 
 			// Layout set branches
@@ -840,16 +826,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			catch (NoSuchLayoutSetException nslse) {
 			}
 
-			// Group roles
-
-			userGroupRoleLocalService.deleteUserGroupRolesByGroupId(
-				group.getGroupId());
-
-			// User group roles
-
-			userGroupGroupRoleLocalService.deleteUserGroupGroupRolesByGroupId(
-				group.getGroupId());
-
 			// Membership requests
 
 			membershipRequestLocalService.deleteMembershipRequests(
@@ -864,15 +840,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			// Repositories
 
 			dlAppLocalService.deleteAllRepositories(group.getGroupId());
-
-			// Subscriptions
-
-			subscriptionLocalService.deleteSubscriptions(
-				group.getCompanyId(), BlogsEntry.class.getName(),
-				group.getGroupId());
-			subscriptionLocalService.deleteSubscriptions(
-				group.getCompanyId(), JournalArticle.class.getName(),
-				group.getGroupId());
 
 			// Teams
 
@@ -931,13 +898,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			expandoRowLocalService.deleteRows(group.getGroupId());
 
-			// Shopping
-
-			shoppingCartLocalService.deleteGroupCarts(group.getGroupId());
-			shoppingCategoryLocalService.deleteCategories(group.getGroupId());
-			shoppingCouponLocalService.deleteCoupons(group.getGroupId());
-			shoppingOrderLocalService.deleteOrders(group.getGroupId());
-
 			// Social
 
 			socialActivityLocalService.deleteActivities(group.getGroupId());
@@ -971,6 +931,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 					group.getCompanyId(), Group.class.getName(),
 					ResourceConstants.SCOPE_INDIVIDUAL, group.getGroupId());
 			}
+
+			// Trash
+
+			trashEntryLocalService.deleteEntries(group.getGroupId());
 
 			// Workflow
 
@@ -1007,9 +971,29 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				group.setSite(false);
 
 				groupPersistence.update(group);
+
+				// Group roles
+
+				userGroupRoleLocalService.deleteUserGroupRoles(
+					group.getGroupId(), RoleConstants.TYPE_SITE);
+
+				// User group roles
+
+				userGroupGroupRoleLocalService.deleteUserGroupGroupRoles(
+					group.getGroupId(), RoleConstants.TYPE_SITE);
 			}
 			else {
 				groupPersistence.remove(group);
+
+				// Group roles
+
+				userGroupRoleLocalService.deleteUserGroupRolesByGroupId(
+					group.getGroupId());
+
+				// User group roles
+
+				userGroupGroupRoleLocalService.
+					deleteUserGroupGroupRolesByGroupId(group.getGroupId());
 			}
 
 			// Permission cache
@@ -1200,8 +1184,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1515,8 +1498,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1548,8 +1530,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1608,8 +1589,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1761,7 +1741,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 	/**
 	 * Returns the specified "user group" group. That is, the group that
-	 * represents the {@link com.liferay.portal.model.UserGroup} entity.
+	 * represents the {@link UserGroup} entity.
 	 *
 	 * @param  companyId the primary key of the company
 	 * @param  userGroupId the primary key of the user group
@@ -1809,8 +1789,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1834,7 +1813,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
 
-			groupParams.put("usersGroups", new Long(userId));
+			groupParams.put("usersGroups", Long.valueOf(userId));
 
 			return search(
 				user.getCompanyId(), null, null, groupParams, start, end);
@@ -1902,8 +1881,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2135,8 +2113,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2173,8 +2150,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2214,8 +2190,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2258,8 +2233,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2303,8 +2277,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2350,8 +2323,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2395,8 +2367,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2458,8 +2429,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2506,8 +2476,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2566,8 +2535,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2608,8 +2576,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2654,8 +2621,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2701,8 +2667,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2749,8 +2714,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2789,8 +2753,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2831,8 +2794,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -2875,8 +2837,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -3219,7 +3180,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		userPersistence.removeGroups(userId, groupIds);
 
-		PermissionCacheUtil.clearCache();
+		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -3250,7 +3211,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			Group.class.getName(), group.getGroupId(), null, 0,
 			assetCategoryIds, assetTagNames, false, null, null, null, null,
 			group.getDescriptiveName(), group.getDescription(), null, null,
-			null, 0, 0, null, false);
+			null, 0, 0, null);
 	}
 
 	/**
@@ -3342,9 +3303,8 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		if (PortalUtil.isSystemGroup(group.getGroupKey()) &&
 			!groupKey.equals(group.getGroupKey())) {
 
-			throw new RequiredGroupException(
-				String.valueOf(group.getGroupId()),
-				RequiredGroupException.SYSTEM_GROUP);
+			throw new RequiredGroupException.MustNotDeleteSystemGroup(
+				group.getGroupId());
 		}
 
 		validateFriendlyURL(
@@ -3521,6 +3481,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		ServiceContext serviceContext = new ServiceContext();
 
+		serviceContext.setAttribute(
+			"layout.instanceable.allowed", Boolean.TRUE);
+
 		layoutLocalService.addLayout(
 			defaultUserId, group.getGroupId(), true,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
@@ -3638,7 +3601,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 	protected void addDefaultGuestPublicLayoutsByLAR(Group group, File larFile)
 		throws PortalException {
 
-		long defaultUserId = userLocalService.getDefaultUserId(
+		User defaultUser = userLocalService.getDefaultUser(
 			group.getCompanyId());
 
 		Map<String, String[]> parameterMap = new HashMap<>();
@@ -3656,8 +3619,20 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT,
 			new String[] {Boolean.TRUE.toString()});
 
-		layoutLocalService.importLayouts(
-			defaultUserId, group.getGroupId(), false, parameterMap, larFile);
+		Map<String, Serializable> importLayoutSettingsMap =
+			ExportImportConfigurationSettingsMapFactory.
+				buildImportLayoutSettingsMap(
+					defaultUser, group.getGroupId(), false, null, parameterMap);
+
+		ExportImportConfiguration exportImportConfiguration =
+			exportImportConfigurationLocalService.
+				addDraftExportImportConfiguration(
+					defaultUser.getUserId(),
+					ExportImportConfigurationConstants.TYPE_IMPORT_LAYOUT,
+					importLayoutSettingsMap);
+
+		exportImportLocalService.importLayouts(
+			exportImportConfiguration, larFile);
 	}
 
 	protected void addPortletDefaultData(Group group) throws PortalException {
@@ -3685,25 +3660,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				}
 			}
 		}
-	}
-
-	protected void addUserPersonalPanelLayouts(Group group)
-		throws PortalException {
-
-		long defaultUserId = userLocalService.getDefaultUserId(
-			group.getCompanyId());
-
-		String friendlyURL = getFriendlyURL(
-			PropsValues.USER_PERSONAL_PANEL_LAYOUT_FRIENDLY_URL);
-
-		ServiceContext serviceContext = new ServiceContext();
-
-		layoutLocalService.addLayout(
-			defaultUserId, group.getGroupId(), true,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
-			PropsValues.USER_PERSONAL_PANEL_LAYOUT_NAME, StringPool.BLANK,
-			StringPool.BLANK, LayoutConstants.TYPE_USER_PERSONAL_PANEL, false,
-			friendlyURL, serviceContext);
 	}
 
 	protected void deletePortletData(Group group) throws PortalException {
@@ -3744,7 +3700,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			parentGroupIdEquals = false;
 		}
 
-		params = new LinkedHashMap<String, Object>(params);
+		params = new LinkedHashMap<>(params);
 
 		Boolean active = (Boolean)params.remove("active");
 		List<Long> excludedGroupIds = (List<Long>)params.remove(
@@ -3756,16 +3712,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		Boolean site = (Boolean)params.remove("site");
 		List<Integer> types = (List<Integer>)params.remove("types");
 
-		Collection<Group> groups = null;
+		Collection<Group> groups = new HashSet<>();
 
 		Long userId = (Long)params.remove("usersGroups");
-
-		if (userId == null) {
-			groups = new ArrayList<>();
-		}
-		else {
-			groups = new HashSet<>();
-		}
 
 		for (long classNameId : classNameIds) {
 			groups.addAll(groupPersistence.findByC_C(companyId, classNameId));
@@ -3804,9 +3753,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			String groupKey = group.getGroupKey();
 
-			if (groupKey.equals(GroupConstants.CONTROL_PANEL) ||
-				groupKey.equals(GroupConstants.USER_PERSONAL_PANEL)) {
-
+			if (groupKey.equals(GroupConstants.CONTROL_PANEL)) {
 				iterator.remove();
 
 				continue;
@@ -3919,61 +3866,78 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		// Join by role permissions
 
-		List<?> rolePermissions = (List<?>)params.remove("rolePermissions");
+		RolePermissions rolePermissions = (RolePermissions)params.remove(
+			"rolePermissions");
 
 		if (rolePermissions != null) {
-			String resourceName = (String)rolePermissions.get(0);
-			Integer resourceScope = (Integer)rolePermissions.get(1);
-			String resourceActionId = (String)rolePermissions.get(2);
-			Long resourceRoleId = (Long)rolePermissions.get(3);
-
 			ResourceAction resourceAction =
 				resourceActionLocalService.fetchResourceAction(
-					resourceName, resourceActionId);
+					rolePermissions.getName(), rolePermissions.getActionId());
 
 			if (resourceAction != null) {
-				long bitwiseValue = resourceAction.getBitwiseValue();
+				Set<Group> rolePermissionsGroups = new HashSet<>();
 
-				if (resourceBlockLocalService.isSupported(resourceName)) {
-					iterator = groups.iterator();
+				if (resourceBlockLocalService.isSupported(
+						rolePermissions.getName())) {
 
-					while (iterator.hasNext()) {
-						Group group = iterator.next();
+					List<ResourceTypePermission> resourceTypePermissions =
+						resourceTypePermissionPersistence.findByRoleId(
+							rolePermissions.getRoleId());
 
-						ResourceTypePermission resourceTypePermission =
-							resourceTypePermissionPersistence.fetchByC_G_N_R(
-								companyId, group.getGroupId(), resourceName,
-								resourceRoleId);
+					for (ResourceTypePermission resourceTypePermission :
+							resourceTypePermissions) {
 
-						if ((resourceTypePermission == null) ||
-							((resourceTypePermission.getActionIds() &
-							  bitwiseValue) == 0)) {
+						if ((resourceTypePermission.getCompanyId() ==
+								companyId) &&
+							Validator.equals(
+								rolePermissions.getName(),
+								resourceTypePermission.getName()) &&
+							resourceTypePermission.hasAction(resourceAction)) {
 
-							iterator.remove();
+							Group group = groupPersistence.fetchByPrimaryKey(
+								resourceTypePermission.getGroupId());
+
+							if (group != null) {
+								rolePermissionsGroups.add(group);
+							}
 						}
 					}
 				}
 				else {
-					iterator = groups.iterator();
+					List<ResourcePermission> resourcePermissions =
+						resourcePermissionPersistence.findByC_N_S(
+							companyId, rolePermissions.getName(),
+							rolePermissions.getScope());
 
-					while (iterator.hasNext()) {
-						Group group = iterator.next();
+					for (ResourcePermission resourcePermission :
+							resourcePermissions) {
 
-						ResourcePermission resourcePermission =
-							resourcePermissionPersistence.fetchByC_N_S_P_R(
-								companyId, resourceName, resourceScope,
-									String.valueOf(group.getGroupId()),
-									resourceRoleId);
+						if ((resourcePermission.getRoleId() ==
+								rolePermissions.getRoleId()) &&
+							resourcePermission.hasAction(
+								resourceAction)) {
 
-						if ((resourcePermission == null) ||
-							((resourcePermission.getActionIds() &
-							  bitwiseValue) == 0)) {
+							Group group = groupPersistence.fetchByPrimaryKey(
+								GetterUtil.getLong(
+									resourcePermission.getPrimKey()));
 
-							iterator.remove();
+							if (group != null) {
+								rolePermissionsGroups.add(group);
+							}
 						}
 					}
 				}
+
+				groups.retainAll(rolePermissionsGroups);
 			}
+		}
+
+		// Join by Groups_Roles
+
+		Long roleId = (Long)params.remove("groupsRoles");
+
+		if (roleId != null) {
+			groups.retainAll(rolePersistence.getGroups(roleId));
 		}
 
 		if (userId == null) {
@@ -4022,14 +3986,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 		if (_log.isDebugEnabled() && !params.isEmpty()) {
 			_log.debug("Unprocessed parameters " + MapUtil.toString(params));
-		}
-
-		// Join by Groups_Roles
-
-		Long roleId = (Long)params.remove("groupsRoles");
-
-		if (roleId != null) {
-			joinedGroups.retainAll(rolePersistence.getGroups(roleId));
 		}
 
 		if (joinedGroups.size() > groups.size()) {
@@ -4195,15 +4151,6 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		Role role = roleLocalService.getRole(
 			group.getCompanyId(), RoleConstants.USER);
 
-		List<Portlet> portlets = portletLocalService.getPortlets(
-			group.getCompanyId(), false, false);
-
-		for (Portlet portlet : portlets) {
-			setRolePermissions(
-				group, role, portlet.getPortletId(),
-				new String[] {ActionKeys.VIEW});
-		}
-
 		setRolePermissions(
 			group, role, Layout.class.getName(),
 			new String[] {ActionKeys.VIEW});
@@ -4212,12 +4159,16 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			group, role, "com.liferay.portlet.blogs",
 			new String[] {
 				ActionKeys.ADD_ENTRY, ActionKeys.PERMISSIONS,
-				ActionKeys.SUBSCRIBE});
+				ActionKeys.SUBSCRIBE
+			});
 
 		// Power User role
 
 		role = roleLocalService.getRole(
 			group.getCompanyId(), RoleConstants.POWER_USER);
+
+		List<Portlet> portlets = portletLocalService.getPortlets(
+			group.getCompanyId(), false, false);
 
 		for (Portlet portlet : portlets) {
 			List<String> actions =
@@ -4587,21 +4538,20 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			String defaultLanguageId, String languageIds)
 		throws PortalException {
 
-		Locale[] availableLocales = LanguageUtil.getAvailableLocales();
-
-		String[] availableLanguageIds = LocaleUtil.toLanguageIds(
-			availableLocales);
-
 		String[] languageIdsArray = StringUtil.split(languageIds);
 
 		for (String languageId : languageIdsArray) {
-			if (!ArrayUtil.contains(availableLanguageIds, languageId)) {
+			if (!LanguageUtil.isAvailableLocale(
+					LocaleUtil.fromLanguageId(languageId))) {
+
 				LocaleException le = new LocaleException(
 					LocaleException.TYPE_DISPLAY_SETTINGS);
 
-				le.setSourceAvailableLocales(availableLocales);
+				le.setSourceAvailableLocales(
+					LanguageUtil.getAvailableLocales());
 				le.setTargetAvailableLocales(
-					LocaleUtil.fromLanguageIds(languageIdsArray));
+					Arrays.asList(
+						LocaleUtil.fromLanguageIds(languageIdsArray)));
 
 				throw le;
 			}
@@ -4611,9 +4561,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			LocaleException le = new LocaleException(
 				LocaleException.TYPE_DEFAULT);
 
-			le.setSourceAvailableLocales(availableLocales);
+			le.setSourceAvailableLocales(LanguageUtil.getAvailableLocales());
 			le.setTargetAvailableLocales(
-				LocaleUtil.fromLanguageIds(languageIdsArray));
+				Arrays.asList(LocaleUtil.fromLanguageIds(languageIdsArray)));
 
 			throw le;
 		}
@@ -4627,8 +4577,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		}
 
 		if (groupId == parentGroupId) {
-			throw new GroupParentException(
-				GroupParentException.SELF_DESCENDANT);
+			throw new GroupParentException.MustNotBeOwnParent(groupId);
 		}
 
 		Group group = groupPersistence.fetchByPrimaryKey(groupId);
@@ -4643,19 +4592,19 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			// Prevent circular groupal references
 
 			if (isParentGroup(groupId, parentGroupId)) {
-				throw new GroupParentException(
-					GroupParentException.CHILD_DESCENDANT);
+				throw new GroupParentException.MustNotHaveChildParent(
+					groupId, parentGroupId);
 			}
 		}
 
 		Group parentGroup = groupPersistence.findByPrimaryKey(parentGroupId);
 
 		if (group.isStagingGroup()) {
-			Group stagingGroup = parentGroup.getStagingGroup();
+			long stagingGroupId = parentGroup.getStagingGroup().getGroupId();
 
-			if (groupId == stagingGroup.getGroupId()) {
-				throw new GroupParentException(
-					GroupParentException.STAGING_DESCENDANT);
+			if (groupId == stagingGroupId) {
+				throw new GroupParentException.MustNotHaveStagingParent(
+					groupId, stagingGroupId);
 			}
 		}
 	}

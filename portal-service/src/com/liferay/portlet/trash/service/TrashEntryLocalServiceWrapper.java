@@ -94,6 +94,11 @@ public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
 		return _trashEntryLocalService.createTrashEntry(entryId);
 	}
 
+	@Override
+	public void deleteEntries(long groupId) {
+		_trashEntryLocalService.deleteEntries(groupId);
+	}
+
 	/**
 	* Deletes the trash entry with the entity class name and primary key.
 	*
@@ -287,16 +292,6 @@ public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _trashEntryLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the trash entries with the matching group ID.
 	*
 	* @param groupId the primary key of the group
@@ -389,6 +384,16 @@ public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
 		return _trashEntryLocalService.getEntry(entryId);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _trashEntryLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -451,16 +456,6 @@ public class TrashEntryLocalServiceWrapper implements TrashEntryLocalService,
 		int start, int end, com.liferay.portal.kernel.search.Sort sort) {
 		return _trashEntryLocalService.searchTrashEntries(companyId, groupId,
 			userId, keywords, start, end, sort);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_trashEntryLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
