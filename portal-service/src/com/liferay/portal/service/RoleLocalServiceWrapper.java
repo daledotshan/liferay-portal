@@ -446,27 +446,15 @@ public class RoleLocalServiceWrapper implements RoleLocalService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _roleLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the default role for the group with the primary key.
 	*
 	* <p>
 	* If the group is a site, then the default role is {@link
-	* com.liferay.portal.model.RoleConstants#SITE_MEMBER}. If the group is an
-	* organization, then the default role is {@link
-	* com.liferay.portal.model.RoleConstants#ORGANIZATION_USER}. If the group
-	* is a user or user group, then the default role is {@link
-	* com.liferay.portal.model.RoleConstants#POWER_USER}. For all other group
-	* types, the default role is {@link
-	* com.liferay.portal.model.RoleConstants#USER}.
+	* RoleConstants#SITE_MEMBER}. If the group is an organization, then the
+	* default role is {@link RoleConstants#ORGANIZATION_USER}. If the group is
+	* a user or user group, then the default role is {@link
+	* RoleConstants#POWER_USER}. For all other group types, the default role is
+	* {@link RoleConstants#USER}.
 	* </p>
 	*
 	* @param groupId the primary key of the group
@@ -482,7 +470,7 @@ public class RoleLocalServiceWrapper implements RoleLocalService,
 
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _roleLocalService.getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -527,6 +515,16 @@ public class RoleLocalServiceWrapper implements RoleLocalService,
 	@Override
 	public int getGroupRolesCount(long groupId) {
 		return _roleLocalService.getGroupRolesCount(groupId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _roleLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -1276,16 +1274,6 @@ public class RoleLocalServiceWrapper implements RoleLocalService,
 		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params) {
 		return _roleLocalService.searchCount(companyId, name, description,
 			types, params);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_roleLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	@Override

@@ -17,7 +17,6 @@ package com.liferay.portal.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -29,6 +28,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -61,7 +61,7 @@ import javax.sql.DataSource;
 @ProviderType
 public abstract class ClusterGroupLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements ClusterGroupLocalService,
-		IdentifiableBean {
+		IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -300,7 +300,7 @@ public abstract class ClusterGroupLocalServiceBaseImpl
 	 *
 	 * @return the cluster group local service
 	 */
-	public com.liferay.portal.service.ClusterGroupLocalService getClusterGroupLocalService() {
+	public ClusterGroupLocalService getClusterGroupLocalService() {
 		return clusterGroupLocalService;
 	}
 
@@ -310,7 +310,7 @@ public abstract class ClusterGroupLocalServiceBaseImpl
 	 * @param clusterGroupLocalService the cluster group local service
 	 */
 	public void setClusterGroupLocalService(
-		com.liferay.portal.service.ClusterGroupLocalService clusterGroupLocalService) {
+		ClusterGroupLocalService clusterGroupLocalService) {
 		this.clusterGroupLocalService = clusterGroupLocalService;
 	}
 
@@ -363,23 +363,13 @@ public abstract class ClusterGroupLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return ClusterGroupLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -415,12 +405,11 @@ public abstract class ClusterGroupLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.ClusterGroupLocalService.class)
-	protected com.liferay.portal.service.ClusterGroupLocalService clusterGroupLocalService;
+	protected ClusterGroupLocalService clusterGroupLocalService;
 	@BeanReference(type = ClusterGroupPersistence.class)
 	protected ClusterGroupPersistence clusterGroupPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
 	protected com.liferay.counter.service.CounterLocalService counterLocalService;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }
