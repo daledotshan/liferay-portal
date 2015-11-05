@@ -39,6 +39,11 @@ String defaultKeywords = LanguageUtil.get(request, "search") + StringPool.TRIPLE
 String keywords = StringUtil.unquote(ParamUtil.getString(request, "keywords", defaultKeywords));
 %>
 
+<liferay-ui:header
+	backURL="<%= redirect %>"
+	title="search"
+/>
+
 <portlet:renderURL var="searchURL">
 	<portlet:param name="mvcPath" value="/search.jsp" />
 	<portlet:param name="targetPortletId" value="<%= journalContentSearchPortletInstanceConfiguration.targetPortletId() %>" />
