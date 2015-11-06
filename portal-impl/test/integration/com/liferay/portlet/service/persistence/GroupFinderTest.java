@@ -31,6 +31,7 @@ import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.ResourcePermission;
 import com.liferay.portal.model.ResourceTypePermission;
 import com.liferay.portal.security.permission.ActionKeys;
+import com.liferay.portal.security.permission.RolePermissions;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
@@ -110,19 +111,24 @@ public class GroupFinderTest {
 	public void testFindByC_C_N_DJoinByRoleResourcePermissions()
 		throws Exception {
 
+		boolean exists = false;
+
 		List<Group> groups = findByC_C_N_D(
 			_arbitraryResourceAction.getActionId(),
 			_resourcePermission.getName(), _resourcePermission.getRoleId());
 
 		for (Group group : groups) {
 			if (group.getGroupId() == _group.getGroupId()) {
-				return;
+				exists = true;
+
+				break;
 			}
 		}
 
-		Assert.fail(
+		Assert.assertTrue(
 			"The method findByC_C_N_D should have returned the group " +
-				_group.getGroupId());
+				_group.getGroupId(),
+			exists);
 	}
 
 	@Test
@@ -134,15 +140,20 @@ public class GroupFinderTest {
 			_resourceTypePermission.getName(),
 			_resourceTypePermission.getRoleId());
 
+		boolean exists = false;
+
 		for (Group group : groups) {
 			if (group.getGroupId() == _group.getGroupId()) {
-				return;
+				exists = true;
+
+				break;
 			}
 		}
 
-		Assert.fail(
+		Assert.assertTrue(
 			"The method findByC_C_N_D should have returned the group " +
-				_group.getGroupId());
+				_group.getGroupId(),
+			exists);
 	}
 
 	@Test
@@ -223,12 +234,8 @@ public class GroupFinderTest {
 
 		LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
 
-		List<Object> rolePermissions = new ArrayList<>();
-
-		rolePermissions.add(name);
-		rolePermissions.add(new Integer(ResourceConstants.SCOPE_GROUP));
-		rolePermissions.add(actionId);
-		rolePermissions.add(roleId);
+		RolePermissions rolePermissions = new RolePermissions(
+			name, ResourceConstants.SCOPE_GROUP, actionId, roleId);
 
 		groupParams.put("rolePermissions", rolePermissions);
 
