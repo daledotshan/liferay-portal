@@ -121,14 +121,10 @@ public class RoleServiceWrapper implements RoleService,
 		_roleService.deleteRole(roleId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _roleService.getBeanIdentifier();
+	public com.liferay.portal.model.Role fetchRole(long roleId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.fetchRole(roleId);
 	}
 
 	/**
@@ -143,6 +139,16 @@ public class RoleServiceWrapper implements RoleService,
 		long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _roleService.getGroupRoles(groupId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _roleService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -178,6 +184,20 @@ public class RoleServiceWrapper implements RoleService,
 	public com.liferay.portal.model.Role getRole(long roleId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _roleService.getRole(roleId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(
+		long companyId, int[] types)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.getRoles(companyId, types);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(int type,
+		java.lang.String subtype)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.getRoles(type, subtype);
 	}
 
 	/**
@@ -281,14 +301,21 @@ public class RoleServiceWrapper implements RoleService,
 		return _roleService.hasUserRoles(userId, companyId, names, inherited);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_roleService.setBeanIdentifier(beanIdentifier);
+	public java.util.List<com.liferay.portal.model.Role> search(
+		long companyId, java.lang.String keywords, java.lang.Integer[] types,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.model.Role> obc) {
+		return _roleService.search(companyId, keywords, types, params, start,
+			end, obc);
+	}
+
+	@Override
+	public int searchCount(long companyId, java.lang.String keywords,
+		java.lang.Integer[] types,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params) {
+		return _roleService.searchCount(companyId, keywords, types, params);
 	}
 
 	/**

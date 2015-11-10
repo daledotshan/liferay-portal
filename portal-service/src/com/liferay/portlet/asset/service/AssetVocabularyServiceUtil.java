@@ -41,38 +41,22 @@ public class AssetVocabularyServiceUtil {
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.asset.service.impl.AssetVocabularyServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static com.liferay.portlet.asset.model.AssetVocabulary addVocabulary(
-		java.lang.String title,
+		long groupId, java.lang.String title,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().addVocabulary(title, serviceContext);
+		return getService().addVocabulary(groupId, title, serviceContext);
 	}
 
 	public static com.liferay.portlet.asset.model.AssetVocabulary addVocabulary(
-		java.lang.String title,
+		long groupId, java.lang.String title,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String settings,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .addVocabulary(title, titleMap, descriptionMap, settings,
-			serviceContext);
-	}
-
-	/**
-	* @deprecated As of 6.1.0 {@link #addVocabulary(String, Map, Map, String,
-	ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.asset.model.AssetVocabulary addVocabulary(
-		java.util.Map<java.util.Locale, java.lang.String> titleMap,
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
-		java.lang.String settings,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addVocabulary(titleMap, descriptionMap, settings,
-			serviceContext);
+				   .addVocabulary(groupId, title, titleMap, descriptionMap,
+			settings, serviceContext);
 	}
 
 	/**
@@ -101,15 +85,6 @@ public class AssetVocabularyServiceUtil {
 		long vocabularyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().fetchVocabulary(vocabularyId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
 	}
 
 	/**
@@ -221,6 +196,15 @@ public class AssetVocabularyServiceUtil {
 	}
 
 	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
+	/**
 	* @deprecated As of 7.0.0, replaced by {@link
 	AssetUtil#filterVocabularyIds(PermissionChecker, long[])}
 	*/
@@ -246,15 +230,6 @@ public class AssetVocabularyServiceUtil {
 			addDefaultVocabulary);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static com.liferay.portlet.asset.model.AssetVocabulary updateVocabulary(
 		long vocabularyId, java.lang.String title,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
@@ -265,23 +240,6 @@ public class AssetVocabularyServiceUtil {
 		return getService()
 				   .updateVocabulary(vocabularyId, title, titleMap,
 			descriptionMap, settings, serviceContext);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, {@link #updateVocabulary(long, String, Map, Map,
-	String, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.asset.model.AssetVocabulary updateVocabulary(
-		long vocabularyId,
-		java.util.Map<java.util.Locale, java.lang.String> titleMap,
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
-		java.lang.String settings,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .updateVocabulary(vocabularyId, titleMap, descriptionMap,
-			settings, serviceContext);
 	}
 
 	public static AssetVocabularyService getService() {

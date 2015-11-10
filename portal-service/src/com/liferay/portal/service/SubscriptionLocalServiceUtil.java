@@ -282,6 +282,12 @@ public class SubscriptionLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.model.Subscription fetchSubscription(
+		long companyId, long userId, java.lang.String className, long classPK) {
+		return getService()
+				   .fetchSubscription(companyId, userId, className, classPK);
+	}
+
+	public static com.liferay.portal.model.Subscription fetchSubscription(
 		long subscriptionId) {
 		return getService().fetchSubscription(subscriptionId);
 	}
@@ -291,12 +297,12 @@ public class SubscriptionLocalServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -456,15 +462,6 @@ public class SubscriptionLocalServiceUtil {
 	public static boolean isSubscribed(long companyId, long userId,
 		java.lang.String className, long[] classPKs) {
 		return getService().isSubscribed(companyId, userId, className, classPKs);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
