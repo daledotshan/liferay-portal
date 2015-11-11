@@ -24,7 +24,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portal.service.TeamServiceUtil} service utility. The
+ * {@link TeamServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -59,11 +59,17 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see TeamServiceHttp
  * @see com.liferay.portal.model.TeamSoap
- * @see com.liferay.portal.service.TeamServiceUtil
+ * @see TeamServiceUtil
  * @generated
  */
 @ProviderType
 public class TeamServiceSoap {
+	/**
+	* @throws PortalException
+	* @deprecated As of 7.0.0, replaced by {@link #addTeam(long, String,
+	String, ServiceContext)}
+	*/
+	@Deprecated
 	public static com.liferay.portal.model.TeamSoap addTeam(long groupId,
 		java.lang.String name, java.lang.String description)
 		throws RemoteException {
@@ -80,9 +86,40 @@ public class TeamServiceSoap {
 		}
 	}
 
+	public static com.liferay.portal.model.TeamSoap addTeam(long groupId,
+		java.lang.String name, java.lang.String description,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			com.liferay.portal.model.Team returnValue = TeamServiceUtil.addTeam(groupId,
+					name, description, serviceContext);
+
+			return com.liferay.portal.model.TeamSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	public static void deleteTeam(long teamId) throws RemoteException {
 		try {
 			TeamServiceUtil.deleteTeam(teamId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portal.model.TeamSoap fetchTeam(long teamId)
+		throws RemoteException {
+		try {
+			com.liferay.portal.model.Team returnValue = TeamServiceUtil.fetchTeam(teamId);
+
+			return com.liferay.portal.model.TeamSoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
