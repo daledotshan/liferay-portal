@@ -73,7 +73,12 @@ public abstract class BaseActionableDynamicQuery
 	}
 
 	@Override
-	public PerformActionMethod getPerformActionMethod() {
+	public AddOrderCriteriaMethod getAddOrderCriteriaMethod() {
+		return _addOrderCriteriaMethod;
+	}
+
+	@Override
+	public PerformActionMethod<?> getPerformActionMethod() {
 		return _performActionMethod;
 	}
 
@@ -119,6 +124,13 @@ public abstract class BaseActionableDynamicQuery
 	@Override
 	public void setAddCriteriaMethod(AddCriteriaMethod addCriteriaMethod) {
 		_addCriteriaMethod = addCriteriaMethod;
+	}
+
+	@Override
+	public void setAddOrderCriteriaMethod(
+		AddOrderCriteriaMethod addOrderCriteriaMethod) {
+
+		_addOrderCriteriaMethod = addOrderCriteriaMethod;
 	}
 
 	@Override
@@ -175,7 +187,7 @@ public abstract class BaseActionableDynamicQuery
 
 	@Override
 	public void setPerformActionMethod(
-		PerformActionMethod performActionMethod) {
+		PerformActionMethod<?> performActionMethod) {
 
 		_performActionMethod = performActionMethod;
 	}
@@ -237,6 +249,16 @@ public abstract class BaseActionableDynamicQuery
 		}
 	}
 
+	protected void addOrderCriteria(DynamicQuery dynamicQuery) {
+		if (_addOrderCriteriaMethod != null) {
+			_addOrderCriteriaMethod.addOrderCriteria(dynamicQuery);
+		}
+		else {
+			dynamicQuery.addOrder(
+				OrderFactoryUtil.asc(_primaryKeyPropertyName));
+		}
+	}
+
 	protected long doPerformActions(long previousPrimaryKey)
 		throws PortalException {
 
@@ -248,13 +270,13 @@ public abstract class BaseActionableDynamicQuery
 
 		dynamicQuery.add(property.gt(previousPrimaryKey));
 
-		dynamicQuery.addOrder(OrderFactoryUtil.asc(_primaryKeyPropertyName));
-
 		dynamicQuery.setLimit(0, _interval);
 
 		addDefaultCriteria(dynamicQuery);
 
 		addCriteria(dynamicQuery);
+
+		addOrderCriteria(dynamicQuery);
 
 		Callable<Long> callable = new Callable<Long>() {
 
@@ -374,6 +396,7 @@ public abstract class BaseActionableDynamicQuery
 	}
 
 	private AddCriteriaMethod _addCriteriaMethod;
+	private AddOrderCriteriaMethod _addOrderCriteriaMethod;
 	private BaseLocalService _baseLocalService;
 	private ClassLoader _classLoader;
 	private Class<?> _clazz;
@@ -385,7 +408,10 @@ public abstract class BaseActionableDynamicQuery
 	private long _groupId;
 	private String _groupIdPropertyName = "groupId";
 	private int _interval = Indexer.DEFAULT_INTERVAL;
+
+	@SuppressWarnings("rawtypes")
 	private PerformActionMethod _performActionMethod;
+
 	private PerformCountMethod _performCountMethod;
 	private String _primaryKeyPropertyName;
 	private String _searchEngineId;

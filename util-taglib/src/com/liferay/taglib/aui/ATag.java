@@ -47,6 +47,7 @@ public class ATag extends BaseATag {
 		if (Validator.isNotNull(getHref())) {
 			if (AUIUtil.isOpensNewWindow(getTarget())) {
 				jspWriter.write("<span class=\"opens-new-window-accessible\">");
+				jspWriter.write(StringPool.SPACE);
 				jspWriter.write(LanguageUtil.get(request, "opens-new-window"));
 				jspWriter.write("</span>");
 			}
@@ -69,6 +70,7 @@ public class ATag extends BaseATag {
 		Map<String, Object> data = getData();
 		String href = getHref();
 		String id = getId();
+		String iconCssClass = getIconCssClass();
 		String label = getLabel();
 		String lang = getLang();
 		Boolean localizeLabel = getLocalizeLabel();
@@ -156,6 +158,12 @@ public class ATag extends BaseATag {
 			else {
 				jspWriter.write(label);
 			}
+		}
+
+		if (Validator.isNotNull(iconCssClass)) {
+			jspWriter.write("<span class=\"icon-monospaced ");
+			jspWriter.write(iconCssClass);
+			jspWriter.write("\"></span>");
 		}
 
 		return EVAL_BODY_INCLUDE;
