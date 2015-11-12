@@ -5218,8 +5218,8 @@ public class JournalArticleLocalServiceImpl
 			serviceContext.validateModifiedDate(
 				latestArticle, ArticleVersionException.class);
 
-			if (latestArticle.isApproved() || latestArticle.isExpired() ||
-				latestArticle.isScheduled()) {
+			if (latestArticle.isApproved() || latestArticle.isDraft() ||
+				latestArticle.isExpired() || latestArticle.isScheduled()) {
 
 				addNewVersion = true;
 
