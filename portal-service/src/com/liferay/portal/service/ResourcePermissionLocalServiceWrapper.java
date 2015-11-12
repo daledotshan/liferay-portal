@@ -379,13 +379,13 @@ public class ResourcePermissionLocalServiceWrapper
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _resourcePermissionLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _resourcePermissionLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -551,6 +551,15 @@ public class ResourcePermissionLocalServiceWrapper
 			scopes, start, end);
 	}
 
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(
+		long companyId, java.lang.String name, int scope,
+		java.lang.String primKey, java.lang.String actionId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _resourcePermissionLocalService.getRoles(companyId, name, scope,
+			primKey, actionId);
+	}
+
 	/**
 	* Returns all the resource permissions where scope = any &#63;.
 	*
@@ -684,6 +693,11 @@ public class ResourcePermissionLocalServiceWrapper
 			roleIds, actionId);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getRoles(long, String, int,
+	String, String}
+	*/
+	@Deprecated
 	@Override
 	public boolean[] hasResourcePermissions(long companyId,
 		java.lang.String name, int scope, java.lang.String primKey,
@@ -805,16 +819,6 @@ public class ResourcePermissionLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_resourcePermissionLocalService.removeResourcePermissions(companyId,
 			name, scope, roleId, actionId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_resourcePermissionLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
