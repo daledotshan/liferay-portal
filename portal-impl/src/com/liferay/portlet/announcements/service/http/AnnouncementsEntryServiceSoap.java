@@ -25,7 +25,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portlet.announcements.service.AnnouncementsEntryServiceUtil} service utility. The
+ * {@link AnnouncementsEntryServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see AnnouncementsEntryServiceHttp
  * @see com.liferay.portlet.announcements.model.AnnouncementsEntrySoap
- * @see com.liferay.portlet.announcements.service.AnnouncementsEntryServiceUtil
+ * @see AnnouncementsEntryServiceUtil
  * @generated
  */
 @ProviderType
@@ -126,6 +126,21 @@ public class AnnouncementsEntryServiceSoap {
 	public static void deleteEntry(long entryId) throws RemoteException {
 		try {
 			AnnouncementsEntryServiceUtil.deleteEntry(entryId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.announcements.model.AnnouncementsEntrySoap fetchAnnouncementsEntry(
+		long entryId) throws RemoteException {
+		try {
+			com.liferay.portlet.announcements.model.AnnouncementsEntry returnValue =
+				AnnouncementsEntryServiceUtil.fetchAnnouncementsEntry(entryId);
+
+			return com.liferay.portlet.announcements.model.AnnouncementsEntrySoap.toSoapModel(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

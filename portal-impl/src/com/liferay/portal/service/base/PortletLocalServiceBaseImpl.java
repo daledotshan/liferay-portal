@@ -17,7 +17,6 @@ package com.liferay.portal.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -29,6 +28,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -69,7 +69,7 @@ import javax.sql.DataSource;
  */
 @ProviderType
 public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
-	implements PortletLocalService, IdentifiableBean {
+	implements PortletLocalService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -304,7 +304,7 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @return the portlet local service
 	 */
-	public com.liferay.portal.service.PortletLocalService getPortletLocalService() {
+	public PortletLocalService getPortletLocalService() {
 		return portletLocalService;
 	}
 
@@ -313,8 +313,7 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param portletLocalService the portlet local service
 	 */
-	public void setPortletLocalService(
-		com.liferay.portal.service.PortletLocalService portletLocalService) {
+	public void setPortletLocalService(PortletLocalService portletLocalService) {
 		this.portletLocalService = portletLocalService;
 	}
 
@@ -743,23 +742,13 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return PortletLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -795,7 +784,7 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.PortletLocalService.class)
-	protected com.liferay.portal.service.PortletLocalService portletLocalService;
+	protected PortletLocalService portletLocalService;
 	@BeanReference(type = com.liferay.portal.service.PortletService.class)
 	protected com.liferay.portal.service.PortletService portletService;
 	@BeanReference(type = PortletPersistence.class)
@@ -842,5 +831,4 @@ public abstract class PortletLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected RoleFinder roleFinder;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

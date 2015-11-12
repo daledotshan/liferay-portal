@@ -17,7 +17,6 @@ package com.liferay.portal.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -32,11 +31,7 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -51,6 +46,12 @@ import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.WebsitePersistence;
 import com.liferay.portal.util.PortalUtil;
+
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -72,7 +73,7 @@ import javax.sql.DataSource;
  */
 @ProviderType
 public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
-	implements WebsiteLocalService, IdentifiableBean {
+	implements WebsiteLocalService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -273,13 +274,13 @@ public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -296,30 +297,35 @@ public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
 
 					StagedModelType stagedModelType = exportActionableDynamicQuery.getStagedModelType();
 
-					if (stagedModelType.getReferrerClassNameId() >= 0) {
-						Property classNameIdProperty = PropertyFactoryUtil.forName(
-								"classNameId");
+					long referrerClassNameId = stagedModelType.getReferrerClassNameId();
 
+					Property classNameIdProperty = PropertyFactoryUtil.forName(
+							"classNameId");
+
+					if ((referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ALL) &&
+							(referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ANY)) {
 						dynamicQuery.add(classNameIdProperty.eq(
 								stagedModelType.getReferrerClassNameId()));
+					}
+					else if (referrerClassNameId == StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
+						dynamicQuery.add(classNameIdProperty.isNotNull());
 					}
 				}
 			});
 
 		exportActionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
 
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Website>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(Website website)
 					throws PortalException {
-					Website stagedModel = (Website)object;
-
 					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
+						website);
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
-				PortalUtil.getClassNameId(Website.class.getName())));
+				PortalUtil.getClassNameId(Website.class.getName()),
+				StagedModelType.REFERRER_CLASS_NAME_ID_ALL));
 
 		return exportActionableDynamicQuery;
 	}
@@ -396,7 +402,7 @@ public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @return the website local service
 	 */
-	public com.liferay.portal.service.WebsiteLocalService getWebsiteLocalService() {
+	public WebsiteLocalService getWebsiteLocalService() {
 		return websiteLocalService;
 	}
 
@@ -405,8 +411,7 @@ public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param websiteLocalService the website local service
 	 */
-	public void setWebsiteLocalService(
-		com.liferay.portal.service.WebsiteLocalService websiteLocalService) {
+	public void setWebsiteLocalService(WebsiteLocalService websiteLocalService) {
 		this.websiteLocalService = websiteLocalService;
 	}
 
@@ -664,23 +669,13 @@ public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return WebsiteLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -716,7 +711,7 @@ public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.WebsiteLocalService.class)
-	protected com.liferay.portal.service.WebsiteLocalService websiteLocalService;
+	protected WebsiteLocalService websiteLocalService;
 	@BeanReference(type = com.liferay.portal.service.WebsiteService.class)
 	protected com.liferay.portal.service.WebsiteService websiteService;
 	@BeanReference(type = WebsitePersistence.class)
@@ -745,5 +740,4 @@ public abstract class WebsiteLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected UserFinder userFinder;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }
