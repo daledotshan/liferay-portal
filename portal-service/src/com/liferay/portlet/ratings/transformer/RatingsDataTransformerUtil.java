@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portlet.ratings.RatingsType;
 import com.liferay.portlet.ratings.definition.PortletRatingsDefinitionUtil;
 import com.liferay.portlet.ratings.definition.PortletRatingsDefinitionValues;
+import com.liferay.portlet.ratings.model.RatingsEntry;
 import com.liferay.portlet.ratings.service.RatingsEntryLocalServiceUtil;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -45,20 +46,20 @@ public class RatingsDataTransformerUtil {
 
 	public static void transformCompanyRatingsData(
 			final long companyId, PortletPreferences oldPortletPreferences,
-			UnicodeProperties properties)
+			UnicodeProperties unicodeProperties)
 		throws PortalException {
 
 		_instance._transformCompanyRatingsData(
-			companyId, oldPortletPreferences, properties);
+			companyId, oldPortletPreferences, unicodeProperties);
 	}
 
 	public static void transformGroupRatingsData(
-			final long groupId, UnicodeProperties oldProperties,
-			UnicodeProperties properties)
+			final long groupId, UnicodeProperties oldUnicodeProperties,
+			UnicodeProperties unicodeProperties)
 		throws PortalException {
 
 		_instance._transformGroupRatingsData(
-			groupId, oldProperties, properties);
+			groupId, oldUnicodeProperties, unicodeProperties);
 	}
 
 	private RatingsDataTransformerUtil() {
@@ -71,7 +72,7 @@ public class RatingsDataTransformerUtil {
 
 	private void _transformCompanyRatingsData(
 			final long companyId, PortletPreferences oldPortletPreferences,
-			UnicodeProperties properties)
+			UnicodeProperties unicodeProperties)
 		throws PortalException {
 
 		RatingsDataTransformer ratingsDataTransformer =
@@ -101,7 +102,7 @@ public class RatingsDataTransformerUtil {
 			}
 
 			RatingsType toRatingsType = RatingsType.parse(
-				properties.getProperty(propertyKey));
+				unicodeProperties.getProperty(propertyKey));
 
 			_transformRatingsData(
 				"companyId", companyId, className, fromRatingsType,
@@ -110,8 +111,8 @@ public class RatingsDataTransformerUtil {
 	}
 
 	private void _transformGroupRatingsData(
-			final long groupId, UnicodeProperties oldProperties,
-			UnicodeProperties properties)
+			final long groupId, UnicodeProperties oldUnicodeProperties,
+			UnicodeProperties unicodeProperties)
 		throws PortalException {
 
 		RatingsDataTransformer ratingsDataTransformer =
@@ -130,7 +131,7 @@ public class RatingsDataTransformerUtil {
 			String propertyKey = getPropertyKey(className);
 
 			RatingsType fromRatingsType = RatingsType.parse(
-				oldProperties.getProperty(propertyKey));
+				oldUnicodeProperties.getProperty(propertyKey));
 
 			if (fromRatingsType == null) {
 				PortletRatingsDefinitionValues portletRatingsDefinitionValues =
@@ -141,7 +142,7 @@ public class RatingsDataTransformerUtil {
 			}
 
 			RatingsType toRatingsType = RatingsType.parse(
-				properties.getProperty(propertyKey));
+				unicodeProperties.getProperty(propertyKey));
 
 			_transformRatingsData(
 				"groupId", groupId, className, fromRatingsType, toRatingsType);
@@ -161,8 +162,8 @@ public class RatingsDataTransformerUtil {
 		RatingsDataTransformer ratingsDataTransformer =
 			_serviceTracker.getService();
 
-		ActionableDynamicQuery.PerformActionMethod performActionMethod =
-			ratingsDataTransformer.transformRatingsData(
+		ActionableDynamicQuery.PerformActionMethod<RatingsEntry>
+			performActionMethod = ratingsDataTransformer.transformRatingsData(
 				fromRatingsType, toRatingsType);
 
 		if (performActionMethod == null) {
