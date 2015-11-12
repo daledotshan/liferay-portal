@@ -272,12 +272,12 @@ public class SocialRequestLocalServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -552,26 +552,14 @@ public class SocialRequestLocalServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the social request replacing its status.
 	*
 	* <p>
-	* If the status is updated to {@link
-	* com.liferay.portlet.social.model.SocialRequestConstants#STATUS_CONFIRM}
+	* If the status is updated to {@link SocialRequestConstants#STATUS_CONFIRM}
 	* then {@link
 	* com.liferay.portlet.social.service.SocialRequestInterpreterLocalService#processConfirmation(
 	* SocialRequest, ThemeDisplay)} is called. If the status is updated to
-	* {@link
-	* com.liferay.portlet.social.model.SocialRequestConstants#STATUS_IGNORE}
-	* then {@link
+	* {@link SocialRequestConstants#STATUS_IGNORE} then {@link
 	* com.liferay.portlet.social.service.SocialRequestInterpreterLocalService#processRejection(
 	* SocialRequest, ThemeDisplay)} is called.
 	* </p>

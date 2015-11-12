@@ -427,17 +427,8 @@ public class UserGroupLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -476,6 +467,15 @@ public class UserGroupLocalServiceUtil {
 		long groupId, long userId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getGroupUserUserGroups(groupId, userId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -668,8 +668,7 @@ public class UserGroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -705,8 +704,7 @@ public class UserGroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -740,8 +738,7 @@ public class UserGroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -782,8 +779,7 @@ public class UserGroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -874,15 +870,6 @@ public class UserGroupLocalServiceUtil {
 		return getService()
 				   .searchUserGroups(companyId, name, description, params,
 			andSearch, start, end, sort);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static void setGroupUserGroups(long groupId, long[] userGroupIds) {
