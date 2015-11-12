@@ -27,7 +27,7 @@
 				</c:if>
 			</div>
 
-			<c:if test="<%= Validator.isNotNull(buttons) %>">
+			<c:if test="<%= Validator.isNotNull(buttons) && buttons.length > 1 %>">
 				<div class="management-bar-header-right">
 					<ul class="management-bar-nav nav">
 						<%= buttons %>
