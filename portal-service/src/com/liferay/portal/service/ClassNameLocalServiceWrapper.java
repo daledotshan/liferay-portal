@@ -196,28 +196,8 @@ public class ClassNameLocalServiceWrapper implements ClassNameLocalService,
 	}
 
 	@Override
-	public long fetchClassNameId(java.lang.Class<?> clazz) {
-		return _classNameLocalService.fetchClassNameId(clazz);
-	}
-
-	@Override
-	public long fetchClassNameId(java.lang.String value) {
-		return _classNameLocalService.fetchClassNameId(value);
-	}
-
-	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
 		return _classNameLocalService.getActionableDynamicQuery();
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _classNameLocalService.getBeanIdentifier();
 	}
 
 	/**
@@ -276,6 +256,16 @@ public class ClassNameLocalServiceWrapper implements ClassNameLocalService,
 		return _classNameLocalService.getClassNamesCount();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _classNameLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -291,16 +281,6 @@ public class ClassNameLocalServiceWrapper implements ClassNameLocalService,
 	@Override
 	public void invalidate() {
 		_classNameLocalService.invalidate();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_classNameLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**

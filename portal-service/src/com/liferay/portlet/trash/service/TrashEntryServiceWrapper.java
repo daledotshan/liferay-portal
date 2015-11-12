@@ -101,16 +101,6 @@ public class TrashEntryServiceWrapper implements TrashEntryService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _trashEntryService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the trash entries with the matching group ID.
 	*
 	* @param groupId the primary key of the group
@@ -122,6 +112,13 @@ public class TrashEntryServiceWrapper implements TrashEntryService,
 		long groupId)
 		throws com.liferay.portal.security.auth.PrincipalException {
 		return _trashEntryService.getEntries(groupId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portlet.trash.model.TrashEntry> getEntries(
+		long groupId, java.lang.String className)
+		throws com.liferay.portal.security.auth.PrincipalException {
+		return _trashEntryService.getEntries(groupId, className);
 	}
 
 	/**
@@ -143,6 +140,16 @@ public class TrashEntryServiceWrapper implements TrashEntryService,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.trash.model.TrashEntry> obc)
 		throws com.liferay.portal.security.auth.PrincipalException {
 		return _trashEntryService.getEntries(groupId, start, end, obc);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _trashEntryService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -253,16 +260,6 @@ public class TrashEntryServiceWrapper implements TrashEntryService,
 		long entryId, long overrideClassPK, java.lang.String name)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _trashEntryService.restoreEntry(entryId, overrideClassPK, name);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_trashEntryService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
