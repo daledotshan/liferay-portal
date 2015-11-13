@@ -25,11 +25,14 @@ import com.liferay.portal.kernel.process.local.LocalProcessExecutor;
 import com.liferay.portal.kernel.process.local.LocalProcessLauncher.ProcessContext;
 import com.liferay.portal.kernel.process.local.LocalProcessLauncher.ShutdownHook;
 import com.liferay.portal.kernel.test.rule.BaseTestRule.StatementWrapper;
+import com.liferay.portal.kernel.test.rule.NewEnv.JVMArgsLine;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MethodCache;
 import com.liferay.portal.kernel.util.MethodKey;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -46,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
@@ -146,35 +151,48 @@ public class NewEnvTestRule implements TestRule {
 	protected List<String> createArguments(Description description) {
 		List<String> arguments = new ArrayList<>();
 
-		if (Boolean.getBoolean("junit.debug")) {
-			arguments.add(_JPDA_OPTIONS);
-			arguments.add("-Djunit.debug=true");
+		Class<?> testClass = description.getTestClass();
+
+		JVMArgsLine jvmArgsLine = testClass.getAnnotation(JVMArgsLine.class);
+
+		if (jvmArgsLine != null) {
+			arguments.addAll(processJVMArgsLine(jvmArgsLine));
 		}
 
-		arguments.add("-Dliferay.mode=test");
+		jvmArgsLine = description.getAnnotation(JVMArgsLine.class);
 
-		String agentLine = System.getProperty("junit.cobertura.agent");
-
-		if (Validator.isNotNull(agentLine)) {
-			arguments.add(agentLine);
-			arguments.add("-Djunit.cobertura.agent=" + agentLine);
-		}
-
-		if (Boolean.getBoolean("junit.code.coverage")) {
-			arguments.add("-Djunit.code.coverage=true");
-		}
-
-		if (Boolean.getBoolean("junit.code.coverage.dump")) {
-			arguments.add("-Djunit.code.coverage.dump=true");
+		if (jvmArgsLine != null) {
+			arguments.addAll(processJVMArgsLine(jvmArgsLine));
 		}
 
 		arguments.add("-Djava.net.preferIPv4Stack=true");
 
-		String fileName = System.getProperty(
-			"net.sourceforge.cobertura.datafile");
+		if (Boolean.getBoolean("jvm.debug")) {
+			arguments.add(_JPDA_OPTIONS);
+			arguments.add("-Djvm.debug=true");
+		}
+
+		arguments.add("-Dliferay.mode=test");
+
+		String whipAgentLine = System.getProperty("whip.agent");
+
+		if (Validator.isNotNull(whipAgentLine)) {
+			arguments.add(whipAgentLine);
+			arguments.add("-Dwhip.agent=" + whipAgentLine);
+		}
+
+		String fileName = System.getProperty("whip.datafile");
 
 		if (fileName != null) {
-			arguments.add("-Dnet.sourceforge.cobertura.datafile=" + fileName);
+			arguments.add("-Dwhip.datafile=" + fileName);
+		}
+
+		if (Boolean.getBoolean("whip.instrument.dump")) {
+			arguments.add("-Dwhip.instrument.dump=true");
+		}
+
+		if (Boolean.getBoolean("whip.static.instrument")) {
+			arguments.add("-Dwhip.static.instrument=true");
 		}
 
 		return arguments;
@@ -202,6 +220,32 @@ public class NewEnvTestRule implements TestRule {
 		return newEnv;
 	}
 
+	protected List<String> processJVMArgsLine(JVMArgsLine jvmArgsLine) {
+		String[] jvmArgs = StringUtil.split(
+			jvmArgsLine.value(), StringPool.SPACE);
+
+		List<String> jvmArgsList = new ArrayList<>(jvmArgs.length);
+
+		for (String jvmArg : jvmArgs) {
+			Matcher matcher = _systemPropertyReplacePattern.matcher(jvmArg);
+
+			StringBuffer sb = new StringBuffer();
+
+			while (matcher.find()) {
+				String key = matcher.group(1);
+
+				matcher.appendReplacement(
+					sb, GetterUtil.getString(System.getProperty(key)));
+			}
+
+			matcher.appendTail(sb);
+
+			jvmArgsList.add(sb.toString());
+		}
+
+		return jvmArgsList;
+	}
+
 	protected ProcessCallable<Serializable> processProcessCallable(
 		ProcessCallable<Serializable> processCallable,
 		MethodKey testMethodKey) {
@@ -217,6 +261,8 @@ public class NewEnvTestRule implements TestRule {
 
 	private static final ProcessExecutor _processExecutor =
 		new LocalProcessExecutor();
+	private static final Pattern _systemPropertyReplacePattern =
+		Pattern.compile("\\$\\{(.*)\\}");
 
 	static {
 		Thread currentThread = Thread.currentThread();
