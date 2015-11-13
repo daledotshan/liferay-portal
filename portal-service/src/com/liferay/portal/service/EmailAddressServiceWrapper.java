@@ -61,13 +61,18 @@ public class EmailAddressServiceWrapper implements EmailAddressService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the email address with the primary key.
 	*
-	* @return the Spring bean ID for this bean
+	* @param emailAddressId the primary key of the email address
+	* @return the email address with the primary key, or <code>null</code> if
+	an email address with the primary key could not be found or if
+	the user did not have permission to view the email address
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _emailAddressService.getBeanIdentifier();
+	public com.liferay.portal.model.EmailAddress fetchEmailAddress(
+		long emailAddressId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _emailAddressService.fetchEmailAddress(emailAddressId);
 	}
 
 	@Override
@@ -85,13 +90,13 @@ public class EmailAddressServiceWrapper implements EmailAddressService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_emailAddressService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _emailAddressService.getOSGiServiceIdentifier();
 	}
 
 	@Override
