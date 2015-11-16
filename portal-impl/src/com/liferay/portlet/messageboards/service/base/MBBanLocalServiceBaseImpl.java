@@ -17,7 +17,6 @@ package com.liferay.portlet.messageboards.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -30,11 +29,7 @@ import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -46,6 +41,11 @@ import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.util.PortalUtil;
 
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 import com.liferay.portlet.messageboards.model.MBBan;
 import com.liferay.portlet.messageboards.service.MBBanLocalService;
 import com.liferay.portlet.messageboards.service.persistence.MBBanPersistence;
@@ -70,7 +70,7 @@ import javax.sql.DataSource;
  */
 @ProviderType
 public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
-	implements MBBanLocalService, IdentifiableBean {
+	implements MBBanLocalService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -271,13 +271,13 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -298,14 +298,12 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 
 		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
 
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBBan>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(MBBan mbBan)
 					throws PortalException {
-					MBBan stagedModel = (MBBan)object;
-
 					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
+						mbBan);
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
@@ -415,7 +413,7 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @return the message boards ban local service
 	 */
-	public com.liferay.portlet.messageboards.service.MBBanLocalService getMBBanLocalService() {
+	public MBBanLocalService getMBBanLocalService() {
 		return mbBanLocalService;
 	}
 
@@ -424,8 +422,7 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 *
 	 * @param mbBanLocalService the message boards ban local service
 	 */
-	public void setMBBanLocalService(
-		com.liferay.portlet.messageboards.service.MBBanLocalService mbBanLocalService) {
+	public void setMBBanLocalService(MBBanLocalService mbBanLocalService) {
 		this.mbBanLocalService = mbBanLocalService;
 	}
 
@@ -608,23 +605,13 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return MBBanLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -660,7 +647,7 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	@BeanReference(type = com.liferay.portlet.messageboards.service.MBBanLocalService.class)
-	protected com.liferay.portlet.messageboards.service.MBBanLocalService mbBanLocalService;
+	protected MBBanLocalService mbBanLocalService;
 	@BeanReference(type = com.liferay.portlet.messageboards.service.MBBanService.class)
 	protected com.liferay.portlet.messageboards.service.MBBanService mbBanService;
 	@BeanReference(type = MBBanPersistence.class)
@@ -681,5 +668,4 @@ public abstract class MBBanLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected UserFinder userFinder;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

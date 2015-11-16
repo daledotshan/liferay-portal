@@ -173,7 +173,7 @@ public class PortletURLUtil {
 	public static String getRefreshURL(
 		HttpServletRequest request, ThemeDisplay themeDisplay) {
 
-		StringBundler sb = new StringBundler(32);
+		StringBundler sb = new StringBundler(34);
 
 		sb.append(themeDisplay.getPathMain());
 		sb.append("/portal/render_portlet?p_l_id=");
@@ -266,18 +266,42 @@ public class PortletURLUtil {
 			return sb.toString();
 		}
 
-		String namespace = PortalUtil.getPortletNamespace(portletId);
+		String settingsScope = (String)request.getAttribute(
+			WebKeys.SETTINGS_SCOPE);
+
+		settingsScope = ParamUtil.get(request, "settingsScope", settingsScope);
+
+		if (Validator.isNotNull(settingsScope)) {
+			sb.append("&settingsScope=");
+			sb.append(settingsScope);
+		}
+
+		String namespace = StringPool.BLANK;
+
+		if (portlet.isRequiresNamespacedParameters()) {
+			namespace = PortalUtil.getPortletNamespace(portletId);
+		}
 
 		Map<String, String[]> parameters = request.getParameterMap();
 
 		for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
 			String name = entry.getKey();
 
+			if (name.startsWith(StringPool.UNDERLINE) &&
+				!name.startsWith(namespace)) {
+
+				continue;
+			}
+
 			if (!PortalUtil.isReservedParameter(name) &&
-				!name.equals("currentURL") &&
+				!name.equals("currentURL") && !name.equals("settingsScope") &&
 				!isRefreshURLReservedParameter(name, namespace)) {
 
 				String[] values = entry.getValue();
+
+				if (values == null) {
+					continue;
+				}
 
 				for (int i = 0; i < values.length; i++) {
 					sb.append(StringPool.AMPERSAND);
