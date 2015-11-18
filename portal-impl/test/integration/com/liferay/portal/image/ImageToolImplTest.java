@@ -112,7 +112,7 @@ public class ImageToolImplTest {
 
 		ImageBag imageBag = ImageToolUtil.read(file);
 
-		RenderedImage image =  imageBag.getRenderedImage();
+		RenderedImage image = imageBag.getRenderedImage();
 
 		testCrop(
 			image, image.getHeight() / 2, image.getWidth() / 2,
@@ -193,6 +193,9 @@ public class ImageToolImplTest {
 
 		Assert.assertTrue(
 			StringUtil.equalsIgnoreCase(expectedType, resultType));
+		Assert.assertTrue(
+			expectedDataBuffer instanceof DataBufferByte ||
+			expectedDataBuffer instanceof DataBufferInt);
 
 		if (expectedDataBuffer instanceof DataBufferByte) {
 			DataBufferByte expectedDataBufferByte =
@@ -214,9 +217,6 @@ public class ImageToolImplTest {
 				Arrays.deepEquals(
 					expectedDataBufferInt.getBankData(),
 					resultDataBufferInt.getBankData()));
-		}
-		else {
-			Assert.fail();
 		}
 	}
 
