@@ -106,9 +106,9 @@
 				(DLFileEntry.groupId = ?) AND
 				(DLFileEntry.fileEntryTypeId IN (
 					SELECT
-						DLFileEntryTypes_DDMStructures.fileEntryTypeId
+						DDMStructureLink.classPK
 					FROM
-						DLFileEntryTypes_DDMStructures
+						DDMStructureLink
 					WHERE
 						[$DDM_STRUCTURE_ID$]
 				))
@@ -213,6 +213,13 @@
 					DLFileEntry ON TEMP_TABLE.fileEntryId = DLFileEntry.fileEntryId
 		]]>
 	</sql>
+	<sql id="com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryFinder.joinAE_ByDLFileEntry">
+		<![CDATA[
+			INNER JOIN
+				DLFileEntry ON
+					(DLFileEntry.fileEntryId = AssetEntry.classPK)
+		]]>
+	</sql>
 	<sql id="com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryMetadataFinder.findByMismatchedCompanyId">
 		<![CDATA[
 			SELECT
@@ -312,8 +319,7 @@
 				DLFolder
 			WHERE
 				(DLFolder.groupId = ?) AND
-				(DLFolder.mountPoint = ?) AND
-				(DLFolder.hidden_ = [$FALSE$]) AND
+				(DLFolder.hidden_ = ?) AND
 				([$STATUS$]) AND
 				[$FOLDER_PARENT_FOLDER_ID$]
 		]]>
@@ -365,8 +371,7 @@
 				DLFolder
 			WHERE
 				(DLFolder.groupId = ?) AND
-				(DLFolder.mountPoint = ?) AND
-				(DLFolder.hidden_ = [$FALSE$]) AND
+				(DLFolder.hidden_ = ?) AND
 				([$STATUS$]) AND
 				[$FOLDER_PARENT_FOLDER_ID$]
 		]]>
@@ -398,6 +403,13 @@
 				(DLFileShortcut.active_ = ?) AND
 				([$STATUS$]) AND
 				[$FILE_SHORTCUT_FOLDER_ID$]
+		]]>
+	</sql>
+	<sql id="com.liferay.portlet.documentlibrary.service.persistence.DLFolderFinder.joinAE_ByDLFolder">
+		<![CDATA[
+			INNER JOIN
+				DLFolder ON
+					(DLFolder.folderId = AssetEntry.classPK)
 		]]>
 	</sql>
 	<sql id="com.liferay.portlet.documentlibrary.service.persistence.DLFolderFinder.joinFE_ByDLFileVersion">
