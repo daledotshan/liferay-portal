@@ -23,13 +23,13 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.User;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,7 +49,7 @@ import org.apache.struts.Globals;
 public class I18nFilter extends BasePortalFilter {
 
 	public static final String SKIP_FILTER =
-		I18nFilter.class.getName() + "SKIP_FILTER";
+		I18nFilter.class.getName() + "#SKIP_FILTER";
 
 	public static Set<String> getLanguageIds() {
 		return _languageIds;
@@ -71,7 +71,9 @@ public class I18nFilter extends BasePortalFilter {
 	public boolean isFilterEnabled(
 		HttpServletRequest request, HttpServletResponse response) {
 
-		if (!isAlreadyFiltered(request) && !isForwardedByI18nServlet(request)) {
+		if (!isAlreadyFiltered(request) && !isForwardedByI18nServlet(request) &&
+			!isWidget(request)) {
+
 			return true;
 		}
 		else {
@@ -173,6 +175,15 @@ public class I18nFilter extends BasePortalFilter {
 		if ((request.getAttribute(WebKeys.I18N_LANGUAGE_ID) != null) ||
 			(request.getAttribute(WebKeys.I18N_PATH) != null)) {
 
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean isWidget(HttpServletRequest request) {
+		if (request.getAttribute(WebKeys.WIDGET) != null) {
 			return true;
 		}
 		else {
