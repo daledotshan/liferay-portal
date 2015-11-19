@@ -28,7 +28,9 @@ public interface ActionableDynamicQuery {
 
 	public AddCriteriaMethod getAddCriteriaMethod();
 
-	public PerformActionMethod getPerformActionMethod();
+	public AddOrderCriteriaMethod getAddOrderCriteriaMethod();
+
+	public PerformActionMethod<?> getPerformActionMethod();
 
 	public PerformCountMethod getPerformCountMethod();
 
@@ -37,6 +39,9 @@ public interface ActionableDynamicQuery {
 	public long performCount() throws PortalException;
 
 	public void setAddCriteriaMethod(AddCriteriaMethod addCriteriaMethod);
+
+	public void setAddOrderCriteriaMethod(
+		AddOrderCriteriaMethod addOrderCriteriaMethod);
 
 	public void setBaseLocalService(BaseLocalService baseLocalService);
 
@@ -54,7 +59,10 @@ public interface ActionableDynamicQuery {
 
 	public void setInterval(int interval);
 
-	public void setPerformActionMethod(PerformActionMethod performActionMethod);
+	public void setParallel(boolean parallel);
+
+	public void setPerformActionMethod(
+		PerformActionMethod<?> performActionMethod);
 
 	public void setPerformCountMethod(PerformCountMethod performCountMethod);
 
@@ -71,9 +79,15 @@ public interface ActionableDynamicQuery {
 
 	}
 
-	public interface PerformActionMethod {
+	public interface AddOrderCriteriaMethod {
 
-		public void performAction(Object object) throws PortalException;
+		public void addOrderCriteria(DynamicQuery dynamicQuery);
+
+	}
+
+	public interface PerformActionMethod<T> {
+
+		public void performAction(T t) throws PortalException;
 
 	}
 

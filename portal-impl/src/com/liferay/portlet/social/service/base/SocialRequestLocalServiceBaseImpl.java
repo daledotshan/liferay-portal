@@ -17,7 +17,6 @@ package com.liferay.portlet.social.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
@@ -29,6 +28,7 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -65,7 +65,7 @@ import javax.sql.DataSource;
 @ProviderType
 public abstract class SocialRequestLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements SocialRequestLocalService,
-		IdentifiableBean {
+		IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -362,7 +362,7 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 *
 	 * @return the social request local service
 	 */
-	public com.liferay.portlet.social.service.SocialRequestLocalService getSocialRequestLocalService() {
+	public SocialRequestLocalService getSocialRequestLocalService() {
 		return socialRequestLocalService;
 	}
 
@@ -372,7 +372,7 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	 * @param socialRequestLocalService the social request local service
 	 */
 	public void setSocialRequestLocalService(
-		com.liferay.portlet.social.service.SocialRequestLocalService socialRequestLocalService) {
+		SocialRequestLocalService socialRequestLocalService) {
 		this.socialRequestLocalService = socialRequestLocalService;
 	}
 
@@ -594,23 +594,13 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return SocialRequestLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -646,7 +636,7 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portlet.social.service.SocialRequestLocalService.class)
-	protected com.liferay.portlet.social.service.SocialRequestLocalService socialRequestLocalService;
+	protected SocialRequestLocalService socialRequestLocalService;
 	@BeanReference(type = com.liferay.portlet.social.service.SocialRequestService.class)
 	protected com.liferay.portlet.social.service.SocialRequestService socialRequestService;
 	@BeanReference(type = SocialRequestPersistence.class)
@@ -671,5 +661,4 @@ public abstract class SocialRequestLocalServiceBaseImpl
 	protected com.liferay.portlet.social.service.SocialRequestInterpreterLocalService socialRequestInterpreterLocalService;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

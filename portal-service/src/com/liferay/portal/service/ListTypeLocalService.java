@@ -86,7 +86,7 @@ public interface ListTypeLocalService extends BaseLocalService,
 	*/
 	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
 	public com.liferay.portal.model.ListType deleteListType(long listTypeId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* @throws PortalException
@@ -94,7 +94,7 @@ public interface ListTypeLocalService extends BaseLocalService,
 	@Override
 	public com.liferay.portal.model.PersistedModel deletePersistedModel(
 		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
 
@@ -168,13 +168,6 @@ public interface ListTypeLocalService extends BaseLocalService,
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
-
-	/**
 	* Returns the list type with the primary key.
 	*
 	* @param listTypeId the primary key of the list type
@@ -183,7 +176,7 @@ public interface ListTypeLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.ListType getListType(long listTypeId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Returns a range of all the list types.
@@ -212,18 +205,17 @@ public interface ListTypeLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getListTypesCount();
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
+
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+		java.io.Serializable primaryKeyObj) throws PortalException;
 
 	/**
 	* Updates the list type in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -236,9 +228,8 @@ public interface ListTypeLocalService extends BaseLocalService,
 		com.liferay.portal.model.ListType listType);
 
 	public void validate(long listTypeId, long classNameId,
-		java.lang.String type)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.lang.String type) throws PortalException;
 
 	public void validate(long listTypeId, java.lang.String type)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 }
