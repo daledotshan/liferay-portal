@@ -17,8 +17,9 @@ package com.liferay.portal.service.persistence.impl;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.NoSuchUserNotificationEventException;
-import com.liferay.portal.kernel.cache.CacheRegistryUtil;
+import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
+import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
@@ -123,7 +124,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -141,7 +142,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -153,6 +154,27 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	@Override
 	public List<UserNotificationEvent> findByUuid(String uuid, int start,
 		int end, OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByUuid(uuid, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where uuid = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByUuid(String uuid, int start,
+		int end, OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -168,15 +190,19 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 			finderArgs = new Object[] { uuid, start, end, orderByComparator };
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if (!Validator.equals(uuid, userNotificationEvent.getUuid())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if (!Validator.equals(uuid, userNotificationEvent.getUuid())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -247,10 +273,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -268,7 +294,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByUuid_First(String uuid,
@@ -319,7 +345,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByUuid_Last(String uuid,
@@ -377,7 +403,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByUuid_PrevAndNext(
@@ -556,8 +582,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { uuid };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -595,10 +620,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -654,7 +679,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -673,7 +698,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -687,6 +712,29 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByUuid_C(String uuid,
 		long companyId, int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByUuid_C(uuid, companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where uuid = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByUuid_C(String uuid,
+		long companyId, int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -706,16 +754,20 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if (!Validator.equals(uuid, userNotificationEvent.getUuid()) ||
-						(companyId != userNotificationEvent.getCompanyId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if (!Validator.equals(uuid, userNotificationEvent.getUuid()) ||
+							(companyId != userNotificationEvent.getCompanyId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -790,10 +842,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -812,7 +864,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByUuid_C_First(String uuid,
@@ -870,7 +922,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByUuid_C_Last(String uuid, long companyId,
@@ -934,7 +986,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByUuid_C_PrevAndNext(
@@ -1120,8 +1172,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -1163,10 +1214,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1220,7 +1271,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -1238,7 +1289,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -1250,6 +1301,27 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	@Override
 	public List<UserNotificationEvent> findByUserId(long userId, int start,
 		int end, OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByUserId(userId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByUserId(long userId, int start,
+		int end, OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1265,15 +1337,19 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 			finderArgs = new Object[] { userId, start, end, orderByComparator };
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -1330,10 +1406,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1351,7 +1427,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByUserId_First(long userId,
@@ -1402,7 +1478,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByUserId_Last(long userId,
@@ -1460,7 +1536,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByUserId_PrevAndNext(
@@ -1625,8 +1701,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -1650,10 +1725,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1706,7 +1781,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and deliveryType = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -1725,7 +1800,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -1739,6 +1814,30 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_DT(long userId,
 		int deliveryType, int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_DT(userId, deliveryType, start, end, orderByComparator,
+			true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param deliveryType the delivery type
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_DT(long userId,
+		int deliveryType, int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1758,16 +1857,20 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(deliveryType != userNotificationEvent.getDeliveryType())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(deliveryType != userNotificationEvent.getDeliveryType())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -1828,10 +1931,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1850,7 +1953,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param deliveryType the delivery type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_First(long userId,
@@ -1908,7 +2011,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param deliveryType the delivery type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_Last(long userId, int deliveryType,
@@ -1972,7 +2075,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param deliveryType the delivery type
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_DT_PrevAndNext(
@@ -2144,8 +2247,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId, deliveryType };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -2173,10 +2275,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2230,7 +2332,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and delivered = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2249,7 +2351,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and delivered = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2263,6 +2365,29 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_D(long userId,
 		boolean delivered, int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_D(userId, delivered, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and delivered = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param delivered the delivered
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_D(long userId,
+		boolean delivered, int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2282,16 +2407,20 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(delivered != userNotificationEvent.getDelivered())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(delivered != userNotificationEvent.getDelivered())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -2352,10 +2481,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2374,7 +2503,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param delivered the delivered
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_D_First(long userId,
@@ -2432,7 +2561,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param delivered the delivered
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_D_Last(long userId, boolean delivered,
@@ -2496,7 +2625,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param delivered the delivered
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_D_PrevAndNext(
@@ -2668,8 +2797,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId, delivered };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -2697,10 +2825,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2754,7 +2882,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2773,7 +2901,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2787,6 +2915,29 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_A(long userId, boolean archived,
 		int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_A(userId, archived, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and archived = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param archived the archived
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_A(long userId, boolean archived,
+		int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2806,16 +2957,20 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(archived != userNotificationEvent.getArchived())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(archived != userNotificationEvent.getArchived())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -2876,10 +3031,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2898,7 +3053,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_A_First(long userId, boolean archived,
@@ -2955,7 +3110,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_A_Last(long userId, boolean archived,
@@ -3018,7 +3173,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_A_PrevAndNext(
@@ -3190,8 +3345,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId, archived };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -3219,10 +3373,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3287,7 +3441,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and deliveryType = &#63; and delivered = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3307,7 +3461,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and delivered = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3322,6 +3476,31 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_DT_D(long userId,
 		int deliveryType, boolean delivered, int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_DT_D(userId, deliveryType, delivered, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and delivered = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param deliveryType the delivery type
+	 * @param delivered the delivered
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_DT_D(long userId,
+		int deliveryType, boolean delivered, int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3341,17 +3520,21 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(deliveryType != userNotificationEvent.getDeliveryType()) ||
-						(delivered != userNotificationEvent.getDelivered())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(deliveryType != userNotificationEvent.getDeliveryType()) ||
+							(delivered != userNotificationEvent.getDelivered())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -3416,10 +3599,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3439,7 +3622,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param delivered the delivered
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_D_First(long userId,
@@ -3502,7 +3685,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param delivered the delivered
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_D_Last(long userId,
@@ -3572,7 +3755,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param delivered the delivered
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_DT_D_PrevAndNext(
@@ -3752,8 +3935,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId, deliveryType, delivered };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -3785,10 +3967,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3854,7 +4036,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and deliveryType = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3874,7 +4056,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3889,6 +4071,31 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_DT_A(long userId,
 		int deliveryType, boolean archived, int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_DT_A(userId, deliveryType, archived, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and archived = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param deliveryType the delivery type
+	 * @param archived the archived
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_DT_A(long userId,
+		int deliveryType, boolean archived, int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3908,17 +4115,21 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(deliveryType != userNotificationEvent.getDeliveryType()) ||
-						(archived != userNotificationEvent.getArchived())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(deliveryType != userNotificationEvent.getDeliveryType()) ||
+							(archived != userNotificationEvent.getArchived())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -3983,10 +4194,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4006,7 +4217,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_A_First(long userId,
@@ -4069,7 +4280,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_A_Last(long userId,
@@ -4139,7 +4350,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_DT_A_PrevAndNext(
@@ -4319,8 +4530,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId, deliveryType, archived };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -4352,10 +4562,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4420,7 +4630,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and delivered = &#63; and actionRequired = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -4440,7 +4650,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and delivered = &#63; and actionRequired = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -4455,6 +4665,31 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_D_A(long userId,
 		boolean delivered, boolean actionRequired, int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_D_A(userId, delivered, actionRequired, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and delivered = &#63; and actionRequired = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param delivered the delivered
+	 * @param actionRequired the action required
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_D_A(long userId,
+		boolean delivered, boolean actionRequired, int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4474,17 +4709,21 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(delivered != userNotificationEvent.getDelivered()) ||
-						(actionRequired != userNotificationEvent.getActionRequired())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(delivered != userNotificationEvent.getDelivered()) ||
+							(actionRequired != userNotificationEvent.getActionRequired())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -4549,10 +4788,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4572,7 +4811,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param actionRequired the action required
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_D_A_First(long userId,
@@ -4635,7 +4874,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param actionRequired the action required
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_D_A_Last(long userId,
@@ -4705,7 +4944,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param actionRequired the action required
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_D_A_PrevAndNext(
@@ -4887,8 +5126,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId, delivered, actionRequired };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -4920,10 +5158,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4988,7 +5226,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and actionRequired = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -5008,7 +5246,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and actionRequired = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -5023,6 +5261,31 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_A_A(long userId,
 		boolean actionRequired, boolean archived, int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_A_A(userId, actionRequired, archived, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and actionRequired = &#63; and archived = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param actionRequired the action required
+	 * @param archived the archived
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_A_A(long userId,
+		boolean actionRequired, boolean archived, int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5042,17 +5305,21 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(actionRequired != userNotificationEvent.getActionRequired()) ||
-						(archived != userNotificationEvent.getArchived())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(actionRequired != userNotificationEvent.getActionRequired()) ||
+							(archived != userNotificationEvent.getArchived())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -5117,10 +5384,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5140,7 +5407,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_A_A_First(long userId,
@@ -5203,7 +5470,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_A_A_Last(long userId,
@@ -5273,7 +5540,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_A_A_PrevAndNext(
@@ -5455,8 +5722,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 		Object[] finderArgs = new Object[] { userId, actionRequired, archived };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -5488,10 +5754,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5559,7 +5825,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and deliveryType = &#63; and delivered = &#63; and actionRequired = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -5582,7 +5848,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and delivered = &#63; and actionRequired = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -5598,6 +5864,32 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_DT_D_A(long userId,
 		int deliveryType, boolean delivered, boolean actionRequired, int start,
 		int end, OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_DT_D_A(userId, deliveryType, delivered, actionRequired,
+			start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and delivered = &#63; and actionRequired = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param deliveryType the delivery type
+	 * @param delivered the delivered
+	 * @param actionRequired the action required
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_DT_D_A(long userId,
+		int deliveryType, boolean delivered, boolean actionRequired, int start,
+		int end, OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5619,18 +5911,22 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(deliveryType != userNotificationEvent.getDeliveryType()) ||
-						(delivered != userNotificationEvent.getDelivered()) ||
-						(actionRequired != userNotificationEvent.getActionRequired())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(deliveryType != userNotificationEvent.getDeliveryType()) ||
+							(delivered != userNotificationEvent.getDelivered()) ||
+							(actionRequired != userNotificationEvent.getActionRequired())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -5699,10 +5995,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5723,7 +6019,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param actionRequired the action required
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_D_A_First(long userId,
@@ -5791,7 +6087,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param actionRequired the action required
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_D_A_Last(long userId,
@@ -5867,7 +6163,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param actionRequired the action required
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_DT_D_A_PrevAndNext(
@@ -6059,8 +6355,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				userId, deliveryType, delivered, actionRequired
 			};
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(5);
@@ -6096,10 +6391,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6168,7 +6463,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events where userId = &#63; and deliveryType = &#63; and actionRequired = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -6191,7 +6486,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and actionRequired = &#63; and archived = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -6207,6 +6502,32 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	public List<UserNotificationEvent> findByU_DT_A_A(long userId,
 		int deliveryType, boolean actionRequired, boolean archived, int start,
 		int end, OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findByU_DT_A_A(userId, deliveryType, actionRequired, archived,
+			start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events where userId = &#63; and deliveryType = &#63; and actionRequired = &#63; and archived = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param deliveryType the delivery type
+	 * @param actionRequired the action required
+	 * @param archived the archived
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findByU_DT_A_A(long userId,
+		int deliveryType, boolean actionRequired, boolean archived, int start,
+		int end, OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -6228,18 +6549,22 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				};
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (UserNotificationEvent userNotificationEvent : list) {
-				if ((userId != userNotificationEvent.getUserId()) ||
-						(deliveryType != userNotificationEvent.getDeliveryType()) ||
-						(actionRequired != userNotificationEvent.getActionRequired()) ||
-						(archived != userNotificationEvent.getArchived())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (UserNotificationEvent userNotificationEvent : list) {
+					if ((userId != userNotificationEvent.getUserId()) ||
+							(deliveryType != userNotificationEvent.getDeliveryType()) ||
+							(actionRequired != userNotificationEvent.getActionRequired()) ||
+							(archived != userNotificationEvent.getArchived())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -6308,10 +6633,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6332,7 +6657,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_A_A_First(long userId,
@@ -6400,7 +6725,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a matching user notification event could not be found
+	 * @throws NoSuchUserNotificationEventException if a matching user notification event could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByU_DT_A_A_Last(long userId,
@@ -6476,7 +6801,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * @param archived the archived
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent[] findByU_DT_A_A_PrevAndNext(
@@ -6668,8 +6993,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				userId, deliveryType, actionRequired, archived
 			};
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(5);
@@ -6705,10 +7029,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6736,7 +7060,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 */
 	@Override
 	public void cacheResult(UserNotificationEvent userNotificationEvent) {
-		EntityCacheUtil.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 			UserNotificationEventImpl.class,
 			userNotificationEvent.getPrimaryKey(), userNotificationEvent);
 
@@ -6751,7 +7075,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	@Override
 	public void cacheResult(List<UserNotificationEvent> userNotificationEvents) {
 		for (UserNotificationEvent userNotificationEvent : userNotificationEvents) {
-			if (EntityCacheUtil.getResult(
+			if (entityCache.getResult(
 						UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 						UserNotificationEventImpl.class,
 						userNotificationEvent.getPrimaryKey()) == null) {
@@ -6767,46 +7091,42 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Clears the cache for all user notification events.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(UserNotificationEventImpl.class.getName());
-		}
+		entityCache.clearCache(UserNotificationEventImpl.class);
 
-		EntityCacheUtil.clearCache(UserNotificationEventImpl.class);
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
 	/**
 	 * Clears the cache for the user notification event.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache(UserNotificationEvent userNotificationEvent) {
-		EntityCacheUtil.removeResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.removeResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 			UserNotificationEventImpl.class,
 			userNotificationEvent.getPrimaryKey());
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
 	@Override
 	public void clearCache(List<UserNotificationEvent> userNotificationEvents) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (UserNotificationEvent userNotificationEvent : userNotificationEvents) {
-			EntityCacheUtil.removeResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+			entityCache.removeResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 				UserNotificationEventImpl.class,
 				userNotificationEvent.getPrimaryKey());
 		}
@@ -6837,7 +7157,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 *
 	 * @param userNotificationEventId the primary key of the user notification event
 	 * @return the user notification event that was removed
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent remove(long userNotificationEventId)
@@ -6850,7 +7170,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 *
 	 * @param primaryKey the primary key of the user notification event
 	 * @return the user notification event that was removed
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent remove(Serializable primaryKey)
@@ -6920,7 +7240,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 	@Override
 	public UserNotificationEvent updateImpl(
-		com.liferay.portal.model.UserNotificationEvent userNotificationEvent) {
+		UserNotificationEvent userNotificationEvent) {
 		userNotificationEvent = toUnwrappedModel(userNotificationEvent);
 
 		boolean isNew = userNotificationEvent.isNew();
@@ -6944,7 +7264,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 				userNotificationEvent.setNew(false);
 			}
 			else {
-				session.merge(userNotificationEvent);
+				userNotificationEvent = (UserNotificationEvent)session.merge(userNotificationEvent);
 			}
 		}
 		catch (Exception e) {
@@ -6954,10 +7274,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 			closeSession(session);
 		}
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
 		if (isNew || !UserNotificationEventModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 
 		else {
@@ -6967,14 +7287,14 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalUuid()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 
 				args = new Object[] { userNotificationEventModelImpl.getUuid() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 			}
 
@@ -6985,8 +7305,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 
 				args = new Object[] {
@@ -6994,8 +7314,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 			}
 
@@ -7005,14 +7325,14 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalUserId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
 					args);
 
 				args = new Object[] { userNotificationEventModelImpl.getUserId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
 					args);
 			}
 
@@ -7023,8 +7343,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalDeliveryType()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT,
 					args);
 
 				args = new Object[] {
@@ -7032,8 +7352,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getDeliveryType()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT,
 					args);
 			}
 
@@ -7044,8 +7364,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalDelivered()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
 					args);
 
 				args = new Object[] {
@@ -7053,8 +7373,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getDelivered()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
 					args);
 			}
 
@@ -7065,8 +7385,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A,
 					args);
 
 				args = new Object[] {
@@ -7074,8 +7394,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A,
 					args);
 			}
 
@@ -7087,8 +7407,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalDelivered()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_D, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D,
 					args);
 
 				args = new Object[] {
@@ -7097,8 +7417,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getDelivered()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_D, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D,
 					args);
 			}
 
@@ -7110,8 +7430,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A,
 					args);
 
 				args = new Object[] {
@@ -7120,8 +7440,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A,
 					args);
 			}
 
@@ -7133,8 +7453,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalActionRequired()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_D_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D_A,
 					args);
 
 				args = new Object[] {
@@ -7143,8 +7463,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getActionRequired()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_D_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D_A,
 					args);
 			}
 
@@ -7156,8 +7476,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_A_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_A_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A_A,
 					args);
 
 				args = new Object[] {
@@ -7166,8 +7486,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_A_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_A_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_A_A,
 					args);
 			}
 
@@ -7180,8 +7500,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalActionRequired()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_D_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_D_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D_A,
 					args);
 
 				args = new Object[] {
@@ -7191,8 +7511,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getActionRequired()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_D_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_D_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_D_A,
 					args);
 			}
 
@@ -7205,8 +7525,8 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getOriginalArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_A_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_A_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A_A,
 					args);
 
 				args = new Object[] {
@@ -7216,13 +7536,13 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 						userNotificationEventModelImpl.getArchived()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_DT_A_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_DT_A_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_DT_A_A,
 					args);
 			}
 		}
 
-		EntityCacheUtil.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 			UserNotificationEventImpl.class,
 			userNotificationEvent.getPrimaryKey(), userNotificationEvent, false);
 
@@ -7264,7 +7584,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 *
 	 * @param primaryKey the primary key of the user notification event
 	 * @return the user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByPrimaryKey(Serializable primaryKey)
@@ -7284,11 +7604,11 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	}
 
 	/**
-	 * Returns the user notification event with the primary key or throws a {@link com.liferay.portal.NoSuchUserNotificationEventException} if it could not be found.
+	 * Returns the user notification event with the primary key or throws a {@link NoSuchUserNotificationEventException} if it could not be found.
 	 *
 	 * @param userNotificationEventId the primary key of the user notification event
 	 * @return the user notification event
-	 * @throws com.liferay.portal.NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
+	 * @throws NoSuchUserNotificationEventException if a user notification event with the primary key could not be found
 	 */
 	@Override
 	public UserNotificationEvent findByPrimaryKey(long userNotificationEventId)
@@ -7304,7 +7624,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 */
 	@Override
 	public UserNotificationEvent fetchByPrimaryKey(Serializable primaryKey) {
-		UserNotificationEvent userNotificationEvent = (UserNotificationEvent)EntityCacheUtil.getResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+		UserNotificationEvent userNotificationEvent = (UserNotificationEvent)entityCache.getResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 				UserNotificationEventImpl.class, primaryKey);
 
 		if (userNotificationEvent == _nullUserNotificationEvent) {
@@ -7324,13 +7644,13 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 					cacheResult(userNotificationEvent);
 				}
 				else {
-					EntityCacheUtil.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+					entityCache.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 						UserNotificationEventImpl.class, primaryKey,
 						_nullUserNotificationEvent);
 				}
 			}
 			catch (Exception e) {
-				EntityCacheUtil.removeResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.removeResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 					UserNotificationEventImpl.class, primaryKey);
 
 				throw processException(e);
@@ -7380,7 +7700,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 		Set<Serializable> uncachedPrimaryKeys = null;
 
 		for (Serializable primaryKey : primaryKeys) {
-			UserNotificationEvent userNotificationEvent = (UserNotificationEvent)EntityCacheUtil.getResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+			UserNotificationEvent userNotificationEvent = (UserNotificationEvent)entityCache.getResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 					UserNotificationEventImpl.class, primaryKey);
 
 			if (userNotificationEvent == null) {
@@ -7433,7 +7753,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 			}
 
 			for (Serializable primaryKey : uncachedPrimaryKeys) {
-				EntityCacheUtil.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.putResult(UserNotificationEventModelImpl.ENTITY_CACHE_ENABLED,
 					UserNotificationEventImpl.class, primaryKey,
 					_nullUserNotificationEvent);
 			}
@@ -7462,7 +7782,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns a range of all the user notification events.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of user notification events
@@ -7478,7 +7798,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 * Returns an ordered range of all the user notification events.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of user notification events
@@ -7489,6 +7809,26 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	@Override
 	public List<UserNotificationEvent> findAll(int start, int end,
 		OrderByComparator<UserNotificationEvent> orderByComparator) {
+		return findAll(start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the user notification events.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserNotificationEventModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param start the lower bound of the range of user notification events
+	 * @param end the upper bound of the range of user notification events (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of user notification events
+	 */
+	@Override
+	public List<UserNotificationEvent> findAll(int start, int end,
+		OrderByComparator<UserNotificationEvent> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -7504,8 +7844,12 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 			finderArgs = new Object[] { start, end, orderByComparator };
 		}
 
-		List<UserNotificationEvent> list = (List<UserNotificationEvent>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<UserNotificationEvent> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<UserNotificationEvent>)finderCache.getResult(finderPath,
+					finderArgs, this);
+		}
 
 		if (list == null) {
 			StringBundler query = null;
@@ -7552,10 +7896,10 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -7585,7 +7929,7 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	 */
 	@Override
 	public int countAll() {
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
+		Long count = (Long)finderCache.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
@@ -7598,11 +7942,11 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_ALL,
-					FINDER_ARGS_EMPTY, count);
+				finderCache.putResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY,
+					count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_ALL,
+				finderCache.removeResult(FINDER_PATH_COUNT_ALL,
 					FINDER_ARGS_EMPTY);
 
 				throw processException(e);
@@ -7616,8 +7960,13 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	}
 
 	@Override
-	protected Set<String> getBadColumnNames() {
+	public Set<String> getBadColumnNames() {
 		return _badColumnNames;
+	}
+
+	@Override
+	protected Map<String, Integer> getTableColumnsMap() {
+		return UserNotificationEventModelImpl.TABLE_COLUMNS_MAP;
 	}
 
 	/**
@@ -7627,12 +7976,14 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	}
 
 	public void destroy() {
-		EntityCacheUtil.removeCache(UserNotificationEventImpl.class.getName());
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		entityCache.removeCache(UserNotificationEventImpl.class.getName());
+		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
+	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
+	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	private static final String _SQL_SELECT_USERNOTIFICATIONEVENT = "SELECT userNotificationEvent FROM UserNotificationEvent userNotificationEvent";
 	private static final String _SQL_SELECT_USERNOTIFICATIONEVENT_WHERE_PKS_IN = "SELECT userNotificationEvent FROM UserNotificationEvent userNotificationEvent WHERE userNotificationEventId IN (";
 	private static final String _SQL_SELECT_USERNOTIFICATIONEVENT_WHERE = "SELECT userNotificationEvent FROM UserNotificationEvent userNotificationEvent WHERE ";
@@ -7641,7 +7992,6 @@ public class UserNotificationEventPersistenceImpl extends BasePersistenceImpl<Us
 	private static final String _ORDER_BY_ENTITY_ALIAS = "userNotificationEvent.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No UserNotificationEvent exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No UserNotificationEvent exists with the key {";
-	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
 	private static final Log _log = LogFactoryUtil.getLog(UserNotificationEventPersistenceImpl.class);
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"uuid", "type"
