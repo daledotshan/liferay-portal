@@ -31,16 +31,9 @@ public class GCUtil {
 	public static void fullGC(boolean ensureEnqueuedReferences)
 		throws InterruptedException {
 
-		fullGC(true, ensureEnqueuedReferences);
-	}
-
-	public static void fullGC(
-			boolean actively, boolean ensureEnqueuedReferences)
-		throws InterruptedException {
-
 		ReferenceQueue<Object> referenceQueue = new ReferenceQueue<>();
 
-		SoftReference<Object> softReference = new SoftReference<Object>(
+		SoftReference<Object> softReference = new SoftReference<>(
 			new Object(), referenceQueue);
 
 		List<byte[]> list = new ArrayList<>();
@@ -62,7 +55,7 @@ public class GCUtil {
 		Assert.assertSame(softReference, referenceQueue.remove());
 
 		if (ensureEnqueuedReferences) {
-			fullGC(actively, false);
+			fullGC(false);
 		}
 	}
 
@@ -77,7 +70,7 @@ public class GCUtil {
 
 		ReferenceQueue<Object> referenceQueue = new ReferenceQueue<>();
 
-		WeakReference<Object> weakReference = new WeakReference<Object>(
+		WeakReference<Object> weakReference = new WeakReference<>(
 			new Object(), referenceQueue);
 
 		if (actively) {
