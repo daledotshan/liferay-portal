@@ -271,6 +271,9 @@ public class CalendarLocalServiceImpl extends CalendarLocalServiceBaseImpl {
 
 		// Calendar
 
+		User user = userPersistence.findByPrimaryKey(
+			serviceContext.getUserId());
+
 		if (color <= 0) {
 			color = CalendarServiceConfigurationValues.CALENDAR_COLOR_DEFAULT;
 		}
@@ -287,6 +290,7 @@ public class CalendarLocalServiceImpl extends CalendarLocalServiceBaseImpl {
 		calendar.setDefaultCalendar(defaultCalendar);
 		calendar.setEnableComments(enableComments);
 		calendar.setEnableRatings(enableRatings);
+		calendar.setUserName(user.getFullName());
 
 		calendarPersistence.update(calendar);
 
