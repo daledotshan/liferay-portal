@@ -23,7 +23,7 @@ int usersCount = UserLocalServiceUtil.searchCount(company.getCompanyId(), String
 
 List<UserGroupGroupRole> userGroupGroupRoles = UserGroupGroupRoleLocalServiceUtil.getUserGroupGroupRoles(userGroup.getUserGroupId(), siteMembershipsDisplayContext.getGroupId());
 
-String userGroupGroupRolesString = ListUtil.toString(userGroupGroupRoles, UsersAdmin.USER_GROUP_GROUP_ROLE_TITLE_ACCESSOR, StringPool.COMMA_AND_SPACE);
+String userGroupGroupRolesString = HtmlUtil.escape(ListUtil.toString(userGroupGroupRoles, UsersAdmin.USER_GROUP_GROUP_ROLE_TITLE_ACCESSOR, StringPool.COMMA_AND_SPACE));
 %>
 
 <c:choose>
