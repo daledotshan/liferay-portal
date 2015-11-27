@@ -1,0 +1,73 @@
+import com.liferay.gradle.plugins.node.tasks.DownloadNodeModuleTask
+import com.liferay.gradle.plugins.node.tasks.ExecuteNodeTask
+
+apply plugin: "com.liferay.cache"
+
+task bowerInstall(type: ExecuteNodeTask)
+task buildCrystalComponents(type: Copy)
+task downloadBower(type: DownloadNodeModuleTask)
+
+String bowerVersion = "1.5.2"
+
+String defineRegex = "define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/object', 'metal/src/component/Component', 'metal/src/component/ComponentRegistry', 'metal/src/component/ComponentRenderer', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyTemplates'], function (exports, _core, _dom, _object, _Component2, _ComponentRegistry, _ComponentRenderer2, _SoyAop, _SoyTemplates) {";
+String defineReplace = "define(['exports', 'soyutils', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/object', 'metal/src/component/Component', 'metal/src/component/ComponentRegistry', 'metal/src/component/ComponentRenderer', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyTemplates'], function (exports, _soyutils, _core, _dom, _object, _Component2, _ComponentRegistry, _ComponentRenderer2, _SoyAop, _SoyTemplates) {";
+
+bowerInstall {
+	args = [new File(node.nodeDir, "node_modules/bower/bin/bower"), "install", "--allow-root"]
+	dependsOn downloadBower
+}
+
+buildCrystalComponents {
+	dependsOn bowerInstall
+
+	eachFile {
+		if (name.equals("SoyRenderer.js")) {
+			filter {
+				String line ->
+
+				line.replace(defineRegex, defineReplace)
+			}
+		}
+		else if (name.equals("SoyRenderer.js.map")) {
+			filter {
+				String line ->
+
+				line.replace("import core from '../core';", "import soyutils from 'soyutils';\\nimport core from '../core';")
+			}
+		}
+	}
+
+	from "bower_components/crystal-components/build/amd-jquery"
+	includeEmptyDirs = false
+	into "classes/META-INF/resources"
+}
+
+cache {
+	task(classes) {
+		baseDir = "classes/META-INF"
+		cacheDir = ".task-cache"
+		skipTaskDependency configJSModules
+
+		testFile "bower.json"
+		testFile "build.gradle"
+		testFile "package.json"
+	}
+}
+
+configJSModules {
+	dependsOn buildCrystalComponents
+	include "**/*.js"
+}
+
+dependencies {
+	compile group: "org.osgi", name: "org.osgi.core", version: "5.0.0"
+}
+
+downloadBower {
+	moduleName = "bower"
+	moduleVersion = bowerVersion
+}
+
+liferay {
+	deployDir = file("${liferayHome}/osgi/modules")
+}
