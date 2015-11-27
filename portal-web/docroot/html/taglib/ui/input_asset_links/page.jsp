@@ -33,7 +33,7 @@
 			data='<%= (Map<String, Object>)selectorEntry.get("data") %>'
 			iconCssClass='<%= (String)selectorEntry.get("iconCssClass") %>'
 			id='<%= (String)selectorEntry.get("id") %>'
-			message='<%= (String)selectorEntry.get("message") %>'
+			message='<%= HtmlUtil.escape((String)selectorEntry.get("message")) %>'
 			url="javascript:;"
 		/>
 
