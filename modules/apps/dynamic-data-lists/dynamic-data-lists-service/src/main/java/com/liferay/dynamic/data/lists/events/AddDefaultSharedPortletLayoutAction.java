@@ -19,14 +19,17 @@ import com.liferay.portal.kernel.events.SimpleAction;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
+import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.CompanyLocalService;
 import com.liferay.portal.service.GroupLocalService;
 import com.liferay.portal.service.LayoutLocalService;
+import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserLocalService;
 
@@ -87,11 +90,16 @@ public class AddDefaultSharedPortletLayoutAction extends SimpleAction {
 
 		serviceContext.setUserId(defaultUserId);
 
-		_layoutLocalService.addLayout(
-			defaultUserId, group.getGroupId(), false,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "shared",
-			StringPool.BLANK, StringPool.BLANK, "shared_portlet", true,
-			"/shared", serviceContext);
+		Layout layout = LayoutLocalServiceUtil.fetchLayoutByFriendlyURL(
+			group.getGroupId(), false, "/shared");
+
+		if (Validator.isNull(layout)) {
+			_layoutLocalService.addLayout(
+				defaultUserId, group.getGroupId(), false,
+				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "shared",
+				StringPool.BLANK, StringPool.BLANK, "shared_portlet", true,
+				"/shared", serviceContext);
+		}
 	}
 
 	@Reference(unbind = "-")
