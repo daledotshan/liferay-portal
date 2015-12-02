@@ -16,14 +16,16 @@ package com.liferay.portal.servlet.filters.autologin;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.session.AuthenticatedSessionManagerUtil;
+import com.liferay.portal.kernel.security.auto.login.AutoLogin;
 import com.liferay.portal.kernel.servlet.ProtectedServletRequest;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.AutoLogin;
 import com.liferay.portal.security.pwd.PasswordEncryptorUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
@@ -31,8 +33,6 @@ import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.login.util.LoginUtil;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
@@ -93,11 +93,12 @@ public class AutoLoginFilter extends BasePortalFilter {
 		}
 
 		if (!PropsValues.AUTH_SIMULTANEOUS_LOGINS) {
-			LoginUtil.signOutSimultaneousLogins(userId);
+			AuthenticatedSessionManagerUtil.signOutSimultaneousLogins(userId);
 		}
 
 		if (PropsValues.SESSION_ENABLE_PHISHING_PROTECTION) {
-			session = LoginUtil.renewSession(request, session);
+			session = AuthenticatedSessionManagerUtil.renewSession(
+				request, session);
 		}
 
 		session.setAttribute("j_username", jUsername);
@@ -110,7 +111,8 @@ public class AutoLoginFilter extends BasePortalFilter {
 		}
 		else {
 			session.setAttribute(
-				"j_password", PasswordEncryptorUtil.encrypt(jPassword));
+				"j_password",
+				PasswordEncryptorUtil.encrypt(jPassword, user.getPassword()));
 
 			if (PropsValues.SESSION_STORE_PASSWORD) {
 				session.setAttribute(WebKeys.USER_PASSWORD, jPassword);
@@ -160,7 +162,8 @@ public class AutoLoginFilter extends BasePortalFilter {
 			}
 
 			processFilter(
-				AutoLoginFilter.class, request, response, filterChain);
+				AutoLoginFilter.class.getName(), request, response,
+				filterChain);
 
 			return;
 		}
@@ -181,7 +184,8 @@ public class AutoLoginFilter extends BasePortalFilter {
 			}
 
 			processFilter(
-				AutoLoginFilter.class, request, response, filterChain);
+				AutoLoginFilter.class.getName(), request, response,
+				filterChain);
 
 			return;
 		}
@@ -261,7 +265,8 @@ public class AutoLoginFilter extends BasePortalFilter {
 			}
 		}
 
-		processFilter(AutoLoginFilter.class, request, response, filterChain);
+		processFilter(
+			AutoLoginFilter.class.getName(), request, response, filterChain);
 	}
 
 	private static final String _PATH_CHAT_LATEST = "/-/chat/latest";
@@ -284,6 +289,10 @@ public class AutoLoginFilter extends BasePortalFilter {
 			Registry registry = RegistryUtil.getRegistry();
 
 			AutoLogin autoLogin = registry.getService(serviceReference);
+
+			if (autoLogin == null) {
+				return null;
+			}
 
 			_autoLogins.add(autoLogin);
 
