@@ -24,7 +24,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portal.service.OrganizationServiceUtil} service utility. The
+ * {@link OrganizationServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see OrganizationServiceHttp
  * @see com.liferay.portal.model.OrganizationSoap
- * @see com.liferay.portal.service.OrganizationServiceUtil
+ * @see OrganizationServiceUtil
  * @generated
  */
 @ProviderType
@@ -69,9 +69,6 @@ public class OrganizationServiceSoap {
 	*
 	* @param groupId the primary key of the group
 	* @param organizationIds the primary keys of the organizations
-	* @throws PortalException if a group or organization with the primary key
-	could not be found or if the user did not have permission to
-	assign group members
 	*/
 	public static void addGroupOrganizations(long groupId,
 		long[] organizationIds) throws RemoteException {
@@ -115,14 +112,9 @@ public class OrganizationServiceSoap {
 	<code>null</code>). Can set asset category IDs, asset tag
 	names, and expando bridge attributes for the organization.
 	* @return the organization
-	* @throws PortalException if a parent organization with the primary key
-	could not be found, if the organization's information was
-	invalid, or if the user did not have permission to add the
-	organization
 	* @deprecated As of 6.2.0, replaced by {@link #addOrganization(long,
-	String, String, long, long, int, String, boolean,
-	java.util.List, java.util.List, java.util.List,
-	java.util.List, java.util.List, ServiceContext)}
+	String, String, long, long, int, String, boolean, List, List,
+	List, List, List, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portal.model.OrganizationSoap addOrganization(
@@ -184,10 +176,6 @@ public class OrganizationServiceSoap {
 	<code>null</code>). Can set asset category IDs, asset tag
 	names, and expando bridge attributes for the organization.
 	* @return the organization
-	* @throws PortalException if the parent organization with the primary
-	key could not be found, if the organization information was
-	invalid, or if the user did not have permission to add the
-	organization
 	* @deprecated As of 6.2.0, replaced by {@link #addOrganization(long,
 	String, String, long, long, int, String, boolean,
 	ServiceContext)}
@@ -240,10 +228,6 @@ public class OrganizationServiceSoap {
 	<code>null</code>). Can set asset category IDs, asset tag names,
 	and expando bridge attributes for the organization.
 	* @return the organization
-	* @throws PortalException if a parent organization with the primary key
-	could not be found, if the organization's information was
-	invalid, or if the user did not have permission to add the
-	organization
 	*/
 	public static com.liferay.portal.model.OrganizationSoap addOrganization(
 		long parentOrganizationId, java.lang.String name,
@@ -301,9 +285,6 @@ public class OrganizationServiceSoap {
 	<code>null</code>). Can set asset category IDs, asset tag names,
 	and expando bridge attributes for the organization.
 	* @return the organization
-	* @throws PortalException if the parent organization with the primary key
-	could not be found, if the organization information was invalid,
-	or if the user did not have permission to add the organization
 	*/
 	public static com.liferay.portal.model.OrganizationSoap addOrganization(
 		long parentOrganizationId, java.lang.String name,
@@ -331,8 +312,6 @@ public class OrganizationServiceSoap {
 	*
 	* @param passwordPolicyId the primary key of the password policy
 	* @param organizationIds the primary keys of the organizations
-	* @throws PortalException if the user did not have permission to update the
-	password policy
 	*/
 	public static void addPasswordPolicyOrganizations(long passwordPolicyId,
 		long[] organizationIds) throws RemoteException {
@@ -351,9 +330,6 @@ public class OrganizationServiceSoap {
 	* Deletes the organization's logo.
 	*
 	* @param organizationId the primary key of the organization
-	* @throws PortalException if an organization with the primary key could not
-	be found, if the organization's logo could not be found, or if
-	the user did not have permission to update the organization
 	*/
 	public static void deleteLogo(long organizationId)
 		throws RemoteException {
@@ -372,10 +348,6 @@ public class OrganizationServiceSoap {
 	* assets are also deleted.
 	*
 	* @param organizationId the primary key of the organization
-	* @throws PortalException if an organization with the primary key could not
-	be found, if the user did not have permission to delete the
-	organization, if the organization had a workflow in approved
-	status, or if the organization was a parent organization
 	*/
 	public static void deleteOrganization(long organizationId)
 		throws RemoteException {
@@ -390,12 +362,33 @@ public class OrganizationServiceSoap {
 	}
 
 	/**
+	* Returns the organization with the primary key.
+	*
+	* @param organizationId the primary key of the organization
+	* @return the organization with the primary key, or <code>null</code> if an
+	organization with the primary key could not be found or if the
+	user did not have permission to view the organization
+	*/
+	public static com.liferay.portal.model.OrganizationSoap fetchOrganization(
+		long organizationId) throws RemoteException {
+		try {
+			com.liferay.portal.model.Organization returnValue = OrganizationServiceUtil.fetchOrganization(organizationId);
+
+			return com.liferay.portal.model.OrganizationSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	/**
 	* Returns all the organizations which the user has permission to manage.
 	*
 	* @param actionId the permitted action
 	* @param max the maximum number of the organizations to be considered
 	* @return the organizations which the user has permission to manage
-	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #getOrganizations(long, long,
 	int, int)}
 	*/
@@ -420,9 +413,6 @@ public class OrganizationServiceSoap {
 	*
 	* @param organizationId the primary key of the organization
 	* @return the organization with the primary key
-	* @throws PortalException if an organization with the primary key could not
-	be found or if the user did not have permission to view the
-	organization
 	*/
 	public static com.liferay.portal.model.OrganizationSoap getOrganization(
 		long organizationId) throws RemoteException {
@@ -445,8 +435,6 @@ public class OrganizationServiceSoap {
 	* @param name the organization's name
 	* @return the primary key of the organization with the name, or
 	<code>0</code> if the organization could not be found
-	* @throws PortalException if the user did not have permission to view the
-	organization
 	*/
 	public static long getOrganizationId(long companyId, java.lang.String name)
 		throws RemoteException {
@@ -559,7 +547,6 @@ public class OrganizationServiceSoap {
 	*
 	* @param userId the primary key of the user
 	* @return the organizations with which the user is explicitly associated
-	* @throws PortalException if a user with the primary key could not be found
 	*/
 	public static com.liferay.portal.model.OrganizationSoap[] getUserOrganizations(
 		long userId) throws RemoteException {
@@ -581,9 +568,6 @@ public class OrganizationServiceSoap {
 	*
 	* @param groupId the primary key of the group
 	* @param organizationIds the primary keys of the organizations
-	* @throws PortalException if a group or organization with the primary key
-	could not be found or if the user did not have permission to
-	assign group members
 	*/
 	public static void setGroupOrganizations(long groupId,
 		long[] organizationIds) throws RemoteException {
@@ -603,9 +587,6 @@ public class OrganizationServiceSoap {
 	*
 	* @param groupId the primary key of the group
 	* @param organizationIds the primary keys of the organizations
-	* @throws PortalException if a group or organization with the primary key
-	could not be found or if the user did not have permission to
-	assign group members
 	*/
 	public static void unsetGroupOrganizations(long groupId,
 		long[] organizationIds) throws RemoteException {
@@ -625,9 +606,6 @@ public class OrganizationServiceSoap {
 	*
 	* @param passwordPolicyId the primary key of the password policy
 	* @param organizationIds the primary keys of the organizations
-	* @throws PortalException if a password policy or organization with the
-	primary key could not be found, or if the user did not have
-	permission to update the password policy
 	*/
 	public static void unsetPasswordPolicyOrganizations(long passwordPolicyId,
 		long[] organizationIds) throws RemoteException {
@@ -668,14 +646,9 @@ public class OrganizationServiceSoap {
 	names for the organization, and merge expando bridge
 	attributes for the organization.
 	* @return the organization
-	* @throws PortalException if an organization or parent organization
-	with the primary key could not be found, if the user did not
-	have permission to update the organization information, or if
-	the new information was invalid
 	* @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
 	long, String, String, long, long, int, String, boolean,
-	byte[], boolean, java.util.List, java.util.List,
-	java.util.List, java.util.List, java.util.List,
+	byte[], boolean, List, List, List, List, List,
 	ServiceContext)}
 	*/
 	@Deprecated
@@ -735,10 +708,6 @@ public class OrganizationServiceSoap {
 	names for the organization, and merge expando bridge
 	attributes for the organization.
 	* @return the organization
-	* @throws PortalException if an organization or parent organization
-	with the primary key could not be found, if the user did not
-	have permission to update the organization, or if the new
-	information was invalid
 	* @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
 	long, String, String, long, long, int, String, boolean,
 	ServiceContext)}
@@ -790,10 +759,6 @@ public class OrganizationServiceSoap {
 	names for the organization, and merge expando bridge attributes
 	for the organization.
 	* @return the organization
-	* @throws PortalException if an organization or parent organization with
-	the primary key could not be found, if the user did not have
-	permission to update the organization information, or if the new
-	information was invalid
 	*/
 	public static com.liferay.portal.model.OrganizationSoap updateOrganization(
 		long organizationId, long parentOrganizationId, java.lang.String name,
@@ -854,14 +819,9 @@ public class OrganizationServiceSoap {
 	names for the organization, and merge expando bridge
 	attributes for the organization.
 	* @return the organization
-	* @throws PortalException if an organization or parent organization
-	with the primary key could not be found, if the user did not
-	have permission to update the organization information, or if
-	the new information was invalid
 	* @deprecated As of 7.0.0, replaced by {@link #updateOrganization(long,
 	long, String, String, long, long, int, String, boolean,
-	byte[], boolean, java.util.List, java.util.List,
-	java.util.List, java.util.List, java.util.List,
+	byte[], boolean, List, List, List, List, List,
 	ServiceContext)}
 	*/
 	@Deprecated
@@ -919,10 +879,6 @@ public class OrganizationServiceSoap {
 	names for the organization, and merge expando bridge attributes
 	for the organization.
 	* @return the organization
-	* @throws PortalException if an organization or parent organization with
-	the primary key could not be found, if the user did not have
-	permission to update the organization, or if the new information
-	was invalid
 	*/
 	public static com.liferay.portal.model.OrganizationSoap updateOrganization(
 		long organizationId, long parentOrganizationId, java.lang.String name,
