@@ -32,7 +32,8 @@ public class TableMapperFactory {
 	public static
 		<L extends BaseModel<L>, R extends BaseModel<R>> TableMapper<L, R>
 			getTableMapper(
-				String tableName, String leftColumnName, String rightColumnName,
+				String tableName, String companyColumnName,
+				String leftColumnName, String rightColumnName,
 				BasePersistence<L> leftPersistence,
 				BasePersistence<R> rightPersistence) {
 
@@ -41,15 +42,15 @@ public class TableMapperFactory {
 		if (tableMapper == null) {
 			TableMapperImpl<L, R> tableMapperImpl = null;
 
-			if (cachelessMappingTableNames.contains(tableName)) {
-				tableMapperImpl = new CachelessTableMapperImpl<>(
-					tableName, leftColumnName, rightColumnName, leftPersistence,
-					rightPersistence);
+			if (cacheMappingTableNames.contains(tableName)) {
+				tableMapperImpl = new TableMapperImpl<>(
+					tableName, companyColumnName, leftColumnName,
+					rightColumnName, leftPersistence, rightPersistence);
 			}
 			else {
-				tableMapperImpl = new TableMapperImpl<>(
-					tableName, leftColumnName, rightColumnName, leftPersistence,
-					rightPersistence);
+				tableMapperImpl = new CachelessTableMapperImpl<>(
+					tableName, companyColumnName, leftColumnName,
+					rightColumnName, leftPersistence, rightPersistence);
 			}
 
 			tableMapperImpl.setReverseTableMapper(
@@ -74,10 +75,10 @@ public class TableMapperFactory {
 		}
 	}
 
-	protected static final Set<String> cachelessMappingTableNames =
+	protected static final Set<String> cacheMappingTableNames =
 		SetUtil.fromArray(
 			PropsUtil.getArray(
-				PropsKeys.TABLE_MAPPER_CACHELESS_MAPPING_TABLE_NAMES));
+				PropsKeys.TABLE_MAPPER_CACHE_MAPPING_TABLE_NAMES));
 	protected static final Map<String, TableMapper<?, ?>> tableMappers =
 		new ConcurrentHashMap<>();
 
