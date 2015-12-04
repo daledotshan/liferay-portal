@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.language.UnicodeLanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletModeFactory_IW;
+import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletRequestModel;
 import com.liferay.portal.kernel.portlet.PortletRequestModelFactory;
 import com.liferay.portal.kernel.portlet.WindowStateFactory_IW;
@@ -32,6 +33,7 @@ import com.liferay.portal.kernel.template.TemplateHandlerRegistryUtil;
 import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.util.ArrayUtil_IW;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.DateUtil_IW;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -50,7 +52,8 @@ import com.liferay.portal.kernel.util.StringUtil_IW;
 import com.liferay.portal.kernel.util.TimeZoneUtil_IW;
 import com.liferay.portal.kernel.util.UnicodeFormatter_IW;
 import com.liferay.portal.kernel.util.Validator_IW;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Theme;
 import com.liferay.portal.service.GroupLocalService;
@@ -74,19 +77,14 @@ import com.liferay.portal.service.permission.UserGroupPermissionUtil;
 import com.liferay.portal.service.permission.UserPermissionUtil;
 import com.liferay.portal.theme.NavItem;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.SessionClicks_IW;
-import com.liferay.portal.util.WebKeys;
 import com.liferay.portal.webserver.WebServerServletTokenUtil;
 import com.liferay.portlet.PortletURLFactoryUtil;
-import com.liferay.portlet.documentlibrary.util.DLUtil;
-import com.liferay.portlet.dynamicdatamapping.util.DDMUtil;
 import com.liferay.portlet.expando.service.ExpandoColumnLocalService;
 import com.liferay.portlet.expando.service.ExpandoRowLocalService;
 import com.liferay.portlet.expando.service.ExpandoTableLocalService;
 import com.liferay.portlet.expando.service.ExpandoValueLocalService;
-import com.liferay.portlet.journal.util.JournalContentUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -104,8 +102,8 @@ import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.struts.taglib.tiles.ComponentConstants;
 import org.apache.struts.tiles.ComponentContext;
+import org.apache.struts.tiles.taglib.ComponentConstants;
 
 /**
  * @author Tina Tian
@@ -291,7 +289,7 @@ public class TemplateContextHelper {
 			contextObjects.put(
 				"layoutTypePortlet", themeDisplay.getLayoutTypePortlet());
 			contextObjects.put(
-				"scopeGroupId", new Long(themeDisplay.getScopeGroupId()));
+				"scopeGroupId", Long.valueOf(themeDisplay.getScopeGroupId()));
 			contextObjects.put(
 				"permissionChecker", themeDisplay.getPermissionChecker());
 			contextObjects.put("locale", themeDisplay.getLocale());
@@ -312,7 +310,7 @@ public class TemplateContextHelper {
 			// Deprecated
 
 			contextObjects.put(
-				"portletGroupId", new Long(themeDisplay.getScopeGroupId()));
+				"portletGroupId", Long.valueOf(themeDisplay.getScopeGroupId()));
 		}
 
 		// Theme
@@ -430,24 +428,6 @@ public class TemplateContextHelper {
 
 		variables.put("dateUtil", DateUtil_IW.getInstance());
 
-		// Dynamic data mapping util
-
-		try {
-			variables.put("ddmUtil", DDMUtil.getDDM());
-		}
-		catch (SecurityException se) {
-			_log.error(se, se);
-		}
-
-		// Document library util
-
-		try {
-			variables.put("dlUtil", DLUtil.getDL());
-		}
-		catch (SecurityException se) {
-			_log.error(se, se);
-		}
-
 		// Expando column service
 
 		try {
@@ -533,16 +513,6 @@ public class TemplateContextHelper {
 
 		try {
 			variables.put("imageToolUtil", ImageToolUtil.getImageTool());
-		}
-		catch (SecurityException se) {
-			_log.error(se, se);
-		}
-
-		// Journal content util
-
-		try {
-			variables.put(
-				"journalContentUtil", JournalContentUtil.getJournalContent());
 		}
 		catch (SecurityException se) {
 			_log.error(se, se);
@@ -650,7 +620,7 @@ public class TemplateContextHelper {
 			try {
 				variables.put(
 					"saxReaderUtil",
-					utilLocator.findUtil(SAXReaderUtil.class.getName()));
+					utilLocator.findUtil(SAXReader.class.getName()));
 			}
 			catch (SecurityException se) {
 				_log.error(se, se);
@@ -770,6 +740,20 @@ public class TemplateContextHelper {
 			_log.error(se, se);
 		}
 
+		Map<String, PortletProvider.Action> portletProviderActionMap =
+			new HashMap<>();
+
+		for (PortletProvider.Action action : PortletProvider.Action.values()) {
+			portletProviderActionMap.put(action.name(), action);
+		}
+
+		try {
+			variables.put("portletProviderAction", portletProviderActionMap);
+		}
+		catch (SecurityException se) {
+			_log.error(se, se);
+		}
+
 		try {
 			variables.put(
 				"rolePermission", RolePermissionUtil.getRolePermission());
@@ -848,16 +832,18 @@ public class TemplateContextHelper {
 	protected void prepareTiles(
 		Map<String, Object> contextObjects, HttpServletRequest request) {
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		ComponentContext componentContext =
 			(ComponentContext)request.getAttribute(
 				ComponentConstants.COMPONENT_CONTEXT);
 
 		if (componentContext == null) {
+			themeDisplay.setTilesSelectable(true);
+
 			return;
 		}
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
 
 		String tilesTitle = (String)componentContext.getAttribute("title");
 

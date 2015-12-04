@@ -25,6 +25,8 @@ import java.util.Iterator;
  */
 public interface JSONObject extends Externalizable {
 
+	public Object get(String key);
+
 	public boolean getBoolean(String key);
 
 	public boolean getBoolean(String key, boolean defaultValue);
@@ -72,6 +74,8 @@ public interface JSONObject extends Externalizable {
 	public JSONObject put(String key, JSONObject value);
 
 	public JSONObject put(String key, long value);
+
+	public JSONObject put(String key, Object value);
 
 	public JSONObject put(String key, String value);
 
