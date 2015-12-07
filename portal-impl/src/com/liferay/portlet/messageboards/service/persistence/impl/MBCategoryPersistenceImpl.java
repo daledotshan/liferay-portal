@@ -3691,11 +3691,6 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 	public List<MBCategory> filterFindByG_P(long groupId,
 		long[] parentCategoryIds, int start, int end,
 		OrderByComparator<MBCategory> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
-			return findByG_P(groupId, parentCategoryIds, start, end,
-				orderByComparator);
-		}
-
 		if (parentCategoryIds == null) {
 			parentCategoryIds = new long[0];
 		}
@@ -3703,6 +3698,11 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 			parentCategoryIds = ArrayUtil.unique(parentCategoryIds);
 
 			Arrays.sort(parentCategoryIds);
+		}
+
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_P(groupId, parentCategoryIds, start, end,
+				orderByComparator);
 		}
 
 		StringBundler query = new StringBundler();
@@ -6251,11 +6251,6 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 	public List<MBCategory> filterFindByNotC_G_P(long[] categoryIds,
 		long groupId, long[] parentCategoryIds, int start, int end,
 		OrderByComparator<MBCategory> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
-			return findByNotC_G_P(categoryIds, groupId, parentCategoryIds,
-				start, end, orderByComparator);
-		}
-
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -6272,6 +6267,11 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 			parentCategoryIds = ArrayUtil.unique(parentCategoryIds);
 
 			Arrays.sort(parentCategoryIds);
+		}
+
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByNotC_G_P(categoryIds, groupId, parentCategoryIds,
+				start, end, orderByComparator);
 		}
 
 		StringBundler query = new StringBundler();
@@ -7857,11 +7857,6 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 	public List<MBCategory> filterFindByG_P_S(long groupId,
 		long[] parentCategoryIds, int status, int start, int end,
 		OrderByComparator<MBCategory> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
-			return findByG_P_S(groupId, parentCategoryIds, status, start, end,
-				orderByComparator);
-		}
-
 		if (parentCategoryIds == null) {
 			parentCategoryIds = new long[0];
 		}
@@ -7869,6 +7864,11 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 			parentCategoryIds = ArrayUtil.unique(parentCategoryIds);
 
 			Arrays.sort(parentCategoryIds);
+		}
+
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_P_S(groupId, parentCategoryIds, status, start, end,
+				orderByComparator);
 		}
 
 		StringBundler query = new StringBundler();
@@ -9045,11 +9045,6 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 	public List<MBCategory> filterFindByNotC_G_P_S(long[] categoryIds,
 		long groupId, long[] parentCategoryIds, int status, int start, int end,
 		OrderByComparator<MBCategory> orderByComparator) {
-		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
-			return findByNotC_G_P_S(categoryIds, groupId, parentCategoryIds,
-				status, start, end, orderByComparator);
-		}
-
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -9066,6 +9061,11 @@ public class MBCategoryPersistenceImpl extends BasePersistenceImpl<MBCategory>
 			parentCategoryIds = ArrayUtil.unique(parentCategoryIds);
 
 			Arrays.sort(parentCategoryIds);
+		}
+
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByNotC_G_P_S(categoryIds, groupId, parentCategoryIds,
+				status, start, end, orderByComparator);
 		}
 
 		StringBundler query = new StringBundler();
