@@ -33,15 +33,15 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalService;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryService;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFileShortcutService;
 import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalService;
 import com.liferay.portlet.documentlibrary.service.DLFileVersionService;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalService;
 import com.liferay.portlet.documentlibrary.service.DLFolderService;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
-import com.liferay.portlet.dynamicdatamapping.storage.Fields;
-import com.liferay.portlet.dynamicdatamapping.util.DDMUtil;
-import com.liferay.portlet.dynamicdatamapping.util.FieldsToDDMFormValuesConverterUtil;
+import com.liferay.portlet.dynamicdatamapping.DDMFormValues;
+import com.liferay.portlet.dynamicdatamapping.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.StorageEngineManagerUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +59,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 		DLFileEntryLocalService dlFileEntryLocalService,
 		DLFileEntryService dlFileEntryService,
 		DLFileEntryTypeLocalService dlFileEntryTypeLocalService,
+		DLFileShortcutLocalService dlFileShortcutLocalService,
+		DLFileShortcutService dlFileShortcutService,
 		DLFileVersionLocalService dlFileVersionLocalService,
 		DLFileVersionService dlFileVersionService,
 		DLFolderLocalService dlFolderLocalService,
@@ -72,6 +74,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 		this.dlFileEntryLocalService = dlFileEntryLocalService;
 		this.dlFileEntryService = dlFileEntryService;
 		this.dlFileEntryTypeLocalService = dlFileEntryTypeLocalService;
+		this.dlFileShortcutLocalService = dlFileShortcutLocalService;
+		this.dlFileShortcutService = dlFileShortcutService;
 		this.dlFileVersionLocalService = dlFileVersionLocalService;
 		this.dlFileVersionService = dlFileVersionService;
 		this.dlFolderLocalService = dlFolderLocalService;
@@ -126,8 +130,7 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 				dlFileEntry.getCompanyId(), dlFileEntry.getGroupId(),
 				dlFileEntry.getUserId(), DLFileEntry.class.getName(),
 				dlFileEntry.getFileEntryId(),
-				serviceContext.getGroupPermissions(),
-				serviceContext.getGuestPermissions());
+				serviceContext.getModelPermissions());
 		}
 	}
 
@@ -155,11 +158,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 						ddmStructure.getStructureId());
 
 			if (ddmFormValues == null) {
-				Fields fields = DDMUtil.getFields(
+				ddmFormValues = StorageEngineManagerUtil.getDDMFormValues(
 					ddmStructure.getStructureId(), namespace, serviceContext);
-
-				ddmFormValues = FieldsToDDMFormValuesConverterUtil.convert(
-					ddmStructure, fields);
 			}
 
 			ddmFormValuesMap.put(ddmStructure.getStructureKey(), ddmFormValues);
@@ -234,6 +234,8 @@ public abstract class LiferayRepositoryBase implements CapabilityProvider {
 	protected DLFileEntryLocalService dlFileEntryLocalService;
 	protected DLFileEntryService dlFileEntryService;
 	protected DLFileEntryTypeLocalService dlFileEntryTypeLocalService;
+	protected DLFileShortcutLocalService dlFileShortcutLocalService;
+	protected DLFileShortcutService dlFileShortcutService;
 	protected DLFileVersionLocalService dlFileVersionLocalService;
 	protected DLFileVersionService dlFileVersionService;
 	protected DLFolderLocalService dlFolderLocalService;
