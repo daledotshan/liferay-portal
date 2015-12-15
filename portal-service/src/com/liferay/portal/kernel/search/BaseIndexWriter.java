@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.search;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.search.suggest.SpellCheckIndexWriter;
 
 /**
  * @author Michael C. Han
@@ -54,6 +55,13 @@ public abstract class BaseIndexWriter
 
 		_spellCheckIndexWriter.clearSpellCheckerDictionaryIndexes(
 			searchContext);
+	}
+
+	/**
+	 * @throws SearchException
+	 */
+	@Override
+	public void commit(SearchContext searchContext) throws SearchException {
 	}
 
 	@Override

@@ -30,8 +30,8 @@
 	>
 
 		<%
-		boolean showAddPollButton = PollsPermission.contains(permissionChecker, scopeGroupId, ActionKeys.ADD_QUESTION);
-		boolean showPermissionsButton = PollsPermission.contains(permissionChecker, scopeGroupId, ActionKeys.PERMISSIONS);
+		boolean showAddPollButton = PollsResourcePermissionChecker.contains(permissionChecker, scopeGroupId, ActionKeys.ADD_QUESTION);
+		boolean showPermissionsButton = PollsResourcePermissionChecker.contains(permissionChecker, scopeGroupId, ActionKeys.PERMISSIONS);
 		%>
 
 		<c:if test="<%= showAddPollButton || showPermissionsButton %>">
@@ -81,7 +81,7 @@
 			<liferay-ui:search-container-column-text
 				href="<%= rowURL %>"
 				name="title"
-				value="<%= question.getTitle(locale) %>"
+				value="<%= HtmlUtil.escape(question.getTitle(locale)) %>"
 			/>
 
 			<liferay-ui:search-container-column-text

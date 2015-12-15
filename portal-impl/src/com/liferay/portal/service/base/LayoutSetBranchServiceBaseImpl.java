@@ -15,12 +15,12 @@
 package com.liferay.portal.service.base;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.model.LayoutSetBranch;
 import com.liferay.portal.service.BaseServiceImpl;
 import com.liferay.portal.service.LayoutSetBranchService;
@@ -31,6 +31,7 @@ import com.liferay.portal.service.persistence.LayoutPersistence;
 import com.liferay.portal.service.persistence.LayoutRevisionPersistence;
 import com.liferay.portal.service.persistence.LayoutSetBranchPersistence;
 import com.liferay.portal.service.persistence.LayoutSetPersistence;
+import com.liferay.portal.service.persistence.RecentLayoutSetBranchPersistence;
 import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.util.PortalUtil;
@@ -50,7 +51,7 @@ import javax.sql.DataSource;
  * @generated
  */
 public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
-	implements LayoutSetBranchService, IdentifiableBean {
+	implements LayoutSetBranchService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -81,7 +82,7 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the layout set branch remote service
 	 */
-	public com.liferay.portal.service.LayoutSetBranchService getLayoutSetBranchService() {
+	public LayoutSetBranchService getLayoutSetBranchService() {
 		return layoutSetBranchService;
 	}
 
@@ -91,7 +92,7 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 	 * @param layoutSetBranchService the layout set branch remote service
 	 */
 	public void setLayoutSetBranchService(
-		com.liferay.portal.service.LayoutSetBranchService layoutSetBranchService) {
+		LayoutSetBranchService layoutSetBranchService) {
 		this.layoutSetBranchService = layoutSetBranchService;
 	}
 
@@ -435,6 +436,44 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
+	 * Returns the recent layout set branch local service.
+	 *
+	 * @return the recent layout set branch local service
+	 */
+	public com.liferay.portal.service.RecentLayoutSetBranchLocalService getRecentLayoutSetBranchLocalService() {
+		return recentLayoutSetBranchLocalService;
+	}
+
+	/**
+	 * Sets the recent layout set branch local service.
+	 *
+	 * @param recentLayoutSetBranchLocalService the recent layout set branch local service
+	 */
+	public void setRecentLayoutSetBranchLocalService(
+		com.liferay.portal.service.RecentLayoutSetBranchLocalService recentLayoutSetBranchLocalService) {
+		this.recentLayoutSetBranchLocalService = recentLayoutSetBranchLocalService;
+	}
+
+	/**
+	 * Returns the recent layout set branch persistence.
+	 *
+	 * @return the recent layout set branch persistence
+	 */
+	public RecentLayoutSetBranchPersistence getRecentLayoutSetBranchPersistence() {
+		return recentLayoutSetBranchPersistence;
+	}
+
+	/**
+	 * Sets the recent layout set branch persistence.
+	 *
+	 * @param recentLayoutSetBranchPersistence the recent layout set branch persistence
+	 */
+	public void setRecentLayoutSetBranchPersistence(
+		RecentLayoutSetBranchPersistence recentLayoutSetBranchPersistence) {
+		this.recentLayoutSetBranchPersistence = recentLayoutSetBranchPersistence;
+	}
+
+	/**
 	 * Returns the resource local service.
 	 *
 	 * @return the resource local service
@@ -534,23 +573,13 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return LayoutSetBranchService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -570,7 +599,7 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 		try {
 			DataSource dataSource = layoutSetBranchPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -588,7 +617,7 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 	@BeanReference(type = com.liferay.portal.service.LayoutSetBranchLocalService.class)
 	protected com.liferay.portal.service.LayoutSetBranchLocalService layoutSetBranchLocalService;
 	@BeanReference(type = com.liferay.portal.service.LayoutSetBranchService.class)
-	protected com.liferay.portal.service.LayoutSetBranchService layoutSetBranchService;
+	protected LayoutSetBranchService layoutSetBranchService;
 	@BeanReference(type = LayoutSetBranchPersistence.class)
 	protected LayoutSetBranchPersistence layoutSetBranchPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
@@ -625,6 +654,10 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portal.service.LayoutSetService layoutSetService;
 	@BeanReference(type = LayoutSetPersistence.class)
 	protected LayoutSetPersistence layoutSetPersistence;
+	@BeanReference(type = com.liferay.portal.service.RecentLayoutSetBranchLocalService.class)
+	protected com.liferay.portal.service.RecentLayoutSetBranchLocalService recentLayoutSetBranchLocalService;
+	@BeanReference(type = RecentLayoutSetBranchPersistence.class)
+	protected RecentLayoutSetBranchPersistence recentLayoutSetBranchPersistence;
 	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
 	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
@@ -635,5 +668,4 @@ public abstract class LayoutSetBranchServiceBaseImpl extends BaseServiceImpl
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)
 	protected UserFinder userFinder;
-	private String _beanIdentifier;
 }
