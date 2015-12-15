@@ -15,12 +15,12 @@
 package com.liferay.portal.service.base;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.model.OrgLabor;
 import com.liferay.portal.service.BaseServiceImpl;
 import com.liferay.portal.service.OrgLaborService;
@@ -43,7 +43,7 @@ import javax.sql.DataSource;
  * @generated
  */
 public abstract class OrgLaborServiceBaseImpl extends BaseServiceImpl
-	implements OrgLaborService, IdentifiableBean {
+	implements OrgLaborService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -74,7 +74,7 @@ public abstract class OrgLaborServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the org labor remote service
 	 */
-	public com.liferay.portal.service.OrgLaborService getOrgLaborService() {
+	public OrgLaborService getOrgLaborService() {
 		return orgLaborService;
 	}
 
@@ -83,8 +83,7 @@ public abstract class OrgLaborServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param orgLaborService the org labor remote service
 	 */
-	public void setOrgLaborService(
-		com.liferay.portal.service.OrgLaborService orgLaborService) {
+	public void setOrgLaborService(OrgLaborService orgLaborService) {
 		this.orgLaborService = orgLaborService;
 	}
 
@@ -188,23 +187,13 @@ public abstract class OrgLaborServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return OrgLaborService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -224,7 +213,7 @@ public abstract class OrgLaborServiceBaseImpl extends BaseServiceImpl
 		try {
 			DataSource dataSource = orgLaborPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -242,7 +231,7 @@ public abstract class OrgLaborServiceBaseImpl extends BaseServiceImpl
 	@BeanReference(type = com.liferay.portal.service.OrgLaborLocalService.class)
 	protected com.liferay.portal.service.OrgLaborLocalService orgLaborLocalService;
 	@BeanReference(type = com.liferay.portal.service.OrgLaborService.class)
-	protected com.liferay.portal.service.OrgLaborService orgLaborService;
+	protected OrgLaborService orgLaborService;
 	@BeanReference(type = OrgLaborPersistence.class)
 	protected OrgLaborPersistence orgLaborPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
@@ -253,5 +242,4 @@ public abstract class OrgLaborServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portal.service.ListTypeService listTypeService;
 	@BeanReference(type = ListTypePersistence.class)
 	protected ListTypePersistence listTypePersistence;
-	private String _beanIdentifier;
 }
