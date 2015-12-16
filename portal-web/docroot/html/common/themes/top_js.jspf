@@ -112,19 +112,22 @@
 							toggleText: false
 						}
 					</c:if>
-				]
+				],
+
+				sharedResources: []
 			},
 
 			PortletKeys: {
-				DOCUMENT_SELECTOR : '<%= PortletKeys.DOCUMENT_SELECTOR %>',
-				DYNAMIC_DATA_MAPPING: '<%= PortletKeys.DYNAMIC_DATA_MAPPING %>',
-				JOURNAL : '<%= PortletKeys.JOURNAL %>',
-				PORTLET_CONFIGURATION: '<%= PortletKeys.PORTLET_CONFIGURATION %>',
-				PORTLET_SHARING : '<%= PortletKeys.PORTLET_SHARING %>'
+				DOCUMENT_LIBRARY: '<%= PortletKeys.DOCUMENT_LIBRARY %>',
+				DYNAMIC_DATA_MAPPING: 'com_liferay_dynamic_data_mapping_web_portlet_DDMPortlet',
+				ITEM_SELECTOR: '<%= PortletKeys.ITEM_SELECTOR %>',
+				PORTLET_SHARING: '<%= PortletKeys.PORTLET_SHARING %>'
 			},
 
 			PropsValues: {
-				NTLM_AUTH_ENABLED: <%= PrefsPropsUtil.getBoolean(themeDisplay.getCompanyId(), PropsKeys.NTLM_AUTH_ENABLED, PropsValues.NTLM_AUTH_ENABLED) %>
+				JAVASCRIPT_SINGLE_PAGE_APPLICATION_TIMEOUT: <%= PrefsPropsUtil.getInteger(themeDisplay.getCompanyId(), PropsKeys.JAVASCRIPT_SINGLE_PAGE_APPLICATION_TIMEOUT, PropsValues.JAVASCRIPT_SINGLE_PAGE_APPLICATION_TIMEOUT) %>,
+				NTLM_AUTH_ENABLED: <%= PrefsPropsUtil.getBoolean(themeDisplay.getCompanyId(), PropsKeys.NTLM_AUTH_ENABLED, PropsValues.NTLM_AUTH_ENABLED) %>,
+				UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE: <%= PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE, PropsValues.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE) %>
 			},
 
 			ThemeDisplay: {
@@ -206,9 +209,6 @@
 				getPortalURL: function() {
 					return '<%= themeDisplay.getPortalURL() %>';
 				},
-				getPortletSetupShowBordersDefault: function() {
-					return <%= GetterUtil.getString(themeDisplay.getThemeSetting("portlet-setup-show-borders-default"), StringUtil.valueOf(PropsValues.THEME_PORTLET_DECORATE_DEFAULT)) %>;
-				},
 				getScopeGroupId: function() {
 					return '<%= themeDisplay.getScopeGroupId() %>';
 				},
@@ -262,17 +262,41 @@
 		Liferay.AUI = {
 
 			<%
-			long javaScriptLastModified = ServletContextUtil.getLastModified(application, "/html/js/", true);
+			long jsLastModified = PortalWebResourcesUtil.getLastModified(PortalWebResourceConstants.RESOURCE_TYPE_JS);
 			%>
 
 			getAvailableLangPath: function() {
-				return '<%= PortalUtil.getStaticResourceURL(request, "available_languages.jsp", javaScriptLastModified) %>';
+				return '<%= PortalUtil.getStaticResourceURL(request, "available_languages.jsp", jsLastModified) %>';
 			},
 			getCombine: function() {
 				return <%= themeDisplay.isThemeJsFastLoad() %>;
 			},
 			getComboPath: function() {
-				return '<%= PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathContext() + "/combo/", "minifierType=", javaScriptLastModified) %>&';
+				return '<%= PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathContext() + "/combo/", "minifierType=", jsLastModified) %>&';
+			},
+			getDateFormat: function() {
+
+				<%
+				String dateFormatPattern = "%m/%d/%Y";
+
+				DateFormat shortDateFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
+
+				SimpleDateFormat shortDateFormatSimpleDateFormat = (SimpleDateFormat)shortDateFormat;
+
+				String shortDateFormatSimpleDateFormatPattern = shortDateFormatSimpleDateFormat.toPattern();
+
+				if (shortDateFormatSimpleDateFormatPattern.indexOf("y") == 0) {
+					dateFormatPattern = "%Y/%m/%d";
+				}
+				else if (shortDateFormatSimpleDateFormatPattern.indexOf("d") == 0) {
+					dateFormatPattern = "%d/%m/%Y";
+				}
+				%>
+
+				return '<%= dateFormatPattern %>';
+			},
+			getEditorCKEditorPath: function() {
+				return '<%= PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_EDITOR_CKEDITOR) %>';
 			},
 			getFilter: function() {
 				var filter = 'raw';
@@ -288,14 +312,31 @@
 
 				return filter;
 			},
+			getFilterConfig: function() {
+				var instance = this;
+
+				var filterConfig = null;
+
+				if (!instance.getCombine()) {
+					filterConfig = {
+						replaceStr: '.js' + instance.getStaticResourceURLParams(),
+						searchExp: '\\.js$'
+					}
+				}
+
+				return filterConfig;
+			},
 			getJavaScriptRootPath: function() {
-				return '<%= themeDisplay.getPathContext() %>/html/js';
+				return '<%= themeDisplay.getPathJavaScript() %>';
 			},
 			getLangPath: function() {
-				return '<%= PortalUtil.getStaticResourceURL(request, "aui_lang.jsp", javaScriptLastModified) %>';
+				return '<%= PortalUtil.getStaticResourceURL(request, "aui_lang.jsp", jsLastModified) %>';
 			},
 			getPortletRootPath: function() {
 				return '<%= themeDisplay.getPathContext() %>/html/portlet';
+			},
+			getStaticResourceURLParams: function() {
+				return '<%= PortalUtil.getStaticResourceURL(request, StringPool.BLANK, "minifierType=", jsLastModified) %>';
 			}
 		};
 
@@ -310,14 +351,23 @@
 	// ]]>
 </script>
 
+<c:if test="<%= PortalWebResourcesUtil.getPortalWebResources(PortalWebResourceConstants.RESOURCE_TYPE_JS_LOADER_MODULES) != null %>">
+
+	<%
+	long jsLoaderModulesLastModified = PortalWebResourcesUtil.getLastModified(PortalWebResourceConstants.RESOURCE_TYPE_JS_LOADER_MODULES);
+	%>
+
+	<script src="<%= HtmlUtil.escape(themeDisplay.getCDNDynamicResourcesHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_JS_LOADER_MODULES) + "/js_loader_modules?t=" + jsLoaderModulesLastModified) %>" type="text/javascript"></script>
+</c:if>
+
 <c:choose>
 	<c:when test="<%= themeDisplay.isThemeJsFastLoad() %>">
 		<c:choose>
 			<c:when test="<%= themeDisplay.isThemeJsBarebone() %>">
-				<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathJavaScript() + "/barebone.jsp", "minifierBundleId=javascript.barebone.files", javaScriptLastModified)) %>" type="text/javascript"></script>
+				<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathJavaScript() + "/barebone.jsp", "minifierBundleId=javascript.barebone.files", jsLastModified)) %>" type="text/javascript"></script>
 			</c:when>
 			<c:otherwise>
-				<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathJavaScript() + "/everything.jsp", "minifierBundleId=javascript.everything.files", javaScriptLastModified)) %>" type="text/javascript"></script>
+				<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNDynamicResourcesHost() + themeDisplay.getPathJavaScript() + "/everything.jsp", "minifierBundleId=javascript.everything.files", jsLastModified)) %>" type="text/javascript"></script>
 			</c:otherwise>
 		</c:choose>
 	</c:when>
@@ -338,7 +388,7 @@
 		for (String javaScriptFile : javaScriptFiles) {
 		%>
 
-			<script src="<%= path %>/<%= javaScriptFile %>?t=<%= javaScriptLastModified %>" type="text/javascript"></script>
+			<script src="<%= HtmlUtil.escape(PortalUtil.getStaticResourceURL(request, path + "/" + javaScriptFile, "minifierType=", jsLastModified)) %>" type="text/javascript"></script>
 
 		<%
 		}
@@ -347,9 +397,18 @@
 	</c:otherwise>
 </c:choose>
 
+<c:if test="<%= PortalWebResourcesUtil.getPortalWebResources(PortalWebResourceConstants.RESOURCE_TYPE_JS_BUNDLE_CONFIG) != null %>">
+
+	<%
+	long jsBundleConfigLastModified = PortalWebResourcesUtil.getLastModified(PortalWebResourceConstants.RESOURCE_TYPE_JS_BUNDLE_CONFIG);
+	%>
+
+	<script src="<%= HtmlUtil.escape(themeDisplay.getCDNDynamicResourcesHost() + PortalWebResourcesUtil.getContextPath(PortalWebResourceConstants.RESOURCE_TYPE_JS_BUNDLE_CONFIG) + "/js_bundle_config?t=" + jsBundleConfigLastModified) %>" type="text/javascript"></script>
+</c:if>
+
 <script type="text/javascript">
 	// <![CDATA[
-		<c:if test="<%= (layoutTypePortlet != null) %>">
+		<c:if test="<%= layoutTypePortlet != null %>">
 
 			<%
 			List<Portlet> allPortlets = layoutTypePortlet.getAllPortlets(true);
@@ -370,10 +429,10 @@
 
 			<c:choose>
 				<c:when test="<%= layoutTypePortlet.hasStateMax() %>">
-					Liferay.Portlet.list = ['<%= layoutTypePortlet.getStateMaxPortletId() %>'];
+					Liferay.Portlet.list = ['<%= HtmlUtil.escapeJS(layoutTypePortlet.getStateMaxPortletId()) %>'];
 				</c:when>
 				<c:when test="<%= themeDisplay.isStatePopUp() %>">
-					Liferay.Portlet.list = ['<%= themeDisplay.getPpid() %>'];
+					Liferay.Portlet.list = ['<%= HtmlUtil.escapeJS(themeDisplay.getPpid()) %>'];
 				</c:when>
 				<c:when test="<%= (sb.index() > 0) && !layoutTypePortlet.hasStateMax() %>">
 					Liferay.Portlet.list = ['<%= sb.toString() %>'];
@@ -395,7 +454,7 @@
 					Liferay._editControlsState = 'visible';
 				</c:when>
 				<c:otherwise>
-					Liferay._editControlsState = '<%= HtmlUtil.escapeJS(GetterUtil.getString(SessionClicks.get(request, "liferay_toggle_controls", "visible"), "visible")) %>';
+					Liferay._editControlsState = '<%= HtmlUtil.escapeJS(GetterUtil.getString(SessionClicks.get(request, "com.liferay.frontend.js.web_toggleControls", "visible"), "visible")) %>';
 				</c:otherwise>
 			</c:choose>
 		</c:if>

@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.dao.db;
 
 import java.io.IOException;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.naming.NamingException;
@@ -30,24 +31,43 @@ public abstract class BaseDBProcess implements DBProcess {
 	}
 
 	@Override
-	public void runSQL(String template) throws IOException, SQLException {
-		DB db = DBFactoryUtil.getDB();
+	public void runSQL(Connection connection, String template)
+		throws IOException, SQLException {
 
-		db.runSQL(template);
+		DB db = DBManagerUtil.getDB();
+
+		db.runSQL(connection, template);
+	}
+
+	@Override
+	public void runSQL(String template) throws IOException, SQLException {
+		DB db = DBManagerUtil.getDB();
+
+		if (connection == null) {
+			db.runSQL(template);
+		}
+		else {
+			db.runSQL(connection, template);
+		}
 	}
 
 	@Override
 	public void runSQL(String[] templates) throws IOException, SQLException {
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
-		db.runSQL(templates);
+		if (connection == null) {
+			db.runSQL(templates);
+		}
+		else {
+			db.runSQL(connection, templates);
+		}
 	}
 
 	@Override
 	public void runSQLTemplate(String path)
 		throws IOException, NamingException, SQLException {
 
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
 		db.runSQLTemplate(path);
 	}
@@ -56,9 +76,27 @@ public abstract class BaseDBProcess implements DBProcess {
 	public void runSQLTemplate(String path, boolean failOnError)
 		throws IOException, NamingException, SQLException {
 
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
 		db.runSQLTemplate(path, failOnError);
 	}
+
+	@Override
+	public void runSQLTemplateString(
+			String template, boolean evaluate, boolean failOnError)
+		throws IOException, NamingException, SQLException {
+
+		DB db = DBManagerUtil.getDB();
+
+		if (connection == null) {
+			db.runSQLTemplateString(template, evaluate, failOnError);
+		}
+		else {
+			db.runSQLTemplateString(
+				connection, template, evaluate, failOnError);
+		}
+	}
+
+	protected Connection connection;
 
 }
