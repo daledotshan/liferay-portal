@@ -1,1 +1,70 @@
-apply from: "${rootDir}/../tools/sdk/settings.gradle"
+FileTree fileTree = fileTree(rootDir) {
+	exclude "**/bin/**"
+	exclude "sdk/*/samples/build.gradle"
+
+	if (Boolean.getBoolean("portal.build")) {
+		exclude "portal-cache/portal-cache-memory/build.gradle"
+		exclude "portal/portal-cluster/build.gradle"
+		exclude "portal/portal-scripting-beanshell/build.gradle"
+		exclude "portal/portal-scripting-javascript/build.gradle"
+		exclude "portal/portal-scripting-python/build.gradle"
+		exclude "portal/portal-scripting-ruby/build.gradle"
+		exclude "portal/portal-search-solr/build.gradle"
+		exclude "portal/portal-taglib-aui-form-extension-sample/build.gradle"
+		exclude "sdk/**/build.gradle"
+		exclude "test/**/build.gradle"
+		exclude "third-party/**/build.gradle"
+		exclude "util/alloy-taglib/build.gradle"
+		exclude "util/ant-build-logger/build.gradle"
+		exclude "util/css-builder/build.gradle"
+		exclude "util/deployment-helper/build.gradle"
+		exclude "util/freemarker-osgi-bridge/build.gradle"
+		exclude "util/io-delta/build.gradle"
+		exclude "util/ip-geocoder-sample-web/build.gradle"
+		exclude "util/jasper-jspc/build.gradle"
+		exclude "util/javadoc-formatter/build.gradle"
+		exclude "util/lang-builder/build.gradle"
+		exclude "util/markdown-converter/build.gradle"
+		exclude "util/portal-tools-service-builder/build.gradle"
+		exclude "util/portal-tools-upgrade-table-builder/build.gradle"
+		exclude "util/portal-tools-wsdd-builder/build.gradle"
+		exclude "util/ruby-gems/build.gradle"
+		exclude "util/sass-compiler-api/build.gradle"
+		exclude "util/sass-compiler-ruby/build.gradle"
+		exclude "util/source-formatter/build.gradle"
+		exclude "util/sync-engine/build.gradle"
+		exclude "util/tld-formatter/build.gradle"
+		exclude "util/xml-formatter/build.gradle"
+	}
+
+	include "*/**/build.gradle"
+}
+
+URI rootURI = rootDir.toURI()
+
+fileTree.each {
+	File buildGradleFile ->
+
+	String moduleDirName = rootURI.relativize(buildGradleFile.toURI())
+
+	moduleDirName = moduleDirName.replaceFirst("/build.gradle", "")
+
+	include ":" + moduleDirName.replaceAll("[\\/]", ":")
+}
+
+String testClassGroupIndex = System.getProperty("test.class.group.index")
+
+if (testClassGroupIndex) {
+	Properties properties = new Properties()
+
+	File file = new File(rootDir, "../test.class.file.names.properties")
+
+	properties.load(new StringReader(file.text.replace("\\", "/")))
+
+	String testClassGroup = properties["TEST_CLASS_GROUP_" + testClassGroupIndex]
+	String testClassGroups = properties["TEST_CLASS_GROUPS"]
+
+	gradle.ext.testClasses = testClassGroup.tokenize(",")
+	gradle.ext.testClassGroupIndex = testClassGroupIndex
+	gradle.ext.testClassGroups = testClassGroups
+}
