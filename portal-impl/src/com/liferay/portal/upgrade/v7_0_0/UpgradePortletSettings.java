@@ -18,23 +18,14 @@ import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.settings.SettingsDescriptor;
+import com.liferay.portal.kernel.settings.SettingsFactory;
+import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.upgrade.v7_0_0.util.PortletPreferencesRow;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portlet.blogs.BlogsPortletInstanceSettings;
-import com.liferay.portlet.blogs.BlogsSettings;
-import com.liferay.portlet.blogs.util.BlogsConstants;
-import com.liferay.portlet.documentlibrary.DLPortletInstanceSettings;
-import com.liferay.portlet.documentlibrary.DLSettings;
-import com.liferay.portlet.documentlibrary.util.DLConstants;
-import com.liferay.portlet.messageboards.MBSettings;
-import com.liferay.portlet.messageboards.util.MBConstants;
-import com.liferay.portlet.shopping.ShoppingSettings;
-import com.liferay.portlet.shopping.util.ShoppingConstants;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -44,19 +35,24 @@ import java.util.Enumeration;
  * @author Sergio González
  * @author Iván Zaera
  */
-public class UpgradePortletSettings extends UpgradeProcess {
+public abstract class UpgradePortletSettings extends UpgradeProcess {
+
+	public UpgradePortletSettings() {
+		_settingsFactory = SettingsFactoryUtil.getSettingsFactory();
+	}
+
+	public UpgradePortletSettings(SettingsFactory settingsFactory) {
+		_settingsFactory = settingsFactory;
+	}
 
 	protected void addPortletPreferences(
 			PortletPreferencesRow portletPreferencesRow)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"insert into PortletPreferences (mvccVersion, " +
 					"portletPreferencesId, ownerId, ownerType, plid, " +
 						"portletId, preferences) values (?, ?, ?, ?, ?, ?, ?)");
@@ -72,7 +68,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			ps.executeUpdate();
 		}
 		finally {
-			DataAccess.cleanUp(con, ps);
+			DataAccess.cleanUp(ps);
 		}
 	}
 
@@ -126,51 +122,18 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			}
 		}
 		finally {
-			DataAccess.deepCleanUp(rs);
+			DataAccess.cleanUp(rs.getStatement(), rs);
 		}
 	}
 
-	@Override
-	protected void doUpgrade() throws Exception {
-
-		// Main portlets
-
-		upgradeMainPortlet(
-			PortletKeys.BLOGS, BlogsConstants.SERVICE_NAME,
-			PortletKeys.PREFS_OWNER_TYPE_GROUP,
-			BlogsPortletInstanceSettings.class, BlogsSettings.class);
-		upgradeMainPortlet(
-			PortletKeys.DOCUMENT_LIBRARY, DLConstants.SERVICE_NAME,
-			PortletKeys.PREFS_OWNER_TYPE_GROUP, DLPortletInstanceSettings.class,
-			DLSettings.class);
-		upgradeMainPortlet(
-			PortletKeys.MESSAGE_BOARDS, MBConstants.SERVICE_NAME,
-			PortletKeys.PREFS_OWNER_TYPE_GROUP, null, MBSettings.class);
-		upgradeMainPortlet(
-			PortletKeys.SHOPPING, ShoppingConstants.SERVICE_NAME,
-			PortletKeys.PREFS_OWNER_TYPE_GROUP, null, ShoppingSettings.class);
-
-		// Display portlets
-
-		upgradeDisplayPortlet(
-			PortletKeys.DOCUMENT_LIBRARY_DISPLAY,
-			PortletKeys.PREFS_OWNER_TYPE_LAYOUT, DLSettings.class);
-		upgradeDisplayPortlet(
-			PortletKeys.MEDIA_GALLERY_DISPLAY,
-			PortletKeys.PREFS_OWNER_TYPE_LAYOUT, DLSettings.class);
-	}
-
 	protected long getGroupId(long plid) throws Exception {
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		long groupId = 0;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select groupId from Layout where plid = ?");
 
 			ps.setLong(1, plid);
@@ -182,7 +145,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 
 		return groupId;
@@ -192,9 +155,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			String portletId, int ownerType)
 		throws Exception {
 
-		Connection con = DataAccess.getUpgradeOptimizedConnection();
-
-		PreparedStatement ps = con.prepareStatement(
+		PreparedStatement ps = connection.prepareStatement(
 			"select portletPreferencesId, ownerId, ownerType, plid, " +
 				"portletId, preferences from PortletPreferences where " +
 					"ownerType = ? and portletId = ?");
@@ -207,7 +168,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 
 	protected void resetPortletPreferencesValues(
 			String portletId, int ownerType,
-			SettingsDescriptor<?> settingsDescriptor)
+			SettingsDescriptor settingsDescriptor)
 		throws Exception {
 
 		ResultSet rs = null;
@@ -244,7 +205,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			}
 		}
 		finally {
-			DataAccess.deepCleanUp(rs);
+			DataAccess.cleanUp(rs.getStatement(), rs);
 		}
 	}
 
@@ -252,13 +213,10 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			PortletPreferencesRow portletPreferencesRow)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"update PortletPreferences set mvccVersion = ?, ownerId = ?, " +
 					"ownerType = ?, plid = ?, portletId = ?, preferences = ? " +
 						"where portletPreferencesId = ?");
@@ -274,12 +232,12 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			ps.executeUpdate();
 		}
 		finally {
-			DataAccess.cleanUp(con, ps);
+			DataAccess.cleanUp(ps);
 		}
 	}
 
 	protected void upgradeDisplayPortlet(
-			String portletId, int ownerType, Class<?> serviceSettingsClass)
+			String portletId, String serviceName, int ownerType)
 		throws Exception {
 
 		if (_log.isDebugEnabled()) {
@@ -290,8 +248,8 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			_log.debug("Delete service keys from portlet settings");
 		}
 
-		SettingsDescriptor<?> settingsDescriptor = new SettingsDescriptor<>(
-			serviceSettingsClass);
+		SettingsDescriptor settingsDescriptor =
+			_settingsFactory.getSettingsDescriptor(serviceName);
 
 		resetPortletPreferencesValues(portletId, ownerType, settingsDescriptor);
 
@@ -302,8 +260,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 
 	protected void upgradeMainPortlet(
 			String portletId, String serviceName, int ownerType,
-			Class<?> portletInstanceSettingsClass,
-			Class<?> serviceSettingsClass)
+			boolean resetPortletInstancePreferences)
 		throws Exception {
 
 		if (_log.isDebugEnabled()) {
@@ -312,9 +269,9 @@ public class UpgradePortletSettings extends UpgradeProcess {
 
 		copyPortletSettingsAsServiceSettings(portletId, ownerType, serviceName);
 
-		if (portletInstanceSettingsClass != null) {
-			SettingsDescriptor<?> portletInstanceSettingsDescriptor =
-				new SettingsDescriptor<>(portletInstanceSettingsClass);
+		if (resetPortletInstancePreferences) {
+			SettingsDescriptor portletInstanceSettingsDescriptor =
+				_settingsFactory.getSettingsDescriptor(portletId);
 
 			if (_log.isDebugEnabled()) {
 				_log.debug(
@@ -330,8 +287,8 @@ public class UpgradePortletSettings extends UpgradeProcess {
 			_log.debug("Delete service keys from portlet settings");
 		}
 
-		SettingsDescriptor<?> serviceSettingsDescriptor =
-			new SettingsDescriptor<>(serviceSettingsClass);
+		SettingsDescriptor serviceSettingsDescriptor =
+			_settingsFactory.getSettingsDescriptor(serviceName);
 
 		resetPortletPreferencesValues(
 			portletId, ownerType, serviceSettingsDescriptor);
@@ -352,5 +309,7 @@ public class UpgradePortletSettings extends UpgradeProcess {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		UpgradePortletSettings.class);
+
+	private final SettingsFactory _settingsFactory;
 
 }

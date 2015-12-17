@@ -21,7 +21,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 
 /**
@@ -42,14 +41,6 @@ public class DefaultTransactionExecutor
 		try {
 			platformTransactionManager.commit(transactionStatus);
 		}
-		catch (TransactionSystemException tse) {
-			_log.error(
-				"Application exception overridden by commit exception", tse);
-
-			throwable = tse;
-
-			throw tse;
-		}
 		catch (RuntimeException re) {
 			_log.error(
 				"Application exception overridden by commit exception", re);
@@ -66,15 +57,13 @@ public class DefaultTransactionExecutor
 			throw e;
 		}
 		finally {
-			if (transactionStatus.isNewTransaction()) {
-				if (throwable != null) {
-					fireTransactionRollbackedEvent(
-						transactionAttribute, transactionStatus, throwable);
-				}
-				else {
-					fireTransactionCommittedEvent(
-						transactionAttribute, transactionStatus);
-				}
+			if (throwable != null) {
+				fireTransactionRollbackedEvent(
+					transactionAttribute, transactionStatus, throwable);
+			}
+			else {
+				fireTransactionCommittedEvent(
+					transactionAttribute, transactionStatus);
 			}
 		}
 	}
@@ -118,14 +107,9 @@ public class DefaultTransactionExecutor
 			try {
 				platformTransactionManager.rollback(transactionStatus);
 			}
-			catch (TransactionSystemException tse) {
-				_log.error(
-					"Application exception overridden by rollback exception",
-					tse);
-
-				throw tse;
-			}
 			catch (RuntimeException re) {
+				re.addSuppressed(throwable);
+
 				_log.error(
 					"Application exception overridden by rollback exception",
 					re);
@@ -133,16 +117,16 @@ public class DefaultTransactionExecutor
 				throw re;
 			}
 			catch (Error e) {
+				e.addSuppressed(throwable);
+
 				_log.error(
 					"Application exception overridden by rollback error", e);
 
 				throw e;
 			}
 			finally {
-				if (transactionStatus.isNewTransaction()) {
-					fireTransactionRollbackedEvent(
-						transactionAttribute, transactionStatus, throwable);
-				}
+				fireTransactionRollbackedEvent(
+					transactionAttribute, transactionStatus, throwable);
 			}
 		}
 		else {
@@ -162,10 +146,7 @@ public class DefaultTransactionExecutor
 		TransactionStatus transactionStatus =
 			platformTransactionManager.getTransaction(transactionAttribute);
 
-		if (transactionStatus.isNewTransaction()) {
-			fireTransactionCreatedEvent(
-				transactionAttribute, transactionStatus);
-		}
+		fireTransactionCreatedEvent(transactionAttribute, transactionStatus);
 
 		return transactionStatus;
 	}

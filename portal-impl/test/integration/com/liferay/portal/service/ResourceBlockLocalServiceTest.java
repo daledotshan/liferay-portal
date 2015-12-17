@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.util.NamedThreadFactory;
 import com.liferay.portal.model.PermissionedModel;
 import com.liferay.portal.model.ResourceBlockPermissionsContainer;
+import com.liferay.portal.test.rule.ExpectedDBType;
 import com.liferay.portal.test.rule.ExpectedLog;
 import com.liferay.portal.test.rule.ExpectedLogs;
 import com.liferay.portal.test.rule.ExpectedType;
@@ -78,14 +79,56 @@ public class ResourceBlockLocalServiceTest {
 	@ExpectedLogs(
 		expectedLogs = {
 			@ExpectedLog(
+				expectedDBType = ExpectedDBType.DB2,
+				expectedLog = "Error for batch element",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.DB2,
+				expectedLog = "[jcc][t4][102][10040][4.16.53] Batch failure.",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.HYPERSONIC,
+				expectedLog =
+					"integrity constraint violation: unique constraint or " +
+						"index violation:",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.MYSQL,
 				expectedLog =
 					"Deadlock found when trying to get lock; try restarting " +
 						"transaction",
 				expectedType = ExpectedType.EXACT
 			),
 			@ExpectedLog(
+				expectedDBType = ExpectedDBType.MYSQL,
 				expectedLog = "Duplicate entry ",
 				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.ORACLE,
+				expectedLog ="ORA-00001: unique constraint",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.POSTGRESQL,
+				expectedLog = "Batch entry 0 insert into ResourceBlock ",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.POSTGRESQL,
+				expectedLog =
+					"ERROR: duplicate key value violates unique constraint ",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.SYBASE,
+				expectedLog =
+					"Attempt to insert duplicate key row in object " +
+						"'ResourceBlock'",
+				expectedType = ExpectedType.CONTAINS
 			)
 		},
 		level = "ERROR", loggerClass = JDBCExceptionReporter.class
@@ -168,14 +211,57 @@ public class ResourceBlockLocalServiceTest {
 	@ExpectedLogs(
 		expectedLogs = {
 			@ExpectedLog(
+				expectedDBType = ExpectedDBType.DB2,
+				expectedLog = "Error for batch element",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.DB2,
+				expectedLog = "[jcc][t4][102][10040][4.16.53] Batch failure.",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.HYPERSONIC,
+				expectedLog =
+					"integrity constraint violation: unique constraint or " +
+						"index violation:",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.MYSQL,
 				expectedLog =
 					"Deadlock found when trying to get lock; try restarting " +
 						"transaction",
-				expectedType = ExpectedType.EXACT),
+				expectedType = ExpectedType.EXACT
+			),
 			@ExpectedLog(
+				expectedDBType = ExpectedDBType.MYSQL,
 				expectedLog = "Duplicate entry ",
 				expectedType = ExpectedType.PREFIX
-	)
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.ORACLE,
+				expectedLog ="ORA-00001: unique constraint",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.POSTGRESQL,
+				expectedLog = "Batch entry 0 insert into ResourceBlock ",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.POSTGRESQL,
+				expectedLog =
+					"ERROR: duplicate key value violates unique constraint ",
+				expectedType = ExpectedType.PREFIX
+			),
+			@ExpectedLog(
+				expectedDBType = ExpectedDBType.SYBASE,
+				expectedLog =
+					"Attempt to insert duplicate key row in object " +
+						"'ResourceBlock'",
+				expectedType = ExpectedType.CONTAINS
+			)
 		},
 		level = "ERROR", loggerClass = JDBCExceptionReporter.class
 	)
