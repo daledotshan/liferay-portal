@@ -34,10 +34,10 @@ import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -57,8 +57,7 @@ public class UserFinderTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			new LiferayIntegrationTestRule(), TransactionalTestRule.INSTANCE);
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -67,7 +66,7 @@ public class UserFinderTest {
 
 		GroupLocalServiceUtil.addUserGroup(_groupUser.getUserId(), _group);
 
-		_organization = OrganizationTestUtil.addOrganization();
+		_organization = OrganizationTestUtil.addOrganization(true);
 		_organizationUser = UserTestUtil.addUser();
 
 		OrganizationLocalServiceUtil.addUserOrganization(
@@ -125,6 +124,47 @@ public class UserFinderTest {
 		GroupLocalServiceUtil.clearOrganizationGroups(
 			_organization.getOrganizationId());
 		GroupLocalServiceUtil.clearUserGroupGroups(_userGroup.getUserGroupId());
+	}
+
+	@Test
+	public void testCountByGroups() throws Exception {
+		long groupId = _group.getGroupId();
+
+		Map<Long, Integer> counts = UserFinderUtil.countByGroups(
+			TestPropsValues.getCompanyId(), WorkflowConstants.STATUS_APPROVED,
+			new long[] {groupId});
+
+		Assert.assertEquals(1, counts.size());
+		Assert.assertEquals(2, (int)counts.get(groupId));
+
+		GroupLocalServiceUtil.addOrganizationGroup(
+			_organization.getOrganizationId(), groupId);
+
+		counts = UserFinderUtil.countByGroups(
+			TestPropsValues.getCompanyId(), WorkflowConstants.STATUS_APPROVED,
+			new long[] {groupId});
+
+		Assert.assertEquals(1, counts.size());
+		Assert.assertEquals(3, (int)counts.get(groupId));
+
+		GroupLocalServiceUtil.addUserGroupGroup(
+			_userGroup.getUserGroupId(), groupId);
+
+		counts = UserFinderUtil.countByGroups(
+			TestPropsValues.getCompanyId(), WorkflowConstants.STATUS_APPROVED,
+			new long[] {groupId});
+
+		Assert.assertEquals(1, counts.size());
+		Assert.assertEquals(4, (int)counts.get(groupId));
+
+		long organizationGroupId = _organization.getGroupId();
+
+		counts = UserFinderUtil.countByGroups(
+			TestPropsValues.getCompanyId(), WorkflowConstants.STATUS_APPROVED,
+			new long[] {groupId, organizationGroupId});
+
+		Assert.assertEquals(2, counts.size());
+		Assert.assertEquals(1, (int)counts.get(organizationGroupId));
 	}
 
 	@Test
