@@ -14,9 +14,14 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.portal.kernel.language.UTF8Control;
+
 import java.text.MessageFormat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -25,6 +30,30 @@ import java.util.ResourceBundle;
  * @author Neil Griffin
  */
 public class ResourceBundleUtil {
+
+	public static ResourceBundle getBundle(String baseName, Class<?> clazz) {
+		return getBundle(baseName, clazz.getClassLoader());
+	}
+
+	public static ResourceBundle getBundle(
+		String baseName, ClassLoader classLoader) {
+
+		return ResourceBundle.getBundle(
+			baseName, Locale.getDefault(), classLoader, UTF8Control.INSTANCE);
+	}
+
+	public static ResourceBundle getBundle(
+		String baseName, Locale locale, Class<?> clazz) {
+
+		return getBundle(baseName, locale, clazz.getClassLoader());
+	}
+
+	public static ResourceBundle getBundle(
+		String baseName, Locale locale, ClassLoader classLoader) {
+
+		return ResourceBundle.getBundle(
+			baseName, locale, classLoader, UTF8Control.INSTANCE);
+	}
 
 	public static String getString(
 		ResourceBundle resourceBundle, Locale locale, String key,
@@ -60,6 +89,53 @@ public class ResourceBundleUtil {
 		catch (MissingResourceException mre) {
 			return null;
 		}
+	}
+
+	public static void loadResourceBundles(
+		Map<String, ResourceBundle> resourceBundles, Locale locale,
+		ResourceBundleLoader resourceBundleLoader) {
+
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		String[] languageIdParts = languageId.split("_");
+
+		if (ArrayUtil.isEmpty(languageIdParts)) {
+			return;
+		}
+
+		String currentLanguageId = StringPool.BLANK;
+		List<ResourceBundle> currentResourceBundles = new ArrayList<>();
+
+		for (int i = 0; i < languageIdParts.length; i++) {
+			if ( i > 0 ) {
+				currentLanguageId += "_";
+			}
+
+			currentLanguageId += languageIdParts[i];
+
+			ResourceBundle resourceBundle =
+				resourceBundleLoader.loadResourceBundle(currentLanguageId);
+
+			if (resourceBundle != null) {
+				currentResourceBundles.add(resourceBundle);
+			}
+
+			if (currentResourceBundles.isEmpty()) {
+				continue;
+			}
+
+			resourceBundles.put(
+				currentLanguageId,
+				new AggregateResourceBundle(
+					currentResourceBundles.toArray(
+						new ResourceBundle[currentResourceBundles.size()])));
+		}
+	}
+
+	public interface ResourceBundleLoader {
+
+		public ResourceBundle loadResourceBundle(String languageId);
+
 	}
 
 }
