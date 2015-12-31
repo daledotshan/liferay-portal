@@ -245,8 +245,7 @@ public class RegionWrapper implements Region, ModelWrapper<Region> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_region.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -323,7 +322,7 @@ public class RegionWrapper implements Region, ModelWrapper<Region> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Region> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Region> toCacheModel() {
 		return _region.toCacheModel();
 	}
 
@@ -364,14 +363,6 @@ public class RegionWrapper implements Region, ModelWrapper<Region> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Region getWrappedRegion() {
-		return _region;
 	}
 
 	@Override

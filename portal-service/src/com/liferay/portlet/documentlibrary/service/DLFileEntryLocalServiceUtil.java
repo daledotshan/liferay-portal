@@ -57,7 +57,7 @@ public class DLFileEntryLocalServiceUtil {
 		java.lang.String sourceFileName, java.lang.String mimeType,
 		java.lang.String title, java.lang.String description,
 		java.lang.String changeLog, long fileEntryTypeId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
+		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.DDMFormValues> ddmFormValuesMap,
 		java.io.File file, java.io.InputStream is, long size,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -146,6 +146,16 @@ public class DLFileEntryLocalServiceUtil {
 	public static void convertExtraSettings(java.lang.String[] keys)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().convertExtraSettings(keys);
+	}
+
+	public static com.liferay.portlet.documentlibrary.model.DLFileEntry copyFileEntry(
+		long userId, long groupId, long repositoryId, long fileEntryId,
+		long destFolderId,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .copyFileEntry(userId, groupId, repositoryId, fileEntryId,
+			destFolderId, serviceContext);
 	}
 
 	public static void copyFileEntryMetadata(long companyId,
@@ -370,15 +380,6 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getDDMStructureFileEntries(
 		long[] ddmStructureIds) {
 		return getService().getDDMStructureFileEntries(ddmStructureIds);
@@ -472,7 +473,7 @@ public class DLFileEntryLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -635,6 +636,10 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getFileEntriesCount();
 	}
 
+	/**
+	* @deprecated As of 7.0.0, with no direct replacement
+	*/
+	@Deprecated
 	public static int getFileEntriesCount(long groupId,
 		com.liferay.portal.kernel.util.DateRange dateRange, long repositoryId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<com.liferay.portlet.documentlibrary.model.DLFileEntry> queryDefinition) {
@@ -742,12 +747,25 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getGroupFileEntriesCount(groupId, userId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getMisversionedFileEntries() {
 		return getService().getMisversionedFileEntries();
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getNoAssetFileEntries() {
 		return getService().getNoAssetFileEntries();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getOrphanedFileEntries() {
@@ -767,6 +785,14 @@ public class DLFileEntryLocalServiceUtil {
 
 	public static int getRepositoryFileEntriesCount(long repositoryId) {
 		return getService().getRepositoryFileEntriesCount(repositoryId);
+	}
+
+	public static java.lang.String getUniqueTitle(long groupId, long folderId,
+		long fileEntryId, java.lang.String title, java.lang.String extension)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .getUniqueTitle(groupId, folderId, fileEntryId, title,
+			extension);
 	}
 
 	public static boolean hasExtraSettings() {
@@ -795,8 +821,8 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().isKeepFileVersionLabel(fileEntryId, serviceContext);
 	}
 
-	public static com.liferay.portal.model.Lock lockFileEntry(long userId,
-		long fileEntryId)
+	public static com.liferay.portal.kernel.lock.Lock lockFileEntry(
+		long userId, long fileEntryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().lockFileEntry(userId, fileEntryId);
 	}
@@ -839,15 +865,6 @@ public class DLFileEntryLocalServiceUtil {
 				   .search(groupId, userId, creatorUserId, status, start, end);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static void setTreePaths(long folderId, java.lang.String treePath,
 		boolean reindex)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -874,7 +891,7 @@ public class DLFileEntryLocalServiceUtil {
 		java.lang.String mimeType, java.lang.String title,
 		java.lang.String description, java.lang.String changeLog,
 		boolean majorVersion, long fileEntryTypeId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
+		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.DDMFormValues> ddmFormValuesMap,
 		java.io.File file, java.io.InputStream is, long size,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -936,13 +953,6 @@ public class DLFileEntryLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(DLFileEntryLocalService service) {
 	}
 
 	private static DLFileEntryLocalService _service;

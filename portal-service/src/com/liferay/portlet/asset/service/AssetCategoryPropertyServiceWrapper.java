@@ -48,16 +48,6 @@ public class AssetCategoryPropertyServiceWrapper
 		_assetCategoryPropertyService.deleteCategoryProperty(categoryPropertyId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _assetCategoryPropertyService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<com.liferay.portlet.asset.model.AssetCategoryProperty> getCategoryProperties(
 		long entryId) {
@@ -72,13 +62,13 @@ public class AssetCategoryPropertyServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_assetCategoryPropertyService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _assetCategoryPropertyService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -96,23 +86,6 @@ public class AssetCategoryPropertyServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _assetCategoryPropertyService.updateCategoryProperty(userId,
 			categoryPropertyId, key, value);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AssetCategoryPropertyService getWrappedAssetCategoryPropertyService() {
-		return _assetCategoryPropertyService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAssetCategoryPropertyService(
-		AssetCategoryPropertyService assetCategoryPropertyService) {
-		_assetCategoryPropertyService = assetCategoryPropertyService;
 	}
 
 	@Override
