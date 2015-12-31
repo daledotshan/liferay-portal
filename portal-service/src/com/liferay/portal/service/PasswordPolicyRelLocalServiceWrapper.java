@@ -235,14 +235,19 @@ public class PasswordPolicyRelLocalServiceWrapper
 		return _passwordPolicyRelLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _passwordPolicyRelLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _passwordPolicyRelLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _passwordPolicyRelLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -317,16 +322,6 @@ public class PasswordPolicyRelLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_passwordPolicyRelLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the password policy rel in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param passwordPolicyRel the password policy rel
@@ -336,23 +331,6 @@ public class PasswordPolicyRelLocalServiceWrapper
 	public com.liferay.portal.model.PasswordPolicyRel updatePasswordPolicyRel(
 		com.liferay.portal.model.PasswordPolicyRel passwordPolicyRel) {
 		return _passwordPolicyRelLocalService.updatePasswordPolicyRel(passwordPolicyRel);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PasswordPolicyRelLocalService getWrappedPasswordPolicyRelLocalService() {
-		return _passwordPolicyRelLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPasswordPolicyRelLocalService(
-		PasswordPolicyRelLocalService passwordPolicyRelLocalService) {
-		_passwordPolicyRelLocalService = passwordPolicyRelLocalService;
 	}
 
 	@Override

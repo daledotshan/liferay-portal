@@ -19,6 +19,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.ShardedModel;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.ServiceContext;
@@ -44,7 +45,7 @@ import java.util.Date;
  */
 @ProviderType
 public interface DLFileVersionModel extends BaseModel<DLFileVersion>,
-	StagedGroupedModel, WorkflowedModel {
+	ShardedModel, StagedGroupedModel, WorkflowedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -430,6 +431,22 @@ public interface DLFileVersionModel extends BaseModel<DLFileVersion>,
 	public void setChecksum(String checksum);
 
 	/**
+	 * Returns the last publish date of this document library file version.
+	 *
+	 * @return the last publish date of this document library file version
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this document library file version.
+	 *
+	 * @param lastPublishDate the last publish date of this document library file version
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
+
+	/**
 	 * Returns the status of this document library file version.
 	 *
 	 * @return the status of this document library file version
@@ -509,13 +526,6 @@ public interface DLFileVersionModel extends BaseModel<DLFileVersion>,
 	 */
 	@Override
 	public void setStatusDate(Date statusDate);
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	 */
-	@Deprecated
-	@Override
-	public boolean getApproved();
 
 	/**
 	 * Returns <code>true</code> if this document library file version is approved.

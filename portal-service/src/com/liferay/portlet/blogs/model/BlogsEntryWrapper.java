@@ -16,9 +16,10 @@ package com.liferay.portlet.blogs.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -70,12 +71,14 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 		attributes.put("allowPingbacks", getAllowPingbacks());
 		attributes.put("allowTrackbacks", getAllowTrackbacks());
 		attributes.put("trackbacks", getTrackbacks());
+		attributes.put("coverImageCaption", getCoverImageCaption());
 		attributes.put("coverImageFileEntryId", getCoverImageFileEntryId());
 		attributes.put("coverImageURL", getCoverImageURL());
 		attributes.put("smallImage", getSmallImage());
 		attributes.put("smallImageFileEntryId", getSmallImageFileEntryId());
 		attributes.put("smallImageId", getSmallImageId());
 		attributes.put("smallImageURL", getSmallImageURL());
+		attributes.put("lastPublishDate", getLastPublishDate());
 		attributes.put("status", getStatus());
 		attributes.put("statusByUserId", getStatusByUserId());
 		attributes.put("statusByUserName", getStatusByUserName());
@@ -188,6 +191,12 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 			setTrackbacks(trackbacks);
 		}
 
+		String coverImageCaption = (String)attributes.get("coverImageCaption");
+
+		if (coverImageCaption != null) {
+			setCoverImageCaption(coverImageCaption);
+		}
+
 		Long coverImageFileEntryId = (Long)attributes.get(
 				"coverImageFileEntryId");
 
@@ -224,6 +233,12 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 
 		if (smallImageURL != null) {
 			setSmallImageURL(smallImageURL);
+		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
 		}
 
 		Integer status = (Integer)attributes.get("status");
@@ -282,15 +297,6 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	}
 
 	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _blogsEntry.getApproved();
-	}
-
-	/**
 	* Returns the company ID of this blogs entry.
 	*
 	* @return the company ID of this blogs entry
@@ -308,6 +314,16 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	@Override
 	public java.lang.String getContent() {
 		return _blogsEntry.getContent();
+	}
+
+	/**
+	* Returns the cover image caption of this blogs entry.
+	*
+	* @return the cover image caption of this blogs entry
+	*/
+	@Override
+	public java.lang.String getCoverImageCaption() {
+		return _blogsEntry.getCoverImageCaption();
 	}
 
 	/**
@@ -343,7 +359,7 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	* @return the create date of this blogs entry
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _blogsEntry.getCreateDate();
 	}
 
@@ -363,7 +379,7 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	* @return the display date of this blogs entry
 	*/
 	@Override
-	public java.util.Date getDisplayDate() {
+	public Date getDisplayDate() {
 		return _blogsEntry.getDisplayDate();
 	}
 
@@ -378,8 +394,8 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getSmallImageURL(
-	ThemeDisplay)}
+	* @deprecated As of 7.0.0, replaced by {@link
+	#getSmallImageURL(ThemeDisplay)}
 	*/
 	@Deprecated
 	@Override
@@ -404,12 +420,22 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	}
 
 	/**
+	* Returns the last publish date of this blogs entry.
+	*
+	* @return the last publish date of this blogs entry
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _blogsEntry.getLastPublishDate();
+	}
+
+	/**
 	* Returns the modified date of this blogs entry.
 	*
 	* @return the modified date of this blogs entry
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _blogsEntry.getModifiedDate();
 	}
 
@@ -527,7 +553,7 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	* @return the status date of this blogs entry
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _blogsEntry.getStatusDate();
 	}
 
@@ -858,6 +884,16 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	}
 
 	/**
+	* Sets the cover image caption of this blogs entry.
+	*
+	* @param coverImageCaption the cover image caption of this blogs entry
+	*/
+	@Override
+	public void setCoverImageCaption(java.lang.String coverImageCaption) {
+		_blogsEntry.setCoverImageCaption(coverImageCaption);
+	}
+
+	/**
 	* Sets the cover image file entry ID of this blogs entry.
 	*
 	* @param coverImageFileEntryId the cover image file entry ID of this blogs entry
@@ -883,7 +919,7 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	* @param createDate the create date of this blogs entry
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_blogsEntry.setCreateDate(createDate);
 	}
 
@@ -903,7 +939,7 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	* @param displayDate the display date of this blogs entry
 	*/
 	@Override
-	public void setDisplayDate(java.util.Date displayDate) {
+	public void setDisplayDate(Date displayDate) {
 		_blogsEntry.setDisplayDate(displayDate);
 	}
 
@@ -946,12 +982,22 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	}
 
 	/**
+	* Sets the last publish date of this blogs entry.
+	*
+	* @param lastPublishDate the last publish date of this blogs entry
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_blogsEntry.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the modified date of this blogs entry.
 	*
 	* @param modifiedDate the modified date of this blogs entry
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_blogsEntry.setModifiedDate(modifiedDate);
 	}
 
@@ -1066,7 +1112,7 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	* @param statusDate the status date of this blogs entry
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_blogsEntry.setStatusDate(statusDate);
 	}
 
@@ -1197,14 +1243,6 @@ public class BlogsEntryWrapper implements BlogsEntry, ModelWrapper<BlogsEntry> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _blogsEntry.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public BlogsEntry getWrappedBlogsEntry() {
-		return _blogsEntry;
 	}
 
 	@Override

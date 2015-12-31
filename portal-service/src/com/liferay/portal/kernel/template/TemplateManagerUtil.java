@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +50,17 @@ public class TemplateManagerUtil {
 
 	public static Set<String> getSupportedLanguageTypes(String propertyKey) {
 		return _instance._getSupportedLanguageTypes(propertyKey);
+	}
+
+	public static Template getTemplate(
+			String templateManagerName,
+			List<TemplateResource> templateResources,
+			TemplateResource errorTemplateResource, boolean restricted)
+		throws TemplateException {
+
+		return _instance._getTemplates(
+			templateManagerName, templateResources, errorTemplateResource,
+			restricted);
 	}
 
 	public static Template getTemplate(
@@ -84,6 +96,15 @@ public class TemplateManagerUtil {
 		return _instance._getTemplateManagers();
 	}
 
+	public static Template getTemplates(
+			String templateManagerName,
+			List<TemplateResource> templateResources, boolean restricted)
+		throws TemplateException {
+
+		return _instance._getTemplates(
+			templateManagerName, templateResources, restricted);
+	}
+
 	public static boolean hasTemplateManager(String templateManagerName) {
 		return _instance._hasTemplateManager(templateManagerName);
 	}
@@ -91,9 +112,12 @@ public class TemplateManagerUtil {
 	private TemplateManagerUtil() {
 		Registry registry = RegistryUtil.getRegistry();
 
+		com.liferay.registry.Filter filter = registry.getFilter(
+			"(&(language.type=*)(objectClass=" +
+				TemplateManager.class.getName() + "))");
+
 		_serviceTracker = registry.trackServices(
-			TemplateManager.class,
-			new TemplateManagerServiceTrackerCustomizer());
+			filter, new TemplateManagerServiceTrackerCustomizer());
 
 		_serviceTracker.open();
 	}
@@ -217,6 +241,30 @@ public class TemplateManagerUtil {
 		return Collections.unmodifiableMap(map);
 	}
 
+	private Template _getTemplates(
+			String templateManagerName,
+			List<TemplateResource> templateResources, boolean restricted)
+		throws TemplateException {
+
+		TemplateManager templateManager = _getTemplateManagerChecked(
+			templateManagerName);
+
+		return templateManager.getTemplates(templateResources, restricted);
+	}
+
+	private Template _getTemplates(
+			String templateManagerName,
+			List<TemplateResource> templateResources,
+			TemplateResource errorTemplateResource, boolean restricted)
+		throws TemplateException {
+
+		TemplateManager templateManager = _getTemplateManagerChecked(
+			templateManagerName);
+
+		return templateManager.getTemplates(
+			templateResources, errorTemplateResource, restricted);
+	}
+
 	private boolean _hasTemplateManager(String templateManagerName) {
 		Collection<TemplateManager> templateManagers =
 			_templateManagers.values();
@@ -262,10 +310,10 @@ public class TemplateManagerUtil {
 
 				_templateManagers.put(serviceReference, templateManager);
 			}
-			catch (TemplateException e) {
+			catch (TemplateException te) {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
-						"unable to init " + name + " Template Manager ", e);
+						"unable to init " + name + " Template Manager ", te);
 				}
 			}
 

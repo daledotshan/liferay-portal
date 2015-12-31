@@ -213,16 +213,6 @@ public class BlogsStatsUserLocalServiceWrapper
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _blogsStatsUserLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the blogs stats user with the primary key.
 	*
 	* @param statsUserId the primary key of the blogs stats user
@@ -311,6 +301,21 @@ public class BlogsStatsUserLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _blogsStatsUserLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _blogsStatsUserLocalService.getOSGiServiceIdentifier();
+	}
+
+	@Override
 	public java.util.List<com.liferay.portlet.blogs.model.BlogsStatsUser> getOrganizationStatsUsers(
 		long organizationId, int start, int end) {
 		return _blogsStatsUserLocalService.getOrganizationStatsUsers(organizationId,
@@ -345,16 +350,6 @@ public class BlogsStatsUserLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_blogsStatsUserLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the blogs stats user in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param blogsStatsUser the blogs stats user
@@ -377,23 +372,6 @@ public class BlogsStatsUserLocalServiceWrapper
 		java.util.Date displayDate)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_blogsStatsUserLocalService.updateStatsUser(groupId, userId, displayDate);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public BlogsStatsUserLocalService getWrappedBlogsStatsUserLocalService() {
-		return _blogsStatsUserLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedBlogsStatsUserLocalService(
-		BlogsStatsUserLocalService blogsStatsUserLocalService) {
-		_blogsStatsUserLocalService = blogsStatsUserLocalService;
 	}
 
 	@Override

@@ -32,16 +32,6 @@ public class LayoutTemplateLocalServiceWrapper
 		_layoutTemplateLocalService = layoutTemplateLocalService;
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _layoutTemplateLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.lang.String getContent(java.lang.String layoutTemplateId,
 		boolean standard, java.lang.String themeId) {
@@ -66,6 +56,16 @@ public class LayoutTemplateLocalServiceWrapper
 	public java.util.List<com.liferay.portal.model.LayoutTemplate> getLayoutTemplates(
 		java.lang.String themeId) {
 		return _layoutTemplateLocalService.getLayoutTemplates(themeId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _layoutTemplateLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -104,16 +104,6 @@ public class LayoutTemplateLocalServiceWrapper
 			pluginPackage);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_layoutTemplateLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void uninstallLayoutTemplate(java.lang.String layoutTemplateId,
 		boolean standard) {
@@ -124,23 +114,6 @@ public class LayoutTemplateLocalServiceWrapper
 	@Override
 	public void uninstallLayoutTemplates(java.lang.String themeId) {
 		_layoutTemplateLocalService.uninstallLayoutTemplates(themeId);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public LayoutTemplateLocalService getWrappedLayoutTemplateLocalService() {
-		return _layoutTemplateLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedLayoutTemplateLocalService(
-		LayoutTemplateLocalService layoutTemplateLocalService) {
-		_layoutTemplateLocalService = layoutTemplateLocalService;
 	}
 
 	@Override

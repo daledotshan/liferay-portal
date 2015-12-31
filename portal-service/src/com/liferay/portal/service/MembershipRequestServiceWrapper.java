@@ -46,16 +46,6 @@ public class MembershipRequestServiceWrapper implements MembershipRequestService
 		_membershipRequestService.deleteMembershipRequests(groupId, statusId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _membershipRequestService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portal.model.MembershipRequest getMembershipRequest(
 		long membershipRequestId)
@@ -64,13 +54,13 @@ public class MembershipRequestServiceWrapper implements MembershipRequestService
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_membershipRequestService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _membershipRequestService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -80,23 +70,6 @@ public class MembershipRequestServiceWrapper implements MembershipRequestService
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_membershipRequestService.updateStatus(membershipRequestId,
 			reviewComments, statusId, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public MembershipRequestService getWrappedMembershipRequestService() {
-		return _membershipRequestService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedMembershipRequestService(
-		MembershipRequestService membershipRequestService) {
-		_membershipRequestService = membershipRequestService;
 	}
 
 	@Override

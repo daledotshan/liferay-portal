@@ -15,12 +15,12 @@
 package com.liferay.portal.service.base;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.model.EmailAddress;
 import com.liferay.portal.service.BaseServiceImpl;
 import com.liferay.portal.service.EmailAddressService;
@@ -46,7 +46,7 @@ import javax.sql.DataSource;
  * @generated
  */
 public abstract class EmailAddressServiceBaseImpl extends BaseServiceImpl
-	implements EmailAddressService, IdentifiableBean {
+	implements EmailAddressService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -77,7 +77,7 @@ public abstract class EmailAddressServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the email address remote service
 	 */
-	public com.liferay.portal.service.EmailAddressService getEmailAddressService() {
+	public EmailAddressService getEmailAddressService() {
 		return emailAddressService;
 	}
 
@@ -86,8 +86,7 @@ public abstract class EmailAddressServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param emailAddressService the email address remote service
 	 */
-	public void setEmailAddressService(
-		com.liferay.portal.service.EmailAddressService emailAddressService) {
+	public void setEmailAddressService(EmailAddressService emailAddressService) {
 		this.emailAddressService = emailAddressService;
 	}
 
@@ -323,23 +322,13 @@ public abstract class EmailAddressServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return EmailAddressService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -359,7 +348,7 @@ public abstract class EmailAddressServiceBaseImpl extends BaseServiceImpl
 		try {
 			DataSource dataSource = emailAddressPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -377,7 +366,7 @@ public abstract class EmailAddressServiceBaseImpl extends BaseServiceImpl
 	@BeanReference(type = com.liferay.portal.service.EmailAddressLocalService.class)
 	protected com.liferay.portal.service.EmailAddressLocalService emailAddressLocalService;
 	@BeanReference(type = com.liferay.portal.service.EmailAddressService.class)
-	protected com.liferay.portal.service.EmailAddressService emailAddressService;
+	protected EmailAddressService emailAddressService;
 	@BeanReference(type = EmailAddressPersistence.class)
 	protected EmailAddressPersistence emailAddressPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
@@ -402,5 +391,4 @@ public abstract class EmailAddressServiceBaseImpl extends BaseServiceImpl
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)
 	protected UserFinder userFinder;
-	private String _beanIdentifier;
 }

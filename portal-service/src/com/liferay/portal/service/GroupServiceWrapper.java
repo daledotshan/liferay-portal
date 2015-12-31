@@ -68,10 +68,6 @@ public class GroupServiceWrapper implements GroupService,
 	tag names for the group, and can set whether the group is for
 	staging
 	* @return the group
-	* @throws PortalException if the user did not have permission to add
-	the group, if a creator could not be found, if the group's
-	information was invalid, if a layout could not be found, or
-	if a valid friendly URL could not be created for the group
 	* @deprecated As of 7.0.0, replaced by {@link #addGroup(long, long, Map,
 	Map, int, boolean, int, String, boolean, boolean,
 	ServiceContext)}
@@ -134,10 +130,6 @@ public class GroupServiceWrapper implements GroupService,
 	names for the group, and can set whether the group is for
 	staging
 	* @return the group
-	* @throws PortalException if the user did not have permission to add
-	the group, if a creator could not be found, if the group's
-	information was invalid, if a layout could not be found, or
-	if a valid friendly URL could not be created for the group
 	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, Map,
 	Map, int, boolean, int, String, boolean, boolean,
 	ServiceContext)}
@@ -158,8 +150,6 @@ public class GroupServiceWrapper implements GroupService,
 	*
 	* @param roleId the primary key of the role
 	* @param groupIds the primary keys of the groups
-	* @throws PortalException if the user did not have permission to update the
-	role
 	*/
 	@Override
 	public void addRoleGroups(long roleId, long[] groupIds)
@@ -172,10 +162,6 @@ public class GroupServiceWrapper implements GroupService,
 	* Staging.
 	*
 	* @param groupId the primary key of the group
-	* @throws PortalException if a group with the primary key could not be
-	found, if the current user did not have permission to view the
-	group, or if the group's company was different from the current
-	user's company
 	*/
 	@Override
 	public void checkRemoteStagingGroup(long groupId)
@@ -190,13 +176,10 @@ public class GroupServiceWrapper implements GroupService,
 	* The group is unstaged and its assets and resources including layouts,
 	* membership requests, subscriptions, teams, blogs, bookmarks, calendar
 	* events, image gallery, journals, message boards, polls, shopping related
-	* entities, software catalog, and wikis are also deleted.
+	* entities, and wikis are also deleted.
 	* </p>
 	*
 	* @param groupId the primary key of the group
-	* @throws PortalException if the user did not have permission to delete the
-	group or its assets or resources, if a group with the primary key
-	could not be found, or if the group was a system group
 	*/
 	@Override
 	public void deleteGroup(long groupId)
@@ -217,21 +200,10 @@ public class GroupServiceWrapper implements GroupService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _groupService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the company group.
 	*
 	* @param companyId the primary key of the company
 	* @return the group associated with the company
-	* @throws PortalException if a matching group could not be found
 	*/
 	@Override
 	public com.liferay.portal.model.Group getCompanyGroup(long companyId)
@@ -245,8 +217,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param companyId the primary key of the company
 	* @param groupKey the group key
 	* @return the group with the group key
-	* @throws PortalException if a matching group could not be found or if the
-	current user did not have permission to view the group
 	*/
 	@Override
 	public com.liferay.portal.model.Group getGroup(long companyId,
@@ -260,9 +230,6 @@ public class GroupServiceWrapper implements GroupService,
 	*
 	* @param groupId the primary key of the group
 	* @return the group with the primary key
-	* @throws PortalException if a group with the primary key could not be
-	found or if the current user did not have permission to view the
-	group
 	*/
 	@Override
 	public com.liferay.portal.model.Group getGroup(long groupId)
@@ -278,8 +245,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param site whether the group is to be associated with a main site
 	* @return the matching groups, or <code>null</code> if no matches were
 	found
-	* @throws PortalException if the user did not have permission to view the
-	group or if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getGroups(
@@ -297,7 +262,6 @@ public class GroupServiceWrapper implements GroupService,
 	inclusive)
 	* @return the range of site groups for which the user has Control Panel
 	access
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getManageableSiteGroups(
@@ -315,7 +279,6 @@ public class GroupServiceWrapper implements GroupService,
 	inclusive)
 	* @return the range of site groups for which the user has Control Panel
 	access
-	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link
 	#getManageableSiteGroups(Collection, int)}
 	*/
@@ -328,11 +291,20 @@ public class GroupServiceWrapper implements GroupService,
 	}
 
 	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _groupService.getOSGiServiceIdentifier();
+	}
+
+	/**
 	* Returns the groups associated with the organizations.
 	*
 	* @param organizations the organizations
 	* @return the groups associated with the organizations
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getOrganizationsGroups(
@@ -347,8 +319,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param companyId the primary key of the company
 	* @param userId the primary key of the user
 	* @return the group directly associated with the user
-	* @throws PortalException if a matching group could not be found or if the
-	current user did not have permission to view the group
 	*/
 	@Override
 	public com.liferay.portal.model.Group getUserGroup(long companyId,
@@ -361,8 +331,6 @@ public class GroupServiceWrapper implements GroupService,
 	*
 	* @param userGroups the user groups
 	* @return the groups associated with the user groups
-	* @throws PortalException if any one of the user group's group could not be
-	found
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getUserGroupsGroups(
@@ -382,8 +350,7 @@ public class GroupServiceWrapper implements GroupService,
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -392,8 +359,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param end the upper bound of the range of groups to consider (not
 	inclusive)
 	* @return the range of groups associated with the user's organizations
-	* @throws PortalException if a user with the primary key could not be found
-	or if another portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getUserOrganizationsGroups(
@@ -432,7 +397,6 @@ public class GroupServiceWrapper implements GroupService,
 	#getUserSitesGroups(String[], int)}.
 	* @param max the maximum number of groups to return
 	* @return the user's groups &quot;sites&quot;
-	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #getUserSitesGroups(String[],
 	int)}
 	*/
@@ -446,7 +410,7 @@ public class GroupServiceWrapper implements GroupService,
 
 	/**
 	* @deprecated As of 6.2.0, replaced by {@link #getUserSitesGroups(long,
-	String[], boolean, int)}
+	String[], int)}
 	*/
 	@Deprecated
 	@Override
@@ -489,7 +453,6 @@ public class GroupServiceWrapper implements GroupService,
 	#getUserSitesGroups(long, String[], int)}.
 	* @param max the maximum number of groups to return
 	* @return the user's groups &quot;sites&quot;
-	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #getUserSitesGroups(long,
 	String[], int)}
 	*/
@@ -508,7 +471,6 @@ public class GroupServiceWrapper implements GroupService,
 	* Panel.
 	*
 	* @return the number of user's groups &quot;sites&quot;
-	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #getUserSitesGroupsCount()}
 	*/
 	@Deprecated
@@ -524,7 +486,6 @@ public class GroupServiceWrapper implements GroupService,
 	*
 	* @return the user's layout set group, organization groups, and
 	inherited organization groups, and site groups
-	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 6.2.0, replaced by {@link #getUserSitesGroups}
 	*/
 	@Deprecated
@@ -567,25 +528,15 @@ public class GroupServiceWrapper implements GroupService,
 	*
 	* @param classNames the group entity class names (optionally
 	<code>null</code>). For more information see {@link
-	#getUserSitesGroups(long, String[], boolean, int)}.
+	#getUserSitesGroups(long, String[], int)}.
 	* @param max the maximum number of groups to return
 	* @return the user's groups &quot;sites&quot;
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getUserSitesGroups(
 		java.lang.String[] classNames, int max)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _groupService.getUserSitesGroups(classNames, max);
-	}
-
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getUserSitesGroups(
-		long userId, java.lang.String[] classNames,
-		boolean includeControlPanel, int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _groupService.getUserSitesGroups(userId, classNames,
-			includeControlPanel, max);
 	}
 
 	/**
@@ -616,10 +567,9 @@ public class GroupServiceWrapper implements GroupService,
 	* @param userId the primary key of the user
 	* @param classNames the group entity class names (optionally
 	<code>null</code>). For more information see {@link
-	#getUserSitesGroups(long, String[], boolean, int)}.
+	#getUserSitesGroups(long, String[], int)}.
 	* @param max the maximum number of groups to return
 	* @return the user's groups &quot;sites&quot;
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getUserSitesGroups(
@@ -635,7 +585,6 @@ public class GroupServiceWrapper implements GroupService,
 	* Panel.
 	*
 	* @return the number of user's groups &quot;sites&quot;
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public int getUserSitesGroupsCount()
@@ -652,8 +601,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param groupId the primary key of the group
 	* @return <code>true</code> if the user is associated with the group;
 	<code>false</code> otherwise
-	* @throws PortalException if the current user did not have permission to
-	view the user or group members
 	*/
 	@Override
 	public boolean hasUserGroup(long userId, long groupId)
@@ -695,8 +642,7 @@ public class GroupServiceWrapper implements GroupService,
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -714,7 +660,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param end the upper bound of the range of groups to return (not
 	inclusive)
 	* @return the matching groups ordered by name
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> search(
@@ -749,23 +694,11 @@ public class GroupServiceWrapper implements GroupService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_groupService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Sets the groups associated with the role, removing and adding
 	* associations as necessary.
 	*
 	* @param roleId the primary key of the role
 	* @param groupIds the primary keys of the groups
-	* @throws PortalException if the user did not have permission to update
-	update the role
 	*/
 	@Override
 	public void setRoleGroups(long roleId, long[] groupIds)
@@ -778,8 +711,6 @@ public class GroupServiceWrapper implements GroupService,
 	*
 	* @param roleId the primary key of the role
 	* @param groupIds the primary keys of the groups
-	* @throws PortalException if the user did not have permission to update the
-	role
 	*/
 	@Override
 	public void unsetRoleGroups(long roleId, long[] groupIds)
@@ -794,9 +725,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param friendlyURL the group's new friendlyURL (optionally
 	<code>null</code>)
 	* @return the group
-	* @throws PortalException if the user did not have permission to update the
-	group, if a group with the primary key could not be found, or if
-	a valid friendly URL could not be created for the group
 	*/
 	@Override
 	public com.liferay.portal.model.Group updateFriendlyURL(long groupId,
@@ -826,10 +754,6 @@ public class GroupServiceWrapper implements GroupService,
 	<code>null</code>). Can set the asset category IDs and asset
 	tag names for the group.
 	* @return the group
-	* @throws PortalException if the user did not have permission to update
-	the group, if a group with the primary key could not be
-	found, if the friendly URL was invalid or could one not be
-	created
 	* @deprecated As of 7.0.0, replaced by {@link #updateGroup(long, long, Map,
 	Map, int, boolean, int, String, boolean, boolean,
 	ServiceContext)}
@@ -869,8 +793,6 @@ public class GroupServiceWrapper implements GroupService,
 	* @param typeSettings the group's new type settings (optionally
 	<code>null</code>)
 	* @return the group
-	* @throws PortalException if the user did not have permission to update the
-	group or if a group with the primary key could not be found
 	*/
 	@Override
 	public com.liferay.portal.model.Group updateGroup(long groupId,
@@ -884,22 +806,6 @@ public class GroupServiceWrapper implements GroupService,
 		java.util.Map<java.lang.String, java.lang.String> stagedPortletIds)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_groupService.updateStagedPortlets(groupId, stagedPortletIds);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public GroupService getWrappedGroupService() {
-		return _groupService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedGroupService(GroupService groupService) {
-		_groupService = groupService;
 	}
 
 	@Override

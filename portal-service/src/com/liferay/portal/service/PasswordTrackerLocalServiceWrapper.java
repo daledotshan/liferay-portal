@@ -194,14 +194,19 @@ public class PasswordTrackerLocalServiceWrapper
 		return _passwordTrackerLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _passwordTrackerLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _passwordTrackerLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _passwordTrackerLocalService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -267,16 +272,6 @@ public class PasswordTrackerLocalServiceWrapper
 			newClearTextPwd);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_passwordTrackerLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void trackPassword(long userId, java.lang.String encPassword)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -293,23 +288,6 @@ public class PasswordTrackerLocalServiceWrapper
 	public com.liferay.portal.model.PasswordTracker updatePasswordTracker(
 		com.liferay.portal.model.PasswordTracker passwordTracker) {
 		return _passwordTrackerLocalService.updatePasswordTracker(passwordTracker);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PasswordTrackerLocalService getWrappedPasswordTrackerLocalService() {
-		return _passwordTrackerLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPasswordTrackerLocalService(
-		PasswordTrackerLocalService passwordTrackerLocalService) {
-		_passwordTrackerLocalService = passwordTrackerLocalService;
 	}
 
 	@Override

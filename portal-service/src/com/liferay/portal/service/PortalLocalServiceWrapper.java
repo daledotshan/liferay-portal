@@ -31,40 +31,13 @@ public class PortalLocalServiceWrapper implements PortalLocalService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _portalLocalService.getBeanIdentifier();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_portalLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PortalLocalService getWrappedPortalLocalService() {
-		return _portalLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPortalLocalService(
-		PortalLocalService portalLocalService) {
-		_portalLocalService = portalLocalService;
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _portalLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override

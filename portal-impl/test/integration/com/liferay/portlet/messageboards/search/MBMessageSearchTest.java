@@ -32,7 +32,6 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.search.test.BaseSearchTestCase;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBCategoryConstants;
 import com.liferay.portlet.messageboards.model.MBMessage;
@@ -62,58 +61,58 @@ public class MBMessageSearchTest extends BaseSearchTestCase {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testLocalizedSearch() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchByDDMStructureField() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchByKeywordsInsideParentBaseModel() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchComments() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchExpireAllVersions() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchExpireLatestVersion() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchStatus() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchVersions() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchWithinDDMStructure() throws Exception {
@@ -199,7 +198,7 @@ public class MBMessageSearchTest extends BaseSearchTestCase {
 
 	@Override
 	protected void moveBaseModelToTrash(long primaryKey) throws Exception {
-		MBMessage message =  MBMessageLocalServiceUtil.getMessage(primaryKey);
+		MBMessage message = MBMessageLocalServiceUtil.getMessage(primaryKey);
 
 		MBThreadServiceUtil.moveThreadToTrash(message.getThreadId());
 	}
@@ -215,7 +214,7 @@ public class MBMessageSearchTest extends BaseSearchTestCase {
 	protected long searchGroupEntriesCount(long groupId, long creatorUserId)
 		throws Exception {
 
-		Hits hits =  MBThreadServiceUtil.search(
+		Hits hits = MBThreadServiceUtil.search(
 			groupId, creatorUserId, WorkflowConstants.STATUS_APPROVED,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
