@@ -32,7 +32,6 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetVocabulary;
@@ -57,8 +56,7 @@ public class AssetVocabularyServiceTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -143,8 +141,9 @@ public class AssetVocabularyServiceTest {
 
 		AssetVocabulary vocabulary =
 			AssetVocabularyLocalServiceUtil.addVocabulary(
-				TestPropsValues.getUserId(), StringPool.BLANK, titleMap,
-				descriptionMap, StringPool.BLANK, serviceContext);
+				TestPropsValues.getUserId(), _group.getGroupId(),
+				StringPool.BLANK, titleMap, descriptionMap, StringPool.BLANK,
+				serviceContext);
 
 		Assert.assertEquals(
 			titleMap.get(LocaleUtil.SPAIN), vocabulary.getName());
@@ -179,14 +178,16 @@ public class AssetVocabularyServiceTest {
 
 		AssetVocabulary vocabulary =
 			AssetVocabularyLocalServiceUtil.addVocabulary(
-				TestPropsValues.getUserId(), title, serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				title, serviceContext);
 
 		Assert.assertEquals(title, vocabulary.getTitle(LocaleUtil.US, true));
 		Assert.assertEquals(title, vocabulary.getName());
 	}
 
 	protected int searchCount() throws Exception {
-		Indexer indexer = IndexerRegistryUtil.getIndexer(AssetCategory.class);
+		Indexer<AssetCategory> indexer = IndexerRegistryUtil.getIndexer(
+			AssetCategory.class);
 
 		SearchContext searchContext = SearchContextTestUtil.getSearchContext();
 

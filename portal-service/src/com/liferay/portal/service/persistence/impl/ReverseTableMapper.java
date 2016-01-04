@@ -30,8 +30,11 @@ public class ReverseTableMapper<L extends BaseModel<L>, R extends BaseModel<R>>
 	}
 
 	@Override
-	public boolean addTableMapping(long leftPrimaryKey, long rightPrimaryKey) {
-		return _tableMapper.addTableMapping(rightPrimaryKey, leftPrimaryKey);
+	public boolean addTableMapping(
+		long companyId, long leftPrimaryKey, long rightPrimaryKey) {
+
+		return _tableMapper.addTableMapping(
+			companyId, rightPrimaryKey, leftPrimaryKey);
 	}
 
 	@Override

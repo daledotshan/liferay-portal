@@ -160,7 +160,7 @@ public class ExpandoColumnWrapper implements ExpandoColumn,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _expandoColumn.getExpandoBridge();
 	}
 
@@ -291,8 +291,7 @@ public class ExpandoColumnWrapper implements ExpandoColumn,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_expandoColumn.setExpandoBridgeAttributes(expandoBridge);
 	}
 
@@ -410,14 +409,6 @@ public class ExpandoColumnWrapper implements ExpandoColumn,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public ExpandoColumn getWrappedExpandoColumn() {
-		return _expandoColumn;
 	}
 
 	@Override
