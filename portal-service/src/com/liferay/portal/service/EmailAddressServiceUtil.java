@@ -70,12 +70,17 @@ public class EmailAddressServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the email address with the primary key.
 	*
-	* @return the Spring bean ID for this bean
+	* @param emailAddressId the primary key of the email address
+	* @return the email address with the primary key, or <code>null</code> if
+	an email address with the primary key could not be found or if
+	the user did not have permission to view the email address
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static com.liferay.portal.model.EmailAddress fetchEmailAddress(
+		long emailAddressId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().fetchEmailAddress(emailAddressId);
 	}
 
 	public static com.liferay.portal.model.EmailAddress getEmailAddress(
@@ -91,12 +96,12 @@ public class EmailAddressServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.EmailAddress updateEmailAddress(
@@ -116,13 +121,6 @@ public class EmailAddressServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(EmailAddressService service) {
 	}
 
 	private static EmailAddressService _service;

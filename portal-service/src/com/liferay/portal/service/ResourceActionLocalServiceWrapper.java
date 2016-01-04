@@ -32,6 +32,13 @@ public class ResourceActionLocalServiceWrapper
 		_resourceActionLocalService = resourceActionLocalService;
 	}
 
+	@Override
+	public com.liferay.portal.model.ResourceAction addResourceAction(
+		java.lang.String name, java.lang.String actionId, long bitwiseValue) {
+		return _resourceActionLocalService.addResourceAction(name, actionId,
+			bitwiseValue);
+	}
+
 	/**
 	* Adds the resource action to the database. Also notifies the appropriate model listeners.
 	*
@@ -212,14 +219,19 @@ public class ResourceActionLocalServiceWrapper
 		return _resourceActionLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _resourceActionLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _resourceActionLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _resourceActionLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -289,16 +301,6 @@ public class ResourceActionLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_resourceActionLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the resource action in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param resourceAction the resource action
@@ -308,23 +310,6 @@ public class ResourceActionLocalServiceWrapper
 	public com.liferay.portal.model.ResourceAction updateResourceAction(
 		com.liferay.portal.model.ResourceAction resourceAction) {
 		return _resourceActionLocalService.updateResourceAction(resourceAction);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ResourceActionLocalService getWrappedResourceActionLocalService() {
-		return _resourceActionLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedResourceActionLocalService(
-		ResourceActionLocalService resourceActionLocalService) {
-		_resourceActionLocalService = resourceActionLocalService;
 	}
 
 	@Override

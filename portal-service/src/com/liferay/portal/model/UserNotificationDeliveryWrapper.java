@@ -351,8 +351,7 @@ public class UserNotificationDeliveryWrapper implements UserNotificationDelivery
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_userNotificationDelivery.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -449,7 +448,7 @@ public class UserNotificationDeliveryWrapper implements UserNotificationDelivery
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.UserNotificationDelivery> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.UserNotificationDelivery> toCacheModel() {
 		return _userNotificationDelivery.toCacheModel();
 	}
 
@@ -491,14 +490,6 @@ public class UserNotificationDeliveryWrapper implements UserNotificationDelivery
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public UserNotificationDelivery getWrappedUserNotificationDelivery() {
-		return _userNotificationDelivery;
 	}
 
 	@Override

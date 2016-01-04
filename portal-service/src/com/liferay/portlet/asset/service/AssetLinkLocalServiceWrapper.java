@@ -52,15 +52,13 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	* @param entryId1 the primary key of the first asset entry
 	* @param entryId2 the primary key of the second asset entry
 	* @param type the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @param weight the weight of the relationship, allowing precedence
 	ordering of links
 	* @return the asset link
-	* @throws PortalException if the user could not be found
 	*/
 	@Override
 	public com.liferay.portlet.asset.model.AssetLink addLink(long userId,
@@ -107,6 +105,11 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 		return _assetLinkLocalService.deleteAssetLink(linkId);
 	}
 
+	@Override
+	public void deleteGroupLinks(long groupId) {
+		_assetLinkLocalService.deleteGroupLinks(groupId);
+	}
+
 	/**
 	* Deletes the asset link.
 	*
@@ -121,7 +124,6 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	* Deletes the asset link.
 	*
 	* @param linkId the primary key of the asset link
-	* @throws PortalException if the asset link could not be found
 	*/
 	@Override
 	public void deleteLink(long linkId)
@@ -295,16 +297,6 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _assetLinkLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns all the asset links whose first entry ID is the given entry ID.
 	*
 	* @param entryId the primary key of the asset entry
@@ -322,11 +314,10 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	*
 	* @param entryId the primary key of the asset entry
 	* @param typeId the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @return the asset links of the given link type whose first entry ID is
 	the given entry ID
 	*/
@@ -334,6 +325,17 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getDirectLinks(
 		long entryId, int typeId) {
 		return _assetLinkLocalService.getDirectLinks(entryId, typeId);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionbleDynamicQuery(
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
+		return _assetLinkLocalService.getExportActionbleDynamicQuery(portletDataContext);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _assetLinkLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -356,11 +358,10 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	*
 	* @param entryId the primary key of the asset entry
 	* @param typeId the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @return the asset links of the given link type whose first or second
 	entry ID is the given entry ID
 	*/
@@ -368,6 +369,16 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getLinks(
 		long entryId, int typeId) {
 		return _assetLinkLocalService.getLinks(entryId, typeId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _assetLinkLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -383,11 +394,10 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	*
 	* @param entryId the primary key of the asset entry
 	* @param typeId the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @return the asset links of the given link type whose second entry ID is
 	the given entry ID
 	*/
@@ -395,16 +405,6 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getReverseLinks(
 		long entryId, int typeId) {
 		return _assetLinkLocalService.getReverseLinks(entryId, typeId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_assetLinkLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -444,35 +444,15 @@ public class AssetLinkLocalServiceWrapper implements AssetLinkLocalService,
 	* @param linkEntryIds the primary keys of the asset entries to be linked
 	with the asset entry to be managed
 	* @param typeId the type of the asset links to be created. Acceptable
-	values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
-	* @throws PortalException if the user could not be found
+	values include {@link AssetLinkConstants#TYPE_RELATED} which is a
+	bidirectional relationship and {@link
+	AssetLinkConstants#TYPE_CHILD} which is a unidirectional
+	relationship. For more information see {@link AssetLinkConstants}
 	*/
 	@Override
 	public void updateLinks(long userId, long entryId, long[] linkEntryIds,
 		int typeId) throws com.liferay.portal.kernel.exception.PortalException {
 		_assetLinkLocalService.updateLinks(userId, entryId, linkEntryIds, typeId);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AssetLinkLocalService getWrappedAssetLinkLocalService() {
-		return _assetLinkLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAssetLinkLocalService(
-		AssetLinkLocalService assetLinkLocalService) {
-		_assetLinkLocalService = assetLinkLocalService;
 	}
 
 	@Override
