@@ -56,18 +56,18 @@ public class LayoutSetBranchServiceUtil {
 		getService().deleteLayoutSetBranch(layoutSetBranchId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portal.model.LayoutSetBranch> getLayoutSetBranches(
 		long groupId, boolean privateLayout) {
 		return getService().getLayoutSetBranches(groupId, privateLayout);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.LayoutSetBranch mergeLayoutSetBranch(
@@ -77,15 +77,6 @@ public class LayoutSetBranchServiceUtil {
 		return getService()
 				   .mergeLayoutSetBranch(layoutSetBranchId,
 			mergeLayoutSetBranchId, serviceContext);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static com.liferay.portal.model.LayoutSetBranch updateLayoutSetBranch(
@@ -107,13 +98,6 @@ public class LayoutSetBranchServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(LayoutSetBranchService service) {
 	}
 
 	private static LayoutSetBranchService _service;

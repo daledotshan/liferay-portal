@@ -223,14 +223,19 @@ public class WorkflowInstanceLinkLocalServiceWrapper
 		return _workflowInstanceLinkLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _workflowInstanceLinkLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _workflowInstanceLinkLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _workflowInstanceLinkLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -320,16 +325,6 @@ public class WorkflowInstanceLinkLocalServiceWrapper
 			className, classPK);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_workflowInstanceLinkLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void startWorkflowInstance(long companyId, long groupId,
 		long userId, java.lang.String className, long classPK,
@@ -357,23 +352,6 @@ public class WorkflowInstanceLinkLocalServiceWrapper
 	public com.liferay.portal.model.WorkflowInstanceLink updateWorkflowInstanceLink(
 		com.liferay.portal.model.WorkflowInstanceLink workflowInstanceLink) {
 		return _workflowInstanceLinkLocalService.updateWorkflowInstanceLink(workflowInstanceLink);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public WorkflowInstanceLinkLocalService getWrappedWorkflowInstanceLinkLocalService() {
-		return _workflowInstanceLinkLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedWorkflowInstanceLinkLocalService(
-		WorkflowInstanceLinkLocalService workflowInstanceLinkLocalService) {
-		_workflowInstanceLinkLocalService = workflowInstanceLinkLocalService;
 	}
 
 	@Override

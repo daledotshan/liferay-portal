@@ -218,6 +218,13 @@ public class MBMailingListLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portlet.messageboards.model.MBMailingList fetchCategoryMailingList(
+		long groupId, long categoryId) {
+		return _mbMailingListLocalService.fetchCategoryMailingList(groupId,
+			categoryId);
+	}
+
+	@Override
 	public com.liferay.portlet.messageboards.model.MBMailingList fetchMBMailingList(
 		long mailingListId) {
 		return _mbMailingListLocalService.fetchMBMailingList(mailingListId);
@@ -242,16 +249,6 @@ public class MBMailingListLocalServiceWrapper
 		return _mbMailingListLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _mbMailingListLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portlet.messageboards.model.MBMailingList getCategoryMailingList(
 		long groupId, long categoryId)
@@ -262,8 +259,13 @@ public class MBMailingListLocalServiceWrapper
 
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _mbMailingListLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _mbMailingListLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -355,21 +357,21 @@ public class MBMailingListLocalServiceWrapper
 		return _mbMailingListLocalService.getMBMailingListsCount();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _mbMailingListLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _mbMailingListLocalService.getPersistedModel(primaryKeyObj);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_mbMailingListLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -401,23 +403,6 @@ public class MBMailingListLocalServiceWrapper
 			inUserName, inPassword, inReadInterval, outEmailAddress, outCustom,
 			outServerName, outServerPort, outUseSSL, outUserName, outPassword,
 			allowAnonymous, active, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public MBMailingListLocalService getWrappedMBMailingListLocalService() {
-		return _mbMailingListLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedMBMailingListLocalService(
-		MBMailingListLocalService mbMailingListLocalService) {
-		_mbMailingListLocalService = mbMailingListLocalService;
 	}
 
 	@Override

@@ -14,7 +14,7 @@
 
 package com.liferay.portal.dao.db;
 
-import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.db.Index;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
@@ -39,8 +39,8 @@ import java.util.List;
  */
 public class PostgreSQLDB extends BaseDB {
 
-	public static DB getInstance() {
-		return _instance;
+	public PostgreSQLDB(int majorVersion, int minorVersion) {
+		super(DBType.POSTGRESQL, majorVersion, minorVersion);
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class PostgreSQLDB extends BaseDB {
 			}
 		}
 		finally {
-			DataAccess.cleanUp(null, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 
 		return indexes;
@@ -98,10 +98,6 @@ public class PostgreSQLDB extends BaseDB {
 	@Override
 	public boolean isSupportsQueryingAfterException() {
 		return _SUPPORTS_QUERYING_AFTER_EXCEPTION;
-	}
-
-	protected PostgreSQLDB() {
-		super(TYPE_POSTGRESQL);
 	}
 
 	@Override
@@ -159,7 +155,8 @@ public class PostgreSQLDB extends BaseDB {
 
 					line = StringUtil.replace(
 						"alter table @table@ rename @old-column@ to " +
-							"@new-column@;", REWORD_TEMPLATE, template);
+							"@new-column@;",
+						REWORD_TEMPLATE, template);
 				}
 				else if (line.startsWith(ALTER_COLUMN_TYPE)) {
 					String[] template = buildColumnTypeTokens(line);
@@ -208,7 +205,5 @@ public class PostgreSQLDB extends BaseDB {
 	};
 
 	private static final boolean _SUPPORTS_QUERYING_AFTER_EXCEPTION = false;
-
-	private static final PostgreSQLDB _instance = new PostgreSQLDB();
 
 }

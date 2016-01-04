@@ -253,16 +253,6 @@ public class AnnouncementsFlagLocalServiceWrapper
 		return _announcementsFlagLocalService.getAnnouncementsFlagsCount();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _announcementsFlagLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portlet.announcements.model.AnnouncementsFlag getFlag(
 		long userId, long entryId, int value)
@@ -271,20 +261,25 @@ public class AnnouncementsFlagLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _announcementsFlagLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _announcementsFlagLocalService.getOSGiServiceIdentifier();
+	}
+
+	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _announcementsFlagLocalService.getPersistedModel(primaryKeyObj);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_announcementsFlagLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -297,23 +292,6 @@ public class AnnouncementsFlagLocalServiceWrapper
 	public com.liferay.portlet.announcements.model.AnnouncementsFlag updateAnnouncementsFlag(
 		com.liferay.portlet.announcements.model.AnnouncementsFlag announcementsFlag) {
 		return _announcementsFlagLocalService.updateAnnouncementsFlag(announcementsFlag);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AnnouncementsFlagLocalService getWrappedAnnouncementsFlagLocalService() {
-		return _announcementsFlagLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAnnouncementsFlagLocalService(
-		AnnouncementsFlagLocalService announcementsFlagLocalService) {
-		_announcementsFlagLocalService = announcementsFlagLocalService;
 	}
 
 	@Override

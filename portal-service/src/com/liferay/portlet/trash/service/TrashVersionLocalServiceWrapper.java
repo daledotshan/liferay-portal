@@ -221,14 +221,19 @@ public class TrashVersionLocalServiceWrapper implements TrashVersionLocalService
 		return _trashVersionLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _trashVersionLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _trashVersionLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _trashVersionLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -292,16 +297,6 @@ public class TrashVersionLocalServiceWrapper implements TrashVersionLocalService
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_trashVersionLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the trash version in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param trashVersion the trash version
@@ -311,23 +306,6 @@ public class TrashVersionLocalServiceWrapper implements TrashVersionLocalService
 	public com.liferay.portlet.trash.model.TrashVersion updateTrashVersion(
 		com.liferay.portlet.trash.model.TrashVersion trashVersion) {
 		return _trashVersionLocalService.updateTrashVersion(trashVersion);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public TrashVersionLocalService getWrappedTrashVersionLocalService() {
-		return _trashVersionLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedTrashVersionLocalService(
-		TrashVersionLocalService trashVersionLocalService) {
-		_trashVersionLocalService = trashVersionLocalService;
 	}
 
 	@Override
