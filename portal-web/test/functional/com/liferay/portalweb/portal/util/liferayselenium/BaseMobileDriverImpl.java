@@ -68,6 +68,11 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public void assertEditable(String locator) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void assertElementNotPresent(String locator) throws Exception {
 		throw new UnsupportedOperationException();
 	}
@@ -141,6 +146,11 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public void assertNotEditable(String locator) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void assertNotLocation(String pattern) throws Exception {
 		throw new UnsupportedOperationException();
 	}
@@ -174,6 +184,11 @@ public abstract class BaseMobileDriverImpl
 	@Override
 	public void assertNotVisible(String locator) throws Exception {
 		LiferaySeleniumHelper.assertNotVisible(this, locator);
+	}
+
+	@Override
+	public void assertPartialConfirmation(String pattern) throws Exception {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -363,6 +378,11 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public boolean isNotEditable(String locator) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public boolean isNotPartialText(String locator, String value) {
 		throw new UnsupportedOperationException();
 	}
@@ -398,6 +418,11 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public boolean isSikuliImagePresent(String image) throws Exception {
+		return LiferaySeleniumHelper.isSikuliImagePresent(this, image);
+	}
+
+	@Override
 	public boolean isTCatEnabled() {
 		return LiferaySeleniumHelper.isTCatEnabled();
 	}
@@ -414,6 +439,16 @@ public abstract class BaseMobileDriverImpl
 
 	@Override
 	public boolean isValue(String locator, String value) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void javaScriptMouseDown(String locator) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void javaScriptMouseUp(String locator) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -579,6 +614,13 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
+	public void sikuliClickByIndex(String image, String index)
+		throws Exception {
+
+		LiferaySeleniumHelper.sikuliClickByIndex(this, image, index);
+	}
+
+	@Override
 	public void sikuliDragAndDrop(String image, String coordString)
 		throws Exception {
 
@@ -651,8 +693,13 @@ public abstract class BaseMobileDriverImpl
 	}
 
 	@Override
-	public void typeFrame(String locator, String value) {
-		LiferaySeleniumHelper.typeFrame(this, locator, value);
+	public void typeAlloyEditor(String locator, String value) {
+		WebDriverHelper.typeAlloyEditor(this, locator, value);
+	}
+
+	@Override
+	public void typeCKEditor(String locator, String value) {
+		LiferaySeleniumHelper.typeCKEditor(this, locator, value);
 	}
 
 	@Override

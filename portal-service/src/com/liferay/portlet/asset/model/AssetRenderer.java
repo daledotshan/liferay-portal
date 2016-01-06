@@ -33,17 +33,23 @@ import javax.portlet.WindowState;
  * @author Jorge Ferrer
  * @author Juan Fernández
  */
-public interface AssetRenderer extends Renderer {
+public interface AssetRenderer<T> extends Renderer {
 
 	public static final String TEMPLATE_ABSTRACT = "abstract";
 
 	public static final String TEMPLATE_FULL_CONTENT = "full_content";
+
+	public static final String TEMPLATE_PREVIEW = "preview";
 
 	/**
 	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
 	@Deprecated
 	public String getAddToPagePortletId() throws Exception;
+
+	public T getAssetObject();
+
+	public AssetRendererFactory<T> getAssetRendererFactory();
 
 	public int getAssetRendererType();
 
@@ -65,11 +71,17 @@ public interface AssetRenderer extends Renderer {
 
 	public String getNewName(String oldName, String token);
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public String getPreviewPath(
 			PortletRequest portletRequest, PortletResponse portletResponse)
 		throws Exception;
 
 	public String getSearchSummary(Locale locale);
+
+	public int getStatus();
 
 	public String getSummary();
 
@@ -138,6 +150,8 @@ public interface AssetRenderer extends Renderer {
 	public boolean hasViewPermission(PermissionChecker permissionChecker)
 		throws PortalException;
 
+	public boolean isCommentable();
+
 	public boolean isConvertible();
 
 	public boolean isDisplayable();
@@ -147,6 +161,8 @@ public interface AssetRenderer extends Renderer {
 	public boolean isPreviewInContext();
 
 	public boolean isPrintable();
+
+	public boolean isRatable();
 
 	/**
 	 * @deprecated As of 7.0.0, with no direct replacement

@@ -1,1 +1,70 @@
-apply from: "${rootDir}/../tools/sdk/settings.gradle"
+FileTree fileTree = fileTree(rootDir) {
+	exclude "**/bin/"
+	exclude "sdk/*/samples/"
+
+	if (Boolean.getBoolean("portal.build")) {
+		exclude "portal-cache/portal-cache-memory/"
+		exclude "portal-security/portal-security-antisamy/"
+		exclude "portal/portal-scripting-beanshell/"
+		exclude "portal/portal-scripting-javascript/"
+		exclude "portal/portal-scripting-python/"
+		exclude "portal/portal-scripting-ruby/"
+		exclude "portal/portal-search-solr/"
+		exclude "portal/portal-taglib-aui-form-extension-sample/"
+		exclude "sdk/"
+		exclude "test/"
+		exclude "themes/product-app-theme/"
+		exclude "third-party/"
+		exclude "util/alloy-taglib/"
+		exclude "util/css-builder/"
+		exclude "util/deployment-helper/"
+		exclude "util/freemarker-osgi-bridge/"
+		exclude "util/io-delta/"
+		exclude "util/ip-geocoder-sample-web/"
+		exclude "util/jasper-jspc/"
+		exclude "util/javadoc-formatter/"
+		exclude "util/lang-builder/"
+		exclude "util/markdown-converter/"
+		exclude "util/portal-tools-service-builder/"
+		exclude "util/portal-tools-upgrade-table-builder/"
+		exclude "util/portal-tools-wsdd-builder/"
+		exclude "util/ruby-gems/"
+		exclude "util/sass-compiler-api/"
+		exclude "util/sass-compiler-ruby/"
+		exclude "util/source-formatter/"
+		exclude "util/sync-engine/"
+		exclude "util/tld-formatter/"
+		exclude "util/xml-formatter/"
+	}
+
+	include "*/**/build.gradle"
+	include "themes/*/package.json"
+}
+
+URI rootURI = rootDir.toURI()
+
+fileTree.each {
+	String dirName = rootURI.relativize(it.parentFile.toURI())
+
+	dirName = dirName[0 .. -2]
+	dirName = dirName.replace("/" as char, ":" as char)
+
+	include ":" + dirName
+}
+
+String testClassGroupIndex = System.getProperty("test.class.group.index")
+
+if (testClassGroupIndex) {
+	Properties properties = new Properties()
+
+	File file = new File(rootDir, "../test.class.file.names.properties")
+
+	properties.load(new StringReader(file.text.replace("\\", "/")))
+
+	String testClassGroup = properties["TEST_CLASS_GROUP_" + testClassGroupIndex]
+	String testClassGroups = properties["TEST_CLASS_GROUPS"]
+
+	gradle.ext.testClasses = testClassGroup.tokenize(",")
+	gradle.ext.testClassGroupIndex = testClassGroupIndex
+	gradle.ext.testClassGroups = testClassGroups
+}
