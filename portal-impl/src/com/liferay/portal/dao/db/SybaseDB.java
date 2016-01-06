@@ -14,7 +14,7 @@
 
 package com.liferay.portal.dao.db;
 
-import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -31,8 +31,8 @@ import java.io.IOException;
  */
 public class SybaseDB extends BaseDB {
 
-	public static DB getInstance() {
-		return _instance;
+	public SybaseDB(int majorVersion, int minorVersion) {
+		super(DBType.SYBASE, majorVersion, minorVersion);
 	}
 
 	@Override
@@ -54,10 +54,6 @@ public class SybaseDB extends BaseDB {
 	@Override
 	public boolean isSupportsInlineDistinct() {
 		return _SUPPORTS_INLINE_DISTINCT;
-	}
-
-	protected SybaseDB() {
-		super(TYPE_SYBASE);
 	}
 
 	@Override
@@ -171,10 +167,8 @@ public class SybaseDB extends BaseDB {
 
 	private static final String[] _SYBASE = {
 		"--", "1", "0", "'19700101'", "getdate()", " image", " image", " int",
-		" datetime", " float", " int", " decimal(20,0)", " varchar(1000)",
+		" bigdatetime", " float", " int", " decimal(20,0)", " varchar(1000)",
 		" text", " varchar", "  identity(1,1)", "go"
 	};
-
-	private static final SybaseDB _instance = new SybaseDB();
 
 }
