@@ -16,7 +16,10 @@ package com.liferay.taglib.ui;
 
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Layout;
@@ -25,7 +28,9 @@ import com.liferay.taglib.ui.util.SessionTreeJSClicks;
 import com.liferay.taglib.util.IncludeTag;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.portlet.PortletURL;
 
@@ -65,12 +70,24 @@ public class LayoutsTreeTag extends IncludeTag {
 		_incomplete = incomplete;
 	}
 
+	public void setLinkTemplate(String linkTemplate) {
+		_linkTemplate = linkTemplate;
+	}
+
 	public void setPortletURL(PortletURL portletURL) {
 		_portletURL = portletURL;
 	}
 
+	public void setPortletURLs(Map<String, PortletURL> portletURLs) {
+		_portletURLs = portletURLs;
+	}
+
 	public void setPrivateLayout(boolean privateLayout) {
 		_privateLayout = privateLayout;
+	}
+
+	public void setRootLinkTemplate(String rootLinkTemplate) {
+		_rootLinkTemplate = rootLinkTemplate;
 	}
 
 	public void setRootNodeName(String rootNodeName) {
@@ -89,7 +106,7 @@ public class LayoutsTreeTag extends IncludeTag {
 		_selectedLayoutIds = selectedLayoutIds;
 	}
 
-	public void setSelPlid(long selPlid) {
+	public void setSelPlid(Long selPlid) {
 		_selPlid = selPlid;
 	}
 
@@ -105,13 +122,16 @@ public class LayoutsTreeTag extends IncludeTag {
 		_expandFirstNode = true;
 		_groupId = 0;
 		_incomplete = true;
+		_linkTemplate = null;
 		_portletURL = null;
+		_portletURLs = null;
 		_privateLayout = false;
+		_rootLinkTemplate = null;
 		_rootNodeName = null;
 		_saveState = true;
 		_selectableTree = false;
 		_selectedLayoutIds = null;
-		_selPlid = 0;
+		_selPlid = null;
 		_treeId = null;
 	}
 
@@ -165,6 +185,36 @@ public class LayoutsTreeTag extends IncludeTag {
 		return _PAGE;
 	}
 
+	protected JSONArray getPortletURLsJSONArray(
+		Map<String, PortletURL> portletURLs) {
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		if (MapUtil.isEmpty(portletURLs)) {
+			return jsonArray;
+		}
+
+		for (String name : portletURLs.keySet()) {
+			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+			jsonObject.put("name", name);
+
+			PortletURL portletURL = portletURLs.get(name);
+
+			portletURL.setParameter("selPlid", "{selPlid}");
+
+			jsonObject.put(
+				"value",
+				StringUtil.replace(
+					portletURL.toString(), HttpUtil.encodePath("{selPlid}"),
+					"{selPlid}"));
+
+			jsonArray.put(jsonObject);
+		}
+
+		return jsonArray;
+	}
+
 	@Override
 	protected boolean isCleanUpSetAttributes() {
 		return _CLEAN_UP_SET_ATTRIBUTES;
@@ -190,11 +240,32 @@ public class LayoutsTreeTag extends IncludeTag {
 			"liferay-ui:layouts-tree:groupId", String.valueOf(_groupId));
 		request.setAttribute(
 			"liferay-ui:layouts-tree:incomplete", String.valueOf(_incomplete));
+		request.setAttribute(
+			"liferay-ui:layouts-tree:linkTemplate",
+			String.valueOf(_linkTemplate));
 		request.setAttribute("liferay-ui:layouts-tree:modules", getModules());
-		request.setAttribute("liferay-ui:layouts-tree:portletURL", _portletURL);
+
+		Map<String, PortletURL> portletURLs = _portletURLs;
+
+		if (_portletURL != null) {
+			if (portletURLs == null) {
+				portletURLs = new HashMap<>();
+			}
+
+			portletURLs.put("layoutURL", _portletURL);
+		}
+
+		request.setAttribute(
+			"liferay-ui:layouts-tree:portletURLs", portletURLs);
+		request.setAttribute(
+			"liferay-ui:layouts-tree:portletURLsJSONArray",
+			getPortletURLsJSONArray(portletURLs));
+
 		request.setAttribute(
 			"liferay-ui:layouts-tree:privateLayout",
 			String.valueOf(_privateLayout));
+		request.setAttribute(
+			"liferay-ui:layouts-tree:rootLinkTemplate", _rootLinkTemplate);
 		request.setAttribute(
 			"liferay-ui:layouts-tree:rootNodeName", _rootNodeName);
 		request.setAttribute(
@@ -204,8 +275,7 @@ public class LayoutsTreeTag extends IncludeTag {
 			String.valueOf(_selectableTree));
 		request.setAttribute(
 			"liferay-ui:layouts-tree:selectedLayoutIds", _selectedLayoutIds);
-		request.setAttribute(
-			"liferay-ui:layouts-tree:selPlid", String.valueOf(_selPlid));
+		request.setAttribute("liferay-ui:layouts-tree:selPlid", _selPlid);
 		request.setAttribute("liferay-ui:layouts-tree:treeId", _treeId);
 	}
 
@@ -219,13 +289,16 @@ public class LayoutsTreeTag extends IncludeTag {
 	private boolean _expandFirstNode = true;
 	private long _groupId;
 	private boolean _incomplete = true;
+	private String _linkTemplate;
 	private PortletURL _portletURL;
+	private Map<String, PortletURL> _portletURLs;
 	private boolean _privateLayout;
+	private String _rootLinkTemplate;
 	private String _rootNodeName;
 	private boolean _saveState = true;
 	private boolean _selectableTree;
 	private String _selectedLayoutIds;
-	private long _selPlid;
+	private Long _selPlid;
 	private String _treeId;
 
 }

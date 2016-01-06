@@ -58,13 +58,13 @@ public class ResourceBlockServiceWrapper implements ResourceBlockService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _resourceBlockService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _resourceBlockService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -102,16 +102,6 @@ public class ResourceBlockServiceWrapper implements ResourceBlockService,
 			groupId, name, primKey, roleId, actionId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_resourceBlockService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void setCompanyScopePermissions(long scopeGroupId, long companyId,
 		java.lang.String name, long roleId,
@@ -146,23 +136,6 @@ public class ResourceBlockServiceWrapper implements ResourceBlockService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_resourceBlockService.setIndividualScopePermissions(companyId, groupId,
 			name, primKey, roleIdsToActionIds);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ResourceBlockService getWrappedResourceBlockService() {
-		return _resourceBlockService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedResourceBlockService(
-		ResourceBlockService resourceBlockService) {
-		_resourceBlockService = resourceBlockService;
 	}
 
 	@Override

@@ -85,7 +85,7 @@ public class LiferayProcessorLocalRepositoryWrapper
 		super.checkInFileEntry(
 			userId, fileEntryId, major, changeLog, serviceContext);
 
-		_processorCapability.copyPrevious(fileEntry.getFileVersion());
+		_processorCapability.copy(fileEntry, fileEntry.getFileVersion());
 	}
 
 	@Override
@@ -100,16 +100,7 @@ public class LiferayProcessorLocalRepositoryWrapper
 
 		super.checkInFileEntry(userId, fileEntryId, lockUuid, serviceContext);
 
-		_processorCapability.copyPrevious(fileEntry.getFileVersion());
-	}
-
-	@Override
-	public void deleteFileEntry(long fileEntryId) throws PortalException {
-		FileEntry fileEntry = getFileEntry(fileEntryId);
-
-		super.deleteFileEntry(fileEntryId);
-
-		_processorCapability.cleanUp(fileEntry);
+		_processorCapability.copy(fileEntry, fileEntry.getFileVersion());
 	}
 
 	@Override
@@ -122,7 +113,7 @@ public class LiferayProcessorLocalRepositoryWrapper
 
 		FileEntry fileEntry = getFileEntry(fileEntryId);
 
-		_processorCapability.copyPrevious(fileEntry.getFileVersion(version));
+		_processorCapability.copy(fileEntry, fileEntry.getFileVersion(version));
 	}
 
 	@Override
@@ -163,7 +154,7 @@ public class LiferayProcessorLocalRepositoryWrapper
 			changeLog, majorVersion, is, size, serviceContext);
 
 		if (is == null) {
-			_processorCapability.copyPrevious(oldFileVersion);
+			_processorCapability.copy(fileEntry, oldFileVersion);
 		}
 		else {
 			_processorCapability.cleanUp(fileEntry.getLatestFileVersion(true));
