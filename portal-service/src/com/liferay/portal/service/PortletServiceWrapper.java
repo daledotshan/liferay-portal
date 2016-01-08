@@ -31,13 +31,13 @@ public class PortletServiceWrapper implements PortletService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _portletService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _portletService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -45,37 +45,11 @@ public class PortletServiceWrapper implements PortletService,
 		return _portletService.getWARPortlets();
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_portletService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public com.liferay.portal.model.Portlet updatePortlet(long companyId,
 		java.lang.String portletId, java.lang.String roles, boolean active)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _portletService.updatePortlet(companyId, portletId, roles, active);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PortletService getWrappedPortletService() {
-		return _portletService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPortletService(PortletService portletService) {
-		_portletService = portletService;
 	}
 
 	@Override

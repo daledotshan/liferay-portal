@@ -38,19 +38,16 @@ public class ThemeLocalServiceWrapper implements ThemeLocalService,
 	}
 
 	@Override
+	public com.liferay.portal.model.PortletDecorator fetchPortletDecorator(
+		long companyId, java.lang.String themeId, java.lang.String colorSchemeId) {
+		return _themeLocalService.fetchPortletDecorator(companyId, themeId,
+			colorSchemeId);
+	}
+
+	@Override
 	public com.liferay.portal.model.Theme fetchTheme(long companyId,
 		java.lang.String themeId) {
 		return _themeLocalService.fetchTheme(companyId, themeId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _themeLocalService.getBeanIdentifier();
 	}
 
 	@Override
@@ -68,11 +65,29 @@ public class ThemeLocalServiceWrapper implements ThemeLocalService,
 			wapTheme);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _themeLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public java.util.List<com.liferay.portal.model.Theme> getPageThemes(
 		long companyId, long groupId, long userId, boolean wapTheme) {
 		return _themeLocalService.getPageThemes(companyId, groupId, userId,
 			wapTheme);
+	}
+
+	@Override
+	public com.liferay.portal.model.PortletDecorator getPortletDecorator(
+		long companyId, java.lang.String themeId,
+		java.lang.String portletDecoratorId) {
+		return _themeLocalService.getPortletDecorator(companyId, themeId,
+			portletDecoratorId);
 	}
 
 	@Override
@@ -123,36 +138,10 @@ public class ThemeLocalServiceWrapper implements ThemeLocalService,
 			themesPath, loadFromServletContext, xmls, pluginPackage);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_themeLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void uninstallThemes(
 		java.util.List<com.liferay.portal.model.Theme> themes) {
 		_themeLocalService.uninstallThemes(themes);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ThemeLocalService getWrappedThemeLocalService() {
-		return _themeLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedThemeLocalService(ThemeLocalService themeLocalService) {
-		_themeLocalService = themeLocalService;
 	}
 
 	@Override

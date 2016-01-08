@@ -223,14 +223,19 @@ public class SocialActivitySettingLocalServiceWrapper
 		return _socialActivitySettingLocalService.getActivitySettings(groupId);
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _socialActivitySettingLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _socialActivitySettingLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _socialActivitySettingLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -293,16 +298,6 @@ public class SocialActivitySettingLocalServiceWrapper
 			classNameId, classPK);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_socialActivitySettingLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void updateActivitySetting(long groupId, java.lang.String className,
 		int activityType,
@@ -347,23 +342,6 @@ public class SocialActivitySettingLocalServiceWrapper
 	public com.liferay.portlet.social.model.SocialActivitySetting updateSocialActivitySetting(
 		com.liferay.portlet.social.model.SocialActivitySetting socialActivitySetting) {
 		return _socialActivitySettingLocalService.updateSocialActivitySetting(socialActivitySetting);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SocialActivitySettingLocalService getWrappedSocialActivitySettingLocalService() {
-		return _socialActivitySettingLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSocialActivitySettingLocalService(
-		SocialActivitySettingLocalService socialActivitySettingLocalService) {
-		_socialActivitySettingLocalService = socialActivitySettingLocalService;
 	}
 
 	@Override
