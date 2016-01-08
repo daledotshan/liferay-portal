@@ -239,8 +239,7 @@ public class ClusterGroupWrapper implements ClusterGroup,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_clusterGroup.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -307,7 +306,7 @@ public class ClusterGroupWrapper implements ClusterGroup,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.ClusterGroup> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.ClusterGroup> toCacheModel() {
 		return _clusterGroup.toCacheModel();
 	}
 
@@ -348,14 +347,6 @@ public class ClusterGroupWrapper implements ClusterGroup,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public ClusterGroup getWrappedClusterGroup() {
-		return _clusterGroup;
 	}
 
 	@Override

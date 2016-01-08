@@ -14,10 +14,9 @@
 
 package com.liferay.portlet.asset.service.persistence;
 
-import com.liferay.portal.kernel.cache.Lifecycle;
-import com.liferay.portal.kernel.cache.ThreadLocalCache;
-import com.liferay.portal.kernel.cache.ThreadLocalCacheManager;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCache;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -31,7 +30,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetVocabulary;
@@ -65,8 +63,7 @@ public class AssetEntryQueryTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -77,41 +74,41 @@ public class AssetEntryQueryTest {
 
 		AssetVocabulary vocabulary =
 			AssetVocabularyLocalServiceUtil.addVocabulary(
-				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				RandomTestUtil.randomString(), serviceContext);
 
 		_assetVocabularyId = vocabulary.getVocabularyId();
 
 		AssetCategory fashionCategory =
 			AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), "Fashion", _assetVocabularyId,
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				"Fashion", _assetVocabularyId, serviceContext);
 
 		_fashionAssetCategoryId = fashionCategory.getCategoryId();
 
 		AssetCategory foodCategory = AssetCategoryLocalServiceUtil.addCategory(
-			TestPropsValues.getUserId(), "Food", _assetVocabularyId,
-			serviceContext);
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			"Food", _assetVocabularyId, serviceContext);
 
 		_foodAssetCategoryId = foodCategory.getCategoryId();
 
 		AssetCategory healthCategory =
 			AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), "Health", _assetVocabularyId,
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				"Health", _assetVocabularyId, serviceContext);
 
 		_healthAssetCategoryId = healthCategory.getCategoryId();
 
 		AssetCategory sportCategory = AssetCategoryLocalServiceUtil.addCategory(
-			TestPropsValues.getUserId(), "Sport", _assetVocabularyId,
-			serviceContext);
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			"Sport", _assetVocabularyId, serviceContext);
 
 		_sportAssetCategoryId = sportCategory.getCategoryId();
 
 		AssetCategory travelCategory =
 			AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), "Travel", _assetVocabularyId,
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				"Travel", _assetVocabularyId, serviceContext);
 
 		_travelAssetCategoryId = travelCategory.getCategoryId();
 
@@ -273,8 +270,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testAllAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			false, false, 2);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, false,
+			false, 2);
 	}
 
 	@Test
@@ -331,8 +328,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testAnyAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			true, false, 2);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, true,
+			false, 2);
 	}
 
 	@Test
@@ -348,8 +345,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testAnyAssetCategories4() throws Exception {
 		testAssetCategories(
-			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId},
-			true, false, 1);
+			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId}, true,
+			false, 1);
 	}
 
 	@Test
@@ -405,15 +402,15 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testNotAllAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			false, true, 0);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, false,
+			true, 0);
 	}
 
 	@Test
 	public void testNotAllAssetCategories3() throws Exception {
 		testAssetCategories(
-			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId},
-			false, true, 1);
+			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId}, false,
+			true, 1);
 	}
 
 	@Test
@@ -458,8 +455,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testNotAnyAssetCategories2() throws Exception {
 		testAssetCategories(
-			new long[] {_healthAssetCategoryId, _sportAssetCategoryId},
-			true, true, 0);
+			new long[] {_healthAssetCategoryId, _sportAssetCategoryId}, true,
+			true, 0);
 	}
 
 	@Test
@@ -475,8 +472,8 @@ public class AssetEntryQueryTest {
 	@Test
 	public void testNotAnyAssetCategories4() throws Exception {
 		testAssetCategories(
-			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId},
-			true, true, 1);
+			new long[] {_fashionAssetCategoryId, _foodAssetCategoryId}, true,
+			true, 1);
 	}
 
 	@Test
@@ -554,9 +551,8 @@ public class AssetEntryQueryTest {
 	}
 
 	protected AssetEntryQuery buildAssetEntryQuery(
-			long groupId, long[] assetCategoryIds, String[] assetTagNames,
-			boolean any, boolean not)
-		throws PortalException {
+		long groupId, long[] assetCategoryIds, String[] assetTagNames,
+		boolean any, boolean not) {
 
 		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
 
@@ -673,12 +669,12 @@ public class AssetEntryQueryTest {
 			TestPropsValues.getUserId(), StringUtil.randomString(),
 			StringPool.BLANK, StringUtil.randomString(),
 			RandomTestUtil.randomString(), 1, 1, 1965, 0, 0, true, true, null,
-			null, null, serviceContext);
+			StringPool.BLANK, null, null, serviceContext);
 
 		BlogsEntry blogsEntry2 = BlogsEntryLocalServiceUtil.addEntry(
 			TestPropsValues.getUserId(), title, StringPool.BLANK, description,
 			RandomTestUtil.randomString(), 1, 1, 1965, 0, 0, true, true, null,
-			null, null, serviceContext);
+			StringPool.BLANK, null, null, serviceContext);
 
 		threadLocalCache.removeAll();
 
@@ -737,7 +733,7 @@ public class AssetEntryQueryTest {
 		BlogsEntryLocalServiceUtil.addEntry(
 			TestPropsValues.getUserId(), title1, StringPool.BLANK,
 			StringPool.BLANK, RandomTestUtil.randomString(), 1, 1, 1965, 0, 0,
-			true, true, null, null, null, serviceContext);
+			true, true, null, StringPool.BLANK, null, null, serviceContext);
 
 		if (assetCategoryIds2 != null) {
 			serviceContext.setAssetCategoryIds(assetCategoryIds2);
@@ -750,7 +746,7 @@ public class AssetEntryQueryTest {
 		BlogsEntryLocalServiceUtil.addEntry(
 			TestPropsValues.getUserId(), title2, StringPool.BLANK,
 			StringPool.BLANK, RandomTestUtil.randomString(), 1, 1, 1965, 0, 0,
-			true, true, null, null, null, serviceContext);
+			true, true, null, StringPool.BLANK, null, null, serviceContext);
 
 		threadLocalCache.removeAll();
 
@@ -789,12 +785,12 @@ public class AssetEntryQueryTest {
 			TestPropsValues.getUserId(), StringUtil.randomString(),
 			StringPool.BLANK, StringUtil.randomString(),
 			RandomTestUtil.randomString(), 1, 1, 1965, 0, 0, true, true, null,
-			null, null, serviceContext);
+			StringPool.BLANK, null, null, serviceContext);
 
 		BlogsEntryLocalServiceUtil.addEntry(
 			TestPropsValues.getUserId(), title, StringPool.BLANK, description,
 			RandomTestUtil.randomString(), 1, 1, 1965, 0, 0, true, true, null,
-			null, null, serviceContext);
+			StringPool.BLANK, null, null, serviceContext);
 
 		threadLocalCache.removeAll();
 

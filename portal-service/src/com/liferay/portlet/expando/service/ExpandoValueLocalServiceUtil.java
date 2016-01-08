@@ -667,15 +667,6 @@ public class ExpandoValueLocalServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
-	/**
 	* @deprecated As of 6.1.0, replaced by {@link #getColumnValues(long,
 	String, String, String, String, int, int)}
 	*/
@@ -1266,6 +1257,19 @@ public class ExpandoValueLocalServiceUtil {
 		return getService().getExpandoValuesCount();
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -1370,15 +1374,6 @@ public class ExpandoValueLocalServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the expando value in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param expandoValue the expando value
@@ -1398,13 +1393,6 @@ public class ExpandoValueLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(ExpandoValueLocalService service) {
 	}
 
 	private static ExpandoValueLocalService _service;

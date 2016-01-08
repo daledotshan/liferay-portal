@@ -18,7 +18,7 @@ import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.search.util.SearchUtil;
+import com.liferay.portal.kernel.search.highlight.HighlightUtil;
 import com.liferay.portal.kernel.security.RandomUtil;
 
 import java.io.IOException;
@@ -226,21 +226,14 @@ public class StringUtil {
 	 * @return the string representing the bytes in hexadecimal form
 	 */
 	public static String bytesToHexString(byte[] bytes) {
-		StringBundler sb = new StringBundler(bytes.length * 2);
+		char[] chars = new char[bytes.length * 2];
 
-		for (byte b : bytes) {
-			String hex = Integer.toHexString(0x0100 + (b & 0x00FF));
-
-			hex = hex.substring(1);
-
-			if (hex.length() < 2) {
-				sb.append("0");
-			}
-
-			sb.append(hex);
+		for (int i = 0; i < bytes.length; i++) {
+			chars[i * 2] = HEX_DIGITS[(bytes[i] & 0xFF) >> 4];
+			chars[i * 2 + 1] = HEX_DIGITS[bytes[i] & 0x0F];
 		}
 
-		return sb.toString();
+		return new String(chars);
 	}
 
 	/**
@@ -318,6 +311,20 @@ public class StringUtil {
 		return true;
 	}
 
+	public static boolean containsIgnoreCase(String s, String text) {
+		return containsIgnoreCase(s, text, StringPool.COMMA);
+	}
+
+	public static boolean containsIgnoreCase(
+		String s, String text, String delimiter) {
+
+		if ((s == null) || (text == null) || (delimiter == null)) {
+			return false;
+		}
+
+		return contains(toLowerCase(s), toLowerCase(text), delimiter);
+	}
+
 	/**
 	 * Returns the number of times the text appears in the string.
 	 *
@@ -355,7 +362,7 @@ public class StringUtil {
 	 *         character, ignoring case; <code>false</code> otherwise
 	 */
 	public static boolean endsWith(String s, char end) {
-		return endsWith(s, (new Character(end)).toString());
+		return endsWith(s, (Character.valueOf(end)).toString());
 	}
 
 	/**
@@ -448,6 +455,8 @@ public class StringUtil {
 				continue;
 			}
 
+			// Fast fallback for non-acsii code.
+
 			if ((c1 > 127) || (c2 > 127)) {
 
 				// Georgian alphabet needs to check both upper and lower case
@@ -457,6 +466,14 @@ public class StringUtil {
 
 					continue;
 				}
+
+				return false;
+			}
+
+			// Fast fallback for non-letter ascii code
+
+			if ((c1 < CharPool.UPPER_CASE_A) || (c1 > CharPool.LOWER_CASE_Z) ||
+				(c2 < CharPool.UPPER_CASE_A) || (c2 > CharPool.LOWER_CASE_Z)) {
 
 				return false;
 			}
@@ -687,23 +704,23 @@ public class StringUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, moved to {@link SearchUtil#highlight(String,
+	 * @deprecated As of 7.0.0, moved to {@link HighlightUtil#highlight(String,
 	 *             String[])}}
 	 */
 	@Deprecated
 	public static String highlight(String s, String[] queryTerms) {
-		return SearchUtil.highlight(s, queryTerms);
+		return HighlightUtil.highlight(s, queryTerms);
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, moved to {@link SearchUtil#highlight(String,
+	 * @deprecated As of 7.0.0, moved to {@link HighlightUtil#highlight(String,
 	 *             String[], String, String)}}
 	 */
 	@Deprecated
 	public static String highlight(
 		String s, String[] queryTerms, String highlight1, String highlight2) {
 
-		return SearchUtil.highlight(s, queryTerms, highlight1, highlight2);
+		return HighlightUtil.highlight(s, queryTerms, highlight1, highlight2);
 	}
 
 	/**
@@ -3658,7 +3675,7 @@ public class StringUtil {
 	 *         specified character; <code>false</code> otherwise
 	 */
 	public static boolean startsWith(String s, char begin) {
-		return startsWith(s, (new Character(begin)).toString());
+		return startsWith(s, (Character.valueOf(begin)).toString());
 	}
 
 	/**
@@ -3769,6 +3786,36 @@ public class StringUtil {
 	}
 
 	/**
+	 * Returns a string representing the string <code>s</code> with all
+	 * occurrences of the specified characters removed.
+	 *
+	 * <p>
+	 * Example:
+	 * </p>
+	 *
+	 * <p>
+	 * <pre>
+	 * <code>
+	 * strip("Hello World", {' ', 'l', 'd'}) returns "HeoWor"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param  s the string from which to strip all occurrences the characters
+	 * @param  remove the characters to strip from the string
+	 * @return a string representing the string <code>s</code> with all
+	 *         occurrences of the specified characters removed, or
+	 *         <code>null</code> if <code>s</code> is <code>null</code>
+	 */
+	public static String strip(String s, char[] remove) {
+		for (char c : remove) {
+			s = strip(s, c);
+		}
+
+		return s;
+	}
+
+	/**
 	 * Returns a string representing the combination of the substring of
 	 * <code>s</code> up to but not including the string <code>begin</code>
 	 * concatenated with the substring of <code>s</code> after but not including
@@ -3776,7 +3823,7 @@ public class StringUtil {
 	 *
 	 * <p>
 	 * Example:
-	 * <p>
+	 * </p>
 	 *
 	 * <p>
 	 * <pre>
@@ -3833,7 +3880,7 @@ public class StringUtil {
 	 *
 	 * <p>
 	 * Example:
-	 * <p>
+	 * </p>
 	 *
 	 * <p>
 	 * <pre>
@@ -3862,6 +3909,49 @@ public class StringUtil {
 		}
 
 		return s;
+	}
+
+	/**
+	 * Returns a string representing the string <code>s</code> without an
+	 * appended parenthetical suffix. If there is not a space directly before
+	 * the opening parenthesis, the parenthetical suffix is not stripped.
+	 *
+	 * <p>
+	 * Example:
+	 * </p>
+	 *
+	 * <p>
+	 * <pre>
+	 * <code>
+	 * stripParentheticalSuffix("file") returns "file"
+	 * stripParentheticalSuffix("file (0)") returns "file"
+	 * stripParentheticalSuffix("file (0 0)") returns "file"
+	 * stripParentheticalSuffix("file(0)") returns "file(0)"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param  s the string from which to strip its parenthetical suffix
+	 * @return a string representing the string <code>s</code> without an
+	 *         appended parenthetical suffix
+	 */
+	public static String stripParentheticalSuffix(String s) {
+		int x = s.lastIndexOf(StringPool.OPEN_PARENTHESIS);
+		int y = s.lastIndexOf(StringPool.CLOSE_PARENTHESIS);
+
+		if ((x == -1) || (y == -1)) {
+			return s;
+		}
+
+		if ((x > y) || !s.endsWith(StringPool.CLOSE_PARENTHESIS)) {
+			return s;
+		}
+
+		if (s.charAt(x - 1) != CharPool.SPACE) {
+			return s;
+		}
+
+		return s.substring(0, x - 1).concat(s.substring(y + 1, s.length()));
 	}
 
 	/**
@@ -3925,7 +4015,7 @@ public class StringUtil {
 		int index = 8;
 
 		do {
-			buffer[--index] = _HEX_DIGITS[i & 15];
+			buffer[--index] = HEX_DIGITS[i & 15];
 
 			i >>>= 4;
 		}
@@ -3960,7 +4050,7 @@ public class StringUtil {
 		int index = 16;
 
 		do {
-			buffer[--index] = _HEX_DIGITS[(int) (l & 15)];
+			buffer[--index] = HEX_DIGITS[(int) (l & 15)];
 
 			l >>>= 4;
 		}
@@ -4639,6 +4729,13 @@ public class StringUtil {
 		int comparePoint = 0;
 
 		while (sIndex < s.length()) {
+			if (wildcardIndex == wildcard.length()) {
+
+				// Wildcard exhausted before s
+
+				return false;
+			}
+
 			char c = wildcard.charAt(wildcardIndex);
 
 			if (c == multipleWildcardCharacter) {
@@ -4711,6 +4808,11 @@ public class StringUtil {
 			return text;
 		}
 	}
+
+	protected static final char[] HEX_DIGITS = {
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
+		'e', 'f'
+	};
 
 	/**
 	 * Returns <code>false</code> if the character is not whitespace or is equal
@@ -4805,11 +4907,6 @@ public class StringUtil {
 
 		return sb.toString();
 	}
-
-	private static final char[] _HEX_DIGITS = {
-		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
-		'e', 'f'
-	};
 
 	private static final char[] _RANDOM_STRING_CHAR_TABLE = {
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',

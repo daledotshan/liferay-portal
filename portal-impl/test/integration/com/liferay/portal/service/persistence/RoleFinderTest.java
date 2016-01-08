@@ -35,7 +35,6 @@ import com.liferay.portal.service.ResourceBlockPermissionLocalServiceUtil;
 import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +55,7 @@ public class RoleFinderTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			new LiferayIntegrationTestRule(), TransactionalTestRule.INSTANCE);
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -99,6 +97,8 @@ public class RoleFinderTest {
 
 	@Test
 	public void testFindByC_N_S_P_A() throws Exception {
+		boolean exists = false;
+
 		List<Role> roles = RoleFinderUtil.findByC_N_S_P_A(
 			_resourcePermission.getCompanyId(), _resourcePermission.getName(),
 			_resourcePermission.getScope(), _resourcePermission.getPrimKey(),
@@ -106,30 +106,38 @@ public class RoleFinderTest {
 
 		for (Role role : roles) {
 			if (role.getRoleId() == _arbitraryRole.getRoleId()) {
-				return;
+				exists = true;
+
+				break;
 			}
 		}
 
-		Assert.fail(
+		Assert.assertTrue(
 			"The method findByC_N_S_P_A should have returned the role " +
-				_arbitraryRole.getRoleId());
+				_arbitraryRole.getRoleId(),
+			exists);
 	}
 
 	@Test
 	public void testFindByR_N_A() throws Exception {
+		boolean exists = false;
+
 		List<Role> roles = RoleFinderUtil.findByR_N_A(
 			_resourceBlock.getResourceBlockId(), _resourceBlock.getName(),
 			_modelResourceAction.getActionId());
 
 		for (Role role : roles) {
 			if (role.getRoleId() == _arbitraryRole.getRoleId()) {
-				return;
+				exists = true;
+
+				break;
 			}
 		}
 
-		Assert.fail(
+		Assert.assertTrue(
 			"The method findByR_N_A should have returned the role " +
-				_arbitraryRole.getRoleId());
+				_arbitraryRole.getRoleId(),
+			exists);
 	}
 
 	protected static ResourceAction getModelResourceAction()
