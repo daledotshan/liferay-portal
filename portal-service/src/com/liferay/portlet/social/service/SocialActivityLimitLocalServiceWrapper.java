@@ -209,14 +209,19 @@ public class SocialActivityLimitLocalServiceWrapper
 		return _socialActivityLimitLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _socialActivityLimitLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _socialActivityLimitLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _socialActivityLimitLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -269,16 +274,6 @@ public class SocialActivityLimitLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_socialActivityLimitLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the social activity limit in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param socialActivityLimit the social activity limit
@@ -288,23 +283,6 @@ public class SocialActivityLimitLocalServiceWrapper
 	public com.liferay.portlet.social.model.SocialActivityLimit updateSocialActivityLimit(
 		com.liferay.portlet.social.model.SocialActivityLimit socialActivityLimit) {
 		return _socialActivityLimitLocalService.updateSocialActivityLimit(socialActivityLimit);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SocialActivityLimitLocalService getWrappedSocialActivityLimitLocalService() {
-		return _socialActivityLimitLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSocialActivityLimitLocalService(
-		SocialActivityLimitLocalService socialActivityLimitLocalService) {
-		_socialActivityLimitLocalService = socialActivityLimitLocalService;
 	}
 
 	@Override

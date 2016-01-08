@@ -234,20 +234,15 @@ public class MBThreadFlagLocalServiceWrapper implements MBThreadFlagLocalService
 		return _mbThreadFlagLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _mbThreadFlagLocalService.getBeanIdentifier();
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
+		return _mbThreadFlagLocalService.getExportActionableDynamicQuery(portletDataContext);
 	}
 
 	@Override
-	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
-		return _mbThreadFlagLocalService.getExportActionableDynamicQuery(portletDataContext);
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _mbThreadFlagLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -339,6 +334,16 @@ public class MBThreadFlagLocalServiceWrapper implements MBThreadFlagLocalService
 		return _mbThreadFlagLocalService.getMBThreadFlagsCount();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _mbThreadFlagLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -361,16 +366,6 @@ public class MBThreadFlagLocalServiceWrapper implements MBThreadFlagLocalService
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_mbThreadFlagLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the message boards thread flag in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param mbThreadFlag the message boards thread flag
@@ -380,23 +375,6 @@ public class MBThreadFlagLocalServiceWrapper implements MBThreadFlagLocalService
 	public com.liferay.portlet.messageboards.model.MBThreadFlag updateMBThreadFlag(
 		com.liferay.portlet.messageboards.model.MBThreadFlag mbThreadFlag) {
 		return _mbThreadFlagLocalService.updateMBThreadFlag(mbThreadFlag);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public MBThreadFlagLocalService getWrappedMBThreadFlagLocalService() {
-		return _mbThreadFlagLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedMBThreadFlagLocalService(
-		MBThreadFlagLocalService mbThreadFlagLocalService) {
-		_mbThreadFlagLocalService = mbThreadFlagLocalService;
 	}
 
 	@Override

@@ -182,16 +182,6 @@ public class CounterLocalServiceWrapper implements CounterLocalService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _counterLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the counter with the primary key.
 	*
 	* @param name the primary key of the counter
@@ -236,6 +226,16 @@ public class CounterLocalServiceWrapper implements CounterLocalService,
 		return _counterLocalService.getNames();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _counterLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -274,16 +274,6 @@ public class CounterLocalServiceWrapper implements CounterLocalService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_counterLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the counter in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param counter the counter
@@ -293,23 +283,6 @@ public class CounterLocalServiceWrapper implements CounterLocalService,
 	public com.liferay.counter.model.Counter updateCounter(
 		com.liferay.counter.model.Counter counter) {
 		return _counterLocalService.updateCounter(counter);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public CounterLocalService getWrappedCounterLocalService() {
-		return _counterLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedCounterLocalService(
-		CounterLocalService counterLocalService) {
-		_counterLocalService = counterLocalService;
 	}
 
 	@Override

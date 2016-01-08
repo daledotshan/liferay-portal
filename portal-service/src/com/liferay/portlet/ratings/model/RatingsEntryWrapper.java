@@ -16,9 +16,10 @@ package com.liferay.portlet.ratings.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -188,7 +189,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @return the create date of this ratings entry
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _ratingsEntry.getCreateDate();
 	}
 
@@ -213,7 +214,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @return the modified date of this ratings entry
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _ratingsEntry.getModifiedDate();
 	}
 
@@ -353,7 +354,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @param createDate the create date of this ratings entry
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_ratingsEntry.setCreateDate(createDate);
 	}
 
@@ -391,7 +392,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @param modifiedDate the modified date of this ratings entry
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_ratingsEntry.setModifiedDate(modifiedDate);
 	}
 
@@ -512,14 +513,6 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _ratingsEntry.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public RatingsEntry getWrappedRatingsEntry() {
-		return _ratingsEntry;
 	}
 
 	@Override
