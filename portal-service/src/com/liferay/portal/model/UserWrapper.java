@@ -16,8 +16,9 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
+
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -396,10 +397,9 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* Returns the user's birth date.
 	*
 	* @return the user's birth date
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
-	public java.util.Date getBirthday()
+	public Date getBirthday()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getBirthday();
 	}
@@ -428,7 +428,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* Returns the user's company's mail domain.
 	*
 	* @return the user's company's mail domain
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.lang.String getCompanyMx()
@@ -440,7 +439,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* Returns the user's associated contact.
 	*
 	* @return the user's associated contact
-	* @throws PortalException if a portal exception occurred
 	* @see Contact
 	*/
 	@Override
@@ -465,7 +463,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the create date of this user
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _user.getCreateDate();
 	}
 
@@ -536,7 +534,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param portalURL the portal's URL
 	* @param mainPath the main path
 	* @return the user's display URL
-	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 7.0.0, replaced by {@link #getDisplayURL(ThemeDisplay)}
 	*/
 	@Deprecated
@@ -577,7 +574,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	intranet(versus extranet)  site home page, if no friendly URL
 	is available for the user's profile
 	* @return the user's display URL
-	* @throws PortalException if a portal exception occurred
+	* @throws PortalException
 	* @deprecated As of 7.0.0, replaced by {@link #getDisplayURL(ThemeDisplay)}
 	*/
 	@Deprecated
@@ -611,7 +608,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	*
 	* @param themeDisplay the theme display
 	* @return the user's display URL
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.lang.String getDisplayURL(
@@ -649,7 +645,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	intranet (versus extranet) site home page, if no friendly URL is
 	available for the user's profile
 	* @return the user's display URL
-	* @throws PortalException if a portal exception occurred
+	* @throws PortalException
 	*/
 	@Override
 	public java.lang.String getDisplayURL(
@@ -719,7 +715,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	*
 	* @return <code>true</code> if the user is female; <code>false</code>
 	otherwise
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public boolean getFemale()
@@ -797,6 +792,11 @@ public class UserWrapper implements User, ModelWrapper<User> {
 		return _user.getGroups();
 	}
 
+	@Override
+	public java.lang.String getInitials() {
+		return _user.getInitials();
+	}
+
 	/**
 	* Returns the job title of this user.
 	*
@@ -823,7 +823,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the last failed login date of this user
 	*/
 	@Override
-	public java.util.Date getLastFailedLoginDate() {
+	public Date getLastFailedLoginDate() {
 		return _user.getLastFailedLoginDate();
 	}
 
@@ -833,7 +833,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the last login date of this user
 	*/
 	@Override
-	public java.util.Date getLastLoginDate() {
+	public Date getLastLoginDate() {
 		return _user.getLastLoginDate();
 	}
 
@@ -888,7 +888,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the lockout date of this user
 	*/
 	@Override
-	public java.util.Date getLockoutDate() {
+	public Date getLockoutDate() {
 		return _user.getLockoutDate();
 	}
 
@@ -904,7 +904,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the login date of this user
 	*/
 	@Override
-	public java.util.Date getLoginDate() {
+	public Date getLoginDate() {
 		return _user.getLoginDate();
 	}
 
@@ -923,7 +923,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	*
 	* @return <code>true</code> if the user is male; <code>false</code>
 	otherwise
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public boolean getMale()
@@ -947,7 +946,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the modified date of this user
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _user.getModifiedDate();
 	}
 
@@ -969,13 +968,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getMySiteGroups(
-		java.lang.String[] classNames, boolean includeControlPanel, int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _user.getMySiteGroups(classNames, includeControlPanel, max);
-	}
-
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getMySiteGroups(
 		java.lang.String[] classNames, int max)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getMySiteGroups(classNames, max);
@@ -983,71 +975,8 @@ public class UserWrapper implements User, ModelWrapper<User> {
 
 	@Override
 	public java.util.List<com.liferay.portal.model.Group> getMySiteGroups(
-		boolean includeControlPanel, int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _user.getMySiteGroups(includeControlPanel, max);
-	}
-
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getMySiteGroups(
 		int max) throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getMySiteGroups(max);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getMySites()
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _user.getMySites();
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(String[],
-	boolean, int)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getMySites(
-		java.lang.String[] classNames, boolean includeControlPanel, int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _user.getMySites(classNames, includeControlPanel, max);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(String[],
-	int)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getMySites(
-		java.lang.String[] classNames, int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _user.getMySites(classNames, max);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(boolean,
-	int)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getMySites(
-		boolean includeControlPanel, int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _user.getMySites(includeControlPanel, max);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getMySiteGroups(int)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.model.Group> getMySites(int max)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _user.getMySites(max);
 	}
 
 	/**
@@ -1121,7 +1050,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @return the password modified date of this user
 	*/
 	@Override
-	public java.util.Date getPasswordModifiedDate() {
+	public Date getPasswordModifiedDate() {
 		return _user.getPasswordModifiedDate();
 	}
 
@@ -1301,13 +1230,13 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public java.util.Date getUnlockDate()
+	public Date getUnlockDate()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _user.getUnlockDate();
 	}
 
 	@Override
-	public java.util.Date getUnlockDate(
+	public Date getUnlockDate(
 		com.liferay.portal.model.PasswordPolicy passwordPolicy) {
 		return _user.getUnlockDate(passwordPolicy);
 	}
@@ -1580,7 +1509,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param createDate the create date of this user
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_user.setCreateDate(createDate);
 	}
 
@@ -1625,8 +1554,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_user.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -1718,7 +1646,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param lastFailedLoginDate the last failed login date of this user
 	*/
 	@Override
-	public void setLastFailedLoginDate(java.util.Date lastFailedLoginDate) {
+	public void setLastFailedLoginDate(Date lastFailedLoginDate) {
 		_user.setLastFailedLoginDate(lastFailedLoginDate);
 	}
 
@@ -1728,7 +1656,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param lastLoginDate the last login date of this user
 	*/
 	@Override
-	public void setLastLoginDate(java.util.Date lastLoginDate) {
+	public void setLastLoginDate(Date lastLoginDate) {
 		_user.setLastLoginDate(lastLoginDate);
 	}
 
@@ -1778,7 +1706,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param lockoutDate the lockout date of this user
 	*/
 	@Override
-	public void setLockoutDate(java.util.Date lockoutDate) {
+	public void setLockoutDate(Date lockoutDate) {
 		_user.setLockoutDate(lockoutDate);
 	}
 
@@ -1788,7 +1716,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param loginDate the login date of this user
 	*/
 	@Override
-	public void setLoginDate(java.util.Date loginDate) {
+	public void setLoginDate(Date loginDate) {
 		_user.setLoginDate(loginDate);
 	}
 
@@ -1818,7 +1746,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param modifiedDate the modified date of this user
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_user.setModifiedDate(modifiedDate);
 	}
 
@@ -1878,7 +1806,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	* @param passwordModifiedDate the password modified date of this user
 	*/
 	@Override
-	public void setPasswordModifiedDate(java.util.Date passwordModifiedDate) {
+	public void setPasswordModifiedDate(Date passwordModifiedDate) {
 		_user.setPasswordModifiedDate(passwordModifiedDate);
 	}
 
@@ -2003,7 +1931,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.User> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.User> toCacheModel() {
 		return _user.toCacheModel();
 	}
 
@@ -2049,14 +1977,6 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _user.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public User getWrappedUser() {
-		return _user;
 	}
 
 	@Override

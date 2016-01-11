@@ -196,28 +196,8 @@ public class ClassNameLocalServiceWrapper implements ClassNameLocalService,
 	}
 
 	@Override
-	public long fetchClassNameId(java.lang.Class<?> clazz) {
-		return _classNameLocalService.fetchClassNameId(clazz);
-	}
-
-	@Override
-	public long fetchClassNameId(java.lang.String value) {
-		return _classNameLocalService.fetchClassNameId(value);
-	}
-
-	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
 		return _classNameLocalService.getActionableDynamicQuery();
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _classNameLocalService.getBeanIdentifier();
 	}
 
 	/**
@@ -277,6 +257,21 @@ public class ClassNameLocalServiceWrapper implements ClassNameLocalService,
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _classNameLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _classNameLocalService.getOSGiServiceIdentifier();
+	}
+
+	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -294,16 +289,6 @@ public class ClassNameLocalServiceWrapper implements ClassNameLocalService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_classNameLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the class name in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param className the class name
@@ -313,23 +298,6 @@ public class ClassNameLocalServiceWrapper implements ClassNameLocalService,
 	public com.liferay.portal.model.ClassName updateClassName(
 		com.liferay.portal.model.ClassName className) {
 		return _classNameLocalService.updateClassName(className);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ClassNameLocalService getWrappedClassNameLocalService() {
-		return _classNameLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedClassNameLocalService(
-		ClassNameLocalService classNameLocalService) {
-		_classNameLocalService = classNameLocalService;
 	}
 
 	@Override

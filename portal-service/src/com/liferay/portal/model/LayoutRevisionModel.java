@@ -43,7 +43,7 @@ import java.util.Map;
  */
 @ProviderType
 public interface LayoutRevisionModel extends BaseModel<LayoutRevision>,
-	GroupedModel, LocalizedModel, MVCCModel, WorkflowedModel {
+	GroupedModel, LocalizedModel, MVCCModel, ShardedModel, WorkflowedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -1008,13 +1008,6 @@ public interface LayoutRevisionModel extends BaseModel<LayoutRevision>,
 	 */
 	@Override
 	public void setStatusDate(Date statusDate);
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	 */
-	@Deprecated
-	@Override
-	public boolean getApproved();
 
 	/**
 	 * Returns <code>true</code> if this layout revision is approved.

@@ -15,6 +15,7 @@
 package com.liferay.portal.security.membershippolicy.util.test;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -167,7 +168,8 @@ public class MembershipPolicyTestUtil {
 		String reminderQueryQuestion = RandomTestUtil.randomString();
 		String reminderQueryAnswer = RandomTestUtil.randomString();
 
-		String screenName = RandomTestUtil.randomString();
+		String screenName = RandomTestUtil.randomString(
+			NumericStringRandomizerBumper.INSTANCE);
 		String emailAddress =
 			"UserServiceTest." + RandomTestUtil.nextLong() + "@liferay.com";
 		long facebookId = 0;
@@ -188,16 +190,10 @@ public class MembershipPolicyTestUtil {
 		String jobTitle = StringPool.BLANK;
 		String smsSn =
 			"UserServiceTestSmsSn." + RandomTestUtil.nextInt() + "@liferay.com";
-		String aimSn = RandomTestUtil.randomString();
 		String facebookSn = RandomTestUtil.randomString();
-		String icqSn = RandomTestUtil.randomString();
 		String jabberSn = RandomTestUtil.randomString();
-		String msnSn =
-			"UserServiceTestMsnSn." + RandomTestUtil.nextInt() + "@liferay.com";
-		String mySpaceSn = RandomTestUtil.randomString();
 		String skypeSn = RandomTestUtil.randomString();
 		String twitterSn = RandomTestUtil.randomString();
-		String ymSn = RandomTestUtil.randomString();
 
 		List<Address> addresses = new ArrayList<>();
 		List<EmailAddress> emailAddresses = new ArrayList<>();
@@ -213,10 +209,10 @@ public class MembershipPolicyTestUtil {
 			emailAddress, facebookId, openId, false, null, languageId,
 			timeZoneId, greeting, comments, firstName, middleName, lastName,
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
-			skypeSn, twitterSn, ymSn, jobTitle, siteIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, addresses, emailAddresses,
-			phones, websites, announcementsDelivers, serviceContext);
+			smsSn, facebookSn, jabberSn, skypeSn, twitterSn, jobTitle, siteIds,
+			organizationIds, roleIds, userGroupRoles, userGroupIds, addresses,
+			emailAddresses, phones, websites, announcementsDelivers,
+			serviceContext);
 	}
 
 	protected static Map<String, Serializable> addExpandoMap(Class<?> clazz)
@@ -252,8 +248,8 @@ public class MembershipPolicyTestUtil {
 
 		if (includeCategorization) {
 			AssetTag tag = AssetTagLocalServiceUtil.addTag(
-				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-				new ServiceContext());
+				TestPropsValues.getUserId(), TestPropsValues.getGroupId(),
+				RandomTestUtil.randomString(), new ServiceContext());
 
 			serviceContext.setAssetTagNames(new String[] {tag.getName()});
 
@@ -264,12 +260,13 @@ public class MembershipPolicyTestUtil {
 
 			AssetVocabulary vocabulary =
 				AssetVocabularyLocalServiceUtil.addVocabulary(
-					TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-					serviceContext);
+					TestPropsValues.getUserId(), company.getGroupId(),
+					RandomTestUtil.randomString(), serviceContext);
 
 			AssetCategory category = AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-				vocabulary.getVocabularyId(), serviceContext);
+				TestPropsValues.getUserId(), company.getGroupId(),
+				RandomTestUtil.randomString(), vocabulary.getVocabularyId(),
+				serviceContext);
 
 			serviceContext.setAssetCategoryIds(
 				new long[] {category.getCategoryId()});
