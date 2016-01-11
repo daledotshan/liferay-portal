@@ -16,7 +16,6 @@ package com.liferay.portal.kernel.util;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.util.URLUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -90,10 +89,6 @@ public class ServiceLoader {
 	private static <S> void _load(
 			List<S> services, ClassLoader classLoader, Class<S> clazz, URL url)
 		throws Exception {
-
-		if (ServerDetector.isJBoss5()) {
-			url = URLUtil.normalizeURL(url);
-		}
 
 		try (InputStream inputStream = url.openStream()) {
 			BufferedReader bufferedReader = new BufferedReader(

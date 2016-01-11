@@ -47,23 +47,13 @@ public class LayoutBranchServiceWrapper implements LayoutBranchService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _layoutBranchService.getBeanIdentifier();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_layoutBranchService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _layoutBranchService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -74,23 +64,6 @@ public class LayoutBranchServiceWrapper implements LayoutBranchService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutBranchService.updateLayoutBranch(layoutBranchId, name,
 			description, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public LayoutBranchService getWrappedLayoutBranchService() {
-		return _layoutBranchService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedLayoutBranchService(
-		LayoutBranchService layoutBranchService) {
-		_layoutBranchService = layoutBranchService;
 	}
 
 	@Override

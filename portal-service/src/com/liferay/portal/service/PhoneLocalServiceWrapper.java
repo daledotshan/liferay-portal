@@ -225,20 +225,25 @@ public class PhoneLocalServiceWrapper implements PhoneLocalService,
 		return _phoneLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _phoneLocalService.getBeanIdentifier();
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
+		return _phoneLocalService.getExportActionableDynamicQuery(portletDataContext);
 	}
 
 	@Override
-	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
-		return _phoneLocalService.getExportActionableDynamicQuery(portletDataContext);
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _phoneLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _phoneLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -315,16 +320,6 @@ public class PhoneLocalServiceWrapper implements PhoneLocalService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_phoneLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the phone in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param phone the phone
@@ -343,22 +338,6 @@ public class PhoneLocalServiceWrapper implements PhoneLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _phoneLocalService.updatePhone(phoneId, number, extension,
 			typeId, primary);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PhoneLocalService getWrappedPhoneLocalService() {
-		return _phoneLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPhoneLocalService(PhoneLocalService phoneLocalService) {
-		_phoneLocalService = phoneLocalService;
 	}
 
 	@Override

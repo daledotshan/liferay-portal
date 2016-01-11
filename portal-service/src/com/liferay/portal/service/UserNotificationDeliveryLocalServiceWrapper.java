@@ -219,14 +219,19 @@ public class UserNotificationDeliveryLocalServiceWrapper
 		return _userNotificationDeliveryLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _userNotificationDeliveryLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _userNotificationDeliveryLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _userNotificationDeliveryLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -288,16 +293,6 @@ public class UserNotificationDeliveryLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_userNotificationDeliveryLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the user notification delivery in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param userNotificationDelivery the user notification delivery
@@ -314,23 +309,6 @@ public class UserNotificationDeliveryLocalServiceWrapper
 		long userNotificationDeliveryId, boolean deliver) {
 		return _userNotificationDeliveryLocalService.updateUserNotificationDelivery(userNotificationDeliveryId,
 			deliver);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public UserNotificationDeliveryLocalService getWrappedUserNotificationDeliveryLocalService() {
-		return _userNotificationDeliveryLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedUserNotificationDeliveryLocalService(
-		UserNotificationDeliveryLocalService userNotificationDeliveryLocalService) {
-		_userNotificationDeliveryLocalService = userNotificationDeliveryLocalService;
 	}
 
 	@Override

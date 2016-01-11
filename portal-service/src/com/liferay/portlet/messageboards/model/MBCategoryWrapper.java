@@ -16,9 +16,10 @@ package com.liferay.portlet.messageboards.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -68,6 +69,7 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 		attributes.put("threadCount", getThreadCount());
 		attributes.put("messageCount", getMessageCount());
 		attributes.put("lastPostDate", getLastPostDate());
+		attributes.put("lastPublishDate", getLastPublishDate());
 		attributes.put("status", getStatus());
 		attributes.put("statusByUserId", getStatusByUserId());
 		attributes.put("statusByUserName", getStatusByUserName());
@@ -168,6 +170,12 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 			setLastPostDate(lastPostDate);
 		}
 
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
+
 		Integer status = (Integer)attributes.get("status");
 
 		if (status != null) {
@@ -217,15 +225,6 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	}
 
 	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _mbCategory.getApproved();
-	}
-
-	/**
 	* Returns the category ID of this message boards category.
 	*
 	* @return the category ID of this message boards category
@@ -271,7 +270,7 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @return the create date of this message boards category
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _mbCategory.getCreateDate();
 	}
 
@@ -316,8 +315,18 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @return the last post date of this message boards category
 	*/
 	@Override
-	public java.util.Date getLastPostDate() {
+	public Date getLastPostDate() {
 		return _mbCategory.getLastPostDate();
+	}
+
+	/**
+	* Returns the last publish date of this message boards category.
+	*
+	* @return the last publish date of this message boards category
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _mbCategory.getLastPublishDate();
 	}
 
 	/**
@@ -336,7 +345,7 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @return the modified date of this message boards category
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _mbCategory.getModifiedDate();
 	}
 
@@ -437,7 +446,7 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @return the status date of this message boards category
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _mbCategory.getStatusDate();
 	}
 
@@ -703,7 +712,7 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @param createDate the create date of this message boards category
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_mbCategory.setCreateDate(createDate);
 	}
 
@@ -761,8 +770,18 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @param lastPostDate the last post date of this message boards category
 	*/
 	@Override
-	public void setLastPostDate(java.util.Date lastPostDate) {
+	public void setLastPostDate(Date lastPostDate) {
 		_mbCategory.setLastPostDate(lastPostDate);
+	}
+
+	/**
+	* Sets the last publish date of this message boards category.
+	*
+	* @param lastPublishDate the last publish date of this message boards category
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_mbCategory.setLastPublishDate(lastPublishDate);
 	}
 
 	/**
@@ -781,7 +800,7 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @param modifiedDate the modified date of this message boards category
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_mbCategory.setModifiedDate(modifiedDate);
 	}
 
@@ -881,7 +900,7 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	* @param statusDate the status date of this message boards category
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_mbCategory.setStatusDate(statusDate);
 	}
 
@@ -982,14 +1001,6 @@ public class MBCategoryWrapper implements MBCategory, ModelWrapper<MBCategory> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _mbCategory.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MBCategory getWrappedMBCategory() {
-		return _mbCategory;
 	}
 
 	@Override

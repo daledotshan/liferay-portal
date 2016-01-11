@@ -107,6 +107,12 @@ public class UserGroupGroupRoleLocalServiceWrapper
 	}
 
 	@Override
+	public void deleteUserGroupGroupRoles(long groupId, int roleType) {
+		_userGroupGroupRoleLocalService.deleteUserGroupGroupRoles(groupId,
+			roleType);
+	}
+
+	@Override
 	public void deleteUserGroupGroupRoles(long userGroupId, long groupId,
 		long[] roleIds) {
 		_userGroupGroupRoleLocalService.deleteUserGroupGroupRoles(userGroupId,
@@ -244,14 +250,19 @@ public class UserGroupGroupRoleLocalServiceWrapper
 		return _userGroupGroupRoleLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _userGroupGroupRoleLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _userGroupGroupRoleLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _userGroupGroupRoleLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -344,16 +355,6 @@ public class UserGroupGroupRoleLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_userGroupGroupRoleLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the user group group role in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param userGroupGroupRole the user group group role
@@ -363,23 +364,6 @@ public class UserGroupGroupRoleLocalServiceWrapper
 	public com.liferay.portal.model.UserGroupGroupRole updateUserGroupGroupRole(
 		com.liferay.portal.model.UserGroupGroupRole userGroupGroupRole) {
 		return _userGroupGroupRoleLocalService.updateUserGroupGroupRole(userGroupGroupRole);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public UserGroupGroupRoleLocalService getWrappedUserGroupGroupRoleLocalService() {
-		return _userGroupGroupRoleLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedUserGroupGroupRoleLocalService(
-		UserGroupGroupRoleLocalService userGroupGroupRoleLocalService) {
-		_userGroupGroupRoleLocalService = userGroupGroupRoleLocalService;
 	}
 
 	@Override
