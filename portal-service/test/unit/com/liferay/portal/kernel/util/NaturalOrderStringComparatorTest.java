@@ -37,10 +37,12 @@ public class NaturalOrderStringComparatorTest {
 		testSort(
 			new String[] {
 				"1 book", "100 dollar", "25 shoes", "04:00", "4:00", "04:30",
-				"hello07world", "hello8world", "hello007world"},
+				"hello07world", "hello8world", "hello007world"
+			},
 			new String[] {
 				"1 book", "04:00", "4:00", "04:30", "25 shoes", "100 dollar",
-				"hello007world", "hello07world", "hello8world"},
+				"hello007world", "hello07world", "hello8world"
+			},
 			false);
 	}
 
@@ -48,17 +50,18 @@ public class NaturalOrderStringComparatorTest {
 	public void testSortRegularString() {
 		testSort(
 			new String[] {"hello", "world", "helloworld"},
-			new String[] {"hello", "helloworld", "world"},
-			false);
+			new String[] {"hello", "helloworld", "world"}, false);
 	}
 
 	@Test
 	public void testSortSpecialChars() {
 		testSort(
 			new String[] {
-				"hello_world", "helloworld", "hello world", "~hello_world"},
+				"hello_world", "helloworld", "hello world", "~hello_world"
+			},
 			new String[] {
-				"~hello_world", "hello world", "hello_world", "helloworld"},
+				"~hello_world", "hello world", "hello_world", "helloworld"
+			},
 			false);
 	}
 

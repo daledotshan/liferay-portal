@@ -1,0 +1,113 @@
+@import "bourbon";
+@import "mixins";
+
+.control-menu-nav {
+	.staging-bar {
+		position: static;
+	}
+}
+
+.control-menu-nav-level-1 .staging-links {
+	position: static;
+
+	&:nth-last-of-type(2) {
+		@include flex(0 1 auto);
+
+		+ .edit-layout-link {
+			@include flex(1);
+		}
+	}
+}
+
+.control-menu-level-2 {
+	@media screen and (max-width: 767px) {
+		bottom: 0;
+		display: none;
+		left: 0;
+		position: fixed;
+		right: 0;
+		top: 0;
+		z-index: 1;
+	}
+
+	&.open {
+		@media screen and (max-width: 767px) {
+			display: block;
+			overflow: auto;
+		}
+	}
+}
+
+.control-menu-nav-level-2 {
+	@include flex-wrap(wrap);
+	@include justify-content(space-between);
+
+	> li {
+		margin-bottom: 5px;
+		margin-left: 0;
+		padding-bottom: 8px;
+		padding-top: 8px;
+
+		@media screen and (min-width: 768px) {
+			margin-bottom: 0;
+		}
+
+		@media screen and (max-width: 767px) {
+			display: block;
+			float: none;
+			padding: 10px 0;
+			text-align: left;
+			width: 100%;
+		}
+	}
+
+	.control-menu-nav {
+		@media screen and (max-width: 767px) {
+			display: block;
+		}
+
+		li {
+			@media screen and (max-width: 767px) {
+				margin-left: 0;
+				width: 100%;
+			}
+		}
+	}
+}
+
+.add-menu-toggle,
+.edit-controls-toggle,
+.edit-layout-link,
+.info-link,
+.simulation-menu-toggle {
+	padding-bottom: 15px;
+	padding-top: 15px;
+
+	.taglib-icon-label {
+		border: 0;
+		clip: rect(0, 0, 0, 0);
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		padding: 0;
+		position: absolute;
+		width: 1px;
+	}
+}
+
+.live-link,
+.staging-link,
+.staging-options-toggle {
+	padding: 15px 5px 15px 2px;
+}
+
+.live-link {
+	margin-right: 24px;
+}
+
+.publish-btn-group {
+	@media screen and (min-width: 768px) {
+		border-radius: 4px;
+		overflow: hidden;
+	}
+}

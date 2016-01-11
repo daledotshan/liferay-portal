@@ -189,16 +189,6 @@ public class ResourceTypePermissionLocalServiceWrapper
 		return _resourceTypePermissionLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _resourceTypePermissionLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public long getCompanyScopeActionIds(long companyId, java.lang.String name,
 		long roleId) {
@@ -218,6 +208,21 @@ public class ResourceTypePermissionLocalServiceWrapper
 		long companyId, java.lang.String name, long roleId) {
 		return _resourceTypePermissionLocalService.getGroupScopeResourceTypePermissions(companyId,
 			name, roleId);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _resourceTypePermissionLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _resourceTypePermissionLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -306,16 +311,6 @@ public class ResourceTypePermissionLocalServiceWrapper
 			groupId, name, roleId, actionId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_resourceTypePermissionLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void updateCompanyScopeResourceTypePermissions(long companyId,
 		java.lang.String name, long roleId, long actionIdsLong, long operator) {
@@ -341,23 +336,6 @@ public class ResourceTypePermissionLocalServiceWrapper
 	public com.liferay.portal.model.ResourceTypePermission updateResourceTypePermission(
 		com.liferay.portal.model.ResourceTypePermission resourceTypePermission) {
 		return _resourceTypePermissionLocalService.updateResourceTypePermission(resourceTypePermission);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ResourceTypePermissionLocalService getWrappedResourceTypePermissionLocalService() {
-		return _resourceTypePermissionLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedResourceTypePermissionLocalService(
-		ResourceTypePermissionLocalService resourceTypePermissionLocalService) {
-		_resourceTypePermissionLocalService = resourceTypePermissionLocalService;
 	}
 
 	@Override
