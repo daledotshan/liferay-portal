@@ -209,14 +209,19 @@ public class PortalPreferencesLocalServiceWrapper
 		return _portalPreferencesLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _portalPreferencesLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _portalPreferencesLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _portalPreferencesLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -304,16 +309,6 @@ public class PortalPreferencesLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_portalPreferencesLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the portal preferences in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param portalPreferences the portal preferences
@@ -338,23 +333,6 @@ public class PortalPreferencesLocalServiceWrapper
 		long ownerId, int ownerType, java.lang.String xml) {
 		return _portalPreferencesLocalService.updatePreferences(ownerId,
 			ownerType, xml);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PortalPreferencesLocalService getWrappedPortalPreferencesLocalService() {
-		return _portalPreferencesLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPortalPreferencesLocalService(
-		PortalPreferencesLocalService portalPreferencesLocalService) {
-		_portalPreferencesLocalService = portalPreferencesLocalService;
 	}
 
 	@Override

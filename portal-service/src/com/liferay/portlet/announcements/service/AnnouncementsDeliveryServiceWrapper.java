@@ -35,23 +35,13 @@ public class AnnouncementsDeliveryServiceWrapper
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _announcementsDeliveryService.getBeanIdentifier();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_announcementsDeliveryService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _announcementsDeliveryService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -61,23 +51,6 @@ public class AnnouncementsDeliveryServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _announcementsDeliveryService.updateDelivery(userId, type,
 			email, sms, website);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AnnouncementsDeliveryService getWrappedAnnouncementsDeliveryService() {
-		return _announcementsDeliveryService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAnnouncementsDeliveryService(
-		AnnouncementsDeliveryService announcementsDeliveryService) {
-		_announcementsDeliveryService = announcementsDeliveryService;
 	}
 
 	@Override

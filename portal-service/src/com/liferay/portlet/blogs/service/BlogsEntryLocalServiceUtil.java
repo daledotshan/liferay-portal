@@ -57,6 +57,12 @@ public class BlogsEntryLocalServiceUtil {
 		return getService().addBlogsEntry(blogsEntry);
 	}
 
+	public static void addCoverImage(long entryId,
+		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector imageSelector)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().addCoverImage(entryId, imageSelector);
+	}
+
 	public static com.liferay.portlet.blogs.model.BlogsEntry addEntry(
 		long userId, java.lang.String title, java.lang.String content,
 		java.util.Date displayDate,
@@ -76,7 +82,7 @@ public class BlogsEntryLocalServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #addEntry(long, String,
 	String, String, String, int, int, int, int, int, boolean,
-	boolean, String[], ImageSelector, ImageSelector,
+	boolean, String[], String, ImageSelector, ImageSelector,
 	ServiceContext)}
 	*/
 	@Deprecated
@@ -103,6 +109,7 @@ public class BlogsEntryLocalServiceUtil {
 		java.lang.String description, java.lang.String content,
 		java.util.Date displayDate, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -110,7 +117,8 @@ public class BlogsEntryLocalServiceUtil {
 		return getService()
 				   .addEntry(userId, title, subtitle, description, content,
 			displayDate, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static com.liferay.portlet.blogs.model.BlogsEntry addEntry(
@@ -119,6 +127,7 @@ public class BlogsEntryLocalServiceUtil {
 		int displayDateMonth, int displayDateDay, int displayDateYear,
 		int displayDateHour, int displayDateMinute, boolean allowPingbacks,
 		boolean allowTrackbacks, java.lang.String[] trackbacks,
+		java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -127,7 +136,8 @@ public class BlogsEntryLocalServiceUtil {
 				   .addEntry(userId, title, subtitle, description, content,
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
 			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static void addEntryResources(
@@ -140,9 +150,9 @@ public class BlogsEntryLocalServiceUtil {
 
 	public static void addEntryResources(
 		com.liferay.portlet.blogs.model.BlogsEntry entry,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService().addEntryResources(entry, groupPermissions, guestPermissions);
+		getService().addEntryResources(entry, modelPermissions);
 	}
 
 	public static void addEntryResources(long entryId,
@@ -153,10 +163,24 @@ public class BlogsEntryLocalServiceUtil {
 	}
 
 	public static void addEntryResources(long entryId,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService()
-			.addEntryResources(entryId, groupPermissions, guestPermissions);
+		getService().addEntryResources(entryId, modelPermissions);
+	}
+
+	public static long addOriginalImageFileEntry(long userId, long groupId,
+		long entryId,
+		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector imageSelector)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addOriginalImageFileEntry(userId, groupId, entryId,
+			imageSelector);
+	}
+
+	public static void addSmallImage(long entryId,
+		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector imageSelector)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().addSmallImage(entryId, imageSelector);
 	}
 
 	public static void checkEntries()
@@ -302,6 +326,11 @@ public class BlogsEntryLocalServiceUtil {
 		return getService().dynamicQueryCount(dynamicQuery, projection);
 	}
 
+	public static com.liferay.portal.kernel.repository.model.Folder fetchAttachmentsFolder(
+		long userId, long groupId) {
+		return getService().fetchAttachmentsFolder(userId, groupId);
+	}
+
 	public static com.liferay.portlet.blogs.model.BlogsEntry fetchBlogsEntry(
 		long entryId) {
 		return getService().fetchBlogsEntry(entryId);
@@ -321,15 +350,6 @@ public class BlogsEntryLocalServiceUtil {
 
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
 		return getService().getActionableDynamicQuery();
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
 	}
 
 	/**
@@ -421,49 +441,12 @@ public class BlogsEntryLocalServiceUtil {
 				   .getCompanyEntries(companyId, displayDate, queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getCompanyEntries(long,
-	Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getCompanyEntries(
-		long companyId, java.util.Date displayDate, int status, int start,
-		int end) {
-		return getService()
-				   .getCompanyEntries(companyId, displayDate, status, start, end);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getCompanyEntries(long,
-	Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getCompanyEntries(
-		long companyId, java.util.Date displayDate, int status, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
-		return getService()
-				   .getCompanyEntries(companyId, displayDate, status, start,
-			end, obc);
-	}
-
 	public static int getCompanyEntriesCount(long companyId,
 		java.util.Date displayDate,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<com.liferay.portlet.blogs.model.BlogsEntry> queryDefinition) {
 		return getService()
 				   .getCompanyEntriesCount(companyId, displayDate,
 			queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getCompanyEntriesCount(long,
-	Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getCompanyEntriesCount(long companyId,
-		java.util.Date displayDate, int status) {
-		return getService()
-				   .getCompanyEntriesCount(companyId, displayDate, status);
 	}
 
 	public static com.liferay.portlet.blogs.model.BlogsEntry[] getEntriesPrevAndNext(
@@ -485,7 +468,7 @@ public class BlogsEntryLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -496,56 +479,10 @@ public class BlogsEntryLocalServiceUtil {
 				   .getGroupEntries(groupId, displayDate, queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long, Date,
-	QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupEntries(
-		long groupId, java.util.Date displayDate, int status, int start, int end) {
-		return getService()
-				   .getGroupEntries(groupId, displayDate, status, start, end);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long, Date,
-	QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupEntries(
-		long groupId, java.util.Date displayDate, int status, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
-		return getService()
-				   .getGroupEntries(groupId, displayDate, status, start, end,
-			obc);
-	}
-
 	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupEntries(
 		long groupId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<com.liferay.portlet.blogs.model.BlogsEntry> queryDefinition) {
 		return getService().getGroupEntries(groupId, queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long,
-	QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupEntries(
-		long groupId, int status, int start, int end) {
-		return getService().getGroupEntries(groupId, status, start, end);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long,
-	QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupEntries(
-		long groupId, int status, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
-		return getService().getGroupEntries(groupId, status, start, end, obc);
 	}
 
 	public static int getGroupEntriesCount(long groupId,
@@ -555,28 +492,9 @@ public class BlogsEntryLocalServiceUtil {
 				   .getGroupEntriesCount(groupId, displayDate, queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupEntriesCount(long,
-	Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getGroupEntriesCount(long groupId,
-		java.util.Date displayDate, int status) {
-		return getService().getGroupEntriesCount(groupId, displayDate, status);
-	}
-
 	public static int getGroupEntriesCount(long groupId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<com.liferay.portlet.blogs.model.BlogsEntry> queryDefinition) {
 		return getService().getGroupEntriesCount(groupId, queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupEntriesCount(long,
-	QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getGroupEntriesCount(long groupId, int status) {
-		return getService().getGroupEntriesCount(groupId, status);
 	}
 
 	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupUserEntries(
@@ -587,51 +505,12 @@ public class BlogsEntryLocalServiceUtil {
 			queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupUserEntries(long,
-	long, Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupUserEntries(
-		long groupId, long userId, java.util.Date displayDate, int status,
-		int start, int end) {
-		return getService()
-				   .getGroupUserEntries(groupId, userId, displayDate, status,
-			start, end);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupUserEntries(long,
-	long, Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupUserEntries(
-		long groupId, long userId, java.util.Date displayDate, int status,
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
-		return getService()
-				   .getGroupUserEntries(groupId, userId, displayDate, status,
-			start, end, obc);
-	}
-
 	public static int getGroupUserEntriesCount(long groupId, long userId,
 		java.util.Date displayDate,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<com.liferay.portlet.blogs.model.BlogsEntry> queryDefinition) {
 		return getService()
 				   .getGroupUserEntriesCount(groupId, userId, displayDate,
 			queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getGroupUserEntriesCount(long, long, Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getGroupUserEntriesCount(long groupId, long userId,
-		java.util.Date displayDate, int status) {
-		return getService()
-				   .getGroupUserEntriesCount(groupId, userId, displayDate,
-			status);
 	}
 
 	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupsEntries(
@@ -642,21 +521,21 @@ public class BlogsEntryLocalServiceUtil {
 			queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupsEntries(long, long,
-	Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getGroupsEntries(
-		long companyId, long groupId, java.util.Date displayDate, int status,
-		int start, int end) {
-		return getService()
-				   .getGroupsEntries(companyId, groupId, displayDate, status,
-			start, end);
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
 	}
 
 	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getNoAssetEntries() {
 		return getService().getNoAssetEntries();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getOrganizationEntries(
@@ -667,51 +546,12 @@ public class BlogsEntryLocalServiceUtil {
 			queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getOrganizationEntries(long,
-	Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getOrganizationEntries(
-		long organizationId, java.util.Date displayDate, int status, int start,
-		int end) {
-		return getService()
-				   .getOrganizationEntries(organizationId, displayDate, status,
-			start, end);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getOrganizationEntries(long,
-	Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.blogs.model.BlogsEntry> getOrganizationEntries(
-		long organizationId, java.util.Date displayDate, int status, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.blogs.model.BlogsEntry> obc) {
-		return getService()
-				   .getOrganizationEntries(organizationId, displayDate, status,
-			start, end, obc);
-	}
-
 	public static int getOrganizationEntriesCount(long organizationId,
 		java.util.Date displayDate,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<com.liferay.portlet.blogs.model.BlogsEntry> queryDefinition) {
 		return getService()
 				   .getOrganizationEntriesCount(organizationId, displayDate,
 			queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getOrganizationEntriesCount(long, Date, QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getOrganizationEntriesCount(long organizationId,
-		java.util.Date displayDate, int status) {
-		return getService()
-				   .getOrganizationEntriesCount(organizationId, displayDate,
-			status);
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -732,9 +572,6 @@ public class BlogsEntryLocalServiceUtil {
 	* @param userId the primary key of the user moving the blogs entry
 	* @param entry the blogs entry to be moved
 	* @return the moved blogs entry
-	* @throws PortalException if a user with the primary key could not be found
-	or if the blogs entry owner's social activity counter could not
-	be updated
 	*/
 	public static com.liferay.portlet.blogs.model.BlogsEntry moveEntryToTrash(
 		long userId, com.liferay.portlet.blogs.model.BlogsEntry entry)
@@ -748,9 +585,6 @@ public class BlogsEntryLocalServiceUtil {
 	* @param userId the primary key of the user moving the blogs entry
 	* @param entryId the primary key of the blogs entry to be moved
 	* @return the moved blogs entry
-	* @throws PortalException if a user or blogs entry with the primary key
-	could not be found or if the blogs entry owner's social activity
-	counter could not be updated
 	*/
 	public static com.liferay.portlet.blogs.model.BlogsEntry moveEntryToTrash(
 		long userId, long entryId)
@@ -765,23 +599,11 @@ public class BlogsEntryLocalServiceUtil {
 	* @param userId the primary key of the user restoring the blogs entry
 	* @param entryId the primary key of the blogs entry to be restored
 	* @return the restored blogs entry from the recycle bin
-	* @throws PortalException if a user or blogs entry with the primary key
-	could not be found or if the blogs entry owner's social activity
-	counter could not be updated
 	*/
 	public static com.liferay.portlet.blogs.model.BlogsEntry restoreEntryFromTrash(
 		long userId, long entryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().restoreEntryFromTrash(userId, entryId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static void subscribe(long userId, long groupId)
@@ -797,11 +619,11 @@ public class BlogsEntryLocalServiceUtil {
 	public static void updateAsset(long userId,
 		com.liferay.portlet.blogs.model.BlogsEntry entry,
 		long[] assetCategoryIds, java.lang.String[] assetTagNames,
-		long[] assetLinkEntryIds)
+		long[] assetLinkEntryIds, java.lang.Double priority)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService()
 			.updateAsset(userId, entry, assetCategoryIds, assetTagNames,
-			assetLinkEntryIds);
+			assetLinkEntryIds, priority);
 	}
 
 	/**
@@ -827,8 +649,8 @@ public class BlogsEntryLocalServiceUtil {
 	/**
 	* @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, long,
 	String, String, String, String, int, int, int, int, int,
-	boolean, boolean, String[], ImageSelector, ImageSelector,
-	ServiceContext)}
+	boolean, boolean, String[], String, ImageSelector,
+	ImageSelector, ServiceContext)}
 	*/
 	@Deprecated
 	public static com.liferay.portlet.blogs.model.BlogsEntry updateEntry(
@@ -855,7 +677,7 @@ public class BlogsEntryLocalServiceUtil {
 		java.lang.String subtitle, java.lang.String description,
 		java.lang.String content, java.util.Date displayDate,
 		boolean allowPingbacks, boolean allowTrackbacks,
-		java.lang.String[] trackbacks,
+		java.lang.String[] trackbacks, java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -863,7 +685,8 @@ public class BlogsEntryLocalServiceUtil {
 		return getService()
 				   .updateEntry(userId, entryId, title, subtitle, description,
 			content, displayDate, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageImageSelector, smallImageImageSelector, serviceContext);
+			coverImageCaption, coverImageImageSelector,
+			smallImageImageSelector, serviceContext);
 	}
 
 	public static com.liferay.portlet.blogs.model.BlogsEntry updateEntry(
@@ -872,7 +695,7 @@ public class BlogsEntryLocalServiceUtil {
 		java.lang.String content, int displayDateMonth, int displayDateDay,
 		int displayDateYear, int displayDateHour, int displayDateMinute,
 		boolean allowPingbacks, boolean allowTrackbacks,
-		java.lang.String[] trackbacks,
+		java.lang.String[] trackbacks, java.lang.String coverImageCaption,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector coverImageImageSelector,
 		com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector smallImageImageSelector,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -881,8 +704,8 @@ public class BlogsEntryLocalServiceUtil {
 				   .updateEntry(userId, entryId, title, subtitle, description,
 			content, displayDateMonth, displayDateDay, displayDateYear,
 			displayDateHour, displayDateMinute, allowPingbacks,
-			allowTrackbacks, trackbacks, coverImageImageSelector,
-			smallImageImageSelector, serviceContext);
+			allowTrackbacks, trackbacks, coverImageCaption,
+			coverImageImageSelector, smallImageImageSelector, serviceContext);
 	}
 
 	public static void updateEntryResources(
@@ -891,6 +714,13 @@ public class BlogsEntryLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService()
 			.updateEntryResources(entry, groupPermissions, guestPermissions);
+	}
+
+	public static void updateEntryResources(
+		com.liferay.portlet.blogs.model.BlogsEntry entry,
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().updateEntryResources(entry, modelPermissions);
 	}
 
 	/**
@@ -924,13 +754,6 @@ public class BlogsEntryLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(BlogsEntryLocalService service) {
 	}
 
 	private static BlogsEntryLocalService _service;

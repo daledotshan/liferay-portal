@@ -14,7 +14,7 @@
 
 package com.liferay.taglib.util;
 
-import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
+import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.taglib.aui.ColumnTag;
@@ -27,10 +27,8 @@ import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
-import com.liferay.taglib.ui.MenuTag;
 import com.liferay.taglib.ui.MySitesTag;
 import com.liferay.taglib.ui.PngImageTag;
-import com.liferay.taglib.ui.QuickAccessTag;
 import com.liferay.taglib.ui.RatingsTag;
 
 import javax.portlet.PortletURL;
@@ -98,9 +96,9 @@ public interface VelocityTaglib {
 	public void breadcrumb() throws Exception;
 
 	public void breadcrumb(
-			String displayStyle, boolean showGuestGroup,
-			boolean showParentGroups, boolean showLayout,
-			boolean showPortletBreadcrumb)
+			long ddmTemplateGroupId, String ddmTemplateKey,
+			boolean showGuestGroup, boolean showParentGroups,
+			boolean showLayout, boolean showPortletBreadcrumb)
 		throws Exception;
 
 	public void discussion(
@@ -127,12 +125,12 @@ public interface VelocityTaglib {
 			String message, long reportedUserId)
 		throws Exception;
 
-	public AssetCategoriesSummaryTag getAssetCategoriesSummaryTag()
+	public AssetCategoriesSummaryTag<?> getAssetCategoriesSummaryTag()
 		throws Exception;
 
 	public AssetLinksTag getAssetLinksTag() throws Exception;
 
-	public AssetTagsSummaryTag getAssetTagsSummaryTag() throws Exception;
+	public AssetTagsSummaryTag<?> getAssetTagsSummaryTag() throws Exception;
 
 	public BreadcrumbTag getBreadcrumbTag() throws Exception;
 
@@ -148,15 +146,11 @@ public interface VelocityTaglib {
 
 	public LayoutTag getLayoutTag() throws Exception;
 
-	public MenuTag getMenuTag() throws Exception;
-
 	public MySitesTag getMySitesTag() throws Exception;
 
 	public PageContext getPageContext();
 
 	public PngImageTag getPngImageTag() throws Exception;
-
-	public QuickAccessTag getQuickAccessTag() throws Exception;
 
 	public RatingsTag getRatingsTag() throws Exception;
 
@@ -173,55 +167,7 @@ public interface VelocityTaglib {
 	@Deprecated
 	public void iconBack() throws Exception;
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconClose}
-	 */
-	@Deprecated
-	public void iconClose() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconConfiguration}
-	 */
-	@Deprecated
-	public void iconConfiguration() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconEdit}
-	 */
-	@Deprecated
-	public void iconEdit() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconEditDefaults}
-	 */
-	@Deprecated
-	public void iconEditDefaults() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconEditGuest}
-	 */
-	@Deprecated
-	public void iconEditGuest() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconHelp}
-	 */
-	@Deprecated
-	public void iconHelp() throws Exception;
-
 	public void iconHelp(String message) throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconMaximize}
-	 */
-	@Deprecated
-	public void iconMaximize() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconMinimize}
-	 */
-	@Deprecated
-	public void iconMinimize() throws Exception;
 
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #portletIconOptions}
@@ -241,24 +187,6 @@ public interface VelocityTaglib {
 	@Deprecated
 	public void iconPortlet(Portlet portlet) throws Exception;
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconPortletCss}
-	 */
-	@Deprecated
-	public void iconPortletCss() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconPrint}
-	 */
-	@Deprecated
-	public void iconPrint() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #portletIconRefresh}
-	 */
-	@Deprecated
-	public void iconRefresh() throws Exception;
-
 	public void include(ServletContext servletContext, String page)
 		throws Exception;
 
@@ -270,8 +198,7 @@ public interface VelocityTaglib {
 
 	public void journalContentSearch() throws Exception;
 
-	public void journalContentSearch(
-			boolean showListed, String targetPortletId, String type)
+	public void journalContentSearch(boolean showListed, String targetPortletId)
 		throws Exception;
 
 	public void language() throws Exception;
@@ -287,8 +214,6 @@ public interface VelocityTaglib {
 		throws Exception;
 
 	public void layoutIcon(Layout layout) throws Exception;
-
-	public void menu(Menu menu) throws Exception;
 
 	public void metaTags() throws Exception;
 
@@ -327,37 +252,14 @@ public interface VelocityTaglib {
 
 	public void portletIconBack() throws Exception;
 
-	public void portletIconClose() throws Exception;
-
-	public void portletIconConfiguration() throws Exception;
-
-	public void portletIconEdit() throws Exception;
-
-	public void portletIconEditDefaults() throws Exception;
-
-	public void portletIconEditGuest() throws Exception;
-
-	public void portletIconHelp() throws Exception;
-
-	public void portletIconMaximize() throws Exception;
-
-	public void portletIconMinimize() throws Exception;
-
 	public void portletIconOptions() throws Exception;
+
+	public void portletIconOptions(String direction, String markupView)
+		throws Exception;
 
 	public void portletIconPortlet() throws Exception;
 
 	public void portletIconPortlet(Portlet portlet) throws Exception;
-
-	public void portletIconPortletCss() throws Exception;
-
-	public void portletIconPrint() throws Exception;
-
-	public void portletIconRefresh() throws Exception;
-
-	public void quickAccess() throws Exception;
-
-	public void quickAccess(String contentId) throws Exception;
 
 	public void ratings(
 			String className, long classPK, int numberOfStars, String type,
@@ -403,11 +305,32 @@ public interface VelocityTaglib {
 
 	public void runtime(String portletName) throws Exception;
 
+	public void runtime(
+			String portletProviderClassName,
+			PortletProvider.Action portletProviderAction)
+		throws Exception;
+
+	public void runtime(
+			String portletProviderClassName,
+			PortletProvider.Action portletProviderAction, String instanceId)
+		throws Exception;
+
+	public void runtime(
+			String portletProviderClassName,
+			PortletProvider.Action portletProviderAction, String instanceId,
+			String defaultPreferences)
+		throws Exception;
+
 	public void runtime(String portletName, String queryString)
 		throws Exception;
 
 	public void runtime(
 			String portletName, String queryString, String defaultPreferences)
+		throws Exception;
+
+	public void runtime(
+			String portletName, String instanceId, String queryString,
+			String defaultPreferences)
 		throws Exception;
 
 	public void search() throws Exception;
