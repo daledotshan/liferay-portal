@@ -24,7 +24,6 @@ import com.liferay.portal.model.Account;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
-import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.ListTypeConstants;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.OrganizationConstants;
@@ -36,7 +35,6 @@ import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortletKeys;
 
 import java.util.Calendar;
 
@@ -82,14 +80,6 @@ public class SetupWizardSampleDataUtil {
 			null, null, LayoutConstants.TYPE_PORTLET, false, "/extranet",
 			new ServiceContext());
 
-		LayoutTypePortlet layoutTypePortlet =
-			(LayoutTypePortlet)extranetLayout.getLayoutType();
-
-		layoutTypePortlet.addPortletId(
-			0, PortletKeys.SEARCH, "column-1", -1, false);
-		layoutTypePortlet.addPortletId(
-			0, PortletKeys.MESSAGE_BOARDS, "column-2", -1, false);
-
 		LayoutLocalServiceUtil.updateLayout(
 			extranetLayout.getGroupId(), false, extranetLayout.getLayoutId(),
 			extranetLayout.getTypeSettings());
@@ -99,13 +89,6 @@ public class SetupWizardSampleDataUtil {
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "Liferay, Inc. Intranet",
 			null, null, LayoutConstants.TYPE_PORTLET, false, "/intranet",
 			new ServiceContext());
-
-		layoutTypePortlet = (LayoutTypePortlet)intranetLayout.getLayoutType();
-
-		layoutTypePortlet.addPortletId(
-			0, PortletKeys.SEARCH, "column-1", -1, false);
-		layoutTypePortlet.addPortletId(
-			0, PortletKeys.MESSAGE_BOARDS, "column-2", -1, false);
 
 		LayoutLocalServiceUtil.updateLayout(
 			intranetLayout.getGroupId(), true, intranetLayout.getLayoutId(),
@@ -178,7 +161,7 @@ public class SetupWizardSampleDataUtil {
 			for (int i = 1; i <= 10; i++) {
 				String screenName = organizationPrefix + i;
 
-				StringBundler sb = new StringBundler(4);
+				StringBundler sb = new StringBundler(5);
 
 				sb.append("test.");
 				sb.append(organizationPrefix);

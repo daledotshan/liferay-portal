@@ -15,12 +15,12 @@
 package com.liferay.portal.service.base;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.model.LayoutRevision;
 import com.liferay.portal.service.BaseServiceImpl;
 import com.liferay.portal.service.LayoutRevisionService;
@@ -33,6 +33,7 @@ import com.liferay.portal.service.persistence.LayoutSetBranchPersistence;
 import com.liferay.portal.service.persistence.LayoutSetPersistence;
 import com.liferay.portal.service.persistence.PortletPreferencesFinder;
 import com.liferay.portal.service.persistence.PortletPreferencesPersistence;
+import com.liferay.portal.service.persistence.RecentLayoutRevisionPersistence;
 import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.WorkflowInstanceLinkPersistence;
@@ -53,7 +54,7 @@ import javax.sql.DataSource;
  * @generated
  */
 public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
-	implements LayoutRevisionService, IdentifiableBean {
+	implements LayoutRevisionService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -84,7 +85,7 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the layout revision remote service
 	 */
-	public com.liferay.portal.service.LayoutRevisionService getLayoutRevisionService() {
+	public LayoutRevisionService getLayoutRevisionService() {
 		return layoutRevisionService;
 	}
 
@@ -94,7 +95,7 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 	 * @param layoutRevisionService the layout revision remote service
 	 */
 	public void setLayoutRevisionService(
-		com.liferay.portal.service.LayoutRevisionService layoutRevisionService) {
+		LayoutRevisionService layoutRevisionService) {
 		this.layoutRevisionService = layoutRevisionService;
 	}
 
@@ -514,6 +515,44 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
+	 * Returns the recent layout revision local service.
+	 *
+	 * @return the recent layout revision local service
+	 */
+	public com.liferay.portal.service.RecentLayoutRevisionLocalService getRecentLayoutRevisionLocalService() {
+		return recentLayoutRevisionLocalService;
+	}
+
+	/**
+	 * Sets the recent layout revision local service.
+	 *
+	 * @param recentLayoutRevisionLocalService the recent layout revision local service
+	 */
+	public void setRecentLayoutRevisionLocalService(
+		com.liferay.portal.service.RecentLayoutRevisionLocalService recentLayoutRevisionLocalService) {
+		this.recentLayoutRevisionLocalService = recentLayoutRevisionLocalService;
+	}
+
+	/**
+	 * Returns the recent layout revision persistence.
+	 *
+	 * @return the recent layout revision persistence
+	 */
+	public RecentLayoutRevisionPersistence getRecentLayoutRevisionPersistence() {
+		return recentLayoutRevisionPersistence;
+	}
+
+	/**
+	 * Sets the recent layout revision persistence.
+	 *
+	 * @param recentLayoutRevisionPersistence the recent layout revision persistence
+	 */
+	public void setRecentLayoutRevisionPersistence(
+		RecentLayoutRevisionPersistence recentLayoutRevisionPersistence) {
+		this.recentLayoutRevisionPersistence = recentLayoutRevisionPersistence;
+	}
+
+	/**
 	 * Returns the resource local service.
 	 *
 	 * @return the resource local service
@@ -651,23 +690,13 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return LayoutRevisionService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -687,7 +716,7 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 		try {
 			DataSource dataSource = layoutRevisionPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -705,7 +734,7 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 	@BeanReference(type = com.liferay.portal.service.LayoutRevisionLocalService.class)
 	protected com.liferay.portal.service.LayoutRevisionLocalService layoutRevisionLocalService;
 	@BeanReference(type = com.liferay.portal.service.LayoutRevisionService.class)
-	protected com.liferay.portal.service.LayoutRevisionService layoutRevisionService;
+	protected LayoutRevisionService layoutRevisionService;
 	@BeanReference(type = LayoutRevisionPersistence.class)
 	protected LayoutRevisionPersistence layoutRevisionPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
@@ -750,6 +779,10 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 	protected PortletPreferencesPersistence portletPreferencesPersistence;
 	@BeanReference(type = PortletPreferencesFinder.class)
 	protected PortletPreferencesFinder portletPreferencesFinder;
+	@BeanReference(type = com.liferay.portal.service.RecentLayoutRevisionLocalService.class)
+	protected com.liferay.portal.service.RecentLayoutRevisionLocalService recentLayoutRevisionLocalService;
+	@BeanReference(type = RecentLayoutRevisionPersistence.class)
+	protected RecentLayoutRevisionPersistence recentLayoutRevisionPersistence;
 	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
 	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
@@ -764,5 +797,4 @@ public abstract class LayoutRevisionServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portal.service.WorkflowInstanceLinkLocalService workflowInstanceLinkLocalService;
 	@BeanReference(type = WorkflowInstanceLinkPersistence.class)
 	protected WorkflowInstanceLinkPersistence workflowInstanceLinkPersistence;
-	private String _beanIdentifier;
 }

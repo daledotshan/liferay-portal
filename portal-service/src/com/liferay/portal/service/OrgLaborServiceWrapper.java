@@ -48,13 +48,13 @@ public class OrgLaborServiceWrapper implements OrgLaborService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _orgLaborService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _orgLaborService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -70,16 +70,6 @@ public class OrgLaborServiceWrapper implements OrgLaborService,
 		return _orgLaborService.getOrgLabors(organizationId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_orgLaborService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public com.liferay.portal.model.OrgLabor updateOrgLabor(long orgLaborId,
 		long typeId, int sunOpen, int sunClose, int monOpen, int monClose,
@@ -89,22 +79,6 @@ public class OrgLaborServiceWrapper implements OrgLaborService,
 		return _orgLaborService.updateOrgLabor(orgLaborId, typeId, sunOpen,
 			sunClose, monOpen, monClose, tueOpen, tueClose, wedOpen, wedClose,
 			thuOpen, thuClose, friOpen, friClose, satOpen, satClose);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public OrgLaborService getWrappedOrgLaborService() {
-		return _orgLaborService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedOrgLaborService(OrgLaborService orgLaborService) {
-		_orgLaborService = orgLaborService;
 	}
 
 	@Override

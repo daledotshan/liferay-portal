@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.notifications.NotificationEvent;
 import com.liferay.portal.kernel.notifications.NotificationEventFactoryUtil;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.model.UserNotificationEvent;
@@ -89,7 +89,7 @@ public class UserNotificationEventLocalServiceImpl
 		userNotificationEvent.setTimestamp(timestamp);
 		userNotificationEvent.setDeliveryType(deliveryType);
 		userNotificationEvent.setDeliverBy(deliverBy);
-		userNotificationEvent.setDelivered(false);
+		userNotificationEvent.setDelivered(true);
 		userNotificationEvent.setPayload(payload);
 		userNotificationEvent.setActionRequired(actionRequired);
 		userNotificationEvent.setArchived(archived);
@@ -357,6 +357,11 @@ public class UserNotificationEventLocalServiceImpl
 	}
 
 	@Override
+	public List<UserNotificationEvent> getTypeNotificationEvents(String type) {
+		return userNotificationEventPersistence.findByType(type);
+	}
+
+	@Override
 	public List<UserNotificationEvent> getUserNotificationEvents(long userId) {
 		return userNotificationEventPersistence.findByUserId(userId);
 	}
@@ -431,6 +436,14 @@ public class UserNotificationEventLocalServiceImpl
 	}
 
 	@Override
+	public int getUserNotificationEventsCount(
+		long userId, String type, int deliveryType, boolean archived) {
+
+		return userNotificationEventPersistence.countByU_T_DT_D(
+			userId, type, deliveryType, archived);
+	}
+
+	@Override
 	public UserNotificationEvent sendUserNotificationEvents(
 			long userId, String portletId, int deliveryType,
 			boolean actionRequired, JSONObject notificationEventJSONObject)
@@ -502,7 +515,7 @@ public class UserNotificationEventLocalServiceImpl
 	protected void sendPushNotification(
 		final NotificationEvent notificationEvent) {
 
-		TransactionCommitCallbackRegistryUtil.registerCallback(
+		TransactionCommitCallbackUtil.registerCallback(
 			new Callable<Void>() {
 
 				@Override

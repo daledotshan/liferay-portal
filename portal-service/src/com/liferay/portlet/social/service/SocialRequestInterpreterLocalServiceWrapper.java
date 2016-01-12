@@ -59,13 +59,13 @@ public class SocialRequestInterpreterLocalServiceWrapper
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _socialRequestInterpreterLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _socialRequestInterpreterLocalService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -135,33 +135,6 @@ public class SocialRequestInterpreterLocalServiceWrapper
 		com.liferay.portal.theme.ThemeDisplay themeDisplay) {
 		_socialRequestInterpreterLocalService.processRejection(request,
 			themeDisplay);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_socialRequestInterpreterLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SocialRequestInterpreterLocalService getWrappedSocialRequestInterpreterLocalService() {
-		return _socialRequestInterpreterLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSocialRequestInterpreterLocalService(
-		SocialRequestInterpreterLocalService socialRequestInterpreterLocalService) {
-		_socialRequestInterpreterLocalService = socialRequestInterpreterLocalService;
 	}
 
 	@Override
