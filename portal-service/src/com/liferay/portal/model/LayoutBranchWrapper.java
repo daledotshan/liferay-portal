@@ -346,8 +346,7 @@ public class LayoutBranchWrapper implements LayoutBranch,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_layoutBranch.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -484,7 +483,7 @@ public class LayoutBranchWrapper implements LayoutBranch,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.LayoutBranch> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.LayoutBranch> toCacheModel() {
 		return _layoutBranch.toCacheModel();
 	}
 
@@ -525,14 +524,6 @@ public class LayoutBranchWrapper implements LayoutBranch,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public LayoutBranch getWrappedLayoutBranch() {
-		return _layoutBranch;
 	}
 
 	@Override

@@ -22,6 +22,9 @@ boolean urlIsNotNull = Validator.isNotNull(url);
 
 <liferay-util:buffer var="linkContent">
 	<c:choose>
+		<c:when test="<%= Validator.isNotNull(icon) %>">
+			<aui:icon image="<%= icon %>" markupView="<%= markupView %>" />
+		</c:when>
 		<c:when test="<%= auiImage %>">
 			<aui:icon image="<%= image.substring(_AUI_PATH.length()) %>" />
 		</c:when>
@@ -48,10 +51,10 @@ boolean urlIsNotNull = Validator.isNotNull(url);
 
 	<c:choose>
 		<c:when test="<%= (iconMenuIconCount != null) && ((iconMenuSingleIcon == null) || iconMenuShowWhenSingleIcon) %>">
-			<span class="taglib-text-icon"><liferay-ui:message key="<%= message %>" localizeKey="<%= localizeMessage %>" /></span>
+			<span class="taglib-text-icon"><liferay-ui:message key="<%= HtmlUtil.escape(message) %>" localizeKey="<%= localizeMessage %>" /></span>
 		</c:when>
 		<c:otherwise>
-			<span class="taglib-text <%= label ? StringPool.BLANK : "hide-accessible" %>"><liferay-ui:message key="<%= message %>" localizeKey="<%= localizeMessage %>" /></span>
+			<span class="taglib-text <%= label ? StringPool.BLANK : "hide-accessible" %>"><liferay-ui:message key="<%= HtmlUtil.escape(message) %>" localizeKey="<%= localizeMessage %>" /></span>
 		</c:otherwise>
 	</c:choose>
 </liferay-util:buffer>

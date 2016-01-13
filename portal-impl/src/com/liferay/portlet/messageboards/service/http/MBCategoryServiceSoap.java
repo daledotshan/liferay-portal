@@ -26,7 +26,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portlet.messageboards.service.MBCategoryServiceUtil} service utility. The
+ * {@link MBCategoryServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -61,7 +61,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see MBCategoryServiceHttp
  * @see com.liferay.portlet.messageboards.model.MBCategorySoap
- * @see com.liferay.portlet.messageboards.service.MBCategoryServiceUtil
+ * @see MBCategoryServiceUtil
  * @generated
  */
 @ProviderType
@@ -264,6 +264,36 @@ public class MBCategoryServiceSoap {
 					excludedCategoryIds, parentCategoryIds, status, start, end);
 
 			return com.liferay.portlet.messageboards.model.MBCategorySoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getCategoriesAndThreadsCount(long groupId, long categoryId)
+		throws RemoteException {
+		try {
+			int returnValue = MBCategoryServiceUtil.getCategoriesAndThreadsCount(groupId,
+					categoryId);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getCategoriesAndThreadsCount(long groupId,
+		long categoryId, int status) throws RemoteException {
+		try {
+			int returnValue = MBCategoryServiceUtil.getCategoriesAndThreadsCount(groupId,
+					categoryId, status);
+
+			return returnValue;
 		}
 		catch (Exception e) {
 			_log.error(e, e);

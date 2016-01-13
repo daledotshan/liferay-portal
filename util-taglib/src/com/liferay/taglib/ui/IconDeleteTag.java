@@ -22,6 +22,9 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.FileAvailabilityUtil;
+import com.liferay.taglib.util.TagResourceBundleUtil;
+
+import java.util.ResourceBundle;
 
 /**
  * @author Brian Wing Shun Chan
@@ -47,21 +50,13 @@ public class IconDeleteTag extends IconTag {
 
 		setCssClass(cssClass.concat(" item-remove"));
 
-		if (Validator.isNull(getImage())) {
+		if (Validator.isNull(getMessage())) {
 			if (_trash) {
-				setIconCssClass("icon-trash");
+				setMessage("move-to-the-recycle-bin");
 			}
 			else {
-				setIconCssClass("icon-remove");
-
-				if (Validator.isNull(getMessage())) {
-					setMessage("delete");
-				}
+				setMessage("delete");
 			}
-		}
-
-		if (_trash && Validator.isNull(getMessage())) {
-			setMessage("move-to-the-recycle-bin");
 		}
 
 		String url = getUrl();
@@ -93,13 +88,18 @@ public class IconDeleteTag extends IconTag {
 
 			sb.append("javascript:if (confirm('");
 
+			ResourceBundle resourceBundle =
+				TagResourceBundleUtil.getResourceBundle(pageContext);
+
 			if (Validator.isNotNull(_confirmation)) {
-				sb.append(UnicodeLanguageUtil.get(request, _confirmation));
+				sb.append(
+					UnicodeLanguageUtil.get(resourceBundle, _confirmation));
 			}
 			else {
 				String confirmation = "are-you-sure-you-want-to-delete-this";
 
-				sb.append(UnicodeLanguageUtil.get(request, confirmation));
+				sb.append(
+					UnicodeLanguageUtil.get(resourceBundle, confirmation));
 			}
 
 			sb.append("')) { ");
