@@ -3,5 +3,7 @@ Bundle-SymbolicName: com.liferay.polls.test
 Bundle-Version: 1.0.0
 Include-Resource:\
 	classes,\
-	test-classes/integration,\
-	../../../../portal-impl/test/test-portal-impl.properties
+	test-classes/integration
+Liferay-Releng-Module-Group-Description:
+Liferay-Releng-Module-Group-Title: Polls
+-include: ../../../../marketplace/business-productivity/bnd.bnd

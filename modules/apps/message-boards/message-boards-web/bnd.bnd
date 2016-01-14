@@ -1,0 +1,15 @@
+Bundle-Name: Liferay Message Boards Web
+Bundle-SymbolicName: com.liferay.message.boards.web
+Bundle-Version: 1.0.0
+Export-Package:\
+	com.liferay.message.boards.web.constants,\
+	com.liferay.message.boards.web.lar,\
+	com.liferay.message.boards.web.social,\
+	com.liferay.message.boards.web.trash
+Include-Resource:\
+	classes,\
+	META-INF/resources=src/main/resources/META-INF/resources
+Liferay-Releng-Module-Group-Description:
+Liferay-Releng-Module-Group-Title: Message Boards
+Web-ContextPath: /message-boards-web
+-include: ../../../../marketplace/collaboration/bnd.bnd

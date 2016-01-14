@@ -82,15 +82,6 @@ public class MBCategoryServiceUtil {
 		getService().deleteCategory(groupId, categoryId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
 		long groupId) {
 		return getService().getCategories(groupId);
@@ -139,6 +130,33 @@ public class MBCategoryServiceUtil {
 		return getService().getCategories(groupId, status);
 	}
 
+	public static java.util.List<java.lang.Object> getCategoriesAndThreads(
+		long groupId, long categoryId) {
+		return getService().getCategoriesAndThreads(groupId, categoryId);
+	}
+
+	public static java.util.List<java.lang.Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status) {
+		return getService().getCategoriesAndThreads(groupId, categoryId, status);
+	}
+
+	public static java.util.List<java.lang.Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status, int start, int end) {
+		return getService()
+				   .getCategoriesAndThreads(groupId, categoryId, status, start,
+			end);
+	}
+
+	public static int getCategoriesAndThreadsCount(long groupId, long categoryId) {
+		return getService().getCategoriesAndThreadsCount(groupId, categoryId);
+	}
+
+	public static int getCategoriesAndThreadsCount(long groupId,
+		long categoryId, int status) {
+		return getService()
+				   .getCategoriesAndThreadsCount(groupId, categoryId, status);
+	}
+
 	public static int getCategoriesCount(long groupId, long excludedCategoryId,
 		long parentCategoryId, int status) {
 		return getService()
@@ -182,6 +200,15 @@ public class MBCategoryServiceUtil {
 		return getService().getCategoryIds(groupId, categoryId);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static java.util.List<java.lang.Long> getSubcategoryIds(
 		java.util.List<java.lang.Long> categoryIds, long groupId,
 		long categoryId) {
@@ -220,15 +247,6 @@ public class MBCategoryServiceUtil {
 	public static void restoreCategoryFromTrash(long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().restoreCategoryFromTrash(categoryId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static void subscribeCategory(long groupId, long categoryId)
@@ -272,13 +290,6 @@ public class MBCategoryServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(MBCategoryService service) {
 	}
 
 	private static MBCategoryService _service;

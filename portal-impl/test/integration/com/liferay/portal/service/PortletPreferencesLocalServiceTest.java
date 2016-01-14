@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
@@ -32,8 +33,6 @@ import com.liferay.portal.service.util.test.PortletPreferencesTestUtil;
 import com.liferay.portal.spring.aop.ServiceBeanAopCacheManagerUtil;
 import com.liferay.portal.spring.aop.ServiceBeanAopProxy;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.test.LayoutTestUtil;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
@@ -62,8 +61,7 @@ public class PortletPreferencesLocalServiceTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -1548,7 +1546,8 @@ public class PortletPreferencesLocalServiceTest {
 					classLoaderBeanHandler.getBean(), "getPreferences",
 					new Class[] {
 						long.class, long.class, int.class, long.class,
-						String.class, String.class, boolean.class},
+						String.class, String.class, boolean.class
+					},
 					companyId, ownerId, ownerType, plid, portletId, null,
 					_strict);
 			}

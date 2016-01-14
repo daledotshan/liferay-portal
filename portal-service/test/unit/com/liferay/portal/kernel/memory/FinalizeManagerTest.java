@@ -69,7 +69,8 @@ public class FinalizeManagerTest {
 					throw runtimeException;
 				}
 
-			}, FinalizeManager.PHANTOM_REFERENCE_FACTORY);
+			},
+			FinalizeManager.PHANTOM_REFERENCE_FACTORY);
 
 		Assert.assertNotNull(getReferent(reference));
 
@@ -82,7 +83,7 @@ public class FinalizeManagerTest {
 			Assert.fail();
 		}
 		catch (Exception e) {
-			Assert.assertSame(runtimeException, e.getCause());
+			Assert.assertSame(runtimeException, e);
 		}
 
 		Assert.assertNull(getReferent(reference));
@@ -95,7 +96,7 @@ public class FinalizeManagerTest {
 	}
 
 	@Test
-	public void testManuelClear() throws InterruptedException {
+	public void testManualClear() throws InterruptedException {
 		System.setProperty(_THREAD_ENABLED_KEY, StringPool.FALSE);
 
 		Object object = new Object();
@@ -310,11 +311,9 @@ public class FinalizeManagerTest {
 		long startTime = System.currentTimeMillis();
 
 		while (finalizeThread.getState() != Thread.State.WAITING) {
-			if ((System.currentTimeMillis() - startTime) > 10000) {
-				Assert.fail(
-					"Timeout on waiting finialize thread to enter waiting " +
-						"state");
-			}
+			Assert.assertTrue(
+				"Timeout on waiting finialize thread to enter waiting state",
+				(System.currentTimeMillis() - startTime) <= 10000);
 		}
 
 		// Interrupt to wake up
@@ -324,11 +323,9 @@ public class FinalizeManagerTest {
 		// Second waiting state
 
 		while (finalizeThread.getState() != Thread.State.WAITING) {
-			if ((System.currentTimeMillis() - startTime) > 10000) {
-				Assert.fail(
-					"Timeout on waiting finialize thread to enter waiting " +
-						"state");
-			}
+			Assert.assertTrue(
+				"Timeout on waiting finialize thread to enter waiting state",
+				(System.currentTimeMillis() - startTime) <= 10000);
 		}
 	}
 
