@@ -272,16 +272,6 @@ public class PasswordPolicyLocalServiceWrapper
 		return _passwordPolicyLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _passwordPolicyLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portal.model.PasswordPolicy getDefaultPasswordPolicy(
 		long companyId)
@@ -291,8 +281,23 @@ public class PasswordPolicyLocalServiceWrapper
 
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _passwordPolicyLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _passwordPolicyLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _passwordPolicyLocalService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -399,16 +404,6 @@ public class PasswordPolicyLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_passwordPolicyLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the password policy in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param passwordPolicy the password policy
@@ -467,23 +462,6 @@ public class PasswordPolicyLocalServiceWrapper
 			expireable, maxAge, warningTime, graceLimit, lockout, maxFailure,
 			lockoutDuration, resetFailureCount, resetTicketMaxAge,
 			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PasswordPolicyLocalService getWrappedPasswordPolicyLocalService() {
-		return _passwordPolicyLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPasswordPolicyLocalService(
-		PasswordPolicyLocalService passwordPolicyLocalService) {
-		_passwordPolicyLocalService = passwordPolicyLocalService;
 	}
 
 	@Override

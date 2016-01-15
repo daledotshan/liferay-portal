@@ -31,23 +31,13 @@ public class LayoutSetServiceWrapper implements LayoutSetService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _layoutSetService.getBeanIdentifier();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_layoutSetService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _layoutSetService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -67,7 +57,6 @@ public class LayoutSetServiceWrapper implements LayoutSetService,
 	link enabled
 	* @param layoutSetPrototypeUuid the uuid of the layout set prototype to
 	link with
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public void updateLayoutSetPrototypeLinkEnabled(long groupId,
@@ -129,22 +118,6 @@ public class LayoutSetServiceWrapper implements LayoutSetService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutSetService.updateVirtualHost(groupId, privateLayout,
 			virtualHost);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public LayoutSetService getWrappedLayoutSetService() {
-		return _layoutSetService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedLayoutSetService(LayoutSetService layoutSetService) {
-		_layoutSetService = layoutSetService;
 	}
 
 	@Override

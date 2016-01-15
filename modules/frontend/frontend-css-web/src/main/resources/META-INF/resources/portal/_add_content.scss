@@ -1,0 +1,62 @@
+@import "bourbon";
+@import "mixins";
+
+.lfr-add-panel {
+	width: 330px;
+
+	.add-content-menu {
+		.drag-content-item {
+			cursor: move;
+		}
+
+		.lfr-content-item {
+			.drag-content-item {
+				display: inline-block;
+				width: 100%;
+			}
+
+			&:focus, &:hover {
+				.add-content-item {
+					display: inline;
+				}
+			}
+
+			.add-content-item {
+				cursor: pointer;
+				display: none;
+				margin-right: 15px;
+				position: absolute;
+				right: 0;
+				top: 0;
+
+				@include respond-to(phone, tablet) {
+					border: 1px solid;
+					display: inline;
+					line-height: 25px;
+					margin: 2px 8px;
+					padding: 0 9px;
+				}
+			}
+
+			.lfr-portlet-used {
+				&.drag-content-item {
+					cursor: default;
+				}
+
+				&.add-content-item {
+					display: none;
+				}
+			}
+
+			&.lfr-archived-setup {
+				padding-left: 30px;
+			}
+		}
+
+		@include respond-to(phone) {
+			.lfr-drag-portlet-message {
+				display: none;
+			}
+		}
+	}
+}

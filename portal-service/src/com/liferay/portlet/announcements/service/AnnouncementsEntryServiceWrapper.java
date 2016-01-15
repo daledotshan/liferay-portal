@@ -80,16 +80,6 @@ public class AnnouncementsEntryServiceWrapper
 		_announcementsEntryService.deleteEntry(entryId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _announcementsEntryService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portlet.announcements.model.AnnouncementsEntry getEntry(
 		long entryId)
@@ -98,13 +88,13 @@ public class AnnouncementsEntryServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_announcementsEntryService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _announcementsEntryService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -121,23 +111,6 @@ public class AnnouncementsEntryServiceWrapper
 			displayDateHour, displayDateMinute, displayImmediately,
 			expirationDateMonth, expirationDateDay, expirationDateYear,
 			expirationDateHour, expirationDateMinute, priority);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AnnouncementsEntryService getWrappedAnnouncementsEntryService() {
-		return _announcementsEntryService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAnnouncementsEntryService(
-		AnnouncementsEntryService announcementsEntryService) {
-		_announcementsEntryService = announcementsEntryService;
 	}
 
 	@Override

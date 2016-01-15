@@ -48,7 +48,8 @@ public class ImageLocalServiceImpl extends ImageLocalServiceBaseImpl {
 			return null;
 		}
 
-		/*if (PropsValues.IMAGE_HOOK_IMPL.equals(
+		/*
+		if (PropsValues.IMAGE_HOOK_IMPL.equals(
 				DatabaseHook.class.getName()) &&
 			(imagePersistence.getListeners().length == 0)) {
 
@@ -56,29 +57,30 @@ public class ImageLocalServiceImpl extends ImageLocalServiceBaseImpl {
 
 			imagePersistence.clearCache();
 		}
-		else {*/
-			Image image = getImage(imageId);
+		else {
+		*/
+		Image image = getImage(imageId);
 
-			if (image != null) {
-				imagePersistence.remove(image);
+		if (image != null) {
+			imagePersistence.remove(image);
 
-				Hook hook = HookFactory.getInstance();
+			Hook hook = HookFactory.getInstance();
 
-				try {
-					hook.deleteImage(image);
-				}
-				catch (NoSuchImageException nsie) {
+			try {
+				hook.deleteImage(image);
+			}
+			catch (NoSuchImageException nsie) {
 
-					// DLHook throws NoSuchImageException if the file no longer
-					// exists. See LPS-30430. This exception can be ignored.
+				// DLHook throws NoSuchImageException if the file no longer
+				// exists. See LPS-30430. This exception can be ignored.
 
-					if (_log.isWarnEnabled()) {
-						_log.warn(nsie, nsie);
-					}
+				if (_log.isWarnEnabled()) {
+					_log.warn(nsie, nsie);
 				}
 			}
+		}
 
-			return image;
+		return image;
 		//}
 	}
 
@@ -130,6 +132,17 @@ public class ImageLocalServiceImpl extends ImageLocalServiceBaseImpl {
 	@Override
 	public List<Image> getImagesBySize(int size) {
 		return imagePersistence.findByLtSize(size);
+	}
+
+	@Override
+	public Image moveImage(long imageId, byte[] bytes) throws PortalException {
+		Image image = updateImage(counterLocalService.increment(), bytes);
+
+		if (imageId > 0) {
+			deleteImage(imageId);
+		}
+
+		return image;
 	}
 
 	@Override
@@ -235,8 +248,7 @@ public class ImageLocalServiceImpl extends ImageLocalServiceBaseImpl {
 	}
 
 	protected void validate(String type) throws PortalException {
-		if ((type == null) ||
-			type.contains(StringPool.BACK_SLASH) ||
+		if ((type == null) || type.contains(StringPool.BACK_SLASH) ||
 			type.contains(StringPool.COLON) ||
 			type.contains(StringPool.GREATER_THAN) ||
 			type.contains(StringPool.LESS_THAN) ||
@@ -246,8 +258,7 @@ public class ImageLocalServiceImpl extends ImageLocalServiceBaseImpl {
 			type.contains(StringPool.QUESTION) ||
 			type.contains(StringPool.QUOTE) ||
 			type.contains(StringPool.SLASH) ||
-			type.contains(StringPool.SPACE) ||
-			type.contains(StringPool.STAR)) {
+			type.contains(StringPool.SPACE) || type.contains(StringPool.STAR)) {
 
 			throw new ImageTypeException();
 		}
