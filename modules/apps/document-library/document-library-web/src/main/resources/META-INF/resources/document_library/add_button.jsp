@@ -31,7 +31,7 @@ List<Menu> menus = dlPortletToolbarContributor.getPortletTitleMenus(renderReques
 		List<AddMenuItem> addMenuItems = new ArrayList<AddMenuItem>();
 
 		for (URLMenuItem urlMenuItem : urlMenuItems) {
-			addMenuItems.add(new AddMenuItem(urlMenuItem.getLabel(), urlMenuItem.getURL()));
+			addMenuItems.add(new AddMenuItem(HtmlUtil.unescape(urlMenuItem.getLabel()), urlMenuItem.getURL()));
 
 		}
 	%>
