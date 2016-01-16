@@ -48,7 +48,7 @@ DDLDisplayTemplateTransformer ddlDisplayTemplateTransformer = new DDLDisplayTemp
 					<portlet:param name="formDDMTemplateId" value="<%= String.valueOf(formDDMTemplateId) %>" />
 				</portlet:renderURL>
 
-				<aui:nav-item href="<%= editRecordURL %>" iconCssClass="icon-plus" label='<%= LanguageUtil.format(request, "add-x", HtmlUtil.escape(ddmStructure.getName(locale))) %>' />
+				<aui:nav-item href="<%= editRecordURL %>" iconCssClass="icon-plus" label='<%= LanguageUtil.format(request, "add-x", ddmStructure.getName(locale)) %>' />
 			</aui:nav>
 		</aui:nav-bar>
 	</c:if>

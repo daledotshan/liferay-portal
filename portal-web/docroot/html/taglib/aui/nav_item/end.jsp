@@ -26,7 +26,7 @@ if (bodyContent != null) {
 }
 
 if (Validator.isNull(title)) {
-	title = HtmlUtil.stripHtml(LanguageUtil.get(request, label));
+	title = LanguageUtil.get(request, label);
 }
 %>
 
@@ -34,7 +34,7 @@ if (Validator.isNull(title)) {
 	<li class="<%= cssClass %><%= selected ? " active " : StringPool.SPACE %><%= state %>" id="<%= id %>" role="presentation" <%= AUIUtil.buildData(data) %> <%= InlineUtil.buildDynamicAttributes(dynamicAttributes) %>>
 		<c:if test="<%= Validator.isNotNull(iconCssClass) || Validator.isNotNull(label) %>">
 			<c:if test="<%= Validator.isNotNull(href) %>">
-				<a <%= Validator.isNotNull(ariaLabel) ? "aria-label=\"" + ariaLabel + "\"" : StringPool.BLANK %> class="<%= anchorCssClass %>" <%= AUIUtil.buildData(anchorData) %> href="<%= HtmlUtil.escapeAttribute(href) %>" id="<%= anchorId %>" role="<%= Validator.isNull(ariaRole) ? "menuitem" : ariaRole %>" <%= Validator.isNotNull(target) ? "target=\"" + target + "\"" : StringPool.BLANK %> title="<liferay-ui:message key="<%= title %>" />">
+				<a <%= Validator.isNotNull(ariaLabel) ? "aria-label=\"" + ariaLabel + "\"" : StringPool.BLANK %> class="<%= anchorCssClass %>" <%= AUIUtil.buildData(anchorData) %> href="<%= HtmlUtil.escapeAttribute(href) %>" id="<%= anchorId %>" role="<%= Validator.isNull(ariaRole) ? "menuitem" : ariaRole %>" <%= Validator.isNotNull(target) ? "target=\"" + target + "\"" : StringPool.BLANK %> title="<liferay-ui:message key="<%= HtmlUtil.escapeAttribute(title) %>" />">
 
 				<c:if test="<%= useDialog %>">
 					<aui:script>
@@ -52,7 +52,7 @@ if (Validator.isNull(title)) {
 					</c:choose>
 
 					<span class="nav-item-label">
-						<liferay-ui:message key="<%= label %>" localizeKey="<%= localizeLabel %>" />
+						<liferay-ui:message key="<%= HtmlUtil.escape(label) %>" localizeKey="<%= localizeLabel %>" />
 					</span>
 
 					<c:if test="<%= dropdown %>">

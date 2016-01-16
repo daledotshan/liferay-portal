@@ -43,7 +43,7 @@ Map<String, String> requestParams = (Map<String, String>)request.getAttribute("l
 							<aui:nav-item
 								href="<%= displayStyleURL.toString() %>"
 								iconCssClass='<%= "icon-" + HtmlUtil.escapeAttribute(_getIcon(curDisplayStyle)) %>'
-								label="<%= HtmlUtil.escape(curDisplayStyle) %>"
+								label="<%= curDisplayStyle %>"
 							/>
 						</c:when>
 						<c:otherwise>
