@@ -14,16 +14,26 @@
 
 package com.liferay.portal.test.rule.callback;
 
-import com.liferay.portal.kernel.test.rule.callback.BaseTestCallback;
+import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.test.rule.callback.TestCallback;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
+import com.liferay.portal.test.rule.ExpectedDBType;
 import com.liferay.portal.test.rule.ExpectedLog;
 import com.liferay.portal.test.rule.ExpectedLogs;
+import com.liferay.portal.test.rule.ExpectedMultipleLogs;
 import com.liferay.portal.test.rule.ExpectedType;
 import com.liferay.portal.test.rule.LogAssertionAppender;
 import com.liferay.portal.test.rule.LogAssertionHandler;
+import com.liferay.portal.test.rule.LogAssertionUncaughtExceptionHandler;
 
+import java.lang.Thread.UncaughtExceptionHandler;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -38,7 +48,7 @@ import org.junit.runner.Description;
  * @author Shuyang Zhou
  */
 public class LogAssertionTestCallback
-	extends BaseTestCallback<CaptureAppender, CaptureAppender> {
+	implements TestCallback<List<CaptureAppender>, List<CaptureAppender>> {
 
 	public static final LogAssertionTestCallback INSTANCE =
 		new LogAssertionTestCallback();
@@ -56,50 +66,18 @@ public class LogAssertionTestCallback
 		}
 	}
 
-	@Override
-	public void doAfterClass(
-		Description description, CaptureAppender captureAppender) {
+	public static void endAssert(
+		List<ExpectedLogs> expectedLogsList,
+		List<CaptureAppender> captureAppenders) {
 
-		ExpectedLogs expectedLogs = description.getAnnotation(
-			ExpectedLogs.class);
-
-		endAssert(expectedLogs, captureAppender);
-	}
-
-	@Override
-	public void doAfterMethod(
-		Description description, CaptureAppender captureAppender,
-		Object target) {
-
-		doAfterClass(description, captureAppender);
-	}
-
-	@Override
-	public CaptureAppender doBeforeClass(Description description) {
-		ExpectedLogs expectedLogs = description.getAnnotation(
-			ExpectedLogs.class);
-
-		return startAssert(expectedLogs);
-	}
-
-	@Override
-	public CaptureAppender doBeforeMethod(
-		Description description, Object target) {
-
-		return doBeforeClass(description);
-	}
-
-	protected static void endAssert(
-		ExpectedLogs expectedLogs, CaptureAppender captureAppender) {
-
-		if (expectedLogs != null) {
+		for (CaptureAppender captureAppender : captureAppenders) {
 			try {
 				for (LoggingEvent loggingEvent :
 						captureAppender.getLoggingEvents()) {
 
 					String renderedMessage = loggingEvent.getRenderedMessage();
 
-					if (!isExpected(expectedLogs, renderedMessage)) {
+					if (!isExpected(expectedLogsList, renderedMessage)) {
 						Assert.fail(renderedMessage);
 					}
 				}
@@ -108,6 +86,8 @@ public class LogAssertionTestCallback
 				captureAppender.close();
 			}
 		}
+
+		Thread.setDefaultUncaughtExceptionHandler(_uncaughtExceptionHandler);
 
 		_thread = null;
 
@@ -130,6 +110,96 @@ public class LogAssertionTestCallback
 		}
 	}
 
+	public static List<CaptureAppender> startAssert(
+		List<ExpectedLogs> expectedLogsList) {
+
+		_thread = Thread.currentThread();
+		_uncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+
+		Thread.setDefaultUncaughtExceptionHandler(
+			new LogAssertionUncaughtExceptionHandler(
+				_uncaughtExceptionHandler));
+
+		List<CaptureAppender> captureAppenders = new ArrayList<>(
+			expectedLogsList.size());
+
+		for (ExpectedLogs expectedLogs : expectedLogsList) {
+			Class<?> clazz = expectedLogs.loggerClass();
+
+			captureAppenders.add(
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					clazz.getName(), Level.toLevel(expectedLogs.level())));
+		}
+
+		installJdk14Handler();
+		installLog4jAppender();
+
+		return captureAppenders;
+	}
+
+	@Override
+	public void afterClass(
+		Description description, List<CaptureAppender> captureAppenders) {
+
+		ExpectedMultipleLogs expectedMultipleLogs = description.getAnnotation(
+			ExpectedMultipleLogs.class);
+
+		List<ExpectedLogs> expectedLogsList = new ArrayList<>();
+
+		if (expectedMultipleLogs == null) {
+			ExpectedLogs expectedLogs = description.getAnnotation(
+				ExpectedLogs.class);
+
+			if (expectedLogs != null) {
+				expectedLogsList.add(expectedLogs);
+			}
+		}
+		else {
+			expectedLogsList.addAll(
+				Arrays.asList(expectedMultipleLogs.expectedMultipleLogs()));
+		}
+
+		endAssert(expectedLogsList, captureAppenders);
+	}
+
+	@Override
+	public void afterMethod(
+		Description description, List<CaptureAppender> captureAppenders,
+		Object target) {
+
+		afterClass(description, captureAppenders);
+	}
+
+	@Override
+	public List<CaptureAppender> beforeClass(Description description) {
+		ExpectedMultipleLogs expectedMultipleLogs = description.getAnnotation(
+			ExpectedMultipleLogs.class);
+
+		List<ExpectedLogs> expectedLogsList = new ArrayList<>();
+
+		if (expectedMultipleLogs == null) {
+			ExpectedLogs expectedLogs = description.getAnnotation(
+				ExpectedLogs.class);
+
+			if (expectedLogs != null) {
+				expectedLogsList.add(expectedLogs);
+			}
+		}
+		else {
+			expectedLogsList.addAll(
+				Arrays.asList(expectedMultipleLogs.expectedMultipleLogs()));
+		}
+
+		return startAssert(expectedLogsList);
+	}
+
+	@Override
+	public List<CaptureAppender> beforeMethod(
+		Description description, Object target) {
+
+		return beforeClass(description);
+	}
+
 	protected static void installJdk14Handler() {
 		Logger logger = Logger.getLogger(StringPool.BLANK);
 
@@ -148,47 +218,46 @@ public class LogAssertionTestCallback
 	}
 
 	protected static boolean isExpected(
-		ExpectedLogs expectedLogs, String renderedMessage) {
+		List<ExpectedLogs> expectedLogsList, String renderedMessage) {
 
-		for (ExpectedLog expectedLog : expectedLogs.expectedLogs()) {
-			ExpectedType expectedType = expectedLog.expectedType();
+		for (ExpectedLogs expectedLogs : expectedLogsList) {
+			for (ExpectedLog expectedLog : expectedLogs.expectedLogs()) {
+				ExpectedDBType expectedDBType = expectedLog.expectedDBType();
 
-			if (expectedType == ExpectedType.EXACT) {
-				if (renderedMessage.equals(expectedLog.expectedLog())) {
-					return true;
+				if (expectedDBType != ExpectedDBType.NONE) {
+					DB db = DBManagerUtil.getDB();
+
+					if (expectedDBType.getDBType() != db.getDBType()) {
+						continue;
+					}
 				}
-			}
-			else if (expectedType == ExpectedType.POSTFIX) {
-				if (renderedMessage.endsWith(expectedLog.expectedLog())) {
-					return true;
+
+				ExpectedType expectedType = expectedLog.expectedType();
+
+				if (expectedType == ExpectedType.CONTAINS) {
+					if (renderedMessage.contains(expectedLog.expectedLog())) {
+						return true;
+					}
 				}
-			}
-			else if (expectedType == ExpectedType.PREFIX) {
-				if (renderedMessage.startsWith(expectedLog.expectedLog())) {
-					return true;
+				else if (expectedType == ExpectedType.EXACT) {
+					if (renderedMessage.equals(expectedLog.expectedLog())) {
+						return true;
+					}
+				}
+				else if (expectedType == ExpectedType.POSTFIX) {
+					if (renderedMessage.endsWith(expectedLog.expectedLog())) {
+						return true;
+					}
+				}
+				else if (expectedType == ExpectedType.PREFIX) {
+					if (renderedMessage.startsWith(expectedLog.expectedLog())) {
+						return true;
+					}
 				}
 			}
 		}
 
 		return false;
-	}
-
-	protected static CaptureAppender startAssert(ExpectedLogs expectedLogs) {
-		_thread = Thread.currentThread();
-
-		CaptureAppender captureAppender = null;
-
-		if (expectedLogs != null) {
-			Class<?> clazz = expectedLogs.loggerClass();
-
-			captureAppender = Log4JLoggerTestUtil.configureLog4JLogger(
-				clazz.getName(), Level.toLevel(expectedLogs.level()));
-		}
-
-		installJdk14Handler();
-		installLog4jAppender();
-
-		return captureAppender;
 	}
 
 	private LogAssertionTestCallback() {
@@ -197,5 +266,6 @@ public class LogAssertionTestCallback
 	private static final Map<Thread, Error> _concurrentFailures =
 		new ConcurrentHashMap<>();
 	private static volatile Thread _thread;
+	private static volatile UncaughtExceptionHandler _uncaughtExceptionHandler;
 
 }

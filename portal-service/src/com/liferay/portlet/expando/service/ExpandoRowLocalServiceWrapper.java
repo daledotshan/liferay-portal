@@ -229,18 +229,14 @@ public class ExpandoRowLocalServiceWrapper implements ExpandoRowLocalService,
 	}
 
 	@Override
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
-		return _expandoRowLocalService.getActionableDynamicQuery();
+	public com.liferay.portlet.expando.model.ExpandoRow fetchRow(long tableId,
+		long classPK) {
+		return _expandoRowLocalService.fetchRow(tableId, classPK);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _expandoRowLocalService.getBeanIdentifier();
+	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
+		return _expandoRowLocalService.getActionableDynamicQuery();
 	}
 
 	@Override
@@ -308,6 +304,21 @@ public class ExpandoRowLocalServiceWrapper implements ExpandoRowLocalService,
 	@Override
 	public int getExpandoRowsCount() {
 		return _expandoRowLocalService.getExpandoRowsCount();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _expandoRowLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _expandoRowLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -409,16 +420,6 @@ public class ExpandoRowLocalServiceWrapper implements ExpandoRowLocalService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_expandoRowLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the expando row in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param expandoRow the expando row
@@ -428,23 +429,6 @@ public class ExpandoRowLocalServiceWrapper implements ExpandoRowLocalService,
 	public com.liferay.portlet.expando.model.ExpandoRow updateExpandoRow(
 		com.liferay.portlet.expando.model.ExpandoRow expandoRow) {
 		return _expandoRowLocalService.updateExpandoRow(expandoRow);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ExpandoRowLocalService getWrappedExpandoRowLocalService() {
-		return _expandoRowLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedExpandoRowLocalService(
-		ExpandoRowLocalService expandoRowLocalService) {
-		_expandoRowLocalService = expandoRowLocalService;
 	}
 
 	@Override

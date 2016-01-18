@@ -53,40 +53,13 @@ public class LayoutRevisionServiceWrapper implements LayoutRevisionService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _layoutRevisionService.getBeanIdentifier();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_layoutRevisionService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public LayoutRevisionService getWrappedLayoutRevisionService() {
-		return _layoutRevisionService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedLayoutRevisionService(
-		LayoutRevisionService layoutRevisionService) {
-		_layoutRevisionService = layoutRevisionService;
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _layoutRevisionService.getOSGiServiceIdentifier();
 	}
 
 	@Override
