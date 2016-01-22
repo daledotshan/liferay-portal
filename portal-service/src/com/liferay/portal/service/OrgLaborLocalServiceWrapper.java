@@ -194,14 +194,19 @@ public class OrgLaborLocalServiceWrapper implements OrgLaborLocalService,
 		return _orgLaborLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _orgLaborLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _orgLaborLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _orgLaborLocalService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -258,16 +263,6 @@ public class OrgLaborLocalServiceWrapper implements OrgLaborLocalService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_orgLaborLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the org labor in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param orgLabor the org labor
@@ -288,23 +283,6 @@ public class OrgLaborLocalServiceWrapper implements OrgLaborLocalService,
 		return _orgLaborLocalService.updateOrgLabor(orgLaborId, typeId,
 			sunOpen, sunClose, monOpen, monClose, tueOpen, tueClose, wedOpen,
 			wedClose, thuOpen, thuClose, friOpen, friClose, satOpen, satClose);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public OrgLaborLocalService getWrappedOrgLaborLocalService() {
-		return _orgLaborLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedOrgLaborLocalService(
-		OrgLaborLocalService orgLaborLocalService) {
-		_orgLaborLocalService = orgLaborLocalService;
 	}
 
 	@Override

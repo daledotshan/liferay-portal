@@ -17,18 +17,19 @@ package com.liferay.portal.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -62,7 +63,7 @@ import javax.sql.DataSource;
 @ProviderType
 public abstract class WebDAVPropsLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements WebDAVPropsLocalService,
-		IdentifiableBean {
+		IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -226,19 +227,33 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
 
 		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.WebDAVPropsLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(WebDAVProps.class);
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(WebDAVProps.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("webDavPropsId");
 
 		return actionableDynamicQuery;
 	}
 
+	@Override
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		IndexableActionableDynamicQuery indexableActionableDynamicQuery = new IndexableActionableDynamicQuery();
+
+		indexableActionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.WebDAVPropsLocalServiceUtil.getService());
+		indexableActionableDynamicQuery.setClassLoader(getClassLoader());
+		indexableActionableDynamicQuery.setModelClass(WebDAVProps.class);
+
+		indexableActionableDynamicQuery.setPrimaryKeyPropertyName(
+			"webDavPropsId");
+
+		return indexableActionableDynamicQuery;
+	}
+
 	protected void initActionableDynamicQuery(
 		ActionableDynamicQuery actionableDynamicQuery) {
 		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.WebDAVPropsLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(WebDAVProps.class);
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(WebDAVProps.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("webDavPropsId");
 	}
@@ -301,7 +316,7 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 	 *
 	 * @return the web d a v props local service
 	 */
-	public com.liferay.portal.service.WebDAVPropsLocalService getWebDAVPropsLocalService() {
+	public WebDAVPropsLocalService getWebDAVPropsLocalService() {
 		return webDAVPropsLocalService;
 	}
 
@@ -311,7 +326,7 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 	 * @param webDAVPropsLocalService the web d a v props local service
 	 */
 	public void setWebDAVPropsLocalService(
-		com.liferay.portal.service.WebDAVPropsLocalService webDAVPropsLocalService) {
+		WebDAVPropsLocalService webDAVPropsLocalService) {
 		this.webDAVPropsLocalService = webDAVPropsLocalService;
 	}
 
@@ -373,25 +388,6 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the class name remote service.
-	 *
-	 * @return the class name remote service
-	 */
-	public com.liferay.portal.service.ClassNameService getClassNameService() {
-		return classNameService;
-	}
-
-	/**
-	 * Sets the class name remote service.
-	 *
-	 * @param classNameService the class name remote service
-	 */
-	public void setClassNameService(
-		com.liferay.portal.service.ClassNameService classNameService) {
-		this.classNameService = classNameService;
-	}
-
-	/**
 	 * Returns the class name persistence.
 	 *
 	 * @return the class name persistence
@@ -421,23 +417,13 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return WebDAVPropsLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -457,7 +443,7 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 		try {
 			DataSource dataSource = webDAVPropsPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -473,18 +459,15 @@ public abstract class WebDAVPropsLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.WebDAVPropsLocalService.class)
-	protected com.liferay.portal.service.WebDAVPropsLocalService webDAVPropsLocalService;
+	protected WebDAVPropsLocalService webDAVPropsLocalService;
 	@BeanReference(type = WebDAVPropsPersistence.class)
 	protected WebDAVPropsPersistence webDAVPropsPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
 	protected com.liferay.counter.service.CounterLocalService counterLocalService;
 	@BeanReference(type = com.liferay.portal.service.ClassNameLocalService.class)
 	protected com.liferay.portal.service.ClassNameLocalService classNameLocalService;
-	@BeanReference(type = com.liferay.portal.service.ClassNameService.class)
-	protected com.liferay.portal.service.ClassNameService classNameService;
 	@BeanReference(type = ClassNamePersistence.class)
 	protected ClassNamePersistence classNamePersistence;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

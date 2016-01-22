@@ -73,9 +73,7 @@ public class PluginsSummaryBuilder {
 		directoryScanner.setExcludes(
 			new String[] {"**\\tmp\\**", "**\\tools\\**"});
 		directoryScanner.setIncludes(
-			new String[] {
-				"**\\liferay-plugin-package.properties"
-			});
+			new String[] {"**\\liferay-plugin-package.properties"});
 
 		directoryScanner.scan();
 
@@ -633,7 +631,8 @@ public class PluginsSummaryBuilder {
 		sb.append(value);
 	}
 
-	private static final String[] _TICKET_ID_PREFIXES = {"LPS", "SOS", "SYNC"};
+	private static final String[] _TICKET_ID_PREFIXES =
+		{"CLDSVCS", "LPS", "SOS", "SYNC"};
 
 	private static final FileImpl _fileUtil = FileImpl.getInstance();
 

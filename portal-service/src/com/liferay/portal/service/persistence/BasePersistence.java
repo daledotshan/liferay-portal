@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence;
 
-import com.liferay.portal.NoSuchModelException;
+import com.liferay.portal.exception.NoSuchModelException;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.dao.orm.Projection;
@@ -123,8 +123,6 @@ public interface BasePersistence<T extends BaseModel<T>> {
 	 *
 	 * @param  primaryKey the primary key of the model instance
 	 * @return the model instance
-	 * @throws NoSuchModelException if an instance of this model with the
-	 *         primary key could not be found
 	 */
 	public T findByPrimaryKey(Serializable primaryKey)
 		throws NoSuchModelException;
@@ -189,6 +187,8 @@ public interface BasePersistence<T extends BaseModel<T>> {
 
 	public void flush();
 
+	public Set<String> getBadColumnNames();
+
 	public Session getCurrentSession() throws ORMException;
 
 	/**
@@ -231,8 +231,6 @@ public interface BasePersistence<T extends BaseModel<T>> {
 	 *
 	 * @param  primaryKey the primary key of the model instance to remove
 	 * @return the model instance that was removed
-	 * @throws NoSuchModelException if an instance of this model with the
-	 *         primary key could not be found
 	 */
 	public T remove(Serializable primaryKey) throws NoSuchModelException;
 

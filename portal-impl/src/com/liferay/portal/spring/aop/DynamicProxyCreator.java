@@ -14,9 +14,10 @@
 
 package com.liferay.portal.spring.aop;
 
+import com.liferay.portal.kernel.spring.aop.InvocationHandlerFactory;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.util.ClassLoaderUtil;
 
 import java.lang.reflect.InvocationHandler;
 

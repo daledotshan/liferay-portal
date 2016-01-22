@@ -14,115 +14,62 @@
 
 package com.liferay.portal.kernel.search;
 
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.DestinationNames;
-import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
-import com.liferay.portal.kernel.util.ClassUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.security.permission.PermissionThreadLocal;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.ServiceReference;
-import com.liferay.registry.ServiceTracker;
-import com.liferay.registry.ServiceTrackerCustomizer;
-
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author Bruno Farache
- * @author Raymond Augé
- * @author Michael C. Han
+ * @author     Bruno Farache
+ * @author     Raymond Augé
+ * @author     Michael C. Han
+ * @deprecated As of 7.0.0, replaced by {@link IndexWriterHelperUtil,
+ *             IndexSearcherHelperUtil, SearchEngineHelperUtil}
  */
-public class SearchEngineUtil {
+@Deprecated
+public class SearchEngineUtil extends SearchEngineHelperUtil {
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}
-	 */
 	@Deprecated
-	public static final int ALL_POS = -1;
+	public static final String GENERIC_ENGINE_ID =
+		SearchEngineHelper.GENERIC_ENGINE_ID;
 
-	public static final String GENERIC_ENGINE_ID = "GENERIC_ENGINE";
-
-	public static final String SYSTEM_ENGINE_ID = "SYSTEM_ENGINE";
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #addDocument(String, long,
-	 *             Document, boolean)}
-	 */
 	@Deprecated
-	public static void addDocument(long companyId, Document document)
-		throws SearchException {
-
-		addDocument(getSearchEngineId(document), companyId, document, true);
-	}
+	public static final String SYSTEM_ENGINE_ID =
+		SearchEngineHelper.SYSTEM_ENGINE_ID;
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #addDocument(String, long,
-	 *             Document, boolean)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#addDocument(String, long, Document,
+	 *             boolean)}
 	 */
 	@Deprecated
 	public static void addDocument(
 			String searchEngineId, long companyId, Document document)
 		throws SearchException {
 
-		addDocument(searchEngineId, companyId, document, false);
+		IndexWriterHelperUtil.addDocument(
+			searchEngineId, companyId, document, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#addDocuments(String, long, Collection,
+	 *             boolean)}
+	 */
+	@Deprecated
 	public static void addDocument(
 			String searchEngineId, long companyId, Document document,
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly()) {
-			return;
-		}
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Add document " + document.toString());
-		}
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		_searchPermissionChecker.addPermissionFields(companyId, document);
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCommitImmediately(commitImmediately);
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.addDocument(searchContext, document);
+		IndexWriterHelperUtil.addDocument(
+			searchEngineId, companyId, document, commitImmediately);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #addDocuments(String, long,
-	 *             Collection, boolean)}
-	 */
-	@Deprecated
-	public static void addDocuments(
-			long companyId, Collection<Document> documents)
-		throws SearchException {
-
-		addDocuments(getSearchEngineId(documents), companyId, documents, false);
-	}
-
-	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #addDocuments(String, long,
-	 *             Collection, boolean)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#addDocuments(String, long, Collection,
+	 *             boolean)}
 	 */
 	@Deprecated
 	public static void addDocuments(
@@ -130,676 +77,331 @@ public class SearchEngineUtil {
 			Collection<Document> documents)
 		throws SearchException {
 
-		addDocuments(searchEngineId, companyId, documents, false);
+		IndexWriterHelperUtil.addDocuments(
+			searchEngineId, companyId, documents, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#addDocuments(String, long, Collection,
+	 *             boolean)}
+	 */
+	@Deprecated
 	public static void addDocuments(
 			String searchEngineId, long companyId,
 			Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (documents == null) || documents.isEmpty()) {
-			return;
-		}
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		for (Document document : documents) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Add document " + document.toString());
-			}
-
-			_searchPermissionChecker.addPermissionFields(companyId, document);
-		}
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCommitImmediately(commitImmediately);
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.addDocuments(searchContext, documents);
+		IndexWriterHelperUtil.addDocuments(
+			searchEngineId, companyId, documents, commitImmediately);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #setSearchEngine(String,
-	 *             SearchEngine)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#commit(String)}
 	 */
 	@Deprecated
-	public static void addSearchEngine(SearchEngine searchEngine) {
-		String searchEngineId = getDefaultSearchEngineId();
-
-		PortalRuntimePermission.checkSearchEngine(searchEngineId);
-
-		setSearchEngine(searchEngineId, searchEngine);
-	}
-
-	public synchronized static void backup(long companyId, String backupName)
-		throws SearchException {
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			searchEngine.backup(companyId, backupName);
-		}
-	}
-
-	public synchronized static String backup(
-			long companyId, String searchEngineId, String backupName)
-		throws SearchException {
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		return searchEngine.backup(companyId, backupName);
-	}
-
-	public synchronized static void backup(String backupName)
-		throws SearchException {
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			for (long companyId : _companyIds) {
-				searchEngine.backup(companyId, backupName);
-			}
-		}
+	public static void commit(String searchEngineId) throws SearchException {
+		IndexWriterHelperUtil.commit(searchEngineId);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #deleteDocument(String, long,
-	 *             String)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#commit(String, long)}
 	 */
 	@Deprecated
-	public static void deleteDocument(long companyId, String uid)
+	public static void commit(String searchEngineId, long companyId)
 		throws SearchException {
 
-		for (String searchEngineId : _searchEngines.keySet()) {
-			deleteDocument(searchEngineId, companyId, uid, true);
-		}
+		IndexWriterHelperUtil.commit(searchEngineId, companyId);
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #deleteDocument(String, long,
-	 *             String, boolean)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#deleteDocument(String, long, String,
+	 *             boolean)}
 	 */
 	@Deprecated
 	public static void deleteDocument(
 			String searchEngineId, long companyId, String uid)
 		throws SearchException {
 
-		deleteDocument(searchEngineId, companyId, uid, false);
+		IndexWriterHelperUtil.deleteDocument(
+			searchEngineId, companyId, uid, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#deleteDocument(String, long, String,
+	 *             boolean)}
+	 */
+	@Deprecated
 	public static void deleteDocument(
 			String searchEngineId, long companyId, String uid,
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly()) {
-			return;
-		}
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCommitImmediately(commitImmediately);
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.deleteDocument(searchContext, uid);
+		IndexWriterHelperUtil.deleteDocument(
+			searchEngineId, companyId, uid, commitImmediately);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #deleteDocuments(String,
-	 *             long, Collection, boolean)}
-	 */
-	@Deprecated
-	public static void deleteDocuments(long companyId, Collection<String> uids)
-		throws SearchException {
-
-		for (String searchEngineId : _searchEngines.keySet()) {
-			deleteDocuments(searchEngineId, companyId, uids, true);
-		}
-	}
-
-	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #deleteDocuments(String,
-	 *             long, Collection, boolean)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#deleteDocuments(String, long,
+	 *             Collection, boolean)}
 	 */
 	@Deprecated
 	public static void deleteDocuments(
 			String searchEngineId, long companyId, Collection<String> uids)
 		throws SearchException {
 
-		deleteDocuments(searchEngineId, companyId, uids, false);
+		IndexWriterHelperUtil.deleteDocuments(
+			searchEngineId, companyId, uids, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#deleteDocuments(String, long,
+	 *             Collection, boolean)}
+	 */
+	@Deprecated
 	public static void deleteDocuments(
 			String searchEngineId, long companyId, Collection<String> uids,
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (uids == null) || uids.isEmpty()) {
-			return;
-		}
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCommitImmediately(commitImmediately);
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.deleteDocuments(searchContext, uids);
+		IndexWriterHelperUtil.deleteDocuments(
+			searchEngineId, companyId, uids, commitImmediately);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#deleteEntityDocuments(String, long,
+	 *             String, boolean)}
+	 */
+	@Deprecated
 	public static void deleteEntityDocuments(
 			String searchEngineId, long companyId, String className,
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly()) {
-			return;
-		}
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		if (searchEngine == null) {
-			return;
-		}
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCommitImmediately(commitImmediately);
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.deleteEntityDocuments(searchContext, className);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #deleteEntityDocuments(String, long, String, boolean)}
-	 */
-	@Deprecated
-	public static void deletePortletDocuments(long companyId, String portletId)
-		throws SearchException {
-
-		for (String searchEngineId : _searchEngines.keySet()) {
-			deleteEntityDocuments(searchEngineId, companyId, portletId, true);
-		}
+		IndexWriterHelperUtil.deleteEntityDocuments(
+			searchEngineId, companyId, className, commitImmediately);
 	}
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             #deleteEntityDocuments(String, long, String, boolean)}
+	 *             IndexWriterHelperUtil#deleteEntityDocuments(String, long,
+	 *             String, boolean)}
 	 */
 	@Deprecated
 	public static void deletePortletDocuments(
 			String searchEngineId, long companyId, String portletId)
 		throws SearchException {
 
-		deleteEntityDocuments(searchEngineId, companyId, portletId, false);
-	}
-
-	public static String getDefaultSearchEngineId() {
-		if (_defaultSearchEngineId == null) {
-			return SYSTEM_ENGINE_ID;
-		}
-
-		return _defaultSearchEngineId;
-	}
-
-	public static String[] getEntryClassNames() {
-		Set<String> assetEntryClassNames = new HashSet<>();
-
-		for (Indexer indexer : IndexerRegistryUtil.getIndexers()) {
-			for (String className : indexer.getSearchClassNames()) {
-				if (!_excludedEntryClassNames.contains(className)) {
-					assetEntryClassNames.add(className);
-				}
-			}
-		}
-
-		return assetEntryClassNames.toArray(
-			new String[assetEntryClassNames.size()]);
+		IndexWriterHelperUtil.deleteEntityDocuments(
+			searchEngineId, companyId, portletId, false);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getSearchEngine(String)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#getQueryString(SearchContext, Query)}
 	 */
 	@Deprecated
-	public static SearchEngine getSearchEngine() {
-		return getSearchEngine(getDefaultSearchEngineId());
+	public static String getQueryString(
+		SearchContext searchContext, Query query) {
+
+		return IndexSearcherHelperUtil.getQueryString(searchContext, query);
 	}
 
-	public static SearchEngine getSearchEngine(String searchEngineId) {
-		PortalRuntimePermission.checkSearchEngine(searchEngineId);
-
-		SearchEngine searchEngine = _searchEngines.get(searchEngineId);
-
-		if (searchEngine == null) {
-			if (SYSTEM_ENGINE_ID.equals(searchEngineId)) {
-				waitForSystemSearchEngine();
-
-				searchEngine = _searchEngines.get(SYSTEM_ENGINE_ID);
-
-				if (searchEngine == null) {
-					throw new IllegalStateException(
-						"Unable to find search engine " + SYSTEM_ENGINE_ID);
-				}
-
-				return searchEngine;
-			}
-
-			if (getDefaultSearchEngineId().equals(searchEngineId)) {
-				throw new IllegalStateException(
-					"There is no default search engine configured with ID " +
-						getDefaultSearchEngineId());
-			}
-
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"There is no search engine configured with ID " +
-						searchEngineId);
-			}
-		}
-
-		return searchEngine;
-	}
-
-	public static String getSearchEngineId(Collection<Document> documents) {
-		if (!documents.isEmpty()) {
-			Iterator<Document> iterator = documents.iterator();
-
-			Document document = iterator.next();
-
-			return getSearchEngineId(document);
-		}
-
-		return getDefaultSearchEngineId();
-	}
-
-	public static String getSearchEngineId(Document document) {
-		String entryClassName = document.get("entryClassName");
-
-		Indexer indexer = IndexerRegistryUtil.getIndexer(entryClassName);
-
-		String searchEngineId = indexer.getSearchEngineId();
-
-		if (_log.isDebugEnabled()) {
-			_log.debug(
-				"Search engine ID " + searchEngineId + " is associated with " +
-					ClassUtil.getClassName(indexer));
-		}
-
-		return searchEngineId;
-	}
-
-	public static Set<String> getSearchEngineIds() {
-		PortalRuntimePermission.checkGetBeanProperty(
-			SearchEngineUtil.class, "searchEngineIds");
-
-		return _searchEngines.keySet();
-	}
-
-	public static SearchEngine getSearchEngineSilent(String searchEngineId) {
-		PortalRuntimePermission.checkSearchEngine(searchEngineId);
-
-		return _searchEngines.get(searchEngineId);
-	}
-
-	public static SearchPermissionChecker getSearchPermissionChecker() {
-		PortalRuntimePermission.checkGetBeanProperty(
-			SearchEngineUtil.class, "searchPermissionChecker");
-
-		return _searchPermissionChecker;
-	}
-
-	public static String getSearchReaderDestinationName(String searchEngineId) {
-		return DestinationNames.SEARCH_READER.concat(StringPool.SLASH).concat(
-			searchEngineId);
-	}
-
-	public static String getSearchWriterDestinationName(String searchEngineId) {
-		return DestinationNames.SEARCH_WRITER.concat(StringPool.SLASH).concat(
-			searchEngineId);
-	}
-
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexKeyword(long, String, float,
+	 *             String, Locale)}
+	 */
+	@Deprecated
 	public static void indexKeyword(
 			long companyId, String querySuggestion, float weight,
 			String keywordType, Locale locale)
 		throws SearchException {
 
-		String searchEngineId = getDefaultSearchEngineId();
-
-		indexKeyword(
-			searchEngineId, companyId, querySuggestion, weight, keywordType,
-			locale);
+		IndexWriterHelperUtil.indexKeyword(
+			companyId, querySuggestion, weight, keywordType, locale);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexKeyword(String, long, String,
+	 *             float, String, Locale)}
+	 */
+	@Deprecated
 	public static void indexKeyword(
 			String searchEngineId, long companyId, String querySuggestion,
 			float weight, String keywordType, Locale locale)
 		throws SearchException {
 
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-		searchContext.setKeywords(querySuggestion);
-		searchContext.setLocale(locale);
-
-		indexWriter.indexKeyword(searchContext, weight, keywordType);
+		IndexWriterHelperUtil.indexKeyword(
+			searchEngineId, companyId, querySuggestion, weight, keywordType,
+			locale);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexQuerySuggestionDictionaries(long)}
+	 */
+	@Deprecated
 	public static void indexQuerySuggestionDictionaries(long companyId)
 		throws SearchException {
 
-		Set<String> searchEngineIds = getSearchEngineIds();
-
-		for (String searchEngineId : searchEngineIds) {
-			indexQuerySuggestionDictionaries(searchEngineId, companyId);
-		}
+		IndexWriterHelperUtil.indexQuerySuggestionDictionaries(companyId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexQuerySuggestionDictionaries(
+	 *             String, long)}
+	 */
+	@Deprecated
 	public static void indexQuerySuggestionDictionaries(
 			String searchEngineId, long companyId)
 		throws SearchException {
 
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.indexQuerySuggestionDictionaries(searchContext);
+		IndexWriterHelperUtil.indexQuerySuggestionDictionaries(
+			searchEngineId, companyId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexQuerySuggestionDictionary(long,
+	 *             Locale)}
+	 */
+	@Deprecated
 	public static void indexQuerySuggestionDictionary(
 			long companyId, Locale locale)
 		throws SearchException {
 
-		String searchEngineId = getDefaultSearchEngineId();
-
-		indexQuerySuggestionDictionary(searchEngineId, companyId, locale);
+		IndexWriterHelperUtil.indexQuerySuggestionDictionary(companyId, locale);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexQuerySuggestionDictionary(String,
+	 *             long, Locale)}
+	 */
+	@Deprecated
 	public static void indexQuerySuggestionDictionary(
 			String searchEngineId, long companyId, Locale locale)
 		throws SearchException {
 
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-		searchContext.setLocale(locale);
-
-		indexWriter.indexQuerySuggestionDictionary(searchContext);
+		IndexWriterHelperUtil.indexQuerySuggestionDictionary(
+			searchEngineId, companyId, locale);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexSpellCheckerDictionaries(long)}
+	 */
+	@Deprecated
 	public static void indexSpellCheckerDictionaries(long companyId)
 		throws SearchException {
 
-		String searchEngineId = getDefaultSearchEngineId();
-
-		indexSpellCheckerDictionaries(searchEngineId, companyId);
+		IndexWriterHelperUtil.indexSpellCheckerDictionaries(companyId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexSpellCheckerDictionaries(String,
+	 *             long)}
+	 */
+	@Deprecated
 	public static void indexSpellCheckerDictionaries(
 			String searchEngineId, long companyId)
 		throws SearchException {
 
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.indexSpellCheckerDictionaries(searchContext);
+		IndexWriterHelperUtil.indexSpellCheckerDictionaries(
+			searchEngineId, companyId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexSpellCheckerDictionary(long,
+	 *             Locale)}
+	 */
+	@Deprecated
 	public static void indexSpellCheckerDictionary(
 			long companyId, Locale locale)
 		throws SearchException {
 
-		String searchEngineId = getDefaultSearchEngineId();
-
-		indexSpellCheckerDictionary(searchEngineId, companyId, locale);
+		IndexWriterHelperUtil.indexSpellCheckerDictionary(companyId, locale);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#indexSpellCheckerDictionary(String,
+	 *             long, Locale)}
+	 */
+	@Deprecated
 	public static void indexSpellCheckerDictionary(
 			String searchEngineId, long companyId, Locale locale)
 		throws SearchException {
 
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-		searchContext.setLocale(locale);
-
-		indexWriter.indexSpellCheckerDictionary(searchContext);
+		IndexWriterHelperUtil.indexSpellCheckerDictionary(
+			searchEngineId, companyId, locale);
 	}
 
-	public synchronized static void initialize(long companyId) {
-		if (_companyIds.contains(companyId)) {
-			return;
-		}
-
-		waitForSystemSearchEngine();
-
-		_companyIds.add(companyId);
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			searchEngine.initialize(companyId);
-		}
-	}
-
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#isIndexReadOnly()}
+	 */
+	@Deprecated
 	public static boolean isIndexReadOnly() {
-		PortalRuntimePermission.checkGetBeanProperty(
-			SearchEngineUtil.class, "indexReadOnly");
-
-		return _indexReadOnly;
-	}
-
-	public synchronized static void removeBackup(
-			long companyId, String backupName)
-		throws SearchException {
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			searchEngine.removeBackup(companyId, backupName);
-		}
-	}
-
-	public synchronized static void removeBackup(String backupName)
-		throws SearchException {
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			for (long companyId : _companyIds) {
-				searchEngine.removeBackup(companyId, backupName);
-			}
-		}
-	}
-
-	public synchronized static void removeCompany(long companyId) {
-		if (!_companyIds.contains(companyId)) {
-			return;
-		}
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			searchEngine.removeCompany(companyId);
-		}
-
-		_companyIds.remove(companyId);
-	}
-
-	public static SearchEngine removeSearchEngine(String searchEngineId) {
-		PortalRuntimePermission.checkSearchEngine(searchEngineId);
-
-		return _searchEngines.remove(searchEngineId);
-	}
-
-	public synchronized static void restore(long companyId, String backupName)
-		throws SearchException {
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			searchEngine.restore(companyId, backupName);
-		}
-	}
-
-	public synchronized static void restore(String backupName)
-		throws SearchException {
-
-		for (SearchEngine searchEngine : _searchEngines.values()) {
-			for (long companyId : _companyIds) {
-				searchEngine.restore(companyId, backupName);
-			}
-		}
+		return IndexWriterHelperUtil.isIndexReadOnly();
 	}
 
 	/**
-	 * @deprecated As of 6.2.0
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#partiallyUpdateDocument(String, long,
+	 *             Document, boolean)}
 	 */
 	@Deprecated
-	public static Hits search(
-			long companyId, long[] groupIds, long userId, String className,
-			Query query, int start, int end)
+	public static void partiallyUpdateDocument(
+			String searchEngineId, long companyId, Document document,
+			boolean commitImmediately)
 		throws SearchException {
 
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setSearchEngineId(getDefaultSearchEngineId());
-
-		if (userId > 0) {
-			query = _searchPermissionChecker.getPermissionQuery(
-				companyId, groupIds, userId, className, query, searchContext);
-		}
-
-		return search(
-			companyId, query, SortFactoryUtil.getDefaultSorts(), start, end);
+		IndexWriterHelperUtil.partiallyUpdateDocument(
+			searchEngineId, companyId, document, commitImmediately);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#partiallyUpdateDocuments(String, long,
+	 *             Collection, boolean)}
 	 */
 	@Deprecated
-	public static Hits search(
-			long companyId, long[] groupIds, long userId, String className,
-			Query query, Sort sort, int start, int end)
+	public static void partiallyUpdateDocuments(
+			String searchEngineId, long companyId,
+			Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setSearchEngineId(getDefaultSearchEngineId());
-
-		if (userId > 0) {
-			query = _searchPermissionChecker.getPermissionQuery(
-				companyId, groupIds, userId, className, query, searchContext);
-		}
-
-		return search(companyId, query, sort, start, end);
+		IndexWriterHelperUtil.partiallyUpdateDocuments(
+			searchEngineId, companyId, documents, commitImmediately);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#search(SearchContext, Query)}
 	 */
 	@Deprecated
-	public static Hits search(
-			long companyId, long[] groupIds, long userId, String className,
-			Query query, Sort[] sorts, int start, int end)
-		throws SearchException {
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setSearchEngineId(getDefaultSearchEngineId());
-
-		if (userId > 0) {
-			query = _searchPermissionChecker.getPermissionQuery(
-				companyId, groupIds, userId, className, query, searchContext);
-		}
-
-		return search(companyId, query, sorts, start, end);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #search(String, long, Query,
-	 *             int, int)}
-	 */
-	@Deprecated
-	public static Hits search(long companyId, Query query, int start, int end)
-		throws SearchException {
-
-		return search(getDefaultSearchEngineId(), companyId, query, start, end);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #search(String, long, Query,
-	 *             Sort, int, int)}
-	 */
-	@Deprecated
-	public static Hits search(
-			long companyId, Query query, Sort sort, int start, int end)
-		throws SearchException {
-
-		return search(
-			getDefaultSearchEngineId(), companyId, query, sort, start, end);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #search(String, long, Query,
-	 *             Sort[], int, int)}
-	 */
-	@Deprecated
-	public static Hits search(
-			long companyId, Query query, Sort[] sorts, int start, int end)
-		throws SearchException {
-
-		return search(
-			getDefaultSearchEngineId(), companyId, query, sorts, start, end);
-	}
-
 	public static Hits search(SearchContext searchContext, Query query)
 		throws SearchException {
 
-		if (_log.isDebugEnabled()) {
-			_log.debug("Search query " + query.toString());
-		}
-
-		SearchEngine searchEngine = getSearchEngine(
-			searchContext.getSearchEngineId());
-
-		IndexSearcher indexSearcher = searchEngine.getIndexSearcher();
-
-		return indexSearcher.search(searchContext, query);
+		return IndexSearcherHelperUtil.search(searchContext, query);
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #search(SearchContext,
-	 *             Query)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#search(SearchContext, Query)}
 	 */
 	@Deprecated
 	public static Hits search(
@@ -813,8 +415,8 @@ public class SearchEngineUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #search(SearchContext,
-	 *             Query)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#search(SearchContext, Query)}
 	 */
 	@Deprecated
 	public static Hits search(
@@ -827,8 +429,8 @@ public class SearchEngineUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #search(SearchContext,
-	 *             Query)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#search(SearchContext, Query)}
 	 */
 	@Deprecated
 	public static Hits search(
@@ -844,150 +446,100 @@ public class SearchEngineUtil {
 		searchContext.setSorts(sorts);
 		searchContext.setStart(start);
 
-		return search(searchContext, query);
+		return IndexSearcherHelperUtil.search(searchContext, query);
 	}
 
-	public static void setDefaultSearchEngineId(String defaultSearchEngineId) {
-		PortalRuntimePermission.checkSetBeanProperty(
-			SearchEngineUtil.class, "defaultSearchEngineId");
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#searchCount(SearchContext, Query)}
+	 */
+	@Deprecated
+	public static long searchCount(SearchContext searchContext, Query query)
+		throws SearchException {
 
-		_defaultSearchEngineId = defaultSearchEngineId;
+		return IndexSearcherHelperUtil.searchCount(searchContext, query);
 	}
 
-	public static void setIndexReadOnly(boolean indexReadOnly) {
-		PortalRuntimePermission.checkSetBeanProperty(
-			SearchEngineUtil.class, "indexReadOnly");
-
-		_indexReadOnly = indexReadOnly;
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#setIndexReadOnly(boolean)}
+	 */
+	@Deprecated
+	public static void setIndexReadOnly(boolean readOnly) {
+		IndexWriterHelperUtil.setIndexReadOnly(readOnly);
 	}
 
-	public static void setSearchEngine(
-		String searchEngineId, SearchEngine searchEngine) {
-
-		PortalRuntimePermission.checkSearchEngine(searchEngineId);
-
-		_searchEngines.put(searchEngineId, searchEngine);
-
-		for (Long companyId : _companyIds) {
-			searchEngine.initialize(companyId);
-		}
-	}
-
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#spellCheckKeywords(SearchContext)}
+	 */
+	@Deprecated
 	public static String spellCheckKeywords(SearchContext searchContext)
 		throws SearchException {
 
-		if (_log.isDebugEnabled()) {
-			_log.debug("Spell checking " + searchContext.getKeywords());
-		}
-
-		SearchEngine searchEngine = getSearchEngine(
-			searchContext.getSearchEngineId());
-
-		IndexSearcher indexSearcher = searchEngine.getIndexSearcher();
-
-		return indexSearcher.spellCheckKeywords(searchContext);
+		return IndexSearcherHelperUtil.spellCheckKeywords(searchContext);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#spellCheckKeywords(SearchContext,
+	 *             int)}
+	 */
+	@Deprecated
 	public static Map<String, List<String>> spellCheckKeywords(
 			SearchContext searchContext, int max)
 		throws SearchException {
 
-		if (_log.isDebugEnabled()) {
-			_log.debug("Spell checking " + searchContext.getKeywords());
-		}
-
-		SearchEngine searchEngine = getSearchEngine(
-			searchContext.getSearchEngineId());
-
-		IndexSearcher indexSearcher = searchEngine.getIndexSearcher();
-
-		return indexSearcher.spellCheckKeywords(searchContext, max);
+		return IndexSearcherHelperUtil.spellCheckKeywords(searchContext, max);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexSearcherHelperUtil#suggestKeywordQueries(SearchContext,
+	 *             int)}
+	 */
+	@Deprecated
 	public static String[] suggestKeywordQueries(
 			SearchContext searchContext, int max)
 		throws SearchException {
 
-		if (_log.isDebugEnabled()) {
-			_log.debug(
-				"Suggesting keyword queries" + searchContext.getKeywords());
-		}
-
-		SearchEngine searchEngine = getSearchEngine(
-			searchContext.getSearchEngineId());
-
-		IndexSearcher indexSearcher = searchEngine.getIndexSearcher();
-
-		return indexSearcher.suggestKeywordQueries(searchContext, max);
+		return IndexSearcherHelperUtil.suggestKeywordQueries(
+			searchContext, max);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #updateDocument(String, long,
-	 *             Document)}
-	 */
-	@Deprecated
-	public static void updateDocument(long companyId, Document document)
-		throws SearchException {
-
-		updateDocument(getSearchEngineId(document), companyId, document, true);
-	}
-
-	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #updateDocument(String, long,
-	 *             Document, boolean)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#updateDocument(String, long, Document,
+	 *             boolean)}
 	 */
 	@Deprecated
 	public static void updateDocument(
 			String searchEngineId, long companyId, Document document)
 		throws SearchException {
 
-		updateDocument(searchEngineId, companyId, document, false);
+		IndexWriterHelperUtil.updateDocument(
+			searchEngineId, companyId, document, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#updateDocument(String, long, Document,
+	 *             boolean)}
+	 */
+	@Deprecated
 	public static void updateDocument(
 			String searchEngineId, long companyId, Document document,
 			boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly()) {
-			return;
-		}
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Document " + document.toString());
-		}
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		_searchPermissionChecker.addPermissionFields(companyId, document);
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCommitImmediately(commitImmediately);
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.updateDocument(searchContext, document);
+		IndexWriterHelperUtil.updateDocument(
+			searchEngineId, companyId, document, commitImmediately);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #updateDocuments(String,
-	 *             long, Collection)}
-	 */
-	@Deprecated
-	public static void updateDocuments(
-			long companyId, Collection<Document> documents)
-		throws SearchException {
-
-		updateDocuments(
-			getSearchEngineId(documents), companyId, documents, true);
-	}
-
-	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #updateDocuments(String,
-	 *             long, Collection, boolean)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#updateDocuments(String, long,
+	 *             Collection, boolean)}
 	 */
 	@Deprecated
 	public static void updateDocuments(
@@ -995,158 +547,32 @@ public class SearchEngineUtil {
 			Collection<Document> documents)
 		throws SearchException {
 
-		updateDocuments(searchEngineId, companyId, documents, false);
+		IndexWriterHelperUtil.updateDocuments(
+			searchEngineId, companyId, documents, false);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#updateDocuments(String, long,
+	 *             Collection, boolean)}
+	 */
+	@Deprecated
 	public static void updateDocuments(
 			String searchEngineId, long companyId,
 			Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
-		if (isIndexReadOnly() || (documents == null) || documents.isEmpty()) {
-			return;
-		}
-
-		SearchEngine searchEngine = getSearchEngine(searchEngineId);
-
-		IndexWriter indexWriter = searchEngine.getIndexWriter();
-
-		for (Document document : documents) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Document " + document.toString());
-			}
-
-			_searchPermissionChecker.addPermissionFields(companyId, document);
-		}
-
-		SearchContext searchContext = new SearchContext();
-
-		searchContext.setCommitImmediately(commitImmediately);
-		searchContext.setCompanyId(companyId);
-		searchContext.setSearchEngineId(searchEngineId);
-
-		indexWriter.updateDocuments(searchContext, documents);
-	}
-
-	public static void updatePermissionFields(String name, String primKey) {
-		if (isIndexReadOnly() || !PermissionThreadLocal.isFlushEnabled()) {
-			return;
-		}
-
-		_searchPermissionChecker.updatePermissionFields(name, primKey);
-	}
-
-	public void setExcludedEntryClassNames(
-		List<String> excludedEntryClassNames) {
-
-		PortalRuntimePermission.checkSetBeanProperty(
-			getClass(), "excludedEntryClassNames");
-
-		_excludedEntryClassNames.addAll(excludedEntryClassNames);
+		IndexWriterHelperUtil.updateDocuments(
+			searchEngineId, companyId, documents, commitImmediately);
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #setSearchEngine(String,
-	 *             SearchEngine)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             IndexWriterHelperUtil#updatePermissionFields(String, String)}
 	 */
 	@Deprecated
-	public void setSearchEngine(SearchEngine searchEngine) {
-		String searchEngineId = getDefaultSearchEngineId();
-
-		PortalRuntimePermission.checkSearchEngine(searchEngineId);
-
-		setSearchEngine(searchEngineId, searchEngine);
-	}
-
-	public void setSearchPermissionChecker(
-		SearchPermissionChecker searchPermissionChecker) {
-
-		PortalRuntimePermission.checkSetBeanProperty(
-			getClass(), "searchPermissionChecker");
-
-		_searchPermissionChecker = searchPermissionChecker;
-	}
-
-	private static void waitForSystemSearchEngine() {
-		try {
-			int count = 1000;
-
-			while (!_searchEngines.containsKey(SYSTEM_ENGINE_ID) &&
-				   (--count > 0)) {
-
-				if (_log.isDebugEnabled()) {
-					_log.debug("Waiting for search engine " + SYSTEM_ENGINE_ID);
-				}
-
-				Thread.sleep(500);
-			}
-		}
-		catch (InterruptedException ie) {
-			_log.error(ie, ie);
-		}
-	}
-
-	private SearchEngineUtil() {
-		Registry registry = RegistryUtil.getRegistry();
-
-		_serviceTracker = registry.trackServices(
-			SearchEngineConfigurator.class,
-			new SearchEngineConfiguratorServiceTrackerCustomizer());
-
-		_serviceTracker.open();
-	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		SearchEngineUtil.class);
-
-	private static final Set<Long> _companyIds = new HashSet<>();
-	private static String _defaultSearchEngineId;
-	private static final Set<String> _excludedEntryClassNames = new HashSet<>();
-	private static boolean _indexReadOnly = GetterUtil.getBoolean(
-		PropsUtil.get(PropsKeys.INDEX_READ_ONLY));
-	private static final Map<String, SearchEngine> _searchEngines =
-		new ConcurrentHashMap<>();
-	private static SearchPermissionChecker _searchPermissionChecker;
-
-	private final ServiceTracker
-		<SearchEngineConfigurator, SearchEngineConfigurator> _serviceTracker;
-
-	private class SearchEngineConfiguratorServiceTrackerCustomizer
-		implements ServiceTrackerCustomizer
-			<SearchEngineConfigurator, SearchEngineConfigurator> {
-
-		@Override
-		public SearchEngineConfigurator addingService(
-			ServiceReference<SearchEngineConfigurator> serviceReference) {
-
-			Registry registry = RegistryUtil.getRegistry();
-
-			SearchEngineConfigurator searchEngineConfigurator =
-				registry.getService(serviceReference);
-
-			searchEngineConfigurator.afterPropertiesSet();
-
-			return searchEngineConfigurator;
-		}
-
-		@Override
-		public void modifiedService(
-			ServiceReference<SearchEngineConfigurator> serviceReference,
-			SearchEngineConfigurator searchEngineConfigurator) {
-		}
-
-		@Override
-		public void removedService(
-			ServiceReference<SearchEngineConfigurator> serviceReference,
-			SearchEngineConfigurator searchEngineConfigurator) {
-
-			Registry registry = RegistryUtil.getRegistry();
-
-			registry.ungetService(serviceReference);
-
-			searchEngineConfigurator.destroy();
-		}
-
+	public static void updatePermissionFields(String name, String primKey) {
+		IndexWriterHelperUtil.updatePermissionFields(name, primKey);
 	}
 
 }

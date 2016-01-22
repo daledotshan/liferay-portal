@@ -368,16 +368,6 @@ public class UserNotificationEventLocalServiceWrapper
 			deliveryType, archived);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _userNotificationEventLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<com.liferay.portal.model.UserNotificationEvent> getDeliveredUserNotificationEvents(
 		long userId, boolean delivered) {
@@ -465,10 +455,31 @@ public class UserNotificationEventLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _userNotificationEventLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _userNotificationEventLocalService.getOSGiServiceIdentifier();
+	}
+
+	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _userNotificationEventLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.UserNotificationEvent> getTypeNotificationEvents(
+		java.lang.String type) {
+		return _userNotificationEventLocalService.getTypeNotificationEvents(type);
 	}
 
 	/**
@@ -525,30 +536,6 @@ public class UserNotificationEventLocalServiceWrapper
 		return _userNotificationEventLocalService.getUserNotificationEvents(userId);
 	}
 
-	/**
-	* @deprecated As of 6.2.0 {@link #getArchivedUserNotificationEvents(long,
-	boolean)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.model.UserNotificationEvent> getUserNotificationEvents(
-		long userId, boolean archived) {
-		return _userNotificationEventLocalService.getUserNotificationEvents(userId,
-			archived);
-	}
-
-	/**
-	* @deprecated As of 6.2.0 {@link #getArchivedUserNotificationEvents(long,
-	boolean, int, int)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portal.model.UserNotificationEvent> getUserNotificationEvents(
-		long userId, boolean archived, int start, int end) {
-		return _userNotificationEventLocalService.getUserNotificationEvents(userId,
-			archived, start, end);
-	}
-
 	@Override
 	public java.util.List<com.liferay.portal.model.UserNotificationEvent> getUserNotificationEvents(
 		long userId, int deliveryType) {
@@ -585,21 +572,17 @@ public class UserNotificationEventLocalServiceWrapper
 		return _userNotificationEventLocalService.getUserNotificationEventsCount(userId);
 	}
 
-	/**
-	* @deprecated As of 6.2.0 {@link
-	#getArchivedUserNotificationEventsCount(long, boolean)}
-	*/
-	@Deprecated
-	@Override
-	public int getUserNotificationEventsCount(long userId, boolean archived) {
-		return _userNotificationEventLocalService.getUserNotificationEventsCount(userId,
-			archived);
-	}
-
 	@Override
 	public int getUserNotificationEventsCount(long userId, int deliveryType) {
 		return _userNotificationEventLocalService.getUserNotificationEventsCount(userId,
 			deliveryType);
+	}
+
+	@Override
+	public int getUserNotificationEventsCount(long userId,
+		java.lang.String type, int deliveryType, boolean archived) {
+		return _userNotificationEventLocalService.getUserNotificationEventsCount(userId,
+			type, deliveryType, archived);
 	}
 
 	@Override
@@ -619,16 +602,6 @@ public class UserNotificationEventLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _userNotificationEventLocalService.sendUserNotificationEvents(userId,
 			portletId, deliveryType, notificationEventJSONObject);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_userNotificationEventLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -656,23 +629,6 @@ public class UserNotificationEventLocalServiceWrapper
 		boolean archive) {
 		return _userNotificationEventLocalService.updateUserNotificationEvents(uuids,
 			companyId, archive);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public UserNotificationEventLocalService getWrappedUserNotificationEventLocalService() {
-		return _userNotificationEventLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedUserNotificationEventLocalService(
-		UserNotificationEventLocalService userNotificationEventLocalService) {
-		_userNotificationEventLocalService = userNotificationEventLocalService;
 	}
 
 	@Override

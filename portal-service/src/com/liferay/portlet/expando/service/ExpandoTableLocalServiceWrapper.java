@@ -59,30 +59,6 @@ public class ExpandoTableLocalServiceWrapper implements ExpandoTableLocalService
 		return _expandoTableLocalService.addExpandoTable(expandoTable);
 	}
 
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addTable(long, String,
-	String)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.expando.model.ExpandoTable addTable(
-		java.lang.String className, java.lang.String name)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _expandoTableLocalService.addTable(className, name);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addTable(long, long,
-	String)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.expando.model.ExpandoTable addTable(
-		long classNameId, java.lang.String name)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _expandoTableLocalService.addTable(classNameId, name);
-	}
-
 	@Override
 	public com.liferay.portlet.expando.model.ExpandoTable addTable(
 		long companyId, java.lang.String className, java.lang.String name)
@@ -296,16 +272,6 @@ public class ExpandoTableLocalServiceWrapper implements ExpandoTableLocalService
 		return _expandoTableLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _expandoTableLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portlet.expando.model.ExpandoTable getDefaultTable(
 		long companyId, java.lang.String className)
@@ -362,34 +328,25 @@ public class ExpandoTableLocalServiceWrapper implements ExpandoTableLocalService
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _expandoTableLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _expandoTableLocalService.getOSGiServiceIdentifier();
+	}
+
+	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _expandoTableLocalService.getPersistedModel(primaryKeyObj);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getTable(long, String,
-	String)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.expando.model.ExpandoTable getTable(
-		java.lang.String className, java.lang.String name)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _expandoTableLocalService.getTable(className, name);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getTable(long, long,
-	String)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.expando.model.ExpandoTable getTable(
-		long classNameId, java.lang.String name)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _expandoTableLocalService.getTable(classNameId, name);
 	}
 
 	@Override
@@ -425,16 +382,6 @@ public class ExpandoTableLocalServiceWrapper implements ExpandoTableLocalService
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_expandoTableLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the expando table in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param expandoTable the expando table
@@ -451,23 +398,6 @@ public class ExpandoTableLocalServiceWrapper implements ExpandoTableLocalService
 		long tableId, java.lang.String name)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _expandoTableLocalService.updateTable(tableId, name);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ExpandoTableLocalService getWrappedExpandoTableLocalService() {
-		return _expandoTableLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedExpandoTableLocalService(
-		ExpandoTableLocalService expandoTableLocalService) {
-		_expandoTableLocalService = expandoTableLocalService;
 	}
 
 	@Override

@@ -248,20 +248,15 @@ public class LayoutSetPrototypeLocalServiceWrapper
 		return _layoutSetPrototypeLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _layoutSetPrototypeLocalService.getBeanIdentifier();
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
+		return _layoutSetPrototypeLocalService.getExportActionableDynamicQuery(portletDataContext);
 	}
 
 	@Override
-	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
-		return _layoutSetPrototypeLocalService.getExportActionableDynamicQuery(portletDataContext);
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _layoutSetPrototypeLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -276,18 +271,6 @@ public class LayoutSetPrototypeLocalServiceWrapper
 		long layoutSetPrototypeId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutSetPrototypeLocalService.getLayoutSetPrototype(layoutSetPrototypeId);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getLayoutSetPrototypeByUuidAndCompanyId(String, long)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.model.LayoutSetPrototype getLayoutSetPrototypeByUuid(
-		java.lang.String uuid)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _layoutSetPrototypeLocalService.getLayoutSetPrototypeByUuid(uuid);
 	}
 
 	/**
@@ -339,6 +322,16 @@ public class LayoutSetPrototypeLocalServiceWrapper
 		return _layoutSetPrototypeLocalService.getLayoutSetPrototypesCount();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _layoutSetPrototypeLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -357,16 +350,6 @@ public class LayoutSetPrototypeLocalServiceWrapper
 	@Override
 	public int searchCount(long companyId, java.lang.Boolean active) {
 		return _layoutSetPrototypeLocalService.searchCount(companyId, active);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_layoutSetPrototypeLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -417,23 +400,6 @@ public class LayoutSetPrototypeLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutSetPrototypeLocalService.updateLayoutSetPrototype(layoutSetPrototypeId,
 			settings);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public LayoutSetPrototypeLocalService getWrappedLayoutSetPrototypeLocalService() {
-		return _layoutSetPrototypeLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedLayoutSetPrototypeLocalService(
-		LayoutSetPrototypeLocalService layoutSetPrototypeLocalService) {
-		_layoutSetPrototypeLocalService = layoutSetPrototypeLocalService;
 	}
 
 	@Override

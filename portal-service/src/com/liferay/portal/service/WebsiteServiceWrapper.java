@@ -30,20 +30,6 @@ public class WebsiteServiceWrapper implements WebsiteService,
 		_websiteService = websiteService;
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addWebsite(String, long,
-	String, int, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.model.Website addWebsite(
-		java.lang.String className, long classPK, java.lang.String url,
-		long typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _websiteService.addWebsite(className, classPK, url, typeId,
-			primary);
-	}
-
 	@Override
 	public com.liferay.portal.model.Website addWebsite(
 		java.lang.String className, long classPK, java.lang.String url,
@@ -61,13 +47,13 @@ public class WebsiteServiceWrapper implements WebsiteService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _websiteService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _websiteService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -83,37 +69,11 @@ public class WebsiteServiceWrapper implements WebsiteService,
 		return _websiteService.getWebsites(className, classPK);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_websiteService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public com.liferay.portal.model.Website updateWebsite(long websiteId,
 		java.lang.String url, long typeId, boolean primary)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _websiteService.updateWebsite(websiteId, url, typeId, primary);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public WebsiteService getWrappedWebsiteService() {
-		return _websiteService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedWebsiteService(WebsiteService websiteService) {
-		_websiteService = websiteService;
 	}
 
 	@Override

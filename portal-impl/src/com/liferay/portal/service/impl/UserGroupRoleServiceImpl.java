@@ -158,9 +158,9 @@ public class UserGroupRoleServiceImpl extends UserGroupRoleServiceBaseImpl {
 			}
 			else if ((role.getType() == RoleConstants.TYPE_SITE) &&
 					 !SiteMembershipPolicyUtil.isRoleProtected(
-						getPermissionChecker(), userId, groupId, roleId)) {
+						 getPermissionChecker(), userId, groupId, roleId)) {
 
-					filteredSiteUserGroupRoles.add(userGroupRole);
+				filteredSiteUserGroupRoles.add(userGroupRole);
 			}
 		}
 
@@ -226,7 +226,7 @@ public class UserGroupRoleServiceImpl extends UserGroupRoleServiceBaseImpl {
 					 !SiteMembershipPolicyUtil.isRoleProtected(
 						 getPermissionChecker(), userId, groupId, roleId)) {
 
-					filteredUserGroupRoles.add(userGroupRole);
+				filteredUserGroupRoles.add(userGroupRole);
 			}
 		}
 

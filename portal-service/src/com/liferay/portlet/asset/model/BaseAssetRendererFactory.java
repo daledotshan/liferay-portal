@@ -15,12 +15,12 @@
 package com.liferay.portlet.asset.model;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
@@ -47,7 +47,8 @@ import javax.portlet.WindowState;
  * @author Raymond Augé
  * @author Sergio González
  */
-public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
+public abstract class BaseAssetRendererFactory<T>
+	implements AssetRendererFactory<T> {
 
 	@Override
 	public AssetEntry getAssetEntry(long assetEntryId) throws PortalException {
@@ -62,21 +63,28 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 	}
 
 	@Override
-	public AssetRenderer getAssetRenderer(long classPK) throws PortalException {
+	public AssetRenderer<T> getAssetRenderer(long classPK)
+		throws PortalException {
+
 		return getAssetRenderer(classPK, TYPE_LATEST_APPROVED);
 	}
 
 	@Override
 	@SuppressWarnings("unused")
-	public AssetRenderer getAssetRenderer(long groupId, String urlTitle)
+	public AssetRenderer<T> getAssetRenderer(long groupId, String urlTitle)
 		throws PortalException {
 
 		return null;
 	}
 
 	@Override
+	public String getClassName() {
+		return _className;
+	}
+
+	@Override
 	public long getClassNameId() {
-		return PortalUtil.getClassNameId(_className);
+		return PortalUtil.getClassNameId(getClassName());
 	}
 
 	@Deprecated
@@ -141,13 +149,13 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 
 	@Deprecated
 	@Override
-	public Map<Long, String> getClassTypes(long[] groupId, Locale locale)
+	public Map<Long, String> getClassTypes(long[] groupIds, Locale locale)
 		throws Exception {
 
 		ClassTypeReader classTypeReader = getClassTypeReader();
 
 		List<ClassType> classTypes = classTypeReader.getAvailableClassTypes(
-			groupId, locale);
+			groupIds, locale);
 
 		Map<Long, String> classTypesMap = new HashMap<>();
 
@@ -163,17 +171,23 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 		return null;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public String getIconPath(PortletRequest portletRequest) {
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		return getIconPath(themeDisplay);
+		return StringPool.BLANK;
 	}
 
 	@Override
 	public String getPortletId() {
 		return _portletId;
+	}
+
+	@Override
+	public String getSubtypeTitle(Locale locale) {
+		return LanguageUtil.get(locale, "subtype");
 	}
 
 	@Override
@@ -195,11 +209,21 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 		return getTypeName(locale);
 	}
 
+	@Deprecated
+	@Override
+	public PortletURL getURLAdd(
+			LiferayPortletRequest liferayPortletRequest,
+			LiferayPortletResponse liferayPortletResponse)
+		throws PortalException {
+
+		return getURLAdd(liferayPortletRequest, liferayPortletResponse, 0);
+	}
+
 	@Override
 	@SuppressWarnings("unused")
 	public PortletURL getURLAdd(
 			LiferayPortletRequest liferayPortletRequest,
-			LiferayPortletResponse liferayPortletResponse)
+			LiferayPortletResponse liferayPortletResponse, long classTypeId)
 		throws PortalException {
 
 		return null;
@@ -253,13 +277,10 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 			return true;
 		}
 
-		Portlet portlet = null;
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			companyId, getPortletId());
 
-		try {
-			portlet = PortletLocalServiceUtil.getPortletById(
-				companyId, getPortletId());
-		}
-		catch (SystemException se) {
+		if (portlet == null) {
 			portlet = PortletLocalServiceUtil.getPortletById(getPortletId());
 		}
 
@@ -283,6 +304,11 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 	@Override
 	public boolean isListable(long classPK) {
 		return true;
+	}
+
+	@Override
+	public boolean isSearchable() {
+		return _searchable;
 	}
 
 	@Override
@@ -311,16 +337,16 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 		return PortalUtil.getControlPanelPlid(themeDisplay.getCompanyId());
 	}
 
-	protected String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPathThemeImages() + "/common/page.png";
-	}
-
 	protected void setCategorizable(boolean categorizable) {
 		_categorizable = categorizable;
 	}
 
 	protected void setLinkable(boolean linkable) {
 		_linkable = linkable;
+	}
+
+	protected void setSearchable(boolean searchable) {
+		_searchable = searchable;
 	}
 
 	protected void setSelectable(boolean selectable) {
@@ -343,6 +369,7 @@ public abstract class BaseAssetRendererFactory implements AssetRendererFactory {
 	private String _className;
 	private boolean _linkable;
 	private String _portletId;
+	private boolean _searchable;
 	private boolean _selectable = true;
 	private boolean _supportsClassTypes;
 

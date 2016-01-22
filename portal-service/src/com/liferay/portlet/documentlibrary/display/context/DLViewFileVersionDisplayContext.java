@@ -14,11 +14,11 @@
 
 package com.liferay.portlet.documentlibrary.display.context;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMFormValues;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 
 import java.io.IOException;
 
@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface DLViewFileVersionDisplayContext extends DLDisplayContext {
 
+	public String getCssClassFileMimeType();
+
 	public DDMFormValues getDDMFormValues(DDMStructure ddmStructure)
 		throws PortalException;
 
@@ -42,11 +44,12 @@ public interface DLViewFileVersionDisplayContext extends DLDisplayContext {
 
 	public List<ToolbarItem> getToolbarItems() throws PortalException;
 
+	public boolean isDownloadLinkVisible() throws PortalException;
+
 	public boolean isVersionInfoVisible() throws PortalException;
 
 	public void renderPreview(
 			HttpServletRequest request, HttpServletResponse response)
 		throws IOException, ServletException;
 
-	boolean isDownloadLinkVisible() throws PortalException;
 }

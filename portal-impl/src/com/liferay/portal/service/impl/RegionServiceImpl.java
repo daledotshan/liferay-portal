@@ -14,8 +14,8 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.RegionCodeException;
-import com.liferay.portal.RegionNameException;
+import com.liferay.portal.exception.RegionCodeException;
+import com.liferay.portal.exception.RegionNameException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Region;
@@ -35,7 +35,8 @@ public class RegionServiceImpl extends RegionServiceBaseImpl {
 		throws PortalException {
 
 		if (!getPermissionChecker().isOmniadmin()) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustBeOmniadmin(
+				getPermissionChecker());
 		}
 
 		countryPersistence.findByPrimaryKey(countryId);

@@ -17,9 +17,8 @@ package com.liferay.portal.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -27,16 +26,13 @@ import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -62,10 +58,16 @@ import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryFinder
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryPersistence;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypeFinder;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypePersistence;
+import com.liferay.portlet.documentlibrary.service.persistence.DLFileShortcutPersistence;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileVersionPersistence;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFolderFinder;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFolderPersistence;
 import com.liferay.portlet.expando.service.persistence.ExpandoValuePersistence;
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 
 import java.io.Serializable;
 
@@ -88,7 +90,7 @@ import javax.sql.DataSource;
 @ProviderType
 public abstract class RepositoryLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements RepositoryLocalService,
-		IdentifiableBean {
+		IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -264,19 +266,33 @@ public abstract class RepositoryLocalServiceBaseImpl
 		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
 
 		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.RepositoryLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(Repository.class);
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(Repository.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("repositoryId");
 
 		return actionableDynamicQuery;
 	}
 
+	@Override
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		IndexableActionableDynamicQuery indexableActionableDynamicQuery = new IndexableActionableDynamicQuery();
+
+		indexableActionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.RepositoryLocalServiceUtil.getService());
+		indexableActionableDynamicQuery.setClassLoader(getClassLoader());
+		indexableActionableDynamicQuery.setModelClass(Repository.class);
+
+		indexableActionableDynamicQuery.setPrimaryKeyPropertyName(
+			"repositoryId");
+
+		return indexableActionableDynamicQuery;
+	}
+
 	protected void initActionableDynamicQuery(
 		ActionableDynamicQuery actionableDynamicQuery) {
 		actionableDynamicQuery.setBaseLocalService(com.liferay.portal.service.RepositoryLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(Repository.class);
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(Repository.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("repositoryId");
 	}
@@ -293,13 +309,13 @@ public abstract class RepositoryLocalServiceBaseImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -316,12 +332,18 @@ public abstract class RepositoryLocalServiceBaseImpl
 
 					StagedModelType stagedModelType = exportActionableDynamicQuery.getStagedModelType();
 
-					if (stagedModelType.getReferrerClassNameId() >= 0) {
-						Property classNameIdProperty = PropertyFactoryUtil.forName(
-								"classNameId");
+					long referrerClassNameId = stagedModelType.getReferrerClassNameId();
 
+					Property classNameIdProperty = PropertyFactoryUtil.forName(
+							"classNameId");
+
+					if ((referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ALL) &&
+							(referrerClassNameId != StagedModelType.REFERRER_CLASS_NAME_ID_ANY)) {
 						dynamicQuery.add(classNameIdProperty.eq(
 								stagedModelType.getReferrerClassNameId()));
+					}
+					else if (referrerClassNameId == StagedModelType.REFERRER_CLASS_NAME_ID_ANY) {
+						dynamicQuery.add(classNameIdProperty.isNotNull());
 					}
 				}
 			});
@@ -330,18 +352,17 @@ public abstract class RepositoryLocalServiceBaseImpl
 
 		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
 
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Repository>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(Repository repository)
 					throws PortalException {
-					Repository stagedModel = (Repository)object;
-
 					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
+						repository);
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
-				PortalUtil.getClassNameId(Repository.class.getName())));
+				PortalUtil.getClassNameId(Repository.class.getName()),
+				StagedModelType.REFERRER_CLASS_NAME_ID_ALL));
 
 		return exportActionableDynamicQuery;
 	}
@@ -449,7 +470,7 @@ public abstract class RepositoryLocalServiceBaseImpl
 	 *
 	 * @return the repository local service
 	 */
-	public com.liferay.portal.service.RepositoryLocalService getRepositoryLocalService() {
+	public RepositoryLocalService getRepositoryLocalService() {
 		return repositoryLocalService;
 	}
 
@@ -459,27 +480,8 @@ public abstract class RepositoryLocalServiceBaseImpl
 	 * @param repositoryLocalService the repository local service
 	 */
 	public void setRepositoryLocalService(
-		com.liferay.portal.service.RepositoryLocalService repositoryLocalService) {
+		RepositoryLocalService repositoryLocalService) {
 		this.repositoryLocalService = repositoryLocalService;
-	}
-
-	/**
-	 * Returns the repository remote service.
-	 *
-	 * @return the repository remote service
-	 */
-	public com.liferay.portal.service.RepositoryService getRepositoryService() {
-		return repositoryService;
-	}
-
-	/**
-	 * Sets the repository remote service.
-	 *
-	 * @param repositoryService the repository remote service
-	 */
-	public void setRepositoryService(
-		com.liferay.portal.service.RepositoryService repositoryService) {
-		this.repositoryService = repositoryService;
 	}
 
 	/**
@@ -540,25 +542,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the class name remote service.
-	 *
-	 * @return the class name remote service
-	 */
-	public com.liferay.portal.service.ClassNameService getClassNameService() {
-		return classNameService;
-	}
-
-	/**
-	 * Sets the class name remote service.
-	 *
-	 * @param classNameService the class name remote service
-	 */
-	public void setClassNameService(
-		com.liferay.portal.service.ClassNameService classNameService) {
-		this.classNameService = classNameService;
-	}
-
-	/**
 	 * Returns the class name persistence.
 	 *
 	 * @return the class name persistence
@@ -597,25 +580,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the company remote service.
-	 *
-	 * @return the company remote service
-	 */
-	public com.liferay.portal.service.CompanyService getCompanyService() {
-		return companyService;
-	}
-
-	/**
-	 * Sets the company remote service.
-	 *
-	 * @param companyService the company remote service
-	 */
-	public void setCompanyService(
-		com.liferay.portal.service.CompanyService companyService) {
-		this.companyService = companyService;
-	}
-
-	/**
 	 * Returns the company persistence.
 	 *
 	 * @return the company persistence
@@ -650,25 +614,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	public void setGroupLocalService(
 		com.liferay.portal.service.GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
-	}
-
-	/**
-	 * Returns the group remote service.
-	 *
-	 * @return the group remote service
-	 */
-	public com.liferay.portal.service.GroupService getGroupService() {
-		return groupService;
-	}
-
-	/**
-	 * Sets the group remote service.
-	 *
-	 * @param groupService the group remote service
-	 */
-	public void setGroupService(
-		com.liferay.portal.service.GroupService groupService) {
-		this.groupService = groupService;
 	}
 
 	/**
@@ -724,25 +669,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	public void setAssetEntryLocalService(
 		com.liferay.portlet.asset.service.AssetEntryLocalService assetEntryLocalService) {
 		this.assetEntryLocalService = assetEntryLocalService;
-	}
-
-	/**
-	 * Returns the asset entry remote service.
-	 *
-	 * @return the asset entry remote service
-	 */
-	public com.liferay.portlet.asset.service.AssetEntryService getAssetEntryService() {
-		return assetEntryService;
-	}
-
-	/**
-	 * Sets the asset entry remote service.
-	 *
-	 * @param assetEntryService the asset entry remote service
-	 */
-	public void setAssetEntryService(
-		com.liferay.portlet.asset.service.AssetEntryService assetEntryService) {
-		this.assetEntryService = assetEntryService;
 	}
 
 	/**
@@ -821,25 +747,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the document library file entry remote service.
-	 *
-	 * @return the document library file entry remote service
-	 */
-	public com.liferay.portlet.documentlibrary.service.DLFileEntryService getDLFileEntryService() {
-		return dlFileEntryService;
-	}
-
-	/**
-	 * Sets the document library file entry remote service.
-	 *
-	 * @param dlFileEntryService the document library file entry remote service
-	 */
-	public void setDLFileEntryService(
-		com.liferay.portlet.documentlibrary.service.DLFileEntryService dlFileEntryService) {
-		this.dlFileEntryService = dlFileEntryService;
-	}
-
-	/**
 	 * Returns the document library file entry persistence.
 	 *
 	 * @return the document library file entry persistence
@@ -896,25 +803,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the document library file entry type remote service.
-	 *
-	 * @return the document library file entry type remote service
-	 */
-	public com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService getDLFileEntryTypeService() {
-		return dlFileEntryTypeService;
-	}
-
-	/**
-	 * Sets the document library file entry type remote service.
-	 *
-	 * @param dlFileEntryTypeService the document library file entry type remote service
-	 */
-	public void setDLFileEntryTypeService(
-		com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService dlFileEntryTypeService) {
-		this.dlFileEntryTypeService = dlFileEntryTypeService;
-	}
-
-	/**
 	 * Returns the document library file entry type persistence.
 	 *
 	 * @return the document library file entry type persistence
@@ -953,6 +841,44 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the document library file shortcut local service.
+	 *
+	 * @return the document library file shortcut local service
+	 */
+	public com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService getDLFileShortcutLocalService() {
+		return dlFileShortcutLocalService;
+	}
+
+	/**
+	 * Sets the document library file shortcut local service.
+	 *
+	 * @param dlFileShortcutLocalService the document library file shortcut local service
+	 */
+	public void setDLFileShortcutLocalService(
+		com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService dlFileShortcutLocalService) {
+		this.dlFileShortcutLocalService = dlFileShortcutLocalService;
+	}
+
+	/**
+	 * Returns the document library file shortcut persistence.
+	 *
+	 * @return the document library file shortcut persistence
+	 */
+	public DLFileShortcutPersistence getDLFileShortcutPersistence() {
+		return dlFileShortcutPersistence;
+	}
+
+	/**
+	 * Sets the document library file shortcut persistence.
+	 *
+	 * @param dlFileShortcutPersistence the document library file shortcut persistence
+	 */
+	public void setDLFileShortcutPersistence(
+		DLFileShortcutPersistence dlFileShortcutPersistence) {
+		this.dlFileShortcutPersistence = dlFileShortcutPersistence;
+	}
+
+	/**
 	 * Returns the document library file version local service.
 	 *
 	 * @return the document library file version local service
@@ -969,25 +895,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	public void setDLFileVersionLocalService(
 		com.liferay.portlet.documentlibrary.service.DLFileVersionLocalService dlFileVersionLocalService) {
 		this.dlFileVersionLocalService = dlFileVersionLocalService;
-	}
-
-	/**
-	 * Returns the document library file version remote service.
-	 *
-	 * @return the document library file version remote service
-	 */
-	public com.liferay.portlet.documentlibrary.service.DLFileVersionService getDLFileVersionService() {
-		return dlFileVersionService;
-	}
-
-	/**
-	 * Sets the document library file version remote service.
-	 *
-	 * @param dlFileVersionService the document library file version remote service
-	 */
-	public void setDLFileVersionService(
-		com.liferay.portlet.documentlibrary.service.DLFileVersionService dlFileVersionService) {
-		this.dlFileVersionService = dlFileVersionService;
 	}
 
 	/**
@@ -1026,25 +933,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	public void setDLFolderLocalService(
 		com.liferay.portlet.documentlibrary.service.DLFolderLocalService dlFolderLocalService) {
 		this.dlFolderLocalService = dlFolderLocalService;
-	}
-
-	/**
-	 * Returns the document library folder remote service.
-	 *
-	 * @return the document library folder remote service
-	 */
-	public com.liferay.portlet.documentlibrary.service.DLFolderService getDLFolderService() {
-		return dlFolderService;
-	}
-
-	/**
-	 * Sets the document library folder remote service.
-	 *
-	 * @param dlFolderService the document library folder remote service
-	 */
-	public void setDLFolderService(
-		com.liferay.portlet.documentlibrary.service.DLFolderService dlFolderService) {
-		this.dlFolderService = dlFolderService;
 	}
 
 	/**
@@ -1100,25 +988,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	public void setExpandoValueLocalService(
 		com.liferay.portlet.expando.service.ExpandoValueLocalService expandoValueLocalService) {
 		this.expandoValueLocalService = expandoValueLocalService;
-	}
-
-	/**
-	 * Returns the expando value remote service.
-	 *
-	 * @return the expando value remote service
-	 */
-	public com.liferay.portlet.expando.service.ExpandoValueService getExpandoValueService() {
-		return expandoValueService;
-	}
-
-	/**
-	 * Sets the expando value remote service.
-	 *
-	 * @param expandoValueService the expando value remote service
-	 */
-	public void setExpandoValueService(
-		com.liferay.portlet.expando.service.ExpandoValueService expandoValueService) {
-		this.expandoValueService = expandoValueService;
 	}
 
 	/**
@@ -1255,25 +1124,6 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the user remote service.
-	 *
-	 * @return the user remote service
-	 */
-	public com.liferay.portal.service.UserService getUserService() {
-		return userService;
-	}
-
-	/**
-	 * Sets the user remote service.
-	 *
-	 * @param userService the user remote service
-	 */
-	public void setUserService(
-		com.liferay.portal.service.UserService userService) {
-		this.userService = userService;
-	}
-
-	/**
 	 * Returns the user persistence.
 	 *
 	 * @return the user persistence
@@ -1320,23 +1170,13 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return RepositoryLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -1356,7 +1196,7 @@ public abstract class RepositoryLocalServiceBaseImpl
 		try {
 			DataSource dataSource = repositoryPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -1372,37 +1212,27 @@ public abstract class RepositoryLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portal.service.RepositoryLocalService.class)
-	protected com.liferay.portal.service.RepositoryLocalService repositoryLocalService;
-	@BeanReference(type = com.liferay.portal.service.RepositoryService.class)
-	protected com.liferay.portal.service.RepositoryService repositoryService;
+	protected RepositoryLocalService repositoryLocalService;
 	@BeanReference(type = RepositoryPersistence.class)
 	protected RepositoryPersistence repositoryPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
 	protected com.liferay.counter.service.CounterLocalService counterLocalService;
 	@BeanReference(type = com.liferay.portal.service.ClassNameLocalService.class)
 	protected com.liferay.portal.service.ClassNameLocalService classNameLocalService;
-	@BeanReference(type = com.liferay.portal.service.ClassNameService.class)
-	protected com.liferay.portal.service.ClassNameService classNameService;
 	@BeanReference(type = ClassNamePersistence.class)
 	protected ClassNamePersistence classNamePersistence;
 	@BeanReference(type = com.liferay.portal.service.CompanyLocalService.class)
 	protected com.liferay.portal.service.CompanyLocalService companyLocalService;
-	@BeanReference(type = com.liferay.portal.service.CompanyService.class)
-	protected com.liferay.portal.service.CompanyService companyService;
 	@BeanReference(type = CompanyPersistence.class)
 	protected CompanyPersistence companyPersistence;
 	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
 	protected com.liferay.portal.service.GroupLocalService groupLocalService;
-	@BeanReference(type = com.liferay.portal.service.GroupService.class)
-	protected com.liferay.portal.service.GroupService groupService;
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
 	@BeanReference(type = GroupFinder.class)
 	protected GroupFinder groupFinder;
 	@BeanReference(type = com.liferay.portlet.asset.service.AssetEntryLocalService.class)
 	protected com.liferay.portlet.asset.service.AssetEntryLocalService assetEntryLocalService;
-	@BeanReference(type = com.liferay.portlet.asset.service.AssetEntryService.class)
-	protected com.liferay.portlet.asset.service.AssetEntryService assetEntryService;
 	@BeanReference(type = AssetEntryPersistence.class)
 	protected AssetEntryPersistence assetEntryPersistence;
 	@BeanReference(type = AssetEntryFinder.class)
@@ -1411,38 +1241,32 @@ public abstract class RepositoryLocalServiceBaseImpl
 	protected com.liferay.portlet.documentlibrary.service.DLAppHelperLocalService dlAppHelperLocalService;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileEntryLocalService.class)
 	protected com.liferay.portlet.documentlibrary.service.DLFileEntryLocalService dlFileEntryLocalService;
-	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileEntryService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLFileEntryService dlFileEntryService;
 	@BeanReference(type = DLFileEntryPersistence.class)
 	protected DLFileEntryPersistence dlFileEntryPersistence;
 	@BeanReference(type = DLFileEntryFinder.class)
 	protected DLFileEntryFinder dlFileEntryFinder;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService.class)
 	protected com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalService dlFileEntryTypeLocalService;
-	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLFileEntryTypeService dlFileEntryTypeService;
 	@BeanReference(type = DLFileEntryTypePersistence.class)
 	protected DLFileEntryTypePersistence dlFileEntryTypePersistence;
 	@BeanReference(type = DLFileEntryTypeFinder.class)
 	protected DLFileEntryTypeFinder dlFileEntryTypeFinder;
+	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService.class)
+	protected com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService dlFileShortcutLocalService;
+	@BeanReference(type = DLFileShortcutPersistence.class)
+	protected DLFileShortcutPersistence dlFileShortcutPersistence;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileVersionLocalService.class)
 	protected com.liferay.portlet.documentlibrary.service.DLFileVersionLocalService dlFileVersionLocalService;
-	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileVersionService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLFileVersionService dlFileVersionService;
 	@BeanReference(type = DLFileVersionPersistence.class)
 	protected DLFileVersionPersistence dlFileVersionPersistence;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFolderLocalService.class)
 	protected com.liferay.portlet.documentlibrary.service.DLFolderLocalService dlFolderLocalService;
-	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFolderService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLFolderService dlFolderService;
 	@BeanReference(type = DLFolderPersistence.class)
 	protected DLFolderPersistence dlFolderPersistence;
 	@BeanReference(type = DLFolderFinder.class)
 	protected DLFolderFinder dlFolderFinder;
 	@BeanReference(type = com.liferay.portlet.expando.service.ExpandoValueLocalService.class)
 	protected com.liferay.portlet.expando.service.ExpandoValueLocalService expandoValueLocalService;
-	@BeanReference(type = com.liferay.portlet.expando.service.ExpandoValueService.class)
-	protected com.liferay.portlet.expando.service.ExpandoValueService expandoValueService;
 	@BeanReference(type = ExpandoValuePersistence.class)
 	protected ExpandoValuePersistence expandoValuePersistence;
 	@BeanReference(type = com.liferay.portal.service.RepositoryEntryLocalService.class)
@@ -1457,13 +1281,10 @@ public abstract class RepositoryLocalServiceBaseImpl
 	protected SystemEventPersistence systemEventPersistence;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
 	protected com.liferay.portal.service.UserLocalService userLocalService;
-	@BeanReference(type = com.liferay.portal.service.UserService.class)
-	protected com.liferay.portal.service.UserService userService;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)
 	protected UserFinder userFinder;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

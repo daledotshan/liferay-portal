@@ -17,31 +17,29 @@ package com.liferay.portlet.documentlibrary.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Criterion;
 import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Disjunction;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
-import com.liferay.portal.kernel.lar.ManifestSummary;
-import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.StagedModelDataHandler;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerRegistryUtil;
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalServiceImpl;
 import com.liferay.portal.service.PersistedModelLocalServiceRegistry;
@@ -58,6 +56,13 @@ import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileShortcutPersistence;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFolderFinder;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFolderPersistence;
+import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
+import com.liferay.portlet.exportimport.lar.ManifestSummary;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandler;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerRegistryUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelDataHandlerUtil;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
 import com.liferay.portlet.trash.service.persistence.TrashEntryPersistence;
 import com.liferay.portlet.trash.service.persistence.TrashVersionPersistence;
 
@@ -82,7 +87,7 @@ import javax.sql.DataSource;
 @ProviderType
 public abstract class DLFileShortcutLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements DLFileShortcutLocalService,
-		IdentifiableBean {
+		IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -259,19 +264,33 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
 
 		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(DLFileShortcut.class);
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(DLFileShortcut.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("fileShortcutId");
 
 		return actionableDynamicQuery;
 	}
 
+	@Override
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		IndexableActionableDynamicQuery indexableActionableDynamicQuery = new IndexableActionableDynamicQuery();
+
+		indexableActionableDynamicQuery.setBaseLocalService(com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUtil.getService());
+		indexableActionableDynamicQuery.setClassLoader(getClassLoader());
+		indexableActionableDynamicQuery.setModelClass(DLFileShortcut.class);
+
+		indexableActionableDynamicQuery.setPrimaryKeyPropertyName(
+			"fileShortcutId");
+
+		return indexableActionableDynamicQuery;
+	}
+
 	protected void initActionableDynamicQuery(
 		ActionableDynamicQuery actionableDynamicQuery) {
 		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(DLFileShortcut.class);
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(DLFileShortcut.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("fileShortcutId");
 	}
@@ -288,13 +307,13 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 
 					long modelAdditionCount = super.performCount();
 
-					manifestSummary.addModelAdditionCount(stagedModelType.toString(),
+					manifestSummary.addModelAdditionCount(stagedModelType,
 						modelAdditionCount);
 
 					long modelDeletionCount = ExportImportHelperUtil.getModelDeletionCount(portletDataContext,
 							stagedModelType);
 
-					manifestSummary.addModelDeletionCount(stagedModelType.toString(),
+					manifestSummary.addModelDeletionCount(stagedModelType,
 						modelDeletionCount);
 
 					return modelAdditionCount;
@@ -306,16 +325,34 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
 				@Override
 				public void addCriteria(DynamicQuery dynamicQuery) {
-					portletDataContext.addDateRangeCriteria(dynamicQuery,
-						"modifiedDate");
+					Criterion modifiedDateCriterion = portletDataContext.getDateRangeCriteria(
+							"modifiedDate");
+					Criterion statusDateCriterion = portletDataContext.getDateRangeCriteria(
+							"statusDate");
 
-					StagedModelDataHandler<?> stagedModelDataHandler = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(DLFileShortcut.class.getName());
+					if ((modifiedDateCriterion != null) &&
+							(statusDateCriterion != null)) {
+						Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
+
+						disjunction.add(modifiedDateCriterion);
+						disjunction.add(statusDateCriterion);
+
+						dynamicQuery.add(disjunction);
+					}
 
 					Property workflowStatusProperty = PropertyFactoryUtil.forName(
 							"status");
 
-					dynamicQuery.add(workflowStatusProperty.in(
-							stagedModelDataHandler.getExportableStatuses()));
+					if (portletDataContext.isInitialPublication()) {
+						dynamicQuery.add(workflowStatusProperty.ne(
+								WorkflowConstants.STATUS_IN_TRASH));
+					}
+					else {
+						StagedModelDataHandler<?> stagedModelDataHandler = StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(DLFileShortcut.class.getName());
+
+						dynamicQuery.add(workflowStatusProperty.in(
+								stagedModelDataHandler.getExportableStatuses()));
+					}
 				}
 			});
 
@@ -323,14 +360,12 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 
 		exportActionableDynamicQuery.setGroupId(portletDataContext.getScopeGroupId());
 
-		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		exportActionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileShortcut>() {
 				@Override
-				public void performAction(Object object)
+				public void performAction(DLFileShortcut dlFileShortcut)
 					throws PortalException {
-					DLFileShortcut stagedModel = (DLFileShortcut)object;
-
 					StagedModelDataHandlerUtil.exportStagedModel(portletDataContext,
-						stagedModel);
+						dlFileShortcut);
 				}
 			});
 		exportActionableDynamicQuery.setStagedModelType(new StagedModelType(
@@ -442,7 +477,7 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	 *
 	 * @return the document library file shortcut local service
 	 */
-	public com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService getDLFileShortcutLocalService() {
+	public DLFileShortcutLocalService getDLFileShortcutLocalService() {
 		return dlFileShortcutLocalService;
 	}
 
@@ -452,27 +487,8 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	 * @param dlFileShortcutLocalService the document library file shortcut local service
 	 */
 	public void setDLFileShortcutLocalService(
-		com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService dlFileShortcutLocalService) {
+		DLFileShortcutLocalService dlFileShortcutLocalService) {
 		this.dlFileShortcutLocalService = dlFileShortcutLocalService;
-	}
-
-	/**
-	 * Returns the document library file shortcut remote service.
-	 *
-	 * @return the document library file shortcut remote service
-	 */
-	public com.liferay.portlet.documentlibrary.service.DLFileShortcutService getDLFileShortcutService() {
-		return dlFileShortcutService;
-	}
-
-	/**
-	 * Sets the document library file shortcut remote service.
-	 *
-	 * @param dlFileShortcutService the document library file shortcut remote service
-	 */
-	public void setDLFileShortcutService(
-		com.liferay.portlet.documentlibrary.service.DLFileShortcutService dlFileShortcutService) {
-		this.dlFileShortcutService = dlFileShortcutService;
 	}
 
 	/**
@@ -552,25 +568,6 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the user remote service.
-	 *
-	 * @return the user remote service
-	 */
-	public com.liferay.portal.service.UserService getUserService() {
-		return userService;
-	}
-
-	/**
-	 * Sets the user remote service.
-	 *
-	 * @param userService the user remote service
-	 */
-	public void setUserService(
-		com.liferay.portal.service.UserService userService) {
-		this.userService = userService;
-	}
-
-	/**
 	 * Returns the user persistence.
 	 *
 	 * @return the user persistence
@@ -623,25 +620,6 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	public void setAssetEntryLocalService(
 		com.liferay.portlet.asset.service.AssetEntryLocalService assetEntryLocalService) {
 		this.assetEntryLocalService = assetEntryLocalService;
-	}
-
-	/**
-	 * Returns the asset entry remote service.
-	 *
-	 * @return the asset entry remote service
-	 */
-	public com.liferay.portlet.asset.service.AssetEntryService getAssetEntryService() {
-		return assetEntryService;
-	}
-
-	/**
-	 * Sets the asset entry remote service.
-	 *
-	 * @param assetEntryService the asset entry remote service
-	 */
-	public void setAssetEntryService(
-		com.liferay.portlet.asset.service.AssetEntryService assetEntryService) {
-		this.assetEntryService = assetEntryService;
 	}
 
 	/**
@@ -701,25 +679,6 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the asset tag remote service.
-	 *
-	 * @return the asset tag remote service
-	 */
-	public com.liferay.portlet.asset.service.AssetTagService getAssetTagService() {
-		return assetTagService;
-	}
-
-	/**
-	 * Sets the asset tag remote service.
-	 *
-	 * @param assetTagService the asset tag remote service
-	 */
-	public void setAssetTagService(
-		com.liferay.portlet.asset.service.AssetTagService assetTagService) {
-		this.assetTagService = assetTagService;
-	}
-
-	/**
 	 * Returns the asset tag persistence.
 	 *
 	 * @return the asset tag persistence
@@ -775,25 +734,6 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the d l app remote service.
-	 *
-	 * @return the d l app remote service
-	 */
-	public com.liferay.portlet.documentlibrary.service.DLAppService getDLAppService() {
-		return dlAppService;
-	}
-
-	/**
-	 * Sets the d l app remote service.
-	 *
-	 * @param dlAppService the d l app remote service
-	 */
-	public void setDLAppService(
-		com.liferay.portlet.documentlibrary.service.DLAppService dlAppService) {
-		this.dlAppService = dlAppService;
-	}
-
-	/**
 	 * Returns the trash entry local service.
 	 *
 	 * @return the trash entry local service
@@ -810,25 +750,6 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	public void setTrashEntryLocalService(
 		com.liferay.portlet.trash.service.TrashEntryLocalService trashEntryLocalService) {
 		this.trashEntryLocalService = trashEntryLocalService;
-	}
-
-	/**
-	 * Returns the trash entry remote service.
-	 *
-	 * @return the trash entry remote service
-	 */
-	public com.liferay.portlet.trash.service.TrashEntryService getTrashEntryService() {
-		return trashEntryService;
-	}
-
-	/**
-	 * Sets the trash entry remote service.
-	 *
-	 * @param trashEntryService the trash entry remote service
-	 */
-	public void setTrashEntryService(
-		com.liferay.portlet.trash.service.TrashEntryService trashEntryService) {
-		this.trashEntryService = trashEntryService;
 	}
 
 	/**
@@ -908,25 +829,6 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the document library folder remote service.
-	 *
-	 * @return the document library folder remote service
-	 */
-	public com.liferay.portlet.documentlibrary.service.DLFolderService getDLFolderService() {
-		return dlFolderService;
-	}
-
-	/**
-	 * Sets the document library folder remote service.
-	 *
-	 * @param dlFolderService the document library folder remote service
-	 */
-	public void setDLFolderService(
-		com.liferay.portlet.documentlibrary.service.DLFolderService dlFolderService) {
-		this.dlFolderService = dlFolderService;
-	}
-
-	/**
 	 * Returns the document library folder persistence.
 	 *
 	 * @return the document library folder persistence
@@ -973,23 +875,13 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return DLFileShortcutLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -1009,7 +901,7 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 		try {
 			DataSource dataSource = dlFileShortcutPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -1025,9 +917,7 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	}
 
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalService dlFileShortcutLocalService;
-	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFileShortcutService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLFileShortcutService dlFileShortcutService;
+	protected DLFileShortcutLocalService dlFileShortcutLocalService;
 	@BeanReference(type = DLFileShortcutPersistence.class)
 	protected DLFileShortcutPersistence dlFileShortcutPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
@@ -1036,36 +926,26 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
 	protected com.liferay.portal.service.UserLocalService userLocalService;
-	@BeanReference(type = com.liferay.portal.service.UserService.class)
-	protected com.liferay.portal.service.UserService userService;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)
 	protected UserFinder userFinder;
 	@BeanReference(type = com.liferay.portlet.asset.service.AssetEntryLocalService.class)
 	protected com.liferay.portlet.asset.service.AssetEntryLocalService assetEntryLocalService;
-	@BeanReference(type = com.liferay.portlet.asset.service.AssetEntryService.class)
-	protected com.liferay.portlet.asset.service.AssetEntryService assetEntryService;
 	@BeanReference(type = AssetEntryPersistence.class)
 	protected AssetEntryPersistence assetEntryPersistence;
 	@BeanReference(type = AssetEntryFinder.class)
 	protected AssetEntryFinder assetEntryFinder;
 	@BeanReference(type = com.liferay.portlet.asset.service.AssetTagLocalService.class)
 	protected com.liferay.portlet.asset.service.AssetTagLocalService assetTagLocalService;
-	@BeanReference(type = com.liferay.portlet.asset.service.AssetTagService.class)
-	protected com.liferay.portlet.asset.service.AssetTagService assetTagService;
 	@BeanReference(type = AssetTagPersistence.class)
 	protected AssetTagPersistence assetTagPersistence;
 	@BeanReference(type = AssetTagFinder.class)
 	protected AssetTagFinder assetTagFinder;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLAppLocalService.class)
 	protected com.liferay.portlet.documentlibrary.service.DLAppLocalService dlAppLocalService;
-	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLAppService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLAppService dlAppService;
 	@BeanReference(type = com.liferay.portlet.trash.service.TrashEntryLocalService.class)
 	protected com.liferay.portlet.trash.service.TrashEntryLocalService trashEntryLocalService;
-	@BeanReference(type = com.liferay.portlet.trash.service.TrashEntryService.class)
-	protected com.liferay.portlet.trash.service.TrashEntryService trashEntryService;
 	@BeanReference(type = TrashEntryPersistence.class)
 	protected TrashEntryPersistence trashEntryPersistence;
 	@BeanReference(type = com.liferay.portlet.trash.service.TrashVersionLocalService.class)
@@ -1074,13 +954,10 @@ public abstract class DLFileShortcutLocalServiceBaseImpl
 	protected TrashVersionPersistence trashVersionPersistence;
 	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFolderLocalService.class)
 	protected com.liferay.portlet.documentlibrary.service.DLFolderLocalService dlFolderLocalService;
-	@BeanReference(type = com.liferay.portlet.documentlibrary.service.DLFolderService.class)
-	protected com.liferay.portlet.documentlibrary.service.DLFolderService dlFolderService;
 	@BeanReference(type = DLFolderPersistence.class)
 	protected DLFolderPersistence dlFolderPersistence;
 	@BeanReference(type = DLFolderFinder.class)
 	protected DLFolderFinder dlFolderFinder;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

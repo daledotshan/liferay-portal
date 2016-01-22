@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.taglib.DynamicIncludeUtil;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.template.TemplateContextContributor;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.template.TemplateResource;
@@ -35,6 +36,8 @@ import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.Theme;
 import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.registry.collections.ServiceTrackerCollections;
+import com.liferay.registry.collections.ServiceTrackerList;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
 import java.io.Writer;
@@ -239,6 +242,14 @@ public class ThemeUtil {
 
 		template.prepare(request);
 
+		// Custom theme variables
+
+		for (TemplateContextContributor templateContextContributor :
+				_templateContextContributors) {
+
+			templateContextContributor.prepare(template, request);
+		}
+
 		// Theme servlet context
 
 		ServletContext themeServletContext = ServletContextPool.get(
@@ -366,9 +377,9 @@ public class ThemeUtil {
 
 		if (Validator.isNotNull(portletId)) {
 			if (PortletConstants.hasInstanceId(portletId) &&
-				(checkResourceExists = !
-				TemplateResourceLoaderUtil.hasTemplateResource(
-					TemplateConstants.LANG_TYPE_VM, resourcePath))) {
+				(checkResourceExists !=
+					TemplateResourceLoaderUtil.hasTemplateResource(
+						TemplateConstants.LANG_TYPE_VM, resourcePath))) {
 
 				String rootPortletId = PortletConstants.getRootPortletId(
 					portletId);
@@ -378,9 +389,9 @@ public class ThemeUtil {
 			}
 
 			if (checkResourceExists &&
-				(checkResourceExists = !
-				TemplateResourceLoaderUtil.hasTemplateResource(
-					TemplateConstants.LANG_TYPE_VM, resourcePath))) {
+				(checkResourceExists !=
+					TemplateResourceLoaderUtil.hasTemplateResource(
+						TemplateConstants.LANG_TYPE_VM, resourcePath))) {
 
 				resourcePath = theme.getResourcePath(
 					servletContext, null, page);
@@ -415,6 +426,14 @@ public class ThemeUtil {
 		// Velocity variables
 
 		template.prepare(request);
+
+		// Custom theme variables
+
+		for (TemplateContextContributor templateContextContributor :
+				_templateContextContributors) {
+
+			templateContextContributor.prepare(template, request);
+		}
 
 		// Theme servlet context
 
@@ -453,5 +472,10 @@ public class ThemeUtil {
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(ThemeUtil.class);
+
+	private static final ServiceTrackerList<TemplateContextContributor>
+		_templateContextContributors = ServiceTrackerCollections.openList(
+			TemplateContextContributor.class,
+			"(type=" + TemplateContextContributor.TYPE_THEME + ")");
 
 }
