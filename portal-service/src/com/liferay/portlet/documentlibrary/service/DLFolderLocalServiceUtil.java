@@ -82,23 +82,6 @@ public class DLFolderLocalServiceUtil {
 			parentFolderId, name, description, hidden, serviceContext);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by more general {@link #addFolder(long,
-	long, long, boolean, long, String, String, boolean,
-	ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.documentlibrary.model.DLFolder addFolder(
-		long userId, long groupId, long repositoryId, boolean mountPoint,
-		long parentFolderId, java.lang.String name,
-		java.lang.String description,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addFolder(userId, groupId, repositoryId, mountPoint,
-			parentFolderId, name, description, serviceContext);
-	}
-
 	public static void clearDLFileEntryTypeDLFolders(long fileEntryTypeId) {
 		getService().clearDLFileEntryTypeDLFolders(fileEntryTypeId);
 	}
@@ -326,15 +309,6 @@ public class DLFolderLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getCompanyFolders(
 		long companyId, int start, int end) {
 		return getService().getCompanyFolders(companyId, start, end);
@@ -460,7 +434,7 @@ public class DLFolderLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
@@ -472,37 +446,12 @@ public class DLFolderLocalServiceUtil {
 			queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFileEntriesAndFileShortcuts(long, long, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<java.lang.Object> getFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, int start, int end) {
-		return getService()
-				   .getFileEntriesAndFileShortcuts(groupId, folderId, status,
-			start, end);
-	}
-
 	public static int getFileEntriesAndFileShortcutsCount(long groupId,
 		long folderId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<?> queryDefinition) {
 		return getService()
 				   .getFileEntriesAndFileShortcutsCount(groupId, folderId,
 			queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFileEntriesAndFileShortcutsCount(long, long,
-	QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getFileEntriesAndFileShortcutsCount(long groupId,
-		long folderId, int status) {
-		return getService()
-				   .getFileEntriesAndFileShortcutsCount(groupId, folderId,
-			status);
 	}
 
 	public static com.liferay.portlet.documentlibrary.model.DLFolder getFolder(
@@ -557,6 +506,15 @@ public class DLFolderLocalServiceUtil {
 		return getService().getFolders(groupId, parentFolderId, start, end, obc);
 	}
 
+	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getFolders(
+		long groupId, long parentFolderId, int status,
+		boolean includeMountfolders, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.documentlibrary.model.DLFolder> obc) {
+		return getService()
+				   .getFolders(groupId, parentFolderId, status,
+			includeMountfolders, start, end, obc);
+	}
+
 	public static java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
 		long groupId, long folderId, java.lang.String[] mimeTypes,
 		boolean includeMountFolders,
@@ -566,36 +524,6 @@ public class DLFolderLocalServiceUtil {
 			mimeTypes, includeMountFolders, queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcuts(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, boolean includeMountFolders,
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc) {
-		return getService()
-				   .getFoldersAndFileEntriesAndFileShortcuts(groupId, folderId,
-			status, includeMountFolders, start, end, obc);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	public static java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, java.lang.String[] mimeTypes,
-		boolean includeMountFolders, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc) {
-		return getService()
-				   .getFoldersAndFileEntriesAndFileShortcuts(groupId, folderId,
-			status, mimeTypes, includeMountFolders, start, end, obc);
-	}
-
 	public static int getFoldersAndFileEntriesAndFileShortcutsCount(
 		long groupId, long folderId, java.lang.String[] mimeTypes,
 		boolean includeMountFolders,
@@ -603,33 +531,6 @@ public class DLFolderLocalServiceUtil {
 		return getService()
 				   .getFoldersAndFileEntriesAndFileShortcutsCount(groupId,
 			folderId, mimeTypes, includeMountFolders, queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getFoldersAndFileEntriesAndFileShortcutsCount(
-		long groupId, long folderId, int status, boolean includeMountFolders) {
-		return getService()
-				   .getFoldersAndFileEntriesAndFileShortcutsCount(groupId,
-			folderId, status, includeMountFolders);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	public static int getFoldersAndFileEntriesAndFileShortcutsCount(
-		long groupId, long folderId, int status, java.lang.String[] mimeTypes,
-		boolean includeMountFolders) {
-		return getService()
-				   .getFoldersAndFileEntriesAndFileShortcutsCount(groupId,
-			folderId, status, mimeTypes, includeMountFolders);
 	}
 
 	public static int getFoldersCount(long groupId, long parentFolderId) {
@@ -659,6 +560,10 @@ public class DLFolderLocalServiceUtil {
 		getService().getGroupSubfolderIds(folderIds, groupId, folderId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
 	public static com.liferay.portlet.documentlibrary.model.DLFolder getMountFolder(
 		long repositoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -678,6 +583,15 @@ public class DLFolderLocalServiceUtil {
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getNoAssetFolders() {
 		return getService().getNoAssetFolders();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -729,13 +643,18 @@ public class DLFolderLocalServiceUtil {
 		return getService().hasFolderLock(userId, folderId);
 	}
 
-	public static com.liferay.portal.model.Lock lockFolder(long userId,
+	public static boolean hasInheritableLock(long folderId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().hasInheritableLock(folderId);
+	}
+
+	public static com.liferay.portal.kernel.lock.Lock lockFolder(long userId,
 		long folderId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().lockFolder(userId, folderId);
 	}
 
-	public static com.liferay.portal.model.Lock lockFolder(long userId,
+	public static com.liferay.portal.kernel.lock.Lock lockFolder(long userId,
 		long folderId, java.lang.String owner, boolean inheritable,
 		long expirationTime)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -762,15 +681,6 @@ public class DLFolderLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService()
 			.rebuildTree(companyId, parentFolderId, parentTreePath, reindex);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static void setDLFileEntryTypeDLFolders(long fileEntryTypeId,
@@ -907,6 +817,12 @@ public class DLFolderLocalServiceUtil {
 			serviceContext);
 	}
 
+	public static boolean verifyInheritableLock(long folderId,
+		java.lang.String lockUuid)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().verifyInheritableLock(folderId, lockUuid);
+	}
+
 	public static DLFolderLocalService getService() {
 		if (_service == null) {
 			_service = (DLFolderLocalService)PortalBeanLocatorUtil.locate(DLFolderLocalService.class.getName());
@@ -916,13 +832,6 @@ public class DLFolderLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(DLFolderLocalService service) {
 	}
 
 	private static DLFolderLocalService _service;

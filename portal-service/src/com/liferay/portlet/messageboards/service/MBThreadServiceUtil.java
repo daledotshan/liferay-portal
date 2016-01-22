@@ -45,15 +45,6 @@ public class MBThreadServiceUtil {
 		getService().deleteThread(threadId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portlet.messageboards.model.MBThread> getGroupThreads(
 		long groupId, long userId, java.util.Date modifiedDate, int status,
 		int start, int end)
@@ -109,6 +100,15 @@ public class MBThreadServiceUtil {
 			includeAnonymous);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static java.util.List<com.liferay.portlet.messageboards.model.MBThread> getThreads(
 		long groupId, long categoryId, int status, int start, int end) {
 		return getService().getThreads(groupId, categoryId, status, start, end);
@@ -118,7 +118,7 @@ public class MBThreadServiceUtil {
 		return getService().getThreadsCount(groupId, categoryId, status);
 	}
 
-	public static com.liferay.portal.model.Lock lockThread(long threadId)
+	public static com.liferay.portal.kernel.lock.Lock lockThread(long threadId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().lockThread(threadId);
 	}
@@ -161,15 +161,6 @@ public class MBThreadServiceUtil {
 		return getService().search(groupId, creatorUserId, status, start, end);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static com.liferay.portlet.messageboards.model.MBThread splitThread(
 		long messageId, java.lang.String subject,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -191,13 +182,6 @@ public class MBThreadServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(MBThreadService service) {
 	}
 
 	private static MBThreadService _service;

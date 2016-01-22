@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.rule.NewEnv;
 import com.liferay.portal.kernel.util.CentralizedThreadLocal;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.impl.LayoutImpl;
@@ -32,7 +33,6 @@ import com.liferay.portal.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.test.rule.AdviseWith;
 import com.liferay.portal.test.rule.AspectJNewEnvTestRule;
 import com.liferay.portal.util.PropsImpl;
-import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.EventImpl;
 
 import java.io.IOException;
@@ -311,7 +311,7 @@ public class PortalResiliencyActionTest {
 
 			newLifecycles[ordinal] = ReflectionTestUtil.newEnumElement(
 				SPIAgent.Lifecycle.class, new Class<?>[] {String.class},
-					"UNKNOWN", ordinal, "UNKNOWN");
+				"UNKNOWN", ordinal, "UNKNOWN");
 
 			return newLifecycles;
 		}

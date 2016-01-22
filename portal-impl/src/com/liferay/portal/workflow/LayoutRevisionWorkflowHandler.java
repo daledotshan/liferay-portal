@@ -15,6 +15,7 @@
 package com.liferay.portal.workflow;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.workflow.BaseWorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -22,7 +23,6 @@ import com.liferay.portal.model.LayoutRevision;
 import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.LayoutRevisionLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.theme.ThemeDisplay;
 
 import java.io.Serializable;
 
@@ -32,6 +32,7 @@ import java.util.Map;
 /**
  * @author Raymond Augé
  */
+@OSGiBeanProperties
 public class LayoutRevisionWorkflowHandler
 	extends BaseWorkflowHandler<LayoutRevision> {
 
@@ -61,11 +62,6 @@ public class LayoutRevisionWorkflowHandler
 
 		return LayoutRevisionLocalServiceUtil.updateStatus(
 			userId, layoutRevisionId, status, serviceContext);
-	}
-
-	@Override
-	protected String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPathThemeImages() + "/common/pages.png";
 	}
 
 }

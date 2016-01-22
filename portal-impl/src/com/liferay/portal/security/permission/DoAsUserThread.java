@@ -16,7 +16,9 @@ package com.liferay.portal.security.permission;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.model.User;
+import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.service.UserLocalServiceUtil;
 
@@ -26,7 +28,13 @@ import com.liferay.portal.service.UserLocalServiceUtil;
 public abstract class DoAsUserThread extends Thread {
 
 	public DoAsUserThread(long userId) {
+		this(userId, 1);
+	}
+
+	public DoAsUserThread(long userId, int retries) {
 		_userId = userId;
+
+		_retries = retries;
 	}
 
 	public boolean isSuccess() {
@@ -35,26 +43,32 @@ public abstract class DoAsUserThread extends Thread {
 
 	@Override
 	public void run() {
-		try {
-			PrincipalThreadLocal.setName(_userId);
+		for (int i = 0; i < _retries; i++) {
+			try {
+				CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
-			User user = UserLocalServiceUtil.getUserById(_userId);
+				PrincipalThreadLocal.setName(_userId);
 
-			PermissionChecker permissionChecker =
-				PermissionCheckerFactoryUtil.create(user);
+				User user = UserLocalServiceUtil.getUserById(_userId);
 
-			PermissionThreadLocal.setPermissionChecker(permissionChecker);
+				PermissionChecker permissionChecker =
+					PermissionCheckerFactoryUtil.create(user);
 
-			doRun();
+				PermissionThreadLocal.setPermissionChecker(permissionChecker);
 
-			_success = true;
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
-		finally {
-			PrincipalThreadLocal.setName(null);
-			PermissionThreadLocal.setPermissionChecker(null);
+				doRun();
+
+				_success = true;
+
+				return;
+			}
+			catch (Exception e) {
+				_log.error(e, e);
+			}
+			finally {
+				PrincipalThreadLocal.setName(null);
+				PermissionThreadLocal.setPermissionChecker(null);
+			}
 		}
 	}
 
@@ -62,6 +76,7 @@ public abstract class DoAsUserThread extends Thread {
 
 	private static final Log _log = LogFactoryUtil.getLog(DoAsUserThread.class);
 
+	private final int _retries;
 	private boolean _success;
 	private final long _userId;
 

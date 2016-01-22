@@ -77,10 +77,9 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 	@Override
 	public void addCategoryResources(
 		com.liferay.portlet.messageboards.model.MBCategory category,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		_mbCategoryLocalService.addCategoryResources(category,
-			groupPermissions, guestPermissions);
+		_mbCategoryLocalService.addCategoryResources(category, modelPermissions);
 	}
 
 	@Override
@@ -93,10 +92,10 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 
 	@Override
 	public void addCategoryResources(long categoryId,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_mbCategoryLocalService.addCategoryResources(categoryId,
-			groupPermissions, guestPermissions);
+			modelPermissions);
 	}
 
 	/**
@@ -296,16 +295,6 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 		return _mbCategoryLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _mbCategoryLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
 		long groupId) {
@@ -367,6 +356,33 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 		long groupId, long categoryId) {
 		return _mbCategoryLocalService.getCategoriesAndThreads(groupId,
 			categoryId);
+	}
+
+	@Override
+	public java.util.List<java.lang.Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status) {
+		return _mbCategoryLocalService.getCategoriesAndThreads(groupId,
+			categoryId, status);
+	}
+
+	@Override
+	public java.util.List<java.lang.Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status, int start, int end) {
+		return _mbCategoryLocalService.getCategoriesAndThreads(groupId,
+			categoryId, status, start, end);
+	}
+
+	@Override
+	public int getCategoriesAndThreadsCount(long groupId, long categoryId) {
+		return _mbCategoryLocalService.getCategoriesAndThreadsCount(groupId,
+			categoryId);
+	}
+
+	@Override
+	public int getCategoriesAndThreadsCount(long groupId, long categoryId,
+		int status) {
+		return _mbCategoryLocalService.getCategoriesAndThreadsCount(groupId,
+			categoryId, status);
 	}
 
 	@Override
@@ -440,8 +456,13 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _mbCategoryLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _mbCategoryLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -533,6 +554,16 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 			groupId);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _mbCategoryLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -596,16 +627,6 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 		_mbCategoryLocalService.restoreCategoryFromTrash(userId, categoryId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_mbCategoryLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void subscribeCategory(long userId, long groupId, long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -654,27 +675,28 @@ public class MBCategoryLocalServiceWrapper implements MBCategoryLocalService,
 	}
 
 	@Override
+	public com.liferay.portlet.messageboards.model.MBCategory updateMessageCount(
+		long categoryId) {
+		return _mbCategoryLocalService.updateMessageCount(categoryId);
+	}
+
+	@Override
+	public com.liferay.portlet.messageboards.model.MBCategory updateStatistics(
+		long categoryId) {
+		return _mbCategoryLocalService.updateStatistics(categoryId);
+	}
+
+	@Override
 	public com.liferay.portlet.messageboards.model.MBCategory updateStatus(
 		long userId, long categoryId, int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _mbCategoryLocalService.updateStatus(userId, categoryId, status);
 	}
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public MBCategoryLocalService getWrappedMBCategoryLocalService() {
-		return _mbCategoryLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedMBCategoryLocalService(
-		MBCategoryLocalService mbCategoryLocalService) {
-		_mbCategoryLocalService = mbCategoryLocalService;
+	@Override
+	public com.liferay.portlet.messageboards.model.MBCategory updateThreadCount(
+		long categoryId) {
+		return _mbCategoryLocalService.updateThreadCount(categoryId);
 	}
 
 	@Override

@@ -39,7 +39,6 @@ import com.liferay.portal.service.ResourcePermissionServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.upgrade.util.UpgradePortletId;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.test.LayoutTestUtil;
@@ -63,8 +62,7 @@ public class UpgradePortletIdTest extends UpgradePortletId {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@BeforeClass
 	public static void setUpClass() throws PortalException {
@@ -166,7 +164,7 @@ public class UpgradePortletIdTest extends UpgradePortletId {
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
 			layout.getTypeSettings());
 
-		doUpgrade();
+		upgrade();
 
 		CacheRegistryUtil.clear();
 
@@ -247,8 +245,7 @@ public class UpgradePortletIdTest extends UpgradePortletId {
 		if (_testInstanceable) {
 			return new String[][] {
 				new String[] {_PORTLET_IDS[0], _PORTLET_IDS[0] + "_test"},
-				new String[] {_PORTLET_IDS[1], _PORTLET_IDS[1] + "_test"},
-				new String[] {_PORTLET_IDS[2], _PORTLET_IDS[2] + "_test"}
+				new String[] {_PORTLET_IDS[1], _PORTLET_IDS[1] + "_test"}
 			};
 		}
 
@@ -267,7 +264,7 @@ public class UpgradePortletIdTest extends UpgradePortletId {
 	private static final String _INSTANCE_ID = "_INSTANCE_LhZwzy867qfr";
 
 	private static final String[] _PORTLET_IDS = {
-		"20", "47", com.liferay.portlet.util.test.PortletKeys.TEST
+		"47", com.liferay.portlet.util.test.PortletKeys.TEST
 	};
 
 	private boolean _testInstanceable = true;

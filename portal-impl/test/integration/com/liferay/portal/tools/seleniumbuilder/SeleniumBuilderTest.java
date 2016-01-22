@@ -86,14 +86,12 @@ public class SeleniumBuilderTest {
 		test(
 			"ActionCaseElementMissingAttribute_1.action",
 			"Error 1004: Missing (locator1|locator-key1|value1) attribute in " +
-				_DIR_NAME +
-				"/ActionCaseElementMissingAttribute_1.action:3");
+				_DIR_NAME + "/ActionCaseElementMissingAttribute_1.action:3");
 
 		test(
 			"ActionCaseElementMissingAttribute_2.action",
 			"Error 1004: Missing (locator1|locator-key1|value1) attribute in " +
-				_DIR_NAME +
-				"/ActionCaseElementMissingAttribute_2.action:3");
+				_DIR_NAME + "/ActionCaseElementMissingAttribute_2.action:3");
 	}
 
 	@Test
@@ -191,7 +189,7 @@ public class SeleniumBuilderTest {
 			"ActionDefaultElementMissingChildElement.action",
 			"Error 1001: Missing (description|execute) child element in " +
 				_DIR_NAME +
-				"/ActionDefaultElementMissingChildElement.action:3");
+					"/ActionDefaultElementMissingChildElement.action:3");
 	}
 
 	@Test
@@ -210,7 +208,7 @@ public class SeleniumBuilderTest {
 			"ActionDefaultElementTooManyChildElements.action",
 			"Error 2000: Too many child elements in the default element in " +
 				_DIR_NAME +
-				"/ActionDefaultElementTooManyChildElements.action:6");
+					"/ActionDefaultElementTooManyChildElements.action:6");
 	}
 
 	@Test
@@ -728,8 +726,8 @@ public class SeleniumBuilderTest {
 		test(
 			"MacroAndElement1001_2.macro",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/MacroAndElement1001_2.macro:8");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/MacroAndElement1001_2.macro:8");
 	}
 
 	@Test
@@ -779,8 +777,8 @@ public class SeleniumBuilderTest {
 		test(
 			"MacroCommandElement1001.macro",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/MacroCommandElement1001.macro:2");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/MacroCommandElement1001.macro:2");
 	}
 
 	@Test
@@ -843,24 +841,27 @@ public class SeleniumBuilderTest {
 	public void testMacroConditionElement1004_1() throws Exception {
 		test(
 			"MacroConditionElement1004_1.macro",
-			"Error 1004: Missing (action|function|macro) attribute in " +
-				_DIR_NAME + "/MacroConditionElement1004_1.macro:4");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile) attribute in " + _DIR_NAME +
+					"/MacroConditionElement1004_1.macro:4");
 	}
 
 	@Test
 	public void testMacroConditionElement1004_2() throws Exception {
 		test(
 			"MacroConditionElement1004_2.macro",
-			"Error 1004: Missing (action|function|macro) attribute in " +
-				_DIR_NAME + "/MacroConditionElement1004_2.macro:4");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile) attribute in " + _DIR_NAME +
+					"/MacroConditionElement1004_2.macro:4");
 	}
 
 	@Test
 	public void testMacroConditionElement1004_3() throws Exception {
 		test(
 			"MacroConditionElement1004_3.macro",
-			"Error 1004: Missing (action|function|macro) attribute in " +
-				_DIR_NAME + "/MacroConditionElement1004_3.macro:4");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile) attribute in " + _DIR_NAME +
+					"/MacroConditionElement1004_3.macro:4");
 	}
 
 	@Test
@@ -1036,8 +1037,8 @@ public class SeleniumBuilderTest {
 		test(
 			"MacroElseElement1001.macro",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/MacroElseElement1001.macro:8");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/MacroElseElement1001.macro:8");
 	}
 
 	@Test
@@ -1062,7 +1063,7 @@ public class SeleniumBuilderTest {
 			"MacroElseifElement1001_1.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroElseifElement1001_1.macro:8");
+					"/MacroElseifElement1001_1.macro:8");
 	}
 
 	@Test
@@ -1079,7 +1080,7 @@ public class SeleniumBuilderTest {
 			"MacroElseifElement1001_3.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroElseifElement1001_3.macro:8");
+					"/MacroElseifElement1001_3.macro:8");
 	}
 
 	@Test
@@ -1150,24 +1151,27 @@ public class SeleniumBuilderTest {
 	public void testMacroExecuteElement1004_1() throws Exception {
 		test(
 			"MacroExecuteElement1004_1.macro",
-			"Error 1004: Missing (action|function|macro) attribute in " +
-				_DIR_NAME + "/MacroExecuteElement1004_1.macro:3");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile) attribute in " + _DIR_NAME +
+					"/MacroExecuteElement1004_1.macro:3");
 	}
 
 	@Test
 	public void testMacroExecuteElement1004_2() throws Exception {
 		test(
 			"MacroExecuteElement1004_2.macro",
-			"Error 1004: Missing (action|function|macro) attribute in " +
-				_DIR_NAME + "/MacroExecuteElement1004_2.macro:3");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile) attribute in " + _DIR_NAME +
+					"/MacroExecuteElement1004_2.macro:3");
 	}
 
 	@Test
 	public void testMacroExecuteElement1004_3() throws Exception {
 		test(
 			"MacroExecuteElement1004_3.macro",
-			"Error 1004: Missing (action|function|macro) attribute in " +
-				_DIR_NAME + "/MacroExecuteElement1004_3.macro:3");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile) attribute in " + _DIR_NAME +
+					"/MacroExecuteElement1004_3.macro:3");
 	}
 
 	@Test
@@ -1251,8 +1255,9 @@ public class SeleniumBuilderTest {
 	public void testMacroExecuteFunctionMissingAttribute() throws Exception {
 		test(
 			"MacroExecuteFunctionMissingAttribute.macro",
-			"Error 1004: Missing (action|function|macro) attribute in " +
-				_DIR_NAME + "/MacroExecuteFunctionMissingAttribute.macro:3");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile) attribute in " + _DIR_NAME +
+					"/MacroExecuteFunctionMissingAttribute.macro:3");
 	}
 
 	@Test
@@ -1309,7 +1314,7 @@ public class SeleniumBuilderTest {
 			"MacroIfElement1001_1.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroIfElement1001_1.macro:3");
+					"/MacroIfElement1001_1.macro:3");
 	}
 
 	@Test
@@ -1326,7 +1331,7 @@ public class SeleniumBuilderTest {
 			"MacroIfElement1001_3.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroIfElement1001_3.macro:3");
+					"/MacroIfElement1001_3.macro:3");
 	}
 
 	@Test
@@ -1390,8 +1395,8 @@ public class SeleniumBuilderTest {
 		test(
 			"MacroNotElement1001_2.macro",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/MacroNotElement1001_2.macro:7");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/MacroNotElement1001_2.macro:7");
 	}
 
 	@Test
@@ -1400,7 +1405,7 @@ public class SeleniumBuilderTest {
 			"MacroNotElement1001_3.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroNotElement1001_3.macro:4");
+					"/MacroNotElement1001_3.macro:4");
 	}
 
 	@Test
@@ -1409,7 +1414,7 @@ public class SeleniumBuilderTest {
 			"MacroNotElement1001_4.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroNotElement1001_4.macro:4");
+					"/MacroNotElement1001_4.macro:4");
 	}
 
 	@Test
@@ -1441,8 +1446,8 @@ public class SeleniumBuilderTest {
 		test(
 			"MacroOrElement1001_2.macro",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/MacroOrElement1001_2.macro:8");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/MacroOrElement1001_2.macro:8");
 	}
 
 	@Test
@@ -1451,7 +1456,7 @@ public class SeleniumBuilderTest {
 			"MacroOrElement1001_3.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroOrElement1001_3.macro:4");
+					"/MacroOrElement1001_3.macro:4");
 	}
 
 	@Test
@@ -1460,7 +1465,7 @@ public class SeleniumBuilderTest {
 			"MacroOrElement1001_4.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroOrElement1001_4.macro:4");
+					"/MacroOrElement1001_4.macro:4");
 	}
 
 	@Test
@@ -1493,7 +1498,7 @@ public class SeleniumBuilderTest {
 			"MacroSpecialCharacter1001.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroSpecialCharacter1001.macro:3");
+					"/MacroSpecialCharacter1001.macro:3");
 	}
 
 	@Test
@@ -1517,8 +1522,8 @@ public class SeleniumBuilderTest {
 		test(
 			"MacroThenElement1001.macro",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/MacroThenElement1001.macro:5");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/MacroThenElement1001.macro:5");
 	}
 
 	@Test
@@ -1679,7 +1684,7 @@ public class SeleniumBuilderTest {
 			"MacroWhileElement1001_1.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroWhileElement1001_1.macro:3");
+					"/MacroWhileElement1001_1.macro:3");
 	}
 
 	@Test
@@ -1688,7 +1693,7 @@ public class SeleniumBuilderTest {
 			"MacroWhileElement1001_2.macro",
 			"Error 1001: Missing (then)" +
 				" child element in " + _DIR_NAME +
-				"/MacroWhileElement1001_2.macro:3");
+					"/MacroWhileElement1001_2.macro:3");
 	}
 
 	@Test
@@ -1697,7 +1702,7 @@ public class SeleniumBuilderTest {
 			"MacroWhileElement1001_3.macro",
 			"Error 1001: Missing (and|condition|contains|equals|isset|not|or)" +
 				" child element in " + _DIR_NAME +
-				"/MacroWhileElement1001_3.macro:3");
+					"/MacroWhileElement1001_3.macro:3");
 	}
 
 	@Test
@@ -1824,19 +1829,19 @@ public class SeleniumBuilderTest {
 			"TestCaseActionCommandMissingAttributeValue_1.testcase",
 			"Error 1018: Missing (-Dfile|-Dtofile) in attribute value1 at " +
 				_DIR_NAME +
-				"/TestCaseActionCommandMissingAttributeValue_1.testcase:3");
+					"/TestCaseActionCommandMissingAttributeValue_1.testcase:3");
 
 		test(
 			"TestCaseActionCommandMissingAttributeValue_2.testcase",
 			"Error 1018: Missing (-Dfile|-Dtofile) in attribute value1 at " +
 				_DIR_NAME +
-				"/TestCaseActionCommandMissingAttributeValue_2.testcase:3");
+					"/TestCaseActionCommandMissingAttributeValue_2.testcase:3");
 
 		test(
 			"TestCaseActionCommandMissingAttributeValue_3.testcase",
 			"Error 1018: Missing (-Dfile|-Dtoken|-Dvalue) in attribute " +
 				"value1 at " + _DIR_NAME +
-				"/TestCaseActionCommandMissingAttributeValue_3.testcase:3");
+					"/TestCaseActionCommandMissingAttributeValue_3.testcase:3");
 	}
 
 	@Test
@@ -1844,8 +1849,8 @@ public class SeleniumBuilderTest {
 		test(
 			"TestCaseActionComplexString1001.testcase",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"property|take-screenshot|var|while) child element in " +
-				_DIR_NAME + "/TestCaseActionComplexString1001.testcase:4");
+				"property|take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/TestCaseActionComplexString1001.testcase:4");
 	}
 
 	@Test
@@ -1869,8 +1874,8 @@ public class SeleniumBuilderTest {
 		test(
 			"TestCaseCommandElement1001.testcase",
 			"Error 1001: Missing (description|echo|execute|fail|for|if|" +
-				"property|take-screenshot|var|while) child element in " +
-				_DIR_NAME + "/TestCaseCommandElement1001.testcase:4");
+				"property|take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/TestCaseCommandElement1001.testcase:4");
 	}
 
 	@Test
@@ -1997,24 +2002,27 @@ public class SeleniumBuilderTest {
 	public void testTestCaseExecuteElement1004_1() throws Exception {
 		test(
 			"TestCaseExecuteElement1004_1.testcase",
-			"Error 1004: Missing (action|function|macro|test-case) attribute " +
-				"in " + _DIR_NAME + "/TestCaseExecuteElement1004_1.testcase:5");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile|test-case) attribute in " + _DIR_NAME +
+					"/TestCaseExecuteElement1004_1.testcase:5");
 	}
 
 	@Test
 	public void testTestCaseExecuteElement1004_2() throws Exception {
 		test(
 			"TestCaseExecuteElement1004_2.testcase",
-			"Error 1004: Missing (action|function|macro|test-case) attribute " +
-				"in " + _DIR_NAME + "/TestCaseExecuteElement1004_2.testcase:5");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile|test-case) attribute in " + _DIR_NAME +
+					"/TestCaseExecuteElement1004_2.testcase:5");
 	}
 
 	@Test
 	public void testTestCaseExecuteElement1004_3() throws Exception {
 		test(
 			"TestCaseExecuteElement1004_3.testcase",
-			"Error 1004: Missing (action|function|macro|test-case) attribute " +
-				"in " + _DIR_NAME + "/TestCaseExecuteElement1004_3.testcase:5");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile|test-case) attribute in " + _DIR_NAME +
+					"/TestCaseExecuteElement1004_3.testcase:5");
 	}
 
 	@Test
@@ -2100,9 +2108,9 @@ public class SeleniumBuilderTest {
 	public void testTestCaseExecuteFunctionMissingAttribute() throws Exception {
 		test(
 			"TestCaseExecuteFunctionMissingAttribute.testcase",
-			"Error 1004: Missing (action|function|macro|test-case) attribute " +
-				"in " + _DIR_NAME +
-				"/TestCaseExecuteFunctionMissingAttribute.testcase:5");
+			"Error 1004: Missing (action|function|macro|macro-desktop" +
+				"|macro-mobile|test-case) attribute in " + _DIR_NAME +
+					"/TestCaseExecuteFunctionMissingAttribute.testcase:5");
 	}
 
 	@Test
@@ -2140,8 +2148,8 @@ public class SeleniumBuilderTest {
 		test(
 			"TestCaseSetUpElement1001.testcase",
 			"Error 1001: Missing (description|echo|execute|fail|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/TestCaseSetUpElement1001.testcase:4");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/TestCaseSetUpElement1001.testcase:4");
 	}
 
 	@Test
@@ -2189,8 +2197,8 @@ public class SeleniumBuilderTest {
 		test(
 			"TestCaseTearDownElement1001.testcase",
 			"Error 1001: Missing (description|echo|execute|fail|if|" +
-				"take-screenshot|var|while) child element in " + _DIR_NAME +
-					"/TestCaseTearDownElement1001.testcase:8");
+				"take-screenshot|task|var|while) child element in " +
+					_DIR_NAME + "/TestCaseTearDownElement1001.testcase:8");
 	}
 
 	@Test

@@ -41,48 +41,22 @@ public class AssetVocabularyServiceUtil {
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portlet.asset.service.impl.AssetVocabularyServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static com.liferay.portlet.asset.model.AssetVocabulary addVocabulary(
-		java.lang.String title,
+		long groupId, java.lang.String title,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().addVocabulary(title, serviceContext);
+		return getService().addVocabulary(groupId, title, serviceContext);
 	}
 
 	public static com.liferay.portlet.asset.model.AssetVocabulary addVocabulary(
-		java.lang.String title,
+		long groupId, java.lang.String title,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.lang.String settings,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .addVocabulary(title, titleMap, descriptionMap, settings,
-			serviceContext);
-	}
-
-	/**
-	* @deprecated As of 6.1.0 {@link #addVocabulary(String, Map, Map, String,
-	ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.asset.model.AssetVocabulary addVocabulary(
-		java.util.Map<java.util.Locale, java.lang.String> titleMap,
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
-		java.lang.String settings,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addVocabulary(titleMap, descriptionMap, settings,
-			serviceContext);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, Replaced by {@link #deleteVocabularies(long[],
-	ServiceContext)}
-	*/
-	@Deprecated
-	public static void deleteVocabularies(long[] vocabularyIds)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		getService().deleteVocabularies(vocabularyIds);
+				   .addVocabulary(groupId, title, titleMap, descriptionMap,
+			settings, serviceContext);
 	}
 
 	public static java.util.List<com.liferay.portlet.asset.model.AssetVocabulary> deleteVocabularies(
@@ -101,15 +75,6 @@ public class AssetVocabularyServiceUtil {
 		long vocabularyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().fetchVocabulary(vocabularyId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
 	}
 
 	/**
@@ -209,15 +174,12 @@ public class AssetVocabularyServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 6.2.0, with no direct replacement
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
 	*/
-	@Deprecated
-	public static com.liferay.portal.kernel.json.JSONObject getJSONGroupVocabularies(
-		long groupId, java.lang.String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetVocabulary> obc)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getJSONGroupVocabularies(groupId, name, start, end, obc);
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -238,21 +200,21 @@ public class AssetVocabularyServiceUtil {
 	}
 
 	public static com.liferay.portlet.asset.model.AssetVocabularyDisplay searchVocabulariesDisplay(
-		long groupId, java.lang.String title, int start, int end,
-		boolean addDefaultVocabulary)
+		long groupId, java.lang.String title, boolean addDefaultVocabulary,
+		int start, int end)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
-				   .searchVocabulariesDisplay(groupId, title, start, end,
-			addDefaultVocabulary);
+				   .searchVocabulariesDisplay(groupId, title,
+			addDefaultVocabulary, start, end);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
+	public static com.liferay.portlet.asset.model.AssetVocabularyDisplay searchVocabulariesDisplay(
+		long groupId, java.lang.String title, boolean addDefaultVocabulary,
+		int start, int end, com.liferay.portal.kernel.search.Sort sort)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .searchVocabulariesDisplay(groupId, title,
+			addDefaultVocabulary, start, end, sort);
 	}
 
 	public static com.liferay.portlet.asset.model.AssetVocabulary updateVocabulary(
@@ -267,23 +229,6 @@ public class AssetVocabularyServiceUtil {
 			descriptionMap, settings, serviceContext);
 	}
 
-	/**
-	* @deprecated As of 6.1.0, {@link #updateVocabulary(long, String, Map, Map,
-	String, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.asset.model.AssetVocabulary updateVocabulary(
-		long vocabularyId,
-		java.util.Map<java.util.Locale, java.lang.String> titleMap,
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
-		java.lang.String settings,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .updateVocabulary(vocabularyId, titleMap, descriptionMap,
-			settings, serviceContext);
-	}
-
 	public static AssetVocabularyService getService() {
 		if (_service == null) {
 			_service = (AssetVocabularyService)PortalBeanLocatorUtil.locate(AssetVocabularyService.class.getName());
@@ -293,13 +238,6 @@ public class AssetVocabularyServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(AssetVocabularyService service) {
 	}
 
 	private static AssetVocabularyService _service;

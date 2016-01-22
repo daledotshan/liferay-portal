@@ -443,8 +443,7 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_userNotificationEvent.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -561,7 +560,7 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.UserNotificationEvent> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.UserNotificationEvent> toCacheModel() {
 		return _userNotificationEvent.toCacheModel();
 	}
 
@@ -603,14 +602,6 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public UserNotificationEvent getWrappedUserNotificationEvent() {
-		return _userNotificationEvent;
 	}
 
 	@Override

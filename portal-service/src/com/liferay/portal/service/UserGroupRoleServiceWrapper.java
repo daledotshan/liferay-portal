@@ -56,40 +56,13 @@ public class UserGroupRoleServiceWrapper implements UserGroupRoleService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _userGroupRoleService.getBeanIdentifier();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_userGroupRoleService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public UserGroupRoleService getWrappedUserGroupRoleService() {
-		return _userGroupRoleService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedUserGroupRoleService(
-		UserGroupRoleService userGroupRoleService) {
-		_userGroupRoleService = userGroupRoleService;
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _userGroupRoleService.getOSGiServiceIdentifier();
 	}
 
 	@Override

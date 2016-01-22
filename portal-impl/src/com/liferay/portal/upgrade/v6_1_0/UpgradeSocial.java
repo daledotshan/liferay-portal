@@ -28,7 +28,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.messageboards.model.MBCategory;
 import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.model.MBThread;
@@ -69,17 +68,6 @@ public class UpgradeSocial extends UpgradeProcess {
 			SocialActivityConstants.TYPE_VIEW);
 
 		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.ADD_ARTICLE, 1);
-		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.ADD_DISCUSSION,
-			SocialActivityConstants.TYPE_ADD_COMMENT);
-		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.UPDATE, 2);
-		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.VIEW,
-			SocialActivityConstants.TYPE_VIEW);
-
-		putEquityToActivityMap(
 			MBCategory.class.getName(), ActionKeys.SUBSCRIBE,
 			SocialActivityConstants.TYPE_SUBSCRIBE);
 		putEquityToActivityMap(
@@ -95,6 +83,20 @@ public class UpgradeSocial extends UpgradeProcess {
 		putEquityToActivityMap(
 			MBThread.class.getName(), ActionKeys.SUBSCRIBE,
 			MBMessage.class.getName(), SocialActivityConstants.TYPE_SUBSCRIBE);
+
+		putEquityToActivityMap(
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ActionKeys.ADD_ARTICLE, 1);
+		putEquityToActivityMap(
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ActionKeys.ADD_DISCUSSION,
+			SocialActivityConstants.TYPE_ADD_COMMENT);
+		putEquityToActivityMap(
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ActionKeys.UPDATE, 2);
+		putEquityToActivityMap(
+			"com.liferay.portlet.journal.model.JournalArticle", ActionKeys.VIEW,
+			SocialActivityConstants.TYPE_VIEW);
 
 		putEquityToActivityMap(
 			"com.liferay.wiki.model.WikiNode", ActionKeys.SUBSCRIBE,
@@ -452,9 +454,9 @@ public class UpgradeSocial extends UpgradeProcess {
 					String.valueOf(enabled));
 			}
 
-			DataAccess.cleanUp(null, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 
-			StringBundler sb = new StringBundler(12);
+			StringBundler sb = new StringBundler(7);
 
 			sb.append("select groupId from SocialActivitySetting where ");
 			sb.append("activityType = 0 and name = 'enabled' and ");
@@ -604,7 +606,7 @@ public class UpgradeSocial extends UpgradeProcess {
 				migrateEquityLog(rs);
 			}
 
-			DataAccess.cleanUp(null, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 
 			sb = new StringBundler(4);
 

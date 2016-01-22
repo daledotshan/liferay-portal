@@ -56,25 +56,6 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 			typeSettingsProperties, hidden, serviceContext);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addRepository(long, long,
-	long, long, String, String, String, UnicodeProperties,
-	boolean, ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.model.Repository addRepository(long userId,
-		long groupId, long classNameId, long parentFolderId,
-		java.lang.String name, java.lang.String description,
-		java.lang.String portletId,
-		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _repositoryLocalService.addRepository(userId, groupId,
-			classNameId, parentFolderId, name, description, portletId,
-			typeSettingsProperties, serviceContext);
-	}
-
 	@Override
 	public void checkRepository(long repositoryId) {
 		_repositoryLocalService.checkRepository(repositoryId);
@@ -103,7 +84,8 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 	}
 
 	@Override
-	public void deleteRepositories(long groupId) {
+	public void deleteRepositories(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		_repositoryLocalService.deleteRepositories(groupId);
 	}
 
@@ -255,42 +237,31 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 		return _repositoryLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _repositoryLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _repositoryLocalService.getExportActionableDynamicQuery(portletDataContext);
 	}
 
 	@Override
-	public java.util.List<com.liferay.portal.kernel.repository.LocalRepository> getGroupLocalRepositoryImpl(
-		long groupId)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _repositoryLocalService.getGroupLocalRepositoryImpl(groupId);
+	public java.util.List<com.liferay.portal.model.Repository> getGroupRepositories(
+		long groupId) {
+		return _repositoryLocalService.getGroupRepositories(groupId);
 	}
 
 	@Override
-	public com.liferay.portal.kernel.repository.LocalRepository getLocalRepositoryImpl(
-		long folderId, long fileEntryId, long fileVersionId)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _repositoryLocalService.getLocalRepositoryImpl(folderId,
-			fileEntryId, fileVersionId);
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _repositoryLocalService.getIndexableActionableDynamicQuery();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
 	@Override
-	public com.liferay.portal.kernel.repository.LocalRepository getLocalRepositoryImpl(
-		long repositoryId)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _repositoryLocalService.getLocalRepositoryImpl(repositoryId);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _repositoryLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -298,11 +269,6 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _repositoryLocalService.getPersistedModel(primaryKeyObj);
-	}
-
-	@Override
-	public java.lang.String getRegistryName() {
-		return _repositoryLocalService.getRegistryName();
 	}
 
 	/**
@@ -408,40 +374,10 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 	}
 
 	@Override
-	public com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
-		long folderId, long fileEntryId, long fileVersionId)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _repositoryLocalService.getRepositoryImpl(folderId, fileEntryId,
-			fileVersionId);
-	}
-
-	@Override
-	public com.liferay.portal.kernel.repository.Repository getRepositoryImpl(
-		long repositoryId)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _repositoryLocalService.getRepositoryImpl(repositoryId);
-	}
-
-	@Override
 	public com.liferay.portal.kernel.util.UnicodeProperties getTypeSettingsProperties(
 		long repositoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _repositoryLocalService.getTypeSettingsProperties(repositoryId);
-	}
-
-	@Override
-	public void invalidate() {
-		_repositoryLocalService.invalidate();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_repositoryLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -463,21 +399,12 @@ public class RepositoryLocalServiceWrapper implements RepositoryLocalService,
 		_repositoryLocalService.updateRepository(repositoryId, name, description);
 	}
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public RepositoryLocalService getWrappedRepositoryLocalService() {
-		return _repositoryLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedRepositoryLocalService(
-		RepositoryLocalService repositoryLocalService) {
-		_repositoryLocalService = repositoryLocalService;
+	@Override
+	public void updateRepository(long repositoryId,
+		com.liferay.portal.kernel.util.UnicodeProperties typeSettingsProperties)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_repositoryLocalService.updateRepository(repositoryId,
+			typeSettingsProperties);
 	}
 
 	@Override

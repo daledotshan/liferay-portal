@@ -14,7 +14,7 @@
 
 package com.liferay.portal.security.pwd;
 
-import com.liferay.portal.PwdEncryptorException;
+import com.liferay.portal.exception.PwdEncryptorException;
 
 /**
  * @author Tomas Polesovsky
@@ -25,7 +25,8 @@ public interface PasswordEncryptor {
 		throws PwdEncryptorException;
 
 	public String encrypt(
-			String algorithm, String plainTextPassword,String encryptedPassword)
+			String algorithm, String plainTextPassword,
+			String encryptedPassword)
 		throws PwdEncryptorException;
 
 	public String getDefaultPasswordAlgorithmType();

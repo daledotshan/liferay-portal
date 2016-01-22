@@ -14,12 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.display.context;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMFormValues;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 
 import java.io.IOException;
 
@@ -45,6 +45,11 @@ public class BaseDLViewFileVersionDisplayContext
 		super(uuid, parentDLDisplayContext, request, response);
 
 		this.fileVersion = fileVersion;
+	}
+
+	@Override
+	public String getCssClassFileMimeType() {
+		return parentDisplayContext.getCssClassFileMimeType();
 	}
 
 	@Override
