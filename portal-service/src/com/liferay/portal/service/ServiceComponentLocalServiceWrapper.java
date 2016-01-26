@@ -197,14 +197,24 @@ public class ServiceComponentLocalServiceWrapper
 		return _serviceComponentLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _serviceComponentLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.ServiceComponent> getLatestServiceComponents() {
+		return _serviceComponentLocalService.getLatestServiceComponents();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _serviceComponentLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _serviceComponentLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -267,16 +277,6 @@ public class ServiceComponentLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_serviceComponentLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the service component in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param serviceComponent the service component
@@ -303,23 +303,6 @@ public class ServiceComponentLocalServiceWrapper
 	@Override
 	public void verifyDB() {
 		_serviceComponentLocalService.verifyDB();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ServiceComponentLocalService getWrappedServiceComponentLocalService() {
-		return _serviceComponentLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedServiceComponentLocalService(
-		ServiceComponentLocalService serviceComponentLocalService) {
-		_serviceComponentLocalService = serviceComponentLocalService;
 	}
 
 	@Override

@@ -71,15 +71,10 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 		attributes.put("male", getMale());
 		attributes.put("birthday", getBirthday());
 		attributes.put("smsSn", getSmsSn());
-		attributes.put("aimSn", getAimSn());
 		attributes.put("facebookSn", getFacebookSn());
-		attributes.put("icqSn", getIcqSn());
 		attributes.put("jabberSn", getJabberSn());
-		attributes.put("msnSn", getMsnSn());
-		attributes.put("mySpaceSn", getMySpaceSn());
 		attributes.put("skypeSn", getSkypeSn());
 		attributes.put("twitterSn", getTwitterSn());
-		attributes.put("ymSn", getYmSn());
 		attributes.put("employeeStatusId", getEmployeeStatusId());
 		attributes.put("employeeNumber", getEmployeeNumber());
 		attributes.put("jobTitle", getJobTitle());
@@ -211,40 +206,16 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 			setSmsSn(smsSn);
 		}
 
-		String aimSn = (String)attributes.get("aimSn");
-
-		if (aimSn != null) {
-			setAimSn(aimSn);
-		}
-
 		String facebookSn = (String)attributes.get("facebookSn");
 
 		if (facebookSn != null) {
 			setFacebookSn(facebookSn);
 		}
 
-		String icqSn = (String)attributes.get("icqSn");
-
-		if (icqSn != null) {
-			setIcqSn(icqSn);
-		}
-
 		String jabberSn = (String)attributes.get("jabberSn");
 
 		if (jabberSn != null) {
 			setJabberSn(jabberSn);
-		}
-
-		String msnSn = (String)attributes.get("msnSn");
-
-		if (msnSn != null) {
-			setMsnSn(msnSn);
-		}
-
-		String mySpaceSn = (String)attributes.get("mySpaceSn");
-
-		if (mySpaceSn != null) {
-			setMySpaceSn(mySpaceSn);
 		}
 
 		String skypeSn = (String)attributes.get("skypeSn");
@@ -257,12 +228,6 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 
 		if (twitterSn != null) {
 			setTwitterSn(twitterSn);
-		}
-
-		String ymSn = (String)attributes.get("ymSn");
-
-		if (ymSn != null) {
-			setYmSn(ymSn);
 		}
 
 		String employeeStatusId = (String)attributes.get("employeeStatusId");
@@ -317,22 +282,12 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	}
 
 	/**
-	* Returns the aim sn of this contact.
-	*
-	* @return the aim sn of this contact
-	*/
-	@Override
-	public java.lang.String getAimSn() {
-		return _contact.getAimSn();
-	}
-
-	/**
 	* Returns the birthday of this contact.
 	*
 	* @return the birthday of this contact
 	*/
 	@Override
-	public java.util.Date getBirthday() {
+	public Date getBirthday() {
 		return _contact.getBirthday();
 	}
 
@@ -392,7 +347,7 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	* @return the create date of this contact
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _contact.getCreateDate();
 	}
 
@@ -467,16 +422,6 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	}
 
 	/**
-	* Returns the icq sn of this contact.
-	*
-	* @return the icq sn of this contact
-	*/
-	@Override
-	public java.lang.String getIcqSn() {
-		return _contact.getIcqSn();
-	}
-
-	/**
 	* Returns the jabber sn of this contact.
 	*
 	* @return the jabber sn of this contact
@@ -542,18 +487,8 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	* @return the modified date of this contact
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _contact.getModifiedDate();
-	}
-
-	/**
-	* Returns the msn sn of this contact.
-	*
-	* @return the msn sn of this contact
-	*/
-	@Override
-	public java.lang.String getMsnSn() {
-		return _contact.getMsnSn();
 	}
 
 	/**
@@ -564,16 +499,6 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	@Override
 	public long getMvccVersion() {
 		return _contact.getMvccVersion();
-	}
-
-	/**
-	* Returns the my space sn of this contact.
-	*
-	* @return the my space sn of this contact
-	*/
-	@Override
-	public java.lang.String getMySpaceSn() {
-		return _contact.getMySpaceSn();
 	}
 
 	/**
@@ -681,16 +606,6 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 		return _contact.getUserUuid();
 	}
 
-	/**
-	* Returns the ym sn of this contact.
-	*
-	* @return the ym sn of this contact
-	*/
-	@Override
-	public java.lang.String getYmSn() {
-		return _contact.getYmSn();
-	}
-
 	@Override
 	public int hashCode() {
 		return _contact.hashCode();
@@ -742,22 +657,12 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	}
 
 	/**
-	* Sets the aim sn of this contact.
-	*
-	* @param aimSn the aim sn of this contact
-	*/
-	@Override
-	public void setAimSn(java.lang.String aimSn) {
-		_contact.setAimSn(aimSn);
-	}
-
-	/**
 	* Sets the birthday of this contact.
 	*
 	* @param birthday the birthday of this contact
 	*/
 	@Override
-	public void setBirthday(java.util.Date birthday) {
+	public void setBirthday(Date birthday) {
 		_contact.setBirthday(birthday);
 	}
 
@@ -817,7 +722,7 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	* @param createDate the create date of this contact
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_contact.setCreateDate(createDate);
 	}
 
@@ -852,8 +757,7 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_contact.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -897,16 +801,6 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	@Override
 	public void setHoursOfOperation(java.lang.String hoursOfOperation) {
 		_contact.setHoursOfOperation(hoursOfOperation);
-	}
-
-	/**
-	* Sets the icq sn of this contact.
-	*
-	* @param icqSn the icq sn of this contact
-	*/
-	@Override
-	public void setIcqSn(java.lang.String icqSn) {
-		_contact.setIcqSn(icqSn);
 	}
 
 	/**
@@ -975,18 +869,8 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	* @param modifiedDate the modified date of this contact
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_contact.setModifiedDate(modifiedDate);
-	}
-
-	/**
-	* Sets the msn sn of this contact.
-	*
-	* @param msnSn the msn sn of this contact
-	*/
-	@Override
-	public void setMsnSn(java.lang.String msnSn) {
-		_contact.setMsnSn(msnSn);
 	}
 
 	/**
@@ -997,16 +881,6 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 	@Override
 	public void setMvccVersion(long mvccVersion) {
 		_contact.setMvccVersion(mvccVersion);
-	}
-
-	/**
-	* Sets the my space sn of this contact.
-	*
-	* @param mySpaceSn the my space sn of this contact
-	*/
-	@Override
-	public void setMySpaceSn(java.lang.String mySpaceSn) {
-		_contact.setMySpaceSn(mySpaceSn);
 	}
 
 	@Override
@@ -1119,18 +993,8 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 		_contact.setUserUuid(userUuid);
 	}
 
-	/**
-	* Sets the ym sn of this contact.
-	*
-	* @param ymSn the ym sn of this contact
-	*/
 	@Override
-	public void setYmSn(java.lang.String ymSn) {
-		_contact.setYmSn(ymSn);
-	}
-
-	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Contact> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Contact> toCacheModel() {
 		return _contact.toCacheModel();
 	}
 
@@ -1171,14 +1035,6 @@ public class ContactWrapper implements Contact, ModelWrapper<Contact> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Contact getWrappedContact() {
-		return _contact;
 	}
 
 	@Override

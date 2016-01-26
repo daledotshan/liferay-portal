@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.NoSuchWorkflowInstanceLinkException;
+import com.liferay.portal.exception.NoSuchWorkflowInstanceLinkException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -31,7 +31,6 @@ import com.liferay.portal.service.base.WorkflowInstanceLinkLocalServiceBaseImpl;
 
 import java.io.Serializable;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,15 +51,12 @@ public class WorkflowInstanceLinkLocalServiceImpl
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		long classNameId = classNameLocalService.getClassNameId(className);
-		Date now = new Date();
 
 		long workflowInstanceLinkId = counterLocalService.increment();
 
 		WorkflowInstanceLink workflowInstanceLink =
 			workflowInstanceLinkPersistence.create(workflowInstanceLinkId);
 
-		workflowInstanceLink.setCreateDate(now);
-		workflowInstanceLink.setModifiedDate(now);
 		workflowInstanceLink.setUserId(userId);
 		workflowInstanceLink.setUserName(user.getFullName());
 		workflowInstanceLink.setGroupId(groupId);

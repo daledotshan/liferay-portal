@@ -82,10 +82,9 @@ public class MBCategoryLocalServiceUtil {
 
 	public static void addCategoryResources(
 		com.liferay.portlet.messageboards.model.MBCategory category,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService()
-			.addCategoryResources(category, groupPermissions, guestPermissions);
+		getService().addCategoryResources(category, modelPermissions);
 	}
 
 	public static void addCategoryResources(long categoryId,
@@ -97,10 +96,9 @@ public class MBCategoryLocalServiceUtil {
 	}
 
 	public static void addCategoryResources(long categoryId,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		getService()
-			.addCategoryResources(categoryId, groupPermissions, guestPermissions);
+		getService().addCategoryResources(categoryId, modelPermissions);
 	}
 
 	/**
@@ -280,15 +278,6 @@ public class MBCategoryLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
 		long groupId) {
 		return getService().getCategories(groupId);
@@ -340,6 +329,28 @@ public class MBCategoryLocalServiceUtil {
 	public static java.util.List<java.lang.Object> getCategoriesAndThreads(
 		long groupId, long categoryId) {
 		return getService().getCategoriesAndThreads(groupId, categoryId);
+	}
+
+	public static java.util.List<java.lang.Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status) {
+		return getService().getCategoriesAndThreads(groupId, categoryId, status);
+	}
+
+	public static java.util.List<java.lang.Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status, int start, int end) {
+		return getService()
+				   .getCategoriesAndThreads(groupId, categoryId, status, start,
+			end);
+	}
+
+	public static int getCategoriesAndThreadsCount(long groupId, long categoryId) {
+		return getService().getCategoriesAndThreadsCount(groupId, categoryId);
+	}
+
+	public static int getCategoriesAndThreadsCount(long groupId,
+		long categoryId, int status) {
+		return getService()
+				   .getCategoriesAndThreadsCount(groupId, categoryId, status);
 	}
 
 	public static int getCategoriesCount(long groupId) {
@@ -399,8 +410,12 @@ public class MBCategoryLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -485,6 +500,15 @@ public class MBCategoryLocalServiceUtil {
 		return getService().getMBCategoryByUuidAndGroupId(uuid, groupId);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -537,15 +561,6 @@ public class MBCategoryLocalServiceUtil {
 		getService().restoreCategoryFromTrash(userId, categoryId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static void subscribeCategory(long userId, long groupId,
 		long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -591,10 +606,25 @@ public class MBCategoryLocalServiceUtil {
 		return getService().updateMBCategory(mbCategory);
 	}
 
+	public static com.liferay.portlet.messageboards.model.MBCategory updateMessageCount(
+		long categoryId) {
+		return getService().updateMessageCount(categoryId);
+	}
+
+	public static com.liferay.portlet.messageboards.model.MBCategory updateStatistics(
+		long categoryId) {
+		return getService().updateStatistics(categoryId);
+	}
+
 	public static com.liferay.portlet.messageboards.model.MBCategory updateStatus(
 		long userId, long categoryId, int status)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().updateStatus(userId, categoryId, status);
+	}
+
+	public static com.liferay.portlet.messageboards.model.MBCategory updateThreadCount(
+		long categoryId) {
+		return getService().updateThreadCount(categoryId);
 	}
 
 	public static MBCategoryLocalService getService() {
@@ -606,13 +636,6 @@ public class MBCategoryLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(MBCategoryLocalService service) {
 	}
 
 	private static MBCategoryLocalService _service;

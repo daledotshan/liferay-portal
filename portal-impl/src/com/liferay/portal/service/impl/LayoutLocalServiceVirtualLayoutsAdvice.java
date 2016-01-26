@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.portal.kernel.util.AutoResetThreadLocal;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -37,7 +36,8 @@ import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.sites.util.SitesUtil;
+import com.liferay.portlet.exportimport.staging.MergeLayoutPrototypesThreadLocal;
+import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.lang.reflect.Method;
 
@@ -85,9 +85,8 @@ public class LayoutLocalServiceVirtualLayoutsAdvice
 				return layout;
 			}
 
-			if ((Validator.isNull(layout.getLayoutPrototypeUuid()) &&
-				 Validator.isNull(layout.getSourcePrototypeLayoutUuid())) ||
-				!layout.getLayoutPrototypeLinkEnabled()) {
+			if (Validator.isNull(layout.getLayoutPrototypeUuid()) &&
+				Validator.isNull(layout.getSourcePrototypeLayoutUuid())) {
 
 				return layout;
 			}

@@ -18,11 +18,11 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.webserver.WebServerServletTokenUtil;
 import com.liferay.portal.model.Image;
 import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.webserver.WebServerServletTokenUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 
 import java.util.Date;
@@ -52,8 +52,8 @@ public class BlogsEntryImpl extends BlogsEntryBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getSmallImageURL(
-	 *             ThemeDisplay)}
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getSmallImageURL(ThemeDisplay)}
 	 */
 	@Deprecated
 	@Override

@@ -16,6 +16,8 @@ package com.liferay.portlet.asset.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.asset.model.impl.AssetTagStatsModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.asset.model.impl.AssetTagStatsImpl")
 @ProviderType
 public interface AssetTagStats extends AssetTagStatsModel, PersistedModel {
 	/*
@@ -34,4 +37,20 @@ public interface AssetTagStats extends AssetTagStatsModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.asset.model.impl.AssetTagStatsImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<AssetTagStats, Long> TAG_STATS_ID_ACCESSOR = new Accessor<AssetTagStats, Long>() {
+			@Override
+			public Long get(AssetTagStats assetTagStats) {
+				return assetTagStats.getTagStatsId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<AssetTagStats> getTypeClass() {
+				return AssetTagStats.class;
+			}
+		};
 }

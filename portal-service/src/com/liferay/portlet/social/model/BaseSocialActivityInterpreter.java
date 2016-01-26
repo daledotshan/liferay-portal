@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
@@ -31,8 +33,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserLocalServiceUtil;
@@ -125,15 +125,14 @@ public abstract class BaseSocialActivityInterpreter
 			ServiceContext serviceContext)
 		throws Exception {
 
-		PortletURL portletURL = getViewEntryPortletURL(
+		String viewEntryURL = getViewEntryURL(
 			className, classPK, serviceContext);
 
-		if (portletURL == null) {
-			return url;
+		if (Validator.isNotNull(viewEntryURL)) {
+			return viewEntryURL;
 		}
 
-		return HttpUtil.setParameter(
-			url, "noSuchEntryRedirect", portletURL.toString());
+		return HttpUtil.setParameter(url, "noSuchEntryRedirect", viewEntryURL);
 	}
 
 	protected String buildLink(String link, String text) {
@@ -253,15 +252,15 @@ public abstract class BaseSocialActivityInterpreter
 				return HtmlUtil.escape(groupName);
 			}
 
-			String groupDisplayURL =
-				serviceContext.getPortalURL() + serviceContext.getPathMain() +
-					"/my_sites/view?groupId=" + group.getGroupId();
+			String groupDisplayURL = StringPool.BLANK;
 
 			if (group.hasPublicLayouts()) {
-				groupDisplayURL = groupDisplayURL + "&privateLayout=0";
+				groupDisplayURL = group.getDisplayURL(
+					serviceContext.getThemeDisplay(), false);
 			}
 			else if (group.hasPrivateLayouts()) {
-				groupDisplayURL = groupDisplayURL + "&privateLayout=1";
+				groupDisplayURL = group.getDisplayURL(
+					serviceContext.getThemeDisplay(), true);
 			}
 			else {
 				return HtmlUtil.escape(groupName);
@@ -297,15 +296,13 @@ public abstract class BaseSocialActivityInterpreter
 				return HtmlUtil.escape(groupName);
 			}
 
-			String groupDisplayURL =
-				themeDisplay.getPortalURL() + themeDisplay.getPathMain() +
-					"/my_sites/view?groupId=" + group.getGroupId();
+			String groupDisplayURL = StringPool.BLANK;
 
 			if (group.hasPublicLayouts()) {
-				groupDisplayURL = groupDisplayURL + "&privateLayout=0";
+				groupDisplayURL = group.getDisplayURL(themeDisplay, false);
 			}
 			else if (group.hasPrivateLayouts()) {
-				groupDisplayURL = groupDisplayURL + "&privateLayout=1";
+				groupDisplayURL = group.getDisplayURL(themeDisplay, true);
 			}
 			else {
 				return HtmlUtil.escape(groupName);
@@ -357,18 +354,11 @@ public abstract class BaseSocialActivityInterpreter
 		String className = activity.getClassName();
 		long classPK = activity.getClassPK();
 
-		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
-			className);
+		String viewEntryInTrashURL = getViewEntryInTrashURL(
+			className, classPK, serviceContext);
 
-		if ((trashHandler != null) && trashHandler.isInTrash(classPK)) {
-			PortletURL portletURL = TrashUtil.getViewContentURL(
-				serviceContext.getRequest(), className, classPK);
-
-			if (portletURL == null) {
-				return null;
-			}
-
-			return portletURL.toString();
+		if (viewEntryInTrashURL != null) {
+			return viewEntryInTrashURL;
 		}
 
 		String path = getPath(activity, serviceContext);
@@ -517,11 +507,32 @@ public abstract class BaseSocialActivityInterpreter
 		return getJSONValue(json, key, defaultValue);
 	}
 
-	protected PortletURL getViewEntryPortletURL(
+	protected String getViewEntryInTrashURL(
 			String className, long classPK, ServiceContext serviceContext)
 		throws Exception {
 
-		AssetRendererFactory assetRendererFactory =
+		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
+			className);
+
+		if ((trashHandler != null) && trashHandler.isInTrash(classPK)) {
+			PortletURL portletURL = TrashUtil.getViewContentURL(
+				serviceContext.getRequest(), className, classPK);
+
+			if (portletURL == null) {
+				return null;
+			}
+
+			return portletURL.toString();
+		}
+
+		return null;
+	}
+
+	protected String getViewEntryURL(
+			String className, long classPK, ServiceContext serviceContext)
+		throws Exception {
+
+		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 
@@ -537,11 +548,13 @@ public abstract class BaseSocialActivityInterpreter
 		}
 
 		if (classPK == 0) {
-			return assetRendererFactory.getURLView(
+			PortletURL portletURL = assetRendererFactory.getURLView(
 				liferayPortletResponse, WindowState.MAXIMIZED);
+
+			return portletURL.toString();
 		}
 
-		AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(
+		AssetRenderer<?> assetRenderer = assetRendererFactory.getAssetRenderer(
 			classPK);
 
 		if (assetRenderer == null) {

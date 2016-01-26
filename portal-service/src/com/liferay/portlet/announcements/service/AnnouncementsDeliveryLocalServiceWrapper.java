@@ -262,21 +262,26 @@ public class AnnouncementsDeliveryLocalServiceWrapper
 		return _announcementsDeliveryLocalService.getAnnouncementsDelivery(deliveryId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _announcementsDeliveryLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portlet.announcements.model.AnnouncementsDelivery getDelivery(
 		long deliveryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _announcementsDeliveryLocalService.getDelivery(deliveryId);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _announcementsDeliveryLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _announcementsDeliveryLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -300,16 +305,6 @@ public class AnnouncementsDeliveryLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_announcementsDeliveryLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the announcements delivery in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param announcementsDelivery the announcements delivery
@@ -328,23 +323,6 @@ public class AnnouncementsDeliveryLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _announcementsDeliveryLocalService.updateDelivery(userId, type,
 			email, sms, website);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AnnouncementsDeliveryLocalService getWrappedAnnouncementsDeliveryLocalService() {
-		return _announcementsDeliveryLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAnnouncementsDeliveryLocalService(
-		AnnouncementsDeliveryLocalService announcementsDeliveryLocalService) {
-		_announcementsDeliveryLocalService = announcementsDeliveryLocalService;
 	}
 
 	@Override

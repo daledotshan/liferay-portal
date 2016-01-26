@@ -15,16 +15,16 @@
 package com.liferay.portal.kernel.search.generic;
 
 import com.liferay.portal.kernel.search.BaseQueryImpl;
-import com.liferay.portal.kernel.search.QueryVisitor;
 import com.liferay.portal.kernel.search.TermRangeQuery;
+import com.liferay.portal.kernel.search.query.QueryVisitor;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.StringBundler;
 
 /**
  * @author Raymond Augé
  */
-public class TermRangeQueryImpl extends BaseQueryImpl
-	implements TermRangeQuery {
+public class TermRangeQueryImpl
+	extends BaseQueryImpl implements TermRangeQuery {
 
 	public TermRangeQueryImpl(
 		String field, String lowerTerm, String upperTerm, boolean includesLower,
@@ -55,11 +55,6 @@ public class TermRangeQueryImpl extends BaseQueryImpl
 	@Override
 	public String getUpperTerm() {
 		return _upperTerm;
-	}
-
-	@Override
-	public Object getWrappedQuery() {
-		return this;
 	}
 
 	@Override

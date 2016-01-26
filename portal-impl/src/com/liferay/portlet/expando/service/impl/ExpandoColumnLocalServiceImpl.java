@@ -18,9 +18,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portlet.expando.ColumnNameException;
-import com.liferay.portlet.expando.ColumnTypeException;
-import com.liferay.portlet.expando.DuplicateColumnNameException;
+import com.liferay.portlet.expando.exception.ColumnNameException;
+import com.liferay.portlet.expando.exception.ColumnTypeException;
+import com.liferay.portlet.expando.exception.DuplicateColumnNameException;
 import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTable;
@@ -399,7 +399,7 @@ public class ExpandoColumnLocalServiceImpl
 		throws PortalException {
 
 		if (Validator.isNull(name)) {
-			throw new ColumnNameException();
+			throw new ColumnNameException("Name is null");
 		}
 
 		ExpandoColumn column = expandoColumnPersistence.fetchByT_N(
@@ -440,7 +440,7 @@ public class ExpandoColumnLocalServiceImpl
 			(type != ExpandoColumnConstants.STRING_ARRAY_LOCALIZED) &&
 			(type != ExpandoColumnConstants.STRING_LOCALIZED)) {
 
-			throw new ColumnTypeException();
+			throw new ColumnTypeException("Invalid type " + type);
 		}
 
 		ExpandoValue value = new ExpandoValueImpl();

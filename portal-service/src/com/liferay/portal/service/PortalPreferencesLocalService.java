@@ -45,16 +45,6 @@ public interface PortalPreferencesLocalService extends BaseLocalService,
 	 *
 	 * Never modify or reference this interface directly. Always use {@link PortalPreferencesLocalServiceUtil} to access the portal preferences local service. Add custom service methods to {@link com.liferay.portal.service.impl.PortalPreferencesLocalServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addPortalPreferences(long,
-	int, String)}
-	*/
-	@java.lang.Deprecated
-	public com.liferay.portal.model.PortalPreferences addPortalPreferences(
-		long companyId, long ownerId, int ownerType,
-		java.lang.String defaultPreferences);
-
 	public com.liferay.portal.model.PortalPreferences addPortalPreferences(
 		long ownerId, int ownerType, java.lang.String defaultPreferences);
 
@@ -83,7 +73,7 @@ public interface PortalPreferencesLocalService extends BaseLocalService,
 	@Override
 	public com.liferay.portal.model.PersistedModel deletePersistedModel(
 		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Deletes the portal preferences from the database. Also notifies the appropriate model listeners.
@@ -104,8 +94,7 @@ public interface PortalPreferencesLocalService extends BaseLocalService,
 	*/
 	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
 	public com.liferay.portal.model.PortalPreferences deletePortalPreferences(
-		long portalPreferencesId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		long portalPreferencesId) throws PortalException;
 
 	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
 
@@ -179,18 +168,20 @@ public interface PortalPreferencesLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public java.lang.String getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.io.Serializable primaryKeyObj) throws PortalException;
 
 	/**
 	* Returns the portal preferences with the primary key.
@@ -201,8 +192,7 @@ public interface PortalPreferencesLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PortalPreferences getPortalPreferences(
-		long portalPreferencesId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		long portalPreferencesId) throws PortalException;
 
 	/**
 	* Returns a range of all the portal preferenceses.
@@ -227,23 +217,6 @@ public interface PortalPreferencesLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getPortalPreferencesesCount();
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getPreferences(long, int)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public javax.portlet.PortletPreferences getPreferences(long companyId,
-		long ownerId, int ownerType);
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getPreferences(long, int,
-	String)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public javax.portlet.PortletPreferences getPreferences(long companyId,
-		long ownerId, int ownerType, java.lang.String defaultPreferences);
-
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public javax.portlet.PortletPreferences getPreferences(long ownerId,
 		int ownerType);
@@ -251,13 +224,6 @@ public interface PortalPreferencesLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public javax.portlet.PortletPreferences getPreferences(long ownerId,
 		int ownerType, java.lang.String defaultPreferences);
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
 
 	/**
 	* Updates the portal preferences in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.

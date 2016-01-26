@@ -16,6 +16,8 @@ package com.liferay.portlet.social.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.social.model.impl.SocialActivityLimitModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.social.model.impl.SocialActivityLimitImpl")
 @ProviderType
 public interface SocialActivityLimit extends SocialActivityLimitModel,
 	PersistedModel {
@@ -35,6 +38,24 @@ public interface SocialActivityLimit extends SocialActivityLimitModel,
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.social.model.impl.SocialActivityLimitImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<SocialActivityLimit, Long> ACTIVITY_LIMIT_ID_ACCESSOR =
+		new Accessor<SocialActivityLimit, Long>() {
+			@Override
+			public Long get(SocialActivityLimit socialActivityLimit) {
+				return socialActivityLimit.getActivityLimitId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<SocialActivityLimit> getTypeClass() {
+				return SocialActivityLimit.class;
+			}
+		};
+
 	public int getCount();
 
 	public int getCount(int limitPeriod);

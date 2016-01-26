@@ -106,6 +106,10 @@ public class UserGroupGroupRoleLocalServiceUtil {
 		return getService().deleteUserGroupGroupRole(userGroupGroupRolePK);
 	}
 
+	public static void deleteUserGroupGroupRoles(long groupId, int roleType) {
+		getService().deleteUserGroupGroupRoles(groupId, roleType);
+	}
+
 	public static void deleteUserGroupGroupRoles(long userGroupId,
 		long groupId, long[] roleIds) {
 		getService().deleteUserGroupGroupRoles(userGroupId, groupId, roleIds);
@@ -225,13 +229,17 @@ public class UserGroupGroupRoleLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -310,15 +318,6 @@ public class UserGroupGroupRoleLocalServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the user group group role in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param userGroupGroupRole the user group group role
@@ -338,13 +337,6 @@ public class UserGroupGroupRoleLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(UserGroupGroupRoleLocalService service) {
 	}
 
 	private static UserGroupGroupRoleLocalService _service;

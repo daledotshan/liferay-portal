@@ -20,8 +20,9 @@ import java.util.Locale;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Julio Camarero
@@ -34,6 +35,10 @@ public interface Renderer {
 
 	public String getIconCssClass() throws PortalException;
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public String getIconPath(PortletRequest portletRequest);
 
 	public String getSummary(
@@ -41,8 +46,8 @@ public interface Renderer {
 
 	public String getTitle(Locale locale);
 
-	public String render(
-			RenderRequest renderRequest, RenderResponse renderResponse,
+	public boolean include(
+			HttpServletRequest request, HttpServletResponse response,
 			String template)
 		throws Exception;
 

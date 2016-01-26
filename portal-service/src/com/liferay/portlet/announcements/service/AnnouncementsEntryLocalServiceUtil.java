@@ -69,28 +69,6 @@ public class AnnouncementsEntryLocalServiceUtil {
 			expirationDateHour, expirationDateMinute, priority, alert);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEntry(long, long, long,
-	String, String, String, String, int, int, int, int, int,
-	boolean, int, int, int, int, int, int, boolean)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.announcements.model.AnnouncementsEntry addEntry(
-		long userId, long classNameId, long classPK, java.lang.String title,
-		java.lang.String content, java.lang.String url, java.lang.String type,
-		int displayDateMonth, int displayDateDay, int displayDateYear,
-		int displayDateHour, int displayDateMinute, int expirationDateMonth,
-		int expirationDateDay, int expirationDateYear, int expirationDateHour,
-		int expirationDateMinute, int priority, boolean alert)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addEntry(userId, classNameId, classPK, title, content, url,
-			type, displayDateMonth, displayDateDay, displayDateYear,
-			displayDateHour, displayDateMinute, expirationDateMonth,
-			expirationDateDay, expirationDateYear, expirationDateHour,
-			expirationDateMinute, priority, alert);
-	}
-
 	public static void checkEntries()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().checkEntries();
@@ -304,15 +282,6 @@ public class AnnouncementsEntryLocalServiceUtil {
 				   .getAnnouncementsEntryByUuidAndCompanyId(uuid, companyId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portlet.announcements.model.AnnouncementsEntry> getEntries(
 		long classNameId, long classPK, boolean alert, int start, int end) {
 		return getService().getEntries(classNameId, classPK, alert, start, end);
@@ -408,8 +377,21 @@ public class AnnouncementsEntryLocalServiceUtil {
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -425,15 +407,6 @@ public class AnnouncementsEntryLocalServiceUtil {
 
 	public static int getUserEntriesCount(long userId) {
 		return getService().getUserEntriesCount(userId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -472,13 +445,6 @@ public class AnnouncementsEntryLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(AnnouncementsEntryLocalService service) {
 	}
 
 	private static AnnouncementsEntryLocalService _service;

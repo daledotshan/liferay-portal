@@ -196,18 +196,29 @@ public class RatingsStatsLocalServiceWrapper implements RatingsStatsLocalService
 	}
 
 	@Override
+	public com.liferay.portlet.ratings.model.RatingsStats fetchStats(
+		java.lang.String className, long classPK) {
+		return _ratingsStatsLocalService.fetchStats(className, classPK);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
 		return _ratingsStatsLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _ratingsStatsLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _ratingsStatsLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _ratingsStatsLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -277,16 +288,6 @@ public class RatingsStatsLocalServiceWrapper implements RatingsStatsLocalService
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_ratingsStatsLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the ratings stats in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param ratingsStats the ratings stats
@@ -296,23 +297,6 @@ public class RatingsStatsLocalServiceWrapper implements RatingsStatsLocalService
 	public com.liferay.portlet.ratings.model.RatingsStats updateRatingsStats(
 		com.liferay.portlet.ratings.model.RatingsStats ratingsStats) {
 		return _ratingsStatsLocalService.updateRatingsStats(ratingsStats);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public RatingsStatsLocalService getWrappedRatingsStatsLocalService() {
-		return _ratingsStatsLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedRatingsStatsLocalService(
-		RatingsStatsLocalService ratingsStatsLocalService) {
-		_ratingsStatsLocalService = ratingsStatsLocalService;
 	}
 
 	@Override

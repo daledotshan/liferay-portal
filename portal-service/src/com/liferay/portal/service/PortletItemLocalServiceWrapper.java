@@ -196,14 +196,19 @@ public class PortletItemLocalServiceWrapper implements PortletItemLocalService,
 		return _portletItemLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _portletItemLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _portletItemLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _portletItemLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -277,16 +282,6 @@ public class PortletItemLocalServiceWrapper implements PortletItemLocalService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_portletItemLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the portlet item in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param portletItem the portlet item
@@ -305,23 +300,6 @@ public class PortletItemLocalServiceWrapper implements PortletItemLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _portletItemLocalService.updatePortletItem(userId, groupId,
 			name, portletId, className);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PortletItemLocalService getWrappedPortletItemLocalService() {
-		return _portletItemLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPortletItemLocalService(
-		PortletItemLocalService portletItemLocalService) {
-		_portletItemLocalService = portletItemLocalService;
 	}
 
 	@Override

@@ -17,7 +17,7 @@ package com.liferay.portlet.asset.model;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
-import com.liferay.portal.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.theme.ThemeDisplay;
 
 import java.util.Date;
@@ -33,11 +33,13 @@ import javax.portlet.WindowState;
  * @author Jorge Ferrer
  * @author Juan Fernández
  */
-public interface AssetRenderer extends Renderer {
+public interface AssetRenderer<T> extends Renderer {
 
 	public static final String TEMPLATE_ABSTRACT = "abstract";
 
 	public static final String TEMPLATE_FULL_CONTENT = "full_content";
+
+	public static final String TEMPLATE_PREVIEW = "preview";
 
 	/**
 	 * @deprecated As of 7.0.0, with no direct replacement
@@ -45,15 +47,13 @@ public interface AssetRenderer extends Renderer {
 	@Deprecated
 	public String getAddToPagePortletId() throws Exception;
 
+	public T getAssetObject();
+
+	public AssetRendererFactory<T> getAssetRendererFactory();
+
 	public int getAssetRendererType();
 
 	public String[] getAvailableLanguageIds() throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getAvailableLanguageIds}
-	 */
-	@Deprecated
-	public String[] getAvailableLocales() throws Exception;
 
 	public DDMFormValuesReader getDDMFormValuesReader();
 
@@ -65,11 +65,17 @@ public interface AssetRenderer extends Renderer {
 
 	public String getNewName(String oldName, String token);
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public String getPreviewPath(
 			PortletRequest portletRequest, PortletResponse portletResponse)
 		throws Exception;
 
 	public String getSearchSummary(Locale locale);
+
+	public int getStatus();
 
 	public String getSummary();
 
@@ -108,7 +114,7 @@ public interface AssetRenderer extends Renderer {
 
 	public String getUrlTitle();
 
-	public PortletURL getURLView(
+	public String getURLView(
 			LiferayPortletResponse liferayPortletResponse,
 			WindowState windowState)
 		throws Exception;
@@ -138,6 +144,8 @@ public interface AssetRenderer extends Renderer {
 	public boolean hasViewPermission(PermissionChecker permissionChecker)
 		throws PortalException;
 
+	public boolean isCommentable();
+
 	public boolean isConvertible();
 
 	public boolean isDisplayable();
@@ -147,6 +155,8 @@ public interface AssetRenderer extends Renderer {
 	public boolean isPreviewInContext();
 
 	public boolean isPrintable();
+
+	public boolean isRatable();
 
 	/**
 	 * @deprecated As of 7.0.0, with no direct replacement

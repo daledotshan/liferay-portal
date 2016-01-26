@@ -16,6 +16,9 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
+
 /**
  * The extended model interface for the Country service. Represents a row in the &quot;Country&quot; database table, with each column mapped to a property of this class.
  *
@@ -25,6 +28,7 @@ import aQute.bnd.annotation.ProviderType;
  * @see com.liferay.portal.model.impl.CountryModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portal.model.impl.CountryImpl")
 @ProviderType
 public interface Country extends CountryModel {
 	/*
@@ -32,6 +36,23 @@ public interface Country extends CountryModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portal.model.impl.CountryImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<Country, Long> COUNTRY_ID_ACCESSOR = new Accessor<Country, Long>() {
+			@Override
+			public Long get(Country country) {
+				return country.getCountryId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<Country> getTypeClass() {
+				return Country.class;
+			}
+		};
+
 	public java.lang.String getName(java.util.Locale locale);
 
 	public java.lang.String getNameCurrentLanguageId();
