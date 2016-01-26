@@ -1047,18 +1047,21 @@ public class BaseExportImportContentProcessor
 		};
 
 		int beginPos = -1;
-		int endPos = content.length();
+		int endPos = -1;
 
-		while (true) {
-			beginPos = StringUtil.lastIndexOfAny(content, patterns, endPos);
+		for (String internalSrc : srcList) {
+			endPos = internalSrc.length();
+
+			beginPos = StringUtil.lastIndexOfAny(internalSrc, patterns, endPos);
 
 			if (beginPos == -1) {
-				break;
+				continue;
 			}
 
 			Map<String, String[]> dlReferenceParameters =
 				getDLReferenceParameters(
-					groupId, content, beginPos + contextPath.length(), endPos);
+					groupId, internalSrc, beginPos + contextPath.length(),
+					endPos);
 
 			FileEntry fileEntry = getFileEntry(dlReferenceParameters);
 
