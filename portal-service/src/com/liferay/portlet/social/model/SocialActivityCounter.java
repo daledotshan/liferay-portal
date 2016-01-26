@@ -16,6 +16,8 @@ package com.liferay.portlet.social.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.social.model.impl.SocialActivityCounterModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.social.model.impl.SocialActivityCounterImpl")
 @ProviderType
 public interface SocialActivityCounter extends SocialActivityCounterModel,
 	PersistedModel {
@@ -35,5 +38,23 @@ public interface SocialActivityCounter extends SocialActivityCounterModel,
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.social.model.impl.SocialActivityCounterImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<SocialActivityCounter, Long> ACTIVITY_COUNTER_ID_ACCESSOR =
+		new Accessor<SocialActivityCounter, Long>() {
+			@Override
+			public Long get(SocialActivityCounter socialActivityCounter) {
+				return socialActivityCounter.getActivityCounterId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<SocialActivityCounter> getTypeClass() {
+				return SocialActivityCounter.class;
+			}
+		};
+
 	public boolean isActivePeriod(int periodLength);
 }

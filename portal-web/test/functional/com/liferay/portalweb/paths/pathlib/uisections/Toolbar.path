@@ -1,0 +1,71 @@
+<html>
+<head>
+<title>Toolbar</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Toolbar</td></tr>
+</thead>
+<tbody>
+<tr>
+	<td>ACTIONS</td>
+	<td>//ul[contains(@id,'toolbarContainer')]/li/a[@title='Actions']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ADD</td>
+	<td>//ul[contains(@id,'toolbarContainer')]/li/a[@title='Add']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DISPLAY_STYLE_BUTTON</td>
+	<td>//div[contains(@id,'displayStyleButtons')]/li/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MANAGE</td>
+	<td>//ul[contains(@id,'toolbarContainer')]/li/a[@title='Manage']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SORT_BY</td>
+	<td>//ul[contains(@id,'toolbarContainer')]/li/a[@title='Sort By']</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--MANAGEMENT_BAR-->
+<tr>
+	<td>MANAGEMENT_BAR_CANCEL_CHECKOUT_ICON_BUTTON</td>
+	<td>//div[contains(@class,'management-bar-container')]//a/span[contains(@class,'icon-monospaced icon-remove')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MANAGEMENT_BAR_LOCK_ICON_BUTTON</td>
+	<td>//div[contains(@class,'management-bar-container')]//a/span[contains(@class,'icon-monospaced icon-lock')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MANAGEMENT_BAR_UNLOCK_ICON_BUTTON</td>
+	<td>//div[contains(@class,'management-bar-container')]//a/span[contains(@class,'icon-monospaced icon-unlock')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MANAGEMENT_BAR_MOVE_ICON_BUTTON</td>
+	<td>//div[contains(@class,'management-bar-container')]//a/span[contains(@class,'icon-monospaced icon-move')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MANAGEMENT_BAR_TRASH_ICON_BUTTON</td>
+	<td>//div[contains(@class,'management-bar-container')]//a/span[contains(@class,'icon-monospaced icon-trash')]</td>
+	<td></td>
+</tr>
+
+</tbody>
+</table>
+</body>
+</html>

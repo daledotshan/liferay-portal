@@ -14,6 +14,9 @@
 
 package com.liferay.portal.template;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
+import com.liferay.dynamic.data.mapping.kernel.DDMTemplate;
+import com.liferay.dynamic.data.mapping.kernel.DDMTemplateManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.template.DDMTemplateResource;
@@ -26,9 +29,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
-import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil;
 
 /**
  * @author Tina Tian
@@ -75,25 +75,26 @@ public class DDMTemplateResourceParser implements TemplateResourceParser {
 							", ddmTemplateKey=" + ddmTemplateKey + "}");
 			}
 
-			DDMTemplate ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
+			DDMTemplate ddmTemplate = DDMTemplateManagerUtil.fetchTemplate(
 				groupId, classNameId, ddmTemplateKey);
 
 			if (ddmTemplate == null) {
 				Group companyGroup = GroupLocalServiceUtil.getCompanyGroup(
 					companyId);
 
-				ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
+				ddmTemplate = DDMTemplateManagerUtil.fetchTemplate(
 					companyGroup.getGroupId(), classNameId, ddmTemplateKey);
 
 				if (ddmTemplate == null) {
-					classNameId = PortalUtil.getClassNameId(DDMStructure.class);
+					classNameId = PortalUtil.getClassNameId(
+						DDMStructureManagerUtil.getDDMStructureModelClass());
 
-					ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
+					ddmTemplate = DDMTemplateManagerUtil.fetchTemplate(
 						groupId, classNameId, ddmTemplateKey);
 				}
 
 				if (ddmTemplate == null) {
-					ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
+					ddmTemplate = DDMTemplateManagerUtil.fetchTemplate(
 						companyGroup.getGroupId(), classNameId, ddmTemplateKey);
 				}
 			}

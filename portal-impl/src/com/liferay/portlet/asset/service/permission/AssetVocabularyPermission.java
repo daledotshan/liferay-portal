@@ -15,8 +15,8 @@
 package com.liferay.portlet.asset.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 
@@ -32,7 +32,9 @@ public class AssetVocabularyPermission {
 		throws PortalException {
 
 		if (!contains(permissionChecker, vocabulary, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, AssetVocabulary.class.getName(),
+				vocabulary.getVocabularyId(), actionId);
 		}
 	}
 
@@ -42,7 +44,9 @@ public class AssetVocabularyPermission {
 		throws PortalException {
 
 		if (!contains(permissionChecker, vocabularyId, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, AssetVocabulary.class.getName(),
+				vocabularyId, actionId);
 		}
 	}
 

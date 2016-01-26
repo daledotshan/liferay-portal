@@ -43,20 +43,6 @@ public class EmailAddressLocalServiceWrapper implements EmailAddressLocalService
 		return _emailAddressLocalService.addEmailAddress(emailAddress);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEmailAddress(long,
-	String, long, String, int, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.model.EmailAddress addEmailAddress(long userId,
-		java.lang.String className, long classPK, java.lang.String address,
-		long typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _emailAddressLocalService.addEmailAddress(userId, className,
-			classPK, address, typeId, primary);
-	}
-
 	@Override
 	public com.liferay.portal.model.EmailAddress addEmailAddress(long userId,
 		java.lang.String className, long classPK, java.lang.String address,
@@ -233,16 +219,6 @@ public class EmailAddressLocalServiceWrapper implements EmailAddressLocalService
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _emailAddressLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the email address with the primary key.
 	*
 	* @param emailAddressId the primary key of the email address
@@ -313,8 +289,23 @@ public class EmailAddressLocalServiceWrapper implements EmailAddressLocalService
 
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _emailAddressLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _emailAddressLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _emailAddressLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -322,16 +313,6 @@ public class EmailAddressLocalServiceWrapper implements EmailAddressLocalService
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _emailAddressLocalService.getPersistedModel(primaryKeyObj);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_emailAddressLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -353,23 +334,6 @@ public class EmailAddressLocalServiceWrapper implements EmailAddressLocalService
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _emailAddressLocalService.updateEmailAddress(emailAddressId,
 			address, typeId, primary);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public EmailAddressLocalService getWrappedEmailAddressLocalService() {
-		return _emailAddressLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedEmailAddressLocalService(
-		EmailAddressLocalService emailAddressLocalService) {
-		_emailAddressLocalService = emailAddressLocalService;
 	}
 
 	@Override

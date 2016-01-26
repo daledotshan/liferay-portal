@@ -61,7 +61,7 @@ public class PortletAutoDeployListener extends BaseAutoDeployListener {
 		}
 		else if (!isExtPlugin(file) && !isHookPlugin(file) &&
 				 !isMatchingFile(
-					file, "WEB-INF/liferay-layout-templates.xml") &&
+					 file, "WEB-INF/liferay-layout-templates.xml") &&
 				 !isThemePlugin(file) && !isWebPlugin(file) &&
 				 file.getName().endsWith(".war")) {
 
@@ -80,7 +80,9 @@ public class PortletAutoDeployListener extends BaseAutoDeployListener {
 		}
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Using deployer " + autoDeployer.getClass().getName());
+			Class<?> clazz = autoDeployer.getClass();
+
+			_log.debug("Using deployer " + clazz.getName());
 		}
 
 		autoDeployer = new ThreadSafeAutoDeployer(autoDeployer);

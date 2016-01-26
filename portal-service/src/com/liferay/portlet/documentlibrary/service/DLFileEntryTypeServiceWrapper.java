@@ -62,16 +62,6 @@ public class DLFileEntryTypeServiceWrapper implements DLFileEntryTypeService,
 		_dlFileEntryTypeService.deleteFileEntryType(fileEntryTypeId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _dlFileEntryTypeService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFileEntryType getFileEntryType(
 		long fileEntryTypeId)
@@ -104,6 +94,16 @@ public class DLFileEntryTypeServiceWrapper implements DLFileEntryTypeService,
 			folderId, inherited);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _dlFileEntryTypeService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntryType> search(
 		long companyId, long[] groupIds, java.lang.String keywords,
@@ -118,16 +118,6 @@ public class DLFileEntryTypeServiceWrapper implements DLFileEntryTypeService,
 		java.lang.String keywords, boolean includeBasicFileEntryType) {
 		return _dlFileEntryTypeService.searchCount(companyId, groupIds,
 			keywords, includeBasicFileEntryType);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_dlFileEntryTypeService.setBeanIdentifier(beanIdentifier);
 	}
 
 	@Override
@@ -149,23 +139,6 @@ public class DLFileEntryTypeServiceWrapper implements DLFileEntryTypeService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_dlFileEntryTypeService.updateFileEntryType(fileEntryTypeId, nameMap,
 			descriptionMap, ddmStructureIds, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public DLFileEntryTypeService getWrappedDLFileEntryTypeService() {
-		return _dlFileEntryTypeService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedDLFileEntryTypeService(
-		DLFileEntryTypeService dlFileEntryTypeService) {
-		_dlFileEntryTypeService = dlFileEntryTypeService;
 	}
 
 	@Override

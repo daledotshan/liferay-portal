@@ -40,19 +40,6 @@ public class WebsiteServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portal.service.impl.WebsiteServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addWebsite(String, long,
-	String, int, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.Website addWebsite(
-		java.lang.String className, long classPK, java.lang.String url,
-		long typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().addWebsite(className, classPK, url, typeId, primary);
-	}
-
 	public static com.liferay.portal.model.Website addWebsite(
 		java.lang.String className, long classPK, java.lang.String url,
 		long typeId, boolean primary,
@@ -69,12 +56,12 @@ public class WebsiteServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.Website getWebsite(long websiteId)
@@ -86,15 +73,6 @@ public class WebsiteServiceUtil {
 		java.lang.String className, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getWebsites(className, classPK);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static com.liferay.portal.model.Website updateWebsite(
@@ -112,13 +90,6 @@ public class WebsiteServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(WebsiteService service) {
 	}
 
 	private static WebsiteService _service;

@@ -14,13 +14,16 @@
 
 package com.liferay.portal.test.rule.callback;
 
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
+import com.liferay.portal.kernel.test.rule.ArquillianUtil;
 import com.liferay.portal.kernel.test.rule.callback.BaseTestCallback;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.PortalLifecycle;
+import com.liferay.portal.kernel.util.PortalLifecycleUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.module.framework.ModuleFrameworkUtilAdapter;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.servlet.MainServlet;
 import com.liferay.portal.test.mock.AutoDeployMockServletContext;
@@ -36,33 +39,51 @@ import org.springframework.mock.web.MockServletContext;
 /**
  * @author Shuyang Zhou
  */
-public class MainServletTestCallback extends BaseTestCallback<Object, Object> {
+public class MainServletTestCallback extends BaseTestCallback<Void, Void> {
 
 	public static final MainServletTestCallback INSTANCE =
 		new MainServletTestCallback();
 
-	@Override
-	public void doAfterClass(Description description, Object object) {
-		ServiceTestUtil.destroyServices();
-
-		try {
-			SearchEngineUtil.removeCompany(TestPropsValues.getCompanyId());
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
+	public static MainServlet getMainServlet() {
+		return _mainServlet;
 	}
 
 	@Override
-	public Object doBeforeClass(Description description) {
-		ServiceTestUtil.initServices();
+	public void afterClass(Description description, Void c)
+		throws PortalException {
 
-		ServiceTestUtil.initPermissions();
+		if (ArquillianUtil.isArquillianTest(description)) {
+			return;
+		}
+
+		SearchEngineHelperUtil.removeCompany(TestPropsValues.getCompanyId());
+	}
+
+	@Override
+	public Void beforeClass(Description description) {
+		if (ArquillianUtil.isArquillianTest(description)) {
+			return null;
+		}
 
 		if (_mainServlet == null) {
-			MockServletContext mockServletContext =
+			final MockServletContext mockServletContext =
 				new AutoDeployMockServletContext(
 					new FileSystemResourceLoader());
+
+			PortalLifecycleUtil.register(
+				new PortalLifecycle() {
+
+					@Override
+					public void portalInit() {
+						ModuleFrameworkUtilAdapter.registerContext(
+							mockServletContext);
+					}
+
+					@Override
+					public void portalDestroy() {
+					}
+
+				});
 
 			ServletContextPool.put(StringPool.BLANK, mockServletContext);
 
@@ -78,16 +99,19 @@ public class MainServletTestCallback extends BaseTestCallback<Object, Object> {
 				throw new RuntimeException(
 					"The main servlet could not be initialized");
 			}
+
+			ServiceTestUtil.initStaticServices();
 		}
+
+		ServiceTestUtil.initServices();
+
+		ServiceTestUtil.initPermissions();
 
 		return null;
 	}
 
 	protected MainServletTestCallback() {
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		MainServletTestCallback.class);
 
 	private static MainServlet _mainServlet;
 

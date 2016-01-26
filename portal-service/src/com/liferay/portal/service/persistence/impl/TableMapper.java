@@ -24,7 +24,8 @@ import java.util.List;
  */
 public interface TableMapper<L extends BaseModel<L>, R extends BaseModel<R>> {
 
-	public boolean addTableMapping(long leftPrimaryKey, long rightPrimaryKey);
+	public boolean addTableMapping(
+		long companyId, long leftPrimaryKey, long rightPrimaryKey);
 
 	public boolean containsTableMapping(
 		long leftPrimaryKey, long rightPrimaryKey);

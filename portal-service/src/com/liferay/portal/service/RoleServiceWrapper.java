@@ -47,10 +47,6 @@ public class RoleServiceWrapper implements RoleService,
 	<code>null</code>). Can set the expando bridge attributes for the
 	role.
 	* @return the role
-	* @throws PortalException if a user with the primary key could not be
-	found, if the user did not have permission to add roles, if the
-	class name or the role name were invalid, or if the role is a
-	duplicate
 	*/
 	@Override
 	public com.liferay.portal.model.Role addRole(java.lang.String className,
@@ -65,40 +61,11 @@ public class RoleServiceWrapper implements RoleService,
 	}
 
 	/**
-	* Adds a role. The user is reindexed after role is added.
-	*
-	* @param name the role's name
-	* @param titleMap the role's localized titles (optionally
-	<code>null</code>)
-	* @param descriptionMap the role's localized descriptions (optionally
-	<code>null</code>)
-	* @param type the role's type (optionally <code>0</code>)
-	* @return the role
-	* @throws PortalException if a user with the primary key could not be
-	found, if the user did not have permission to add roles, if
-	the class name or the role name were invalid, or if the role
-	is a duplicate
-	* @deprecated As of 6.2.0, replaced by {@link #addRole(String, long,
-	String, Map, Map, int, String, ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.model.Role addRole(java.lang.String name,
-		java.util.Map<java.util.Locale, java.lang.String> titleMap,
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
-		int type) throws com.liferay.portal.kernel.exception.PortalException {
-		return _roleService.addRole(name, titleMap, descriptionMap, type);
-	}
-
-	/**
 	* Adds the roles to the user. The user is reindexed after the roles are
 	* added.
 	*
 	* @param userId the primary key of the user
 	* @param roleIds the primary keys of the roles
-	* @throws PortalException if a user with the primary key could not be found
-	or if the user did not have permission to assign members to one
-	of the roles
 	*/
 	@Override
 	public void addUserRoles(long userId, long[] roleIds)
@@ -110,10 +77,6 @@ public class RoleServiceWrapper implements RoleService,
 	* Deletes the role with the primary key and its associated permissions.
 	*
 	* @param roleId the primary key of the role
-	* @throws PortalException if the user did not have permission to delete the
-	role, if a role with the primary key could not be found, if the
-	role is a default system role, or if the role's resource could
-	not be found
 	*/
 	@Override
 	public void deleteRole(long roleId)
@@ -121,14 +84,10 @@ public class RoleServiceWrapper implements RoleService,
 		_roleService.deleteRole(roleId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _roleService.getBeanIdentifier();
+	public com.liferay.portal.model.Role fetchRole(long roleId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.fetchRole(roleId);
 	}
 
 	/**
@@ -136,13 +95,22 @@ public class RoleServiceWrapper implements RoleService,
 	*
 	* @param groupId the primary key of the group
 	* @return the roles associated with the group
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Role> getGroupRoles(
 		long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _roleService.getGroupRoles(groupId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _roleService.getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -156,8 +124,6 @@ public class RoleServiceWrapper implements RoleService,
 	* @param companyId the primary key of the company
 	* @param name the role's name
 	* @return the role with the name
-	* @throws PortalException if a role with the name could not be found in the
-	company or if the user did not have permission to view the role
 	*/
 	@Override
 	public com.liferay.portal.model.Role getRole(long companyId,
@@ -171,13 +137,25 @@ public class RoleServiceWrapper implements RoleService,
 	*
 	* @param roleId the primary key of the role
 	* @return the role with the primary key
-	* @throws PortalException if a role with the primary key could not be found
-	or if the user did not have permission to view the role
 	*/
 	@Override
 	public com.liferay.portal.model.Role getRole(long roleId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _roleService.getRole(roleId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(
+		long companyId, int[] types)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.getRoles(companyId, types);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(int type,
+		java.lang.String subtype)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _roleService.getRoles(type, subtype);
 	}
 
 	/**
@@ -186,7 +164,6 @@ public class RoleServiceWrapper implements RoleService,
 	* @param userId the primary key of the user
 	* @param groupId the primary key of the group
 	* @return the user's roles within the user group
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Role> getUserGroupGroupRoles(
@@ -201,7 +178,6 @@ public class RoleServiceWrapper implements RoleService,
 	* @param userId the primary key of the user
 	* @param groupId the primary key of the group
 	* @return the user's roles within the user group
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Role> getUserGroupRoles(
@@ -216,7 +192,6 @@ public class RoleServiceWrapper implements RoleService,
 	* @param userId the primary key of the user
 	* @param groups the groups (optionally <code>null</code>)
 	* @return the union of all the user's roles within the groups
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Role> getUserRelatedRoles(
@@ -230,7 +205,6 @@ public class RoleServiceWrapper implements RoleService,
 	*
 	* @param userId the primary key of the user
 	* @return the roles associated with the user
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Override
 	public java.util.List<com.liferay.portal.model.Role> getUserRoles(
@@ -249,8 +223,6 @@ public class RoleServiceWrapper implements RoleService,
 	search
 	* @return <code>true</code> if the user is associated with the regular
 	role; <code>false</code> otherwise
-	* @throws PortalException if a role with the name could not be found in the
-	company or if a default user for the company could not be found
 	*/
 	@Override
 	public boolean hasUserRole(long userId, long companyId,
@@ -270,9 +242,6 @@ public class RoleServiceWrapper implements RoleService,
 	search
 	* @return <code>true</code> if the user has any one of the regular roles;
 	<code>false</code> otherwise
-	* @throws PortalException if any one of the roles with the names could not
-	be found in the company or if the default user for the company
-	could not be found
 	*/
 	@Override
 	public boolean hasUserRoles(long userId, long companyId,
@@ -281,14 +250,21 @@ public class RoleServiceWrapper implements RoleService,
 		return _roleService.hasUserRoles(userId, companyId, names, inherited);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_roleService.setBeanIdentifier(beanIdentifier);
+	public java.util.List<com.liferay.portal.model.Role> search(
+		long companyId, java.lang.String keywords, java.lang.Integer[] types,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.model.Role> obc) {
+		return _roleService.search(companyId, keywords, types, params, start,
+			end, obc);
+	}
+
+	@Override
+	public int searchCount(long companyId, java.lang.String keywords,
+		java.lang.Integer[] types,
+		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params) {
+		return _roleService.searchCount(companyId, keywords, types, params);
 	}
 
 	/**
@@ -297,10 +273,6 @@ public class RoleServiceWrapper implements RoleService,
 	*
 	* @param userId the primary key of the user
 	* @param roleIds the primary keys of the roles
-	* @throws PortalException if a user with the primary key could not be
-	found, if the user did not have permission to remove members from
-	a role, or if a role with any one of the primary keys could not
-	be found
 	*/
 	@Override
 	public void unsetUserRoles(long userId, long[] roleIds)
@@ -322,9 +294,6 @@ public class RoleServiceWrapper implements RoleService,
 	<code>null</code>). Can set the expando bridge attributes for the
 	role.
 	* @return the role with the primary key
-	* @throws PortalException if the user did not have permission to update the
-	role, if a role with the primary could not be found, or if the
-	role's name was invalid
 	*/
 	@Override
 	public com.liferay.portal.model.Role updateRole(long roleId,
@@ -336,22 +305,6 @@ public class RoleServiceWrapper implements RoleService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _roleService.updateRole(roleId, name, titleMap, descriptionMap,
 			subtype, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public RoleService getWrappedRoleService() {
-		return _roleService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedRoleService(RoleService roleService) {
-		_roleService = roleService;
 	}
 
 	@Override

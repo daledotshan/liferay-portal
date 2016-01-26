@@ -14,9 +14,9 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.AddressCityException;
-import com.liferay.portal.AddressStreetException;
-import com.liferay.portal.AddressZipException;
+import com.liferay.portal.exception.AddressCityException;
+import com.liferay.portal.exception.AddressStreetException;
+import com.liferay.portal.exception.AddressZipException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.Validator;
@@ -31,7 +31,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.AddressLocalServiceBaseImpl;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,26 +38,6 @@ import java.util.List;
  * @author Alexander Chow
  */
 public class AddressLocalServiceImpl extends AddressLocalServiceBaseImpl {
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #addAddress(long, String,
-	 *             long, String, String, String, String, String, long, long,
-	 *             int, boolean, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Address addAddress(
-			long userId, String className, long classPK, String street1,
-			String street2, String street3, String city, String zip,
-			long regionId, long countryId, long typeId, boolean mailing,
-			boolean primary)
-		throws PortalException {
-
-		return addAddress(
-			userId, className, classPK, street1, street2, street3, city, zip,
-			regionId, countryId, typeId, mailing, primary,
-			new ServiceContext());
-	}
 
 	@Override
 	public Address addAddress(
@@ -70,7 +49,6 @@ public class AddressLocalServiceImpl extends AddressLocalServiceBaseImpl {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		long classNameId = classNameLocalService.getClassNameId(className);
-		Date now = new Date();
 
 		validate(
 			0, user.getCompanyId(), classNameId, classPK, street1, city, zip,
@@ -84,8 +62,6 @@ public class AddressLocalServiceImpl extends AddressLocalServiceBaseImpl {
 		address.setCompanyId(user.getCompanyId());
 		address.setUserId(user.getUserId());
 		address.setUserName(user.getFullName());
-		address.setCreateDate(serviceContext.getCreateDate(now));
-		address.setModifiedDate(serviceContext.getModifiedDate(now));
 		address.setClassNameId(classNameId);
 		address.setClassPK(classPK);
 		address.setStreet1(street1);
@@ -163,7 +139,6 @@ public class AddressLocalServiceImpl extends AddressLocalServiceBaseImpl {
 
 		Address address = addressPersistence.findByPrimaryKey(addressId);
 
-		address.setModifiedDate(new Date());
 		address.setStreet1(street1);
 		address.setStreet2(street2);
 		address.setStreet3(street3);
@@ -230,7 +205,7 @@ public class AddressLocalServiceImpl extends AddressLocalServiceBaseImpl {
 			throw new AddressCityException();
 		}
 		else if (Validator.isNull(zip)) {
-			Country country = countryService.fetchCountry(countryId);
+			Country country = countryPersistence.fetchByPrimaryKey(countryId);
 
 			if ((country != null) && country.isZipRequired()) {
 				throw new AddressZipException();
@@ -252,7 +227,7 @@ public class AddressLocalServiceImpl extends AddressLocalServiceBaseImpl {
 			(classNameId ==
 				classNameLocalService.getClassNameId(Organization.class))) {
 
-			listTypeService.validate(
+			listTypeLocalService.validate(
 				typeId, classNameId, ListTypeConstants.ADDRESS);
 		}
 

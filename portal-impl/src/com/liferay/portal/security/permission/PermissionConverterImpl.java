@@ -16,6 +16,8 @@ package com.liferay.portal.security.permission;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.PermissionConversionFilter;
+import com.liferay.portal.kernel.security.permission.PermissionConverter;
 import com.liferay.portal.model.Permission;
 import com.liferay.portal.model.ResourceAction;
 import com.liferay.portal.model.ResourceConstants;
@@ -68,7 +70,8 @@ public class PermissionConverterImpl implements PermissionConverter {
 
 		if (role.getType() == RoleConstants.TYPE_REGULAR) {
 			scopes = new int[] {
-				ResourceConstants.SCOPE_COMPANY, ResourceConstants.SCOPE_GROUP};
+				ResourceConstants.SCOPE_COMPANY, ResourceConstants.SCOPE_GROUP
+			};
 		}
 		else if ((role.getType() == RoleConstants.TYPE_ORGANIZATION) ||
 				 (role.getType() == RoleConstants.TYPE_PROVIDER) ||

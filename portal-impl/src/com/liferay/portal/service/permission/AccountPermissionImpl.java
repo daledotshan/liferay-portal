@@ -15,9 +15,9 @@
 package com.liferay.portal.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.model.Account;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.AccountLocalServiceUtil;
 
 /**
@@ -32,7 +32,9 @@ public class AccountPermissionImpl implements AccountPermission {
 		throws PortalException {
 
 		if (!contains(permissionChecker, account, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, Account.class.getName(),
+				account.getAccountId(), actionId);
 		}
 	}
 
@@ -43,7 +45,9 @@ public class AccountPermissionImpl implements AccountPermission {
 		throws PortalException {
 
 		if (!contains(permissionChecker, accountId, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, Account.class.getName(), accountId,
+				actionId);
 		}
 	}
 

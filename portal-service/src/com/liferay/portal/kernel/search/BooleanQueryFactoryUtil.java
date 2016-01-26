@@ -15,9 +15,12 @@
 package com.liferay.portal.kernel.search;
 
 /**
- * @author Brian Wing Shun Chan
- * @author Raymond Augé
+ * @author     Brian Wing Shun Chan
+ * @author     Raymond Augé
+ * @deprecated As of 7.0.0 , replaced by {@link
+ *             com.liferay.portal.kernel.search.generic.BooleanQueryImpl}
  */
+@Deprecated
 public class BooleanQueryFactoryUtil {
 
 	public static BooleanQuery create(SearchContext searchContext) {
@@ -29,7 +32,7 @@ public class BooleanQueryFactoryUtil {
 
 		String searchEngineId = searchContext.getSearchEngineId();
 
-		SearchEngine searchEngine = SearchEngineUtil.getSearchEngine(
+		SearchEngine searchEngine = SearchEngineHelperUtil.getSearchEngine(
 			searchEngineId);
 
 		return searchEngine.getBooleanQueryFactory();

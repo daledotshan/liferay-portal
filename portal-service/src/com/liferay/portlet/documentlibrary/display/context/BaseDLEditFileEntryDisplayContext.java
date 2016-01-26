@@ -14,12 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.display.context;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 
 import java.util.UUID;
 
@@ -71,6 +71,11 @@ public class BaseDLEditFileEntryDisplayContext
 		throws PortalException {
 
 		return parentDisplayContext.getDLFilePicker(onFilePickCallback);
+	}
+
+	@Override
+	public long getMaximumUploadRequestSize() throws PortalException {
+		return parentDisplayContext.getMaximumUploadRequestSize();
 	}
 
 	@Override
