@@ -1018,6 +1018,26 @@ public class BaseExportImportContentProcessor
 	protected void validateDLReferences(long groupId, String content)
 		throws PortalException {
 
+		Pattern pattern = Pattern.compile("src=\"([\\s\\S]*?)\"");
+
+		Matcher matcher = pattern.matcher(content);
+
+		List<String> srcList = new ArrayList<>();
+
+		String src = null;
+
+		while (matcher.find()) {
+			src = StringUtil.trim(matcher.group(1));
+
+			if (!(src.startsWith("http://") || src.startsWith("https://"))) {
+				srcList.add(src);
+			}
+		}
+
+		if (srcList.size() == 0) {
+			return;
+		}
+
 		String contextPath = PortalUtil.getPathContext();
 
 		String[] patterns = {
