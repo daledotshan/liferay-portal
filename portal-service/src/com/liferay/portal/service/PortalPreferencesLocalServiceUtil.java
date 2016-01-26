@@ -40,20 +40,6 @@ public class PortalPreferencesLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link com.liferay.portal.service.impl.PortalPreferencesLocalServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addPortalPreferences(long,
-	int, String)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.PortalPreferences addPortalPreferences(
-		long companyId, long ownerId, int ownerType,
-		java.lang.String defaultPreferences) {
-		return getService()
-				   .addPortalPreferences(companyId, ownerId, ownerType,
-			defaultPreferences);
-	}
-
 	public static com.liferay.portal.model.PortalPreferences addPortalPreferences(
 		long ownerId, int ownerType, java.lang.String defaultPreferences) {
 		return getService()
@@ -202,13 +188,17 @@ public class PortalPreferencesLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -255,28 +245,6 @@ public class PortalPreferencesLocalServiceUtil {
 		return getService().getPortalPreferencesesCount();
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getPreferences(long, int)}
-	*/
-	@Deprecated
-	public static javax.portlet.PortletPreferences getPreferences(
-		long companyId, long ownerId, int ownerType) {
-		return getService().getPreferences(companyId, ownerId, ownerType);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getPreferences(long, int,
-	String)}
-	*/
-	@Deprecated
-	public static javax.portlet.PortletPreferences getPreferences(
-		long companyId, long ownerId, int ownerType,
-		java.lang.String defaultPreferences) {
-		return getService()
-				   .getPreferences(companyId, ownerId, ownerType,
-			defaultPreferences);
-	}
-
 	public static javax.portlet.PortletPreferences getPreferences(
 		long ownerId, int ownerType) {
 		return getService().getPreferences(ownerId, ownerType);
@@ -286,15 +254,6 @@ public class PortalPreferencesLocalServiceUtil {
 		long ownerId, int ownerType, java.lang.String defaultPreferences) {
 		return getService()
 				   .getPreferences(ownerId, ownerType, defaultPreferences);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -329,13 +288,6 @@ public class PortalPreferencesLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(PortalPreferencesLocalService service) {
 	}
 
 	private static PortalPreferencesLocalService _service;

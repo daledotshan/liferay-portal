@@ -16,6 +16,8 @@ package com.liferay.portlet.messageboards.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.messageboards.model.impl.MBMailingListModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.messageboards.model.impl.MBMailingListImpl")
 @ProviderType
 public interface MBMailingList extends MBMailingListModel, PersistedModel {
 	/*
@@ -34,4 +37,20 @@ public interface MBMailingList extends MBMailingListModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.messageboards.model.impl.MBMailingListImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<MBMailingList, Long> MAILING_LIST_ID_ACCESSOR = new Accessor<MBMailingList, Long>() {
+			@Override
+			public Long get(MBMailingList mbMailingList) {
+				return mbMailingList.getMailingListId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<MBMailingList> getTypeClass() {
+				return MBMailingList.class;
+			}
+		};
 }

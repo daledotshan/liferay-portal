@@ -14,11 +14,11 @@
 
 package com.liferay.portal.kernel.repository.util;
 
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.service.BaseServiceImpl;
 
 /**
@@ -29,17 +29,13 @@ import com.liferay.portal.service.BaseServiceImpl;
 public class RepositoryUserUtil {
 
 	/**
-	 * See {@link com.liferay.portal.service.BaseServiceImpl#getUserId()}
+	 * See {@link BaseServiceImpl#getUserId()}
 	 *
 	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
 	@Deprecated
 	public static long getUserId() throws PrincipalException {
 		String name = PrincipalThreadLocal.getName();
-
-		if (name == null) {
-			throw new PrincipalException();
-		}
 
 		if (Validator.isNull(name)) {
 			throw new PrincipalException("Principal is null");

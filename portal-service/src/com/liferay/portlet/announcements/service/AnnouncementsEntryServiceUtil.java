@@ -57,40 +57,9 @@ public class AnnouncementsEntryServiceUtil {
 			expirationDateHour, expirationDateMinute, priority, alert);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEntry(long, long, long,
-	String, String, String, String, int, int, int, int, int,
-	boolean, int, int, int, int, int, int, boolean)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.announcements.model.AnnouncementsEntry addEntry(
-		long plid, long classNameId, long classPK, java.lang.String title,
-		java.lang.String content, java.lang.String url, java.lang.String type,
-		int displayDateMonth, int displayDateDay, int displayDateYear,
-		int displayDateHour, int displayDateMinute, int expirationDateMonth,
-		int expirationDateDay, int expirationDateYear, int expirationDateHour,
-		int expirationDateMinute, int priority, boolean alert)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addEntry(plid, classNameId, classPK, title, content, url,
-			type, displayDateMonth, displayDateDay, displayDateYear,
-			displayDateHour, displayDateMinute, expirationDateMonth,
-			expirationDateDay, expirationDateYear, expirationDateHour,
-			expirationDateMinute, priority, alert);
-	}
-
 	public static void deleteEntry(long entryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deleteEntry(entryId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
 	}
 
 	public static com.liferay.portlet.announcements.model.AnnouncementsEntry getEntry(
@@ -100,12 +69,12 @@ public class AnnouncementsEntryServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portlet.announcements.model.AnnouncementsEntry updateEntry(
@@ -133,13 +102,6 @@ public class AnnouncementsEntryServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(AnnouncementsEntryService service) {
 	}
 
 	private static AnnouncementsEntryService _service;

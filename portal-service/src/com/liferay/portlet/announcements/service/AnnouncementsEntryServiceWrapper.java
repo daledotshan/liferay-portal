@@ -52,42 +52,10 @@ public class AnnouncementsEntryServiceWrapper
 			priority, alert);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEntry(long, long, long,
-	String, String, String, String, int, int, int, int, int,
-	boolean, int, int, int, int, int, int, boolean)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.announcements.model.AnnouncementsEntry addEntry(
-		long plid, long classNameId, long classPK, java.lang.String title,
-		java.lang.String content, java.lang.String url, java.lang.String type,
-		int displayDateMonth, int displayDateDay, int displayDateYear,
-		int displayDateHour, int displayDateMinute, int expirationDateMonth,
-		int expirationDateDay, int expirationDateYear, int expirationDateHour,
-		int expirationDateMinute, int priority, boolean alert)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _announcementsEntryService.addEntry(plid, classNameId, classPK,
-			title, content, url, type, displayDateMonth, displayDateDay,
-			displayDateYear, displayDateHour, displayDateMinute,
-			expirationDateMonth, expirationDateDay, expirationDateYear,
-			expirationDateHour, expirationDateMinute, priority, alert);
-	}
-
 	@Override
 	public void deleteEntry(long entryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_announcementsEntryService.deleteEntry(entryId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _announcementsEntryService.getBeanIdentifier();
 	}
 
 	@Override
@@ -98,13 +66,13 @@ public class AnnouncementsEntryServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_announcementsEntryService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _announcementsEntryService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -121,23 +89,6 @@ public class AnnouncementsEntryServiceWrapper
 			displayDateHour, displayDateMinute, displayImmediately,
 			expirationDateMonth, expirationDateDay, expirationDateYear,
 			expirationDateHour, expirationDateMinute, priority);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AnnouncementsEntryService getWrappedAnnouncementsEntryService() {
-		return _announcementsEntryService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAnnouncementsEntryService(
-		AnnouncementsEntryService announcementsEntryService) {
-		_announcementsEntryService = announcementsEntryService;
 	}
 
 	@Override

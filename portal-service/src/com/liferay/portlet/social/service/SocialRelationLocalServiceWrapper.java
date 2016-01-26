@@ -41,9 +41,6 @@ public class SocialRelationLocalServiceWrapper
 	* @param userId2 the user at the other end of the relation
 	* @param type the type of the relation
 	* @return the social relation
-	* @throws PortalException if the users could not be found, if the users
-	were not from the same company, or if either of the users was the
-	default user
 	*/
 	@Override
 	public com.liferay.portlet.social.model.SocialRelation addRelation(
@@ -91,8 +88,6 @@ public class SocialRelationLocalServiceWrapper
 	* relation) from the database.
 	*
 	* @param relation the relation to be removed
-	* @throws PortalException if the relation is bidirectional and its inverse
-	relation could not be found
 	*/
 	@Override
 	public void deleteRelation(
@@ -106,7 +101,6 @@ public class SocialRelationLocalServiceWrapper
 	* relation) from the database.
 	*
 	* @param relationId the primary key of the relation
-	* @throws PortalException if the relation could not be found
 	*/
 	@Override
 	public void deleteRelation(long relationId)
@@ -121,8 +115,6 @@ public class SocialRelationLocalServiceWrapper
 	* @param userId1 the user that is the subject of the relation
 	* @param userId2 the user at the other end of the relation
 	* @param type the relation's type
-	* @throws PortalException if the relation or its inverse relation (if
-	applicable) could not be found
 	*/
 	@Override
 	public void deleteRelation(long userId1, long userId2, int type)
@@ -145,7 +137,6 @@ public class SocialRelationLocalServiceWrapper
 	*
 	* @param userId1 the user that is the subject of the relation
 	* @param userId2 the user at the other end of the relation
-	* @throws PortalException if the inverse relation could not be found
 	*/
 	@Override
 	public void deleteRelations(long userId1, long userId2)
@@ -289,14 +280,9 @@ public class SocialRelationLocalServiceWrapper
 		return _socialRelationLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _socialRelationLocalService.getBeanIdentifier();
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _socialRelationLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -339,6 +325,16 @@ public class SocialRelationLocalServiceWrapper
 		return _socialRelationLocalService.getInverseRelationsCount(userId, type);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _socialRelationLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -351,7 +347,6 @@ public class SocialRelationLocalServiceWrapper
 	*
 	* @param relationId the primary key of the relation
 	* @return Returns the relation
-	* @throws PortalException if the relation could not be found
 	*/
 	@Override
 	public com.liferay.portlet.social.model.SocialRelation getRelation(
@@ -367,7 +362,6 @@ public class SocialRelationLocalServiceWrapper
 	* @param userId2 the user at the other end of the relation
 	* @param type the relation's type
 	* @return Returns the relation
-	* @throws PortalException if the relation could not be found
 	*/
 	@Override
 	public com.liferay.portlet.social.model.SocialRelation getRelation(
@@ -551,16 +545,6 @@ public class SocialRelationLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_socialRelationLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the social relation in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param socialRelation the social relation
@@ -570,23 +554,6 @@ public class SocialRelationLocalServiceWrapper
 	public com.liferay.portlet.social.model.SocialRelation updateSocialRelation(
 		com.liferay.portlet.social.model.SocialRelation socialRelation) {
 		return _socialRelationLocalService.updateSocialRelation(socialRelation);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SocialRelationLocalService getWrappedSocialRelationLocalService() {
-		return _socialRelationLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSocialRelationLocalService(
-		SocialRelationLocalService socialRelationLocalService) {
-		_socialRelationLocalService = socialRelationLocalService;
 	}
 
 	@Override

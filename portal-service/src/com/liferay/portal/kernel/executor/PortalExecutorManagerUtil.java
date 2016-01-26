@@ -14,38 +14,19 @@
 
 package com.liferay.portal.kernel.executor;
 
-import com.liferay.portal.kernel.concurrent.NoticeableFuture;
 import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.PACLConstants;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceTracker;
 
 /**
  * @author Shuyang Zhou
  */
 public class PortalExecutorManagerUtil {
-
-	public static <T> NoticeableFuture<T> execute(
-		String name, Callable<T> callable) {
-
-		PortalRuntimePermission.checkThreadPoolExecutor(name);
-
-		return getPortalExecutorManager().execute(name, callable);
-	}
-
-	public static <T> T execute(
-			String name, Callable<T> callable, long timeout, TimeUnit timeUnit)
-		throws ExecutionException, InterruptedException, TimeoutException {
-
-		PortalRuntimePermission.checkThreadPoolExecutor(name);
-
-		return getPortalExecutorManager().execute(
-			name, callable, timeout, timeUnit);
-	}
 
 	public static ThreadPoolExecutor getPortalExecutor(String name) {
 		PortalRuntimePermission.checkThreadPoolExecutor(name);
@@ -66,7 +47,19 @@ public class PortalExecutorManagerUtil {
 		PortalRuntimePermission.checkGetBeanProperty(
 			PortalExecutorManagerUtil.class);
 
-		return _portalExecutorManager;
+		try {
+			while (_instance._serviceTracker.getService() == null) {
+				if (_log.isDebugEnabled()) {
+					_log.debug("Waiting for a PortalExecutorManager");
+				}
+
+				Thread.sleep(500);
+			}
+		}
+		catch (InterruptedException e) {
+		}
+
+		return _instance._serviceTracker.getService();
 	}
 
 	public static ThreadPoolExecutor registerPortalExecutor(
@@ -82,36 +75,45 @@ public class PortalExecutorManagerUtil {
 		PortalRuntimePermission.checkThreadPoolExecutor(
 			PACLConstants.PORTAL_RUNTIME_PERMISSION_THREAD_POOL_ALL_EXECUTORS);
 
-		getPortalExecutorManager().shutdown();
+		PortalExecutorManager portalExecutorManager =
+			_instance._serviceTracker.getService();
+
+		if (portalExecutorManager == null) {
+			return;
+		}
+
+		portalExecutorManager.shutdown();
 	}
 
 	public static void shutdown(boolean interrupt) {
 		PortalRuntimePermission.checkThreadPoolExecutor(
 			PACLConstants.PORTAL_RUNTIME_PERMISSION_THREAD_POOL_ALL_EXECUTORS);
 
-		getPortalExecutorManager().shutdown(interrupt);
+		PortalExecutorManager portalExecutorManager =
+			_instance._serviceTracker.getService();
+
+		if (portalExecutorManager == null) {
+			return;
+		}
+
+		portalExecutorManager.shutdown(interrupt);
 	}
 
-	public static void shutdown(String name) {
-		PortalRuntimePermission.checkThreadPoolExecutor(name);
+	private PortalExecutorManagerUtil() {
+		Registry registry = RegistryUtil.getRegistry();
 
-		getPortalExecutorManager().shutdown(name);
+		_serviceTracker = registry.trackServices(PortalExecutorManager.class);
+
+		_serviceTracker.open();
 	}
 
-	public static void shutdown(String name, boolean interrupt) {
-		PortalRuntimePermission.checkThreadPoolExecutor(name);
+	private static final Log _log = LogFactoryUtil.getLog(
+		PortalExecutorManagerUtil.class);
 
-		getPortalExecutorManager().shutdown(name, interrupt);
-	}
+	private static final PortalExecutorManagerUtil _instance =
+		new PortalExecutorManagerUtil();
 
-	public void setPortalExecutorManager(
-		PortalExecutorManager portalExecutorManager) {
-
-		PortalRuntimePermission.checkSetBeanProperty(getClass());
-
-		_portalExecutorManager = portalExecutorManager;
-	}
-
-	private static PortalExecutorManager _portalExecutorManager;
+	private final ServiceTracker<PortalExecutorManager, PortalExecutorManager>
+		_serviceTracker;
 
 }

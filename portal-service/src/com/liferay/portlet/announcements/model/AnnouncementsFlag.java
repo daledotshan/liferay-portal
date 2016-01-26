@@ -16,6 +16,8 @@ package com.liferay.portlet.announcements.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.announcements.model.impl.AnnouncementsFlagModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.announcements.model.impl.AnnouncementsFlagImpl")
 @ProviderType
 public interface AnnouncementsFlag extends AnnouncementsFlagModel, PersistedModel {
 	/*
@@ -34,4 +37,20 @@ public interface AnnouncementsFlag extends AnnouncementsFlagModel, PersistedMode
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.announcements.model.impl.AnnouncementsFlagImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<AnnouncementsFlag, Long> FLAG_ID_ACCESSOR = new Accessor<AnnouncementsFlag, Long>() {
+			@Override
+			public Long get(AnnouncementsFlag announcementsFlag) {
+				return announcementsFlag.getFlagId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<AnnouncementsFlag> getTypeClass() {
+				return AnnouncementsFlag.class;
+			}
+		};
 }

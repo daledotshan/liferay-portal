@@ -33,6 +33,7 @@ import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.portlet.MimeResponse;
@@ -173,7 +174,14 @@ public class PortletURLUtil {
 	public static String getRefreshURL(
 		HttpServletRequest request, ThemeDisplay themeDisplay) {
 
-		StringBundler sb = new StringBundler(32);
+		return getRefreshURL(request, themeDisplay, true);
+	}
+
+	public static String getRefreshURL(
+		HttpServletRequest request, ThemeDisplay themeDisplay,
+		boolean includeParameters) {
+
+		StringBundler sb = new StringBundler(34);
 
 		sb.append(themeDisplay.getPathMain());
 		sb.append("/portal/render_portlet?p_l_id=");
@@ -266,17 +274,21 @@ public class PortletURLUtil {
 			return sb.toString();
 		}
 
-		String namespace = PortalUtil.getPortletNamespace(portletId);
+		String settingsScope = (String)request.getAttribute(
+			WebKeys.SETTINGS_SCOPE);
 
-		Map<String, String[]> parameters = request.getParameterMap();
+		settingsScope = ParamUtil.get(request, "settingsScope", settingsScope);
 
-		for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
-			String name = entry.getKey();
+		if (Validator.isNotNull(settingsScope)) {
+			sb.append("&settingsScope=");
+			sb.append(settingsScope);
+		}
 
-			if (!PortalUtil.isReservedParameter(name) &&
-				!name.equals("currentURL") &&
-				!isRefreshURLReservedParameter(name, namespace)) {
+		if (includeParameters) {
+			Map<String, String[]> parameters = getRefreshURLParameters(request);
 
+			for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
+				String name = entry.getKey();
 				String[] values = entry.getValue();
 
 				for (int i = 0; i < values.length; i++) {
@@ -291,6 +303,49 @@ public class PortletURLUtil {
 		return sb.toString();
 	}
 
+	public static Map<String, String[]> getRefreshURLParameters(
+		HttpServletRequest request) {
+
+		Map<String, String[]> refreshURLParameters = new HashMap<>();
+
+		String ppid = ParamUtil.getString(request, "p_p_id");
+
+		Portlet portlet = (Portlet)request.getAttribute(WebKeys.RENDER_PORTLET);
+
+		if (ppid.equals(portlet.getPortletId())) {
+			String namespace = PortalUtil.getPortletNamespace(
+				portlet.getPortletId());
+
+			Map<String, String[]> parameters = request.getParameterMap();
+
+			for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
+				String name = entry.getKey();
+
+				if (name.startsWith(StringPool.UNDERLINE) &&
+					!name.startsWith(namespace)) {
+
+					continue;
+				}
+
+				if (!PortalUtil.isReservedParameter(name) &&
+					!name.equals("currentURL") &&
+					!name.equals("settingsScope") &&
+					!isRefreshURLReservedParameter(name, namespace)) {
+
+					String[] values = entry.getValue();
+
+					if (values == null) {
+						continue;
+					}
+
+					refreshURLParameters.put(name, values);
+				}
+			}
+		}
+
+		return refreshURLParameters;
+	}
+
 	protected static boolean isRefreshURLReservedParameter(
 		String parameter, String namespace) {
 
@@ -298,13 +353,12 @@ public class PortletURLUtil {
 			return false;
 		}
 
-		for (int i = 0; i < _PORTLET_URL_REFRESH_URL_RESERVED_PARAMETERS.length;
-				i++) {
+		for (String reservedParameter :
+				_PORTLET_URL_REFRESH_URL_RESERVED_PARAMETERS) {
 
-			String reservedParameter = namespace.concat(
-				_PORTLET_URL_REFRESH_URL_RESERVED_PARAMETERS[i]);
+			if (parameter.equals(reservedParameter) ||
+				parameter.equals(namespace.concat(reservedParameter))) {
 
-			if (parameter.equals(reservedParameter)) {
 				return true;
 			}
 		}

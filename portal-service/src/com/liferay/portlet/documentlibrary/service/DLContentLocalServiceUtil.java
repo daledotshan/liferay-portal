@@ -213,25 +213,16 @@ public class DLContentLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static com.liferay.portlet.documentlibrary.model.DLContent getContent(
 		long companyId, long repositoryId, java.lang.String path)
-		throws com.liferay.portlet.documentlibrary.NoSuchContentException {
+		throws com.liferay.portlet.documentlibrary.exception.NoSuchContentException {
 		return getService().getContent(companyId, repositoryId, path);
 	}
 
 	public static com.liferay.portlet.documentlibrary.model.DLContent getContent(
 		long companyId, long repositoryId, java.lang.String path,
 		java.lang.String version)
-		throws com.liferay.portlet.documentlibrary.NoSuchContentException {
+		throws com.liferay.portlet.documentlibrary.exception.NoSuchContentException {
 		return getService().getContent(companyId, repositoryId, path, version);
 	}
 
@@ -294,6 +285,19 @@ public class DLContentLocalServiceUtil {
 		return getService().getDataBlobModel(primaryKey);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -303,15 +307,6 @@ public class DLContentLocalServiceUtil {
 	public static boolean hasContent(long companyId, long repositoryId,
 		java.lang.String path, java.lang.String version) {
 		return getService().hasContent(companyId, repositoryId, path, version);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static void updateDLContent(long companyId, long oldRepositoryId,
@@ -341,13 +336,6 @@ public class DLContentLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(DLContentLocalService service) {
 	}
 
 	private static DLContentLocalService _service;

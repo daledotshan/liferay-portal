@@ -16,6 +16,7 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
 import com.liferay.portal.kernel.util.Accessor;
 
 /**
@@ -27,6 +28,7 @@ import com.liferay.portal.kernel.util.Accessor;
  * @see com.liferay.portal.model.impl.UserGroupModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portal.model.impl.UserGroupImpl")
 @ProviderType
 public interface UserGroup extends UserGroupModel, PersistedModel {
 	/*
@@ -34,6 +36,23 @@ public interface UserGroup extends UserGroupModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portal.model.impl.UserGroupImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<UserGroup, Long> USER_GROUP_ID_ACCESSOR = new Accessor<UserGroup, Long>() {
+			@Override
+			public Long get(UserGroup userGroup) {
+				return userGroup.getUserGroupId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<UserGroup> getTypeClass() {
+				return UserGroup.class;
+			}
+		};
+
 	public static final Accessor<UserGroup, String> NAME_ACCESSOR = new Accessor<UserGroup, String>() {
 			@Override
 			public String get(UserGroup userGroup) {

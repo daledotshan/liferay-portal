@@ -22,8 +22,8 @@ ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_
 PollsQuestion question = (PollsQuestion)row.getObject();
 %>
 
-<liferay-ui:icon-menu icon="<%= StringPool.BLANK %>" message="<%= StringPool.BLANK %>">
-	<c:if test="<%= PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.UPDATE) %>">
+<liferay-ui:icon-menu direction="left-side" icon="<%= StringPool.BLANK %>" markupView="lexicon" message="<%= StringPool.BLANK %>" showWhenSingleIcon="<%= true %>">
+	<c:if test="<%= PollsQuestionPermissionChecker.contains(permissionChecker, question, ActionKeys.UPDATE) %>">
 		<portlet:renderURL var="editURL">
 			<portlet:param name="struts_action" value="/polls/edit_question" />
 			<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -31,13 +31,12 @@ PollsQuestion question = (PollsQuestion)row.getObject();
 		</portlet:renderURL>
 
 		<liferay-ui:icon
-			iconCssClass="icon-edit"
 			message="edit"
 			url="<%= editURL %>"
 		/>
 	</c:if>
 
-	<c:if test="<%= PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.PERMISSIONS) %>">
+	<c:if test="<%= PollsQuestionPermissionChecker.contains(permissionChecker, question, ActionKeys.PERMISSIONS) %>">
 		<liferay-security:permissionsURL
 			modelResource="<%= PollsQuestion.class.getName() %>"
 			modelResourceDescription="<%= question.getTitle(locale) %>"
@@ -47,7 +46,6 @@ PollsQuestion question = (PollsQuestion)row.getObject();
 		/>
 
 		<liferay-ui:icon
-			iconCssClass="icon-lock"
 			message="permissions"
 			method="get"
 			url="<%= permissionsURL %>"
@@ -55,7 +53,7 @@ PollsQuestion question = (PollsQuestion)row.getObject();
 		/>
 	</c:if>
 
-	<c:if test="<%= PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.DELETE) %>">
+	<c:if test="<%= PollsQuestionPermissionChecker.contains(permissionChecker, question, ActionKeys.DELETE) %>">
 		<portlet:actionURL var="deleteURL">
 			<portlet:param name="struts_action" value="/polls/edit_question" />
 			<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE %>" />

@@ -52,227 +52,6 @@ public class ExpandoValueLocalServiceUtil {
 		return getService().addExpandoValue(expandoValue);
 	}
 
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, float[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, float data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, float[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, float[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, boolean[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, boolean[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, double[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, double[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, int[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, int data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, short[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, short data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, long[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, long data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, Date[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, java.util.Date[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, boolean[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, boolean data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, long[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, long[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, int[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, int[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, String[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, java.lang.String data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, short[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, short[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, double[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, double data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, String[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, java.lang.String[] data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, Object)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, java.lang.Object data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #addValue(long, String,
-	String, String, long, Date[])}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK, java.util.Date data)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addValue(className, tableName, columnName, classPK, data);
-	}
-
 	public static com.liferay.portlet.expando.model.ExpandoValue addValue(
 		long classNameId, long tableId, long columnId, long classPK,
 		java.lang.String data)
@@ -666,28 +445,6 @@ public class ExpandoValueLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getColumnValues(long,
-	String, String, String, String, int, int)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.expando.model.ExpandoValue> getColumnValues(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, java.lang.String data, int start, int end) {
-		return getService()
-				   .getColumnValues(className, tableName, columnName, data,
-			start, end);
-	}
-
 	public static java.util.List<com.liferay.portlet.expando.model.ExpandoValue> getColumnValues(
 		long columnId, int start, int end) {
 		return getService().getColumnValues(columnId, start, end);
@@ -725,18 +482,6 @@ public class ExpandoValueLocalServiceUtil {
 			columnName, start, end);
 	}
 
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getColumnValuesCount(long,
-	String, String, String, String)}
-	*/
-	@Deprecated
-	public static int getColumnValuesCount(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName,
-		java.lang.String data) {
-		return getService()
-				   .getColumnValuesCount(className, tableName, columnName, data);
-	}
-
 	public static int getColumnValuesCount(long columnId) {
 		return getService().getColumnValuesCount(columnId);
 	}
@@ -770,241 +515,6 @@ public class ExpandoValueLocalServiceUtil {
 		return getService()
 				   .getColumnValuesCount(companyId, classNameId, tableName,
 			columnName, data);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long)}
-	*/
-	@Deprecated
-	public static java.io.Serializable getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().getData(className, tableName, columnName, classPK);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, float[])}
-	*/
-	@Deprecated
-	public static float[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		float[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, int[])}
-	*/
-	@Deprecated
-	public static int[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		int[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, int[])}
-	*/
-	@Deprecated
-	public static int getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		int defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, short[])}
-	*/
-	@Deprecated
-	public static short[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		short[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, double[])}
-	*/
-	@Deprecated
-	public static double[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		double[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, boolean[])}
-	*/
-	@Deprecated
-	public static boolean getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		boolean defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, float[])}
-	*/
-	@Deprecated
-	public static float getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		float defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, long[])}
-	*/
-	@Deprecated
-	public static long getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		long defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, String[])}
-	*/
-	@Deprecated
-	public static java.lang.String[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		java.lang.String[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, double[])}
-	*/
-	@Deprecated
-	public static double getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		double defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, long[])}
-	*/
-	@Deprecated
-	public static long[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		long[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, short[])}
-	*/
-	@Deprecated
-	public static short getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		short defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, Date[])}
-	*/
-	@Deprecated
-	public static java.util.Date[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		java.util.Date[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, boolean[])}
-	*/
-	@Deprecated
-	public static boolean[] getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		boolean[] defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, Date[])}
-	*/
-	@Deprecated
-	public static java.util.Date getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		java.util.Date defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getData(long, String,
-	String, String, long, String[])}
-	*/
-	@Deprecated
-	public static java.lang.String getData(java.lang.String className,
-		java.lang.String tableName, java.lang.String columnName, long classPK,
-		java.lang.String defaultData)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .getData(className, tableName, columnName, classPK,
-			defaultData);
 	}
 
 	public static java.io.Serializable getData(long companyId,
@@ -1266,6 +776,19 @@ public class ExpandoValueLocalServiceUtil {
 		return getService().getExpandoValuesCount();
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -1314,28 +837,6 @@ public class ExpandoValueLocalServiceUtil {
 		return getService().getRowValuesCount(rowId);
 	}
 
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getValue(long, String,
-	String, String, long)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue getValue(
-		java.lang.String className, java.lang.String tableName,
-		java.lang.String columnName, long classPK) {
-		return getService().getValue(className, tableName, columnName, classPK);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #getValue(long, long, String,
-	String, long)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.expando.model.ExpandoValue getValue(
-		long classNameId, java.lang.String tableName,
-		java.lang.String columnName, long classPK) {
-		return getService().getValue(classNameId, tableName, columnName, classPK);
-	}
-
 	public static com.liferay.portlet.expando.model.ExpandoValue getValue(
 		long columnId, long rowId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -1370,15 +871,6 @@ public class ExpandoValueLocalServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the expando value in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param expandoValue the expando value
@@ -1398,13 +890,6 @@ public class ExpandoValueLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(ExpandoValueLocalService service) {
 	}
 
 	private static ExpandoValueLocalService _service;

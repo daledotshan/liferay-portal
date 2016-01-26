@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.nio.charset.CharsetEncoderUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -264,6 +265,56 @@ public class ServletResponseUtil {
 		sendFile(null, response, fileName, inputStream, contentType);
 	}
 
+	public static void sendFileWithRangeHeader(
+			HttpServletRequest request, HttpServletResponse response,
+			String fileName, InputStream inputStream, long contentLength,
+			String contentType)
+		throws IOException {
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Accepting ranges for the file " + fileName);
+		}
+
+		response.setHeader(
+			HttpHeaders.ACCEPT_RANGES, HttpHeaders.ACCEPT_RANGES_BYTES_VALUE);
+
+		List<Range> ranges = null;
+
+		try {
+			ranges = getRanges(request, response, contentLength);
+		}
+		catch (IOException ioe) {
+			if (_log.isErrorEnabled()) {
+				_log.error(ioe);
+			}
+
+			response.setHeader(
+				HttpHeaders.CONTENT_RANGE, "bytes */" + contentLength);
+
+			response.sendError(
+				HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+
+			return;
+		}
+
+		if ((ranges == null) || ranges.isEmpty()) {
+			sendFile(
+				request, response, fileName, inputStream, contentLength,
+				contentType);
+		}
+		else {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Request has range header " +
+						request.getHeader(HttpHeaders.RANGE));
+			}
+
+			write(
+				request, response, fileName, ranges, inputStream, contentLength,
+				contentType);
+		}
+	}
+
 	public static void write(
 			HttpServletRequest request, HttpServletResponse response,
 			String fileName, List<Range> ranges, InputStream inputStream,
@@ -449,13 +500,13 @@ public class ServletResponseUtil {
 			// LEP-3122
 
 			if (!response.isCommitted()) {
-				int contentLength = 0;
+				long contentLength = 0;
 
 				for (byte[] bytes : bytesArray) {
 					contentLength += bytes.length;
 				}
 
-				response.setContentLength(contentLength);
+				setContentLength(response, contentLength);
 
 				response.flushBuffer();
 
@@ -493,8 +544,9 @@ public class ServletResponseUtil {
 		}
 		else {
 			write(
-				response, byteBuffer.array(), byteBuffer.position(),
-				byteBuffer.limit());
+				response, byteBuffer.array(),
+				byteBuffer.arrayOffset() + byteBuffer.position(),
+				byteBuffer.arrayOffset() + byteBuffer.limit());
 		}
 	}
 
@@ -531,9 +583,9 @@ public class ServletResponseUtil {
 			FileInputStream fileInputStream = new FileInputStream(file);
 
 			try (FileChannel fileChannel = fileInputStream.getChannel()) {
-				int contentLength = (int)fileChannel.size();
+				long contentLength = fileChannel.size();
 
-				response.setContentLength(contentLength);
+				setContentLength(response, contentLength);
 
 				response.flushBuffer();
 
@@ -634,6 +686,13 @@ public class ServletResponseUtil {
 			length);
 	}
 
+	protected static void setContentLength(
+		HttpServletResponse response, long contentLength) {
+
+		response.setHeader(
+			HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
+	}
+
 	protected static void setHeaders(
 		HttpServletRequest request, HttpServletResponse response,
 		String fileName, String contentType, String contentDispositionType) {
@@ -645,7 +704,14 @@ public class ServletResponseUtil {
 		// LEP-2201
 
 		if (Validator.isNotNull(contentType)) {
-			response.setContentType(contentType);
+			if (BrowserSnifferUtil.isIe(request) &&
+				contentType.equals("image/x-ms-bmp")) {
+
+				response.setContentType(ContentTypes.IMAGE_BMP);
+			}
+			else {
+				response.setContentType(contentType);
+			}
 		}
 
 		if (!response.containsHeader(HttpHeaders.CACHE_CONTROL)) {

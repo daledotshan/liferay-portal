@@ -14,10 +14,12 @@
 
 package com.liferay.portal.theme;
 
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.module.configuration.ConfigurationFactoryUtil;
 import com.liferay.portal.kernel.portlet.toolbar.PortletToolbar;
+import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -39,12 +41,21 @@ import javax.portlet.PortletPreferences;
  * @author Brian Wing Shun Chan
  * @author Eduardo Lundgren
  */
-public class PortletDisplay implements Serializable {
+public class PortletDisplay implements Cloneable, Serializable {
 
 	public PortletDisplay() {
 		if (_log.isDebugEnabled()) {
 			_log.debug("Creating new instance " + hashCode());
 		}
+	}
+
+	@Override
+	public Object clone() {
+		PortletDisplay portletDisplay = new PortletDisplay();
+
+		portletDisplay.copyFrom(this);
+
+		return portletDisplay;
 	}
 
 	public void copyFrom(PortletDisplay master) {
@@ -53,7 +64,6 @@ public class PortletDisplay implements Serializable {
 		_columnId = master.getColumnId();
 		_columnPos = master.getColumnPos();
 		_content = master.getContent();
-		_controlPanelCategory = master.getControlPanelCategory();
 		_customCSSClassName = master.getCustomCSSClassName();
 		_description = master.getDescription();
 		_id = master.getId();
@@ -68,7 +78,11 @@ public class PortletDisplay implements Serializable {
 		_modePrint = master.isModePrint();
 		_modeView = master.isModeView();
 		_namespace = master.getNamespace();
+		_portletDecorate = master.isPortletDecorate();
+		_portletDecoratorId = master.getPortletDecoratorId();
+		_portletDisplayName = master.getPortletDisplayName();
 		_portletName = master.getPortletName();
+		_portletResource = master.getPortletResource();
 		_portletSetup = master.getPortletSetup();
 		_portletToolbar = master.getPortletToolbar();
 		_resourcePK = master.getResourcePK();
@@ -100,6 +114,7 @@ public class PortletDisplay implements Serializable {
 		_urlBack = master.getURLBack();
 		_urlClose = master.getURLClose();
 		_urlConfiguration = master.getURLConfiguration();
+		_urlConfigurationJS = master.getURLConfigurationJS();
 		_urlEdit = master.getURLEdit();
 		_urlEditDefaults = master.getURLEditDefaults();
 		_urlEditGuest = master.getURLEditGuest();
@@ -121,7 +136,6 @@ public class PortletDisplay implements Serializable {
 		slave.setColumnId(_columnId);
 		slave.setColumnPos(_columnPos);
 		slave.setContent(_content);
-		slave.setControlPanelCategory(_controlPanelCategory);
 		slave.setCustomCSSClassName(_customCSSClassName);
 		slave.setDescription(_description);
 		slave.setId(_id);
@@ -136,6 +150,9 @@ public class PortletDisplay implements Serializable {
 		slave.setModePrint(_modePrint);
 		slave.setModeView(_modeView);
 		slave.setNamespace(_namespace);
+		slave.setPortletDecorate(_portletDecorate);
+		slave.setPortletDecoratorId(_portletDecoratorId);
+		slave.setPortletDisplayName(_portletDisplayName);
 		slave.setPortletName(_portletName);
 		slave.setPortletResource(_portletResource);
 		slave.setPortletSetup(_portletSetup);
@@ -168,6 +185,7 @@ public class PortletDisplay implements Serializable {
 		slave.setURLBack(_urlBack);
 		slave.setURLClose(_urlClose);
 		slave.setURLConfiguration(_urlConfiguration);
+		slave.setURLConfigurationJS(_urlConfigurationJS);
 		slave.setURLEdit(_urlEdit);
 		slave.setURLEditDefaults(_urlEditDefaults);
 		slave.setURLEditGuest(_urlEditGuest);
@@ -201,19 +219,6 @@ public class PortletDisplay implements Serializable {
 		return _content;
 	}
 
-	/**
-	 * Returns the control panel category where the current portlet resides. A
-	 * portlet's control panel category is configured in its
-	 * <code>liferay-portlet.xml</code> file.
-	 *
-	 * @return the control panel category where the current portlet resides, or
-	 *         an empty string if the portlet is not configured to appear in the
-	 *         control panel.
-	 */
-	public String getControlPanelCategory() {
-		return _controlPanelCategory;
-	}
-
 	public String getCustomCSSClassName() {
 		return _customCSSClassName;
 	}
@@ -232,6 +237,30 @@ public class PortletDisplay implements Serializable {
 
 	public String getNamespace() {
 		return _namespace;
+	}
+
+	public String getPortletDecoratorId() {
+		return _portletDecoratorId;
+	}
+
+	public String getPortletDisplayName() {
+		if (Validator.isNull(_portletDisplayName)) {
+			return _title;
+		}
+
+		return _portletDisplayName;
+	}
+
+	public <T> T getPortletInstanceConfiguration(Class<T> clazz)
+		throws ConfigurationException {
+
+		String portletId = Validator.isNull(
+			_portletResource) ? _id : _portletResource;
+
+		return ConfigurationFactoryUtil.getConfiguration(
+			clazz,
+			new PortletInstanceSettingsLocator(
+				_themeDisplay.getLayout(), portletId));
 	}
 
 	public String getPortletName() {
@@ -279,21 +308,7 @@ public class PortletDisplay implements Serializable {
 	}
 
 	public String getURLConfigurationJS() {
-		StringBundler sb = new StringBundler(11);
-
-		sb.append("Liferay.Portlet.openWindow(\'#p_p_id_");
-		sb.append(_id);
-		sb.append("_\', \'");
-		sb.append(_id);
-		sb.append("\', \'");
-		sb.append(HtmlUtil.escapeJS(_urlConfiguration));
-		sb.append(" \', \'");
-		sb.append(_namespace);
-		sb.append(" \', \'");
-		sb.append(LanguageUtil.get(_themeDisplay.getLocale(), "configuration"));
-		sb.append("\'); return false;");
-
-		return sb.toString();
+		return _urlConfigurationJS;
 	}
 
 	public String getURLEdit() {
@@ -394,6 +409,10 @@ public class PortletDisplay implements Serializable {
 
 	public boolean isModeView() {
 		return _modeView;
+	}
+
+	public boolean isPortletDecorate() {
+		return _portletDecorate;
 	}
 
 	public boolean isRestoreCurrentView() {
@@ -498,7 +517,6 @@ public class PortletDisplay implements Serializable {
 		_columnId = StringPool.BLANK;
 		_columnPos = 0;
 		_content.setIndex(0);
-		_controlPanelCategory = StringPool.BLANK;
 		_customCSSClassName = StringPool.BLANK;
 		_description = StringPool.BLANK;
 		_id = StringPool.BLANK;
@@ -513,6 +531,7 @@ public class PortletDisplay implements Serializable {
 		_modePrint = false;
 		_modeView = false;
 		_namespace = StringPool.BLANK;
+		_portletDisplayName = StringPool.BLANK;
 		_portletName = StringPool.BLANK;
 		_portletSetup = null;
 		_resourcePK = StringPool.BLANK;
@@ -589,10 +608,6 @@ public class PortletDisplay implements Serializable {
 		}
 	}
 
-	public void setControlPanelCategory(String controlPanelCategory) {
-		_controlPanelCategory = controlPanelCategory;
-	}
-
 	public void setCustomCSSClassName(String customCSSClassName) {
 		_customCSSClassName = customCSSClassName;
 	}
@@ -649,6 +664,18 @@ public class PortletDisplay implements Serializable {
 
 	public void setNamespace(String namespace) {
 		_namespace = namespace;
+	}
+
+	public void setPortletDecorate(boolean portletDecorate) {
+		_portletDecorate = portletDecorate;
+	}
+
+	public void setPortletDecoratorId(String portletDecoratorId) {
+		_portletDecoratorId = portletDecoratorId;
+	}
+
+	public void setPortletDisplayName(String portletDisplayName) {
+		_portletDisplayName = portletDisplayName;
 	}
 
 	public void setPortletName(String portletName) {
@@ -789,6 +816,10 @@ public class PortletDisplay implements Serializable {
 		_urlConfiguration = urlConfiguration;
 	}
 
+	public void setURLConfigurationJS(String urlConfigurationJS) {
+		_urlConfigurationJS = urlConfigurationJS;
+	}
+
 	public void setURLEdit(String urlEdit) {
 		_urlEdit = urlEdit;
 	}
@@ -855,7 +886,6 @@ public class PortletDisplay implements Serializable {
 	private String _columnId = StringPool.BLANK;
 	private int _columnPos;
 	private StringBundler _content = _blankStringBundler;
-	private String _controlPanelCategory = StringPool.BLANK;
 	private String _customCSSClassName = StringPool.BLANK;
 	private String _description = StringPool.BLANK;
 	private String _id = StringPool.BLANK;
@@ -870,6 +900,9 @@ public class PortletDisplay implements Serializable {
 	private boolean _modePrint;
 	private boolean _modeView;
 	private String _namespace = StringPool.BLANK;
+	private boolean _portletDecorate;
+	private String _portletDecoratorId = StringPool.BLANK;
+	private String _portletDisplayName = StringPool.BLANK;
 	private String _portletName = StringPool.BLANK;
 	private String _portletResource = StringPool.BLANK;
 	private PortletPreferences _portletSetup;
@@ -903,6 +936,7 @@ public class PortletDisplay implements Serializable {
 	private String _urlBack = StringPool.BLANK;
 	private String _urlClose = StringPool.BLANK;
 	private String _urlConfiguration = StringPool.BLANK;
+	private String _urlConfigurationJS = StringPool.BLANK;
 	private String _urlEdit = StringPool.BLANK;
 	private String _urlEditDefaults = StringPool.BLANK;
 	private String _urlEditGuest = StringPool.BLANK;

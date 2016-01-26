@@ -15,18 +15,12 @@
 package com.liferay.portal.kernel.dao.db;
 
 /**
- * @author Brian Wing Shun Chan
+ * @author Shuyang Zhou
  */
 public interface DBFactory {
 
-	public DB getDB();
+	public DB create(int dbMajorVersion, int dbMinorVersion);
 
-	public DB getDB(Object dialect);
-
-	public DB getDB(String type);
-
-	public void setDB(Object dialect);
-
-	public void setDB(String type);
+	public DBType getDBType();
 
 }

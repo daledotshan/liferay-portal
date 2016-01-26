@@ -16,6 +16,8 @@ package com.liferay.portlet.social.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.social.model.impl.SocialActivityAchievementModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.social.model.impl.SocialActivityAchievementImpl")
 @ProviderType
 public interface SocialActivityAchievement
 	extends SocialActivityAchievementModel, PersistedModel {
@@ -35,4 +38,21 @@ public interface SocialActivityAchievement
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.social.model.impl.SocialActivityAchievementImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<SocialActivityAchievement, Long> ACTIVITY_ACHIEVEMENT_ID_ACCESSOR =
+		new Accessor<SocialActivityAchievement, Long>() {
+			@Override
+			public Long get(SocialActivityAchievement socialActivityAchievement) {
+				return socialActivityAchievement.getActivityAchievementId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<SocialActivityAchievement> getTypeClass() {
+				return SocialActivityAchievement.class;
+			}
+		};
 }

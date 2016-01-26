@@ -64,19 +64,18 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 		_portletLocalService.clearCache();
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #clearPortletsMap)}
+	*/
+	@Deprecated
 	@Override
 	public void clearCompanyPortletsPool() {
 		_portletLocalService.clearCompanyPortletsPool();
 	}
 
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #clonePortlet(String)}
-	*/
-	@Deprecated
 	@Override
-	public com.liferay.portal.model.Portlet clonePortlet(long companyId,
-		java.lang.String portletId) {
-		return _portletLocalService.clonePortlet(companyId, portletId);
+	public void clearPortletsMap() {
+		_portletLocalService.clearPortletsMap();
 	}
 
 	@Override
@@ -271,16 +270,6 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 		return _portletLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _portletLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<com.liferay.portlet.expando.model.CustomAttributesDisplay> getCustomAttributesDisplays() {
 		return _portletLocalService.getCustomAttributesDisplays();
@@ -300,6 +289,21 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 	@Override
 	public java.util.List<com.liferay.portal.kernel.portlet.FriendlyURLMapper> getFriendlyURLMappers() {
 		return _portletLocalService.getFriendlyURLMappers();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _portletLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _portletLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -424,6 +428,16 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 	}
 
 	@Override
+	public java.util.Map<java.lang.String, com.liferay.portal.model.Portlet> loadGetPortletsMap(
+		long companyId) {
+		return _portletLocalService.loadGetPortletsMap(companyId);
+	}
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #loadGetPortletsMap(long))}
+	*/
+	@Deprecated
+	@Override
 	public java.util.Map<java.lang.String, com.liferay.portal.model.Portlet> loadGetPortletsPool(
 		long companyId) {
 		return _portletLocalService.loadGetPortletsPool(companyId);
@@ -432,16 +446,6 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 	@Override
 	public void removeCompanyPortletsPool(long companyId) {
 		_portletLocalService.removeCompanyPortletsPool(companyId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_portletLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	@Override
@@ -461,23 +465,6 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 	public com.liferay.portal.model.Portlet updatePortlet(
 		com.liferay.portal.model.Portlet portlet) {
 		return _portletLocalService.updatePortlet(portlet);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PortletLocalService getWrappedPortletLocalService() {
-		return _portletLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPortletLocalService(
-		PortletLocalService portletLocalService) {
-		_portletLocalService = portletLocalService;
 	}
 
 	@Override

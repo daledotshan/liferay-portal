@@ -15,6 +15,8 @@
 package com.liferay.portal.upgrade.v6_2_0;
 
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.security.auth.FullNameGenerator;
+import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -22,8 +24,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.security.auth.FullNameGenerator;
-import com.liferay.portal.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.upgrade.v6_2_0.util.DLFileEntryTypeTable;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
 import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
@@ -61,11 +61,7 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 			while (rs.next()) {
 				long companyId = rs.getLong("companyId");
 
-				try {
-					DLStoreUtil.deleteDirectory(companyId, 0, "checksum");
-				}
-				catch (Exception e) {
-				}
+				DLStoreUtil.deleteDirectory(companyId, 0, "checksum");
 			}
 		}
 		finally {
@@ -74,11 +70,7 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 	}
 
 	protected void deleteTempDirectory() {
-		try {
-			DLStoreUtil.deleteDirectory(0, 0, "liferay_temp/");
-		}
-		catch (Exception e) {
-		}
+		DLStoreUtil.deleteDirectory(0, 0, "liferay_temp/");
 	}
 
 	@Override
