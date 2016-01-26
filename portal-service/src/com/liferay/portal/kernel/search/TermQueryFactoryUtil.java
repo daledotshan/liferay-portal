@@ -15,10 +15,13 @@
 package com.liferay.portal.kernel.search;
 
 /**
- * @author Brian Wing Shun Chan
- * @author Michael C. Han
- * @author Raymond Augé
+ * @author     Brian Wing Shun Chan
+ * @author     Michael C. Han
+ * @author     Raymond Augé
+ * @deprecated As of 7.0.0 , replaced by {@link
+ *             com.liferay.portal.kernel.search.generic.TermQueryImpl}
  */
+@Deprecated
 public class TermQueryFactoryUtil {
 
 	public static TermQuery create(
@@ -38,7 +41,7 @@ public class TermQueryFactoryUtil {
 
 		String searchEngineId = searchContext.getSearchEngineId();
 
-		SearchEngine searchEngine = SearchEngineUtil.getSearchEngine(
+		SearchEngine searchEngine = SearchEngineHelperUtil.getSearchEngine(
 			searchEngineId);
 
 		return searchEngine.getTermQueryFactory();

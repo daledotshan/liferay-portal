@@ -19,16 +19,13 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
-import com.liferay.portal.kernel.portlet.LiferayPortletURL;
-import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.WorkflowDefinitionLink;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.WorkflowDefinitionLinkLocalServiceUtil;
 import com.liferay.portal.service.WorkflowInstanceLinkLocalServiceUtil;
-import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
-import com.liferay.portlet.PortletURLFactoryUtil;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.asset.model.AssetRenderer;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
@@ -41,10 +38,11 @@ import java.util.Map;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.portlet.WindowStateException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Bruno Farache
@@ -56,8 +54,11 @@ import javax.portlet.WindowStateException;
 public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 
 	@Override
-	public AssetRenderer getAssetRenderer(long classPK) throws PortalException {
-		AssetRendererFactory assetRendererFactory = getAssetRendererFactory();
+	public AssetRenderer<T> getAssetRenderer(long classPK)
+		throws PortalException {
+
+		AssetRendererFactory<T> assetRendererFactory =
+			getAssetRendererFactory();
 
 		if (assetRendererFactory != null) {
 			return assetRendererFactory.getAssetRenderer(
@@ -69,29 +70,30 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 	}
 
 	@Override
-	public AssetRendererFactory getAssetRendererFactory() {
-		return AssetRendererFactoryRegistryUtil.
+	public AssetRendererFactory<T> getAssetRendererFactory() {
+		return (AssetRendererFactory<T>)AssetRendererFactoryRegistryUtil.
 			getAssetRendererFactoryByClassName(getClassName());
 	}
 
 	@Override
 	public String getIconCssClass() {
-		AssetRendererFactory assetRendererFactory = getAssetRendererFactory();
+		AssetRendererFactory<?> assetRendererFactory =
+			getAssetRendererFactory();
 
 		if (assetRendererFactory != null) {
 			return assetRendererFactory.getIconCssClass();
 		}
 
-		return "icon-file-alt";
+		return StringPool.BLANK;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public String getIconPath(LiferayPortletRequest liferayPortletRequest) {
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)liferayPortletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		return getIconPath(themeDisplay);
+		return StringPool.BLANK;
 	}
 
 	/**
@@ -110,7 +112,7 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 		PortletResponse portletResponse) {
 
 		try {
-			AssetRenderer assetRenderer = getAssetRenderer(classPK);
+			AssetRenderer<?> assetRenderer = getAssetRenderer(classPK);
 
 			if (assetRenderer != null) {
 				return assetRenderer.getSummary(
@@ -129,7 +131,7 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 	@Override
 	public String getTitle(long classPK, Locale locale) {
 		try {
-			AssetRenderer assetRenderer = getAssetRenderer(classPK);
+			AssetRenderer<?> assetRenderer = getAssetRenderer(classPK);
 
 			if (assetRenderer != null) {
 				return assetRenderer.getTitle(locale);
@@ -150,7 +152,7 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 		LiferayPortletResponse liferayPortletResponse) {
 
 		try {
-			AssetRenderer assetRenderer = getAssetRenderer(classPK);
+			AssetRenderer<?> assetRenderer = getAssetRenderer(classPK);
 
 			if (assetRenderer != null) {
 				return assetRenderer.getURLEdit(
@@ -172,19 +174,16 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 		throws PortalException {
 
 		try {
-			LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
-				serviceContext.getRequest(), PortletKeys.MY_WORKFLOW_TASKS,
-				PortalUtil.getControlPanelPlid(serviceContext.getCompanyId()),
+			PortletURL portletURL = PortalUtil.getControlPanelPortletURL(
+				serviceContext.getRequest(), PortletKeys.MY_WORKFLOW_TASK,
 				PortletRequest.RENDER_PHASE);
 
-			liferayPortletURL.setControlPanelCategory("my");
-			liferayPortletURL.setParameter(
-				"struts_action", "/my_workflow_tasks/edit_workflow_task");
-			liferayPortletURL.setParameter(
+			portletURL.setParameter("mvcPath", "/edit_workflow_task.jsp");
+			portletURL.setParameter(
 				"workflowTaskId", String.valueOf(workflowTaskId));
-			liferayPortletURL.setWindowState(WindowState.MAXIMIZED);
+			portletURL.setWindowState(WindowState.MAXIMIZED);
 
-			return liferayPortletURL.toString();
+			return portletURL.toString();
 		}
 		catch (WindowStateException wse) {
 			throw new PortalException(wse);
@@ -197,7 +196,7 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 		LiferayPortletResponse liferayPortletResponse) {
 
 		try {
-			AssetRenderer assetRenderer = getAssetRenderer(classPK);
+			AssetRenderer<?> assetRenderer = getAssetRenderer(classPK);
 
 			if (assetRenderer != null) {
 				return assetRenderer.getURLViewDiffs(
@@ -220,7 +219,7 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 		String noSuchEntryRedirect) {
 
 		try {
-			AssetRenderer assetRenderer = getAssetRenderer(classPK);
+			AssetRenderer<?> assetRenderer = getAssetRenderer(classPK);
 
 			if (assetRenderer != null) {
 				return assetRenderer.getURLViewInContext(
@@ -251,6 +250,27 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 	}
 
 	@Override
+	public boolean include(
+		long classPK, HttpServletRequest request, HttpServletResponse response,
+		String template) {
+
+		try {
+			AssetRenderer<?> assetRenderer = getAssetRenderer(classPK);
+
+			if (assetRenderer != null) {
+				return assetRenderer.include(request, response, template);
+			}
+		}
+		catch (Exception e) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(e, e);
+			}
+		}
+
+		return false;
+	}
+
+	@Override
 	public boolean isAssetTypeSearchable() {
 		return _ASSET_TYPE_SEARCHABLE;
 	}
@@ -266,28 +286,6 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 	}
 
 	@Override
-	public String render(
-		long classPK, RenderRequest renderRequest,
-		RenderResponse renderResponse, String template) {
-
-		try {
-			AssetRenderer assetRenderer = getAssetRenderer(classPK);
-
-			if (assetRenderer != null) {
-				return assetRenderer.render(
-					renderRequest, renderResponse, template);
-			}
-		}
-		catch (Exception e) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(e, e);
-			}
-		}
-
-		return null;
-	}
-
-	@Override
 	public void startWorkflowInstance(
 			long companyId, long groupId, long userId, long classPK, T model,
 			Map<String, Serializable> workflowContext)
@@ -296,10 +294,6 @@ public abstract class BaseWorkflowHandler<T> implements WorkflowHandler<T> {
 		WorkflowInstanceLinkLocalServiceUtil.startWorkflowInstance(
 			companyId, groupId, userId, getClassName(), classPK,
 			workflowContext);
-	}
-
-	protected String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPathThemeImages() + "/common/page.png";
 	}
 
 	private static final boolean _ASSET_TYPE_SEARCHABLE = true;

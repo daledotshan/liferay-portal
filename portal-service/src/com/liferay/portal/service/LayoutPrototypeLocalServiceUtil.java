@@ -53,21 +53,6 @@ public class LayoutPrototypeLocalServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addLayoutPrototype(long,
-	long, Map, String, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.LayoutPrototype addLayoutPrototype(
-		long userId, long companyId,
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
-		java.lang.String description, boolean active)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addLayoutPrototype(userId, companyId, nameMap, description,
-			active);
-	}
-
-	/**
 	* @deprecated As of 7.0.0, replaced by {@link #addLayoutPrototype(long,
 	long, Map, Map, boolean, ServiceContext)}
 	*/
@@ -245,18 +230,13 @@ public class LayoutPrototypeLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
+		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
-	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
-		return getService().getExportActionableDynamicQuery(portletDataContext);
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -270,17 +250,6 @@ public class LayoutPrototypeLocalServiceUtil {
 		long layoutPrototypeId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getLayoutPrototype(layoutPrototypeId);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getLayoutPrototypeByUuidAndCompanyId(String, long)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.LayoutPrototype getLayoutPrototypeByUuid(
-		java.lang.String uuid)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().getLayoutPrototypeByUuid(uuid);
 	}
 
 	/**
@@ -322,6 +291,15 @@ public class LayoutPrototypeLocalServiceUtil {
 		return getService().getLayoutPrototypesCount();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -339,15 +317,6 @@ public class LayoutPrototypeLocalServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the layout prototype in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param layoutPrototype the layout prototype
@@ -356,21 +325,6 @@ public class LayoutPrototypeLocalServiceUtil {
 	public static com.liferay.portal.model.LayoutPrototype updateLayoutPrototype(
 		com.liferay.portal.model.LayoutPrototype layoutPrototype) {
 		return getService().updateLayoutPrototype(layoutPrototype);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #updateLayoutPrototype(long,
-	Map, String, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.LayoutPrototype updateLayoutPrototype(
-		long layoutPrototypeId,
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
-		java.lang.String description, boolean active)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .updateLayoutPrototype(layoutPrototypeId, nameMap,
-			description, active);
 	}
 
 	/**
@@ -409,13 +363,6 @@ public class LayoutPrototypeLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(LayoutPrototypeLocalService service) {
 	}
 
 	private static LayoutPrototypeLocalService _service;

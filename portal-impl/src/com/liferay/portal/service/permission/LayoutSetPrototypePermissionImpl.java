@@ -14,9 +14,9 @@
 
 package com.liferay.portal.service.permission;
 
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.model.LayoutSetPrototype;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.PermissionChecker;
 
 /**
  * @author Brian Wing Shun Chan
@@ -31,7 +31,9 @@ public class LayoutSetPrototypePermissionImpl
 		throws PrincipalException {
 
 		if (!contains(permissionChecker, layoutSetPrototypeId, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, LayoutSetPrototype.class.getName(),
+				layoutSetPrototypeId, actionId);
 		}
 	}
 

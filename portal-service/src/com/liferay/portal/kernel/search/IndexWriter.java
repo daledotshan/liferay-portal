@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.search;
 
+import com.liferay.portal.kernel.search.suggest.SpellCheckIndexWriter;
+
 import java.util.Collection;
 
 /**
@@ -28,6 +30,8 @@ public interface IndexWriter extends SpellCheckIndexWriter {
 			SearchContext searchContext, Collection<Document> documents)
 		throws SearchException;
 
+	public void commit(SearchContext searchContext) throws SearchException;
+
 	public void deleteDocument(SearchContext searchContext, String uid)
 		throws SearchException;
 
@@ -37,6 +41,14 @@ public interface IndexWriter extends SpellCheckIndexWriter {
 
 	public void deleteEntityDocuments(
 			SearchContext searchContext, String className)
+		throws SearchException;
+
+	public void partiallyUpdateDocument(
+			SearchContext searchContext, Document document)
+		throws SearchException;
+
+	public void partiallyUpdateDocuments(
+			SearchContext searchContext, Collection<Document> documents)
 		throws SearchException;
 
 	public void updateDocument(SearchContext searchContext, Document document)

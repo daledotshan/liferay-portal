@@ -16,6 +16,8 @@ package com.liferay.portlet.documentlibrary.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.model.TreeModel;
 
@@ -28,6 +30,7 @@ import com.liferay.portal.model.TreeModel;
  * @see com.liferay.portlet.documentlibrary.model.impl.DLFileVersionModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.documentlibrary.model.impl.DLFileVersionImpl")
 @ProviderType
 public interface DLFileVersion extends DLFileVersionModel, PersistedModel,
 	TreeModel {
@@ -36,6 +39,23 @@ public interface DLFileVersion extends DLFileVersionModel, PersistedModel,
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.documentlibrary.model.impl.DLFileVersionImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<DLFileVersion, Long> FILE_VERSION_ID_ACCESSOR = new Accessor<DLFileVersion, Long>() {
+			@Override
+			public Long get(DLFileVersion dlFileVersion) {
+				return dlFileVersion.getFileVersionId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<DLFileVersion> getTypeClass() {
+				return DLFileVersion.class;
+			}
+		};
+
 	@Override
 	public java.lang.String buildTreePath()
 		throws com.liferay.portal.kernel.exception.PortalException;
@@ -43,7 +63,7 @@ public interface DLFileVersion extends DLFileVersionModel, PersistedModel,
 	public java.io.InputStream getContentStream(boolean incrementCounter)
 		throws com.liferay.portal.kernel.exception.PortalException;
 
-	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getDDMStructures()
+	public java.util.List<com.liferay.dynamic.data.mapping.kernel.DDMStructure> getDDMStructures()
 		throws com.liferay.portal.kernel.exception.PortalException;
 
 	public com.liferay.portlet.documentlibrary.model.DLFileEntryType getDLFileEntryType()

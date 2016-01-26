@@ -14,16 +14,16 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.LayoutSetBranchNameException;
-import com.liferay.portal.NoSuchLayoutSetBranchException;
-import com.liferay.portal.RequiredLayoutSetBranchException;
+import com.liferay.portal.exception.LayoutSetBranchNameException;
+import com.liferay.portal.exception.NoSuchLayoutSetBranchException;
+import com.liferay.portal.exception.RequiredLayoutSetBranchException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Image;
@@ -41,6 +41,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.LayoutSetBranchLocalServiceBaseImpl;
 import com.liferay.portal.util.comparator.LayoutSetBranchCreateDateComparator;
+import com.liferay.portlet.exportimport.staging.StagingUtil;
 
 import java.text.Format;
 
@@ -66,7 +67,6 @@ public class LayoutSetBranchLocalServiceImpl
 		// Layout branch
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		Date now = new Date();
 
 		validate(0, groupId, privateLayout, name, master);
 
@@ -115,8 +115,6 @@ public class LayoutSetBranchLocalServiceImpl
 		layoutSetBranch.setCompanyId(user.getCompanyId());
 		layoutSetBranch.setUserId(user.getUserId());
 		layoutSetBranch.setUserName(user.getFullName());
-		layoutSetBranch.setCreateDate(serviceContext.getCreateDate(now));
-		layoutSetBranch.setModifiedDate(serviceContext.getModifiedDate(now));
 		layoutSetBranch.setPrivateLayout(privateLayout);
 		layoutSetBranch.setName(name);
 		layoutSetBranch.setDescription(description);
@@ -293,6 +291,11 @@ public class LayoutSetBranchLocalServiceImpl
 		layoutRevisionLocalService.deleteLayoutSetBranchLayoutRevisions(
 			layoutSetBranch.getLayoutSetBranchId());
 
+		// Recent layout sets
+
+		recentLayoutSetBranchLocalService.deleteRecentLayoutSetBranches(
+			layoutSetBranch.getLayoutSetBranchId());
+
 		return layoutSetBranch;
 	}
 
@@ -359,21 +362,6 @@ public class LayoutSetBranchLocalServiceImpl
 
 		return layoutSetBranchPersistence.findByG_P_M_First(
 			groupId, privateLayout, true, null);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getUserLayoutSetBranch(long,
-	 *             long, boolean, long, long)}
-	 */
-	@Deprecated
-	@Override
-	public LayoutSetBranch getUserLayoutSetBranch(
-			long userId, long groupId, boolean privateLayout,
-			long layoutSetBranchId)
-		throws PortalException {
-
-		return getUserLayoutSetBranch(
-			userId, groupId, privateLayout, 0, layoutSetBranchId);
 	}
 
 	@Override
@@ -508,15 +496,11 @@ public class LayoutSetBranchLocalServiceImpl
 			return mergeBranchName;
 		}
 
-		StringBundler sb = new StringBundler(5);
+		String defaultLayoutBranchName = StringUtil.appendParentheticalSuffix(
+			LanguageUtil.get(locale, mergeBranchName),
+			LanguageUtil.get(locale, mergeLayoutSetBranchName));
 
-		sb.append(LanguageUtil.get(locale, mergeBranchName));
-		sb.append(StringPool.SPACE);
-		sb.append(StringPool.OPEN_PARENTHESIS);
-		sb.append(LanguageUtil.get(locale, mergeLayoutSetBranchName));
-		sb.append(StringPool.CLOSE_PARENTHESIS);
-
-		String layoutBranchName = sb.toString();
+		String layoutBranchName = defaultLayoutBranchName;
 
 		for (int i = 1;; i++) {
 			layoutBranch = layoutBranchPersistence.fetchByL_P_N(
@@ -526,7 +510,7 @@ public class LayoutSetBranchLocalServiceImpl
 				break;
 			}
 
-			layoutBranchName = sb.toString() + StringPool.SPACE + i;
+			layoutBranchName = defaultLayoutBranchName + StringPool.SPACE + i;
 		}
 
 		return layoutBranchName;

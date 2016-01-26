@@ -24,7 +24,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portal.service.AddressServiceUtil} service utility. The
+ * {@link AddressServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -59,37 +59,11 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see AddressServiceHttp
  * @see com.liferay.portal.model.AddressSoap
- * @see com.liferay.portal.service.AddressServiceUtil
+ * @see AddressServiceUtil
  * @generated
  */
 @ProviderType
 public class AddressServiceSoap {
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addAddress(String, long,
-	String, String, String, String, String, long, long, int,
-	boolean, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.AddressSoap addAddress(
-		java.lang.String className, long classPK, java.lang.String street1,
-		java.lang.String street2, java.lang.String street3,
-		java.lang.String city, java.lang.String zip, long regionId,
-		long countryId, long typeId, boolean mailing, boolean primary)
-		throws RemoteException {
-		try {
-			com.liferay.portal.model.Address returnValue = AddressServiceUtil.addAddress(className,
-					classPK, street1, street2, street3, city, zip, regionId,
-					countryId, typeId, mailing, primary);
-
-			return com.liferay.portal.model.AddressSoap.toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
 	public static com.liferay.portal.model.AddressSoap addAddress(
 		java.lang.String className, long classPK, java.lang.String street1,
 		java.lang.String street2, java.lang.String street3,

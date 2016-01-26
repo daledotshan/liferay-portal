@@ -39,13 +39,13 @@ public class PortletPreferencesServiceWrapper
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _portletPreferencesService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _portletPreferencesService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -76,16 +76,6 @@ public class PortletPreferencesServiceWrapper
 			layout, portletId, preferences);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_portletPreferencesService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void updateArchivePreferences(long userId, long groupId,
 		java.lang.String name, java.lang.String portletId,
@@ -93,23 +83,6 @@ public class PortletPreferencesServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_portletPreferencesService.updateArchivePreferences(userId, groupId,
 			name, portletId, preferences);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PortletPreferencesService getWrappedPortletPreferencesService() {
-		return _portletPreferencesService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPortletPreferencesService(
-		PortletPreferencesService portletPreferencesService) {
-		_portletPreferencesService = portletPreferencesService;
 	}
 
 	@Override
