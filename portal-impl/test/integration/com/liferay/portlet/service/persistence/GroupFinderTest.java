@@ -16,6 +16,8 @@ package com.liferay.portlet.service.persistence;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.RolePermissions;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -30,14 +32,12 @@ import com.liferay.portal.model.ResourceAction;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.ResourcePermission;
 import com.liferay.portal.model.ResourceTypePermission;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.service.ResourceTypePermissionLocalServiceUtil;
 import com.liferay.portal.service.persistence.GroupFinderUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.comparator.GroupNameComparator;
 import com.liferay.portal.util.test.LayoutTestUtil;
@@ -63,8 +63,7 @@ public class GroupFinderTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			new LiferayIntegrationTestRule(), TransactionalTestRule.INSTANCE);
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -110,19 +109,24 @@ public class GroupFinderTest {
 	public void testFindByC_C_N_DJoinByRoleResourcePermissions()
 		throws Exception {
 
+		boolean exists = false;
+
 		List<Group> groups = findByC_C_N_D(
 			_arbitraryResourceAction.getActionId(),
 			_resourcePermission.getName(), _resourcePermission.getRoleId());
 
 		for (Group group : groups) {
 			if (group.getGroupId() == _group.getGroupId()) {
-				return;
+				exists = true;
+
+				break;
 			}
 		}
 
-		Assert.fail(
+		Assert.assertTrue(
 			"The method findByC_C_N_D should have returned the group " +
-				_group.getGroupId());
+				_group.getGroupId(),
+			exists);
 	}
 
 	@Test
@@ -134,15 +138,20 @@ public class GroupFinderTest {
 			_resourceTypePermission.getName(),
 			_resourceTypePermission.getRoleId());
 
+		boolean exists = false;
+
 		for (Group group : groups) {
 			if (group.getGroupId() == _group.getGroupId()) {
-				return;
+				exists = true;
+
+				break;
 			}
 		}
 
-		Assert.fail(
+		Assert.assertTrue(
 			"The method findByC_C_N_D should have returned the group " +
-				_group.getGroupId());
+				_group.getGroupId(),
+			exists);
 	}
 
 	@Test
@@ -223,12 +232,8 @@ public class GroupFinderTest {
 
 		LinkedHashMap<String, Object> groupParams = new LinkedHashMap<>();
 
-		List<Object> rolePermissions = new ArrayList<>();
-
-		rolePermissions.add(name);
-		rolePermissions.add(new Integer(ResourceConstants.SCOPE_GROUP));
-		rolePermissions.add(actionId);
-		rolePermissions.add(roleId);
+		RolePermissions rolePermissions = new RolePermissions(
+			name, ResourceConstants.SCOPE_GROUP, actionId, roleId);
 
 		groupParams.put("rolePermissions", rolePermissions);
 

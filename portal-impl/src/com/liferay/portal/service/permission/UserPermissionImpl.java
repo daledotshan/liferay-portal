@@ -17,6 +17,10 @@ package com.liferay.portal.service.permission;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.model.Contact;
 import com.liferay.portal.model.Group;
@@ -24,10 +28,6 @@ import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.BaseModelPermissionChecker;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
@@ -68,7 +68,8 @@ public class UserPermissionImpl
 		throws PrincipalException {
 
 		if (!contains(permissionChecker, userId, organizationIds, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, User.class.getName(), userId, actionId);
 		}
 	}
 
@@ -78,7 +79,8 @@ public class UserPermissionImpl
 		throws PrincipalException {
 
 		if (!contains(permissionChecker, userId, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, User.class.getName(), userId, actionId);
 		}
 	}
 
@@ -196,7 +198,7 @@ public class UserPermissionImpl
 								RoleConstants.ORGANIZATION_ADMINISTRATOR,
 								true) &&
 							 !UserGroupRoleLocalServiceUtil.hasUserGroupRole(
-								permissionChecker.getUserId(),
+								 permissionChecker.getUserId(),
 								organizationGroup.getGroupId(),
 								RoleConstants.ORGANIZATION_OWNER, true)) {
 

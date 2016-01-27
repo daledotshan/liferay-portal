@@ -16,6 +16,8 @@ package com.liferay.portlet.expando.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.expando.model.impl.ExpandoColumnModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.expando.model.impl.ExpandoColumnImpl")
 @ProviderType
 public interface ExpandoColumn extends ExpandoColumnModel, PersistedModel {
 	/*
@@ -34,6 +37,23 @@ public interface ExpandoColumn extends ExpandoColumnModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.expando.model.impl.ExpandoColumnImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<ExpandoColumn, Long> COLUMN_ID_ACCESSOR = new Accessor<ExpandoColumn, Long>() {
+			@Override
+			public Long get(ExpandoColumn expandoColumn) {
+				return expandoColumn.getColumnId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<ExpandoColumn> getTypeClass() {
+				return ExpandoColumn.class;
+			}
+		};
+
 	public java.io.Serializable getDefaultValue();
 
 	public java.lang.String getDisplayName(java.util.Locale locale);

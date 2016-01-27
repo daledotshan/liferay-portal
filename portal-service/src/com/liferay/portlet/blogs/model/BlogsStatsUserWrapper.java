@@ -177,7 +177,7 @@ public class BlogsStatsUserWrapper implements BlogsStatsUser,
 	* @return the last post date of this blogs stats user
 	*/
 	@Override
-	public java.util.Date getLastPostDate() {
+	public Date getLastPostDate() {
 		return _blogsStatsUser.getLastPostDate();
 	}
 
@@ -350,7 +350,7 @@ public class BlogsStatsUserWrapper implements BlogsStatsUser,
 	* @param lastPostDate the last post date of this blogs stats user
 	*/
 	@Override
-	public void setLastPostDate(java.util.Date lastPostDate) {
+	public void setLastPostDate(Date lastPostDate) {
 		_blogsStatsUser.setLastPostDate(lastPostDate);
 	}
 
@@ -487,14 +487,6 @@ public class BlogsStatsUserWrapper implements BlogsStatsUser,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public BlogsStatsUser getWrappedBlogsStatsUser() {
-		return _blogsStatsUser;
 	}
 
 	@Override

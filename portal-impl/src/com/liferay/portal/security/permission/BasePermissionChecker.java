@@ -16,6 +16,7 @@ package com.liferay.portal.security.permission;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
@@ -40,13 +41,6 @@ public abstract class BasePermissionChecker implements PermissionChecker {
 	@Override
 	public long getCompanyId() {
 		return user.getCompanyId();
-	}
-
-	@Override
-	public List<Long> getGuestResourceBlockIds(
-		long companyId, long groupId, String name, String actionId) {
-
-		return Collections.emptyList();
 	}
 
 	@Override

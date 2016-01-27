@@ -206,16 +206,6 @@ public class SocialActivityAchievementLocalServiceWrapper
 		return _socialActivityAchievementLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _socialActivityAchievementLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<com.liferay.portlet.social.model.SocialActivityAchievement> getGroupAchievements(
 		long groupId) {
@@ -249,6 +239,21 @@ public class SocialActivityAchievementLocalServiceWrapper
 	@Override
 	public int getGroupFirstAchievementsCount(long groupId) {
 		return _socialActivityAchievementLocalService.getGroupFirstAchievementsCount(groupId);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _socialActivityAchievementLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _socialActivityAchievementLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -314,16 +319,6 @@ public class SocialActivityAchievementLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_socialActivityAchievementLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the social activity achievement in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param socialActivityAchievement the social activity achievement
@@ -333,23 +328,6 @@ public class SocialActivityAchievementLocalServiceWrapper
 	public com.liferay.portlet.social.model.SocialActivityAchievement updateSocialActivityAchievement(
 		com.liferay.portlet.social.model.SocialActivityAchievement socialActivityAchievement) {
 		return _socialActivityAchievementLocalService.updateSocialActivityAchievement(socialActivityAchievement);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SocialActivityAchievementLocalService getWrappedSocialActivityAchievementLocalService() {
-		return _socialActivityAchievementLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSocialActivityAchievementLocalService(
-		SocialActivityAchievementLocalService socialActivityAchievementLocalService) {
-		_socialActivityAchievementLocalService = socialActivityAchievementLocalService;
 	}
 
 	@Override

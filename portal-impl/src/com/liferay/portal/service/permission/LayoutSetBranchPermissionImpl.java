@@ -15,9 +15,9 @@
 package com.liferay.portal.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.model.LayoutSetBranch;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.LayoutSetBranchLocalServiceUtil;
 
 /**
@@ -33,7 +33,9 @@ public class LayoutSetBranchPermissionImpl
 		throws PortalException {
 
 		if (!contains(permissionChecker, layoutSetBranch, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, LayoutSetBranch.class.getName(),
+				layoutSetBranch.getLayoutSetBranchId(), actionId);
 		}
 	}
 
@@ -44,7 +46,9 @@ public class LayoutSetBranchPermissionImpl
 		throws PortalException {
 
 		if (!contains(permissionChecker, layoutSetBranchId, actionId)) {
-			throw new PrincipalException();
+			throw new PrincipalException.MustHavePermission(
+				permissionChecker, LayoutSetBranch.class.getName(),
+				layoutSetBranchId, actionId);
 		}
 	}
 
