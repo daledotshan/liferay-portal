@@ -214,8 +214,7 @@ public class VirtualHostWrapper implements VirtualHost,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_virtualHost.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -292,7 +291,7 @@ public class VirtualHostWrapper implements VirtualHost,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.VirtualHost> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.VirtualHost> toCacheModel() {
 		return _virtualHost.toCacheModel();
 	}
 
@@ -333,14 +332,6 @@ public class VirtualHostWrapper implements VirtualHost,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public VirtualHost getWrappedVirtualHost() {
-		return _virtualHost;
 	}
 
 	@Override

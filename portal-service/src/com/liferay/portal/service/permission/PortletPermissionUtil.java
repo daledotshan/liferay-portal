@@ -18,9 +18,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
-import com.liferay.portal.security.permission.PermissionChecker;
 
 import java.util.Collection;
 
@@ -66,6 +66,17 @@ public class PortletPermissionUtil {
 
 		getPortletPermission().check(
 			permissionChecker, groupId, layout, portletId, actionId, strict);
+	}
+
+	public static void check(
+			PermissionChecker permissionChecker, long groupId, Layout layout,
+			String portletId, String actionId, boolean strict,
+			boolean checkStagingPermission)
+		throws PortalException {
+
+		getPortletPermission().check(
+			permissionChecker, groupId, layout, portletId, actionId, strict,
+			checkStagingPermission);
 	}
 
 	public static void check(
@@ -182,6 +193,17 @@ public class PortletPermissionUtil {
 
 		return getPortletPermission().contains(
 			permissionChecker, groupId, layout, portletId, actionId, strict);
+	}
+
+	public static boolean contains(
+			PermissionChecker permissionChecker, long groupId, Layout layout,
+			String portletId, String actionId, boolean strict,
+			boolean checkStagingPermission)
+		throws PortalException {
+
+		return getPortletPermission().contains(
+			permissionChecker, groupId, layout, portletId, actionId, strict,
+			checkStagingPermission);
 	}
 
 	/**

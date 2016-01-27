@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchClusterGroupException;
+import com.liferay.portal.exception.NoSuchClusterGroupException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -38,6 +38,7 @@ import com.liferay.portal.test.rule.PersistenceTestRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -54,8 +55,9 @@ import java.util.Set;
  * @generated
  */
 public class ClusterGroupPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -145,29 +147,17 @@ public class ClusterGroupPersistenceTest {
 		Assert.assertEquals(existingClusterGroup, newClusterGroup);
 	}
 
-	@Test
+	@Test(expected = NoSuchClusterGroupException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchClusterGroupException");
-		}
-		catch (NoSuchClusterGroupException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ClusterGroup> getOrderByComparator() {
@@ -282,11 +272,9 @@ public class ClusterGroupPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ClusterGroupLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ClusterGroup>() {
 				@Override
-				public void performAction(Object object) {
-					ClusterGroup clusterGroup = (ClusterGroup)object;
-
+				public void performAction(ClusterGroup clusterGroup) {
 					Assert.assertNotNull(clusterGroup);
 
 					count.increment();

@@ -18,7 +18,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portlet.ratings.NoSuchStatsException;
+import com.liferay.portlet.ratings.exception.NoSuchStatsException;
 import com.liferay.portlet.ratings.model.RatingsStats;
 import com.liferay.portlet.ratings.service.base.RatingsStatsLocalServiceBaseImpl;
 
@@ -77,6 +77,16 @@ public class RatingsStatsLocalServiceImpl
 		}
 
 		ratingsEntryPersistence.removeByC_C(classNameId, classPK);
+	}
+
+	@Override
+	public RatingsStats fetchStats(String className, long classPK) {
+		long classNameId = classNameLocalService.getClassNameId(className);
+
+		RatingsStats stats = ratingsStatsPersistence.fetchByC_C(
+			classNameId, classPK);
+
+		return stats;
 	}
 
 	@Override

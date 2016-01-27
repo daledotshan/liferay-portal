@@ -53,6 +53,7 @@ public class RatingsStatsWrapper implements RatingsStats,
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("statsId", getStatsId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
 		attributes.put("totalEntries", getTotalEntries());
@@ -68,6 +69,12 @@ public class RatingsStatsWrapper implements RatingsStats,
 
 		if (statsId != null) {
 			setStatsId(statsId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long classNameId = (Long)attributes.get("classNameId");
@@ -150,6 +157,16 @@ public class RatingsStatsWrapper implements RatingsStats,
 	@Override
 	public long getClassPK() {
 		return _ratingsStats.getClassPK();
+	}
+
+	/**
+	* Returns the company ID of this ratings stats.
+	*
+	* @return the company ID of this ratings stats
+	*/
+	@Override
+	public long getCompanyId() {
+		return _ratingsStats.getCompanyId();
 	}
 
 	@Override
@@ -267,6 +284,16 @@ public class RatingsStatsWrapper implements RatingsStats,
 		_ratingsStats.setClassPK(classPK);
 	}
 
+	/**
+	* Sets the company ID of this ratings stats.
+	*
+	* @param companyId the company ID of this ratings stats
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_ratingsStats.setCompanyId(companyId);
+	}
+
 	@Override
 	public void setExpandoBridgeAttributes(
 		com.liferay.portal.model.BaseModel<?> baseModel) {
@@ -377,14 +404,6 @@ public class RatingsStatsWrapper implements RatingsStats,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public RatingsStats getWrappedRatingsStats() {
-		return _ratingsStats;
 	}
 
 	@Override

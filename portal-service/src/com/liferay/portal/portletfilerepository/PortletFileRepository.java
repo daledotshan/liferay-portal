@@ -19,6 +19,8 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.search.Hits;
+import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.Repository;
@@ -41,6 +43,12 @@ public interface PortletFileRepository {
 			long groupId, long userId, String className, long classPK,
 			String portletId, long folderId,
 			List<ObjectValuePair<String, InputStream>> inputStreamOVPs)
+		throws PortalException;
+
+	public FileEntry addPortletFileEntry(
+			long groupId, long userId, String className, long classPK,
+			String portletId, long folderId, byte[] bytes, String fileName,
+			String mimeType, boolean indexingEnabled)
 		throws PortalException;
 
 	public FileEntry addPortletFileEntry(
@@ -102,22 +110,28 @@ public interface PortletFileRepository {
 		ThemeDisplay themeDisplay, FileEntry fileEntry, String queryString,
 		boolean absoluteURL);
 
-	public List<FileEntry> getPortletFileEntries(long groupId, long folderId);
+	public List<FileEntry> getPortletFileEntries(long groupId, long folderId)
+		throws PortalException;
 
 	public List<FileEntry> getPortletFileEntries(
-		long groupId, long folderId, int status);
+			long groupId, long folderId, int status)
+		throws PortalException;
 
 	public List<FileEntry> getPortletFileEntries(
-		long groupId, long folderId, int status, int start, int end,
-		OrderByComparator<FileEntry> obc);
+			long groupId, long folderId, int status, int start, int end,
+			OrderByComparator<FileEntry> obc)
+		throws PortalException;
 
 	public List<FileEntry> getPortletFileEntries(
-		long groupId, long folderId, OrderByComparator<FileEntry> obc);
+			long groupId, long folderId, OrderByComparator<FileEntry> obc)
+		throws PortalException;
 
-	public int getPortletFileEntriesCount(long groupId, long folderId);
+	public int getPortletFileEntriesCount(long groupId, long folderId)
+		throws PortalException;
 
 	public int getPortletFileEntriesCount(
-		long groupId, long folderId, int status);
+			long groupId, long folderId, int status)
+		throws PortalException;
 
 	public FileEntry getPortletFileEntry(long fileEntryId)
 		throws PortalException;
@@ -145,6 +159,9 @@ public interface PortletFileRepository {
 	public Repository getPortletRepository(long groupId, String portletId)
 		throws PortalException;
 
+	public String getUniqueFileName(
+		long groupId, long folderId, String fileName);
+
 	public FileEntry movePortletFileEntryToTrash(long userId, long fileEntryId)
 		throws PortalException;
 
@@ -152,11 +169,20 @@ public interface PortletFileRepository {
 			long groupId, long userId, long folderId, String fileName)
 		throws PortalException;
 
+	public Folder movePortletFolder(
+			long groupId, long userId, long folderId, long parentFolderId,
+			ServiceContext serviceContext)
+		throws PortalException;
+
 	public void restorePortletFileEntryFromTrash(long userId, long fileEntryId)
 		throws PortalException;
 
 	public void restorePortletFileEntryFromTrash(
 			long groupId, long userId, long folderId, String fileName)
+		throws PortalException;
+
+	public Hits searchPortletFileEntries(
+			long repositoryId, SearchContext searchContext)
 		throws PortalException;
 
 }

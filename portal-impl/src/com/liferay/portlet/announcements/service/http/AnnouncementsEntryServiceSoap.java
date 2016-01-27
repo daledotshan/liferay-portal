@@ -25,7 +25,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portlet.announcements.service.AnnouncementsEntryServiceUtil} service utility. The
+ * {@link AnnouncementsEntryServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see AnnouncementsEntryServiceHttp
  * @see com.liferay.portlet.announcements.model.AnnouncementsEntrySoap
- * @see com.liferay.portlet.announcements.service.AnnouncementsEntryServiceUtil
+ * @see AnnouncementsEntryServiceUtil
  * @generated
  */
 @ProviderType
@@ -80,38 +80,6 @@ public class AnnouncementsEntryServiceSoap {
 					displayDateDay, displayDateYear, displayDateHour,
 					displayDateMinute, displayImmediately, expirationDateMonth,
 					expirationDateDay, expirationDateYear, expirationDateHour,
-					expirationDateMinute, priority, alert);
-
-			return com.liferay.portlet.announcements.model.AnnouncementsEntrySoap.toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEntry(long, long, long,
-	String, String, String, String, int, int, int, int, int,
-	boolean, int, int, int, int, int, int, boolean)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.announcements.model.AnnouncementsEntrySoap addEntry(
-		long plid, long classNameId, long classPK, java.lang.String title,
-		java.lang.String content, java.lang.String url, java.lang.String type,
-		int displayDateMonth, int displayDateDay, int displayDateYear,
-		int displayDateHour, int displayDateMinute, int expirationDateMonth,
-		int expirationDateDay, int expirationDateYear, int expirationDateHour,
-		int expirationDateMinute, int priority, boolean alert)
-		throws RemoteException {
-		try {
-			com.liferay.portlet.announcements.model.AnnouncementsEntry returnValue =
-				AnnouncementsEntryServiceUtil.addEntry(plid, classNameId,
-					classPK, title, content, url, type, displayDateMonth,
-					displayDateDay, displayDateYear, displayDateHour,
-					displayDateMinute, expirationDateMonth, expirationDateDay,
-					expirationDateYear, expirationDateHour,
 					expirationDateMinute, priority, alert);
 
 			return com.liferay.portlet.announcements.model.AnnouncementsEntrySoap.toSoapModel(returnValue);

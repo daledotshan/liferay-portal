@@ -18,19 +18,19 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.HttpPrincipal;
 import com.liferay.portal.kernel.util.MethodHandler;
 import com.liferay.portal.kernel.util.MethodKey;
-import com.liferay.portal.security.auth.HttpPrincipal;
 import com.liferay.portal.service.http.TunnelUtil;
 
 import com.liferay.portlet.trash.service.TrashEntryServiceUtil;
 
 /**
  * Provides the HTTP utility for the
- * {@link com.liferay.portlet.trash.service.TrashEntryServiceUtil} service utility. The
+ * {@link TrashEntryServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it requires an additional
- * {@link com.liferay.portal.security.auth.HttpPrincipal} parameter.
+ * {@link HttpPrincipal} parameter.
  *
  * <p>
  * The benefits of using the HTTP utility is that it is fast and allows for
@@ -49,8 +49,8 @@ import com.liferay.portlet.trash.service.TrashEntryServiceUtil;
  *
  * @author Brian Wing Shun Chan
  * @see TrashEntryServiceSoap
- * @see com.liferay.portal.security.auth.HttpPrincipal
- * @see com.liferay.portlet.trash.service.TrashEntryServiceUtil
+ * @see HttpPrincipal
+ * @see TrashEntryServiceUtil
  * @generated
  */
 @ProviderType
@@ -164,7 +164,7 @@ public class TrashEntryServiceHttp {
 
 	public static com.liferay.portlet.trash.model.TrashEntryList getEntries(
 		HttpPrincipal httpPrincipal, long groupId)
-		throws com.liferay.portal.security.auth.PrincipalException {
+		throws com.liferay.portal.kernel.security.auth.PrincipalException {
 		try {
 			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
 					"getEntries", _getEntriesParameterTypes4);
@@ -177,8 +177,8 @@ public class TrashEntryServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.security.auth.PrincipalException) {
-					throw (com.liferay.portal.security.auth.PrincipalException)e;
+				if (e instanceof com.liferay.portal.kernel.security.auth.PrincipalException) {
+					throw (com.liferay.portal.kernel.security.auth.PrincipalException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
@@ -196,7 +196,7 @@ public class TrashEntryServiceHttp {
 	public static com.liferay.portlet.trash.model.TrashEntryList getEntries(
 		HttpPrincipal httpPrincipal, long groupId, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.trash.model.TrashEntry> obc)
-		throws com.liferay.portal.security.auth.PrincipalException {
+		throws com.liferay.portal.kernel.security.auth.PrincipalException {
 		try {
 			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
 					"getEntries", _getEntriesParameterTypes5);
@@ -210,14 +210,46 @@ public class TrashEntryServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception e) {
-				if (e instanceof com.liferay.portal.security.auth.PrincipalException) {
-					throw (com.liferay.portal.security.auth.PrincipalException)e;
+				if (e instanceof com.liferay.portal.kernel.security.auth.PrincipalException) {
+					throw (com.liferay.portal.kernel.security.auth.PrincipalException)e;
 				}
 
 				throw new com.liferay.portal.kernel.exception.SystemException(e);
 			}
 
 			return (com.liferay.portlet.trash.model.TrashEntryList)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException se) {
+			_log.error(se, se);
+
+			throw se;
+		}
+	}
+
+	public static java.util.List<com.liferay.portlet.trash.model.TrashEntry> getEntries(
+		HttpPrincipal httpPrincipal, long groupId, java.lang.String className)
+		throws com.liferay.portal.kernel.security.auth.PrincipalException {
+		try {
+			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
+					"getEntries", _getEntriesParameterTypes6);
+
+			MethodHandler methodHandler = new MethodHandler(methodKey, groupId,
+					className);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception e) {
+				if (e instanceof com.liferay.portal.kernel.security.auth.PrincipalException) {
+					throw (com.liferay.portal.kernel.security.auth.PrincipalException)e;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(e);
+			}
+
+			return (java.util.List<com.liferay.portlet.trash.model.TrashEntry>)returnObj;
 		}
 		catch (com.liferay.portal.kernel.exception.SystemException se) {
 			_log.error(se, se);
@@ -233,7 +265,7 @@ public class TrashEntryServiceHttp {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
-					"moveEntry", _moveEntryParameterTypes6);
+					"moveEntry", _moveEntryParameterTypes7);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey,
 					className, classPK, destinationContainerModelId,
@@ -262,7 +294,7 @@ public class TrashEntryServiceHttp {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
-					"restoreEntry", _restoreEntryParameterTypes7);
+					"restoreEntry", _restoreEntryParameterTypes8);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey, entryId);
 
@@ -294,7 +326,7 @@ public class TrashEntryServiceHttp {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
-					"restoreEntry", _restoreEntryParameterTypes8);
+					"restoreEntry", _restoreEntryParameterTypes9);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey, entryId,
 					overrideClassPK, name);
@@ -326,7 +358,7 @@ public class TrashEntryServiceHttp {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
-					"restoreEntry", _restoreEntryParameterTypes9);
+					"restoreEntry", _restoreEntryParameterTypes10);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey,
 					className, classPK);
@@ -359,7 +391,7 @@ public class TrashEntryServiceHttp {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		try {
 			MethodKey methodKey = new MethodKey(TrashEntryServiceUtil.class,
-					"restoreEntry", _restoreEntryParameterTypes10);
+					"restoreEntry", _restoreEntryParameterTypes11);
 
 			MethodHandler methodHandler = new MethodHandler(methodKey,
 					className, classPK, overrideClassPK, name);
@@ -406,20 +438,23 @@ public class TrashEntryServiceHttp {
 			long.class, int.class, int.class,
 			com.liferay.portal.kernel.util.OrderByComparator.class
 		};
-	private static final Class<?>[] _moveEntryParameterTypes6 = new Class[] {
+	private static final Class<?>[] _getEntriesParameterTypes6 = new Class[] {
+			long.class, java.lang.String.class
+		};
+	private static final Class<?>[] _moveEntryParameterTypes7 = new Class[] {
 			java.lang.String.class, long.class, long.class,
 			com.liferay.portal.service.ServiceContext.class
 		};
-	private static final Class<?>[] _restoreEntryParameterTypes7 = new Class[] {
+	private static final Class<?>[] _restoreEntryParameterTypes8 = new Class[] {
 			long.class
 		};
-	private static final Class<?>[] _restoreEntryParameterTypes8 = new Class[] {
+	private static final Class<?>[] _restoreEntryParameterTypes9 = new Class[] {
 			long.class, long.class, java.lang.String.class
 		};
-	private static final Class<?>[] _restoreEntryParameterTypes9 = new Class[] {
+	private static final Class<?>[] _restoreEntryParameterTypes10 = new Class[] {
 			java.lang.String.class, long.class
 		};
-	private static final Class<?>[] _restoreEntryParameterTypes10 = new Class[] {
+	private static final Class<?>[] _restoreEntryParameterTypes11 = new Class[] {
 			java.lang.String.class, long.class, long.class,
 			java.lang.String.class
 		};

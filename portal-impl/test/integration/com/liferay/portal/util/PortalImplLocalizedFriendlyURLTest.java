@@ -35,12 +35,13 @@ import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.test.LayoutTestUtil;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -60,8 +61,7 @@ public class PortalImplLocalizedFriendlyURLTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -70,9 +70,8 @@ public class PortalImplLocalizedFriendlyURLTest {
 
 		CompanyTestUtil.resetCompanyLocales(
 			PortalUtil.getDefaultCompanyId(),
-			new Locale[] {
-				LocaleUtil.CANADA_FRENCH, LocaleUtil.SPAIN, LocaleUtil.US
-			},
+			Arrays.asList(
+				LocaleUtil.CANADA_FRENCH, LocaleUtil.SPAIN, LocaleUtil.US),
 			LocaleUtil.US
 		);
 
@@ -850,7 +849,7 @@ public class PortalImplLocalizedFriendlyURLTest {
 	private static final String _PUBLIC_GROUP_SERVLET_MAPPING =
 		PropsValues.LAYOUT_FRIENDLY_URL_PUBLIC_SERVLET_MAPPING;
 
-	private static Locale[] _availableLocales;
+	private static Set<Locale> _availableLocales;
 	private static Locale _defaultLocale;
 	private static Map<Locale, String> _friendlyURLMap;
 	private static Map<Locale, String> _nameMap;

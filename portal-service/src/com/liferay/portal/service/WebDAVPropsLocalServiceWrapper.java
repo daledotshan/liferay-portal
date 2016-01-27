@@ -192,14 +192,19 @@ public class WebDAVPropsLocalServiceWrapper implements WebDAVPropsLocalService,
 		return _webDAVPropsLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _webDAVPropsLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _webDAVPropsLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _webDAVPropsLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -257,16 +262,6 @@ public class WebDAVPropsLocalServiceWrapper implements WebDAVPropsLocalService,
 		return _webDAVPropsLocalService.getWebDAVPropsesCount();
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_webDAVPropsLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void storeWebDAVProps(
 		com.liferay.portal.model.WebDAVProps webDavProps)
@@ -284,23 +279,6 @@ public class WebDAVPropsLocalServiceWrapper implements WebDAVPropsLocalService,
 	public com.liferay.portal.model.WebDAVProps updateWebDAVProps(
 		com.liferay.portal.model.WebDAVProps webDAVProps) {
 		return _webDAVPropsLocalService.updateWebDAVProps(webDAVProps);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public WebDAVPropsLocalService getWrappedWebDAVPropsLocalService() {
-		return _webDAVPropsLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedWebDAVPropsLocalService(
-		WebDAVPropsLocalService webDAVPropsLocalService) {
-		_webDAVPropsLocalService = webDAVPropsLocalService;
 	}
 
 	@Override

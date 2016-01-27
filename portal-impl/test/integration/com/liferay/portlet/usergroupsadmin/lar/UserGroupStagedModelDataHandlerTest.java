@@ -24,12 +24,12 @@ import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.service.UserGroupLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 
@@ -43,16 +43,18 @@ public class UserGroupStagedModelDataHandlerTest
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
-			TransactionalTestRule.INSTANCE);
+			new LiferayIntegrationTestRule(), TransactionalTestRule.INSTANCE);
 
 	@After
 	@Override
 	public void tearDown() throws Exception {
 		super.tearDown();
 
-		_userGroup = UserGroupLocalServiceUtil.fetchUserGroupByUuidAndCompanyId(
-			_userGroup.getUuid(), _userGroup.getCompanyId());
+		if (_userGroup != null) {
+			_userGroup =
+				UserGroupLocalServiceUtil.fetchUserGroupByUuidAndCompanyId(
+					_userGroup.getUuid(), _userGroup.getCompanyId());
+		}
 	}
 
 	@Override
@@ -64,16 +66,6 @@ public class UserGroupStagedModelDataHandlerTest
 		_userGroup = UserGroupTestUtil.addUserGroup();
 
 		return _userGroup;
-	}
-
-	@Override
-	protected void deleteStagedModel(
-			StagedModel stagedModel,
-			Map<String, List<StagedModel>> dependentStagedModelsMap,
-			Group group)
-		throws Exception {
-
-		UserGroupLocalServiceUtil.deleteUserGroup((UserGroup)stagedModel);
 	}
 
 	@Override
@@ -90,6 +82,24 @@ public class UserGroupStagedModelDataHandlerTest
 	@Override
 	protected Class<? extends StagedModel> getStagedModelClass() {
 		return UserGroup.class;
+	}
+
+	@Override
+	protected void validateImportedStagedModel(
+			StagedModel stagedModel, StagedModel importedStagedModel)
+		throws Exception {
+
+		super.validateImportedStagedModel(stagedModel, importedStagedModel);
+
+		UserGroup userGroup = (UserGroup)stagedModel;
+		UserGroup importedUserGroup = (UserGroup)importedStagedModel;
+
+		Assert.assertEquals(userGroup.getName(), importedUserGroup.getName());
+		Assert.assertEquals(
+			userGroup.getDescription(), importedUserGroup.getDescription());
+		Assert.assertEquals(
+			userGroup.isAddedByLDAPImport(),
+			importedUserGroup.isAddedByLDAPImport());
 	}
 
 	@DeleteAfterTestRun

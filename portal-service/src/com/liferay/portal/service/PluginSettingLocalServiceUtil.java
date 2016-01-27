@@ -189,17 +189,21 @@ public class PluginSettingLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static com.liferay.portal.model.PluginSetting getDefaultPluginSetting() {
 		return getService().getDefaultPluginSetting();
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -256,15 +260,6 @@ public class PluginSettingLocalServiceUtil {
 		return getService().hasPermission(userId, pluginId, pluginType);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static com.liferay.portal.model.PluginSetting updatePluginSetting(
 		long companyId, java.lang.String pluginId, java.lang.String pluginType,
 		java.lang.String roles, boolean active) {
@@ -293,13 +288,6 @@ public class PluginSettingLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(PluginSettingLocalService service) {
 	}
 
 	private static PluginSettingLocalService _service;

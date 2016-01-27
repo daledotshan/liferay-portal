@@ -16,6 +16,9 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
+
 /**
  * The extended model interface for the WebDAVProps service. Represents a row in the &quot;WebDAVProps&quot; database table, with each column mapped to a property of this class.
  *
@@ -25,6 +28,7 @@ import aQute.bnd.annotation.ProviderType;
  * @see com.liferay.portal.model.impl.WebDAVPropsModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portal.model.impl.WebDAVPropsImpl")
 @ProviderType
 public interface WebDAVProps extends WebDAVPropsModel, PersistedModel {
 	/*
@@ -32,6 +36,23 @@ public interface WebDAVProps extends WebDAVPropsModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portal.model.impl.WebDAVPropsImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<WebDAVProps, Long> WEB_DAV_PROPS_ID_ACCESSOR = new Accessor<WebDAVProps, Long>() {
+			@Override
+			public Long get(WebDAVProps webDAVProps) {
+				return webDAVProps.getWebDavPropsId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<WebDAVProps> getTypeClass() {
+				return WebDAVProps.class;
+			}
+		};
+
 	public void addProp(java.lang.String name, java.lang.String prefix,
 		java.lang.String uri) throws java.lang.Exception;
 
