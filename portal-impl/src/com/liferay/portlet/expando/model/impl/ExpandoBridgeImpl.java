@@ -15,12 +15,11 @@
 package com.liferay.portlet.expando.model.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.expando.model.ExpandoBridge;
@@ -33,6 +32,7 @@ import com.liferay.portlet.expando.service.ExpandoColumnServiceUtil;
 import com.liferay.portlet.expando.service.ExpandoTableLocalServiceUtil;
 import com.liferay.portlet.expando.service.ExpandoValueLocalServiceUtil;
 import com.liferay.portlet.expando.service.ExpandoValueServiceUtil;
+import com.liferay.portlet.exportimport.lar.ExportImportThreadLocal;
 
 import java.io.Serializable;
 
@@ -397,7 +397,7 @@ public class ExpandoBridgeImpl implements ExpandoBridge {
 			return;
 		}
 
-		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(_className);
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(_className);
 
 		try {
 			indexer.reindex(_className, _classPK);

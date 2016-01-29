@@ -46,22 +46,11 @@ public interface WebsiteLocalService extends BaseLocalService,
 	 *
 	 * Never modify or reference this interface directly. Always use {@link WebsiteLocalServiceUtil} to access the website local service. Add custom service methods to {@link com.liferay.portal.service.impl.WebsiteLocalServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addWebsite(long, String,
-	long, String, int, boolean, ServiceContext)}
-	*/
-	@java.lang.Deprecated
-	public com.liferay.portal.model.Website addWebsite(long userId,
-		java.lang.String className, long classPK, java.lang.String url,
-		long typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
 	public com.liferay.portal.model.Website addWebsite(long userId,
 		java.lang.String className, long classPK, java.lang.String url,
 		long typeId, boolean primary,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Adds the website to the database. Also notifies the appropriate model listeners.
@@ -87,7 +76,7 @@ public interface WebsiteLocalService extends BaseLocalService,
 	@Override
 	public com.liferay.portal.model.PersistedModel deletePersistedModel(
 		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Deletes the website from the database. Also notifies the appropriate model listeners.
@@ -109,7 +98,7 @@ public interface WebsiteLocalService extends BaseLocalService,
 	*/
 	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
 	public com.liferay.portal.model.Website deleteWebsite(long websiteId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	public void deleteWebsites(long companyId, java.lang.String className,
 		long classPK);
@@ -196,22 +185,24 @@ public interface WebsiteLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
-
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext);
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.io.Serializable primaryKeyObj) throws PortalException;
 
 	/**
 	* Returns the website with the primary key.
@@ -222,7 +213,7 @@ public interface WebsiteLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.Website getWebsite(long websiteId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Returns the website with the matching UUID and company.
@@ -234,8 +225,7 @@ public interface WebsiteLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.Website getWebsiteByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.lang.String uuid, long companyId) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portal.model.Website> getWebsites();
@@ -268,13 +258,6 @@ public interface WebsiteLocalService extends BaseLocalService,
 	public int getWebsitesCount();
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
-
-	/**
 	* Updates the website in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param website the website
@@ -286,5 +269,5 @@ public interface WebsiteLocalService extends BaseLocalService,
 
 	public com.liferay.portal.model.Website updateWebsite(long websiteId,
 		java.lang.String url, long typeId, boolean primary)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 }

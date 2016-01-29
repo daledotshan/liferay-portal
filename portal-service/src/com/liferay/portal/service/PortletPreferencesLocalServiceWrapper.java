@@ -230,21 +230,26 @@ public class PortletPreferencesLocalServiceWrapper
 		return _portletPreferencesLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _portletPreferencesLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public javax.portlet.PortletPreferences getDefaultPreferences(
 		long companyId, java.lang.String portletId) {
 		return _portletPreferencesLocalService.getDefaultPreferences(companyId,
 			portletId);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _portletPreferencesLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _portletPreferencesLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -409,16 +414,6 @@ public class PortletPreferencesLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_portletPreferencesLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the portlet preferences in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param portletPreferences the portlet preferences
@@ -444,23 +439,6 @@ public class PortletPreferencesLocalServiceWrapper
 		java.lang.String xml) {
 		return _portletPreferencesLocalService.updatePreferences(ownerId,
 			ownerType, plid, portletId, xml);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PortletPreferencesLocalService getWrappedPortletPreferencesLocalService() {
-		return _portletPreferencesLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPortletPreferencesLocalService(
-		PortletPreferencesLocalService portletPreferencesLocalService) {
-		_portletPreferencesLocalService = portletPreferencesLocalService;
 	}
 
 	@Override

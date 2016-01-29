@@ -24,7 +24,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portal.service.PhoneServiceUtil} service utility. The
+ * {@link PhoneServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -59,33 +59,11 @@ import java.rmi.RemoteException;
  * @author Brian Wing Shun Chan
  * @see PhoneServiceHttp
  * @see com.liferay.portal.model.PhoneSoap
- * @see com.liferay.portal.service.PhoneServiceUtil
+ * @see PhoneServiceUtil
  * @generated
  */
 @ProviderType
 public class PhoneServiceSoap {
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addPhone(String, long,
-	String, String, int, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.PhoneSoap addPhone(
-		java.lang.String className, long classPK, java.lang.String number,
-		java.lang.String extension, long typeId, boolean primary)
-		throws RemoteException {
-		try {
-			com.liferay.portal.model.Phone returnValue = PhoneServiceUtil.addPhone(className,
-					classPK, number, extension, typeId, primary);
-
-			return com.liferay.portal.model.PhoneSoap.toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
 	public static com.liferay.portal.model.PhoneSoap addPhone(
 		java.lang.String className, long classPK, java.lang.String number,
 		java.lang.String extension, long typeId, boolean primary,

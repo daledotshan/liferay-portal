@@ -14,6 +14,9 @@
 
 package com.liferay.portal.security.auth;
 
+import com.liferay.portal.kernel.security.auth.AuthException;
+import com.liferay.portal.kernel.security.auth.AuthFailure;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.service.UserLocalServiceUtil;
 
 import java.util.Map;
@@ -22,6 +25,7 @@ import java.util.Map;
  * @author Brian Wing Shun Chan
  * @author Scott Lee
  */
+@OSGiBeanProperties(property = "key=auth.max.failures")
 public class LoginMaxFailures implements AuthFailure {
 
 	@Override

@@ -15,10 +15,10 @@
 package com.liferay.portlet.messageboards.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
 
@@ -27,7 +27,21 @@ import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
  */
 public class MBMessageAttachmentsUtil {
 
+	public static MBMessage fetchMessage(long fileEntryId)
+		throws PortalException {
+
+		return MBMessageLocalServiceUtil.fetchMBMessage(
+			getMessageId(fileEntryId));
+	}
+
 	public static MBMessage getMessage(long fileEntryId)
+		throws PortalException {
+
+		return MBMessageLocalServiceUtil.getMBMessage(
+			getMessageId(fileEntryId));
+	}
+
+	protected static long getMessageId(long fileEntryId)
 		throws PortalException {
 
 		FileEntry fileEntry = PortletFileRepositoryUtil.getPortletFileEntry(
@@ -36,9 +50,7 @@ public class MBMessageAttachmentsUtil {
 		Folder folder = PortletFileRepositoryUtil.getPortletFolder(
 			fileEntry.getFolderId());
 
-		long messageId = GetterUtil.getLong(folder.getName());
-
-		return MBMessageLocalServiceUtil.getMBMessage(messageId);
+		return GetterUtil.getLong(folder.getName());
 	}
 
 }

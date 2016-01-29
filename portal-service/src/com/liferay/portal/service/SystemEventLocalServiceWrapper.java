@@ -223,14 +223,19 @@ public class SystemEventLocalServiceWrapper implements SystemEventLocalService,
 		return _systemEventLocalService.getActionableDynamicQuery();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _systemEventLocalService.getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _systemEventLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _systemEventLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -296,16 +301,6 @@ public class SystemEventLocalServiceWrapper implements SystemEventLocalService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_systemEventLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the system event in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param systemEvent the system event
@@ -315,23 +310,6 @@ public class SystemEventLocalServiceWrapper implements SystemEventLocalService,
 	public com.liferay.portal.model.SystemEvent updateSystemEvent(
 		com.liferay.portal.model.SystemEvent systemEvent) {
 		return _systemEventLocalService.updateSystemEvent(systemEvent);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SystemEventLocalService getWrappedSystemEventLocalService() {
-		return _systemEventLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSystemEventLocalService(
-		SystemEventLocalService systemEventLocalService) {
-		_systemEventLocalService = systemEventLocalService;
 	}
 
 	@Override

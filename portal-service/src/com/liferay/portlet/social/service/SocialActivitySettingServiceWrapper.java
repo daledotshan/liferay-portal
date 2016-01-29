@@ -57,16 +57,6 @@ public class SocialActivitySettingServiceWrapper
 		return _socialActivitySettingService.getActivitySettings(groupId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _socialActivitySettingService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portal.kernel.json.JSONArray getJSONActivityDefinitions(
 		long groupId, java.lang.String className)
@@ -76,13 +66,13 @@ public class SocialActivitySettingServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_socialActivitySettingService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _socialActivitySettingService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -109,23 +99,6 @@ public class SocialActivitySettingServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_socialActivitySettingService.updateActivitySettings(groupId,
 			className, activityType, activityCounterDefinitions);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SocialActivitySettingService getWrappedSocialActivitySettingService() {
-		return _socialActivitySettingService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSocialActivitySettingService(
-		SocialActivitySettingService socialActivitySettingService) {
-		_socialActivitySettingService = socialActivitySettingService;
 	}
 
 	@Override

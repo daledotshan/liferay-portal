@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Image;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.documentlibrary.NoSuchFileException;
+import com.liferay.portlet.documentlibrary.exception.NoSuchFileException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,12 +33,10 @@ import java.io.InputStream;
  */
 public class FileSystemHook extends BaseHook {
 
-	public FileSystemHook() {
+	public FileSystemHook() throws IOException {
 		_rootDir = new File(PropsValues.IMAGE_HOOK_FILE_SYSTEM_ROOT_DIR);
 
-		if (!_rootDir.exists()) {
-			_rootDir.mkdirs();
-		}
+		FileUtil.mkdirs(_rootDir);
 	}
 
 	@Override

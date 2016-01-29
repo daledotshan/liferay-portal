@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.scheduler;
 
 import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 
@@ -28,20 +29,6 @@ import javax.portlet.PortletRequest;
  * @author Michael C. Han
  */
 public interface SchedulerEngineHelper {
-
-	public void addJob(
-			Trigger trigger, StorageType storageType, String description,
-			String destinationName, Message message,
-			String messageListenerClassName, String portletId,
-			int exceptionsMaxSize)
-		throws SchedulerException;
-
-	public void addJob(
-			Trigger trigger, StorageType storageType, String description,
-			String destinationName, Object payload,
-			String messageListenerClassName, String portletId,
-			int exceptionsMaxSize)
-		throws SchedulerException;
 
 	public void addScriptingJob(
 			Trigger trigger, StorageType storageType, String description,
@@ -123,24 +110,21 @@ public interface SchedulerEngineHelper {
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException;
 
-	public void initialize() throws SchedulerException;
-
 	public void pause(String groupName, StorageType storageType)
 		throws SchedulerException;
 
 	public void pause(String jobName, String groupName, StorageType storageType)
 		throws SchedulerException;
 
+	public void register(
+		MessageListener messageListener, SchedulerEntry schedulerEntry,
+		String destinationName);
+
 	public void resume(String groupName, StorageType storageType)
 		throws SchedulerException;
 
 	public void resume(
 			String jobName, String groupName, StorageType storageType)
-		throws SchedulerException;
-
-	public void schedule(
-			SchedulerEntry schedulerEntry, StorageType storageType,
-			String portletId, int exceptionsMaxSize)
 		throws SchedulerException;
 
 	public void schedule(
@@ -160,6 +144,8 @@ public interface SchedulerEngineHelper {
 	public void suppressError(
 			String jobName, String groupName, StorageType storageType)
 		throws SchedulerException;
+
+	public void unregister(MessageListener messageListener);
 
 	public void unschedule(
 			SchedulerEntry schedulerEntry, StorageType storageType)

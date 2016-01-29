@@ -284,15 +284,6 @@ public class ResourceBlockLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<java.lang.String> getCompanyScopePermissions(
 		com.liferay.portal.model.ResourceBlock resourceBlock, long roleId) {
 		return getService().getCompanyScopePermissions(resourceBlock, roleId);
@@ -301,6 +292,19 @@ public class ResourceBlockLocalServiceUtil {
 	public static java.util.List<java.lang.String> getGroupScopePermissions(
 		com.liferay.portal.model.ResourceBlock resourceBlock, long roleId) {
 		return getService().getGroupScopePermissions(resourceBlock, roleId);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PermissionedModel getPermissionedModel(
@@ -340,14 +344,14 @@ public class ResourceBlockLocalServiceUtil {
 	}
 
 	public static java.util.List<java.lang.Long> getResourceBlockIds(
-		com.liferay.portal.security.permission.ResourceBlockIdsBag resourceBlockIdsBag,
+		com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag resourceBlockIdsBag,
 		java.lang.String name, java.lang.String actionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .getResourceBlockIds(resourceBlockIdsBag, name, actionId);
 	}
 
-	public static com.liferay.portal.security.permission.ResourceBlockIdsBag getResourceBlockIdsBag(
+	public static com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag getResourceBlockIdsBag(
 		long companyId, long groupId, java.lang.String name, long[] roleIds) {
 		return getService()
 				   .getResourceBlockIdsBag(companyId, groupId, name, roleIds);
@@ -378,10 +382,16 @@ public class ResourceBlockLocalServiceUtil {
 		return getService().getResourceBlocksCount();
 	}
 
+	public static java.util.List<com.liferay.portal.model.Role> getRoles(
+		java.lang.String name, long primKey, java.lang.String actionId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().getRoles(name, primKey, actionId);
+	}
+
 	public static boolean hasPermission(java.lang.String name,
 		com.liferay.portal.model.PermissionedModel permissionedModel,
 		java.lang.String actionId,
-		com.liferay.portal.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
+		com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .hasPermission(name, permissionedModel, actionId,
@@ -390,7 +400,7 @@ public class ResourceBlockLocalServiceUtil {
 
 	public static boolean hasPermission(java.lang.String name, long primKey,
 		java.lang.String actionId,
-		com.liferay.portal.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
+		com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .hasPermission(name, primKey, actionId, resourceBlockIdsBag);
@@ -512,15 +522,6 @@ public class ResourceBlockLocalServiceUtil {
 		getService()
 			.removeIndividualScopePermissions(companyId, groupId, name,
 			primKey, roleId, actionIdsLong);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static void setCompanyScopePermissions(long companyId,
@@ -660,13 +661,6 @@ public class ResourceBlockLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(ResourceBlockLocalService service) {
 	}
 
 	private static ResourceBlockLocalService _service;

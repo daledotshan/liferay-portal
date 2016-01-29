@@ -15,13 +15,13 @@
 package com.liferay.portlet;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.Portlet;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortletCategoryKeys;
@@ -112,6 +112,12 @@ public abstract class BaseControlPanelEntry implements ControlPanelEntry {
 
 		String category = portlet.getControlPanelEntryCategory();
 
+		if (category.startsWith(PortletCategoryKeys.SITE_ADMINISTRATION) &&
+			group.isLayoutPrototype()) {
+
+			return true;
+		}
+
 		if (category.equals(PortletCategoryKeys.SITE_ADMINISTRATION_CONTENT) &&
 			group.isLayout() && !portlet.isScopeable()) {
 
@@ -145,10 +151,11 @@ public abstract class BaseControlPanelEntry implements ControlPanelEntry {
 
 		long groupId = group.getGroupId();
 
-		if (category.equals(PortletCategoryKeys.APPS) ||
-			category.equals(PortletCategoryKeys.CONFIGURATION) ||
-			category.equals(PortletCategoryKeys.SITES) ||
-			category.equals(PortletCategoryKeys.USERS)) {
+		if (category.equals(PortletCategoryKeys.CONTROL_PANEL_APPS) ||
+			category.equals(PortletCategoryKeys.CONTROL_PANEL_CONFIGURATION) ||
+			category.equals(PortletCategoryKeys.CONTROL_PANEL_SITES) ||
+			category.equals(PortletCategoryKeys.CONTROL_PANEL_SYSTEM) ||
+			category.equals(PortletCategoryKeys.CONTROL_PANEL_USERS)) {
 
 			groupId = 0;
 		}
@@ -170,6 +177,14 @@ public abstract class BaseControlPanelEntry implements ControlPanelEntry {
 	protected boolean hasPermissionImplicitlyGranted(
 			PermissionChecker permissionChecker, Group group, Portlet portlet)
 		throws Exception {
+
+		String category = portlet.getControlPanelEntryCategory();
+
+		if ((category != null) &&
+			category.equals(PortletCategoryKeys.USER_MY_ACCOUNT)) {
+
+			return true;
+		}
 
 		return false;
 	}

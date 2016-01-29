@@ -35,22 +35,23 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 
 	@Override
 	public com.liferay.portlet.asset.model.AssetCategory addCategory(
-		long parentCategoryId,
+		long groupId, long parentCategoryId,
 		java.util.Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		long vocabularyId, java.lang.String[] categoryProperties,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetCategoryService.addCategory(parentCategoryId, titleMap,
-			descriptionMap, vocabularyId, categoryProperties, serviceContext);
+		return _assetCategoryService.addCategory(groupId, parentCategoryId,
+			titleMap, descriptionMap, vocabularyId, categoryProperties,
+			serviceContext);
 	}
 
 	@Override
 	public com.liferay.portlet.asset.model.AssetCategory addCategory(
-		java.lang.String title, long vocabularyId,
+		long groupId, java.lang.String title, long vocabularyId,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetCategoryService.addCategory(title, vocabularyId,
+		return _assetCategoryService.addCategory(groupId, title, vocabularyId,
 			serviceContext);
 	}
 
@@ -84,16 +85,6 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 		long categoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _assetCategoryService.fetchCategory(categoryId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _assetCategoryService.getBeanIdentifier();
 	}
 
 	@Override
@@ -133,47 +124,13 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #search(long[], String,
-	long[], int, int)}
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
 	*/
-	@Deprecated
 	@Override
-	public com.liferay.portal.kernel.json.JSONArray getJSONSearch(
-		long groupId, java.lang.String name, long[] vocabularyIds, int start,
-		int end) throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetCategoryService.getJSONSearch(groupId, name,
-			vocabularyIds, start, end);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getVocabularyCategoriesDisplay(long, String, long, int, int,
-	OrderByComparator)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.json.JSONObject getJSONVocabularyCategories(
-		long groupId, java.lang.String name, long vocabularyId, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetCategory> obc)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetCategoryService.getJSONVocabularyCategories(groupId, name,
-			vocabularyId, start, end, obc);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getVocabularyCategoriesDisplay(long, int, int,
-	OrderByComparator)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.kernel.json.JSONObject getJSONVocabularyCategories(
-		long vocabularyId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetCategory> obc)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetCategoryService.getJSONVocabularyCategories(vocabularyId,
-			start, end, obc);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _assetCategoryService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -259,21 +216,6 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 			vocabularyId, start, end, obc);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getVocabularyRootCategories(long, long, int, int,
-	OrderByComparator)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<com.liferay.portlet.asset.model.AssetCategory> getVocabularyRootCategories(
-		long vocabularyId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetCategory> obc)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetCategoryService.getVocabularyRootCategories(vocabularyId,
-			start, end, obc);
-	}
-
 	@Override
 	public int getVocabularyRootCategoriesCount(long groupId, long vocabularyId) {
 		return _assetCategoryService.getVocabularyRootCategoriesCount(groupId,
@@ -326,6 +268,16 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 
 	@Override
 	public com.liferay.portlet.asset.model.AssetCategoryDisplay searchCategoriesDisplay(
+		long groupId, java.lang.String title, long vocabularyId,
+		long parentCategoryId, int start, int end,
+		com.liferay.portal.kernel.search.Sort sort)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _assetCategoryService.searchCategoriesDisplay(groupId, title,
+			vocabularyId, parentCategoryId, start, end, sort);
+	}
+
+	@Override
+	public com.liferay.portlet.asset.model.AssetCategoryDisplay searchCategoriesDisplay(
 		long groupId, java.lang.String title, long vocabularyId, int start,
 		int end) throws com.liferay.portal.kernel.exception.PortalException {
 		return _assetCategoryService.searchCategoriesDisplay(groupId, title,
@@ -344,20 +296,20 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 	@Override
 	public com.liferay.portlet.asset.model.AssetCategoryDisplay searchCategoriesDisplay(
 		long[] groupIds, java.lang.String title, long[] vocabularyIds,
+		long[] parentCategoryIds, int start, int end,
+		com.liferay.portal.kernel.search.Sort sort)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _assetCategoryService.searchCategoriesDisplay(groupIds, title,
+			vocabularyIds, parentCategoryIds, start, end, sort);
+	}
+
+	@Override
+	public com.liferay.portlet.asset.model.AssetCategoryDisplay searchCategoriesDisplay(
+		long[] groupIds, java.lang.String title, long[] vocabularyIds,
 		int start, int end)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _assetCategoryService.searchCategoriesDisplay(groupIds, title,
 			vocabularyIds, start, end);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_assetCategoryService.setBeanIdentifier(beanIdentifier);
 	}
 
 	@Override
@@ -371,23 +323,6 @@ public class AssetCategoryServiceWrapper implements AssetCategoryService,
 		return _assetCategoryService.updateCategory(categoryId,
 			parentCategoryId, titleMap, descriptionMap, vocabularyId,
 			categoryProperties, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AssetCategoryService getWrappedAssetCategoryService() {
-		return _assetCategoryService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAssetCategoryService(
-		AssetCategoryService assetCategoryService) {
-		_assetCategoryService = assetCategoryService;
 	}
 
 	@Override

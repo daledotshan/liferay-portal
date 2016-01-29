@@ -1,0 +1,101 @@
+@import "bourbon";
+@import "mixins";
+
+.control-menu {
+	.staging-links {
+		padding-top: 3px;
+		position: static;
+	}
+
+	.staging-message {
+		margin: 0 auto;
+		width: 75%;
+	}
+}
+
+.control-menu-level-2 {
+	padding-bottom: 7px;
+	padding-top: 6px;
+
+	@include sm() {
+		left: 0;
+		position: absolute;
+		right: 0;
+		top: 100%;
+	}
+
+	@include media-query(null, $screen-xs-max) {
+		bottom: 0;
+		display: none;
+		left: 0;
+		position: fixed;
+		right: 0;
+		top: 0;
+		z-index: 1;
+	}
+
+	&.open {
+		@include media-query(null, $screen-xs-max) {
+			background-color: rgba(75, 91, 101, 0.95);
+			display: block;
+			overflow: auto;
+		}
+	}
+}
+
+.control-menu-level-2-heading {
+	padding: 20px 0;
+	text-align: center;
+}
+
+.control-menu-level-2-nav {
+	@include display(flex);
+	@include flex-wrap(wrap);
+	@include justify-content(space-between);
+}
+
+.control-menu-nav {
+	.staging-bar {
+		position: absolute;
+
+		@include sm() {
+			position: static;
+		}
+	}
+}
+
+.live-link {
+	margin-right: 24px;
+}
+
+.publish-btn-group {
+	@include sm() {
+		border-radius: 3px;
+		overflow: hidden;
+	}
+}
+
+.staging-ready {
+	padding-top: 55px;
+}
+
+.staging-variation-label {
+	display: block;
+	font-weight: 500;
+
+	&:hover {
+		text-decoration: none;
+	}
+
+	@include sm() {
+		font-size: 12px;
+	}
+}
+
+.staging-variation-selector {
+	font-weight: 500;
+
+	@include sm() {
+		font-size: 14px;
+	}
+}

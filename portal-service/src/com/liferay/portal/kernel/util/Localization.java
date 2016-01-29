@@ -15,9 +15,11 @@
 package com.liferay.portal.kernel.util;
 
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.xml.Document;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
@@ -142,6 +144,19 @@ public interface Localization {
 		String defaultValue);
 
 	/**
+	 * Returns a map of locales and localized strings for the key. If no
+	 * localization exists for a locale or the localization matches the default
+	 * locale, that locale is not included in the map.
+	 *
+	 * @param  locales the locales to be used in the map
+	 * @param  defaultLocale the default locale
+	 * @param  key the language key to be translated
+	 * @return the locales and localized strings for the key
+	 */
+	public Map<Locale, String> getLocalizationMap(
+		Collection<Locale> locales, Locale defaultLocale, String key);
+
+	/**
 	 * Returns a map of locales and localized strings for the parameter in the
 	 * request.
 	 *
@@ -185,6 +200,11 @@ public interface Localization {
 	public Map<Locale, String> getLocalizationMap(
 		PortletPreferences preferences, String preferenceName,
 		String propertyName);
+
+	public Map<Locale, String> getLocalizationMap(
+		PortletPreferences preferences, String preferenceName,
+		String propertyName, String defaultPropertyValue,
+		ClassLoader classLoader);
 
 	/**
 	 * Returns a map of locales and localized strings for the parameter in the
@@ -303,6 +323,8 @@ public interface Localization {
 	@Deprecated
 	public Map<Locale, String> getLocalizedParameter(
 		PortletRequest portletRequest, String parameter);
+
+	public Map<Locale, String> getMap(LocalizedValuesMap localizedValuesMap);
 
 	/**
 	 * Returns the localized preferences key in the language. Generally this is
@@ -438,6 +460,8 @@ public interface Localization {
 	 */
 	public String[] getSettingsValues(
 		Settings settings, String key, String languageId, boolean useDefault);
+
+	public String getXml(LocalizedValuesMap localizedValuesMap, String key);
 
 	/**
 	 * Removes the localization for the language from the localizations XML. The

@@ -295,16 +295,6 @@ public class ResourceBlockLocalServiceWrapper
 		return _resourceBlockLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _resourceBlockLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<java.lang.String> getCompanyScopePermissions(
 		com.liferay.portal.model.ResourceBlock resourceBlock, long roleId) {
@@ -317,6 +307,21 @@ public class ResourceBlockLocalServiceWrapper
 		com.liferay.portal.model.ResourceBlock resourceBlock, long roleId) {
 		return _resourceBlockLocalService.getGroupScopePermissions(resourceBlock,
 			roleId);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _resourceBlockLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _resourceBlockLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -362,7 +367,7 @@ public class ResourceBlockLocalServiceWrapper
 
 	@Override
 	public java.util.List<java.lang.Long> getResourceBlockIds(
-		com.liferay.portal.security.permission.ResourceBlockIdsBag resourceBlockIdsBag,
+		com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag resourceBlockIdsBag,
 		java.lang.String name, java.lang.String actionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _resourceBlockLocalService.getResourceBlockIds(resourceBlockIdsBag,
@@ -370,7 +375,7 @@ public class ResourceBlockLocalServiceWrapper
 	}
 
 	@Override
-	public com.liferay.portal.security.permission.ResourceBlockIdsBag getResourceBlockIdsBag(
+	public com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag getResourceBlockIdsBag(
 		long companyId, long groupId, java.lang.String name, long[] roleIds) {
 		return _resourceBlockLocalService.getResourceBlockIdsBag(companyId,
 			groupId, name, roleIds);
@@ -404,10 +409,17 @@ public class ResourceBlockLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<com.liferay.portal.model.Role> getRoles(
+		java.lang.String name, long primKey, java.lang.String actionId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _resourceBlockLocalService.getRoles(name, primKey, actionId);
+	}
+
+	@Override
 	public boolean hasPermission(java.lang.String name,
 		com.liferay.portal.model.PermissionedModel permissionedModel,
 		java.lang.String actionId,
-		com.liferay.portal.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
+		com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _resourceBlockLocalService.hasPermission(name,
 			permissionedModel, actionId, resourceBlockIdsBag);
@@ -416,7 +428,7 @@ public class ResourceBlockLocalServiceWrapper
 	@Override
 	public boolean hasPermission(java.lang.String name, long primKey,
 		java.lang.String actionId,
-		com.liferay.portal.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
+		com.liferay.portal.kernel.security.permission.ResourceBlockIdsBag resourceBlockIdsBag)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _resourceBlockLocalService.hasPermission(name, primKey,
 			actionId, resourceBlockIdsBag);
@@ -545,16 +557,6 @@ public class ResourceBlockLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_resourceBlockLocalService.removeIndividualScopePermissions(companyId,
 			groupId, name, primKey, roleId, actionIdsLong);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_resourceBlockLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	@Override
@@ -686,23 +688,6 @@ public class ResourceBlockLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_resourceBlockLocalService.verifyResourceBlockId(companyId, name,
 			primKey);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ResourceBlockLocalService getWrappedResourceBlockLocalService() {
-		return _resourceBlockLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedResourceBlockLocalService(
-		ResourceBlockLocalService resourceBlockLocalService) {
-		_resourceBlockLocalService = resourceBlockLocalService;
 	}
 
 	@Override

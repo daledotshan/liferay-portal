@@ -16,10 +16,11 @@ package com.liferay.portal.service.persistence.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.NoSuchUserException;
+import com.liferay.portal.exception.NoSuchUserException;
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.cache.CacheRegistryUtil;
+import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
+import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
@@ -40,6 +41,10 @@ import com.liferay.portal.model.MVCCModel;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.impl.UserImpl;
 import com.liferay.portal.model.impl.UserModelImpl;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.service.ServiceContextThreadLocal;
+import com.liferay.portal.service.persistence.CompanyProvider;
+import com.liferay.portal.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.service.persistence.GroupPersistence;
 import com.liferay.portal.service.persistence.OrganizationPersistence;
 import com.liferay.portal.service.persistence.RolePersistence;
@@ -128,7 +133,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -145,7 +150,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -157,6 +162,26 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findByUuid(String uuid, int start, int end,
 		OrderByComparator<User> orderByComparator) {
+		return findByUuid(uuid, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where uuid = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByUuid(String uuid, int start, int end,
+		OrderByComparator<User> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -172,15 +197,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			finderArgs = new Object[] { uuid, start, end, orderByComparator };
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if (!Validator.equals(uuid, user.getUuid())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if (!Validator.equals(uuid, user.getUuid())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -190,7 +219,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -251,10 +280,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -272,7 +301,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByUuid_First(String uuid,
@@ -320,7 +349,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByUuid_Last(String uuid,
@@ -375,7 +404,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByUuid_PrevAndNext(long userId, String uuid,
@@ -412,8 +441,9 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -550,8 +580,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { uuid };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -589,10 +618,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -645,7 +674,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -664,7 +693,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -677,6 +706,28 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findByUuid_C(String uuid, long companyId, int start,
 		int end, OrderByComparator<User> orderByComparator) {
+		return findByUuid_C(uuid, companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where uuid = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByUuid_C(String uuid, long companyId, int start,
+		int end, OrderByComparator<User> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -696,16 +747,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				};
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if (!Validator.equals(uuid, user.getUuid()) ||
-						(companyId != user.getCompanyId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if (!Validator.equals(uuid, user.getUuid()) ||
+							(companyId != user.getCompanyId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -715,7 +770,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -780,10 +835,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -802,7 +857,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByUuid_C_First(String uuid, long companyId,
@@ -855,7 +910,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByUuid_C_Last(String uuid, long companyId,
@@ -916,7 +971,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByUuid_C_PrevAndNext(long userId, String uuid,
@@ -955,11 +1010,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_USER_WHERE);
@@ -1099,8 +1155,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -1142,10 +1197,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1198,7 +1253,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -1215,7 +1270,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -1227,6 +1282,26 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findByCompanyId(long companyId, int start, int end,
 		OrderByComparator<User> orderByComparator) {
+		return findByCompanyId(companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByCompanyId(long companyId, int start, int end,
+		OrderByComparator<User> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1242,15 +1317,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			finderArgs = new Object[] { companyId, start, end, orderByComparator };
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if ((companyId != user.getCompanyId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if ((companyId != user.getCompanyId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -1260,7 +1339,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -1307,10 +1386,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1328,7 +1407,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByCompanyId_First(long companyId,
@@ -1376,7 +1455,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByCompanyId_Last(long companyId,
@@ -1432,7 +1511,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByCompanyId_PrevAndNext(long userId, long companyId,
@@ -1470,8 +1549,9 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -1594,8 +1674,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -1619,10 +1698,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1646,11 +1725,11 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName() });
 
 	/**
-	 * Returns the user where contactId = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where contactId = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param contactId the contact ID
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByContactId(long contactId) throws NoSuchUserException {
@@ -1691,7 +1770,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns the user where contactId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param contactId the contact ID
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -1701,7 +1780,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_CONTACTID,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_CONTACTID,
 					finderArgs, this);
 		}
 
@@ -1736,7 +1815,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_CONTACTID,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_CONTACTID,
 						finderArgs, list);
 				}
 				else {
@@ -1747,13 +1826,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					cacheResult(user);
 
 					if ((user.getContactId() != contactId)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_CONTACTID,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_CONTACTID,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_CONTACTID,
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_CONTACTID,
 					finderArgs);
 
 				throw processException(e);
@@ -1796,8 +1875,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { contactId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -1821,10 +1899,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1874,7 +1952,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where emailAddress = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param emailAddress the email address
@@ -1891,7 +1969,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where emailAddress = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param emailAddress the email address
@@ -1903,6 +1981,28 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findByEmailAddress(String emailAddress, int start,
 		int end, OrderByComparator<User> orderByComparator) {
+		return findByEmailAddress(emailAddress, start, end, orderByComparator,
+			true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where emailAddress = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param emailAddress the email address
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByEmailAddress(String emailAddress, int start,
+		int end, OrderByComparator<User> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1922,15 +2022,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				};
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if (!Validator.equals(emailAddress, user.getEmailAddress())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if (!Validator.equals(emailAddress, user.getEmailAddress())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -1940,7 +2044,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -2001,10 +2105,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2022,7 +2126,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param emailAddress the email address
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByEmailAddress_First(String emailAddress,
@@ -2071,7 +2175,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param emailAddress the email address
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByEmailAddress_Last(String emailAddress,
@@ -2127,7 +2231,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param emailAddress the email address
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByEmailAddress_PrevAndNext(long userId,
@@ -2166,8 +2270,9 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -2304,8 +2409,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { emailAddress };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -2343,10 +2447,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2372,11 +2476,11 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName() });
 
 	/**
-	 * Returns the user where portraitId = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where portraitId = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param portraitId the portrait ID
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByPortraitId(long portraitId) throws NoSuchUserException {
@@ -2417,7 +2521,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns the user where portraitId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param portraitId the portrait ID
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -2427,7 +2531,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_PORTRAITID,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_PORTRAITID,
 					finderArgs, this);
 		}
 
@@ -2462,7 +2566,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_PORTRAITID,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_PORTRAITID,
 						finderArgs, list);
 				}
 				else {
@@ -2480,13 +2584,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					cacheResult(user);
 
 					if ((user.getPortraitId() != portraitId)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_PORTRAITID,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_PORTRAITID,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_PORTRAITID,
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_PORTRAITID,
 					finderArgs);
 
 				throw processException(e);
@@ -2529,8 +2633,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { portraitId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -2554,10 +2657,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2582,12 +2685,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the user where companyId = &#63; and userId = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where companyId = &#63; and userId = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param userId the user ID
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_U(long companyId, long userId)
@@ -2634,7 +2737,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param companyId the company ID
 	 * @param userId the user ID
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -2645,7 +2748,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_C_U,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_C_U,
 					finderArgs, this);
 		}
 
@@ -2685,8 +2788,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_U,
-						finderArgs, list);
+					finderCache.putResult(FINDER_PATH_FETCH_BY_C_U, finderArgs,
+						list);
 				}
 				else {
 					User user = list.get(0);
@@ -2697,14 +2800,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 					if ((user.getCompanyId() != companyId) ||
 							(user.getUserId() != userId)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_U,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_C_U,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_U,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_C_U, finderArgs);
 
 				throw processException(e);
 			}
@@ -2749,8 +2851,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, userId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -2778,10 +2879,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2832,7 +2933,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where companyId = &#63; and createDate = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -2851,7 +2952,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where companyId = &#63; and createDate = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -2864,6 +2965,29 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findByC_CD(long companyId, Date createDate, int start,
 		int end, OrderByComparator<User> orderByComparator) {
+		return findByC_CD(companyId, createDate, start, end, orderByComparator,
+			true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where companyId = &#63; and createDate = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param createDate the create date
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByC_CD(long companyId, Date createDate, int start,
+		int end, OrderByComparator<User> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2883,16 +3007,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				};
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if ((companyId != user.getCompanyId()) ||
-						!Validator.equals(createDate, user.getCreateDate())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if ((companyId != user.getCompanyId()) ||
+							!Validator.equals(createDate, user.getCreateDate())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -2902,7 +3030,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -2964,10 +3092,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2986,7 +3114,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param createDate the create date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_CD_First(long companyId, Date createDate,
@@ -3040,7 +3168,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param createDate the create date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_CD_Last(long companyId, Date createDate,
@@ -3101,7 +3229,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param createDate the create date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByC_CD_PrevAndNext(long userId, long companyId,
@@ -3140,11 +3268,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_USER_WHERE);
@@ -3281,8 +3410,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, createDate };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -3321,10 +3449,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3376,7 +3504,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where companyId = &#63; and modifiedDate = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -3395,7 +3523,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where companyId = &#63; and modifiedDate = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -3408,6 +3536,29 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findByC_MD(long companyId, Date modifiedDate, int start,
 		int end, OrderByComparator<User> orderByComparator) {
+		return findByC_MD(companyId, modifiedDate, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where companyId = &#63; and modifiedDate = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param modifiedDate the modified date
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByC_MD(long companyId, Date modifiedDate, int start,
+		int end, OrderByComparator<User> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3427,16 +3578,21 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				};
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if ((companyId != user.getCompanyId()) ||
-						!Validator.equals(modifiedDate, user.getModifiedDate())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if ((companyId != user.getCompanyId()) ||
+							!Validator.equals(modifiedDate,
+								user.getModifiedDate())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -3446,7 +3602,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -3508,10 +3664,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3530,7 +3686,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param modifiedDate the modified date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_MD_First(long companyId, Date modifiedDate,
@@ -3584,7 +3740,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param modifiedDate the modified date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_MD_Last(long companyId, Date modifiedDate,
@@ -3645,7 +3801,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param modifiedDate the modified date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByC_MD_PrevAndNext(long userId, long companyId,
@@ -3684,11 +3840,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_USER_WHERE);
@@ -3825,8 +3982,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, modifiedDate };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -3865,10 +4021,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3895,12 +4051,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName(), Boolean.class.getName() });
 
 	/**
-	 * Returns the user where companyId = &#63; and defaultUser = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where companyId = &#63; and defaultUser = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param defaultUser the default user
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_DU(long companyId, boolean defaultUser)
@@ -3947,7 +4103,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param companyId the company ID
 	 * @param defaultUser the default user
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -3958,7 +4114,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_C_DU,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_C_DU,
 					finderArgs, this);
 		}
 
@@ -3998,7 +4154,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_DU,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_C_DU,
 						finderArgs, list);
 				}
 				else {
@@ -4017,14 +4173,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 					if ((user.getCompanyId() != companyId) ||
 							(user.getDefaultUser() != defaultUser)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_DU,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_C_DU,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_DU,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_C_DU, finderArgs);
 
 				throw processException(e);
 			}
@@ -4069,8 +4224,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, defaultUser };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -4098,10 +4252,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4127,12 +4281,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName(), String.class.getName() });
 
 	/**
-	 * Returns the user where companyId = &#63; and screenName = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where companyId = &#63; and screenName = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param screenName the screen name
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_SN(long companyId, String screenName)
@@ -4179,7 +4333,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param companyId the company ID
 	 * @param screenName the screen name
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -4190,7 +4344,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_C_SN,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_C_SN,
 					finderArgs, this);
 		}
 
@@ -4244,7 +4398,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_SN,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_C_SN,
 						finderArgs, list);
 				}
 				else {
@@ -4257,14 +4411,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					if ((user.getCompanyId() != companyId) ||
 							(user.getScreenName() == null) ||
 							!user.getScreenName().equals(screenName)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_SN,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_C_SN,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_SN,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_C_SN, finderArgs);
 
 				throw processException(e);
 			}
@@ -4309,8 +4462,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, screenName };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -4352,10 +4504,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4383,12 +4535,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName(), String.class.getName() });
 
 	/**
-	 * Returns the user where companyId = &#63; and emailAddress = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where companyId = &#63; and emailAddress = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param emailAddress the email address
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_EA(long companyId, String emailAddress)
@@ -4435,7 +4587,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param companyId the company ID
 	 * @param emailAddress the email address
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -4446,7 +4598,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_C_EA,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_C_EA,
 					finderArgs, this);
 		}
 
@@ -4500,7 +4652,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_EA,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_C_EA,
 						finderArgs, list);
 				}
 				else {
@@ -4513,14 +4665,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					if ((user.getCompanyId() != companyId) ||
 							(user.getEmailAddress() == null) ||
 							!user.getEmailAddress().equals(emailAddress)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_EA,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_C_EA,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_EA,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_C_EA, finderArgs);
 
 				throw processException(e);
 			}
@@ -4565,8 +4716,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, emailAddress };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -4608,10 +4758,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4639,12 +4789,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the user where companyId = &#63; and facebookId = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where companyId = &#63; and facebookId = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param facebookId the facebook ID
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_FID(long companyId, long facebookId)
@@ -4691,7 +4841,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param companyId the company ID
 	 * @param facebookId the facebook ID
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -4702,7 +4852,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_C_FID,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_C_FID,
 					finderArgs, this);
 		}
 
@@ -4742,7 +4892,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_FID,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_C_FID,
 						finderArgs, list);
 				}
 				else {
@@ -4761,14 +4911,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 					if ((user.getCompanyId() != companyId) ||
 							(user.getFacebookId() != facebookId)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_FID,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_C_FID,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_FID,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_C_FID, finderArgs);
 
 				throw processException(e);
 			}
@@ -4813,8 +4962,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, facebookId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -4842,10 +4990,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4871,12 +5019,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			new String[] { Long.class.getName(), String.class.getName() });
 
 	/**
-	 * Returns the user where companyId = &#63; and openId = &#63; or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user where companyId = &#63; and openId = &#63; or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param openId the open ID
 	 * @return the matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_O(long companyId, String openId)
@@ -4923,7 +5071,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param companyId the company ID
 	 * @param openId the open ID
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching user, or <code>null</code> if a matching user could not be found
 	 */
 	@Override
@@ -4934,7 +5082,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_C_O,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_C_O,
 					finderArgs, this);
 		}
 
@@ -4988,8 +5136,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				List<User> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_O,
-						finderArgs, list);
+					finderCache.putResult(FINDER_PATH_FETCH_BY_C_O, finderArgs,
+						list);
 				}
 				else {
 					if ((list.size() > 1) && _log.isWarnEnabled()) {
@@ -5008,14 +5156,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					if ((user.getCompanyId() != companyId) ||
 							(user.getOpenId() == null) ||
 							!user.getOpenId().equals(openId)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_O,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_C_O,
 							finderArgs, user);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_O,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_C_O, finderArgs);
 
 				throw processException(e);
 			}
@@ -5060,8 +5207,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, openId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -5103,10 +5249,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5159,7 +5305,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where companyId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -5177,7 +5323,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where companyId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -5190,6 +5336,27 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findByC_S(long companyId, int status, int start, int end,
 		OrderByComparator<User> orderByComparator) {
+		return findByC_S(companyId, status, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where companyId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param status the status
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByC_S(long companyId, int status, int start, int end,
+		OrderByComparator<User> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5209,16 +5376,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				};
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if ((companyId != user.getCompanyId()) ||
-						(status != user.getStatus())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if ((companyId != user.getCompanyId()) ||
+							(status != user.getStatus())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -5228,7 +5399,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -5279,10 +5450,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5301,7 +5472,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_S_First(long companyId, int status,
@@ -5354,7 +5525,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_S_Last(long companyId, int status,
@@ -5415,7 +5586,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByC_S_PrevAndNext(long userId, long companyId,
@@ -5454,11 +5625,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_USER_WHERE);
@@ -5584,8 +5756,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, status };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -5613,10 +5784,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5675,7 +5846,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where companyId = &#63; and createDate = &#63; and modifiedDate = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -5696,7 +5867,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where companyId = &#63; and createDate = &#63; and modifiedDate = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -5711,6 +5882,30 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	public List<User> findByC_CD_MD(long companyId, Date createDate,
 		Date modifiedDate, int start, int end,
 		OrderByComparator<User> orderByComparator) {
+		return findByC_CD_MD(companyId, createDate, modifiedDate, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where companyId = &#63; and createDate = &#63; and modifiedDate = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param createDate the create date
+	 * @param modifiedDate the modified date
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByC_CD_MD(long companyId, Date createDate,
+		Date modifiedDate, int start, int end,
+		OrderByComparator<User> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5730,17 +5925,22 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				};
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if ((companyId != user.getCompanyId()) ||
-						!Validator.equals(createDate, user.getCreateDate()) ||
-						!Validator.equals(modifiedDate, user.getModifiedDate())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if ((companyId != user.getCompanyId()) ||
+							!Validator.equals(createDate, user.getCreateDate()) ||
+							!Validator.equals(modifiedDate,
+								user.getModifiedDate())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -5750,7 +5950,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -5827,10 +6027,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5850,7 +6050,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param modifiedDate the modified date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_CD_MD_First(long companyId, Date createDate,
@@ -5911,7 +6111,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param modifiedDate the modified date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_CD_MD_Last(long companyId, Date createDate,
@@ -5979,7 +6179,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param modifiedDate the modified date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByC_CD_MD_PrevAndNext(long userId, long companyId,
@@ -6019,10 +6219,11 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_USER_WHERE);
@@ -6177,8 +6378,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, createDate, modifiedDate };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -6232,10 +6432,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6300,7 +6500,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users where companyId = &#63; and defaultUser = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -6320,7 +6520,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users where companyId = &#63; and defaultUser = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -6335,6 +6535,30 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	public List<User> findByC_DU_S(long companyId, boolean defaultUser,
 		int status, int start, int end,
 		OrderByComparator<User> orderByComparator) {
+		return findByC_DU_S(companyId, defaultUser, status, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users where companyId = &#63; and defaultUser = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param defaultUser the default user
+	 * @param status the status
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching users
+	 */
+	@Override
+	public List<User> findByC_DU_S(long companyId, boolean defaultUser,
+		int status, int start, int end,
+		OrderByComparator<User> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -6354,17 +6578,21 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				};
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (User user : list) {
-				if ((companyId != user.getCompanyId()) ||
-						(defaultUser != user.getDefaultUser()) ||
-						(status != user.getStatus())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (User user : list) {
+					if ((companyId != user.getCompanyId()) ||
+							(defaultUser != user.getDefaultUser()) ||
+							(status != user.getStatus())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -6374,7 +6602,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -6429,10 +6657,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6452,7 +6680,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_DU_S_First(long companyId, boolean defaultUser,
@@ -6513,7 +6741,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching user
-	 * @throws com.liferay.portal.NoSuchUserException if a matching user could not be found
+	 * @throws NoSuchUserException if a matching user could not be found
 	 */
 	@Override
 	public User findByC_DU_S_Last(long companyId, boolean defaultUser,
@@ -6581,7 +6809,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User[] findByC_DU_S_PrevAndNext(long userId, long companyId,
@@ -6621,10 +6849,11 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_USER_WHERE);
@@ -6756,8 +6985,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		Object[] finderArgs = new Object[] { companyId, defaultUser, status };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -6789,10 +7017,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6819,31 +7047,31 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void cacheResult(User user) {
-		EntityCacheUtil.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 			UserImpl.class, user.getPrimaryKey(), user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_CONTACTID,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_CONTACTID,
 			new Object[] { user.getContactId() }, user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_PORTRAITID,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_PORTRAITID,
 			new Object[] { user.getPortraitId() }, user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_U,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_C_U,
 			new Object[] { user.getCompanyId(), user.getUserId() }, user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_DU,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_C_DU,
 			new Object[] { user.getCompanyId(), user.getDefaultUser() }, user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_SN,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_C_SN,
 			new Object[] { user.getCompanyId(), user.getScreenName() }, user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_EA,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_C_EA,
 			new Object[] { user.getCompanyId(), user.getEmailAddress() }, user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_FID,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_C_FID,
 			new Object[] { user.getCompanyId(), user.getFacebookId() }, user);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_O,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_C_O,
 			new Object[] { user.getCompanyId(), user.getOpenId() }, user);
 
 		user.resetOriginalValues();
@@ -6857,7 +7085,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public void cacheResult(List<User> users) {
 		for (User user : users) {
-			if (EntityCacheUtil.getResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+			if (entityCache.getResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 						UserImpl.class, user.getPrimaryKey()) == null) {
 				cacheResult(user);
 			}
@@ -6871,228 +7099,248 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Clears the cache for all users.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(UserImpl.class.getName());
-		}
+		entityCache.clearCache(UserImpl.class);
 
-		EntityCacheUtil.clearCache(UserImpl.class);
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
 	/**
 	 * Clears the cache for the user.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache(User user) {
-		EntityCacheUtil.removeResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.removeResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 			UserImpl.class, user.getPrimaryKey());
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
-		clearUniqueFindersCache(user);
+		clearUniqueFindersCache((UserModelImpl)user);
 	}
 
 	@Override
 	public void clearCache(List<User> users) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (User user : users) {
-			EntityCacheUtil.removeResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+			entityCache.removeResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 				UserImpl.class, user.getPrimaryKey());
 
-			clearUniqueFindersCache(user);
+			clearUniqueFindersCache((UserModelImpl)user);
 		}
 	}
 
-	protected void cacheUniqueFindersCache(User user) {
-		if (user.isNew()) {
-			Object[] args = new Object[] { user.getContactId() };
+	protected void cacheUniqueFindersCache(UserModelImpl userModelImpl,
+		boolean isNew) {
+		if (isNew) {
+			Object[] args = new Object[] { userModelImpl.getContactId() };
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_CONTACTID, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_CONTACTID, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_CONTACTID, args, user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_CONTACTID, args,
+				userModelImpl);
 
-			args = new Object[] { user.getPortraitId() };
+			args = new Object[] { userModelImpl.getPortraitId() };
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_PORTRAITID, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_PORTRAITID, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_PORTRAITID, args,
-				user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_PORTRAITID, args,
+				userModelImpl);
 
-			args = new Object[] { user.getCompanyId(), user.getUserId() };
+			args = new Object[] {
+					userModelImpl.getCompanyId(), userModelImpl.getUserId()
+				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_U, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_C_U, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_U, args, user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_C_U, args, userModelImpl);
 
-			args = new Object[] { user.getCompanyId(), user.getDefaultUser() };
+			args = new Object[] {
+					userModelImpl.getCompanyId(), userModelImpl.getDefaultUser()
+				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_DU, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_C_DU, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_DU, args, user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_C_DU, args, userModelImpl);
 
-			args = new Object[] { user.getCompanyId(), user.getScreenName() };
+			args = new Object[] {
+					userModelImpl.getCompanyId(), userModelImpl.getScreenName()
+				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_SN, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_C_SN, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_SN, args, user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_C_SN, args, userModelImpl);
 
-			args = new Object[] { user.getCompanyId(), user.getEmailAddress() };
+			args = new Object[] {
+					userModelImpl.getCompanyId(),
+					userModelImpl.getEmailAddress()
+				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_EA, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_C_EA, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_EA, args, user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_C_EA, args, userModelImpl);
 
-			args = new Object[] { user.getCompanyId(), user.getFacebookId() };
+			args = new Object[] {
+					userModelImpl.getCompanyId(), userModelImpl.getFacebookId()
+				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_FID, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_C_FID, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_FID, args, user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_C_FID, args,
+				userModelImpl);
 
-			args = new Object[] { user.getCompanyId(), user.getOpenId() };
+			args = new Object[] {
+					userModelImpl.getCompanyId(), userModelImpl.getOpenId()
+				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_O, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_C_O, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_O, args, user);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_C_O, args, userModelImpl);
 		}
 		else {
-			UserModelImpl userModelImpl = (UserModelImpl)user;
-
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_CONTACTID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] { user.getContactId() };
+				Object[] args = new Object[] { userModelImpl.getContactId() };
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_CONTACTID, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_CONTACTID, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_CONTACTID, args,
-					user);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_CONTACTID, args,
+					userModelImpl);
 			}
 
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_PORTRAITID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] { user.getPortraitId() };
+				Object[] args = new Object[] { userModelImpl.getPortraitId() };
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_PORTRAITID,
-					args, Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_PORTRAITID,
-					args, user);
+				finderCache.putResult(FINDER_PATH_COUNT_BY_PORTRAITID, args,
+					Long.valueOf(1));
+				finderCache.putResult(FINDER_PATH_FETCH_BY_PORTRAITID, args,
+					userModelImpl);
 			}
 
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_C_U.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						user.getCompanyId(), user.getUserId()
+						userModelImpl.getCompanyId(), userModelImpl.getUserId()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_U, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_C_U, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_U, args, user);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_C_U, args,
+					userModelImpl);
 			}
 
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_C_DU.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						user.getCompanyId(), user.getDefaultUser()
+						userModelImpl.getCompanyId(),
+						userModelImpl.getDefaultUser()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_DU, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_C_DU, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_DU, args, user);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_C_DU, args,
+					userModelImpl);
 			}
 
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_C_SN.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						user.getCompanyId(), user.getScreenName()
+						userModelImpl.getCompanyId(),
+						userModelImpl.getScreenName()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_SN, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_C_SN, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_SN, args, user);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_C_SN, args,
+					userModelImpl);
 			}
 
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_C_EA.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						user.getCompanyId(), user.getEmailAddress()
+						userModelImpl.getCompanyId(),
+						userModelImpl.getEmailAddress()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_EA, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_C_EA, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_EA, args, user);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_C_EA, args,
+					userModelImpl);
 			}
 
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_C_FID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						user.getCompanyId(), user.getFacebookId()
+						userModelImpl.getCompanyId(),
+						userModelImpl.getFacebookId()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_FID, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_C_FID, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_FID, args, user);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_C_FID, args,
+					userModelImpl);
 			}
 
 			if ((userModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_C_O.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						user.getCompanyId(), user.getOpenId()
+						userModelImpl.getCompanyId(), userModelImpl.getOpenId()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_O, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_C_O, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_C_O, args, user);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_C_O, args,
+					userModelImpl);
 			}
 		}
 	}
 
-	protected void clearUniqueFindersCache(User user) {
-		UserModelImpl userModelImpl = (UserModelImpl)user;
+	protected void clearUniqueFindersCache(UserModelImpl userModelImpl) {
+		Object[] args = new Object[] { userModelImpl.getContactId() };
 
-		Object[] args = new Object[] { user.getContactId() };
-
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CONTACTID, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_CONTACTID, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_CONTACTID, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_CONTACTID, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_CONTACTID.getColumnBitmask()) != 0) {
 			args = new Object[] { userModelImpl.getOriginalContactId() };
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CONTACTID, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_CONTACTID, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_CONTACTID, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_CONTACTID, args);
 		}
 
-		args = new Object[] { user.getPortraitId() };
+		args = new Object[] { userModelImpl.getPortraitId() };
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_PORTRAITID, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_PORTRAITID, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_PORTRAITID, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_PORTRAITID, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_PORTRAITID.getColumnBitmask()) != 0) {
 			args = new Object[] { userModelImpl.getOriginalPortraitId() };
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_PORTRAITID, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_PORTRAITID, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_PORTRAITID, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_PORTRAITID, args);
 		}
 
-		args = new Object[] { user.getCompanyId(), user.getUserId() };
+		args = new Object[] {
+				userModelImpl.getCompanyId(), userModelImpl.getUserId()
+			};
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_U, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_U, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_C_U, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_C_U, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_C_U.getColumnBitmask()) != 0) {
@@ -7101,14 +7349,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					userModelImpl.getOriginalUserId()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_U, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_U, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_U, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_C_U, args);
 		}
 
-		args = new Object[] { user.getCompanyId(), user.getDefaultUser() };
+		args = new Object[] {
+				userModelImpl.getCompanyId(), userModelImpl.getDefaultUser()
+			};
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_DU, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_DU, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_C_DU, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_C_DU, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_C_DU.getColumnBitmask()) != 0) {
@@ -7117,14 +7367,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					userModelImpl.getOriginalDefaultUser()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_DU, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_DU, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_DU, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_C_DU, args);
 		}
 
-		args = new Object[] { user.getCompanyId(), user.getScreenName() };
+		args = new Object[] {
+				userModelImpl.getCompanyId(), userModelImpl.getScreenName()
+			};
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_SN, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_SN, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_C_SN, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_C_SN, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_C_SN.getColumnBitmask()) != 0) {
@@ -7133,14 +7385,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					userModelImpl.getOriginalScreenName()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_SN, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_SN, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_SN, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_C_SN, args);
 		}
 
-		args = new Object[] { user.getCompanyId(), user.getEmailAddress() };
+		args = new Object[] {
+				userModelImpl.getCompanyId(), userModelImpl.getEmailAddress()
+			};
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_EA, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_EA, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_C_EA, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_C_EA, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_C_EA.getColumnBitmask()) != 0) {
@@ -7149,14 +7403,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					userModelImpl.getOriginalEmailAddress()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_EA, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_EA, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_EA, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_C_EA, args);
 		}
 
-		args = new Object[] { user.getCompanyId(), user.getFacebookId() };
+		args = new Object[] {
+				userModelImpl.getCompanyId(), userModelImpl.getFacebookId()
+			};
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_FID, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_FID, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_C_FID, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_C_FID, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_C_FID.getColumnBitmask()) != 0) {
@@ -7165,14 +7421,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					userModelImpl.getOriginalFacebookId()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_FID, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_FID, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_FID, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_C_FID, args);
 		}
 
-		args = new Object[] { user.getCompanyId(), user.getOpenId() };
+		args = new Object[] {
+				userModelImpl.getCompanyId(), userModelImpl.getOpenId()
+			};
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_O, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_O, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_C_O, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_C_O, args);
 
 		if ((userModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_C_O.getColumnBitmask()) != 0) {
@@ -7181,8 +7439,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					userModelImpl.getOriginalOpenId()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_O, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_C_O, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_O, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_C_O, args);
 		}
 	}
 
@@ -7203,6 +7461,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		user.setUuid(uuid);
 
+		user.setCompanyId(companyProvider.getCompanyId());
+
 		return user;
 	}
 
@@ -7211,7 +7471,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param userId the primary key of the user
 	 * @return the user that was removed
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User remove(long userId) throws NoSuchUserException {
@@ -7223,7 +7483,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 *
 	 * @param primaryKey the primary key of the user
 	 * @return the user that was removed
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User remove(Serializable primaryKey) throws NoSuchUserException {
@@ -7298,7 +7558,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	}
 
 	@Override
-	public User updateImpl(com.liferay.portal.model.User user) {
+	public User updateImpl(User user) {
 		user = toUnwrappedModel(user);
 
 		boolean isNew = user.isNew();
@@ -7309,6 +7569,28 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			String uuid = PortalUUIDUtil.generate();
 
 			user.setUuid(uuid);
+		}
+
+		ServiceContext serviceContext = ServiceContextThreadLocal.getServiceContext();
+
+		Date now = new Date();
+
+		if (isNew && (user.getCreateDate() == null)) {
+			if (serviceContext == null) {
+				user.setCreateDate(now);
+			}
+			else {
+				user.setCreateDate(serviceContext.getCreateDate(now));
+			}
+		}
+
+		if (!userModelImpl.hasSetModifiedDate()) {
+			if (serviceContext == null) {
+				user.setModifiedDate(now);
+			}
+			else {
+				user.setModifiedDate(serviceContext.getModifiedDate(now));
+			}
 		}
 
 		Session session = null;
@@ -7322,7 +7604,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 				user.setNew(false);
 			}
 			else {
-				session.merge(user);
+				user = (User)session.merge(user);
 			}
 		}
 		catch (Exception e) {
@@ -7332,10 +7614,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			closeSession(session);
 		}
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
 		if (isNew || !UserModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 
 		else {
@@ -7343,14 +7625,14 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { userModelImpl.getOriginalUuid() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 
 				args = new Object[] { userModelImpl.getUuid() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 			}
 
@@ -7361,16 +7643,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 
 				args = new Object[] {
 						userModelImpl.getUuid(), userModelImpl.getCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 			}
 
@@ -7380,16 +7662,14 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_COMPANYID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
 					args);
 
 				args = new Object[] { userModelImpl.getCompanyId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_COMPANYID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
 					args);
 			}
 
@@ -7399,16 +7679,14 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalEmailAddress()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_EMAILADDRESS,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_EMAILADDRESS,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_EMAILADDRESS, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_EMAILADDRESS,
 					args);
 
 				args = new Object[] { userModelImpl.getEmailAddress() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_EMAILADDRESS,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_EMAILADDRESS,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_EMAILADDRESS, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_EMAILADDRESS,
 					args);
 			}
 
@@ -7419,8 +7697,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalCreateDate()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_CD, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_CD, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD,
 					args);
 
 				args = new Object[] {
@@ -7428,8 +7706,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getCreateDate()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_CD, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_CD, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD,
 					args);
 			}
 
@@ -7440,8 +7718,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalModifiedDate()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_MD, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_MD,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_MD, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_MD,
 					args);
 
 				args = new Object[] {
@@ -7449,8 +7727,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getModifiedDate()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_MD, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_MD,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_MD, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_MD,
 					args);
 			}
 
@@ -7461,16 +7739,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_S,
 					args);
 
 				args = new Object[] {
 						userModelImpl.getCompanyId(), userModelImpl.getStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_S,
 					args);
 			}
 
@@ -7482,8 +7760,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalModifiedDate()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_CD_MD, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD_MD,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_CD_MD, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD_MD,
 					args);
 
 				args = new Object[] {
@@ -7492,8 +7770,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getModifiedDate()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_CD_MD, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD_MD,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_CD_MD, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_CD_MD,
 					args);
 			}
 
@@ -7505,8 +7783,8 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getOriginalStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_DU_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_DU_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_DU_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_DU_S,
 					args);
 
 				args = new Object[] {
@@ -7515,17 +7793,17 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 						userModelImpl.getStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_DU_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_DU_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_C_DU_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_DU_S,
 					args);
 			}
 		}
 
-		EntityCacheUtil.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 			UserImpl.class, user.getPrimaryKey(), user, false);
 
-		clearUniqueFindersCache(user);
-		cacheUniqueFindersCache(user);
+		clearUniqueFindersCache(userModelImpl);
+		cacheUniqueFindersCache(userModelImpl, isNew);
 
 		user.resetOriginalValues();
 
@@ -7588,11 +7866,11 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	}
 
 	/**
-	 * Returns the user with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the user with the primary key or throws a {@link com.liferay.portal.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the user
 	 * @return the user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User findByPrimaryKey(Serializable primaryKey)
@@ -7612,11 +7890,11 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	}
 
 	/**
-	 * Returns the user with the primary key or throws a {@link com.liferay.portal.NoSuchUserException} if it could not be found.
+	 * Returns the user with the primary key or throws a {@link NoSuchUserException} if it could not be found.
 	 *
 	 * @param userId the primary key of the user
 	 * @return the user
-	 * @throws com.liferay.portal.NoSuchUserException if a user with the primary key could not be found
+	 * @throws NoSuchUserException if a user with the primary key could not be found
 	 */
 	@Override
 	public User findByPrimaryKey(long userId) throws NoSuchUserException {
@@ -7631,7 +7909,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public User fetchByPrimaryKey(Serializable primaryKey) {
-		User user = (User)EntityCacheUtil.getResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+		User user = (User)entityCache.getResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 				UserImpl.class, primaryKey);
 
 		if (user == _nullUser) {
@@ -7650,12 +7928,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 					cacheResult(user);
 				}
 				else {
-					EntityCacheUtil.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+					entityCache.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 						UserImpl.class, primaryKey, _nullUser);
 				}
 			}
 			catch (Exception e) {
-				EntityCacheUtil.removeResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.removeResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 					UserImpl.class, primaryKey);
 
 				throw processException(e);
@@ -7705,7 +7983,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		Set<Serializable> uncachedPrimaryKeys = null;
 
 		for (Serializable primaryKey : primaryKeys) {
-			User user = (User)EntityCacheUtil.getResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+			User user = (User)entityCache.getResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 					UserImpl.class, primaryKey);
 
 			if (user == null) {
@@ -7757,7 +8035,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			}
 
 			for (Serializable primaryKey : uncachedPrimaryKeys) {
-				EntityCacheUtil.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.putResult(UserModelImpl.ENTITY_CACHE_ENABLED,
 					UserImpl.class, primaryKey, _nullUser);
 			}
 		}
@@ -7785,7 +8063,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the users.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of users
@@ -7801,7 +8079,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the users.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of users
@@ -7812,6 +8090,25 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public List<User> findAll(int start, int end,
 		OrderByComparator<User> orderByComparator) {
+		return findAll(start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the users.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param start the lower bound of the range of users
+	 * @param end the upper bound of the range of users (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of users
+	 */
+	@Override
+	public List<User> findAll(int start, int end,
+		OrderByComparator<User> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -7827,8 +8124,12 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 			finderArgs = new Object[] { start, end, orderByComparator };
 		}
 
-		List<User> list = (List<User>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<User> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<User>)finderCache.getResult(finderPath, finderArgs,
+					this);
+		}
 
 		if (list == null) {
 			StringBundler query = null;
@@ -7836,7 +8137,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_USER);
 
@@ -7875,10 +8176,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -7908,7 +8209,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public int countAll() {
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
+		Long count = (Long)finderCache.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
@@ -7921,11 +8222,11 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_ALL,
-					FINDER_ARGS_EMPTY, count);
+				finderCache.putResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY,
+					count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_ALL,
+				finderCache.removeResult(FINDER_PATH_COUNT_ALL,
 					FINDER_ARGS_EMPTY);
 
 				throw processException(e);
@@ -7966,7 +8267,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the groups associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -7984,7 +8285,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the groups associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -8050,7 +8351,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addGroup(long pk, long groupPK) {
-		userToGroupTableMapper.addTableMapping(pk, groupPK);
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, groupPK);
+		}
+		else {
+			userToGroupTableMapper.addTableMapping(user.getCompanyId(), pk,
+				groupPK);
+		}
 	}
 
 	/**
@@ -8061,7 +8371,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addGroup(long pk, com.liferay.portal.model.Group group) {
-		userToGroupTableMapper.addTableMapping(pk, group.getPrimaryKey());
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, group.getPrimaryKey());
+		}
+		else {
+			userToGroupTableMapper.addTableMapping(user.getCompanyId(), pk,
+				group.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -8072,8 +8391,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addGroups(long pk, long[] groupPKs) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long groupPK : groupPKs) {
-			userToGroupTableMapper.addTableMapping(pk, groupPK);
+			userToGroupTableMapper.addTableMapping(companyId, pk, groupPK);
 		}
 	}
 
@@ -8085,8 +8415,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addGroups(long pk, List<com.liferay.portal.model.Group> groups) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (com.liferay.portal.model.Group group : groups) {
-			userToGroupTableMapper.addTableMapping(pk, group.getPrimaryKey());
+			userToGroupTableMapper.addTableMapping(companyId, pk,
+				group.getPrimaryKey());
 		}
 	}
 
@@ -8171,8 +8513,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		newGroupPKsSet.removeAll(oldGroupPKsSet);
 
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long newGroupPK : newGroupPKsSet) {
-			userToGroupTableMapper.addTableMapping(pk, newGroupPK);
+			userToGroupTableMapper.addTableMapping(companyId, pk, newGroupPK);
 		}
 	}
 
@@ -8228,7 +8581,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the organizations associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -8246,7 +8599,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the organizations associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -8313,7 +8666,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addOrganization(long pk, long organizationPK) {
-		userToOrganizationTableMapper.addTableMapping(pk, organizationPK);
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToOrganizationTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, organizationPK);
+		}
+		else {
+			userToOrganizationTableMapper.addTableMapping(user.getCompanyId(),
+				pk, organizationPK);
+		}
 	}
 
 	/**
@@ -8325,8 +8687,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public void addOrganization(long pk,
 		com.liferay.portal.model.Organization organization) {
-		userToOrganizationTableMapper.addTableMapping(pk,
-			organization.getPrimaryKey());
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToOrganizationTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, organization.getPrimaryKey());
+		}
+		else {
+			userToOrganizationTableMapper.addTableMapping(user.getCompanyId(),
+				pk, organization.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -8337,8 +8707,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addOrganizations(long pk, long[] organizationPKs) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long organizationPK : organizationPKs) {
-			userToOrganizationTableMapper.addTableMapping(pk, organizationPK);
+			userToOrganizationTableMapper.addTableMapping(companyId, pk,
+				organizationPK);
 		}
 	}
 
@@ -8351,8 +8733,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public void addOrganizations(long pk,
 		List<com.liferay.portal.model.Organization> organizations) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (com.liferay.portal.model.Organization organization : organizations) {
-			userToOrganizationTableMapper.addTableMapping(pk,
+			userToOrganizationTableMapper.addTableMapping(companyId, pk,
 				organization.getPrimaryKey());
 		}
 	}
@@ -8442,8 +8835,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		newOrganizationPKsSet.removeAll(oldOrganizationPKsSet);
 
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long newOrganizationPK : newOrganizationPKsSet) {
-			userToOrganizationTableMapper.addTableMapping(pk, newOrganizationPK);
+			userToOrganizationTableMapper.addTableMapping(companyId, pk,
+				newOrganizationPK);
 		}
 	}
 
@@ -8500,7 +8905,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the roles associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -8518,7 +8923,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the roles associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -8584,7 +8989,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addRole(long pk, long rolePK) {
-		userToRoleTableMapper.addTableMapping(pk, rolePK);
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToRoleTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, rolePK);
+		}
+		else {
+			userToRoleTableMapper.addTableMapping(user.getCompanyId(), pk,
+				rolePK);
+		}
 	}
 
 	/**
@@ -8595,7 +9009,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addRole(long pk, com.liferay.portal.model.Role role) {
-		userToRoleTableMapper.addTableMapping(pk, role.getPrimaryKey());
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToRoleTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, role.getPrimaryKey());
+		}
+		else {
+			userToRoleTableMapper.addTableMapping(user.getCompanyId(), pk,
+				role.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -8606,8 +9029,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addRoles(long pk, long[] rolePKs) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long rolePK : rolePKs) {
-			userToRoleTableMapper.addTableMapping(pk, rolePK);
+			userToRoleTableMapper.addTableMapping(companyId, pk, rolePK);
 		}
 	}
 
@@ -8619,8 +9053,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addRoles(long pk, List<com.liferay.portal.model.Role> roles) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (com.liferay.portal.model.Role role : roles) {
-			userToRoleTableMapper.addTableMapping(pk, role.getPrimaryKey());
+			userToRoleTableMapper.addTableMapping(companyId, pk,
+				role.getPrimaryKey());
 		}
 	}
 
@@ -8704,8 +9150,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		newRolePKsSet.removeAll(oldRolePKsSet);
 
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long newRolePK : newRolePKsSet) {
-			userToRoleTableMapper.addTableMapping(pk, newRolePK);
+			userToRoleTableMapper.addTableMapping(companyId, pk, newRolePK);
 		}
 	}
 
@@ -8761,7 +9218,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the teams associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -8779,7 +9236,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the teams associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -8845,7 +9302,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addTeam(long pk, long teamPK) {
-		userToTeamTableMapper.addTableMapping(pk, teamPK);
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToTeamTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, teamPK);
+		}
+		else {
+			userToTeamTableMapper.addTableMapping(user.getCompanyId(), pk,
+				teamPK);
+		}
 	}
 
 	/**
@@ -8856,7 +9322,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addTeam(long pk, com.liferay.portal.model.Team team) {
-		userToTeamTableMapper.addTableMapping(pk, team.getPrimaryKey());
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToTeamTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, team.getPrimaryKey());
+		}
+		else {
+			userToTeamTableMapper.addTableMapping(user.getCompanyId(), pk,
+				team.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -8867,8 +9342,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addTeams(long pk, long[] teamPKs) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long teamPK : teamPKs) {
-			userToTeamTableMapper.addTableMapping(pk, teamPK);
+			userToTeamTableMapper.addTableMapping(companyId, pk, teamPK);
 		}
 	}
 
@@ -8880,8 +9366,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addTeams(long pk, List<com.liferay.portal.model.Team> teams) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (com.liferay.portal.model.Team team : teams) {
-			userToTeamTableMapper.addTableMapping(pk, team.getPrimaryKey());
+			userToTeamTableMapper.addTableMapping(companyId, pk,
+				team.getPrimaryKey());
 		}
 	}
 
@@ -8965,8 +9463,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		newTeamPKsSet.removeAll(oldTeamPKsSet);
 
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long newTeamPK : newTeamPKsSet) {
-			userToTeamTableMapper.addTableMapping(pk, newTeamPK);
+			userToTeamTableMapper.addTableMapping(companyId, pk, newTeamPK);
 		}
 	}
 
@@ -9022,7 +9531,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns a range of all the user groups associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -9040,7 +9549,7 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 * Returns an ordered range of all the user groups associated with the user.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portal.model.impl.UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link UserModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param pk the primary key of the user
@@ -9106,7 +9615,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addUserGroup(long pk, long userGroupPK) {
-		userToUserGroupTableMapper.addTableMapping(pk, userGroupPK);
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToUserGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, userGroupPK);
+		}
+		else {
+			userToUserGroupTableMapper.addTableMapping(user.getCompanyId(), pk,
+				userGroupPK);
+		}
 	}
 
 	/**
@@ -9118,7 +9636,16 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public void addUserGroup(long pk,
 		com.liferay.portal.model.UserGroup userGroup) {
-		userToUserGroupTableMapper.addTableMapping(pk, userGroup.getPrimaryKey());
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			userToUserGroupTableMapper.addTableMapping(companyProvider.getCompanyId(),
+				pk, userGroup.getPrimaryKey());
+		}
+		else {
+			userToUserGroupTableMapper.addTableMapping(user.getCompanyId(), pk,
+				userGroup.getPrimaryKey());
+		}
 	}
 
 	/**
@@ -9129,8 +9656,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	@Override
 	public void addUserGroups(long pk, long[] userGroupPKs) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long userGroupPK : userGroupPKs) {
-			userToUserGroupTableMapper.addTableMapping(pk, userGroupPK);
+			userToUserGroupTableMapper.addTableMapping(companyId, pk,
+				userGroupPK);
 		}
 	}
 
@@ -9143,8 +9682,19 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	@Override
 	public void addUserGroups(long pk,
 		List<com.liferay.portal.model.UserGroup> userGroups) {
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (com.liferay.portal.model.UserGroup userGroup : userGroups) {
-			userToUserGroupTableMapper.addTableMapping(pk,
+			userToUserGroupTableMapper.addTableMapping(companyId, pk,
 				userGroup.getPrimaryKey());
 		}
 	}
@@ -9233,8 +9783,20 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 
 		newUserGroupPKsSet.removeAll(oldUserGroupPKsSet);
 
+		long companyId = 0;
+
+		User user = fetchByPrimaryKey(pk);
+
+		if (user == null) {
+			companyId = companyProvider.getCompanyId();
+		}
+		else {
+			companyId = user.getCompanyId();
+		}
+
 		for (long newUserGroupPK : newUserGroupPKsSet) {
-			userToUserGroupTableMapper.addTableMapping(pk, newUserGroupPK);
+			userToUserGroupTableMapper.addTableMapping(companyId, pk,
+				newUserGroupPK);
 		}
 	}
 
@@ -9264,8 +9826,13 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	}
 
 	@Override
-	protected Set<String> getBadColumnNames() {
+	public Set<String> getBadColumnNames() {
 		return _badColumnNames;
+	}
+
+	@Override
+	protected Map<String, Integer> getTableColumnsMap() {
+		return UserModelImpl.TABLE_COLUMNS_MAP;
 	}
 
 	/**
@@ -9273,26 +9840,27 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	 */
 	public void afterPropertiesSet() {
 		userToGroupTableMapper = TableMapperFactory.getTableMapper("Users_Groups",
-				"userId", "groupId", this, groupPersistence);
+				"companyId", "userId", "groupId", this, groupPersistence);
 
 		userToOrganizationTableMapper = TableMapperFactory.getTableMapper("Users_Orgs",
-				"userId", "organizationId", this, organizationPersistence);
+				"companyId", "userId", "organizationId", this,
+				organizationPersistence);
 
 		userToRoleTableMapper = TableMapperFactory.getTableMapper("Users_Roles",
-				"userId", "roleId", this, rolePersistence);
+				"companyId", "userId", "roleId", this, rolePersistence);
 
 		userToTeamTableMapper = TableMapperFactory.getTableMapper("Users_Teams",
-				"userId", "teamId", this, teamPersistence);
+				"companyId", "userId", "teamId", this, teamPersistence);
 
 		userToUserGroupTableMapper = TableMapperFactory.getTableMapper("Users_UserGroups",
-				"userId", "userGroupId", this, userGroupPersistence);
+				"companyId", "userId", "userGroupId", this, userGroupPersistence);
 	}
 
 	public void destroy() {
-		EntityCacheUtil.removeCache(UserImpl.class.getName());
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		entityCache.removeCache(UserImpl.class.getName());
+		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		TableMapperFactory.removeTableMapper("Users_Groups");
 		TableMapperFactory.removeTableMapper("Users_Orgs");
@@ -9301,6 +9869,10 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 		TableMapperFactory.removeTableMapper("Users_UserGroups");
 	}
 
+	@BeanReference(type = CompanyProviderWrapper.class)
+	protected CompanyProvider companyProvider;
+	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
+	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
 	protected TableMapper<User, com.liferay.portal.model.Group> userToGroupTableMapper;
@@ -9324,7 +9896,6 @@ public class UserPersistenceImpl extends BasePersistenceImpl<User>
 	private static final String _ORDER_BY_ENTITY_ALIAS = "user.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No User exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No User exists with the key {";
-	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = com.liferay.portal.util.PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE;
 	private static final Log _log = LogFactoryUtil.getLog(UserPersistenceImpl.class);
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"uuid", "password"
