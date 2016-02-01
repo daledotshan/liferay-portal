@@ -31,32 +31,6 @@ public class PasswordPolicyServiceWrapper implements PasswordPolicyService,
 		_passwordPolicyService = passwordPolicyService;
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addPasswordPolicy(String,
-	String, boolean, boolean, long, boolean, boolean, int, int,
-	int, int, int, int, String, boolean, int, boolean, long,
-	long, int, boolean, int, long, long, long, ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.model.PasswordPolicy addPasswordPolicy(
-		java.lang.String name, java.lang.String description,
-		boolean changeable, boolean changeRequired, long minAge,
-		boolean checkSyntax, boolean allowDictionaryWords, int minAlphanumeric,
-		int minLength, int minLowerCase, int minNumbers, int minSymbols,
-		int minUpperCase, boolean history, int historyCount,
-		boolean expireable, long maxAge, long warningTime, int graceLimit,
-		boolean lockout, int maxFailure, long lockoutDuration,
-		long resetFailureCount, long resetTicketMaxAge)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _passwordPolicyService.addPasswordPolicy(name, description,
-			changeable, changeRequired, minAge, checkSyntax,
-			allowDictionaryWords, minAlphanumeric, minLength, minLowerCase,
-			minNumbers, minSymbols, minUpperCase, history, historyCount,
-			expireable, maxAge, warningTime, graceLimit, lockout, maxFailure,
-			lockoutDuration, resetFailureCount, resetTicketMaxAge);
-	}
-
 	@Override
 	public com.liferay.portal.model.PasswordPolicy addPasswordPolicy(
 		java.lang.String name, java.lang.String description,
@@ -84,51 +58,21 @@ public class PasswordPolicyServiceWrapper implements PasswordPolicyService,
 		_passwordPolicyService.deletePasswordPolicy(passwordPolicyId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _passwordPolicyService.getBeanIdentifier();
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_passwordPolicyService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #updatePasswordPolicy(long,
-	String, String, boolean, boolean, long, boolean, boolean,
-	int, int, int, int, int, int, String, boolean, int, boolean,
-	long, long, int, boolean, int, long, long, long,
-	ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portal.model.PasswordPolicy updatePasswordPolicy(
-		long passwordPolicyId, java.lang.String name,
-		java.lang.String description, boolean changeable,
-		boolean changeRequired, long minAge, boolean checkSyntax,
-		boolean allowDictionaryWords, int minAlphanumeric, int minLength,
-		int minLowerCase, int minNumbers, int minSymbols, int minUpperCase,
-		boolean history, int historyCount, boolean expireable, long maxAge,
-		long warningTime, int graceLimit, boolean lockout, int maxFailure,
-		long lockoutDuration, long resetFailureCount, long resetTicketMaxAge)
+	public com.liferay.portal.model.PasswordPolicy fetchPasswordPolicy(
+		long passwordPolicyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _passwordPolicyService.updatePasswordPolicy(passwordPolicyId,
-			name, description, changeable, changeRequired, minAge, checkSyntax,
-			allowDictionaryWords, minAlphanumeric, minLength, minLowerCase,
-			minNumbers, minSymbols, minUpperCase, history, historyCount,
-			expireable, maxAge, warningTime, graceLimit, lockout, maxFailure,
-			lockoutDuration, resetFailureCount, resetTicketMaxAge);
+		return _passwordPolicyService.fetchPasswordPolicy(passwordPolicyId);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _passwordPolicyService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -151,23 +95,6 @@ public class PasswordPolicyServiceWrapper implements PasswordPolicyService,
 			expireable, maxAge, warningTime, graceLimit, lockout, maxFailure,
 			lockoutDuration, resetFailureCount, resetTicketMaxAge,
 			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PasswordPolicyService getWrappedPasswordPolicyService() {
-		return _passwordPolicyService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPasswordPolicyService(
-		PasswordPolicyService passwordPolicyService) {
-		_passwordPolicyService = passwordPolicyService;
 	}
 
 	@Override

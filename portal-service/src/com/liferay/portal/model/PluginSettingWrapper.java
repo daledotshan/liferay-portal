@@ -310,8 +310,7 @@ public class PluginSettingWrapper implements PluginSetting,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_pluginSetting.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -406,7 +405,7 @@ public class PluginSettingWrapper implements PluginSetting,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.PluginSetting> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.PluginSetting> toCacheModel() {
 		return _pluginSetting.toCacheModel();
 	}
 
@@ -447,14 +446,6 @@ public class PluginSettingWrapper implements PluginSetting,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public PluginSetting getWrappedPluginSetting() {
-		return _pluginSetting;
 	}
 
 	@Override

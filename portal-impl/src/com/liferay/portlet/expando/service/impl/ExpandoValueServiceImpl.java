@@ -19,9 +19,9 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceMode;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.model.ExpandoValue;
 import com.liferay.portlet.expando.service.base.ExpandoValueServiceBaseImpl;
@@ -79,11 +79,9 @@ public class ExpandoValueServiceImpl extends ExpandoValueServiceBaseImpl {
 		for (Map.Entry<String, Serializable> entry :
 				attributeValues.entrySet()) {
 
-			if (entry.getValue() != null) {
-				addValue(
-					companyId, className, tableName, entry.getKey(), classPK,
-					entry.getValue());
-			}
+			addValue(
+				companyId, className, tableName, entry.getKey(), classPK,
+				entry.getValue());
 		}
 	}
 

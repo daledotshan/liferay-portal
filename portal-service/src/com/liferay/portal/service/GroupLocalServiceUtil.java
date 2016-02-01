@@ -56,84 +56,6 @@ public class GroupLocalServiceUtil {
 	* Adds a group.
 	*
 	* @param userId the primary key of the group's creator/owner
-	* @param className the entity's class name
-	* @param classPK the primary key of the entity's instance
-	* @param liveGroupId the primary key of the live group
-	* @param name the entity's name
-	* @param description the group's description (optionally
-	<code>null</code>)
-	* @param type the group's type. For more information see {@link
-	GroupConstants}.
-	* @param friendlyURL the group's friendlyURL (optionally
-	<code>null</code>)
-	* @param site whether the group is to be associated with a main site
-	* @param active whether the group is active
-	* @param serviceContext the service context to be applied (optionally
-	<code>null</code>). Can set asset category IDs and asset tag
-	names for the group, and whether the group is for staging.
-	* @return the group
-	* @throws PortalException if a creator could not be found, if the
-	group's information was invalid, if a layout could not be
-	found, or if a valid friendly URL could not be created for
-	the group
-	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
-	long, long, Map, Map, int, boolean, int, String, boolean,
-	boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.Group addGroup(long userId,
-		java.lang.String className, long classPK, long liveGroupId,
-		java.lang.String name, java.lang.String description, int type,
-		java.lang.String friendlyURL, boolean site, boolean active,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addGroup(userId, className, classPK, liveGroupId, name,
-			description, type, friendlyURL, site, active, serviceContext);
-	}
-
-	/**
-	* Adds the group using the default live group.
-	*
-	* @param userId the primary key of the group's creator/owner
-	* @param className the entity's class name
-	* @param classPK the primary key of the entity's instance
-	* @param name the entity's name
-	* @param description the group's description (optionally
-	<code>null</code>)
-	* @param type the group's type. For more information see {@link
-	GroupConstants}.
-	* @param friendlyURL the group's friendlyURL
-	* @param site whether the group is to be associated with a main site
-	* @param active whether the group is active
-	* @param serviceContext the service context to be applied (optionally
-	<code>null</code>). Can set asset category IDs and asset tag
-	names for the group, and whether the group is for staging.
-	* @return the group
-	* @throws PortalException if a creator could not be found, if the
-	group's information was invalid, if a layout could not be
-	found, or if a valid friendly URL could not be created for
-	the group
-	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
-	long, long, Map, Map, int, boolean, int, String, boolean,
-	boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.Group addGroup(long userId,
-		java.lang.String className, long classPK, java.lang.String name,
-		java.lang.String description, int type, java.lang.String friendlyURL,
-		boolean site, boolean active,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addGroup(userId, className, classPK, name, description,
-			type, friendlyURL, site, active, serviceContext);
-	}
-
-	/**
-	* Adds a group.
-	*
-	* @param userId the primary key of the group's creator/owner
 	* @param parentGroupId the primary key of the parent group
 	* @param className the entity's class name
 	* @param classPK the primary key of the entity's instance
@@ -155,10 +77,7 @@ public class GroupLocalServiceUtil {
 	<code>null</code>). Can set asset category IDs and asset tag
 	names for the group, and whether the group is for staging.
 	* @return the group
-	* @throws PortalException if a creator could not be found, if the
-	group's information was invalid, if a layout could not be
-	found, or if a valid friendly URL could not be created for
-	the group
+	* @throws PortalException if a portal exception occured
 	* @deprecated As of 7.0.0, replaced by {@link #addGroup(long, long, String,
 	long, long, Map, Map, int, boolean, int, String, boolean,
 	boolean, ServiceContext)}
@@ -206,45 +125,6 @@ public class GroupLocalServiceUtil {
 			liveGroupId, nameMap, descriptionMap, type, manualMembership,
 			membershipRestriction, friendlyURL, site, inheritContent, active,
 			serviceContext);
-	}
-
-	/**
-	* Adds the group using the default live group.
-	*
-	* @param userId the primary key of the group's creator/owner
-	* @param parentGroupId the primary key of the parent group
-	* @param className the entity's class name
-	* @param classPK the primary key of the entity's instance
-	* @param name the entity's name
-	* @param description the group's description (optionally
-	<code>null</code>)
-	* @param type the group's type. For more information see {@link
-	GroupConstants}.
-	* @param friendlyURL the group's friendlyURL
-	* @param site whether the group is to be associated with a main site
-	* @param active whether the group is active
-	* @param serviceContext the service context to be applied (optionally
-	<code>null</code>). Can set asset category IDs and asset tag
-	names for the group, and whether the group is for staging.
-	* @return the group
-	* @throws PortalException if a creator could not be found, if the
-	group's information was invalid, if a layout could not be
-	found, or if a valid friendly URL could not be created for
-	the group
-	* @deprecated As of 6.2.0, replaced by {@link #addGroup(long, long, String,
-	long, long, Map, Map, int, boolean, int, String, boolean,
-	boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.Group addGroup(long userId,
-		long parentGroupId, java.lang.String className, long classPK,
-		java.lang.String name, java.lang.String description, int type,
-		java.lang.String friendlyURL, boolean site, boolean active,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addGroup(userId, parentGroupId, className, classPK, name,
-			description, type, friendlyURL, site, active, serviceContext);
 	}
 
 	public static void addOrganizationGroup(long organizationId,
@@ -325,14 +205,17 @@ public class GroupLocalServiceUtil {
 	* when a virtual host is added.
 	*
 	* @param companyId the primary key of the company
-	* @throws PortalException if a default user for the company could not be
-	found, if the group's information was invalid, if a layout could
-	not be found, or if a valid friendly URL could not be created for
-	the group
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static void checkCompanyGroup(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().checkCompanyGroup(companyId);
+	}
+
+	public static com.liferay.portal.model.Group checkScopeGroup(
+		com.liferay.portal.model.Layout layout, long userId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().checkScopeGroup(layout, userId);
 	}
 
 	/**
@@ -341,7 +224,7 @@ public class GroupLocalServiceUtil {
 	* and layouts.
 	*
 	* @param companyId the primary key of the company
-	* @throws PortalException if a new system group could not be created
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static void checkSystemGroups(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -635,8 +518,7 @@ public class GroupLocalServiceUtil {
 	* @param companyId the primary key of the company
 	* @return the default user's personal site group, or <code>null</code> if a
 	matching group could not be found
-	* @throws PortalException if a default user for the company could not be
-	found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group fetchUserPersonalSiteGroup(
 		long companyId)
@@ -649,12 +531,16 @@ public class GroupLocalServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns all the active or inactive groups associated with the company.
 	*
-	* @return the Spring bean ID for this bean
+	* @param companyId the primary key of the company
+	* @param active whether to return only active groups, or only inactive
+	groups
+	* @return the active or inactive groups associated with the company
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.util.List<com.liferay.portal.model.Group> getActiveGroups(
+		long companyId, boolean active) {
+		return getService().getActiveGroups(companyId, active);
 	}
 
 	/**
@@ -662,7 +548,7 @@ public class GroupLocalServiceUtil {
 	*
 	* @param companyId the primary key of the company
 	* @return the group associated with the company
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getCompanyGroup(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -677,8 +563,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -709,8 +594,7 @@ public class GroupLocalServiceUtil {
 	* @param companyId the primary key of the company
 	* @param friendlyURL the group's friendlyURL
 	* @return the group with the friendly URL
-	* @throws PortalException if a matching group could not be found, or if the
-	friendly URL was invalid
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getFriendlyURLGroup(
 		long companyId, java.lang.String friendlyURL)
@@ -724,7 +608,7 @@ public class GroupLocalServiceUtil {
 	* @param companyId the primary key of the company
 	* @param groupKey the group key
 	* @return the group with the group key
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getGroup(long companyId,
 		java.lang.String groupKey)
@@ -838,7 +722,7 @@ public class GroupLocalServiceUtil {
 	*
 	* @param groupIds the primary keys of the groups
 	* @return the groups with the primary keys
-	* @throws PortalException if any one of the groups could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static java.util.List<com.liferay.portal.model.Group> getGroups(
 		long[] groupIds)
@@ -899,13 +783,17 @@ public class GroupLocalServiceUtil {
 		return getService().getGroupsCount(companyId, parentGroupId, site);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
 	/**
 	* Returns the group associated with the layout.
 	*
 	* @param companyId the primary key of the company
 	* @param plid the primary key of the layout
 	* @return the group associated with the layout
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getLayoutGroup(
 		long companyId, long plid)
@@ -919,7 +807,7 @@ public class GroupLocalServiceUtil {
 	* @param companyId the primary key of the company
 	* @param layoutPrototypeId the primary key of the layout prototype
 	* @return the group associated with the layout prototype
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getLayoutPrototypeGroup(
 		long companyId, long layoutPrototypeId)
@@ -933,7 +821,7 @@ public class GroupLocalServiceUtil {
 	* @param companyId the primary key of the company
 	* @param layoutSetPrototypeId the primary key of the layout set prototype
 	* @return the group associated with the layout set prototype
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getLayoutSetPrototypeGroup(
 		long companyId, long layoutSetPrototypeId)
@@ -951,39 +839,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
-	* result set.
-	* </p>
-	*
-	* @param companyId the primary key of the company
-	* @param parentGroupId the primary key of the parent group
-	* @param site whether the group is to be associated with a main site
-	* @param start the lower bound of the range of groups to return
-	* @param end the upper bound of the range of groups to return (not
-	inclusive)
-	* @return the range of matching groups
-	* @deprecated As of 6.2.0, replaced by {@link #getLayoutsGroups(long, long,
-	boolean, int, int, OrderByComparator)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portal.model.Group> getLayoutsGroups(
-		long companyId, long parentGroupId, boolean site, int start, int end) {
-		return getService()
-				   .getLayoutsGroups(companyId, parentGroupId, site, start, end);
-	}
-
-	/**
-	* Returns a range of all groups that are children of the parent group and
-	* that have at least one layout.
-	*
-	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end -
-	* start</code> instances. <code>start</code> and <code>end</code> are not
-	* primary keys, they are indexes in the result set. Thus, <code>0</code>
-	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1038,8 +894,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1069,12 +924,21 @@ public class GroupLocalServiceUtil {
 	}
 
 	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
+	/**
 	* Returns the specified organization group.
 	*
 	* @param companyId the primary key of the company
 	* @param organizationId the primary key of the organization
 	* @return the group associated with the organization
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getOrganizationGroup(
 		long companyId, long organizationId)
@@ -1143,8 +1007,7 @@ public class GroupLocalServiceUtil {
 	* @param groupId the primary key of the group
 	* @return the group followed by all its parent groups ordered by closest
 	ancestor
-	* @throws PortalException if a group with the primary key could not be
-	found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static java.util.List<com.liferay.portal.model.Group> getParentGroups(
 		long groupId)
@@ -1193,7 +1056,7 @@ public class GroupLocalServiceUtil {
 	*
 	* @param liveGroupId the primary key of the live group
 	* @return the staging group
-	* @throws PortalException if a matching staging group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getStagingGroup(
 		long liveGroupId)
@@ -1207,7 +1070,7 @@ public class GroupLocalServiceUtil {
 	* @param companyId the primary key of the company
 	* @param userId the primary key of the user
 	* @return the group directly associated with the user
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getUserGroup(long companyId,
 		long userId) throws com.liferay.portal.kernel.exception.PortalException {
@@ -1216,12 +1079,12 @@ public class GroupLocalServiceUtil {
 
 	/**
 	* Returns the specified "user group" group. That is, the group that
-	* represents the {@link com.liferay.portal.model.UserGroup} entity.
+	* represents the {@link UserGroup} entity.
 	*
 	* @param companyId the primary key of the company
 	* @param userGroupId the primary key of the user group
 	* @return the group associated with the user group
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getUserGroupGroup(
 		long companyId, long userGroupId)
@@ -1275,7 +1138,7 @@ public class GroupLocalServiceUtil {
 	* @param inherit whether to include the user's inherited organization
 	groups and user groups
 	* @return the user's groups and immediate organization groups
-	* @throws PortalException if a user with the primary key could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static java.util.List<com.liferay.portal.model.Group> getUserGroups(
 		long userId, boolean inherit)
@@ -1294,8 +1157,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1307,7 +1169,7 @@ public class GroupLocalServiceUtil {
 	inclusive)
 	* @return the range of the user's groups and immediate organization groups
 	ordered by name
-	* @throws PortalException if a user with the primary key could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static java.util.List<com.liferay.portal.model.Group> getUserGroups(
 		long userId, boolean inherit, int start, int end)
@@ -1339,8 +1201,7 @@ public class GroupLocalServiceUtil {
 	*
 	* @param userGroups the user groups
 	* @return the groups associated with the user groups
-	* @throws PortalException if any one of the user group's group could not be
-	found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static java.util.List<com.liferay.portal.model.Group> getUserGroupsGroups(
 		java.util.List<com.liferay.portal.model.UserGroup> userGroups)
@@ -1370,8 +1231,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1381,8 +1241,7 @@ public class GroupLocalServiceUtil {
 	inclusive)
 	* @return the range of groups associated with the user's organization
 	groups
-	* @throws PortalException if a user with the primary key could not be found
-	or if another portal exception occurred
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static java.util.List<com.liferay.portal.model.Group> getUserOrganizationsGroups(
 		long userId, int start, int end)
@@ -1395,8 +1254,7 @@ public class GroupLocalServiceUtil {
 	*
 	* @param companyId the primary key of the company
 	* @return the default user's personal site group
-	* @throws PortalException if a matching group or default user for the
-	company could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group getUserPersonalSiteGroup(
 		long companyId)
@@ -1505,7 +1363,7 @@ public class GroupLocalServiceUtil {
 	* @param companyId the primary key of the company
 	* @param groupKey the group key
 	* @return the group with the group key and associated company
-	* @throws PortalException if a matching group could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group loadGetGroup(long companyId,
 		java.lang.String groupKey)
@@ -1523,8 +1381,7 @@ public class GroupLocalServiceUtil {
 	* </p>
 	*
 	* @param companyId the primary key of the group's company
-	* @throws PortalException if a group with the primary key could not be
-	found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static void rebuildTree(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -1541,8 +1398,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1581,8 +1437,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1626,8 +1481,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1672,8 +1526,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1721,8 +1574,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1765,8 +1617,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1812,8 +1663,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1859,8 +1709,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1908,8 +1757,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1944,8 +1792,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -1984,8 +1831,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -2026,8 +1872,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -2070,8 +1915,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -2106,8 +1950,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -2146,8 +1989,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -2189,8 +2031,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -2233,8 +2074,7 @@ public class GroupLocalServiceUtil {
 	* start</code> instances. <code>start</code> and <code>end</code> are not
 	* primary keys, they are indexes in the result set. Thus, <code>0</code>
 	* refers to the first result in the set. Setting both <code>start</code>
-	* and <code>end</code> to {@link
-	* com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	* result set.
 	* </p>
 	*
@@ -2489,15 +2329,6 @@ public class GroupLocalServiceUtil {
 			params, andOperator);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static void setOrganizationGroups(long organizationId,
 		long[] groupIds) {
 		getService().setOrganizationGroups(organizationId, groupIds);
@@ -2543,7 +2374,7 @@ public class GroupLocalServiceUtil {
 	* @param assetCategoryIds the primary keys of the asset categories
 	(optionally <code>null</code>)
 	* @param assetTagNames the asset tag names (optionally <code>null</code>)
-	* @throws PortalException if a user with the primary key could not be found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static void updateAsset(long userId,
 		com.liferay.portal.model.Group group, long[] assetCategoryIds,
@@ -2559,9 +2390,7 @@ public class GroupLocalServiceUtil {
 	* @param friendlyURL the group's new friendlyURL (optionally
 	<code>null</code>)
 	* @return the group
-	* @throws PortalException if a group with the primary key could not be
-	found or if a valid friendly URL could not be created for the
-	group
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group updateFriendlyURL(
 		long groupId, java.lang.String friendlyURL)
@@ -2596,14 +2425,14 @@ public class GroupLocalServiceUtil {
 	more information see {@link GroupConstants}.
 	* @param friendlyURL the group's new friendlyURL (optionally
 	<code>null</code>)
+	* @param inheritContent whether to inherit content from the parent
+	group
 	* @param active whether the group is active
 	* @param serviceContext the service context to be applied (optionally
 	<code>null</code>). Can set asset category IDs and asset tag
 	names for the group.
 	* @return the group
-	* @throws PortalException if a group with the primary key could not be
-	found or if the friendly URL was invalid or could one not be
-	created
+	* @throws PortalException if a portal exception occurred
 	* @deprecated As of 7.0.0, replaced by {@link #updateGroup(long, long, Map,
 	Map, int, boolean, int, String, boolean, boolean,
 	ServiceContext)}
@@ -2643,8 +2472,7 @@ public class GroupLocalServiceUtil {
 	* @param typeSettings the group's new type settings (optionally
 	<code>null</code>)
 	* @return the group
-	* @throws PortalException if a group with the primary key could not be
-	found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group updateGroup(long groupId,
 		java.lang.String typeSettings)
@@ -2658,8 +2486,7 @@ public class GroupLocalServiceUtil {
 	* @param groupId the primary key of the group
 	* @param site whether the group is to be associated with a main site
 	* @return the group
-	* @throws PortalException if a group with the primary key could not be
-	found
+	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.Group updateSite(long groupId,
 		boolean site)
@@ -2676,13 +2503,6 @@ public class GroupLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(GroupLocalService service) {
 	}
 
 	private static GroupLocalService _service;

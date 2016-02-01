@@ -14,8 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.display.context;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 
 /**
  * @author Iván Zaera
@@ -24,6 +24,8 @@ public interface DLEditFileEntryDisplayContext extends DLDisplayContext {
 
 	public DLFilePicker getDLFilePicker(String onFilePickCallback)
 		throws PortalException;
+
+	public long getMaximumUploadRequestSize() throws PortalException;
 
 	public long getMaximumUploadSize() throws PortalException;
 

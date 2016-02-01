@@ -185,15 +185,6 @@ public class ResourceTypePermissionLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static long getCompanyScopeActionIds(long companyId,
 		java.lang.String name, long roleId) {
 		return getService().getCompanyScopeActionIds(companyId, name, roleId);
@@ -209,6 +200,19 @@ public class ResourceTypePermissionLocalServiceUtil {
 		long companyId, java.lang.String name, long roleId) {
 		return getService()
 				   .getGroupScopeResourceTypePermissions(companyId, name, roleId);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -289,15 +293,6 @@ public class ResourceTypePermissionLocalServiceUtil {
 			actionId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static void updateCompanyScopeResourceTypePermissions(
 		long companyId, java.lang.String name, long roleId, long actionIdsLong,
 		long operator) {
@@ -334,13 +329,6 @@ public class ResourceTypePermissionLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(ResourceTypePermissionLocalService service) {
 	}
 
 	private static ResourceTypePermissionLocalService _service;

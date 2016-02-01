@@ -20,10 +20,9 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.expando.ValueDataException;
+import com.liferay.portlet.expando.exception.ValueDataException;
 import com.liferay.portlet.expando.model.ExpandoColumn;
 import com.liferay.portlet.expando.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.model.ExpandoTable;
@@ -51,8 +50,7 @@ public class ExpandoValueLocalServiceTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -198,9 +196,9 @@ public class ExpandoValueLocalServiceTest {
 
 		Assert.assertEquals(_ptLocale, availableLocales.get(0));
 		Assert.assertEquals(_enLocale, availableLocales.get(1));
-		Assert.assertEquals("um" , value.getString(_ptLocale));
-		Assert.assertEquals("one" , value.getString(_enLocale));
-		Assert.assertEquals("um" , value.getString(_frLocale));
+		Assert.assertEquals("um", value.getString(_ptLocale));
+		Assert.assertEquals("one", value.getString(_enLocale));
+		Assert.assertEquals("um", value.getString(_frLocale));
 	}
 
 	@Test

@@ -36,16 +36,13 @@ import java.util.List;
  * @author Brian Wing Shun Chan
  */
 public class LayoutFinderImpl
-	extends BasePersistenceImpl<Layout> implements LayoutFinder {
+	extends LayoutFinderBaseImpl implements LayoutFinder {
 
 	public static final String FIND_BY_NO_PERMISSIONS =
 		LayoutFinder.class.getName() + ".findByNoPermissions";
 
 	public static final String FIND_BY_NULL_FRIENDLY_URL =
 		LayoutFinder.class.getName() + ".findByNullFriendlyURL";
-
-	public static final String FIND_BY_SCOPE_GROUP =
-		LayoutFinder.class.getName() + ".findByScopeGroup";
 
 	public static final String FIND_BY_C_P_P =
 		LayoutFinder.class.getName() + ".findByC_P_P";
@@ -90,34 +87,6 @@ public class LayoutFinderImpl
 			SQLQuery q = session.createSynchronizedSQLQuery(sql);
 
 			q.addEntity("Layout", LayoutImpl.class);
-
-			return q.list(true);
-		}
-		catch (Exception e) {
-			throw new SystemException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	public List<Layout> findByScopeGroup(long groupId, boolean privateLayout) {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			String sql = CustomSQLUtil.get(FIND_BY_SCOPE_GROUP);
-
-			SQLQuery q = session.createSynchronizedSQLQuery(sql);
-
-			q.addEntity("Layout", LayoutImpl.class);
-
-			QueryPos qPos = QueryPos.getInstance(q);
-
-			qPos.add(groupId);
-			qPos.add(privateLayout);
 
 			return q.list(true);
 		}

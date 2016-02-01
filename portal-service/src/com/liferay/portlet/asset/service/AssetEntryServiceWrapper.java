@@ -32,14 +32,10 @@ public class AssetEntryServiceWrapper implements AssetEntryService,
 		_assetEntryService = assetEntryService;
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _assetEntryService.getBeanIdentifier();
+	public com.liferay.portlet.asset.model.AssetEntry fetchEntry(long entryId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _assetEntryService.fetchEntry(entryId);
 	}
 
 	@Override
@@ -73,6 +69,16 @@ public class AssetEntryServiceWrapper implements AssetEntryService,
 		return _assetEntryService.getEntry(entryId);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _assetEntryService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portlet.asset.model.AssetEntry incrementViewCounter(
 		java.lang.String className, long classPK)
@@ -80,65 +86,32 @@ public class AssetEntryServiceWrapper implements AssetEntryService,
 		return _assetEntryService.incrementViewCounter(className, classPK);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_assetEntryService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, Date,
-	Date, String, long, String, long, long[], String[], boolean,
-	Date, Date, Date, String, String, String, String, String,
-	String, int, int, Integer, boolean)}
-	*/
-	@Deprecated
 	@Override
 	public com.liferay.portlet.asset.model.AssetEntry updateEntry(
-		long groupId, java.lang.String className, long classPK,
-		java.lang.String classUuid, long classTypeId, long[] categoryIds,
-		java.lang.String[] tagNames, boolean visible, java.util.Date startDate,
-		java.util.Date endDate, java.util.Date expirationDate,
-		java.lang.String mimeType, java.lang.String title,
-		java.lang.String description, java.lang.String summary,
-		java.lang.String url, java.lang.String layoutUuid, int height,
-		int width, java.lang.Integer priority, boolean sync)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetEntryService.updateEntry(groupId, className, classPK,
-			classUuid, classTypeId, categoryIds, tagNames, visible, startDate,
-			endDate, expirationDate, mimeType, title, description, summary,
-			url, layoutUuid, height, width, priority, sync);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #updateEntry(long, String,
-	long, String, long, long[], String[], boolean, Date, Date,
-	Date, String, String, String, String, String, String, int,
-	int, Integer, boolean)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.asset.model.AssetEntry updateEntry(
-		long groupId, java.lang.String className, long classPK,
-		java.lang.String classUuid, long classTypeId, long[] categoryIds,
-		java.lang.String[] tagNames, boolean visible, java.util.Date startDate,
-		java.util.Date endDate, java.util.Date publishDate,
+		long groupId, java.util.Date createDate, java.util.Date modifiedDate,
+		java.lang.String className, long classPK, java.lang.String classUuid,
+		long classTypeId, long[] categoryIds, java.lang.String[] tagNames,
+		boolean visible, java.util.Date startDate, java.util.Date endDate,
 		java.util.Date expirationDate, java.lang.String mimeType,
 		java.lang.String title, java.lang.String description,
 		java.lang.String summary, java.lang.String url,
 		java.lang.String layoutUuid, int height, int width,
-		java.lang.Integer priority, boolean sync)
+		java.lang.Double priority)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _assetEntryService.updateEntry(groupId, className, classPK,
-			classUuid, classTypeId, categoryIds, tagNames, visible, startDate,
-			endDate, publishDate, expirationDate, mimeType, title, description,
-			summary, url, layoutUuid, height, width, priority, sync);
+		return _assetEntryService.updateEntry(groupId, createDate,
+			modifiedDate, className, classPK, classUuid, classTypeId,
+			categoryIds, tagNames, visible, startDate, endDate, expirationDate,
+			mimeType, title, description, summary, url, layoutUuid, height,
+			width, priority);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, Date,
+	Date, String, long, String, long, long[], String[], boolean,
+	Date, Date, Date, String, String, String, String, String,
+	String, int, int, Double)}
+	*/
+	@Deprecated
 	@Override
 	public com.liferay.portlet.asset.model.AssetEntry updateEntry(
 		long groupId, java.util.Date createDate, java.util.Date modifiedDate,
@@ -156,22 +129,6 @@ public class AssetEntryServiceWrapper implements AssetEntryService,
 			categoryIds, tagNames, visible, startDate, endDate, expirationDate,
 			mimeType, title, description, summary, url, layoutUuid, height,
 			width, priority, sync);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public AssetEntryService getWrappedAssetEntryService() {
-		return _assetEntryService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedAssetEntryService(AssetEntryService assetEntryService) {
-		_assetEntryService = assetEntryService;
 	}
 
 	@Override

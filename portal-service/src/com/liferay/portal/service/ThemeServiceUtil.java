@@ -42,12 +42,12 @@ public class ThemeServiceUtil {
 	 */
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static java.util.List<com.liferay.portal.model.Theme> getThemes(
@@ -59,15 +59,6 @@ public class ThemeServiceUtil {
 		return getService().getWARThemes();
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static ThemeService getService() {
 		if (_service == null) {
 			_service = (ThemeService)PortalBeanLocatorUtil.locate(ThemeService.class.getName());
@@ -77,13 +68,6 @@ public class ThemeServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(ThemeService service) {
 	}
 
 	private static ThemeService _service;

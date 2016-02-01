@@ -16,10 +16,10 @@ package com.liferay.portal.service.impl;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.LayoutPrototype;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.LayoutPrototypeServiceBaseImpl;
 import com.liferay.portal.service.permission.LayoutPrototypePermissionUtil;
@@ -53,26 +53,6 @@ public class LayoutPrototypeServiceImpl extends LayoutPrototypeServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #addLayoutPrototype(Map,
-	 *             String, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public LayoutPrototype addLayoutPrototype(
-			Map<Locale, String> nameMap, String description, boolean active)
-		throws PortalException {
-
-		PortalPermissionUtil.check(
-			getPermissionChecker(), ActionKeys.ADD_LAYOUT_PROTOTYPE);
-
-		User user = getUser();
-
-		return layoutPrototypeLocalService.addLayoutPrototype(
-			user.getUserId(), user.getCompanyId(), nameMap, description,
-			active);
-	}
-
-	/**
 	 * @deprecated As of 7.0.0, replaced by {@link #addLayoutPrototype(Map, Map,
 	 *             boolean, ServiceContext)}
 	 */
@@ -101,6 +81,17 @@ public class LayoutPrototypeServiceImpl extends LayoutPrototypeServiceBaseImpl {
 			getPermissionChecker(), layoutPrototypeId, ActionKeys.DELETE);
 
 		layoutPrototypeLocalService.deleteLayoutPrototype(layoutPrototypeId);
+	}
+
+	@Override
+	public LayoutPrototype fetchLayoutPrototype(long layoutPrototypeId)
+		throws PortalException {
+
+		LayoutPrototypePermissionUtil.check(
+			getPermissionChecker(), layoutPrototypeId, ActionKeys.VIEW);
+
+		return layoutPrototypeLocalService.fetchLayoutPrototype(
+			layoutPrototypeId);
 	}
 
 	@Override
@@ -150,24 +141,6 @@ public class LayoutPrototypeServiceImpl extends LayoutPrototypeServiceBaseImpl {
 
 		return layoutPrototypeLocalService.updateLayoutPrototype(
 			layoutPrototypeId, nameMap, descriptionMap, active, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #updateLayoutPrototype(long,
-	 *             Map, String, boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public LayoutPrototype updateLayoutPrototype(
-			long layoutPrototypeId, Map<Locale, String> nameMap,
-			String description, boolean active)
-		throws PortalException {
-
-		LayoutPrototypePermissionUtil.check(
-			getPermissionChecker(), layoutPrototypeId, ActionKeys.UPDATE);
-
-		return layoutPrototypeLocalService.updateLayoutPrototype(
-			layoutPrototypeId, nameMap, description, active);
 	}
 
 	/**

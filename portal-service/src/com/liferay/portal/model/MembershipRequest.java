@@ -16,6 +16,9 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
+
 /**
  * The extended model interface for the MembershipRequest service. Represents a row in the &quot;MembershipRequest&quot; database table, with each column mapped to a property of this class.
  *
@@ -25,6 +28,7 @@ import aQute.bnd.annotation.ProviderType;
  * @see com.liferay.portal.model.impl.MembershipRequestModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portal.model.impl.MembershipRequestImpl")
 @ProviderType
 public interface MembershipRequest extends MembershipRequestModel, PersistedModel {
 	/*
@@ -32,4 +36,21 @@ public interface MembershipRequest extends MembershipRequestModel, PersistedMode
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portal.model.impl.MembershipRequestImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<MembershipRequest, Long> MEMBERSHIP_REQUEST_ID_ACCESSOR =
+		new Accessor<MembershipRequest, Long>() {
+			@Override
+			public Long get(MembershipRequest membershipRequest) {
+				return membershipRequest.getMembershipRequestId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<MembershipRequest> getTypeClass() {
+				return MembershipRequest.class;
+			}
+		};
 }

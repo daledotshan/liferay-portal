@@ -195,19 +195,24 @@ public class PluginSettingLocalServiceWrapper
 		return _pluginSettingLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _pluginSettingLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portal.model.PluginSetting getDefaultPluginSetting() {
 		return _pluginSettingLocalService.getDefaultPluginSetting();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _pluginSettingLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _pluginSettingLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -272,16 +277,6 @@ public class PluginSettingLocalServiceWrapper
 			pluginType);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_pluginSettingLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public com.liferay.portal.model.PluginSetting updatePluginSetting(
 		long companyId, java.lang.String pluginId, java.lang.String pluginType,
@@ -300,23 +295,6 @@ public class PluginSettingLocalServiceWrapper
 	public com.liferay.portal.model.PluginSetting updatePluginSetting(
 		com.liferay.portal.model.PluginSetting pluginSetting) {
 		return _pluginSettingLocalService.updatePluginSetting(pluginSetting);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public PluginSettingLocalService getWrappedPluginSettingLocalService() {
-		return _pluginSettingLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedPluginSettingLocalService(
-		PluginSettingLocalService pluginSettingLocalService) {
-		_pluginSettingLocalService = pluginSettingLocalService;
 	}
 
 	@Override

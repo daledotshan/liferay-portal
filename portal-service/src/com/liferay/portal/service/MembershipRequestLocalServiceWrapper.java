@@ -214,14 +214,9 @@ public class MembershipRequestLocalServiceWrapper
 		return _membershipRequestLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _membershipRequestLocalService.getBeanIdentifier();
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _membershipRequestLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	/**
@@ -272,6 +267,16 @@ public class MembershipRequestLocalServiceWrapper
 		return _membershipRequestLocalService.getMembershipRequestsCount();
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _membershipRequestLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -297,16 +302,6 @@ public class MembershipRequestLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_membershipRequestLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the membership request in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param membershipRequest the membership request
@@ -326,23 +321,6 @@ public class MembershipRequestLocalServiceWrapper
 		_membershipRequestLocalService.updateStatus(replierUserId,
 			membershipRequestId, replyComments, statusId, addUserToGroup,
 			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public MembershipRequestLocalService getWrappedMembershipRequestLocalService() {
-		return _membershipRequestLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedMembershipRequestLocalService(
-		MembershipRequestLocalService membershipRequestLocalService) {
-		_membershipRequestLocalService = membershipRequestLocalService;
 	}
 
 	@Override

@@ -24,7 +24,7 @@ import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.messageboards.BannedUserException;
+import com.liferay.portlet.messageboards.exception.BannedUserException;
 import com.liferay.portlet.messageboards.model.MBBan;
 import com.liferay.portlet.messageboards.service.base.MBBanLocalServiceBaseImpl;
 import com.liferay.portlet.messageboards.util.MBUtil;
@@ -44,13 +44,14 @@ public class MBBanLocalServiceImpl extends MBBanLocalServiceBaseImpl {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		long groupId = serviceContext.getScopeGroupId();
-		Date now = new Date();
 
 		long banId = counterLocalService.increment();
 
 		MBBan ban = mbBanPersistence.fetchByG_B(groupId, banUserId);
 
 		if (ban == null) {
+			Date now = new Date();
+
 			ban = mbBanPersistence.create(banId);
 
 			ban.setUuid(serviceContext.getUuid());
@@ -59,10 +60,9 @@ public class MBBanLocalServiceImpl extends MBBanLocalServiceBaseImpl {
 			ban.setUserId(user.getUserId());
 			ban.setUserName(user.getFullName());
 			ban.setCreateDate(serviceContext.getCreateDate(now));
+			ban.setModifiedDate(serviceContext.getModifiedDate(now));
 			ban.setBanUserId(banUserId);
 		}
-
-		ban.setModifiedDate(serviceContext.getModifiedDate(now));
 
 		mbBanPersistence.update(ban);
 
@@ -73,7 +73,7 @@ public class MBBanLocalServiceImpl extends MBBanLocalServiceBaseImpl {
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public void checkBan(long groupId, long banUserId) throws PortalException {
 		if (hasBan(groupId, banUserId)) {
-			throw new BannedUserException();
+			throw new BannedUserException("Banned user " + banUserId);
 		}
 	}
 

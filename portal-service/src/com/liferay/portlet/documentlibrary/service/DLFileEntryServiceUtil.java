@@ -45,7 +45,7 @@ public class DLFileEntryServiceUtil {
 		java.lang.String sourceFileName, java.lang.String mimeType,
 		java.lang.String title, java.lang.String description,
 		java.lang.String changeLog, long fileEntryTypeId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
+		java.util.Map<java.lang.String, com.liferay.dynamic.data.mapping.kernel.DDMFormValues> ddmFormValuesMap,
 		java.io.File file, java.io.InputStream is, long size,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -61,17 +61,6 @@ public class DLFileEntryServiceUtil {
 		return getService().cancelCheckOut(fileEntryId);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #checkInFileEntry(long,
-	String, ServiceContext)}
-	*/
-	@Deprecated
-	public static void checkInFileEntry(long fileEntryId,
-		java.lang.String lockUuid)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		getService().checkInFileEntry(fileEntryId, lockUuid);
-	}
-
 	public static void checkInFileEntry(long fileEntryId,
 		java.lang.String lockUuid,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -85,28 +74,6 @@ public class DLFileEntryServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService()
 			.checkInFileEntry(fileEntryId, major, changeLog, serviceContext);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #checkOutFileEntry(long,
-	ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.documentlibrary.model.DLFileEntry checkOutFileEntry(
-		long fileEntryId)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().checkOutFileEntry(fileEntryId);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #checkOutFileEntry(long,
-	String, long, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.documentlibrary.model.DLFileEntry checkOutFileEntry(
-		long fileEntryId, java.lang.String owner, long expirationTime)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().checkOutFileEntry(fileEntryId, owner, expirationTime);
 	}
 
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry checkOutFileEntry(
@@ -155,15 +122,6 @@ public class DLFileEntryServiceUtil {
 		long imageId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().fetchFileEntryByImageId(imageId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
 	}
 
 	public static java.io.InputStream getFileAsStream(long fileEntryId,
@@ -250,7 +208,7 @@ public class DLFileEntryServiceUtil {
 		return getService().getFileEntryByUuidAndGroupId(uuid, groupId);
 	}
 
-	public static com.liferay.portal.model.Lock getFileEntryLock(
+	public static com.liferay.portal.kernel.lock.Lock getFileEntryLock(
 		long fileEntryId) {
 		return getService().getFileEntryLock(fileEntryId);
 	}
@@ -313,6 +271,15 @@ public class DLFileEntryServiceUtil {
 			mimeTypes, status);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
 	public static boolean hasFileEntryLock(long fileEntryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().hasFileEntryLock(fileEntryId);
@@ -323,6 +290,12 @@ public class DLFileEntryServiceUtil {
 		return getService().isFileEntryCheckedOut(fileEntryId);
 	}
 
+	public static boolean isKeepFileVersionLabel(long fileEntryId,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().isKeepFileVersionLabel(fileEntryId, serviceContext);
+	}
+
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry moveFileEntry(
 		long fileEntryId, long newFolderId,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -331,7 +304,7 @@ public class DLFileEntryServiceUtil {
 				   .moveFileEntry(fileEntryId, newFolderId, serviceContext);
 	}
 
-	public static com.liferay.portal.model.Lock refreshFileEntryLock(
+	public static com.liferay.portal.kernel.lock.Lock refreshFileEntryLock(
 		java.lang.String lockUuid, long companyId, long expirationTime)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
@@ -360,21 +333,12 @@ public class DLFileEntryServiceUtil {
 		return getService().search(groupId, creatorUserId, status, start, end);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry updateFileEntry(
 		long fileEntryId, java.lang.String sourceFileName,
 		java.lang.String mimeType, java.lang.String title,
 		java.lang.String description, java.lang.String changeLog,
 		boolean majorVersion, long fileEntryTypeId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
+		java.util.Map<java.lang.String, com.liferay.dynamic.data.mapping.kernel.DDMFormValues> ddmFormValuesMap,
 		java.io.File file, java.io.InputStream is, long size,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -382,6 +346,16 @@ public class DLFileEntryServiceUtil {
 				   .updateFileEntry(fileEntryId, sourceFileName, mimeType,
 			title, description, changeLog, majorVersion, fileEntryTypeId,
 			ddmFormValuesMap, file, is, size, serviceContext);
+	}
+
+	public static com.liferay.portlet.documentlibrary.model.DLFileEntry updateStatus(
+		long userId, long fileVersionId, int status,
+		com.liferay.portal.service.ServiceContext serviceContext,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateStatus(userId, fileVersionId, status, serviceContext,
+			workflowContext);
 	}
 
 	public static boolean verifyFileEntryCheckOut(long fileEntryId,
@@ -405,13 +379,6 @@ public class DLFileEntryServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(DLFileEntryService service) {
 	}
 
 	private static DLFileEntryService _service;
