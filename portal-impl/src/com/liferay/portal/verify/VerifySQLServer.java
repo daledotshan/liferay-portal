@@ -15,7 +15,8 @@
 package com.liferay.portal.verify;
 
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -23,7 +24,6 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -38,13 +38,10 @@ public class VerifySQLServer extends VerifyProcess {
 	protected void convertColumnsToUnicode() {
 		dropNonunicodeTableIndexes();
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
 			StringBundler sb = new StringBundler(12);
 
 			sb.append("select sysobjects.name as table_name, syscolumns.name ");
@@ -62,7 +59,7 @@ public class VerifySQLServer extends VerifyProcess {
 
 			String sql = sb.toString();
 
-			ps = con.prepareStatement(sql);
+			ps = connection.prepareStatement(sql);
 
 			rs = ps.executeQuery();
 
@@ -95,7 +92,7 @@ public class VerifySQLServer extends VerifyProcess {
 			_log.error(e, e);
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
@@ -166,11 +163,9 @@ public class VerifySQLServer extends VerifyProcess {
 
 	@Override
 	protected void doVerify() throws Exception {
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
-		String dbType = db.getType();
-
-		if (!dbType.equals(DB.TYPE_SQLSERVER)) {
+		if (db.getDBType() != DBType.SQLSERVER) {
 			return;
 		}
 
@@ -178,13 +173,10 @@ public class VerifySQLServer extends VerifyProcess {
 	}
 
 	protected void dropNonunicodeTableIndexes() {
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
 			StringBundler sb = new StringBundler(15);
 
 			sb.append("select distinct sysobjects.name as table_name, ");
@@ -205,7 +197,7 @@ public class VerifySQLServer extends VerifyProcess {
 
 			String sql = sb.toString();
 
-			ps = con.prepareStatement(sql);
+			ps = connection.prepareStatement(sql);
 
 			rs = ps.executeQuery();
 
@@ -245,20 +237,17 @@ public class VerifySQLServer extends VerifyProcess {
 			_log.error(e, e);
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
 	protected List<String> getPrimaryKeyColumnNames(String indexName) {
 		List<String> columnNames = new ArrayList<>();
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
 			StringBundler sb = new StringBundler(10);
 
 			sb.append("select distinct syscolumns.name as column_name from ");
@@ -274,7 +263,7 @@ public class VerifySQLServer extends VerifyProcess {
 
 			String sql = sb.toString();
 
-			ps = con.prepareStatement(sql);
+			ps = connection.prepareStatement(sql);
 
 			rs = ps.executeQuery();
 
@@ -288,7 +277,7 @@ public class VerifySQLServer extends VerifyProcess {
 			_log.error(e, e);
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 
 		return columnNames;
@@ -296,7 +285,7 @@ public class VerifySQLServer extends VerifyProcess {
 
 	private static final String _FILTER_EXCLUDED_TABLES =
 		"(sysobjects.name not like 'Counter') and (sysobjects.name not like " +
-			"'Cyrus%') and (sysobjects.name not like 'QUARTZ%')";
+			"'QUARTZ%')";
 
 	private static final String _FILTER_NONUNICODE_DATA_TYPES =
 		"((systypes.name = 'ntext') OR (systypes.name = 'text') OR " +

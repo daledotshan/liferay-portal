@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -56,6 +61,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("servletContextName", getServletContextName());
+		attributes.put("schemaVersion", getSchemaVersion());
 		attributes.put("buildNumber", getBuildNumber());
 		attributes.put("buildDate", getBuildDate());
 		attributes.put("verified", getVerified());
@@ -95,6 +101,12 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 
 		if (servletContextName != null) {
 			setServletContextName(servletContextName);
+		}
+
+		String schemaVersion = (String)attributes.get("schemaVersion");
+
+		if (schemaVersion != null) {
+			setSchemaVersion(schemaVersion);
 		}
 
 		Integer buildNumber = (Integer)attributes.get("buildNumber");
@@ -144,7 +156,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @return the build date of this release
 	*/
 	@Override
-	public java.util.Date getBuildDate() {
+	public Date getBuildDate() {
 		return _release.getBuildDate();
 	}
 
@@ -158,18 +170,23 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 		return _release.getBuildNumber();
 	}
 
+	@Override
+	public java.lang.String getBundleSymbolicName() {
+		return _release.getBundleSymbolicName();
+	}
+
 	/**
 	* Returns the create date of this release.
 	*
 	* @return the create date of this release
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _release.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _release.getExpandoBridge();
 	}
 
@@ -179,7 +196,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @return the modified date of this release
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _release.getModifiedDate();
 	}
 
@@ -204,7 +221,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _release.getPrimaryKeyObj();
 	}
 
@@ -216,6 +233,16 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	@Override
 	public long getReleaseId() {
 		return _release.getReleaseId();
+	}
+
+	/**
+	* Returns the schema version of this release.
+	*
+	* @return the schema version of this release
+	*/
+	@Override
+	public java.lang.String getSchemaVersion() {
+		return _release.getSchemaVersion();
 	}
 
 	/**
@@ -299,7 +326,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @param buildDate the build date of this release
 	*/
 	@Override
-	public void setBuildDate(java.util.Date buildDate) {
+	public void setBuildDate(Date buildDate) {
 		_release.setBuildDate(buildDate);
 	}
 
@@ -324,25 +351,22 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @param createDate the create date of this release
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_release.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_release.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_release.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_release.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -352,7 +376,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	* @param modifiedDate the modified date of this release
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_release.setModifiedDate(modifiedDate);
 	}
 
@@ -382,7 +406,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_release.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -394,6 +418,16 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	@Override
 	public void setReleaseId(long releaseId) {
 		_release.setReleaseId(releaseId);
+	}
+
+	/**
+	* Sets the schema version of this release.
+	*
+	* @param schemaVersion the schema version of this release
+	*/
+	@Override
+	public void setSchemaVersion(java.lang.String schemaVersion) {
+		_release.setSchemaVersion(schemaVersion);
 	}
 
 	/**
@@ -437,7 +471,7 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Release> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Release> toCacheModel() {
 		return _release.toCacheModel();
 	}
 
@@ -478,14 +512,6 @@ public class ReleaseWrapper implements Release, ModelWrapper<Release> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Release getWrappedRelease() {
-		return _release;
 	}
 
 	@Override

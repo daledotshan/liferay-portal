@@ -22,13 +22,15 @@ import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.model.AttachedModel;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.ShardedModel;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.trash.model.TrashEntry;
+
+import com.liferay.trash.kernel.model.TrashEntry;
 
 import java.io.Serializable;
 
@@ -49,7 +51,7 @@ import java.util.Date;
  */
 @ProviderType
 public interface MBMessageModel extends AttachedModel, BaseModel<MBMessage>,
-	StagedGroupedModel, TrashedModel, WorkflowedModel {
+	ShardedModel, StagedGroupedModel, TrashedModel, WorkflowedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -435,6 +437,22 @@ public interface MBMessageModel extends AttachedModel, BaseModel<MBMessage>,
 	public void setAnswer(boolean answer);
 
 	/**
+	 * Returns the last publish date of this message-boards message.
+	 *
+	 * @return the last publish date of this message-boards message
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this message-boards message.
+	 *
+	 * @param lastPublishDate the last publish date of this message-boards message
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
+
+	/**
 	 * Returns the status of this message-boards message.
 	 *
 	 * @return the status of this message-boards message
@@ -560,13 +578,6 @@ public interface MBMessageModel extends AttachedModel, BaseModel<MBMessage>,
 
 	@Override
 	public boolean isInTrashImplicitly();
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	 */
-	@Deprecated
-	@Override
-	public boolean getApproved();
 
 	/**
 	 * Returns <code>true</code> if this message-boards message is approved.

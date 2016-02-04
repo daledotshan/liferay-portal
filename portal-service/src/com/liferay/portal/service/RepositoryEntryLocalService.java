@@ -16,12 +16,27 @@ package com.liferay.portal.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.model.PersistedModel;
+import com.liferay.portal.model.RepositoryEntry;
+
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+
+import java.io.Serializable;
+
+import java.util.List;
 
 /**
  * Provides the local service interface for RepositoryEntry. Methods of this
@@ -52,15 +67,13 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param repositoryEntry the repository entry
 	* @return the repository entry that was added
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portal.model.RepositoryEntry addRepositoryEntry(
-		com.liferay.portal.model.RepositoryEntry repositoryEntry);
+	@Indexable(type = IndexableType.REINDEX)
+	public RepositoryEntry addRepositoryEntry(RepositoryEntry repositoryEntry);
 
-	public com.liferay.portal.model.RepositoryEntry addRepositoryEntry(
-		long userId, long groupId, long repositoryId,
-		java.lang.String mappedId,
+	public RepositoryEntry addRepositoryEntry(long userId, long groupId,
+		long repositoryId, java.lang.String mappedId,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Creates a new repository entry with the primary key. Does not add the repository entry to the database.
@@ -68,16 +81,18 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param repositoryEntryId the primary key for the new repository entry
 	* @return the new repository entry
 	*/
-	public com.liferay.portal.model.RepositoryEntry createRepositoryEntry(
-		long repositoryEntryId);
+	public RepositoryEntry createRepositoryEntry(long repositoryEntryId);
 
 	/**
 	* @throws PortalException
 	*/
 	@Override
-	public com.liferay.portal.model.PersistedModel deletePersistedModel(
-		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException;
+
+	public void deleteRepositoryEntries(long repositoryId,
+		java.lang.Iterable<java.lang.String> mappedIds)
+		throws PortalException;
 
 	/**
 	* Deletes the repository entry from the database. Also notifies the appropriate model listeners.
@@ -85,9 +100,9 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param repositoryEntry the repository entry
 	* @return the repository entry that was removed
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portal.model.RepositoryEntry deleteRepositoryEntry(
-		com.liferay.portal.model.RepositoryEntry repositoryEntry);
+	@Indexable(type = IndexableType.DELETE)
+	public RepositoryEntry deleteRepositoryEntry(
+		RepositoryEntry repositoryEntry);
 
 	/**
 	* Deletes the repository entry with the primary key from the database. Also notifies the appropriate model listeners.
@@ -96,12 +111,14 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @return the repository entry that was removed
 	* @throws PortalException if a repository entry with the primary key could not be found
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portal.model.RepositoryEntry deleteRepositoryEntry(
-		long repositoryEntryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	@Indexable(type = IndexableType.DELETE)
+	public RepositoryEntry deleteRepositoryEntry(long repositoryEntryId)
+		throws PortalException;
 
-	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
+	public void deleteRepositoryEntry(long repositoryId,
+		java.lang.String mappedId) throws PortalException;
+
+	public DynamicQuery dynamicQuery();
 
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
@@ -109,8 +126,7 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery);
 
 	/**
 	* Performs a dynamic query on the database and returns a range of the matching rows.
@@ -124,8 +140,7 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param end the upper bound of the range of model instances (not inclusive)
 	* @return the range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
 		int end);
 
 	/**
@@ -141,10 +156,8 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -152,8 +165,7 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -162,13 +174,11 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param projection the projection to apply to the query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
-		com.liferay.portal.kernel.dao.orm.Projection projection);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.RepositoryEntry fetchRepositoryEntry(
-		long repositoryEntryId);
+	public RepositoryEntry fetchRepositoryEntry(long repositoryEntryId);
 
 	/**
 	* Returns the repository entry matching the UUID and group.
@@ -178,32 +188,33 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @return the matching repository entry, or <code>null</code> if a matching repository entry could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.RepositoryEntry fetchRepositoryEntryByUuidAndGroupId(
+	public RepositoryEntry fetchRepositoryEntryByUuidAndGroupId(
 		java.lang.String uuid, long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext);
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		PortletDataContext portletDataContext);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.RepositoryEntry> getRepositoryEntries(
-		long repositoryId);
+	public List<RepositoryEntry> getRepositoryEntries(long repositoryId);
 
 	/**
 	* Returns a range of all the repository entries.
@@ -217,8 +228,7 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @return the range of repository entries
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.RepositoryEntry> getRepositoryEntries(
-		int start, int end);
+	public List<RepositoryEntry> getRepositoryEntries(int start, int end);
 
 	/**
 	* Returns all the repository entries matching the UUID and company.
@@ -228,7 +238,7 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @return the matching repository entries, or an empty list if no matches were found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.RepositoryEntry> getRepositoryEntriesByUuidAndCompanyId(
+	public List<RepositoryEntry> getRepositoryEntriesByUuidAndCompanyId(
 		java.lang.String uuid, long companyId);
 
 	/**
@@ -242,9 +252,9 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @return the range of matching repository entries, or an empty list if no matches were found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.RepositoryEntry> getRepositoryEntriesByUuidAndCompanyId(
+	public List<RepositoryEntry> getRepositoryEntriesByUuidAndCompanyId(
 		java.lang.String uuid, long companyId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.model.RepositoryEntry> orderByComparator);
+		OrderByComparator<RepositoryEntry> orderByComparator);
 
 	/**
 	* Returns the number of repository entries.
@@ -262,9 +272,16 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @throws PortalException if a repository entry with the primary key could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.RepositoryEntry getRepositoryEntry(
-		long repositoryEntryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public RepositoryEntry getRepositoryEntry(long repositoryEntryId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public RepositoryEntry getRepositoryEntry(long userId, long groupId,
+		long repositoryId, java.lang.String objectId) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public RepositoryEntry getRepositoryEntry(java.lang.String uuid,
+		long groupId) throws PortalException;
 
 	/**
 	* Returns the repository entry matching the UUID and group.
@@ -275,16 +292,8 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @throws PortalException if a matching repository entry could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.RepositoryEntry getRepositoryEntryByUuidAndGroupId(
-		java.lang.String uuid, long groupId)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	public RepositoryEntry getRepositoryEntryByUuidAndGroupId(
+		java.lang.String uuid, long groupId) throws PortalException;
 
 	/**
 	* Updates the repository entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -292,11 +301,10 @@ public interface RepositoryEntryLocalService extends BaseLocalService,
 	* @param repositoryEntry the repository entry
 	* @return the repository entry that was updated
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portal.model.RepositoryEntry updateRepositoryEntry(
-		com.liferay.portal.model.RepositoryEntry repositoryEntry);
+	@Indexable(type = IndexableType.REINDEX)
+	public RepositoryEntry updateRepositoryEntry(
+		RepositoryEntry repositoryEntry);
 
-	public com.liferay.portal.model.RepositoryEntry updateRepositoryEntry(
-		long repositoryEntryId, java.lang.String mappedId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public RepositoryEntry updateRepositoryEntry(long repositoryEntryId,
+		java.lang.String mappedId) throws PortalException;
 }

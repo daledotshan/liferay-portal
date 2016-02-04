@@ -16,14 +16,27 @@ package com.liferay.portlet.documentlibrary.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalService;
 import com.liferay.portal.service.PersistedModelLocalService;
+
+import com.liferay.portlet.documentlibrary.model.DLSyncEvent;
+
+import java.io.Serializable;
+
+import java.util.List;
 
 /**
  * Provides the local service interface for DLSyncEvent. Methods of this
@@ -54,12 +67,11 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param dlSyncEvent the d l sync event
 	* @return the d l sync event that was added
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent addDLSyncEvent(
-		com.liferay.portlet.documentlibrary.model.DLSyncEvent dlSyncEvent);
+	@Indexable(type = IndexableType.REINDEX)
+	public DLSyncEvent addDLSyncEvent(DLSyncEvent dlSyncEvent);
 
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent addDLSyncEvent(
-		java.lang.String event, java.lang.String type, long typePK);
+	public DLSyncEvent addDLSyncEvent(java.lang.String event,
+		java.lang.String type, long typePK);
 
 	/**
 	* Creates a new d l sync event with the primary key. Does not add the d l sync event to the database.
@@ -67,8 +79,7 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param syncEventId the primary key for the new d l sync event
 	* @return the new d l sync event
 	*/
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent createDLSyncEvent(
-		long syncEventId);
+	public DLSyncEvent createDLSyncEvent(long syncEventId);
 
 	/**
 	* Deletes the d l sync event from the database. Also notifies the appropriate model listeners.
@@ -76,9 +87,8 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param dlSyncEvent the d l sync event
 	* @return the d l sync event that was removed
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent deleteDLSyncEvent(
-		com.liferay.portlet.documentlibrary.model.DLSyncEvent dlSyncEvent);
+	@Indexable(type = IndexableType.DELETE)
+	public DLSyncEvent deleteDLSyncEvent(DLSyncEvent dlSyncEvent);
 
 	/**
 	* Deletes the d l sync event with the primary key from the database. Also notifies the appropriate model listeners.
@@ -87,10 +97,9 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @return the d l sync event that was removed
 	* @throws PortalException if a d l sync event with the primary key could not be found
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent deleteDLSyncEvent(
-		long syncEventId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	@Indexable(type = IndexableType.DELETE)
+	public DLSyncEvent deleteDLSyncEvent(long syncEventId)
+		throws PortalException;
 
 	public void deleteDLSyncEvents();
 
@@ -98,11 +107,10 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @throws PortalException
 	*/
 	@Override
-	public com.liferay.portal.model.PersistedModel deletePersistedModel(
-		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException;
 
-	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
+	public DynamicQuery dynamicQuery();
 
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
@@ -110,8 +118,7 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery);
 
 	/**
 	* Performs a dynamic query on the database and returns a range of the matching rows.
@@ -125,8 +132,7 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param end the upper bound of the range of model instances (not inclusive)
 	* @return the range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
 		int end);
 
 	/**
@@ -142,10 +148,8 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -153,8 +157,7 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -163,23 +166,14 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param projection the projection to apply to the query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
-		com.liferay.portal.kernel.dao.orm.Projection projection);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent fetchDLSyncEvent(
-		long syncEventId);
+	public DLSyncEvent fetchDLSyncEvent(long syncEventId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	/**
 	* Returns the d l sync event with the primary key.
@@ -189,13 +183,11 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @throws PortalException if a d l sync event with the primary key could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent getDLSyncEvent(
-		long syncEventId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public DLSyncEvent getDLSyncEvent(long syncEventId)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.documentlibrary.model.DLSyncEvent> getDLSyncEvents(
-		long modifiedTime);
+	public List<DLSyncEvent> getDLSyncEvents(long modifiedTime);
 
 	/**
 	* Returns a range of all the d l sync events.
@@ -209,8 +201,7 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @return the range of d l sync events
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.documentlibrary.model.DLSyncEvent> getDLSyncEvents(
-		int start, int end);
+	public List<DLSyncEvent> getDLSyncEvents(int start, int end);
 
 	/**
 	* Returns the number of d l sync events.
@@ -221,20 +212,22 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	public int getDLSyncEventsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.documentlibrary.model.DLSyncEvent> getLatestDLSyncEvents();
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<DLSyncEvent> getLatestDLSyncEvents();
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	* Updates the d l sync event in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -242,7 +235,6 @@ public interface DLSyncEventLocalService extends BaseLocalService,
 	* @param dlSyncEvent the d l sync event
 	* @return the d l sync event that was updated
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portlet.documentlibrary.model.DLSyncEvent updateDLSyncEvent(
-		com.liferay.portlet.documentlibrary.model.DLSyncEvent dlSyncEvent);
+	@Indexable(type = IndexableType.REINDEX)
+	public DLSyncEvent updateDLSyncEvent(DLSyncEvent dlSyncEvent);
 }

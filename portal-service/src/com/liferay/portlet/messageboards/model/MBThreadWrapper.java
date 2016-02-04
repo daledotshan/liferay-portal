@@ -16,9 +16,14 @@ package com.liferay.portlet.messageboards.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -70,6 +75,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 		attributes.put("lastPostDate", getLastPostDate());
 		attributes.put("priority", getPriority());
 		attributes.put("question", getQuestion());
+		attributes.put("lastPublishDate", getLastPublishDate());
 		attributes.put("status", getStatus());
 		attributes.put("statusByUserId", getStatusByUserId());
 		attributes.put("statusByUserName", getStatusByUserName());
@@ -182,6 +188,12 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 			setQuestion(question);
 		}
 
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
+
 		Integer status = (Integer)attributes.get("status");
 
 		if (status != null) {
@@ -222,15 +234,6 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	public int compareTo(
 		com.liferay.portlet.messageboards.model.MBThread mbThread) {
 		return _mbThread.compareTo(mbThread);
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _mbThread.getApproved();
 	}
 
 	@Override
@@ -290,12 +293,12 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @return the create date of this message boards thread
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _mbThread.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _mbThread.getExpandoBridge();
 	}
 
@@ -335,12 +338,22 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @return the last post date of this message boards thread
 	*/
 	@Override
-	public java.util.Date getLastPostDate() {
+	public Date getLastPostDate() {
 		return _mbThread.getLastPostDate();
 	}
 
+	/**
+	* Returns the last publish date of this message boards thread.
+	*
+	* @return the last publish date of this message boards thread
+	*/
 	@Override
-	public com.liferay.portal.model.Lock getLock() {
+	public Date getLastPublishDate() {
+		return _mbThread.getLastPublishDate();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.lock.Lock getLock() {
 		return _mbThread.getLock();
 	}
 
@@ -360,7 +373,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @return the modified date of this message boards thread
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _mbThread.getModifiedDate();
 	}
 
@@ -390,7 +403,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _mbThread.getPrimaryKeyObj();
 	}
 
@@ -490,7 +503,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @return the status date of this message boards thread
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _mbThread.getStatusDate();
 	}
 
@@ -510,7 +523,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @return the trash entry created when this message boards thread was moved to the Recycle Bin
 	*/
 	@Override
-	public com.liferay.portlet.trash.model.TrashEntry getTrashEntry()
+	public com.liferay.trash.kernel.model.TrashEntry getTrashEntry()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _mbThread.getTrashEntry();
 	}
@@ -781,7 +794,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @param createDate the create date of this message boards thread
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_mbThread.setCreateDate(createDate);
 	}
 
@@ -792,14 +805,12 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_mbThread.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_mbThread.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -839,8 +850,18 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @param lastPostDate the last post date of this message boards thread
 	*/
 	@Override
-	public void setLastPostDate(java.util.Date lastPostDate) {
+	public void setLastPostDate(Date lastPostDate) {
 		_mbThread.setLastPostDate(lastPostDate);
+	}
+
+	/**
+	* Sets the last publish date of this message boards thread.
+	*
+	* @param lastPublishDate the last publish date of this message boards thread
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_mbThread.setLastPublishDate(lastPublishDate);
 	}
 
 	/**
@@ -859,7 +880,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @param modifiedDate the modified date of this message boards thread
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_mbThread.setModifiedDate(modifiedDate);
 	}
 
@@ -889,7 +910,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_mbThread.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -989,7 +1010,7 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	* @param statusDate the status date of this message boards thread
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_mbThread.setStatusDate(statusDate);
 	}
 
@@ -1100,14 +1121,6 @@ public class MBThreadWrapper implements MBThread, ModelWrapper<MBThread> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _mbThread.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MBThread getWrappedMBThread() {
-		return _mbThread;
 	}
 
 	@Override

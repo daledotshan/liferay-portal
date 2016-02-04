@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -195,12 +200,12 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	* @return the create date of this workflow instance link
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _workflowInstanceLink.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _workflowInstanceLink.getExpandoBridge();
 	}
 
@@ -220,7 +225,7 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	* @return the modified date of this workflow instance link
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _workflowInstanceLink.getModifiedDate();
 	}
 
@@ -245,7 +250,7 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _workflowInstanceLink.getPrimaryKeyObj();
 	}
 
@@ -370,25 +375,22 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	* @param createDate the create date of this workflow instance link
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_workflowInstanceLink.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_workflowInstanceLink.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_workflowInstanceLink.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_workflowInstanceLink.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -408,7 +410,7 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	* @param modifiedDate the modified date of this workflow instance link
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_workflowInstanceLink.setModifiedDate(modifiedDate);
 	}
 
@@ -438,7 +440,7 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_workflowInstanceLink.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -493,7 +495,7 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.WorkflowInstanceLink> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.WorkflowInstanceLink> toCacheModel() {
 		return _workflowInstanceLink.toCacheModel();
 	}
 
@@ -535,14 +537,6 @@ public class WorkflowInstanceLinkWrapper implements WorkflowInstanceLink,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public WorkflowInstanceLink getWrappedWorkflowInstanceLink() {
-		return _workflowInstanceLink;
 	}
 
 	@Override

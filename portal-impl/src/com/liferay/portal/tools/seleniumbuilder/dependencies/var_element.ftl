@@ -9,9 +9,9 @@
 </#if>
 
 <#if macroName??>
-	<#assign selenium="liferaySelenium" />
+	<#assign selenium ="liferaySelenium" />
 <#else>
-	<#assign selenium="selenium" />
+	<#assign selenium ="selenium" />
 </#if>
 
 <#if varElement.attributeValue("locator-key")?? && varElement.attributeValue("path")??>
@@ -97,7 +97,7 @@
 		${methodReturnType}.toString(
 	</#if>
 
-	<#assign methodParameters  = method?substring(y + 1, z)>
+	<#assign methodParameters = method?substring(y + 1, z)>
 
 	<#if "${method}"?starts_with("MathUtil")>
 		<#assign objectName = "MathUtil">
@@ -116,9 +116,13 @@
 					Integer.parseInt(
 				</#if>
 
-				<#assign parameter = methodParameter?replace("\"", "")>
+				<#assign parameter = methodParameter?trim>
 
-				<#assign parameter = parameter?trim>
+				<#assign parameter = parameter?replace("\\'", "'")>
+
+				<#if "${parameter}"?starts_with("'") && "${parameter}"?ends_with("'")>
+					<#assign parameter = parameter?substring(1, (parameter?length - 1))>
+				</#if>
 
 				RuntimeVariables.evaluateVariable("${seleniumBuilderFileUtil.escapeHtml(parameter)}", ${variableContext})
 

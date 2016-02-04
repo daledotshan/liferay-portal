@@ -79,7 +79,7 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(63);
+		StringBundler sb = new StringBundler(65);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -143,6 +143,8 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 		sb.append(layoutPrototypeLinkEnabled);
 		sb.append(", sourcePrototypeLayoutUuid=");
 		sb.append(sourcePrototypeLayoutUuid);
+		sb.append(", lastPublishDate=");
+		sb.append(lastPublishDate);
 		sb.append("}");
 
 		return sb.toString();
@@ -304,6 +306,13 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 			layoutImpl.setSourcePrototypeLayoutUuid(sourcePrototypeLayoutUuid);
 		}
 
+		if (lastPublishDate == Long.MIN_VALUE) {
+			layoutImpl.setLastPublishDate(null);
+		}
+		else {
+			layoutImpl.setLastPublishDate(new Date(lastPublishDate));
+		}
+
 		layoutImpl.resetOriginalValues();
 
 		return layoutImpl;
@@ -313,15 +322,22 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
+
 		plid = objectInput.readLong();
+
 		groupId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
 		privateLayout = objectInput.readBoolean();
+
 		layoutId = objectInput.readLong();
+
 		parentLayoutId = objectInput.readLong();
 		name = objectInput.readUTF();
 		title = objectInput.readUTF();
@@ -330,18 +346,23 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 		robots = objectInput.readUTF();
 		type = objectInput.readUTF();
 		typeSettings = objectInput.readUTF();
+
 		hidden = objectInput.readBoolean();
 		friendlyURL = objectInput.readUTF();
+
 		iconImageId = objectInput.readLong();
 		themeId = objectInput.readUTF();
 		colorSchemeId = objectInput.readUTF();
 		wapThemeId = objectInput.readUTF();
 		wapColorSchemeId = objectInput.readUTF();
 		css = objectInput.readUTF();
+
 		priority = objectInput.readInt();
 		layoutPrototypeUuid = objectInput.readUTF();
+
 		layoutPrototypeLinkEnabled = objectInput.readBoolean();
 		sourcePrototypeLayoutUuid = objectInput.readUTF();
+		lastPublishDate = objectInput.readLong();
 	}
 
 	@Override
@@ -357,8 +378,11 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 		}
 
 		objectOutput.writeLong(plid);
+
 		objectOutput.writeLong(groupId);
+
 		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
@@ -370,8 +394,11 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
+
 		objectOutput.writeBoolean(privateLayout);
+
 		objectOutput.writeLong(layoutId);
+
 		objectOutput.writeLong(parentLayoutId);
 
 		if (name == null) {
@@ -486,6 +513,8 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 		else {
 			objectOutput.writeUTF(sourcePrototypeLayoutUuid);
 		}
+
+		objectOutput.writeLong(lastPublishDate);
 	}
 
 	public long mvccVersion;
@@ -519,4 +548,5 @@ public class LayoutCacheModel implements CacheModel<Layout>, Externalizable,
 	public String layoutPrototypeUuid;
 	public boolean layoutPrototypeLinkEnabled;
 	public String sourcePrototypeLayoutUuid;
+	public long lastPublishDate;
 }

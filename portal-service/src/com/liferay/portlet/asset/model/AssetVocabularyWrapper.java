@@ -16,9 +16,14 @@ package com.liferay.portlet.asset.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -66,6 +71,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 		attributes.put("title", getTitle());
 		attributes.put("description", getDescription());
 		attributes.put("settings", getSettings());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -143,6 +149,12 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 		if (settings != null) {
 			setSettings(settings);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -187,7 +199,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	* @return the create date of this asset vocabulary
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _assetVocabulary.getCreateDate();
 	}
 
@@ -270,12 +282,12 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	* @return the locales and localized descriptions of this asset vocabulary
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _assetVocabulary.getDescriptionMap();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _assetVocabulary.getExpandoBridge();
 	}
 
@@ -290,12 +302,22 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	}
 
 	/**
+	* Returns the last publish date of this asset vocabulary.
+	*
+	* @return the last publish date of this asset vocabulary
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _assetVocabulary.getLastPublishDate();
+	}
+
+	/**
 	* Returns the modified date of this asset vocabulary.
 	*
 	* @return the modified date of this asset vocabulary
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _assetVocabulary.getModifiedDate();
 	}
 
@@ -320,7 +342,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _assetVocabulary.getPrimaryKeyObj();
 	}
 
@@ -431,7 +453,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	* @return the locales and localized titles of this asset vocabulary
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getTitleMap() {
+	public Map<java.util.Locale, java.lang.String> getTitleMap() {
 		return _assetVocabulary.getTitleMap();
 	}
 
@@ -596,7 +618,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	* @param createDate the create date of this asset vocabulary
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_assetVocabulary.setCreateDate(createDate);
 	}
 
@@ -647,7 +669,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_assetVocabulary.setDescriptionMap(descriptionMap);
 	}
 
@@ -659,7 +681,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_assetVocabulary.setDescriptionMap(descriptionMap, defaultLocale);
 	}
@@ -671,14 +693,12 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_assetVocabulary.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_assetVocabulary.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -693,12 +713,22 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	}
 
 	/**
+	* Sets the last publish date of this asset vocabulary.
+	*
+	* @param lastPublishDate the last publish date of this asset vocabulary
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_assetVocabulary.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the modified date of this asset vocabulary.
 	*
 	* @param modifiedDate the modified date of this asset vocabulary
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_assetVocabulary.setModifiedDate(modifiedDate);
 	}
 
@@ -728,7 +758,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_assetVocabulary.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -797,8 +827,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	* @param titleMap the locales and localized titles of this asset vocabulary
 	*/
 	@Override
-	public void setTitleMap(
-		java.util.Map<java.util.Locale, java.lang.String> titleMap) {
+	public void setTitleMap(Map<java.util.Locale, java.lang.String> titleMap) {
 		_assetVocabulary.setTitleMap(titleMap);
 	}
 
@@ -809,8 +838,7 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setTitleMap(
-		java.util.Map<java.util.Locale, java.lang.String> titleMap,
+	public void setTitleMap(Map<java.util.Locale, java.lang.String> titleMap,
 		java.util.Locale defaultLocale) {
 		_assetVocabulary.setTitleMap(titleMap, defaultLocale);
 	}
@@ -913,14 +941,6 @@ public class AssetVocabularyWrapper implements AssetVocabulary,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _assetVocabulary.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public AssetVocabulary getWrappedAssetVocabulary() {
-		return _assetVocabulary;
 	}
 
 	@Override

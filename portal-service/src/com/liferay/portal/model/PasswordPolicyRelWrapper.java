@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +58,7 @@ public class PasswordPolicyRelWrapper implements PasswordPolicyRel,
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("passwordPolicyRelId", getPasswordPolicyRelId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("passwordPolicyId", getPasswordPolicyId());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
@@ -72,6 +78,12 @@ public class PasswordPolicyRelWrapper implements PasswordPolicyRel,
 
 		if (passwordPolicyRelId != null) {
 			setPasswordPolicyRelId(passwordPolicyRelId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long passwordPolicyId = (Long)attributes.get("passwordPolicyId");
@@ -134,8 +146,18 @@ public class PasswordPolicyRelWrapper implements PasswordPolicyRel,
 		return _passwordPolicyRel.getClassPK();
 	}
 
+	/**
+	* Returns the company ID of this password policy rel.
+	*
+	* @return the company ID of this password policy rel
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _passwordPolicyRel.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _passwordPolicyRel.getExpandoBridge();
 	}
 
@@ -180,7 +202,7 @@ public class PasswordPolicyRelWrapper implements PasswordPolicyRel,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _passwordPolicyRel.getPrimaryKeyObj();
 	}
 
@@ -239,21 +261,28 @@ public class PasswordPolicyRelWrapper implements PasswordPolicyRel,
 		_passwordPolicyRel.setClassPK(classPK);
 	}
 
+	/**
+	* Sets the company ID of this password policy rel.
+	*
+	* @param companyId the company ID of this password policy rel
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_passwordPolicyRel.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_passwordPolicyRel.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_passwordPolicyRel.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_passwordPolicyRel.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -303,12 +332,12 @@ public class PasswordPolicyRelWrapper implements PasswordPolicyRel,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_passwordPolicyRel.setPrimaryKeyObj(primaryKeyObj);
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.PasswordPolicyRel> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.PasswordPolicyRel> toCacheModel() {
 		return _passwordPolicyRel.toCacheModel();
 	}
 
@@ -350,14 +379,6 @@ public class PasswordPolicyRelWrapper implements PasswordPolicyRel,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public PasswordPolicyRel getWrappedPasswordPolicyRel() {
-		return _passwordPolicyRel;
 	}
 
 	@Override

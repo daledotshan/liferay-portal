@@ -19,11 +19,23 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
+import com.liferay.portal.kernel.security.access.control.AccessControlled;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.security.ac.AccessControlled;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.service.BaseService;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.theme.ThemeDisplay;
+
+import com.liferay.portlet.messageboards.model.MBMessage;
+import com.liferay.portlet.messageboards.model.MBMessageDisplay;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+import java.util.List;
 
 /**
  * Provides the remote service interface for MBMessage. Methods of this
@@ -47,73 +59,65 @@ public interface MBMessageService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link MBMessageServiceUtil} to access the message-boards message remote service. Add custom service methods to {@link com.liferay.portlet.messageboards.service.impl.MBMessageServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
-	public com.liferay.portlet.messageboards.model.MBMessage addDiscussionMessage(
-		long groupId, java.lang.String className, long classPK,
-		java.lang.String permissionClassName, long permissionClassPK,
-		long permissionOwnerId, long threadId, long parentMessageId,
+	public MBMessage addDiscussionMessage(long groupId,
+		java.lang.String className, long classPK, long threadId,
+		long parentMessageId, java.lang.String subject, java.lang.String body,
+		ServiceContext serviceContext) throws PortalException;
+
+	public MBMessage addMessage(long categoryId, java.lang.String subject,
+		java.lang.String body, ServiceContext serviceContext)
+		throws PortalException;
+
+	public MBMessage addMessage(long groupId, long categoryId,
 		java.lang.String subject, java.lang.String body,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	public com.liferay.portlet.messageboards.model.MBMessage addMessage(
-		long categoryId, java.lang.String subject, java.lang.String body,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	public com.liferay.portlet.messageboards.model.MBMessage addMessage(
-		long groupId, long categoryId, java.lang.String subject,
-		java.lang.String body, java.lang.String format,
-		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
+		java.lang.String format, java.lang.String fileName, File file,
 		boolean anonymous, double priority, boolean allowPingbacks,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		ServiceContext serviceContext)
+		throws PortalException, FileNotFoundException;
+
+	public MBMessage addMessage(long groupId, long categoryId,
+		java.lang.String subject, java.lang.String body,
+		java.lang.String format,
+		List<ObjectValuePair<java.lang.String, InputStream>> inputStreamOVPs,
+		boolean anonymous, double priority, boolean allowPingbacks,
+		ServiceContext serviceContext) throws PortalException;
+
+	public MBMessage addMessage(long parentMessageId, java.lang.String subject,
+		java.lang.String body, java.lang.String format,
+		List<ObjectValuePair<java.lang.String, InputStream>> inputStreamOVPs,
+		boolean anonymous, double priority, boolean allowPingbacks,
+		ServiceContext serviceContext) throws PortalException;
+
+	public void addMessageAttachment(long messageId, java.lang.String fileName,
+		File file, java.lang.String mimeType) throws PortalException;
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addMessage(long, String,
-	String, String, java.util.List, boolean, double, boolean,
-	com.liferay.portal.service.ServiceContext)}
+	* @deprecated As of 7.0.0, replaced by {@link
+	#deleteDiscussionMessage(long)}
 	*/
 	@java.lang.Deprecated
-	public com.liferay.portlet.messageboards.model.MBMessage addMessage(
-		long groupId, long categoryId, long threadId, long parentMessageId,
-		java.lang.String subject, java.lang.String body,
-		java.lang.String format,
-		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		boolean anonymous, double priority, boolean allowPingbacks,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	public com.liferay.portlet.messageboards.model.MBMessage addMessage(
-		long parentMessageId, java.lang.String subject, java.lang.String body,
-		java.lang.String format,
-		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		boolean anonymous, double priority, boolean allowPingbacks,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
 	public void deleteDiscussionMessage(long groupId,
 		java.lang.String className, long classPK,
 		java.lang.String permissionClassName, long permissionClassPK,
-		long permissionOwnerId, long messageId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		long permissionOwnerId, long messageId) throws PortalException;
 
-	public void deleteMessage(long messageId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public void deleteDiscussionMessage(long messageId)
+		throws PortalException;
+
+	public void deleteMessage(long messageId) throws PortalException;
+
+	public void deleteMessageAttachment(long messageId,
+		java.lang.String fileName) throws PortalException;
 
 	public void deleteMessageAttachments(long messageId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	public void emptyMessageAttachments(long messageId)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBMessage> getCategoryMessages(
-		long groupId, long categoryId, int status, int start, int end)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public List<MBMessage> getCategoryMessages(long groupId, long categoryId,
+		int status, int start, int end) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getCategoryMessagesCount(long groupId, long categoryId,
@@ -124,16 +128,14 @@ public interface MBMessageService extends BaseService {
 		long categoryId, int status, int max, java.lang.String type,
 		double version, java.lang.String displayStyle,
 		java.lang.String feedURL, java.lang.String entryURL,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		ThemeDisplay themeDisplay) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.lang.String getCompanyMessagesRSS(long companyId, int status,
 		int max, java.lang.String type, double version,
 		java.lang.String displayStyle, java.lang.String feedURL,
-		java.lang.String entryURL,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.lang.String entryURL, ThemeDisplay themeDisplay)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getGroupMessagesCount(long groupId, int status);
@@ -142,37 +144,47 @@ public interface MBMessageService extends BaseService {
 	public java.lang.String getGroupMessagesRSS(long groupId, int status,
 		int max, java.lang.String type, double version,
 		java.lang.String displayStyle, java.lang.String feedURL,
-		java.lang.String entryURL,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.lang.String entryURL, ThemeDisplay themeDisplay)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.lang.String getGroupMessagesRSS(long groupId, long userId,
 		int status, int max, java.lang.String type, double version,
 		java.lang.String displayStyle, java.lang.String feedURL,
-		java.lang.String entryURL,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.lang.String entryURL, ThemeDisplay themeDisplay)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.messageboards.model.MBMessage getMessage(
-		long messageId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBMessage getMessage(long messageId) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.messageboards.model.MBMessageDisplay getMessageDisplay(
-		long messageId, int status, java.lang.String threadView,
-		boolean includePrevAndNext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBMessageDisplay getMessageDisplay(long messageId, int status,
+		boolean includePrevAndNext) throws PortalException;
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getMessageDisplay(long, int,
+	boolean)}
+	*/
+	@java.lang.Deprecated
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public MBMessageDisplay getMessageDisplay(long messageId, int status,
+		java.lang.String threadView, boolean includePrevAndNext)
+		throws PortalException;
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getThreadAnswersCount(long groupId, long categoryId,
 		long threadId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBMessage> getThreadMessages(
-		long groupId, long categoryId, long threadId, int status, int start,
-		int end);
+	public List<MBMessage> getThreadMessages(long groupId, long categoryId,
+		long threadId, int status, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getThreadMessagesCount(long groupId, long categoryId,
@@ -182,43 +194,28 @@ public interface MBMessageService extends BaseService {
 	public java.lang.String getThreadMessagesRSS(long threadId, int status,
 		int max, java.lang.String type, double version,
 		java.lang.String displayStyle, java.lang.String feedURL,
-		java.lang.String entryURL,
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.lang.String entryURL, ThemeDisplay themeDisplay)
+		throws PortalException;
 
 	public void restoreMessageAttachmentFromTrash(long messageId,
-		java.lang.String fileName)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		java.lang.String fileName) throws PortalException;
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	public void subscribeMessage(long messageId) throws PortalException;
 
-	public void subscribeMessage(long messageId)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	public void unsubscribeMessage(long messageId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public void unsubscribeMessage(long messageId) throws PortalException;
 
 	public void updateAnswer(long messageId, boolean answer, boolean cascade)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
-	public com.liferay.portlet.messageboards.model.MBMessage updateDiscussionMessage(
-		java.lang.String className, long classPK,
-		java.lang.String permissionClassName, long permissionClassPK,
-		long permissionOwnerId, long messageId, java.lang.String subject,
+	public MBMessage updateDiscussionMessage(java.lang.String className,
+		long classPK, long messageId, java.lang.String subject,
+		java.lang.String body, ServiceContext serviceContext)
+		throws PortalException;
+
+	public MBMessage updateMessage(long messageId, java.lang.String subject,
 		java.lang.String body,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	public com.liferay.portlet.messageboards.model.MBMessage updateMessage(
-		long messageId, java.lang.String subject, java.lang.String body,
-		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		java.util.List<java.lang.String> existingFiles, double priority,
-		boolean allowPingbacks,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		List<ObjectValuePair<java.lang.String, InputStream>> inputStreamOVPs,
+		List<java.lang.String> existingFiles, double priority,
+		boolean allowPingbacks, ServiceContext serviceContext)
+		throws PortalException;
 }

@@ -15,9 +15,12 @@
 package com.liferay.portal.kernel.search;
 
 /**
- * @author Raymond Augé
- * @author Michael C. Han
+ * @author     Raymond Augé
+ * @author     Michael C. Han
+ * @deprecated As of 7.0.0 , replaced by {@link
+ *             com.liferay.portal.kernel.search.generic.TermRangeQueryImpl}
  */
+@Deprecated
 public class TermRangeQueryFactoryUtil {
 
 	public static TermRangeQuery create(
@@ -33,7 +36,7 @@ public class TermRangeQueryFactoryUtil {
 
 		String searchEngineId = searchContext.getSearchEngineId();
 
-		SearchEngine searchEngine = SearchEngineUtil.getSearchEngine(
+		SearchEngine searchEngine = SearchEngineHelperUtil.getSearchEngine(
 			searchEngineId);
 
 		return searchEngine.getTermRangeQueryFactory();

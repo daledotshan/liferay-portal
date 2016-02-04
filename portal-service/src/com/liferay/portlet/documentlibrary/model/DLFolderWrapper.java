@@ -16,9 +16,14 @@ package com.liferay.portlet.documentlibrary.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -71,6 +76,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 		attributes.put("defaultFileEntryTypeId", getDefaultFileEntryTypeId());
 		attributes.put("hidden", getHidden());
 		attributes.put("restrictionType", getRestrictionType());
+		attributes.put("lastPublishDate", getLastPublishDate());
 		attributes.put("status", getStatus());
 		attributes.put("statusByUserId", getStatusByUserId());
 		attributes.put("statusByUserName", getStatusByUserName());
@@ -190,6 +196,12 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 			setRestrictionType(restrictionType);
 		}
 
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
+
 		Integer status = (Integer)attributes.get("status");
 
 		if (status != null) {
@@ -245,15 +257,6 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	}
 
 	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _dlFolder.getApproved();
-	}
-
-	/**
 	* Returns the company ID of this document library folder.
 	*
 	* @return the company ID of this document library folder
@@ -289,7 +292,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @return the create date of this document library folder
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _dlFolder.getCreateDate();
 	}
 
@@ -314,7 +317,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _dlFolder.getExpandoBridge();
 	}
 
@@ -354,8 +357,18 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @return the last post date of this document library folder
 	*/
 	@Override
-	public java.util.Date getLastPostDate() {
+	public Date getLastPostDate() {
 		return _dlFolder.getLastPostDate();
+	}
+
+	/**
+	* Returns the last publish date of this document library folder.
+	*
+	* @return the last publish date of this document library folder
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _dlFolder.getLastPublishDate();
 	}
 
 	/**
@@ -364,7 +377,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @return the modified date of this document library folder
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _dlFolder.getModifiedDate();
 	}
 
@@ -437,7 +450,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _dlFolder.getPrimaryKeyObj();
 	}
 
@@ -507,7 +520,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @return the status date of this document library folder
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _dlFolder.getStatusDate();
 	}
 
@@ -517,7 +530,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @return the trash entry created when this document library folder was moved to the Recycle Bin
 	*/
 	@Override
-	public com.liferay.portlet.trash.model.TrashEntry getTrashEntry()
+	public com.liferay.trash.kernel.model.TrashEntry getTrashEntry()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _dlFolder.getTrashEntry();
 	}
@@ -803,7 +816,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @param createDate the create date of this document library folder
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_dlFolder.setCreateDate(createDate);
 	}
 
@@ -834,14 +847,12 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_dlFolder.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_dlFolder.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -881,8 +892,18 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @param lastPostDate the last post date of this document library folder
 	*/
 	@Override
-	public void setLastPostDate(java.util.Date lastPostDate) {
+	public void setLastPostDate(Date lastPostDate) {
 		_dlFolder.setLastPostDate(lastPostDate);
+	}
+
+	/**
+	* Sets the last publish date of this document library folder.
+	*
+	* @param lastPublishDate the last publish date of this document library folder
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_dlFolder.setLastPublishDate(lastPublishDate);
 	}
 
 	/**
@@ -891,7 +912,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @param modifiedDate the modified date of this document library folder
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_dlFolder.setModifiedDate(modifiedDate);
 	}
 
@@ -951,7 +972,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_dlFolder.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -1021,7 +1042,7 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	* @param statusDate the status date of this document library folder
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_dlFolder.setStatusDate(statusDate);
 	}
 
@@ -1127,14 +1148,6 @@ public class DLFolderWrapper implements DLFolder, ModelWrapper<DLFolder> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _dlFolder.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public DLFolder getWrappedDLFolder() {
-		return _dlFolder;
 	}
 
 	@Override

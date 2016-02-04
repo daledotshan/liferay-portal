@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -440,7 +445,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	* @return the locales and localized descriptions of this group
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _group.getDescriptionMap();
 	}
 
@@ -470,7 +475,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _group.getExpandoBridge();
 	}
 
@@ -550,6 +555,12 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	public java.lang.String getLiveParentTypeSettingsProperty(
 		java.lang.String key) {
 		return _group.getLiveParentTypeSettingsProperty(key);
+	}
+
+	@Override
+	public java.lang.String getLogoURL(
+		com.liferay.portal.theme.ThemeDisplay themeDisplay, boolean useDefault) {
+		return _group.getLogoURL(themeDisplay, useDefault);
 	}
 
 	/**
@@ -655,7 +666,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	* @return the locales and localized names of this group
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _group.getNameMap();
 	}
 
@@ -702,7 +713,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _group.getPrimaryKeyObj();
 	}
 
@@ -889,15 +900,6 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 		return _group.isChild(groupId);
 	}
 
-	/**
-	* @deprecated As of 6.1.0, renamed to {@link #isRegularSite}
-	*/
-	@Deprecated
-	@Override
-	public boolean isCommunity() {
-		return _group.isCommunity();
-	}
-
 	@Override
 	public boolean isCompany() {
 		return _group.isCompany();
@@ -990,7 +992,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 
 	@Override
 	public boolean isShowSite(
-		com.liferay.portal.security.permission.PermissionChecker permissionChecker,
+		com.liferay.portal.kernel.security.permission.PermissionChecker permissionChecker,
 		boolean privateSite)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _group.isShowSite(permissionChecker, privateSite);
@@ -1034,11 +1036,6 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	@Override
 	public boolean isUserGroup() {
 		return _group.isUserGroup();
-	}
-
-	@Override
-	public boolean isUserPersonalPanel() {
-		return _group.isUserPersonalPanel();
 	}
 
 	@Override
@@ -1181,7 +1178,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_group.setDescriptionMap(descriptionMap);
 	}
 
@@ -1193,26 +1190,23 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_group.setDescriptionMap(descriptionMap, defaultLocale);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_group.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_group.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_group.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -1341,8 +1335,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	* @param nameMap the locales and localized names of this group
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_group.setNameMap(nameMap);
 	}
 
@@ -1353,8 +1346,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_group.setNameMap(nameMap, defaultLocale);
 	}
@@ -1385,7 +1377,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_group.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -1456,7 +1448,7 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Group> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Group> toCacheModel() {
 		return _group.toCacheModel();
 	}
 
@@ -1502,14 +1494,6 @@ public class GroupWrapper implements Group, ModelWrapper<Group> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Group getWrappedGroup() {
-		return _group;
 	}
 
 	@Override

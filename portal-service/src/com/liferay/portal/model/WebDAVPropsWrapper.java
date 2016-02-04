@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -183,12 +188,12 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	* @return the create date of this web d a v props
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _webDAVProps.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _webDAVProps.getExpandoBridge();
 	}
 
@@ -198,7 +203,7 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	* @return the modified date of this web d a v props
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _webDAVProps.getModifiedDate();
 	}
 
@@ -223,7 +228,7 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _webDAVProps.getPrimaryKeyObj();
 	}
 
@@ -337,25 +342,22 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	* @param createDate the create date of this web d a v props
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_webDAVProps.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_webDAVProps.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_webDAVProps.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_webDAVProps.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -365,7 +367,7 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	* @param modifiedDate the modified date of this web d a v props
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_webDAVProps.setModifiedDate(modifiedDate);
 	}
 
@@ -395,7 +397,7 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_webDAVProps.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -425,7 +427,7 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.WebDAVProps> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.WebDAVProps> toCacheModel() {
 		return _webDAVProps.toCacheModel();
 	}
 
@@ -466,14 +468,6 @@ public class WebDAVPropsWrapper implements WebDAVProps,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public WebDAVProps getWrappedWebDAVProps() {
-		return _webDAVProps;
 	}
 
 	@Override

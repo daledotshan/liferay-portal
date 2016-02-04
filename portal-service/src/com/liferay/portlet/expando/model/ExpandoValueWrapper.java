@@ -18,7 +18,11 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
 
+import java.io.Serializable;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -211,13 +215,13 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public java.util.Date getDate()
+	public Date getDate()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _expandoValue.getDate();
 	}
 
 	@Override
-	public java.util.Date[] getDateArray()
+	public Date[] getDateArray()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _expandoValue.getDateArray();
 	}
@@ -241,7 +245,7 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _expandoValue.getExpandoBridge();
 	}
 
@@ -304,7 +308,7 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _expandoValue.getPrimaryKeyObj();
 	}
 
@@ -319,7 +323,7 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public java.io.Serializable getSerializable()
+	public Serializable getSerializable()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _expandoValue.getSerializable();
 	}
@@ -361,13 +365,13 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String[]> getStringArrayMap()
+	public Map<java.util.Locale, java.lang.String[]> getStringArrayMap()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _expandoValue.getStringArrayMap();
 	}
 
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getStringMap()
+	public Map<java.util.Locale, java.lang.String> getStringMap()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _expandoValue.getStringMap();
 	}
@@ -496,13 +500,13 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public void setDate(java.util.Date data)
+	public void setDate(Date data)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_expandoValue.setDate(data);
 	}
 
 	@Override
-	public void setDateArray(java.util.Date[] data)
+	public void setDateArray(Date[] data)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_expandoValue.setDateArray(data);
 	}
@@ -526,14 +530,12 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_expandoValue.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_expandoValue.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -601,7 +603,7 @@ public class ExpandoValueWrapper implements ExpandoValue,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_expandoValue.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -655,15 +657,14 @@ public class ExpandoValueWrapper implements ExpandoValue,
 
 	@Override
 	public void setStringArrayMap(
-		java.util.Map<java.util.Locale, java.lang.String[]> dataMap,
+		Map<java.util.Locale, java.lang.String[]> dataMap,
 		java.util.Locale defaultLocale)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_expandoValue.setStringArrayMap(dataMap, defaultLocale);
 	}
 
 	@Override
-	public void setStringMap(
-		java.util.Map<java.util.Locale, java.lang.String> dataMap,
+	public void setStringMap(Map<java.util.Locale, java.lang.String> dataMap,
 		java.util.Locale defaultLocale)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_expandoValue.setStringMap(dataMap, defaultLocale);
@@ -731,14 +732,6 @@ public class ExpandoValueWrapper implements ExpandoValue,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public ExpandoValue getWrappedExpandoValue() {
-		return _expandoValue;
 	}
 
 	@Override

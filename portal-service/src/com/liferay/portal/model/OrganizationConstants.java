@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model;
 
+import com.liferay.portal.kernel.util.StringPool;
+
 /**
  * @author Brian Wing Shun Chan
  */
@@ -23,8 +25,24 @@ public class OrganizationConstants {
 
 	public static final int DEFAULT_PARENT_ORGANIZATION_ID = 0;
 
+	public static final String NAME_GENERAL_RESTRICTIONS = "blank";
+
+	public static final String NAME_LABEL = "organization-name";
+
+	public static final String NAME_RESERVED_WORDS = StringPool.NULL;
+
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String TYPE_LOCATION = "location";
 
+	public static final String TYPE_ORGANIZATION = "organization";
+
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String TYPE_REGULAR_ORGANIZATION =
 		"regular-organization";
 

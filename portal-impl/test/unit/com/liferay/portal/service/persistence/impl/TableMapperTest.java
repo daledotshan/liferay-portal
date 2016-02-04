@@ -14,13 +14,10 @@
 
 package com.liferay.portal.service.persistence.impl;
 
-import com.liferay.portal.NoSuchModelException;
-import com.liferay.portal.cache.MockPortalCacheManager;
-import com.liferay.portal.cache.memory.MemoryPortalCache;
+import com.liferay.portal.exception.NoSuchModelException;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
 import com.liferay.portal.kernel.cache.PortalCache;
-import com.liferay.portal.kernel.cache.PortalCacheManager;
 import com.liferay.portal.kernel.dao.jdbc.MappingSqlQuery;
 import com.liferay.portal.kernel.dao.jdbc.MappingSqlQueryFactory;
 import com.liferay.portal.kernel.dao.jdbc.MappingSqlQueryFactoryUtil;
@@ -39,7 +36,10 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.BaseModelListener;
 import com.liferay.portal.model.ModelListener;
+import com.liferay.portal.tools.ToolDependencies;
 import com.liferay.portal.util.PropsImpl;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
 
 import java.io.Serializable;
 
@@ -60,6 +60,7 @@ import javax.sql.DataSource;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -83,17 +84,20 @@ public class TableMapperTest {
 
 		};
 
+	@BeforeClass
+	public static void setUpClass() {
+		ToolDependencies.wireCaches();
+	}
+
 	@Before
 	public void setUp() {
+		MultiVMPoolUtil.clear();
+
 		MappingSqlQueryFactoryUtil mappingSqlQueryFactoryUtil =
 			new MappingSqlQueryFactoryUtil();
 
 		mappingSqlQueryFactoryUtil.setMappingSqlQueryFactory(
 			new MockMappingSqlQueryFactory());
-
-		MultiVMPoolUtil multiVMPoolUtil = new MultiVMPoolUtil();
-
-		multiVMPoolUtil.setMultiVMPool(new MockMultiVMPool());
 
 		PropsUtil.setProps(new PropsImpl());
 
@@ -127,8 +131,8 @@ public class TableMapperTest {
 		_rightBasePersistence.setDataSource(_dataSource);
 
 		_tableMapperImpl = new TableMapperImpl<Left, Right>(
-			_TABLE_NAME, _LEFT_COLUMN_NAME, _RIGHT_COLUMN_NAME,
-			_leftBasePersistence, _rightBasePersistence);
+			_TABLE_NAME, _COMPANY_COLUMN_NAME, _LEFT_COLUMN_NAME,
+			_RIGHT_COLUMN_NAME, _leftBasePersistence, _rightBasePersistence);
 	}
 
 	@Test
@@ -136,16 +140,19 @@ public class TableMapperTest {
 
 		// Success, no model listener
 
+		long companyId = 0;
 		long leftPrimaryKey = 1;
 		long rightPrimaryKey = 2;
 
 		Assert.assertTrue(
-			_tableMapperImpl.addTableMapping(leftPrimaryKey, rightPrimaryKey));
+			_tableMapperImpl.addTableMapping(
+				companyId, leftPrimaryKey, rightPrimaryKey));
 
 		// Fail, no model listener
 
 		Assert.assertFalse(
-			_tableMapperImpl.addTableMapping(leftPrimaryKey, rightPrimaryKey));
+			_tableMapperImpl.addTableMapping(
+				companyId, leftPrimaryKey, rightPrimaryKey));
 
 		// Error, no model listener
 
@@ -155,7 +162,8 @@ public class TableMapperTest {
 		leftToRightPortalCache.put(leftPrimaryKey, new long[0]);
 
 		try {
-			_tableMapperImpl.addTableMapping(leftPrimaryKey, rightPrimaryKey);
+			_tableMapperImpl.addTableMapping(
+				companyId, leftPrimaryKey, rightPrimaryKey);
 
 			Assert.fail();
 		}
@@ -172,7 +180,8 @@ public class TableMapperTest {
 		// Auto recover after error
 
 		Assert.assertFalse(
-			_tableMapperImpl.addTableMapping(leftPrimaryKey, rightPrimaryKey));
+			_tableMapperImpl.addTableMapping(
+				companyId, leftPrimaryKey, rightPrimaryKey));
 
 		// Success, with model listener
 
@@ -191,7 +200,8 @@ public class TableMapperTest {
 		_rightBasePersistence.registerListener(rightModelListener);
 
 		Assert.assertTrue(
-			_tableMapperImpl.addTableMapping(leftPrimaryKey, rightPrimaryKey));
+			_tableMapperImpl.addTableMapping(
+				companyId, leftPrimaryKey, rightPrimaryKey));
 
 		leftModelListener.assertOnBeforeAddAssociation(
 			true, leftPrimaryKey, Right.class.getName(), rightPrimaryKey);
@@ -221,7 +231,8 @@ public class TableMapperTest {
 		_rightBasePersistence.registerListener(rightModelListener);
 
 		try {
-			_tableMapperImpl.addTableMapping(leftPrimaryKey, rightPrimaryKey);
+			_tableMapperImpl.addTableMapping(
+				companyId, leftPrimaryKey, rightPrimaryKey);
 
 			Assert.fail();
 		}
@@ -275,10 +286,15 @@ public class TableMapperTest {
 		PortalCache<Long, long[]> leftToRightPortalCache =
 			_tableMapperImpl.leftToRightPortalCache;
 
-		Assert.assertTrue(leftToRightPortalCache instanceof MemoryPortalCache);
+		Class<?> clazz = leftToRightPortalCache.getClass();
+
+		Assert.assertEquals(
+			"com.liferay.portal.tools.ToolDependencies$TestPortalCache",
+			clazz.getName());
+
 		Assert.assertEquals(
 			TableMapper.class.getName() + "-" + _TABLE_NAME + "-LeftToRight",
-			leftToRightPortalCache.getName());
+			leftToRightPortalCache.getPortalCacheName());
 
 		Assert.assertSame(
 			_rightBasePersistence, _tableMapperImpl.rightBasePersistence);
@@ -288,10 +304,15 @@ public class TableMapperTest {
 		PortalCache<Long, long[]> rightToLeftPortalCache =
 			_tableMapperImpl.rightToLeftPortalCache;
 
-		Assert.assertTrue(rightToLeftPortalCache instanceof MemoryPortalCache);
+		clazz = rightToLeftPortalCache.getClass();
+
+		Assert.assertEquals(
+			"com.liferay.portal.tools.ToolDependencies$TestPortalCache",
+			clazz.getName());
+
 		Assert.assertEquals(
 			TableMapper.class.getName() + "-" + _TABLE_NAME + "-RightToLeft",
-			rightToLeftPortalCache.getName());
+			rightToLeftPortalCache.getPortalCacheName());
 	}
 
 	@Test
@@ -1207,8 +1228,8 @@ public class TableMapperTest {
 		RecordInvocationHandler recordInvocationHandler =
 			new RecordInvocationHandler();
 
-		TableMapper<Left, Right> tableMapper = (TableMapper<Left, Right>)
-			ProxyUtil.newProxyInstance(
+		TableMapper<Left, Right> tableMapper =
+			(TableMapper<Left, Right>)ProxyUtil.newProxyInstance(
 				classLoader, new Class<?>[] {TableMapper.class},
 				recordInvocationHandler);
 
@@ -1217,9 +1238,9 @@ public class TableMapperTest {
 
 		recordInvocationHandler.setTableMapper(reverseTableMapper);
 
-		reverseTableMapper.addTableMapping(1, 2);
+		reverseTableMapper.addTableMapping(0, 1, 2);
 
-		recordInvocationHandler.assertCall("addTableMapping", 2L, 1L);
+		recordInvocationHandler.assertCall("addTableMapping", 0L, 2L, 1L);
 
 		reverseTableMapper.containsTableMapping(1, 2);
 
@@ -1278,8 +1299,9 @@ public class TableMapperTest {
 
 		TableMapper<Left, Right> tableMapper =
 			TableMapperFactory.getTableMapper(
-				_TABLE_NAME, _LEFT_COLUMN_NAME, _RIGHT_COLUMN_NAME,
-				_leftBasePersistence, _rightBasePersistence);
+				_TABLE_NAME, _COMPANY_COLUMN_NAME, _LEFT_COLUMN_NAME,
+				_RIGHT_COLUMN_NAME, _leftBasePersistence,
+				_rightBasePersistence);
 
 		Assert.assertEquals(1, tableMappers.size());
 		Assert.assertSame(tableMapper, tableMappers.get(_TABLE_NAME));
@@ -1294,16 +1316,18 @@ public class TableMapperTest {
 		Assert.assertSame(
 			tableMapper,
 			TableMapperFactory.getTableMapper(
-				_TABLE_NAME, _LEFT_COLUMN_NAME, _RIGHT_COLUMN_NAME,
-					_leftBasePersistence, _rightBasePersistence));
+				_TABLE_NAME, _COMPANY_COLUMN_NAME, _LEFT_COLUMN_NAME,
+				_RIGHT_COLUMN_NAME, _leftBasePersistence,
+				_rightBasePersistence));
 
 		// Reverse mapping table
 
 		Assert.assertSame(
 			reverseTableMapper,
 			TableMapperFactory.getTableMapper(
-				_TABLE_NAME, _RIGHT_COLUMN_NAME, _LEFT_COLUMN_NAME,
-				_rightBasePersistence, _leftBasePersistence));
+				_TABLE_NAME, _COMPANY_COLUMN_NAME, _RIGHT_COLUMN_NAME,
+				_LEFT_COLUMN_NAME, _rightBasePersistence,
+				_leftBasePersistence));
 
 		// Remove
 
@@ -1317,12 +1341,12 @@ public class TableMapperTest {
 	}
 
 	@Test
-	public void testTableMapperFactoryCacheless() {
-		Set<String> cachelessMappingTableNames =
-			TableMapperFactory.cachelessMappingTableNames;
+	public void testTableMapperFactoryCache() {
+		Set<String> cacheMappingTableNames =
+			TableMapperFactory.cacheMappingTableNames;
 
 		ReflectionTestUtil.setFieldValue(
-			TableMapperFactory.class, "cachelessMappingTableNames",
+			TableMapperFactory.class, "cacheMappingTableNames",
 			new HashSet<String>() {
 
 				@Override
@@ -1337,17 +1361,18 @@ public class TableMapperTest {
 		}
 		finally {
 			ReflectionTestUtil.setFieldValue(
-				TableMapperFactory.class, "cachelessMappingTableNames",
-				cachelessMappingTableNames);
+				TableMapperFactory.class, "cacheMappingTableNames",
+				cacheMappingTableNames);
 		}
 	}
 
 	protected void testDestroy(TableMapper<?, ?> tableMapper) {
-		MockMultiVMPool mockMultiVMPool =
-			(MockMultiVMPool)MultiVMPoolUtil.getMultiVMPool();
+		Registry registry = RegistryUtil.getRegistry();
+
+		MultiVMPool multiVMPool = registry.getService(MultiVMPool.class);
 
 		Map<String, PortalCache<?, ?>> portalCaches =
-			mockMultiVMPool.getPortalCaches();
+			ReflectionTestUtil.getFieldValue(multiVMPool, "_portalCaches");
 
 		Assert.assertEquals(2, portalCaches.size());
 
@@ -1387,6 +1412,8 @@ public class TableMapperTest {
 		Assert.assertTrue(portalCaches.isEmpty());
 	}
 
+	private static final String _COMPANY_COLUMN_NAME = "companyId";
+
 	private static final String _LEFT_COLUMN_NAME = "leftId";
 
 	private static final String _RIGHT_COLUMN_NAME = "rightId";
@@ -1398,6 +1425,149 @@ public class TableMapperTest {
 	private final Map<Long, long[]> _mappingStore = new HashMap<>();
 	private MockBasePersistence<Right> _rightBasePersistence;
 	private TableMapperImpl<Left, Right> _tableMapperImpl;
+
+	private static class RecorderModelListener<T extends BaseModel<T>>
+		extends BaseModelListener<T> {
+
+		public void assertOnAfterAddAssociation(
+			boolean called, Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_assertCall(
+				0, called, classPK, associationClassName, associationClassPK);
+		}
+
+		public void assertOnAfterRemoveAssociation(
+			boolean called, Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_assertCall(
+				1, called, classPK, associationClassName, associationClassPK);
+		}
+
+		public void assertOnBeforeAddAssociation(
+			boolean called, Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_assertCall(
+				2, called, classPK, associationClassName, associationClassPK);
+		}
+
+		public void assertOnBeforeRemoveAssociation(
+			boolean called, Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_assertCall(
+				3, called, classPK, associationClassName, associationClassPK);
+		}
+
+		@Override
+		public void onAfterAddAssociation(
+			Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_record(0, classPK, associationClassName, associationClassPK);
+		}
+
+		@Override
+		public void onAfterRemoveAssociation(
+			Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_record(1, classPK, associationClassName, associationClassPK);
+		}
+
+		@Override
+		public void onBeforeAddAssociation(
+			Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_record(2, classPK, associationClassName, associationClassPK);
+		}
+
+		@Override
+		public void onBeforeRemoveAssociation(
+			Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_record(3, classPK, associationClassName, associationClassPK);
+		}
+
+		private void _assertCall(
+			int index, boolean called, Object classPK,
+			String associationClassName, Object associationClassPK) {
+
+			if (called) {
+				Assert.assertSame(_classPKs[index], classPK);
+				Assert.assertEquals(
+					_associationClassNames[index], associationClassName);
+				Assert.assertSame(
+					_associationClassPKs[index], associationClassPK);
+			}
+			else {
+				Assert.assertFalse(
+					"Called onAfterAddAssociation", _markers[index]);
+			}
+		}
+
+		private void _record(
+			int index, Object classPK, String associationClassName,
+			Object associationClassPK) {
+
+			_markers[index] = true;
+			_classPKs[index] = classPK;
+			_associationClassNames[index] = associationClassName;
+			_associationClassPKs[index] = associationClassPK;
+		}
+
+		private final String[] _associationClassNames = new String[4];
+		private final Object[] _associationClassPKs = new Object[4];
+		private final Object[] _classPKs = new Object[4];
+		private final boolean[] _markers = new boolean[4];
+
+	}
+
+	private static class RecordInvocationHandler implements InvocationHandler {
+
+		public void assertCall(String methodName, Object... args) {
+			Object[] record = _records.get(methodName);
+
+			Assert.assertArrayEquals(record, args);
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) {
+			_records.put(method.getName(), args);
+
+			Class<?> returnType = method.getReturnType();
+
+			if (returnType == boolean.class) {
+				return false;
+			}
+			else if (returnType == int.class) {
+				return 0;
+			}
+			else if (returnType == List.class) {
+				return Collections.emptyList();
+			}
+			else if (returnType == long[].class) {
+				return new long[0];
+			}
+			else if (returnType == TableMapper.class) {
+				return _tableMapper;
+			}
+
+			return null;
+		}
+
+		public void setTableMapper(TableMapper<?, ?> tableMapper) {
+			_tableMapper = tableMapper;
+		}
+
+		private final Map<String, Object[]> _records = new HashMap<>();
+		private TableMapper<?, ?> _tableMapper;
+
+	}
 
 	private class GetPrimaryKeyObjInvocationHandler
 		implements InvocationHandler {
@@ -1421,9 +1591,11 @@ public class TableMapperTest {
 
 	}
 
-	private interface Left extends LeftModel {};
+	private interface Left extends LeftModel {
+	};
 
-	private interface LeftModel extends BaseModel<Left> {};
+	private interface LeftModel extends BaseModel<Left> {
+	};
 
 	private class MockAddMappingSqlUpdate implements SqlUpdate {
 
@@ -1432,22 +1604,23 @@ public class TableMapperTest {
 
 			Assert.assertSame(_dataSource, dataSource);
 			Assert.assertEquals(
-				"INSERT INTO " + _TABLE_NAME + " (" + _LEFT_COLUMN_NAME +
-					", " + _RIGHT_COLUMN_NAME+ ") VALUES (?, ?)",
+				"INSERT INTO " + _TABLE_NAME + " (" + _COMPANY_COLUMN_NAME +
+					", " + _LEFT_COLUMN_NAME + ", " + _RIGHT_COLUMN_NAME+ ") " +
+						"VALUES (?, ?, ?)",
 				sql);
 			Assert.assertArrayEquals(
-				new int[] {Types.BIGINT, Types.BIGINT},
-				types);
+				new int[] {Types.BIGINT, Types.BIGINT, Types.BIGINT}, types);
 		}
 
 		@Override
 		public int update(Object... params) {
-			Assert.assertEquals(2, params.length);
+			Assert.assertEquals(3, params.length);
 			Assert.assertSame(Long.class, params[0].getClass());
 			Assert.assertSame(Long.class, params[1].getClass());
+			Assert.assertSame(Long.class, params[2].getClass());
 
-			Long leftPrimaryKey = (Long)params[0];
-			Long rightPrimaryKey = (Long)params[1];
+			Long leftPrimaryKey = (Long)params[1];
+			Long rightPrimaryKey = (Long)params[2];
 
 			long[] rightPrimaryKeys = _mappingStore.get(leftPrimaryKey);
 
@@ -1577,8 +1750,7 @@ public class TableMapperTest {
 					" = ? AND " + _RIGHT_COLUMN_NAME + " = ?",
 				sql);
 			Assert.assertArrayEquals(
-				new int[] {Types.BIGINT, Types.BIGINT},
-				types);
+				new int[] {Types.BIGINT, Types.BIGINT}, types);
 		}
 
 		public void setDatabaseError(boolean databaseError) {
@@ -1798,58 +1970,6 @@ public class TableMapperTest {
 
 	}
 
-	private class MockMultiVMPool implements MultiVMPool {
-
-		@Override
-		public void clear() {
-			_portalCaches.clear();
-		}
-
-		@Override
-		public PortalCache<? extends Serializable, ? extends Serializable>
-			getCache(String name) {
-
-			PortalCache<?, ?> portalCache = _portalCaches.get(name);
-
-			if (portalCache == null) {
-				portalCache = new MemoryPortalCache<>(
-					new MockPortalCacheManager<Long, long[]>(name), name, 16);
-
-				_portalCaches.put(name, portalCache);
-			}
-
-			return (PortalCache<? extends Serializable, ? extends Serializable>)
-				portalCache;
-		}
-
-		@Override
-		public PortalCache<? extends Serializable, ? extends Serializable>
-			getCache(String name, boolean blocking) {
-
-			return getCache(name);
-		}
-
-		@Override
-		public PortalCacheManager
-			<? extends Serializable, ? extends Serializable> getCacheManager() {
-
-			return null;
-		}
-
-		public Map<String, PortalCache<?, ?>> getPortalCaches() {
-			return _portalCaches;
-		}
-
-		@Override
-		public void removeCache(String name) {
-			_portalCaches.remove(name);
-		}
-
-		private final Map<String, PortalCache<?, ?>> _portalCaches =
-			new HashMap<>();
-
-	}
-
 	private class MockSqlUpdateFactory implements SqlUpdateFactory {
 
 		@Override
@@ -1880,149 +2000,6 @@ public class TableMapperTest {
 		}
 
 		private int _count;
-
-	}
-
-	private class RecorderModelListener<T extends BaseModel<T>>
-		extends BaseModelListener<T> {
-
-		public void assertOnAfterAddAssociation(
-			boolean called, Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_assertCall(
-				0, called, classPK, associationClassName, associationClassPK);
-		}
-
-		public void assertOnAfterRemoveAssociation(
-			boolean called, Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_assertCall(
-				1, called, classPK, associationClassName, associationClassPK);
-		}
-
-		public void assertOnBeforeAddAssociation(
-			boolean called, Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_assertCall(
-				2, called, classPK, associationClassName, associationClassPK);
-		}
-
-		public void assertOnBeforeRemoveAssociation(
-			boolean called, Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_assertCall(
-				3, called, classPK, associationClassName, associationClassPK);
-		}
-
-		@Override
-		public void onAfterAddAssociation(
-			Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_record(0, classPK, associationClassName, associationClassPK);
-		}
-
-		@Override
-		public void onAfterRemoveAssociation(
-			Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_record(1, classPK, associationClassName, associationClassPK);
-		}
-
-		@Override
-		public void onBeforeAddAssociation(
-			Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_record(2, classPK, associationClassName, associationClassPK);
-		}
-
-		@Override
-		public void onBeforeRemoveAssociation(
-			Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_record(3, classPK, associationClassName, associationClassPK);
-		}
-
-		private void _assertCall(
-			int index, boolean called, Object classPK,
-			String associationClassName, Object associationClassPK) {
-
-			if (called) {
-				Assert.assertSame(_classPKs[index], classPK);
-				Assert.assertEquals(
-					_associationClassNames[index], associationClassName);
-				Assert.assertSame(
-					_associationClassPKs[index], associationClassPK);
-			}
-			else if (_markers[index]) {
-				Assert.fail("Called onAfterAddAssociation");
-			}
-		}
-
-		private void _record(
-			int index, Object classPK, String associationClassName,
-			Object associationClassPK) {
-
-			_markers[index] = true;
-			_classPKs[index] = classPK;
-			_associationClassNames[index] = associationClassName;
-			_associationClassPKs[index] = associationClassPK;
-		}
-
-		private final String[] _associationClassNames = new String[4];
-		private final Object[] _associationClassPKs = new Object[4];
-		private final Object[] _classPKs = new Object[4];
-		private final boolean[] _markers = new boolean[4];
-
-	}
-
-	private class RecordInvocationHandler implements InvocationHandler {
-
-		public void assertCall(String methodName, Object... args) {
-			Object[] record = _records.get(methodName);
-
-			Assert.assertArrayEquals(record, args);
-		}
-
-		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) {
-			_records.put(method.getName(), args);
-
-			Class<?> returnType = method.getReturnType();
-
-			if (returnType == boolean.class) {
-				return false;
-			}
-			else if (returnType == int.class) {
-				return 0;
-			}
-			else if (returnType == List.class) {
-				return Collections.emptyList();
-			}
-			else if (returnType == long[].class) {
-				return new long[0];
-			}
-			else if (returnType == TableMapper.class) {
-				return _tableMapper;
-			}
-
-			return null;
-		}
-
-		public void setTableMapper(TableMapper<?, ?> tableMapper) {
-			_tableMapper = tableMapper;
-		}
-
-		private final Map<String, Object[]> _records = new
-			HashMap<String, Object[]>();
-		private TableMapper<?, ?> _tableMapper;
 
 	}
 

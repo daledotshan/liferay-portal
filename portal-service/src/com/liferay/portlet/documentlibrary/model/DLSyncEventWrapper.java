@@ -18,6 +18,11 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +58,7 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("syncEventId", getSyncEventId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("modifiedTime", getModifiedTime());
 		attributes.put("event", getEvent());
 		attributes.put("type", getType());
@@ -67,6 +73,12 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 
 		if (syncEventId != null) {
 			setSyncEventId(syncEventId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long modifiedTime = (Long)attributes.get("modifiedTime");
@@ -106,6 +118,16 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	}
 
 	/**
+	* Returns the company ID of this d l sync event.
+	*
+	* @return the company ID of this d l sync event
+	*/
+	@Override
+	public long getCompanyId() {
+		return _dlSyncEvent.getCompanyId();
+	}
+
+	/**
 	* Returns the event of this d l sync event.
 	*
 	* @return the event of this d l sync event
@@ -116,7 +138,7 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _dlSyncEvent.getExpandoBridge();
 	}
 
@@ -141,7 +163,7 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _dlSyncEvent.getPrimaryKeyObj();
 	}
 
@@ -206,6 +228,16 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	}
 
 	/**
+	* Sets the company ID of this d l sync event.
+	*
+	* @param companyId the company ID of this d l sync event
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_dlSyncEvent.setCompanyId(companyId);
+	}
+
+	/**
 	* Sets the event of this d l sync event.
 	*
 	* @param event the event of this d l sync event
@@ -222,14 +254,12 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_dlSyncEvent.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_dlSyncEvent.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -259,7 +289,7 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_dlSyncEvent.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -335,14 +365,6 @@ public class DLSyncEventWrapper implements DLSyncEvent,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public DLSyncEvent getWrappedDLSyncEvent() {
-		return _dlSyncEvent;
 	}
 
 	@Override

@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -171,7 +176,7 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _country.getExpandoBridge();
 	}
 
@@ -241,7 +246,7 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _country.getPrimaryKeyObj();
 	}
 
@@ -341,20 +346,17 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_country.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_country.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_country.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -419,7 +421,7 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_country.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -434,7 +436,7 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Country> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Country> toCacheModel() {
 		return _country.toCacheModel();
 	}
 
@@ -475,14 +477,6 @@ public class CountryWrapper implements Country, ModelWrapper<Country> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Country getWrappedCountry() {
-		return _country;
 	}
 
 	@Override

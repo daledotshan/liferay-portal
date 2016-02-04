@@ -22,13 +22,15 @@ import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ContainerModel;
+import com.liferay.portal.model.ShardedModel;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.trash.model.TrashEntry;
+
+import com.liferay.trash.kernel.model.TrashEntry;
 
 import java.io.Serializable;
 
@@ -49,7 +51,7 @@ import java.util.Date;
  */
 @ProviderType
 public interface DLFolderModel extends BaseModel<DLFolder>, ContainerModel,
-	StagedGroupedModel, TrashedModel, WorkflowedModel {
+	ShardedModel, StagedGroupedModel, TrashedModel, WorkflowedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -372,6 +374,22 @@ public interface DLFolderModel extends BaseModel<DLFolder>, ContainerModel,
 	public void setRestrictionType(int restrictionType);
 
 	/**
+	 * Returns the last publish date of this document library folder.
+	 *
+	 * @return the last publish date of this document library folder
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this document library folder.
+	 *
+	 * @param lastPublishDate the last publish date of this document library folder
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
+
+	/**
 	 * Returns the status of this document library folder.
 	 *
 	 * @return the status of this document library folder
@@ -497,13 +515,6 @@ public interface DLFolderModel extends BaseModel<DLFolder>, ContainerModel,
 
 	@Override
 	public boolean isInTrashImplicitly();
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	 */
-	@Deprecated
-	@Override
-	public boolean getApproved();
 
 	/**
 	 * Returns <code>true</code> if this document library folder is approved.

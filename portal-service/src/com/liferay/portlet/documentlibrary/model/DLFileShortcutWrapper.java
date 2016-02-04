@@ -16,9 +16,14 @@ package com.liferay.portlet.documentlibrary.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -67,6 +72,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 		attributes.put("toFileEntryId", getToFileEntryId());
 		attributes.put("treePath", getTreePath());
 		attributes.put("active", getActive());
+		attributes.put("lastPublishDate", getLastPublishDate());
 		attributes.put("status", getStatus());
 		attributes.put("statusByUserId", getStatusByUserId());
 		attributes.put("statusByUserName", getStatusByUserName());
@@ -155,6 +161,12 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 			setActive(active);
 		}
 
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
+
 		Integer status = (Integer)attributes.get("status");
 
 		if (status != null) {
@@ -208,15 +220,6 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _dlFileShortcut.getApproved();
-	}
-
-	/**
 	* Returns the company ID of this document library file shortcut.
 	*
 	* @return the company ID of this document library file shortcut
@@ -232,7 +235,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	* @return the create date of this document library file shortcut
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _dlFileShortcut.getCreateDate();
 	}
 
@@ -243,7 +246,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _dlFileShortcut.getExpandoBridge();
 	}
 
@@ -290,12 +293,22 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	/**
+	* Returns the last publish date of this document library file shortcut.
+	*
+	* @return the last publish date of this document library file shortcut
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _dlFileShortcut.getLastPublishDate();
+	}
+
+	/**
 	* Returns the modified date of this document library file shortcut.
 	*
 	* @return the modified date of this document library file shortcut
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _dlFileShortcut.getModifiedDate();
 	}
 
@@ -310,7 +323,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _dlFileShortcut.getPrimaryKeyObj();
 	}
 
@@ -370,7 +383,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	* @return the status date of this document library file shortcut
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _dlFileShortcut.getStatusDate();
 	}
 
@@ -395,7 +408,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	* @return the trash entry created when this document library file shortcut was moved to the Recycle Bin
 	*/
 	@Override
-	public com.liferay.portlet.trash.model.TrashEntry getTrashEntry()
+	public com.liferay.trash.kernel.model.TrashEntry getTrashEntry()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _dlFileShortcut.getTrashEntry();
 	}
@@ -651,7 +664,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	* @param createDate the create date of this document library file shortcut
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_dlFileShortcut.setCreateDate(createDate);
 	}
 
@@ -662,14 +675,12 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_dlFileShortcut.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_dlFileShortcut.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -704,12 +715,22 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	/**
+	* Sets the last publish date of this document library file shortcut.
+	*
+	* @param lastPublishDate the last publish date of this document library file shortcut
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_dlFileShortcut.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the modified date of this document library file shortcut.
 	*
 	* @param modifiedDate the modified date of this document library file shortcut
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_dlFileShortcut.setModifiedDate(modifiedDate);
 	}
 
@@ -729,7 +750,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_dlFileShortcut.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -789,7 +810,7 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	* @param statusDate the status date of this document library file shortcut
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_dlFileShortcut.setStatusDate(statusDate);
 	}
 
@@ -906,14 +927,6 @@ public class DLFileShortcutWrapper implements DLFileShortcut,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _dlFileShortcut.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public DLFileShortcut getWrappedDLFileShortcut() {
-		return _dlFileShortcut;
 	}
 
 	@Override

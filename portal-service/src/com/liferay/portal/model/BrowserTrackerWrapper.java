@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +58,7 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("browserTrackerId", getBrowserTrackerId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
 		attributes.put("browserKey", getBrowserKey());
 
@@ -71,6 +77,12 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 
 		if (browserTrackerId != null) {
 			setBrowserTrackerId(browserTrackerId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long userId = (Long)attributes.get("userId");
@@ -116,8 +128,18 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 		return _browserTracker.getBrowserTrackerId();
 	}
 
+	/**
+	* Returns the company ID of this browser tracker.
+	*
+	* @return the company ID of this browser tracker
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _browserTracker.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _browserTracker.getExpandoBridge();
 	}
 
@@ -142,7 +164,7 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _browserTracker.getPrimaryKeyObj();
 	}
 
@@ -216,21 +238,28 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 		_browserTracker.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this browser tracker.
+	*
+	* @param companyId the company ID of this browser tracker
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_browserTracker.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_browserTracker.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_browserTracker.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_browserTracker.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -260,7 +289,7 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_browserTracker.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -285,7 +314,7 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.BrowserTracker> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.BrowserTracker> toCacheModel() {
 		return _browserTracker.toCacheModel();
 	}
 
@@ -327,14 +356,6 @@ public class BrowserTrackerWrapper implements BrowserTracker,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public BrowserTracker getWrappedBrowserTracker() {
-		return _browserTracker;
 	}
 
 	@Override

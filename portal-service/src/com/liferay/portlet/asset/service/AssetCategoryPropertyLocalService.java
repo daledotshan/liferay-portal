@@ -16,14 +16,27 @@ package com.liferay.portlet.asset.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalService;
 import com.liferay.portal.service.PersistedModelLocalService;
+
+import com.liferay.portlet.asset.model.AssetCategoryProperty;
+
+import java.io.Serializable;
+
+import java.util.List;
 
 /**
  * Provides the local service interface for AssetCategoryProperty. Methods of this
@@ -54,14 +67,13 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param assetCategoryProperty the asset category property
 	* @return the asset category property that was added
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty addAssetCategoryProperty(
-		com.liferay.portlet.asset.model.AssetCategoryProperty assetCategoryProperty);
+	@Indexable(type = IndexableType.REINDEX)
+	public AssetCategoryProperty addAssetCategoryProperty(
+		AssetCategoryProperty assetCategoryProperty);
 
-	public com.liferay.portlet.asset.model.AssetCategoryProperty addCategoryProperty(
-		long userId, long categoryId, java.lang.String key,
-		java.lang.String value)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetCategoryProperty addCategoryProperty(long userId,
+		long categoryId, java.lang.String key, java.lang.String value)
+		throws PortalException;
 
 	/**
 	* Creates a new asset category property with the primary key. Does not add the asset category property to the database.
@@ -69,7 +81,7 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param categoryPropertyId the primary key for the new asset category property
 	* @return the new asset category property
 	*/
-	public com.liferay.portlet.asset.model.AssetCategoryProperty createAssetCategoryProperty(
+	public AssetCategoryProperty createAssetCategoryProperty(
 		long categoryPropertyId);
 
 	/**
@@ -78,9 +90,9 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param assetCategoryProperty the asset category property
 	* @return the asset category property that was removed
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty deleteAssetCategoryProperty(
-		com.liferay.portlet.asset.model.AssetCategoryProperty assetCategoryProperty);
+	@Indexable(type = IndexableType.DELETE)
+	public AssetCategoryProperty deleteAssetCategoryProperty(
+		AssetCategoryProperty assetCategoryProperty);
 
 	/**
 	* Deletes the asset category property with the primary key from the database. Also notifies the appropriate model listeners.
@@ -89,28 +101,25 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @return the asset category property that was removed
 	* @throws PortalException if a asset category property with the primary key could not be found
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty deleteAssetCategoryProperty(
-		long categoryPropertyId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	@Indexable(type = IndexableType.DELETE)
+	public AssetCategoryProperty deleteAssetCategoryProperty(
+		long categoryPropertyId) throws PortalException;
 
 	public void deleteCategoryProperties(long entryId);
 
-	public void deleteCategoryProperty(
-		com.liferay.portlet.asset.model.AssetCategoryProperty categoryProperty);
+	public void deleteCategoryProperty(AssetCategoryProperty categoryProperty);
 
 	public void deleteCategoryProperty(long categoryPropertyId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* @throws PortalException
 	*/
 	@Override
-	public com.liferay.portal.model.PersistedModel deletePersistedModel(
-		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException;
 
-	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
+	public DynamicQuery dynamicQuery();
 
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
@@ -118,8 +127,7 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery);
 
 	/**
 	* Performs a dynamic query on the database and returns a range of the matching rows.
@@ -133,8 +141,7 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param end the upper bound of the range of model instances (not inclusive)
 	* @return the range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
 		int end);
 
 	/**
@@ -150,10 +157,8 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -161,8 +166,7 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -171,16 +175,15 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param projection the projection to apply to the query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
-		com.liferay.portal.kernel.dao.orm.Projection projection);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty fetchAssetCategoryProperty(
+	public AssetCategoryProperty fetchAssetCategoryProperty(
 		long categoryPropertyId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
+	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	/**
 	* Returns a range of all the asset category properties.
@@ -194,8 +197,8 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @return the range of asset category properties
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetCategoryProperty> getAssetCategoryProperties(
-		int start, int end);
+	public List<AssetCategoryProperty> getAssetCategoryProperties(int start,
+		int end);
 
 	/**
 	* Returns the number of asset category properties.
@@ -213,50 +216,41 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @throws PortalException if a asset category property with the primary key could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty getAssetCategoryProperty(
-		long categoryPropertyId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetCategoryProperty getAssetCategoryProperty(
+		long categoryPropertyId) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AssetCategoryProperty> getCategoryProperties();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AssetCategoryProperty> getCategoryProperties(long entryId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public AssetCategoryProperty getCategoryProperty(long categoryId,
+		java.lang.String key) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public AssetCategoryProperty getCategoryProperty(long categoryPropertyId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AssetCategoryProperty> getCategoryPropertyValues(long groupId,
+		java.lang.String key);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public java.lang.String getBeanIdentifier();
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetCategoryProperty> getCategoryProperties();
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetCategoryProperty> getCategoryProperties(
-		long entryId);
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty getCategoryProperty(
-		long categoryId, java.lang.String key)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty getCategoryProperty(
-		long categoryPropertyId)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetCategoryProperty> getCategoryPropertyValues(
-		long groupId, java.lang.String key);
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	* Updates the asset category property in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -264,16 +258,15 @@ public interface AssetCategoryPropertyLocalService extends BaseLocalService,
 	* @param assetCategoryProperty the asset category property
 	* @return the asset category property that was updated
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portlet.asset.model.AssetCategoryProperty updateAssetCategoryProperty(
-		com.liferay.portlet.asset.model.AssetCategoryProperty assetCategoryProperty);
+	@Indexable(type = IndexableType.REINDEX)
+	public AssetCategoryProperty updateAssetCategoryProperty(
+		AssetCategoryProperty assetCategoryProperty);
 
-	public com.liferay.portlet.asset.model.AssetCategoryProperty updateCategoryProperty(
+	public AssetCategoryProperty updateCategoryProperty(
 		long categoryPropertyId, java.lang.String key, java.lang.String value)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
-	public com.liferay.portlet.asset.model.AssetCategoryProperty updateCategoryProperty(
-		long userId, long categoryPropertyId, java.lang.String key,
-		java.lang.String value)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetCategoryProperty updateCategoryProperty(long userId,
+		long categoryPropertyId, java.lang.String key, java.lang.String value)
+		throws PortalException;
 }

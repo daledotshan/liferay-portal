@@ -16,9 +16,14 @@ package com.liferay.portlet.messageboards.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -74,6 +79,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 		attributes.put("priority", getPriority());
 		attributes.put("allowPingbacks", getAllowPingbacks());
 		attributes.put("answer", getAnswer());
+		attributes.put("lastPublishDate", getLastPublishDate());
 		attributes.put("status", getStatus());
 		attributes.put("statusByUserId", getStatusByUserId());
 		attributes.put("statusByUserName", getStatusByUserName());
@@ -210,6 +216,12 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 			setAnswer(answer);
 		}
 
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
+
 		Integer status = (Integer)attributes.get("status");
 
 		if (status != null) {
@@ -280,15 +292,6 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	@Override
 	public boolean getAnswer() {
 		return _mbMessage.getAnswer();
-	}
-
-	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _mbMessage.getApproved();
 	}
 
 	@Override
@@ -398,7 +401,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* @return the create date of this message-boards message
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _mbMessage.getCreateDate();
 	}
 
@@ -422,7 +425,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _mbMessage.getExpandoBridge();
 	}
 
@@ -447,6 +450,16 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	/**
+	* Returns the last publish date of this message-boards message.
+	*
+	* @return the last publish date of this message-boards message
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _mbMessage.getLastPublishDate();
+	}
+
+	/**
 	* Returns the message ID of this message-boards message.
 	*
 	* @return the message ID of this message-boards message
@@ -462,7 +475,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* @return the modified date of this message-boards message
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _mbMessage.getModifiedDate();
 	}
 
@@ -487,7 +500,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _mbMessage.getPrimaryKeyObj();
 	}
 
@@ -557,7 +570,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* @return the status date of this message-boards message
 	*/
 	@Override
-	public java.util.Date getStatusDate() {
+	public Date getStatusDate() {
 		return _mbMessage.getStatusDate();
 	}
 
@@ -599,7 +612,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* @return the trash entry created when this message-boards message was moved to the Recycle Bin
 	*/
 	@Override
-	public com.liferay.portlet.trash.model.TrashEntry getTrashEntry()
+	public com.liferay.trash.kernel.model.TrashEntry getTrashEntry()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _mbMessage.getTrashEntry();
 	}
@@ -955,7 +968,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* @param createDate the create date of this message-boards message
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_mbMessage.setCreateDate(createDate);
 	}
 
@@ -966,14 +979,12 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_mbMessage.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_mbMessage.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -998,6 +1009,16 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	/**
+	* Sets the last publish date of this message-boards message.
+	*
+	* @param lastPublishDate the last publish date of this message-boards message
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_mbMessage.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the message ID of this message-boards message.
 	*
 	* @param messageId the message ID of this message-boards message
@@ -1013,7 +1034,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* @param modifiedDate the modified date of this message-boards message
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_mbMessage.setModifiedDate(modifiedDate);
 	}
 
@@ -1043,7 +1064,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_mbMessage.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -1113,7 +1134,7 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* @param statusDate the status date of this message-boards message
 	*/
 	@Override
-	public void setStatusDate(java.util.Date statusDate) {
+	public void setStatusDate(Date statusDate) {
 		_mbMessage.setStatusDate(statusDate);
 	}
 
@@ -1224,14 +1245,6 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _mbMessage.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MBMessage getWrappedMBMessage() {
-		return _mbMessage;
 	}
 
 	@Override

@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +60,7 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 		attributes.put("userId", getUserId());
 		attributes.put("groupId", getGroupId());
 		attributes.put("roleId", getRoleId());
+		attributes.put("companyId", getCompanyId());
 
 		return attributes;
 	}
@@ -84,6 +90,12 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 		if (roleId != null) {
 			setRoleId(roleId);
 		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
+		}
 	}
 
 	@Override
@@ -96,8 +108,18 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 		return _userGroupRole.compareTo(userGroupRole);
 	}
 
+	/**
+	* Returns the company ID of this user group role.
+	*
+	* @return the company ID of this user group role
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _userGroupRole.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _userGroupRole.getExpandoBridge();
 	}
 
@@ -138,7 +160,7 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _userGroupRole.getPrimaryKeyObj();
 	}
 
@@ -214,21 +236,28 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 		_userGroupRole.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this user group role.
+	*
+	* @param companyId the company ID of this user group role
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_userGroupRole.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_userGroupRole.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_userGroupRole.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_userGroupRole.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -269,7 +298,7 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_userGroupRole.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -304,7 +333,7 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.UserGroupRole> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.UserGroupRole> toCacheModel() {
 		return _userGroupRole.toCacheModel();
 	}
 
@@ -345,14 +374,6 @@ public class UserGroupRoleWrapper implements UserGroupRole,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public UserGroupRole getWrappedUserGroupRole() {
-		return _userGroupRole;
 	}
 
 	@Override

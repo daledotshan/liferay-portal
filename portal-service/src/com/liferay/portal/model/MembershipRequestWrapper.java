@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -173,12 +178,12 @@ public class MembershipRequestWrapper implements MembershipRequest,
 	* @return the create date of this membership request
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _membershipRequest.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _membershipRequest.getExpandoBridge();
 	}
 
@@ -223,7 +228,7 @@ public class MembershipRequestWrapper implements MembershipRequest,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _membershipRequest.getPrimaryKeyObj();
 	}
 
@@ -263,7 +268,7 @@ public class MembershipRequestWrapper implements MembershipRequest,
 	* @return the reply date of this membership request
 	*/
 	@Override
-	public java.util.Date getReplyDate() {
+	public Date getReplyDate() {
 		return _membershipRequest.getReplyDate();
 	}
 
@@ -353,25 +358,22 @@ public class MembershipRequestWrapper implements MembershipRequest,
 	* @param createDate the create date of this membership request
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_membershipRequest.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_membershipRequest.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_membershipRequest.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_membershipRequest.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -421,7 +423,7 @@ public class MembershipRequestWrapper implements MembershipRequest,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_membershipRequest.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -461,7 +463,7 @@ public class MembershipRequestWrapper implements MembershipRequest,
 	* @param replyDate the reply date of this membership request
 	*/
 	@Override
-	public void setReplyDate(java.util.Date replyDate) {
+	public void setReplyDate(Date replyDate) {
 		_membershipRequest.setReplyDate(replyDate);
 	}
 
@@ -496,7 +498,7 @@ public class MembershipRequestWrapper implements MembershipRequest,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.MembershipRequest> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.MembershipRequest> toCacheModel() {
 		return _membershipRequest.toCacheModel();
 	}
 
@@ -538,14 +540,6 @@ public class MembershipRequestWrapper implements MembershipRequest,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MembershipRequest getWrappedMembershipRequest() {
-		return _membershipRequest;
 	}
 
 	@Override

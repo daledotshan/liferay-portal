@@ -26,12 +26,12 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Group;
-import com.liferay.portlet.social.model.SocialActivityCounterDefinition;
-import com.liferay.portlet.social.model.SocialActivityDefinition;
-import com.liferay.portlet.social.model.SocialActivitySetting;
-import com.liferay.portlet.social.model.SocialActivitySettingConstants;
 import com.liferay.portlet.social.service.base.SocialActivitySettingLocalServiceBaseImpl;
-import com.liferay.portlet.social.util.SocialConfigurationUtil;
+import com.liferay.social.kernel.model.SocialActivityCounterDefinition;
+import com.liferay.social.kernel.model.SocialActivityDefinition;
+import com.liferay.social.kernel.model.SocialActivitySetting;
+import com.liferay.social.kernel.model.SocialActivitySettingConstants;
+import com.liferay.social.kernel.util.SocialConfigurationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -416,7 +416,7 @@ public class SocialActivitySettingLocalServiceImpl
 		SocialActivitySettingLocalServiceImpl.class);
 
 	private static final PortalCache<String, SocialActivityDefinition>
-		_activityDefinitions = MultiVMPoolUtil.getCache(
+		_activityDefinitions = MultiVMPoolUtil.getPortalCache(
 			SocialActivitySettingLocalServiceImpl.class.getName());
 
 }

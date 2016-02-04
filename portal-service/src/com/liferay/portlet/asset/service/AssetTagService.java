@@ -18,12 +18,20 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
+import com.liferay.portal.kernel.security.access.control.AccessControlled;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.security.ac.AccessControlled;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.service.BaseService;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.asset.model.AssetTag;
+import com.liferay.portlet.asset.model.AssetTagDisplay;
+
+import java.util.List;
 
 /**
  * Provides the remote service interface for AssetTag. Methods of this
@@ -47,80 +55,67 @@ public interface AssetTagService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link AssetTagServiceUtil} to access the asset tag remote service. Add custom service methods to {@link com.liferay.portlet.asset.service.impl.AssetTagServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
-	public com.liferay.portlet.asset.model.AssetTag addTag(
-		java.lang.String name,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetTag addTag(long groupId, java.lang.String name,
+		ServiceContext serviceContext) throws PortalException;
 
-	public void deleteTag(long tagId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public void deleteTag(long tagId) throws PortalException;
 
-	public void deleteTags(long[] tagIds)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	public void deleteTags(long[] tagIds) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getGroupTags(
-		long groupId);
+	public List<AssetTag> getGroupTags(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getGroupTags(
-		long groupId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetTag> obc);
+	public List<AssetTag> getGroupTags(long groupId, int start, int end,
+		OrderByComparator<AssetTag> obc);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getGroupTagsCount(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetTagDisplay getGroupTagsDisplay(
-		long groupId, java.lang.String name, int start, int end);
+	public AssetTagDisplay getGroupTagsDisplay(long groupId,
+		java.lang.String name, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getGroupsTags(
-		long[] groupIds);
+	public List<AssetTag> getGroupsTags(long[] groupIds);
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupTagsDisplay(long,
-	String, int, int)}
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
 	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.json.JSONObject getJSONGroupTags(
-		long groupId, java.lang.String name, int start, int end)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetTag getTag(long tagId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetTag getTag(long tagId) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
-		java.lang.String className, long classPK)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public List<AssetTag> getTags(java.lang.String className, long classPK);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
-		long groupId, long classNameId, java.lang.String name);
+	public List<AssetTag> getTags(long groupId, long classNameId,
+		java.lang.String name);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
-		long groupId, long classNameId, java.lang.String name, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetTag> obc);
+	public List<AssetTag> getTags(long groupId, long classNameId,
+		java.lang.String name, int start, int end,
+		OrderByComparator<AssetTag> obc);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
-		long groupId, java.lang.String name, int start, int end);
+	public List<AssetTag> getTags(long groupId, java.lang.String name,
+		int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
-		long[] groupIds, java.lang.String name, int start, int end);
+	public List<AssetTag> getTags(long groupId, java.lang.String name,
+		int start, int end, OrderByComparator<AssetTag> obc);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AssetTag> getTags(long[] groupIds, java.lang.String name,
+		int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<AssetTag> getTags(long[] groupIds, java.lang.String name,
+		int start, int end, OrderByComparator<AssetTag> obc);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getTagsCount(long groupId, java.lang.String name);
@@ -133,28 +128,19 @@ public interface AssetTagService extends BaseService {
 	public int getVisibleAssetsTagsCount(long groupId, java.lang.String name);
 
 	public void mergeTags(long fromTagId, long toTagId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	public void mergeTags(long[] fromTagIds, long toTagId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.json.JSONArray search(long groupId,
-		java.lang.String name, int start, int end);
+	public JSONArray search(long groupId, java.lang.String name, int start,
+		int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.json.JSONArray search(long[] groupIds,
-		java.lang.String name, int start, int end);
+	public JSONArray search(long[] groupIds, java.lang.String name, int start,
+		int end);
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
-
-	public com.liferay.portlet.asset.model.AssetTag updateTag(long tagId,
-		java.lang.String name,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetTag updateTag(long tagId, java.lang.String name,
+		ServiceContext serviceContext) throws PortalException;
 }

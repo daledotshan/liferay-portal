@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -213,12 +218,12 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 	* @return the create date of this account
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _account.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _account.getExpandoBridge();
 	}
 
@@ -268,7 +273,7 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 	* @return the modified date of this account
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _account.getModifiedDate();
 	}
 
@@ -313,7 +318,7 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _account.getPrimaryKeyObj();
 	}
 
@@ -443,25 +448,22 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 	* @param createDate the create date of this account
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_account.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_account.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_account.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_account.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -511,7 +513,7 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 	* @param modifiedDate the modified date of this account
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_account.setModifiedDate(modifiedDate);
 	}
 
@@ -561,7 +563,7 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_account.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -636,7 +638,7 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Account> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Account> toCacheModel() {
 		return _account.toCacheModel();
 	}
 
@@ -677,14 +679,6 @@ public class AccountWrapper implements Account, ModelWrapper<Account> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Account getWrappedAccount() {
-		return _account;
 	}
 
 	@Override

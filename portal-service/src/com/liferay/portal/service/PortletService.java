@@ -18,11 +18,13 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
+import com.liferay.portal.kernel.security.access.control.AccessControlled;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.security.ac.AccessControlled;
+import com.liferay.portal.model.Portlet;
 
 /**
  * Provides the remote service interface for Portlet. Methods of this
@@ -48,23 +50,15 @@ public interface PortletService extends BaseService {
 	 */
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public java.lang.String getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.json.JSONArray getWARPortlets();
+	public JSONArray getWARPortlets();
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
-
-	public com.liferay.portal.model.Portlet updatePortlet(long companyId,
-		java.lang.String portletId, java.lang.String roles, boolean active)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public Portlet updatePortlet(long companyId, java.lang.String portletId,
+		java.lang.String roles, boolean active) throws PortalException;
 }

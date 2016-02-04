@@ -14,12 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.display.context;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMFormValues;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 
 import java.io.IOException;
 
@@ -48,6 +48,11 @@ public class BaseDLViewFileVersionDisplayContext
 	}
 
 	@Override
+	public String getCssClassFileMimeType() {
+		return parentDisplayContext.getCssClassFileMimeType();
+	}
+
+	@Override
 	public DDMFormValues getDDMFormValues(DDMStructure ddmStructure)
 		throws PortalException {
 
@@ -57,6 +62,11 @@ public class BaseDLViewFileVersionDisplayContext
 	@Override
 	public List<DDMStructure> getDDMStructures() throws PortalException {
 		return parentDisplayContext.getDDMStructures();
+	}
+
+	@Override
+	public int getDDMStructuresCount() throws PortalException {
+		return parentDisplayContext.getDDMStructuresCount();
 	}
 
 	@Override

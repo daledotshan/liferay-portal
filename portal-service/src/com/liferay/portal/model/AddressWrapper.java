@@ -16,8 +16,13 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -290,12 +295,12 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @return the create date of this address
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _address.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _address.getExpandoBridge();
 	}
 
@@ -315,7 +320,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @return the modified date of this address
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _address.getModifiedDate();
 	}
 
@@ -350,7 +355,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _address.getPrimaryKeyObj();
 	}
 
@@ -585,25 +590,22 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @param createDate the create date of this address
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_address.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_address.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_address.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_address.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -623,7 +625,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @param modifiedDate the modified date of this address
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_address.setModifiedDate(modifiedDate);
 	}
 
@@ -663,7 +665,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_address.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -768,7 +770,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Address> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Address> toCacheModel() {
 		return _address.toCacheModel();
 	}
 
@@ -814,14 +816,6 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _address.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Address getWrappedAddress() {
-		return _address;
 	}
 
 	@Override

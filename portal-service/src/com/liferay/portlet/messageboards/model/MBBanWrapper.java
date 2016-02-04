@@ -16,9 +16,14 @@ package com.liferay.portlet.messageboards.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -62,6 +67,7 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("banUserId", getBanUserId());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -121,6 +127,12 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 		if (banUserId != null) {
 			setBanUserId(banUserId);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -179,12 +191,12 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	* @return the create date of this message boards ban
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _mbBan.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _mbBan.getExpandoBridge();
 	}
 
@@ -199,12 +211,22 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	/**
+	* Returns the last publish date of this message boards ban.
+	*
+	* @return the last publish date of this message boards ban
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _mbBan.getLastPublishDate();
+	}
+
+	/**
 	* Returns the modified date of this message boards ban.
 	*
 	* @return the modified date of this message boards ban
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _mbBan.getModifiedDate();
 	}
 
@@ -219,7 +241,7 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _mbBan.getPrimaryKeyObj();
 	}
 
@@ -339,7 +361,7 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	* @param createDate the create date of this message boards ban
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_mbBan.setCreateDate(createDate);
 	}
 
@@ -350,14 +372,12 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_mbBan.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_mbBan.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -372,12 +392,22 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	/**
+	* Sets the last publish date of this message boards ban.
+	*
+	* @param lastPublishDate the last publish date of this message boards ban
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_mbBan.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the modified date of this message boards ban.
 	*
 	* @param modifiedDate the modified date of this message boards ban
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_mbBan.setModifiedDate(modifiedDate);
 	}
 
@@ -397,7 +427,7 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_mbBan.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -488,14 +518,6 @@ public class MBBanWrapper implements MBBan, ModelWrapper<MBBan> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _mbBan.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MBBan getWrappedMBBan() {
-		return _mbBan;
 	}
 
 	@Override

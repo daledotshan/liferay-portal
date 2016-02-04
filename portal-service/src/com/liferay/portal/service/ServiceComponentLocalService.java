@@ -16,12 +16,25 @@ package com.liferay.portal.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.model.PersistedModel;
+import com.liferay.portal.model.ServiceComponent;
+import com.liferay.portal.service.configuration.ServiceComponentConfiguration;
+
+import java.io.Serializable;
+
+import java.util.List;
 
 /**
  * Provides the local service interface for ServiceComponent. Methods of this
@@ -52,9 +65,9 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param serviceComponent the service component
 	* @return the service component that was added
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portal.model.ServiceComponent addServiceComponent(
-		com.liferay.portal.model.ServiceComponent serviceComponent);
+	@Indexable(type = IndexableType.REINDEX)
+	public ServiceComponent addServiceComponent(
+		ServiceComponent serviceComponent);
 
 	/**
 	* Creates a new service component with the primary key. Does not add the service component to the database.
@@ -62,16 +75,14 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param serviceComponentId the primary key for the new service component
 	* @return the new service component
 	*/
-	public com.liferay.portal.model.ServiceComponent createServiceComponent(
-		long serviceComponentId);
+	public ServiceComponent createServiceComponent(long serviceComponentId);
 
 	/**
 	* @throws PortalException
 	*/
 	@Override
-	public com.liferay.portal.model.PersistedModel deletePersistedModel(
-		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException;
 
 	/**
 	* Deletes the service component from the database. Also notifies the appropriate model listeners.
@@ -79,9 +90,9 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param serviceComponent the service component
 	* @return the service component that was removed
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portal.model.ServiceComponent deleteServiceComponent(
-		com.liferay.portal.model.ServiceComponent serviceComponent);
+	@Indexable(type = IndexableType.DELETE)
+	public ServiceComponent deleteServiceComponent(
+		ServiceComponent serviceComponent);
 
 	/**
 	* Deletes the service component with the primary key from the database. Also notifies the appropriate model listeners.
@@ -90,16 +101,15 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @return the service component that was removed
 	* @throws PortalException if a service component with the primary key could not be found
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portal.model.ServiceComponent deleteServiceComponent(
-		long serviceComponentId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	@Indexable(type = IndexableType.DELETE)
+	public ServiceComponent deleteServiceComponent(long serviceComponentId)
+		throws PortalException;
 
 	public void destroyServiceComponent(
-		com.liferay.portal.service.configuration.ServiceComponentConfiguration serviceComponentConfiguration,
+		ServiceComponentConfiguration serviceComponentConfiguration,
 		java.lang.ClassLoader classLoader);
 
-	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
+	public DynamicQuery dynamicQuery();
 
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
@@ -107,8 +117,7 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery);
 
 	/**
 	* Performs a dynamic query on the database and returns a range of the matching rows.
@@ -122,8 +131,7 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param end the upper bound of the range of model instances (not inclusive)
 	* @return the range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
 		int end);
 
 	/**
@@ -139,10 +147,8 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -150,8 +156,7 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -160,29 +165,32 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param projection the projection to apply to the query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
-		com.liferay.portal.kernel.dao.orm.Projection projection);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.ServiceComponent fetchServiceComponent(
-		long serviceComponentId);
+	public ServiceComponent fetchServiceComponent(long serviceComponentId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
+	public ActionableDynamicQuery getActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<ServiceComponent> getLatestServiceComponents();
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public java.lang.String getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	* Returns the service component with the primary key.
@@ -192,9 +200,8 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @throws PortalException if a service component with the primary key could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.ServiceComponent getServiceComponent(
-		long serviceComponentId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public ServiceComponent getServiceComponent(long serviceComponentId)
+		throws PortalException;
 
 	/**
 	* Returns a range of all the service components.
@@ -208,8 +215,7 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @return the range of service components
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.ServiceComponent> getServiceComponents(
-		int start, int end);
+	public List<ServiceComponent> getServiceComponents(int start, int end);
 
 	/**
 	* Returns the number of service components.
@@ -219,18 +225,11 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getServiceComponentsCount();
 
-	public com.liferay.portal.model.ServiceComponent initServiceComponent(
-		com.liferay.portal.service.configuration.ServiceComponentConfiguration serviceComponentConfiguration,
+	public ServiceComponent initServiceComponent(
+		ServiceComponentConfiguration serviceComponentConfiguration,
 		java.lang.ClassLoader classLoader, java.lang.String buildNamespace,
 		long buildNumber, long buildDate, boolean buildAutoUpgrade)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+		throws PortalException;
 
 	/**
 	* Updates the service component in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -238,14 +237,13 @@ public interface ServiceComponentLocalService extends BaseLocalService,
 	* @param serviceComponent the service component
 	* @return the service component that was updated
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portal.model.ServiceComponent updateServiceComponent(
-		com.liferay.portal.model.ServiceComponent serviceComponent);
+	@Indexable(type = IndexableType.REINDEX)
+	public ServiceComponent updateServiceComponent(
+		ServiceComponent serviceComponent);
 
 	public void upgradeDB(java.lang.ClassLoader classLoader,
 		java.lang.String buildNamespace, long buildNumber,
-		boolean buildAutoUpgrade,
-		com.liferay.portal.model.ServiceComponent previousServiceComponent,
+		boolean buildAutoUpgrade, ServiceComponent previousServiceComponent,
 		java.lang.String tablesSQL, java.lang.String sequencesSQL,
 		java.lang.String indexesSQL) throws java.lang.Exception;
 

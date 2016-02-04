@@ -17,18 +17,19 @@ package com.liferay.portlet.social.service.base;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -46,16 +47,17 @@ import com.liferay.portal.util.PortalUtil;
 
 import com.liferay.portlet.asset.service.persistence.AssetEntryFinder;
 import com.liferay.portlet.asset.service.persistence.AssetEntryPersistence;
-import com.liferay.portlet.social.model.SocialActivity;
-import com.liferay.portlet.social.service.SocialActivityLocalService;
-import com.liferay.portlet.social.service.persistence.SocialActivityCounterFinder;
-import com.liferay.portlet.social.service.persistence.SocialActivityCounterPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivityFinder;
-import com.liferay.portlet.social.service.persistence.SocialActivityLimitPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivityPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivitySetFinder;
-import com.liferay.portlet.social.service.persistence.SocialActivitySetPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivitySettingPersistence;
+
+import com.liferay.social.kernel.model.SocialActivity;
+import com.liferay.social.kernel.service.SocialActivityLocalService;
+import com.liferay.social.kernel.service.persistence.SocialActivityCounterFinder;
+import com.liferay.social.kernel.service.persistence.SocialActivityCounterPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivityFinder;
+import com.liferay.social.kernel.service.persistence.SocialActivityLimitPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivitySetFinder;
+import com.liferay.social.kernel.service.persistence.SocialActivitySetPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivitySettingPersistence;
 
 import java.io.Serializable;
 
@@ -72,17 +74,17 @@ import javax.sql.DataSource;
  *
  * @author Brian Wing Shun Chan
  * @see com.liferay.portlet.social.service.impl.SocialActivityLocalServiceImpl
- * @see com.liferay.portlet.social.service.SocialActivityLocalServiceUtil
+ * @see com.liferay.social.kernel.service.SocialActivityLocalServiceUtil
  * @generated
  */
 @ProviderType
 public abstract class SocialActivityLocalServiceBaseImpl
 	extends BaseLocalServiceImpl implements SocialActivityLocalService,
-		IdentifiableBean {
+		IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this class directly. Always use {@link com.liferay.portlet.social.service.SocialActivityLocalServiceUtil} to access the social activity local service.
+	 * Never modify or reference this class directly. Always use {@link com.liferay.social.kernel.service.SocialActivityLocalServiceUtil} to access the social activity local service.
 	 */
 
 	/**
@@ -241,20 +243,33 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	public ActionableDynamicQuery getActionableDynamicQuery() {
 		ActionableDynamicQuery actionableDynamicQuery = new DefaultActionableDynamicQuery();
 
-		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.social.service.SocialActivityLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(SocialActivity.class);
+		actionableDynamicQuery.setBaseLocalService(com.liferay.social.kernel.service.SocialActivityLocalServiceUtil.getService());
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(SocialActivity.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("activityId");
 
 		return actionableDynamicQuery;
 	}
 
+	@Override
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		IndexableActionableDynamicQuery indexableActionableDynamicQuery = new IndexableActionableDynamicQuery();
+
+		indexableActionableDynamicQuery.setBaseLocalService(com.liferay.social.kernel.service.SocialActivityLocalServiceUtil.getService());
+		indexableActionableDynamicQuery.setClassLoader(getClassLoader());
+		indexableActionableDynamicQuery.setModelClass(SocialActivity.class);
+
+		indexableActionableDynamicQuery.setPrimaryKeyPropertyName("activityId");
+
+		return indexableActionableDynamicQuery;
+	}
+
 	protected void initActionableDynamicQuery(
 		ActionableDynamicQuery actionableDynamicQuery) {
-		actionableDynamicQuery.setBaseLocalService(com.liferay.portlet.social.service.SocialActivityLocalServiceUtil.getService());
-		actionableDynamicQuery.setClass(SocialActivity.class);
+		actionableDynamicQuery.setBaseLocalService(com.liferay.social.kernel.service.SocialActivityLocalServiceUtil.getService());
 		actionableDynamicQuery.setClassLoader(getClassLoader());
+		actionableDynamicQuery.setModelClass(SocialActivity.class);
 
 		actionableDynamicQuery.setPrimaryKeyPropertyName("activityId");
 	}
@@ -317,7 +332,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 *
 	 * @return the social activity local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivityLocalService getSocialActivityLocalService() {
+	public SocialActivityLocalService getSocialActivityLocalService() {
 		return socialActivityLocalService;
 	}
 
@@ -327,27 +342,8 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 * @param socialActivityLocalService the social activity local service
 	 */
 	public void setSocialActivityLocalService(
-		com.liferay.portlet.social.service.SocialActivityLocalService socialActivityLocalService) {
+		SocialActivityLocalService socialActivityLocalService) {
 		this.socialActivityLocalService = socialActivityLocalService;
-	}
-
-	/**
-	 * Returns the social activity remote service.
-	 *
-	 * @return the social activity remote service
-	 */
-	public com.liferay.portlet.social.service.SocialActivityService getSocialActivityService() {
-		return socialActivityService;
-	}
-
-	/**
-	 * Sets the social activity remote service.
-	 *
-	 * @param socialActivityService the social activity remote service
-	 */
-	public void setSocialActivityService(
-		com.liferay.portlet.social.service.SocialActivityService socialActivityService) {
-		this.socialActivityService = socialActivityService;
 	}
 
 	/**
@@ -427,25 +423,6 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the class name remote service.
-	 *
-	 * @return the class name remote service
-	 */
-	public com.liferay.portal.service.ClassNameService getClassNameService() {
-		return classNameService;
-	}
-
-	/**
-	 * Sets the class name remote service.
-	 *
-	 * @param classNameService the class name remote service
-	 */
-	public void setClassNameService(
-		com.liferay.portal.service.ClassNameService classNameService) {
-		this.classNameService = classNameService;
-	}
-
-	/**
 	 * Returns the class name persistence.
 	 *
 	 * @return the class name persistence
@@ -481,25 +458,6 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	public void setGroupLocalService(
 		com.liferay.portal.service.GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
-	}
-
-	/**
-	 * Returns the group remote service.
-	 *
-	 * @return the group remote service
-	 */
-	public com.liferay.portal.service.GroupService getGroupService() {
-		return groupService;
-	}
-
-	/**
-	 * Sets the group remote service.
-	 *
-	 * @param groupService the group remote service
-	 */
-	public void setGroupService(
-		com.liferay.portal.service.GroupService groupService) {
-		this.groupService = groupService;
 	}
 
 	/**
@@ -558,25 +516,6 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the layout remote service.
-	 *
-	 * @return the layout remote service
-	 */
-	public com.liferay.portal.service.LayoutService getLayoutService() {
-		return layoutService;
-	}
-
-	/**
-	 * Sets the layout remote service.
-	 *
-	 * @param layoutService the layout remote service
-	 */
-	public void setLayoutService(
-		com.liferay.portal.service.LayoutService layoutService) {
-		this.layoutService = layoutService;
-	}
-
-	/**
 	 * Returns the layout persistence.
 	 *
 	 * @return the layout persistence
@@ -629,25 +568,6 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	public void setUserLocalService(
 		com.liferay.portal.service.UserLocalService userLocalService) {
 		this.userLocalService = userLocalService;
-	}
-
-	/**
-	 * Returns the user remote service.
-	 *
-	 * @return the user remote service
-	 */
-	public com.liferay.portal.service.UserService getUserService() {
-		return userService;
-	}
-
-	/**
-	 * Sets the user remote service.
-	 *
-	 * @param userService the user remote service
-	 */
-	public void setUserService(
-		com.liferay.portal.service.UserService userService) {
-		this.userService = userService;
 	}
 
 	/**
@@ -706,25 +626,6 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	}
 
 	/**
-	 * Returns the asset entry remote service.
-	 *
-	 * @return the asset entry remote service
-	 */
-	public com.liferay.portlet.asset.service.AssetEntryService getAssetEntryService() {
-		return assetEntryService;
-	}
-
-	/**
-	 * Sets the asset entry remote service.
-	 *
-	 * @param assetEntryService the asset entry remote service
-	 */
-	public void setAssetEntryService(
-		com.liferay.portlet.asset.service.AssetEntryService assetEntryService) {
-		this.assetEntryService = assetEntryService;
-	}
-
-	/**
 	 * Returns the asset entry persistence.
 	 *
 	 * @return the asset entry persistence
@@ -766,7 +667,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 *
 	 * @return the social activity counter local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivityCounterLocalService getSocialActivityCounterLocalService() {
+	public com.liferay.social.kernel.service.SocialActivityCounterLocalService getSocialActivityCounterLocalService() {
 		return socialActivityCounterLocalService;
 	}
 
@@ -776,7 +677,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 * @param socialActivityCounterLocalService the social activity counter local service
 	 */
 	public void setSocialActivityCounterLocalService(
-		com.liferay.portlet.social.service.SocialActivityCounterLocalService socialActivityCounterLocalService) {
+		com.liferay.social.kernel.service.SocialActivityCounterLocalService socialActivityCounterLocalService) {
 		this.socialActivityCounterLocalService = socialActivityCounterLocalService;
 	}
 
@@ -823,7 +724,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 *
 	 * @return the social activity interpreter local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivityInterpreterLocalService getSocialActivityInterpreterLocalService() {
+	public com.liferay.social.kernel.service.SocialActivityInterpreterLocalService getSocialActivityInterpreterLocalService() {
 		return socialActivityInterpreterLocalService;
 	}
 
@@ -833,7 +734,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 * @param socialActivityInterpreterLocalService the social activity interpreter local service
 	 */
 	public void setSocialActivityInterpreterLocalService(
-		com.liferay.portlet.social.service.SocialActivityInterpreterLocalService socialActivityInterpreterLocalService) {
+		com.liferay.social.kernel.service.SocialActivityInterpreterLocalService socialActivityInterpreterLocalService) {
 		this.socialActivityInterpreterLocalService = socialActivityInterpreterLocalService;
 	}
 
@@ -842,7 +743,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 *
 	 * @return the social activity limit local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivityLimitLocalService getSocialActivityLimitLocalService() {
+	public com.liferay.social.kernel.service.SocialActivityLimitLocalService getSocialActivityLimitLocalService() {
 		return socialActivityLimitLocalService;
 	}
 
@@ -852,7 +753,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 * @param socialActivityLimitLocalService the social activity limit local service
 	 */
 	public void setSocialActivityLimitLocalService(
-		com.liferay.portlet.social.service.SocialActivityLimitLocalService socialActivityLimitLocalService) {
+		com.liferay.social.kernel.service.SocialActivityLimitLocalService socialActivityLimitLocalService) {
 		this.socialActivityLimitLocalService = socialActivityLimitLocalService;
 	}
 
@@ -880,7 +781,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 *
 	 * @return the social activity set local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivitySetLocalService getSocialActivitySetLocalService() {
+	public com.liferay.social.kernel.service.SocialActivitySetLocalService getSocialActivitySetLocalService() {
 		return socialActivitySetLocalService;
 	}
 
@@ -890,7 +791,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 * @param socialActivitySetLocalService the social activity set local service
 	 */
 	public void setSocialActivitySetLocalService(
-		com.liferay.portlet.social.service.SocialActivitySetLocalService socialActivitySetLocalService) {
+		com.liferay.social.kernel.service.SocialActivitySetLocalService socialActivitySetLocalService) {
 		this.socialActivitySetLocalService = socialActivitySetLocalService;
 	}
 
@@ -937,7 +838,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 *
 	 * @return the social activity setting local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivitySettingLocalService getSocialActivitySettingLocalService() {
+	public com.liferay.social.kernel.service.SocialActivitySettingLocalService getSocialActivitySettingLocalService() {
 		return socialActivitySettingLocalService;
 	}
 
@@ -947,27 +848,8 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	 * @param socialActivitySettingLocalService the social activity setting local service
 	 */
 	public void setSocialActivitySettingLocalService(
-		com.liferay.portlet.social.service.SocialActivitySettingLocalService socialActivitySettingLocalService) {
+		com.liferay.social.kernel.service.SocialActivitySettingLocalService socialActivitySettingLocalService) {
 		this.socialActivitySettingLocalService = socialActivitySettingLocalService;
-	}
-
-	/**
-	 * Returns the social activity setting remote service.
-	 *
-	 * @return the social activity setting remote service
-	 */
-	public com.liferay.portlet.social.service.SocialActivitySettingService getSocialActivitySettingService() {
-		return socialActivitySettingService;
-	}
-
-	/**
-	 * Sets the social activity setting remote service.
-	 *
-	 * @param socialActivitySettingService the social activity setting remote service
-	 */
-	public void setSocialActivitySettingService(
-		com.liferay.portlet.social.service.SocialActivitySettingService socialActivitySettingService) {
-		this.socialActivitySettingService = socialActivitySettingService;
 	}
 
 	/**
@@ -990,33 +872,23 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	}
 
 	public void afterPropertiesSet() {
-		persistedModelLocalServiceRegistry.register("com.liferay.portlet.social.model.SocialActivity",
+		persistedModelLocalServiceRegistry.register("com.liferay.social.kernel.model.SocialActivity",
 			socialActivityLocalService);
 	}
 
 	public void destroy() {
 		persistedModelLocalServiceRegistry.unregister(
-			"com.liferay.portlet.social.model.SocialActivity");
+			"com.liferay.social.kernel.model.SocialActivity");
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return SocialActivityLocalService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -1036,7 +908,7 @@ public abstract class SocialActivityLocalServiceBaseImpl
 		try {
 			DataSource dataSource = socialActivityPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -1051,10 +923,8 @@ public abstract class SocialActivityLocalServiceBaseImpl
 		}
 	}
 
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivityLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivityLocalService socialActivityLocalService;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivityService.class)
-	protected com.liferay.portlet.social.service.SocialActivityService socialActivityService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivityLocalService.class)
+	protected SocialActivityLocalService socialActivityLocalService;
 	@BeanReference(type = SocialActivityPersistence.class)
 	protected SocialActivityPersistence socialActivityPersistence;
 	@BeanReference(type = SocialActivityFinder.class)
@@ -1063,67 +933,54 @@ public abstract class SocialActivityLocalServiceBaseImpl
 	protected com.liferay.counter.service.CounterLocalService counterLocalService;
 	@BeanReference(type = com.liferay.portal.service.ClassNameLocalService.class)
 	protected com.liferay.portal.service.ClassNameLocalService classNameLocalService;
-	@BeanReference(type = com.liferay.portal.service.ClassNameService.class)
-	protected com.liferay.portal.service.ClassNameService classNameService;
 	@BeanReference(type = ClassNamePersistence.class)
 	protected ClassNamePersistence classNamePersistence;
 	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
 	protected com.liferay.portal.service.GroupLocalService groupLocalService;
-	@BeanReference(type = com.liferay.portal.service.GroupService.class)
-	protected com.liferay.portal.service.GroupService groupService;
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
 	@BeanReference(type = GroupFinder.class)
 	protected GroupFinder groupFinder;
 	@BeanReference(type = com.liferay.portal.service.LayoutLocalService.class)
 	protected com.liferay.portal.service.LayoutLocalService layoutLocalService;
-	@BeanReference(type = com.liferay.portal.service.LayoutService.class)
-	protected com.liferay.portal.service.LayoutService layoutService;
 	@BeanReference(type = LayoutPersistence.class)
 	protected LayoutPersistence layoutPersistence;
 	@BeanReference(type = LayoutFinder.class)
 	protected LayoutFinder layoutFinder;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)
 	protected com.liferay.portal.service.UserLocalService userLocalService;
-	@BeanReference(type = com.liferay.portal.service.UserService.class)
-	protected com.liferay.portal.service.UserService userService;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)
 	protected UserFinder userFinder;
 	@BeanReference(type = com.liferay.portlet.asset.service.AssetEntryLocalService.class)
 	protected com.liferay.portlet.asset.service.AssetEntryLocalService assetEntryLocalService;
-	@BeanReference(type = com.liferay.portlet.asset.service.AssetEntryService.class)
-	protected com.liferay.portlet.asset.service.AssetEntryService assetEntryService;
 	@BeanReference(type = AssetEntryPersistence.class)
 	protected AssetEntryPersistence assetEntryPersistence;
 	@BeanReference(type = AssetEntryFinder.class)
 	protected AssetEntryFinder assetEntryFinder;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivityCounterLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivityCounterLocalService socialActivityCounterLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivityCounterLocalService.class)
+	protected com.liferay.social.kernel.service.SocialActivityCounterLocalService socialActivityCounterLocalService;
 	@BeanReference(type = SocialActivityCounterPersistence.class)
 	protected SocialActivityCounterPersistence socialActivityCounterPersistence;
 	@BeanReference(type = SocialActivityCounterFinder.class)
 	protected SocialActivityCounterFinder socialActivityCounterFinder;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivityInterpreterLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivityInterpreterLocalService socialActivityInterpreterLocalService;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivityLimitLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivityLimitLocalService socialActivityLimitLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivityInterpreterLocalService.class)
+	protected com.liferay.social.kernel.service.SocialActivityInterpreterLocalService socialActivityInterpreterLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivityLimitLocalService.class)
+	protected com.liferay.social.kernel.service.SocialActivityLimitLocalService socialActivityLimitLocalService;
 	@BeanReference(type = SocialActivityLimitPersistence.class)
 	protected SocialActivityLimitPersistence socialActivityLimitPersistence;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivitySetLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivitySetLocalService socialActivitySetLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivitySetLocalService.class)
+	protected com.liferay.social.kernel.service.SocialActivitySetLocalService socialActivitySetLocalService;
 	@BeanReference(type = SocialActivitySetPersistence.class)
 	protected SocialActivitySetPersistence socialActivitySetPersistence;
 	@BeanReference(type = SocialActivitySetFinder.class)
 	protected SocialActivitySetFinder socialActivitySetFinder;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivitySettingLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivitySettingLocalService socialActivitySettingLocalService;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivitySettingService.class)
-	protected com.liferay.portlet.social.service.SocialActivitySettingService socialActivitySettingService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivitySettingLocalService.class)
+	protected com.liferay.social.kernel.service.SocialActivitySettingLocalService socialActivitySettingLocalService;
 	@BeanReference(type = SocialActivitySettingPersistence.class)
 	protected SocialActivitySettingPersistence socialActivitySettingPersistence;
 	@BeanReference(type = PersistedModelLocalServiceRegistry.class)
 	protected PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry;
-	private String _beanIdentifier;
 }

@@ -18,6 +18,11 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -55,6 +60,7 @@ public class MBStatsUserWrapper implements MBStatsUser,
 
 		attributes.put("statsUserId", getStatsUserId());
 		attributes.put("groupId", getGroupId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
 		attributes.put("messageCount", getMessageCount());
 		attributes.put("lastPostDate", getLastPostDate());
@@ -74,6 +80,12 @@ public class MBStatsUserWrapper implements MBStatsUser,
 
 		if (groupId != null) {
 			setGroupId(groupId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long userId = (Long)attributes.get("userId");
@@ -106,8 +118,18 @@ public class MBStatsUserWrapper implements MBStatsUser,
 		return _mbStatsUser.compareTo(mbStatsUser);
 	}
 
+	/**
+	* Returns the company ID of this message boards stats user.
+	*
+	* @return the company ID of this message boards stats user
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _mbStatsUser.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _mbStatsUser.getExpandoBridge();
 	}
 
@@ -127,7 +149,7 @@ public class MBStatsUserWrapper implements MBStatsUser,
 	* @return the last post date of this message boards stats user
 	*/
 	@Override
-	public java.util.Date getLastPostDate() {
+	public Date getLastPostDate() {
 		return _mbStatsUser.getLastPostDate();
 	}
 
@@ -152,7 +174,7 @@ public class MBStatsUserWrapper implements MBStatsUser,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _mbStatsUser.getPrimaryKeyObj();
 	}
 
@@ -226,6 +248,16 @@ public class MBStatsUserWrapper implements MBStatsUser,
 		_mbStatsUser.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this message boards stats user.
+	*
+	* @param companyId the company ID of this message boards stats user
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_mbStatsUser.setCompanyId(companyId);
+	}
+
 	@Override
 	public void setExpandoBridgeAttributes(
 		com.liferay.portal.model.BaseModel<?> baseModel) {
@@ -233,14 +265,12 @@ public class MBStatsUserWrapper implements MBStatsUser,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_mbStatsUser.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_mbStatsUser.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -260,7 +290,7 @@ public class MBStatsUserWrapper implements MBStatsUser,
 	* @param lastPostDate the last post date of this message boards stats user
 	*/
 	@Override
-	public void setLastPostDate(java.util.Date lastPostDate) {
+	public void setLastPostDate(Date lastPostDate) {
 		_mbStatsUser.setLastPostDate(lastPostDate);
 	}
 
@@ -290,7 +320,7 @@ public class MBStatsUserWrapper implements MBStatsUser,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_mbStatsUser.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -376,14 +406,6 @@ public class MBStatsUserWrapper implements MBStatsUser,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MBStatsUser getWrappedMBStatsUser() {
-		return _mbStatsUser;
 	}
 
 	@Override

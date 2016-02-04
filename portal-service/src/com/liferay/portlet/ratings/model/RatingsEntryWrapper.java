@@ -16,9 +16,14 @@ package com.liferay.portlet.ratings.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -188,7 +193,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @return the create date of this ratings entry
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _ratingsEntry.getCreateDate();
 	}
 
@@ -203,7 +208,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _ratingsEntry.getExpandoBridge();
 	}
 
@@ -213,7 +218,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @return the modified date of this ratings entry
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _ratingsEntry.getModifiedDate();
 	}
 
@@ -228,7 +233,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _ratingsEntry.getPrimaryKeyObj();
 	}
 
@@ -353,7 +358,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @param createDate the create date of this ratings entry
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_ratingsEntry.setCreateDate(createDate);
 	}
 
@@ -374,14 +379,12 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_ratingsEntry.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_ratingsEntry.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -391,7 +394,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	* @param modifiedDate the modified date of this ratings entry
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_ratingsEntry.setModifiedDate(modifiedDate);
 	}
 
@@ -411,7 +414,7 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_ratingsEntry.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -512,14 +515,6 @@ public class RatingsEntryWrapper implements RatingsEntry,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _ratingsEntry.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public RatingsEntry getWrappedRatingsEntry() {
-		return _ratingsEntry;
 	}
 
 	@Override

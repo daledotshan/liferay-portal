@@ -16,9 +16,14 @@ package com.liferay.portlet.messageboards.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -65,6 +70,7 @@ public class MBDiscussionWrapper implements MBDiscussion,
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
 		attributes.put("threadId", getThreadId());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -136,6 +142,12 @@ public class MBDiscussionWrapper implements MBDiscussion,
 		if (threadId != null) {
 			setThreadId(threadId);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -195,7 +207,7 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	* @return the create date of this message boards discussion
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _mbDiscussion.getCreateDate();
 	}
 
@@ -210,7 +222,7 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _mbDiscussion.getExpandoBridge();
 	}
 
@@ -225,12 +237,22 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	}
 
 	/**
+	* Returns the last publish date of this message boards discussion.
+	*
+	* @return the last publish date of this message boards discussion
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _mbDiscussion.getLastPublishDate();
+	}
+
+	/**
 	* Returns the modified date of this message boards discussion.
 	*
 	* @return the modified date of this message boards discussion
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _mbDiscussion.getModifiedDate();
 	}
 
@@ -245,7 +267,7 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _mbDiscussion.getPrimaryKeyObj();
 	}
 
@@ -370,7 +392,7 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	* @param createDate the create date of this message boards discussion
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_mbDiscussion.setCreateDate(createDate);
 	}
 
@@ -391,14 +413,12 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_mbDiscussion.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_mbDiscussion.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -413,12 +433,22 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	}
 
 	/**
+	* Sets the last publish date of this message boards discussion.
+	*
+	* @param lastPublishDate the last publish date of this message boards discussion
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_mbDiscussion.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the modified date of this message boards discussion.
 	*
 	* @param modifiedDate the modified date of this message boards discussion
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_mbDiscussion.setModifiedDate(modifiedDate);
 	}
 
@@ -438,7 +468,7 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_mbDiscussion.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -539,14 +569,6 @@ public class MBDiscussionWrapper implements MBDiscussion,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _mbDiscussion.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MBDiscussion getWrappedMBDiscussion() {
-		return _mbDiscussion;
 	}
 
 	@Override

@@ -14,8 +14,13 @@
 
 package com.liferay.portal.security.permission;
 
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
@@ -31,7 +36,6 @@ import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,17 +46,41 @@ import org.junit.Test;
 /**
  * @author Roberto Díaz
  */
+@Sync
 public class PermissionCheckerTest {
 
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+			new LiferayIntegrationTestRule(),
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup();
+	}
+
+	@Test
+	public void testHasPermission() throws Exception {
+		_user = UserTestUtil.addUser();
+
+		PermissionChecker permissionChecker = _getPermissionChecker(_user);
+
+		String withExceptionPortletId =
+			"com_liferay_blogs_web_portlet_BlogsAdminPortlet";
+		String withExceptionActionId = "ADD_TO_PAGE";
+		String withoutExceptionPortletId = "11";
+		String withoutExceptionActionId = "VIEW";
+
+		Assert.assertFalse(
+			permissionChecker.hasPermission(
+				_group.getGroupId(), withExceptionPortletId,
+				_group.getGroupId(), withExceptionActionId));
+		Assert.assertFalse(
+			permissionChecker.hasPermission(
+				_group.getGroupId(), withoutExceptionPortletId,
+				_group.getGroupId(), withoutExceptionActionId));
 	}
 
 	@Test
@@ -211,13 +239,19 @@ public class PermissionCheckerTest {
 
 	@Test
 	public void testIsOmniAdminWithCompanyAdmin() throws Exception {
-		Company company = CompanyTestUtil.addCompany();
+		long companyId = CompanyThreadLocal.getCompanyId();
 
-		User adminUser = UserTestUtil.addCompanyAdminUser(company);
+		_company = CompanyTestUtil.addCompany();
 
-		PermissionChecker permissionChecker = _getPermissionChecker(adminUser);
+		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
+
+		_user = UserTestUtil.addCompanyAdminUser(_company);
+
+		PermissionChecker permissionChecker = _getPermissionChecker(_user);
 
 		Assert.assertFalse(permissionChecker.isOmniadmin());
+
+		CompanyThreadLocal.setCompanyId(companyId);
 	}
 
 	@Test
@@ -349,6 +383,9 @@ public class PermissionCheckerTest {
 
 		return PermissionCheckerFactoryUtil.create(user);
 	}
+
+	@DeleteAfterTestRun
+	private Company _company;
 
 	@DeleteAfterTestRun
 	private Group _group;

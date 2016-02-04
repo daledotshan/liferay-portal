@@ -15,20 +15,18 @@
 package com.liferay.portal.service.base;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.BaseServiceImpl;
 import com.liferay.portal.service.GroupService;
 import com.liferay.portal.service.persistence.AccountPersistence;
-import com.liferay.portal.service.persistence.BackgroundTaskPersistence;
 import com.liferay.portal.service.persistence.ClassNamePersistence;
 import com.liferay.portal.service.persistence.CompanyPersistence;
-import com.liferay.portal.service.persistence.ExportImportConfigurationPersistence;
 import com.liferay.portal.service.persistence.GroupFinder;
 import com.liferay.portal.service.persistence.GroupPersistence;
 import com.liferay.portal.service.persistence.LayoutFinder;
@@ -75,18 +73,15 @@ import com.liferay.portlet.asset.service.persistence.AssetTagPersistence;
 import com.liferay.portlet.asset.service.persistence.AssetVocabularyFinder;
 import com.liferay.portlet.asset.service.persistence.AssetVocabularyPersistence;
 import com.liferay.portlet.expando.service.persistence.ExpandoRowPersistence;
-import com.liferay.portlet.shopping.service.persistence.ShoppingCartPersistence;
-import com.liferay.portlet.shopping.service.persistence.ShoppingCategoryPersistence;
-import com.liferay.portlet.shopping.service.persistence.ShoppingCouponFinder;
-import com.liferay.portlet.shopping.service.persistence.ShoppingCouponPersistence;
-import com.liferay.portlet.shopping.service.persistence.ShoppingOrderFinder;
-import com.liferay.portlet.shopping.service.persistence.ShoppingOrderPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivityFinder;
-import com.liferay.portlet.social.service.persistence.SocialActivityPersistence;
-import com.liferay.portlet.social.service.persistence.SocialActivitySettingPersistence;
-import com.liferay.portlet.social.service.persistence.SocialRequestPersistence;
-import com.liferay.portlet.softwarecatalog.service.persistence.SCFrameworkVersionPersistence;
-import com.liferay.portlet.softwarecatalog.service.persistence.SCProductEntryPersistence;
+import com.liferay.portlet.exportimport.service.persistence.ExportImportConfigurationFinder;
+import com.liferay.portlet.exportimport.service.persistence.ExportImportConfigurationPersistence;
+
+import com.liferay.social.kernel.service.persistence.SocialActivityFinder;
+import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
+import com.liferay.social.kernel.service.persistence.SocialActivitySettingPersistence;
+import com.liferay.social.kernel.service.persistence.SocialRequestPersistence;
+
+import com.liferay.trash.kernel.service.persistence.TrashEntryPersistence;
 
 import javax.sql.DataSource;
 
@@ -103,7 +98,7 @@ import javax.sql.DataSource;
  * @generated
  */
 public abstract class GroupServiceBaseImpl extends BaseServiceImpl
-	implements GroupService, IdentifiableBean {
+	implements GroupService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -134,7 +129,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the group remote service
 	 */
-	public com.liferay.portal.service.GroupService getGroupService() {
+	public GroupService getGroupService() {
 		return groupService;
 	}
 
@@ -143,8 +138,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @param groupService the group remote service
 	 */
-	public void setGroupService(
-		com.liferay.portal.service.GroupService groupService) {
+	public void setGroupService(GroupService groupService) {
 		this.groupService = groupService;
 	}
 
@@ -260,63 +254,6 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the background task local service.
-	 *
-	 * @return the background task local service
-	 */
-	public com.liferay.portal.service.BackgroundTaskLocalService getBackgroundTaskLocalService() {
-		return backgroundTaskLocalService;
-	}
-
-	/**
-	 * Sets the background task local service.
-	 *
-	 * @param backgroundTaskLocalService the background task local service
-	 */
-	public void setBackgroundTaskLocalService(
-		com.liferay.portal.service.BackgroundTaskLocalService backgroundTaskLocalService) {
-		this.backgroundTaskLocalService = backgroundTaskLocalService;
-	}
-
-	/**
-	 * Returns the background task remote service.
-	 *
-	 * @return the background task remote service
-	 */
-	public com.liferay.portal.service.BackgroundTaskService getBackgroundTaskService() {
-		return backgroundTaskService;
-	}
-
-	/**
-	 * Sets the background task remote service.
-	 *
-	 * @param backgroundTaskService the background task remote service
-	 */
-	public void setBackgroundTaskService(
-		com.liferay.portal.service.BackgroundTaskService backgroundTaskService) {
-		this.backgroundTaskService = backgroundTaskService;
-	}
-
-	/**
-	 * Returns the background task persistence.
-	 *
-	 * @return the background task persistence
-	 */
-	public BackgroundTaskPersistence getBackgroundTaskPersistence() {
-		return backgroundTaskPersistence;
-	}
-
-	/**
-	 * Sets the background task persistence.
-	 *
-	 * @param backgroundTaskPersistence the background task persistence
-	 */
-	public void setBackgroundTaskPersistence(
-		BackgroundTaskPersistence backgroundTaskPersistence) {
-		this.backgroundTaskPersistence = backgroundTaskPersistence;
-	}
-
-	/**
 	 * Returns the class name local service.
 	 *
 	 * @return the class name local service
@@ -427,63 +364,6 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 */
 	public void setCompanyPersistence(CompanyPersistence companyPersistence) {
 		this.companyPersistence = companyPersistence;
-	}
-
-	/**
-	 * Returns the export import configuration local service.
-	 *
-	 * @return the export import configuration local service
-	 */
-	public com.liferay.portal.service.ExportImportConfigurationLocalService getExportImportConfigurationLocalService() {
-		return exportImportConfigurationLocalService;
-	}
-
-	/**
-	 * Sets the export import configuration local service.
-	 *
-	 * @param exportImportConfigurationLocalService the export import configuration local service
-	 */
-	public void setExportImportConfigurationLocalService(
-		com.liferay.portal.service.ExportImportConfigurationLocalService exportImportConfigurationLocalService) {
-		this.exportImportConfigurationLocalService = exportImportConfigurationLocalService;
-	}
-
-	/**
-	 * Returns the export import configuration remote service.
-	 *
-	 * @return the export import configuration remote service
-	 */
-	public com.liferay.portal.service.ExportImportConfigurationService getExportImportConfigurationService() {
-		return exportImportConfigurationService;
-	}
-
-	/**
-	 * Sets the export import configuration remote service.
-	 *
-	 * @param exportImportConfigurationService the export import configuration remote service
-	 */
-	public void setExportImportConfigurationService(
-		com.liferay.portal.service.ExportImportConfigurationService exportImportConfigurationService) {
-		this.exportImportConfigurationService = exportImportConfigurationService;
-	}
-
-	/**
-	 * Returns the export import configuration persistence.
-	 *
-	 * @return the export import configuration persistence
-	 */
-	public ExportImportConfigurationPersistence getExportImportConfigurationPersistence() {
-		return exportImportConfigurationPersistence;
-	}
-
-	/**
-	 * Sets the export import configuration persistence.
-	 *
-	 * @param exportImportConfigurationPersistence the export import configuration persistence
-	 */
-	public void setExportImportConfigurationPersistence(
-		ExportImportConfigurationPersistence exportImportConfigurationPersistence) {
-		this.exportImportConfigurationPersistence = exportImportConfigurationPersistence;
 	}
 
 	/**
@@ -863,249 +743,155 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the shopping cart local service.
+	 * Returns the export import local service.
 	 *
-	 * @return the shopping cart local service
+	 * @return the export import local service
 	 */
-	public com.liferay.portlet.shopping.service.ShoppingCartLocalService getShoppingCartLocalService() {
-		return shoppingCartLocalService;
+	public com.liferay.portlet.exportimport.service.ExportImportLocalService getExportImportLocalService() {
+		return exportImportLocalService;
 	}
 
 	/**
-	 * Sets the shopping cart local service.
+	 * Sets the export import local service.
 	 *
-	 * @param shoppingCartLocalService the shopping cart local service
+	 * @param exportImportLocalService the export import local service
 	 */
-	public void setShoppingCartLocalService(
-		com.liferay.portlet.shopping.service.ShoppingCartLocalService shoppingCartLocalService) {
-		this.shoppingCartLocalService = shoppingCartLocalService;
+	public void setExportImportLocalService(
+		com.liferay.portlet.exportimport.service.ExportImportLocalService exportImportLocalService) {
+		this.exportImportLocalService = exportImportLocalService;
 	}
 
 	/**
-	 * Returns the shopping cart persistence.
+	 * Returns the export import remote service.
 	 *
-	 * @return the shopping cart persistence
+	 * @return the export import remote service
 	 */
-	public ShoppingCartPersistence getShoppingCartPersistence() {
-		return shoppingCartPersistence;
+	public com.liferay.portlet.exportimport.service.ExportImportService getExportImportService() {
+		return exportImportService;
 	}
 
 	/**
-	 * Sets the shopping cart persistence.
+	 * Sets the export import remote service.
 	 *
-	 * @param shoppingCartPersistence the shopping cart persistence
+	 * @param exportImportService the export import remote service
 	 */
-	public void setShoppingCartPersistence(
-		ShoppingCartPersistence shoppingCartPersistence) {
-		this.shoppingCartPersistence = shoppingCartPersistence;
+	public void setExportImportService(
+		com.liferay.portlet.exportimport.service.ExportImportService exportImportService) {
+		this.exportImportService = exportImportService;
 	}
 
 	/**
-	 * Returns the shopping category local service.
+	 * Returns the export import configuration local service.
 	 *
-	 * @return the shopping category local service
+	 * @return the export import configuration local service
 	 */
-	public com.liferay.portlet.shopping.service.ShoppingCategoryLocalService getShoppingCategoryLocalService() {
-		return shoppingCategoryLocalService;
+	public com.liferay.portlet.exportimport.service.ExportImportConfigurationLocalService getExportImportConfigurationLocalService() {
+		return exportImportConfigurationLocalService;
 	}
 
 	/**
-	 * Sets the shopping category local service.
+	 * Sets the export import configuration local service.
 	 *
-	 * @param shoppingCategoryLocalService the shopping category local service
+	 * @param exportImportConfigurationLocalService the export import configuration local service
 	 */
-	public void setShoppingCategoryLocalService(
-		com.liferay.portlet.shopping.service.ShoppingCategoryLocalService shoppingCategoryLocalService) {
-		this.shoppingCategoryLocalService = shoppingCategoryLocalService;
+	public void setExportImportConfigurationLocalService(
+		com.liferay.portlet.exportimport.service.ExportImportConfigurationLocalService exportImportConfigurationLocalService) {
+		this.exportImportConfigurationLocalService = exportImportConfigurationLocalService;
 	}
 
 	/**
-	 * Returns the shopping category remote service.
+	 * Returns the export import configuration remote service.
 	 *
-	 * @return the shopping category remote service
+	 * @return the export import configuration remote service
 	 */
-	public com.liferay.portlet.shopping.service.ShoppingCategoryService getShoppingCategoryService() {
-		return shoppingCategoryService;
+	public com.liferay.portlet.exportimport.service.ExportImportConfigurationService getExportImportConfigurationService() {
+		return exportImportConfigurationService;
 	}
 
 	/**
-	 * Sets the shopping category remote service.
+	 * Sets the export import configuration remote service.
 	 *
-	 * @param shoppingCategoryService the shopping category remote service
+	 * @param exportImportConfigurationService the export import configuration remote service
 	 */
-	public void setShoppingCategoryService(
-		com.liferay.portlet.shopping.service.ShoppingCategoryService shoppingCategoryService) {
-		this.shoppingCategoryService = shoppingCategoryService;
+	public void setExportImportConfigurationService(
+		com.liferay.portlet.exportimport.service.ExportImportConfigurationService exportImportConfigurationService) {
+		this.exportImportConfigurationService = exportImportConfigurationService;
 	}
 
 	/**
-	 * Returns the shopping category persistence.
+	 * Returns the export import configuration persistence.
 	 *
-	 * @return the shopping category persistence
+	 * @return the export import configuration persistence
 	 */
-	public ShoppingCategoryPersistence getShoppingCategoryPersistence() {
-		return shoppingCategoryPersistence;
+	public ExportImportConfigurationPersistence getExportImportConfigurationPersistence() {
+		return exportImportConfigurationPersistence;
 	}
 
 	/**
-	 * Sets the shopping category persistence.
+	 * Sets the export import configuration persistence.
 	 *
-	 * @param shoppingCategoryPersistence the shopping category persistence
+	 * @param exportImportConfigurationPersistence the export import configuration persistence
 	 */
-	public void setShoppingCategoryPersistence(
-		ShoppingCategoryPersistence shoppingCategoryPersistence) {
-		this.shoppingCategoryPersistence = shoppingCategoryPersistence;
+	public void setExportImportConfigurationPersistence(
+		ExportImportConfigurationPersistence exportImportConfigurationPersistence) {
+		this.exportImportConfigurationPersistence = exportImportConfigurationPersistence;
 	}
 
 	/**
-	 * Returns the shopping coupon local service.
+	 * Returns the export import configuration finder.
 	 *
-	 * @return the shopping coupon local service
+	 * @return the export import configuration finder
 	 */
-	public com.liferay.portlet.shopping.service.ShoppingCouponLocalService getShoppingCouponLocalService() {
-		return shoppingCouponLocalService;
+	public ExportImportConfigurationFinder getExportImportConfigurationFinder() {
+		return exportImportConfigurationFinder;
 	}
 
 	/**
-	 * Sets the shopping coupon local service.
+	 * Sets the export import configuration finder.
 	 *
-	 * @param shoppingCouponLocalService the shopping coupon local service
+	 * @param exportImportConfigurationFinder the export import configuration finder
 	 */
-	public void setShoppingCouponLocalService(
-		com.liferay.portlet.shopping.service.ShoppingCouponLocalService shoppingCouponLocalService) {
-		this.shoppingCouponLocalService = shoppingCouponLocalService;
+	public void setExportImportConfigurationFinder(
+		ExportImportConfigurationFinder exportImportConfigurationFinder) {
+		this.exportImportConfigurationFinder = exportImportConfigurationFinder;
 	}
 
 	/**
-	 * Returns the shopping coupon remote service.
+	 * Returns the staging local service.
 	 *
-	 * @return the shopping coupon remote service
+	 * @return the staging local service
 	 */
-	public com.liferay.portlet.shopping.service.ShoppingCouponService getShoppingCouponService() {
-		return shoppingCouponService;
+	public com.liferay.portlet.exportimport.service.StagingLocalService getStagingLocalService() {
+		return stagingLocalService;
 	}
 
 	/**
-	 * Sets the shopping coupon remote service.
+	 * Sets the staging local service.
 	 *
-	 * @param shoppingCouponService the shopping coupon remote service
+	 * @param stagingLocalService the staging local service
 	 */
-	public void setShoppingCouponService(
-		com.liferay.portlet.shopping.service.ShoppingCouponService shoppingCouponService) {
-		this.shoppingCouponService = shoppingCouponService;
+	public void setStagingLocalService(
+		com.liferay.portlet.exportimport.service.StagingLocalService stagingLocalService) {
+		this.stagingLocalService = stagingLocalService;
 	}
 
 	/**
-	 * Returns the shopping coupon persistence.
+	 * Returns the staging remote service.
 	 *
-	 * @return the shopping coupon persistence
+	 * @return the staging remote service
 	 */
-	public ShoppingCouponPersistence getShoppingCouponPersistence() {
-		return shoppingCouponPersistence;
+	public com.liferay.portlet.exportimport.service.StagingService getStagingService() {
+		return stagingService;
 	}
 
 	/**
-	 * Sets the shopping coupon persistence.
+	 * Sets the staging remote service.
 	 *
-	 * @param shoppingCouponPersistence the shopping coupon persistence
+	 * @param stagingService the staging remote service
 	 */
-	public void setShoppingCouponPersistence(
-		ShoppingCouponPersistence shoppingCouponPersistence) {
-		this.shoppingCouponPersistence = shoppingCouponPersistence;
-	}
-
-	/**
-	 * Returns the shopping coupon finder.
-	 *
-	 * @return the shopping coupon finder
-	 */
-	public ShoppingCouponFinder getShoppingCouponFinder() {
-		return shoppingCouponFinder;
-	}
-
-	/**
-	 * Sets the shopping coupon finder.
-	 *
-	 * @param shoppingCouponFinder the shopping coupon finder
-	 */
-	public void setShoppingCouponFinder(
-		ShoppingCouponFinder shoppingCouponFinder) {
-		this.shoppingCouponFinder = shoppingCouponFinder;
-	}
-
-	/**
-	 * Returns the shopping order local service.
-	 *
-	 * @return the shopping order local service
-	 */
-	public com.liferay.portlet.shopping.service.ShoppingOrderLocalService getShoppingOrderLocalService() {
-		return shoppingOrderLocalService;
-	}
-
-	/**
-	 * Sets the shopping order local service.
-	 *
-	 * @param shoppingOrderLocalService the shopping order local service
-	 */
-	public void setShoppingOrderLocalService(
-		com.liferay.portlet.shopping.service.ShoppingOrderLocalService shoppingOrderLocalService) {
-		this.shoppingOrderLocalService = shoppingOrderLocalService;
-	}
-
-	/**
-	 * Returns the shopping order remote service.
-	 *
-	 * @return the shopping order remote service
-	 */
-	public com.liferay.portlet.shopping.service.ShoppingOrderService getShoppingOrderService() {
-		return shoppingOrderService;
-	}
-
-	/**
-	 * Sets the shopping order remote service.
-	 *
-	 * @param shoppingOrderService the shopping order remote service
-	 */
-	public void setShoppingOrderService(
-		com.liferay.portlet.shopping.service.ShoppingOrderService shoppingOrderService) {
-		this.shoppingOrderService = shoppingOrderService;
-	}
-
-	/**
-	 * Returns the shopping order persistence.
-	 *
-	 * @return the shopping order persistence
-	 */
-	public ShoppingOrderPersistence getShoppingOrderPersistence() {
-		return shoppingOrderPersistence;
-	}
-
-	/**
-	 * Sets the shopping order persistence.
-	 *
-	 * @param shoppingOrderPersistence the shopping order persistence
-	 */
-	public void setShoppingOrderPersistence(
-		ShoppingOrderPersistence shoppingOrderPersistence) {
-		this.shoppingOrderPersistence = shoppingOrderPersistence;
-	}
-
-	/**
-	 * Returns the shopping order finder.
-	 *
-	 * @return the shopping order finder
-	 */
-	public ShoppingOrderFinder getShoppingOrderFinder() {
-		return shoppingOrderFinder;
-	}
-
-	/**
-	 * Sets the shopping order finder.
-	 *
-	 * @param shoppingOrderFinder the shopping order finder
-	 */
-	public void setShoppingOrderFinder(ShoppingOrderFinder shoppingOrderFinder) {
-		this.shoppingOrderFinder = shoppingOrderFinder;
+	public void setStagingService(
+		com.liferay.portlet.exportimport.service.StagingService stagingService) {
+		this.stagingService = stagingService;
 	}
 
 	/**
@@ -1113,7 +899,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social activity local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivityLocalService getSocialActivityLocalService() {
+	public com.liferay.social.kernel.service.SocialActivityLocalService getSocialActivityLocalService() {
 		return socialActivityLocalService;
 	}
 
@@ -1123,7 +909,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 * @param socialActivityLocalService the social activity local service
 	 */
 	public void setSocialActivityLocalService(
-		com.liferay.portlet.social.service.SocialActivityLocalService socialActivityLocalService) {
+		com.liferay.social.kernel.service.SocialActivityLocalService socialActivityLocalService) {
 		this.socialActivityLocalService = socialActivityLocalService;
 	}
 
@@ -1132,7 +918,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social activity remote service
 	 */
-	public com.liferay.portlet.social.service.SocialActivityService getSocialActivityService() {
+	public com.liferay.social.kernel.service.SocialActivityService getSocialActivityService() {
 		return socialActivityService;
 	}
 
@@ -1142,7 +928,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 * @param socialActivityService the social activity remote service
 	 */
 	public void setSocialActivityService(
-		com.liferay.portlet.social.service.SocialActivityService socialActivityService) {
+		com.liferay.social.kernel.service.SocialActivityService socialActivityService) {
 		this.socialActivityService = socialActivityService;
 	}
 
@@ -1189,7 +975,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social activity setting local service
 	 */
-	public com.liferay.portlet.social.service.SocialActivitySettingLocalService getSocialActivitySettingLocalService() {
+	public com.liferay.social.kernel.service.SocialActivitySettingLocalService getSocialActivitySettingLocalService() {
 		return socialActivitySettingLocalService;
 	}
 
@@ -1199,7 +985,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 * @param socialActivitySettingLocalService the social activity setting local service
 	 */
 	public void setSocialActivitySettingLocalService(
-		com.liferay.portlet.social.service.SocialActivitySettingLocalService socialActivitySettingLocalService) {
+		com.liferay.social.kernel.service.SocialActivitySettingLocalService socialActivitySettingLocalService) {
 		this.socialActivitySettingLocalService = socialActivitySettingLocalService;
 	}
 
@@ -1208,7 +994,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social activity setting remote service
 	 */
-	public com.liferay.portlet.social.service.SocialActivitySettingService getSocialActivitySettingService() {
+	public com.liferay.social.kernel.service.SocialActivitySettingService getSocialActivitySettingService() {
 		return socialActivitySettingService;
 	}
 
@@ -1218,7 +1004,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 * @param socialActivitySettingService the social activity setting remote service
 	 */
 	public void setSocialActivitySettingService(
-		com.liferay.portlet.social.service.SocialActivitySettingService socialActivitySettingService) {
+		com.liferay.social.kernel.service.SocialActivitySettingService socialActivitySettingService) {
 		this.socialActivitySettingService = socialActivitySettingService;
 	}
 
@@ -1246,7 +1032,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social request local service
 	 */
-	public com.liferay.portlet.social.service.SocialRequestLocalService getSocialRequestLocalService() {
+	public com.liferay.social.kernel.service.SocialRequestLocalService getSocialRequestLocalService() {
 		return socialRequestLocalService;
 	}
 
@@ -1256,7 +1042,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 * @param socialRequestLocalService the social request local service
 	 */
 	public void setSocialRequestLocalService(
-		com.liferay.portlet.social.service.SocialRequestLocalService socialRequestLocalService) {
+		com.liferay.social.kernel.service.SocialRequestLocalService socialRequestLocalService) {
 		this.socialRequestLocalService = socialRequestLocalService;
 	}
 
@@ -1265,7 +1051,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social request remote service
 	 */
-	public com.liferay.portlet.social.service.SocialRequestService getSocialRequestService() {
+	public com.liferay.social.kernel.service.SocialRequestService getSocialRequestService() {
 		return socialRequestService;
 	}
 
@@ -1275,7 +1061,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	 * @param socialRequestService the social request remote service
 	 */
 	public void setSocialRequestService(
-		com.liferay.portlet.social.service.SocialRequestService socialRequestService) {
+		com.liferay.social.kernel.service.SocialRequestService socialRequestService) {
 		this.socialRequestService = socialRequestService;
 	}
 
@@ -1299,117 +1085,60 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the s c framework version local service.
+	 * Returns the trash entry local service.
 	 *
-	 * @return the s c framework version local service
+	 * @return the trash entry local service
 	 */
-	public com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionLocalService getSCFrameworkVersionLocalService() {
-		return scFrameworkVersionLocalService;
+	public com.liferay.trash.kernel.service.TrashEntryLocalService getTrashEntryLocalService() {
+		return trashEntryLocalService;
 	}
 
 	/**
-	 * Sets the s c framework version local service.
+	 * Sets the trash entry local service.
 	 *
-	 * @param scFrameworkVersionLocalService the s c framework version local service
+	 * @param trashEntryLocalService the trash entry local service
 	 */
-	public void setSCFrameworkVersionLocalService(
-		com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionLocalService scFrameworkVersionLocalService) {
-		this.scFrameworkVersionLocalService = scFrameworkVersionLocalService;
+	public void setTrashEntryLocalService(
+		com.liferay.trash.kernel.service.TrashEntryLocalService trashEntryLocalService) {
+		this.trashEntryLocalService = trashEntryLocalService;
 	}
 
 	/**
-	 * Returns the s c framework version remote service.
+	 * Returns the trash entry remote service.
 	 *
-	 * @return the s c framework version remote service
+	 * @return the trash entry remote service
 	 */
-	public com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionService getSCFrameworkVersionService() {
-		return scFrameworkVersionService;
+	public com.liferay.trash.kernel.service.TrashEntryService getTrashEntryService() {
+		return trashEntryService;
 	}
 
 	/**
-	 * Sets the s c framework version remote service.
+	 * Sets the trash entry remote service.
 	 *
-	 * @param scFrameworkVersionService the s c framework version remote service
+	 * @param trashEntryService the trash entry remote service
 	 */
-	public void setSCFrameworkVersionService(
-		com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionService scFrameworkVersionService) {
-		this.scFrameworkVersionService = scFrameworkVersionService;
+	public void setTrashEntryService(
+		com.liferay.trash.kernel.service.TrashEntryService trashEntryService) {
+		this.trashEntryService = trashEntryService;
 	}
 
 	/**
-	 * Returns the s c framework version persistence.
+	 * Returns the trash entry persistence.
 	 *
-	 * @return the s c framework version persistence
+	 * @return the trash entry persistence
 	 */
-	public SCFrameworkVersionPersistence getSCFrameworkVersionPersistence() {
-		return scFrameworkVersionPersistence;
+	public TrashEntryPersistence getTrashEntryPersistence() {
+		return trashEntryPersistence;
 	}
 
 	/**
-	 * Sets the s c framework version persistence.
+	 * Sets the trash entry persistence.
 	 *
-	 * @param scFrameworkVersionPersistence the s c framework version persistence
+	 * @param trashEntryPersistence the trash entry persistence
 	 */
-	public void setSCFrameworkVersionPersistence(
-		SCFrameworkVersionPersistence scFrameworkVersionPersistence) {
-		this.scFrameworkVersionPersistence = scFrameworkVersionPersistence;
-	}
-
-	/**
-	 * Returns the s c product entry local service.
-	 *
-	 * @return the s c product entry local service
-	 */
-	public com.liferay.portlet.softwarecatalog.service.SCProductEntryLocalService getSCProductEntryLocalService() {
-		return scProductEntryLocalService;
-	}
-
-	/**
-	 * Sets the s c product entry local service.
-	 *
-	 * @param scProductEntryLocalService the s c product entry local service
-	 */
-	public void setSCProductEntryLocalService(
-		com.liferay.portlet.softwarecatalog.service.SCProductEntryLocalService scProductEntryLocalService) {
-		this.scProductEntryLocalService = scProductEntryLocalService;
-	}
-
-	/**
-	 * Returns the s c product entry remote service.
-	 *
-	 * @return the s c product entry remote service
-	 */
-	public com.liferay.portlet.softwarecatalog.service.SCProductEntryService getSCProductEntryService() {
-		return scProductEntryService;
-	}
-
-	/**
-	 * Sets the s c product entry remote service.
-	 *
-	 * @param scProductEntryService the s c product entry remote service
-	 */
-	public void setSCProductEntryService(
-		com.liferay.portlet.softwarecatalog.service.SCProductEntryService scProductEntryService) {
-		this.scProductEntryService = scProductEntryService;
-	}
-
-	/**
-	 * Returns the s c product entry persistence.
-	 *
-	 * @return the s c product entry persistence
-	 */
-	public SCProductEntryPersistence getSCProductEntryPersistence() {
-		return scProductEntryPersistence;
-	}
-
-	/**
-	 * Sets the s c product entry persistence.
-	 *
-	 * @param scProductEntryPersistence the s c product entry persistence
-	 */
-	public void setSCProductEntryPersistence(
-		SCProductEntryPersistence scProductEntryPersistence) {
-		this.scProductEntryPersistence = scProductEntryPersistence;
+	public void setTrashEntryPersistence(
+		TrashEntryPersistence trashEntryPersistence) {
+		this.trashEntryPersistence = trashEntryPersistence;
 	}
 
 	/**
@@ -2318,44 +2047,6 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the staging local service.
-	 *
-	 * @return the staging local service
-	 */
-	public com.liferay.portal.service.StagingLocalService getStagingLocalService() {
-		return stagingLocalService;
-	}
-
-	/**
-	 * Sets the staging local service.
-	 *
-	 * @param stagingLocalService the staging local service
-	 */
-	public void setStagingLocalService(
-		com.liferay.portal.service.StagingLocalService stagingLocalService) {
-		this.stagingLocalService = stagingLocalService;
-	}
-
-	/**
-	 * Returns the staging remote service.
-	 *
-	 * @return the staging remote service
-	 */
-	public com.liferay.portal.service.StagingService getStagingService() {
-		return stagingService;
-	}
-
-	/**
-	 * Sets the staging remote service.
-	 *
-	 * @param stagingService the staging remote service
-	 */
-	public void setStagingService(
-		com.liferay.portal.service.StagingService stagingService) {
-		this.stagingService = stagingService;
-	}
-
-	/**
 	 * Returns the subscription local service.
 	 *
 	 * @return the subscription local service
@@ -2812,23 +2503,13 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return GroupService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -2848,7 +2529,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 		try {
 			DataSource dataSource = groupPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -2866,7 +2547,7 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	@BeanReference(type = com.liferay.portal.service.GroupLocalService.class)
 	protected com.liferay.portal.service.GroupLocalService groupLocalService;
 	@BeanReference(type = com.liferay.portal.service.GroupService.class)
-	protected com.liferay.portal.service.GroupService groupService;
+	protected GroupService groupService;
 	@BeanReference(type = GroupPersistence.class)
 	protected GroupPersistence groupPersistence;
 	@BeanReference(type = GroupFinder.class)
@@ -2879,12 +2560,6 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portal.service.AccountService accountService;
 	@BeanReference(type = AccountPersistence.class)
 	protected AccountPersistence accountPersistence;
-	@BeanReference(type = com.liferay.portal.service.BackgroundTaskLocalService.class)
-	protected com.liferay.portal.service.BackgroundTaskLocalService backgroundTaskLocalService;
-	@BeanReference(type = com.liferay.portal.service.BackgroundTaskService.class)
-	protected com.liferay.portal.service.BackgroundTaskService backgroundTaskService;
-	@BeanReference(type = BackgroundTaskPersistence.class)
-	protected BackgroundTaskPersistence backgroundTaskPersistence;
 	@BeanReference(type = com.liferay.portal.service.ClassNameLocalService.class)
 	protected com.liferay.portal.service.ClassNameLocalService classNameLocalService;
 	@BeanReference(type = com.liferay.portal.service.ClassNameService.class)
@@ -2897,12 +2572,6 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portal.service.CompanyService companyService;
 	@BeanReference(type = CompanyPersistence.class)
 	protected CompanyPersistence companyPersistence;
-	@BeanReference(type = com.liferay.portal.service.ExportImportConfigurationLocalService.class)
-	protected com.liferay.portal.service.ExportImportConfigurationLocalService exportImportConfigurationLocalService;
-	@BeanReference(type = com.liferay.portal.service.ExportImportConfigurationService.class)
-	protected com.liferay.portal.service.ExportImportConfigurationService exportImportConfigurationService;
-	@BeanReference(type = ExportImportConfigurationPersistence.class)
-	protected ExportImportConfigurationPersistence exportImportConfigurationPersistence;
 	@BeanReference(type = com.liferay.portlet.asset.service.AssetCategoryLocalService.class)
 	protected com.liferay.portlet.asset.service.AssetCategoryLocalService assetCategoryLocalService;
 	@BeanReference(type = com.liferay.portlet.asset.service.AssetCategoryService.class)
@@ -2943,64 +2612,48 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portlet.expando.service.ExpandoRowLocalService expandoRowLocalService;
 	@BeanReference(type = ExpandoRowPersistence.class)
 	protected ExpandoRowPersistence expandoRowPersistence;
-	@BeanReference(type = com.liferay.portlet.shopping.service.ShoppingCartLocalService.class)
-	protected com.liferay.portlet.shopping.service.ShoppingCartLocalService shoppingCartLocalService;
-	@BeanReference(type = ShoppingCartPersistence.class)
-	protected ShoppingCartPersistence shoppingCartPersistence;
-	@BeanReference(type = com.liferay.portlet.shopping.service.ShoppingCategoryLocalService.class)
-	protected com.liferay.portlet.shopping.service.ShoppingCategoryLocalService shoppingCategoryLocalService;
-	@BeanReference(type = com.liferay.portlet.shopping.service.ShoppingCategoryService.class)
-	protected com.liferay.portlet.shopping.service.ShoppingCategoryService shoppingCategoryService;
-	@BeanReference(type = ShoppingCategoryPersistence.class)
-	protected ShoppingCategoryPersistence shoppingCategoryPersistence;
-	@BeanReference(type = com.liferay.portlet.shopping.service.ShoppingCouponLocalService.class)
-	protected com.liferay.portlet.shopping.service.ShoppingCouponLocalService shoppingCouponLocalService;
-	@BeanReference(type = com.liferay.portlet.shopping.service.ShoppingCouponService.class)
-	protected com.liferay.portlet.shopping.service.ShoppingCouponService shoppingCouponService;
-	@BeanReference(type = ShoppingCouponPersistence.class)
-	protected ShoppingCouponPersistence shoppingCouponPersistence;
-	@BeanReference(type = ShoppingCouponFinder.class)
-	protected ShoppingCouponFinder shoppingCouponFinder;
-	@BeanReference(type = com.liferay.portlet.shopping.service.ShoppingOrderLocalService.class)
-	protected com.liferay.portlet.shopping.service.ShoppingOrderLocalService shoppingOrderLocalService;
-	@BeanReference(type = com.liferay.portlet.shopping.service.ShoppingOrderService.class)
-	protected com.liferay.portlet.shopping.service.ShoppingOrderService shoppingOrderService;
-	@BeanReference(type = ShoppingOrderPersistence.class)
-	protected ShoppingOrderPersistence shoppingOrderPersistence;
-	@BeanReference(type = ShoppingOrderFinder.class)
-	protected ShoppingOrderFinder shoppingOrderFinder;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivityLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivityLocalService socialActivityLocalService;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivityService.class)
-	protected com.liferay.portlet.social.service.SocialActivityService socialActivityService;
+	@BeanReference(type = com.liferay.portlet.exportimport.service.ExportImportLocalService.class)
+	protected com.liferay.portlet.exportimport.service.ExportImportLocalService exportImportLocalService;
+	@BeanReference(type = com.liferay.portlet.exportimport.service.ExportImportService.class)
+	protected com.liferay.portlet.exportimport.service.ExportImportService exportImportService;
+	@BeanReference(type = com.liferay.portlet.exportimport.service.ExportImportConfigurationLocalService.class)
+	protected com.liferay.portlet.exportimport.service.ExportImportConfigurationLocalService exportImportConfigurationLocalService;
+	@BeanReference(type = com.liferay.portlet.exportimport.service.ExportImportConfigurationService.class)
+	protected com.liferay.portlet.exportimport.service.ExportImportConfigurationService exportImportConfigurationService;
+	@BeanReference(type = ExportImportConfigurationPersistence.class)
+	protected ExportImportConfigurationPersistence exportImportConfigurationPersistence;
+	@BeanReference(type = ExportImportConfigurationFinder.class)
+	protected ExportImportConfigurationFinder exportImportConfigurationFinder;
+	@BeanReference(type = com.liferay.portlet.exportimport.service.StagingLocalService.class)
+	protected com.liferay.portlet.exportimport.service.StagingLocalService stagingLocalService;
+	@BeanReference(type = com.liferay.portlet.exportimport.service.StagingService.class)
+	protected com.liferay.portlet.exportimport.service.StagingService stagingService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivityLocalService.class)
+	protected com.liferay.social.kernel.service.SocialActivityLocalService socialActivityLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivityService.class)
+	protected com.liferay.social.kernel.service.SocialActivityService socialActivityService;
 	@BeanReference(type = SocialActivityPersistence.class)
 	protected SocialActivityPersistence socialActivityPersistence;
 	@BeanReference(type = SocialActivityFinder.class)
 	protected SocialActivityFinder socialActivityFinder;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivitySettingLocalService.class)
-	protected com.liferay.portlet.social.service.SocialActivitySettingLocalService socialActivitySettingLocalService;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialActivitySettingService.class)
-	protected com.liferay.portlet.social.service.SocialActivitySettingService socialActivitySettingService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivitySettingLocalService.class)
+	protected com.liferay.social.kernel.service.SocialActivitySettingLocalService socialActivitySettingLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialActivitySettingService.class)
+	protected com.liferay.social.kernel.service.SocialActivitySettingService socialActivitySettingService;
 	@BeanReference(type = SocialActivitySettingPersistence.class)
 	protected SocialActivitySettingPersistence socialActivitySettingPersistence;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialRequestLocalService.class)
-	protected com.liferay.portlet.social.service.SocialRequestLocalService socialRequestLocalService;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialRequestService.class)
-	protected com.liferay.portlet.social.service.SocialRequestService socialRequestService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialRequestLocalService.class)
+	protected com.liferay.social.kernel.service.SocialRequestLocalService socialRequestLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialRequestService.class)
+	protected com.liferay.social.kernel.service.SocialRequestService socialRequestService;
 	@BeanReference(type = SocialRequestPersistence.class)
 	protected SocialRequestPersistence socialRequestPersistence;
-	@BeanReference(type = com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionLocalService.class)
-	protected com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionLocalService scFrameworkVersionLocalService;
-	@BeanReference(type = com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionService.class)
-	protected com.liferay.portlet.softwarecatalog.service.SCFrameworkVersionService scFrameworkVersionService;
-	@BeanReference(type = SCFrameworkVersionPersistence.class)
-	protected SCFrameworkVersionPersistence scFrameworkVersionPersistence;
-	@BeanReference(type = com.liferay.portlet.softwarecatalog.service.SCProductEntryLocalService.class)
-	protected com.liferay.portlet.softwarecatalog.service.SCProductEntryLocalService scProductEntryLocalService;
-	@BeanReference(type = com.liferay.portlet.softwarecatalog.service.SCProductEntryService.class)
-	protected com.liferay.portlet.softwarecatalog.service.SCProductEntryService scProductEntryService;
-	@BeanReference(type = SCProductEntryPersistence.class)
-	protected SCProductEntryPersistence scProductEntryPersistence;
+	@BeanReference(type = com.liferay.trash.kernel.service.TrashEntryLocalService.class)
+	protected com.liferay.trash.kernel.service.TrashEntryLocalService trashEntryLocalService;
+	@BeanReference(type = com.liferay.trash.kernel.service.TrashEntryService.class)
+	protected com.liferay.trash.kernel.service.TrashEntryService trashEntryService;
+	@BeanReference(type = TrashEntryPersistence.class)
+	protected TrashEntryPersistence trashEntryPersistence;
 	@BeanReference(type = com.liferay.portal.service.LayoutLocalService.class)
 	protected com.liferay.portal.service.LayoutLocalService layoutLocalService;
 	@BeanReference(type = com.liferay.portal.service.LayoutService.class)
@@ -3097,10 +2750,6 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	protected RolePersistence rolePersistence;
 	@BeanReference(type = RoleFinder.class)
 	protected RoleFinder roleFinder;
-	@BeanReference(type = com.liferay.portal.service.StagingLocalService.class)
-	protected com.liferay.portal.service.StagingLocalService stagingLocalService;
-	@BeanReference(type = com.liferay.portal.service.StagingService.class)
-	protected com.liferay.portal.service.StagingService stagingService;
 	@BeanReference(type = com.liferay.portal.service.SubscriptionLocalService.class)
 	protected com.liferay.portal.service.SubscriptionLocalService subscriptionLocalService;
 	@BeanReference(type = SubscriptionPersistence.class)
@@ -3149,5 +2798,4 @@ public abstract class GroupServiceBaseImpl extends BaseServiceImpl
 	protected com.liferay.portal.service.WorkflowDefinitionLinkLocalService workflowDefinitionLinkLocalService;
 	@BeanReference(type = WorkflowDefinitionLinkPersistence.class)
 	protected WorkflowDefinitionLinkPersistence workflowDefinitionLinkPersistence;
-	private String _beanIdentifier;
 }

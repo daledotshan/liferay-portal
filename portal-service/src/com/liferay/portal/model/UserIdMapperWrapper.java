@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +58,7 @@ public class UserIdMapperWrapper implements UserIdMapper,
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("userIdMapperId", getUserIdMapperId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
 		attributes.put("type", getType());
 		attributes.put("description", getDescription());
@@ -73,6 +79,12 @@ public class UserIdMapperWrapper implements UserIdMapper,
 
 		if (userIdMapperId != null) {
 			setUserIdMapperId(userIdMapperId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long userId = (Long)attributes.get("userId");
@@ -111,6 +123,16 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	}
 
 	/**
+	* Returns the company ID of this user ID mapper.
+	*
+	* @return the company ID of this user ID mapper
+	*/
+	@Override
+	public long getCompanyId() {
+		return _userIdMapper.getCompanyId();
+	}
+
+	/**
 	* Returns the description of this user ID mapper.
 	*
 	* @return the description of this user ID mapper
@@ -121,7 +143,7 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _userIdMapper.getExpandoBridge();
 	}
 
@@ -156,7 +178,7 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _userIdMapper.getPrimaryKeyObj();
 	}
 
@@ -231,6 +253,16 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	}
 
 	/**
+	* Sets the company ID of this user ID mapper.
+	*
+	* @param companyId the company ID of this user ID mapper
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_userIdMapper.setCompanyId(companyId);
+	}
+
+	/**
 	* Sets the description of this user ID mapper.
 	*
 	* @param description the description of this user ID mapper
@@ -241,20 +273,17 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_userIdMapper.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_userIdMapper.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_userIdMapper.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -294,7 +323,7 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_userIdMapper.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -339,7 +368,7 @@ public class UserIdMapperWrapper implements UserIdMapper,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.UserIdMapper> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.UserIdMapper> toCacheModel() {
 		return _userIdMapper.toCacheModel();
 	}
 
@@ -380,14 +409,6 @@ public class UserIdMapperWrapper implements UserIdMapper,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public UserIdMapper getWrappedUserIdMapper() {
-		return _userIdMapper;
 	}
 
 	@Override

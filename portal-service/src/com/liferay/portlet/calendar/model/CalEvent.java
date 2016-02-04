@@ -16,6 +16,8 @@ package com.liferay.portlet.calendar.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -25,8 +27,11 @@ import com.liferay.portal.model.PersistedModel;
  * @see CalEventModel
  * @see com.liferay.portlet.calendar.model.impl.CalEventImpl
  * @see com.liferay.portlet.calendar.model.impl.CalEventModelImpl
+ * @deprecated As of 7.0.0, with no direct replacement
  * @generated
  */
+@Deprecated
+@ImplementationClassName("com.liferay.portlet.calendar.model.impl.CalEventImpl")
 @ProviderType
 public interface CalEvent extends CalEventModel, PersistedModel {
 	/*
@@ -34,6 +39,23 @@ public interface CalEvent extends CalEventModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.calendar.model.impl.CalEventImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<CalEvent, Long> EVENT_ID_ACCESSOR = new Accessor<CalEvent, Long>() {
+			@Override
+			public Long get(CalEvent calEvent) {
+				return calEvent.getEventId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<CalEvent> getTypeClass() {
+				return CalEvent.class;
+			}
+		};
+
 	public com.liferay.portal.kernel.cal.TZSRecurrence getRecurrenceObj();
 
 	public void setRecurrenceObj(

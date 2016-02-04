@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -182,12 +187,12 @@ public class PortletItemWrapper implements PortletItem,
 	* @return the create date of this portlet item
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _portletItem.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _portletItem.getExpandoBridge();
 	}
 
@@ -207,7 +212,7 @@ public class PortletItemWrapper implements PortletItem,
 	* @return the modified date of this portlet item
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _portletItem.getModifiedDate();
 	}
 
@@ -262,7 +267,7 @@ public class PortletItemWrapper implements PortletItem,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _portletItem.getPrimaryKeyObj();
 	}
 
@@ -357,25 +362,22 @@ public class PortletItemWrapper implements PortletItem,
 	* @param createDate the create date of this portlet item
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_portletItem.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_portletItem.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_portletItem.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_portletItem.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -395,7 +397,7 @@ public class PortletItemWrapper implements PortletItem,
 	* @param modifiedDate the modified date of this portlet item
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_portletItem.setModifiedDate(modifiedDate);
 	}
 
@@ -455,7 +457,7 @@ public class PortletItemWrapper implements PortletItem,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_portletItem.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -490,7 +492,7 @@ public class PortletItemWrapper implements PortletItem,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.PortletItem> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.PortletItem> toCacheModel() {
 		return _portletItem.toCacheModel();
 	}
 
@@ -531,14 +533,6 @@ public class PortletItemWrapper implements PortletItem,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public PortletItem getWrappedPortletItem() {
-		return _portletItem;
 	}
 
 	@Override

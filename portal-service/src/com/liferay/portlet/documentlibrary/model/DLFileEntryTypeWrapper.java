@@ -16,9 +16,14 @@ package com.liferay.portlet.documentlibrary.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -65,6 +70,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 		attributes.put("fileEntryTypeKey", getFileEntryTypeKey());
 		attributes.put("name", getName());
 		attributes.put("description", getDescription());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -136,6 +142,12 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 		if (description != null) {
 			setDescription(description);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -170,12 +182,12 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	* @return the create date of this document library file entry type
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _dlFileEntryType.getCreateDate();
 	}
 
 	@Override
-	public java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> getDDMStructures() {
+	public java.util.List<com.liferay.dynamic.data.mapping.kernel.DDMStructure> getDDMStructures() {
 		return _dlFileEntryType.getDDMStructures();
 	}
 
@@ -258,12 +270,12 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	* @return the locales and localized descriptions of this document library file entry type
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _dlFileEntryType.getDescriptionMap();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _dlFileEntryType.getExpandoBridge();
 	}
 
@@ -298,12 +310,22 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	}
 
 	/**
+	* Returns the last publish date of this document library file entry type.
+	*
+	* @return the last publish date of this document library file entry type
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _dlFileEntryType.getLastPublishDate();
+	}
+
+	/**
 	* Returns the modified date of this document library file entry type.
 	*
 	* @return the modified date of this document library file entry type
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _dlFileEntryType.getModifiedDate();
 	}
 
@@ -380,7 +402,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	* @return the locales and localized names of this document library file entry type
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _dlFileEntryType.getNameMap();
 	}
 
@@ -395,7 +417,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _dlFileEntryType.getPrimaryKeyObj();
 	}
 
@@ -512,7 +534,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	* @param createDate the create date of this document library file entry type
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_dlFileEntryType.setCreateDate(createDate);
 	}
 
@@ -563,7 +585,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_dlFileEntryType.setDescriptionMap(descriptionMap);
 	}
 
@@ -575,7 +597,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_dlFileEntryType.setDescriptionMap(descriptionMap, defaultLocale);
 	}
@@ -587,14 +609,12 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_dlFileEntryType.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_dlFileEntryType.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -629,12 +649,22 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	}
 
 	/**
+	* Sets the last publish date of this document library file entry type.
+	*
+	* @param lastPublishDate the last publish date of this document library file entry type
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_dlFileEntryType.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the modified date of this document library file entry type.
 	*
 	* @param modifiedDate the modified date of this document library file entry type
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_dlFileEntryType.setModifiedDate(modifiedDate);
 	}
 
@@ -683,8 +713,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	* @param nameMap the locales and localized names of this document library file entry type
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_dlFileEntryType.setNameMap(nameMap);
 	}
 
@@ -695,8 +724,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_dlFileEntryType.setNameMap(nameMap, defaultLocale);
 	}
@@ -717,7 +745,7 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_dlFileEntryType.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -809,14 +837,6 @@ public class DLFileEntryTypeWrapper implements DLFileEntryType,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _dlFileEntryType.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public DLFileEntryType getWrappedDLFileEntryType() {
-		return _dlFileEntryType;
 	}
 
 	@Override

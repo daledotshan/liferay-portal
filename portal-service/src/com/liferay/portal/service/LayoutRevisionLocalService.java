@@ -16,12 +16,24 @@ package com.liferay.portal.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.model.LayoutRevision;
+import com.liferay.portal.model.PersistedModel;
+
+import java.io.Serializable;
+
+import java.util.List;
 
 /**
  * Provides the local service interface for LayoutRevision. Methods of this
@@ -52,12 +64,11 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param layoutRevision the layout revision
 	* @return the layout revision that was added
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portal.model.LayoutRevision addLayoutRevision(
-		com.liferay.portal.model.LayoutRevision layoutRevision);
+	@Indexable(type = IndexableType.REINDEX)
+	public LayoutRevision addLayoutRevision(LayoutRevision layoutRevision);
 
-	public com.liferay.portal.model.LayoutRevision addLayoutRevision(
-		long userId, long layoutSetBranchId, long layoutBranchId,
+	public LayoutRevision addLayoutRevision(long userId,
+		long layoutSetBranchId, long layoutBranchId,
 		long parentLayoutRevisionId, boolean head, long plid,
 		long portletPreferencesPlid, boolean privateLayout,
 		java.lang.String name, java.lang.String title,
@@ -67,7 +78,7 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 		java.lang.String colorSchemeId, java.lang.String wapThemeId,
 		java.lang.String wapColorSchemeId, java.lang.String css,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Creates a new layout revision with the primary key. Does not add the layout revision to the database.
@@ -75,11 +86,10 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param layoutRevisionId the primary key for the new layout revision
 	* @return the new layout revision
 	*/
-	public com.liferay.portal.model.LayoutRevision createLayoutRevision(
-		long layoutRevisionId);
+	public LayoutRevision createLayoutRevision(long layoutRevisionId);
 
 	public void deleteLayoutLayoutRevisions(long plid)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* Deletes the layout revision from the database. Also notifies the appropriate model listeners.
@@ -88,10 +98,9 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @return the layout revision that was removed
 	* @throws PortalException
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portal.model.LayoutRevision deleteLayoutRevision(
-		com.liferay.portal.model.LayoutRevision layoutRevision)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	@Indexable(type = IndexableType.DELETE)
+	public LayoutRevision deleteLayoutRevision(LayoutRevision layoutRevision)
+		throws PortalException;
 
 	/**
 	* Deletes the layout revision with the primary key from the database. Also notifies the appropriate model listeners.
@@ -100,30 +109,27 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @return the layout revision that was removed
 	* @throws PortalException if a layout revision with the primary key could not be found
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portal.model.LayoutRevision deleteLayoutRevision(
-		long layoutRevisionId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	@Indexable(type = IndexableType.DELETE)
+	public LayoutRevision deleteLayoutRevision(long layoutRevisionId)
+		throws PortalException;
 
 	public void deleteLayoutRevisions(long layoutSetBranchId,
-		long layoutBranchId, long plid)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		long layoutBranchId, long plid) throws PortalException;
 
 	public void deleteLayoutRevisions(long layoutSetBranchId, long plid)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	public void deleteLayoutSetBranchLayoutRevisions(long layoutSetBranchId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	/**
 	* @throws PortalException
 	*/
 	@Override
-	public com.liferay.portal.model.PersistedModel deletePersistedModel(
-		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException;
 
-	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
+	public DynamicQuery dynamicQuery();
 
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
@@ -131,8 +137,7 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery);
 
 	/**
 	* Performs a dynamic query on the database and returns a range of the matching rows.
@@ -146,8 +151,7 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param end the upper bound of the range of model instances (not inclusive)
 	* @return the range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
 		int end);
 
 	/**
@@ -163,10 +167,8 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -174,8 +176,7 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -184,45 +185,41 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param projection the projection to apply to the query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
-		com.liferay.portal.kernel.dao.orm.Projection projection);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.LayoutRevision fetchLastLayoutRevision(
-		long plid, boolean head);
+	public LayoutRevision fetchLastLayoutRevision(long plid, boolean head);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.LayoutRevision fetchLayoutRevision(
-		long layoutRevisionId);
+	public LayoutRevision fetchLatestLayoutRevision(long layoutSetBranchId,
+		long plid);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.LayoutRevision fetchLayoutRevision(
-		long layoutSetBranchId, boolean head, long plid);
+	public LayoutRevision fetchLayoutRevision(long layoutRevisionId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	public LayoutRevision fetchLayoutRevision(long layoutSetBranchId,
+		boolean head, long plid);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getChildLayoutRevisions(
+	public ActionableDynamicQuery getActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutRevision> getChildLayoutRevisions(
 		long layoutSetBranchId, long parentLayoutRevision, long plid,
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.model.LayoutRevision> orderByComparator);
+		int start, int end, OrderByComparator<LayoutRevision> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getChildLayoutRevisions(
+	public List<LayoutRevision> getChildLayoutRevisions(
 		long layoutSetBranchId, long parentLayoutRevisionId, long plid);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getChildLayoutRevisionsCount(long layoutSetBranchId,
 		long parentLayoutRevision, long plid);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
 	* Returns the layout revision with the primary key.
@@ -232,50 +229,45 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @throws PortalException if a layout revision with the primary key could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.LayoutRevision getLayoutRevision(
-		long layoutRevisionId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public LayoutRevision getLayoutRevision(long layoutRevisionId)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.LayoutRevision getLayoutRevision(
-		long layoutSetBranchId, long layoutBranchId, long plid)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public LayoutRevision getLayoutRevision(long layoutSetBranchId,
+		long layoutBranchId, long plid) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.LayoutRevision getLayoutRevision(
-		long layoutSetBranchId, long plid, boolean head)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public LayoutRevision getLayoutRevision(long layoutSetBranchId, long plid,
+		boolean head) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
-		long layoutSetBranchId, boolean head);
+	public List<LayoutRevision> getLayoutRevisions(long layoutSetBranchId,
+		boolean head);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
-		long layoutSetBranchId, long layoutBranchId, long plid, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.model.LayoutRevision> orderByComparator);
+	public List<LayoutRevision> getLayoutRevisions(long layoutSetBranchId,
+		long layoutBranchId, long plid, int start, int end,
+		OrderByComparator<LayoutRevision> orderByComparator);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
-		long layoutSetBranchId, long plid);
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
-		long layoutSetBranchId, long plid, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.model.LayoutRevision> orderByComparator);
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
-		long layoutSetBranchId, long plid, int status);
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
-		long layoutSetBranchId, int status);
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
+	public List<LayoutRevision> getLayoutRevisions(long layoutSetBranchId,
 		long plid);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutRevision> getLayoutRevisions(long layoutSetBranchId,
+		long plid, int start, int end,
+		OrderByComparator<LayoutRevision> orderByComparator);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutRevision> getLayoutRevisions(long layoutSetBranchId,
+		long plid, int status);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutRevision> getLayoutRevisions(long layoutSetBranchId,
+		int status);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<LayoutRevision> getLayoutRevisions(long plid);
 
 	/**
 	* Returns a range of all the layout revisions.
@@ -289,8 +281,7 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @return the range of layout revisions
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portal.model.LayoutRevision> getLayoutRevisions(
-		int start, int end);
+	public List<LayoutRevision> getLayoutRevisions(int start, int end);
 
 	/**
 	* Returns the number of layout revisions.
@@ -304,18 +295,17 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	public int getLayoutRevisionsCount(long layoutSetBranchId,
 		long layoutBranchId, long plid);
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
+
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	* Updates the layout revision in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -323,23 +313,21 @@ public interface LayoutRevisionLocalService extends BaseLocalService,
 	* @param layoutRevision the layout revision
 	* @return the layout revision that was updated
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portal.model.LayoutRevision updateLayoutRevision(
-		com.liferay.portal.model.LayoutRevision layoutRevision);
+	@Indexable(type = IndexableType.REINDEX)
+	public LayoutRevision updateLayoutRevision(LayoutRevision layoutRevision);
 
-	public com.liferay.portal.model.LayoutRevision updateLayoutRevision(
-		long userId, long layoutRevisionId, long layoutBranchId,
-		java.lang.String name, java.lang.String title,
-		java.lang.String description, java.lang.String keywords,
-		java.lang.String robots, java.lang.String typeSettings,
-		boolean iconImage, long iconImageId, java.lang.String themeId,
-		java.lang.String colorSchemeId, java.lang.String wapThemeId,
-		java.lang.String wapColorSchemeId, java.lang.String css,
+	public LayoutRevision updateLayoutRevision(long userId,
+		long layoutRevisionId, long layoutBranchId, java.lang.String name,
+		java.lang.String title, java.lang.String description,
+		java.lang.String keywords, java.lang.String robots,
+		java.lang.String typeSettings, boolean iconImage, long iconImageId,
+		java.lang.String themeId, java.lang.String colorSchemeId,
+		java.lang.String wapThemeId, java.lang.String wapColorSchemeId,
+		java.lang.String css,
 		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
-	public com.liferay.portal.model.LayoutRevision updateStatus(long userId,
-		long layoutRevisionId, int status,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public LayoutRevision updateStatus(long userId, long layoutRevisionId,
+		int status, com.liferay.portal.service.ServiceContext serviceContext)
+		throws PortalException;
 }

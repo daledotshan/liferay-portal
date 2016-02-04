@@ -14,12 +14,14 @@
 
 package com.liferay.portal.kernel.search;
 
+import com.liferay.portal.kernel.search.geolocation.GeoLocationPoint;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -41,12 +43,6 @@ public class Field implements Serializable {
 
 	public static final String ASSET_CATEGORY_IDS = "assetCategoryIds";
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #ASSET_CATEGORY_TITLES}
-	 */
-	@Deprecated
-	public static final String ASSET_CATEGORY_NAMES = "assetCategoryNames";
-
 	public static final String ASSET_CATEGORY_TITLE = "assetCategoryTitle";
 
 	public static final String ASSET_CATEGORY_TITLES = "assetCategoryTitles";
@@ -62,6 +58,8 @@ public class Field implements Serializable {
 	public static final String ASSET_VOCABULARY_ID = "assetVocabularyId";
 
 	public static final String ASSET_VOCABULARY_IDS = "assetVocabularyIds";
+
+	public static final String CAPTION = "caption";
 
 	public static final String CATEGORY_ID = "categoryId";
 
@@ -91,6 +89,8 @@ public class Field implements Serializable {
 
 	public static final String FOLDER_ID = "folderId";
 
+	public static final String GEO_LOCATION = "geoLocation";
+
 	public static final String GROUP_ID = "groupId";
 
 	public static final String GROUP_ROLE_ID = "groupRoleId";
@@ -108,12 +108,6 @@ public class Field implements Serializable {
 	public static final String LANGUAGE_ID = "languageId";
 
 	public static final String LAYOUT_UUID = "layoutUuid";
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #MODIFIED_DATE}
-	 */
-	@Deprecated
-	public static final String MODIFIED = "modified";
 
 	public static final String MODIFIED_DATE = "modified";
 
@@ -187,11 +181,28 @@ public class Field implements Serializable {
 
 	public static final String VIEW_COUNT = "viewCount";
 
+	public static boolean validateFieldName(String name) {
+		if (name.contains(StringPool.COMMA) ||
+			name.contains(StringPool.PERIOD) ||
+			name.contains(StringPool.POUND) ||
+			name.contains(StringPool.SLASH) || name.contains(StringPool.STAR)||
+			name.startsWith(StringPool.UNDERLINE)) {
+
+			return false;
+		}
+
+		return true;
+	}
+
 	public Field(String name) {
+		validate(name);
+
 		_name = name;
 	}
 
 	public Field(String name, Map<Locale, String> localizedValues) {
+		validate(name);
+
 		_name = name;
 		_localizedValues = localizedValues;
 	}
@@ -200,52 +211,35 @@ public class Field implements Serializable {
 		this(name, new String[] {value});
 	}
 
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String value, boolean tokenized) {
-		this(name, value);
-
-		setTokenized(tokenized);
-	}
-
 	public Field(String name, String[] values) {
+		validate(name);
+
 		_name = name;
 		_values = values;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String[] values, boolean tokenized) {
-		this(name, values);
-
-		setTokenized(tokenized);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String[] values, boolean tokenized, float boost) {
-		this(name, values);
-
-		setBoost(boost);
-		setTokenized(tokenized);
 	}
 
 	public void addField(Field field) {
 		_fields.add(field);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link Query#getBoost}
+	 */
+	@Deprecated
 	public float getBoost() {
 		return _boost;
 	}
 
+	public Date[] getDates() {
+		return _dates;
+	}
+
 	public List<Field> getFields() {
 		return _fields;
+	}
+
+	public GeoLocationPoint getGeoLocationPoint() {
+		return _geoLocationPoint;
 	}
 
 	public Map<Locale, String> getLocalizedValues() {
@@ -285,6 +279,15 @@ public class Field implements Serializable {
 		return false;
 	}
 
+	public boolean isDate() {
+		if (_dates != null) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	public boolean isLocalized() {
 		if (_localizedValues != null) {
 			return true;
@@ -314,8 +317,20 @@ public class Field implements Serializable {
 		return _tokenized;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link Query#setBoost(float)}
+	 */
+	@Deprecated
 	public void setBoost(float boost) {
 		_boost = boost;
+	}
+
+	public void setDates(Date[] dates) {
+		_dates = dates;
+	}
+
+	public void setGeoLocationPoint(GeoLocationPoint geoLocationPoint) {
+		_geoLocationPoint = geoLocationPoint;
 	}
 
 	public void setLocalizedValues(Map<Locale, String> localizedValues) {
@@ -425,8 +440,43 @@ public class Field implements Serializable {
 
 	}
 
+	protected void validate(String name) {
+		if (name.contains(StringPool.COMMA)) {
+			throw new IllegalArgumentException(
+				"Name must not contain " + StringPool.COMMA + ": " + name);
+		}
+
+		if (name.contains(StringPool.PERIOD)) {
+			throw new IllegalArgumentException(
+				"Name must not contain " + StringPool.PERIOD + ": " + name);
+		}
+
+		if (name.contains(StringPool.POUND)) {
+			throw new IllegalArgumentException(
+				"Name must not contain " + StringPool.POUND + ": " + name);
+		}
+
+		if (name.contains(StringPool.SLASH)) {
+			throw new IllegalArgumentException(
+				"Name must not contain " + StringPool.SLASH + ": " + name);
+		}
+
+		if (name.contains(StringPool.STAR)) {
+			throw new IllegalArgumentException(
+				"Name must not contain " + StringPool.STAR + ": " + name);
+		}
+
+		if (name.startsWith(StringPool.UNDERLINE)) {
+			throw new IllegalArgumentException(
+				"Name must not start with " + StringPool.UNDERLINE + ": " +
+					name);
+		}
+	}
+
 	private float _boost = 1;
+	private Date[] _dates;
 	private final List<Field> _fields = new ArrayList<>();
+	private GeoLocationPoint _geoLocationPoint;
 	private Map<Locale, String> _localizedValues;
 	private String _name;
 	private boolean _numeric;

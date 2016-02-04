@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +57,7 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("orgLaborId", getOrgLaborId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("organizationId", getOrganizationId());
 		attributes.put("typeId", getTypeId());
 		attributes.put("sunOpen", getSunOpen());
@@ -84,6 +90,12 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 
 		if (orgLaborId != null) {
 			setOrgLaborId(orgLaborId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long organizationId = (Long)attributes.get("organizationId");
@@ -193,8 +205,18 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 		return _orgLabor.compareTo(orgLabor);
 	}
 
+	/**
+	* Returns the company ID of this org labor.
+	*
+	* @return the company ID of this org labor
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _orgLabor.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _orgLabor.getExpandoBridge();
 	}
 
@@ -279,7 +301,7 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _orgLabor.getPrimaryKeyObj();
 	}
 
@@ -429,21 +451,28 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 		_orgLabor.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this org labor.
+	*
+	* @param companyId the company ID of this org labor
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_orgLabor.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_orgLabor.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_orgLabor.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_orgLabor.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -533,7 +562,7 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_orgLabor.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -648,7 +677,7 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.OrgLabor> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.OrgLabor> toCacheModel() {
 		return _orgLabor.toCacheModel();
 	}
 
@@ -689,14 +718,6 @@ public class OrgLaborWrapper implements OrgLabor, ModelWrapper<OrgLabor> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public OrgLabor getWrappedOrgLabor() {
-		return _orgLabor;
 	}
 
 	@Override

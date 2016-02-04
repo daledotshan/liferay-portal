@@ -16,14 +16,29 @@ package com.liferay.portlet.asset.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalService;
 import com.liferay.portal.service.PersistedModelLocalService;
+
+import com.liferay.portlet.asset.model.AssetLink;
+import com.liferay.portlet.exportimport.lar.PortletDataContext;
+
+import java.io.Serializable;
+
+import java.util.List;
 
 /**
  * Provides the local service interface for AssetLink. Methods of this
@@ -54,9 +69,8 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param assetLink the asset link
 	* @return the asset link that was added
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portlet.asset.model.AssetLink addAssetLink(
-		com.liferay.portlet.asset.model.AssetLink assetLink);
+	@Indexable(type = IndexableType.REINDEX)
+	public AssetLink addAssetLink(AssetLink assetLink);
 
 	/**
 	* Adds a new asset link.
@@ -65,19 +79,16 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param entryId1 the primary key of the first asset entry
 	* @param entryId2 the primary key of the second asset entry
 	* @param type the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @param weight the weight of the relationship, allowing precedence
 	ordering of links
 	* @return the asset link
-	* @throws PortalException if the user could not be found
 	*/
-	public com.liferay.portlet.asset.model.AssetLink addLink(long userId,
-		long entryId1, long entryId2, int type, int weight)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetLink addLink(long userId, long entryId1, long entryId2,
+		int type, int weight) throws PortalException;
 
 	/**
 	* Creates a new asset link with the primary key. Does not add the asset link to the database.
@@ -85,8 +96,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param linkId the primary key for the new asset link
 	* @return the new asset link
 	*/
-	public com.liferay.portlet.asset.model.AssetLink createAssetLink(
-		long linkId);
+	public AssetLink createAssetLink(long linkId);
 
 	/**
 	* Deletes the asset link from the database. Also notifies the appropriate model listeners.
@@ -94,9 +104,8 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param assetLink the asset link
 	* @return the asset link that was removed
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portlet.asset.model.AssetLink deleteAssetLink(
-		com.liferay.portlet.asset.model.AssetLink assetLink);
+	@Indexable(type = IndexableType.DELETE)
+	public AssetLink deleteAssetLink(AssetLink assetLink);
 
 	/**
 	* Deletes the asset link with the primary key from the database. Also notifies the appropriate model listeners.
@@ -105,25 +114,24 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @return the asset link that was removed
 	* @throws PortalException if a asset link with the primary key could not be found
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
-	public com.liferay.portlet.asset.model.AssetLink deleteAssetLink(
-		long linkId) throws com.liferay.portal.kernel.exception.PortalException;
+	@Indexable(type = IndexableType.DELETE)
+	public AssetLink deleteAssetLink(long linkId) throws PortalException;
+
+	public void deleteGroupLinks(long groupId);
 
 	/**
 	* Deletes the asset link.
 	*
 	* @param link the asset link
 	*/
-	public void deleteLink(com.liferay.portlet.asset.model.AssetLink link);
+	public void deleteLink(AssetLink link);
 
 	/**
 	* Deletes the asset link.
 	*
 	* @param linkId the primary key of the asset link
-	* @throws PortalException if the asset link could not be found
 	*/
-	public void deleteLink(long linkId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public void deleteLink(long linkId) throws PortalException;
 
 	/**
 	* Deletes all links associated with the asset entry.
@@ -144,11 +152,10 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @throws PortalException
 	*/
 	@Override
-	public com.liferay.portal.model.PersistedModel deletePersistedModel(
-		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException;
 
-	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
+	public DynamicQuery dynamicQuery();
 
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
@@ -156,8 +163,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery);
 
 	/**
 	* Performs a dynamic query on the database and returns a range of the matching rows.
@@ -171,8 +177,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param end the upper bound of the range of model instances (not inclusive)
 	* @return the range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
 		int end);
 
 	/**
@@ -188,10 +193,8 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching rows
 	*/
-	public <T> java.util.List<T> dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -199,8 +202,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param dynamicQuery the dynamic query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery);
 
 	/**
 	* Returns the number of rows matching the dynamic query.
@@ -209,15 +211,14 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param projection the projection to apply to the query
 	* @return the number of rows matching the dynamic query
 	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
-		com.liferay.portal.kernel.dao.orm.Projection projection);
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetLink fetchAssetLink(long linkId);
+	public AssetLink fetchAssetLink(long linkId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
+	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	/**
 	* Returns the asset link with the primary key.
@@ -227,8 +228,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @throws PortalException if a asset link with the primary key could not be found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.asset.model.AssetLink getAssetLink(long linkId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetLink getAssetLink(long linkId) throws PortalException;
 
 	/**
 	* Returns a range of all the asset links.
@@ -242,8 +242,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @return the range of asset links
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getAssetLinks(
-		int start, int end);
+	public List<AssetLink> getAssetLinks(int start, int end);
 
 	/**
 	* Returns the number of asset links.
@@ -254,21 +253,13 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	public int getAssetLinksCount();
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
-
-	/**
 	* Returns all the asset links whose first entry ID is the given entry ID.
 	*
 	* @param entryId the primary key of the asset entry
 	* @return the asset links whose first entry ID is the given entry ID
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getDirectLinks(
-		long entryId);
+	public List<AssetLink> getDirectLinks(long entryId);
 
 	/**
 	* Returns all the asset links of the given link type whose first entry ID
@@ -276,17 +267,22 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	*
 	* @param entryId the primary key of the asset entry
 	* @param typeId the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @return the asset links of the given link type whose first entry ID is
 	the given entry ID
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getDirectLinks(
-		long entryId, int typeId);
+	public List<AssetLink> getDirectLinks(long entryId, int typeId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ExportActionableDynamicQuery getExportActionbleDynamicQuery(
+		PortletDataContext portletDataContext);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
 	* Returns all the asset links whose first or second entry ID is the given
@@ -297,8 +293,7 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	ID
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getLinks(
-		long entryId);
+	public List<AssetLink> getLinks(long entryId);
 
 	/**
 	* Returns all the asset links of the given link type whose first or second
@@ -306,23 +301,27 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	*
 	* @param entryId the primary key of the asset entry
 	* @param typeId the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @return the asset links of the given link type whose first or second
 	entry ID is the given entry ID
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getLinks(
-		long entryId, int typeId);
+	public List<AssetLink> getLinks(long entryId, int typeId);
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
 
 	/**
 	* Returns all the asset links of the given link type whose second entry ID
@@ -330,24 +329,15 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	*
 	* @param entryId the primary key of the asset entry
 	* @param typeId the link type. Acceptable values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
+	AssetLinkConstants#TYPE_RELATED} which is a bidirectional
+	relationship and {@link AssetLinkConstants#TYPE_CHILD} which is a
+	unidirectional relationship. For more information see {@link
+	AssetLinkConstants}
 	* @return the asset links of the given link type whose second entry ID is
 	the given entry ID
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.asset.model.AssetLink> getReverseLinks(
-		long entryId, int typeId);
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	public List<AssetLink> getReverseLinks(long entryId, int typeId);
 
 	/**
 	* Updates the asset link in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -355,13 +345,11 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param assetLink the asset link
 	* @return the asset link that was updated
 	*/
-	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
-	public com.liferay.portlet.asset.model.AssetLink updateAssetLink(
-		com.liferay.portlet.asset.model.AssetLink assetLink);
+	@Indexable(type = IndexableType.REINDEX)
+	public AssetLink updateAssetLink(AssetLink assetLink);
 
-	public com.liferay.portlet.asset.model.AssetLink updateLink(long userId,
-		long entryId1, long entryId2, int typeId, int weight)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public AssetLink updateLink(long userId, long entryId1, long entryId2,
+		int typeId, int weight) throws PortalException;
 
 	/**
 	* Updates all links of the asset entry, replacing them with links
@@ -380,14 +368,11 @@ public interface AssetLinkLocalService extends BaseLocalService,
 	* @param linkEntryIds the primary keys of the asset entries to be linked
 	with the asset entry to be managed
 	* @param typeId the type of the asset links to be created. Acceptable
-	values include {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_RELATED}
-	which is a bidirectional relationship and {@link
-	com.liferay.portlet.asset.model.AssetLinkConstants#TYPE_CHILD}
-	which is a unidirectional relationship. For more information see
-	{@link com.liferay.portlet.asset.model.AssetLinkConstants}
-	* @throws PortalException if the user could not be found
+	values include {@link AssetLinkConstants#TYPE_RELATED} which is a
+	bidirectional relationship and {@link
+	AssetLinkConstants#TYPE_CHILD} which is a unidirectional
+	relationship. For more information see {@link AssetLinkConstants}
 	*/
 	public void updateLinks(long userId, long entryId, long[] linkEntryIds,
-		int typeId) throws com.liferay.portal.kernel.exception.PortalException;
+		int typeId) throws PortalException;
 }

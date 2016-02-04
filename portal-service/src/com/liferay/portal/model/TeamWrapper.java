@@ -17,6 +17,12 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -52,6 +58,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("mvccVersion", getMvccVersion());
+		attributes.put("uuid", getUuid());
 		attributes.put("teamId", getTeamId());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
@@ -61,6 +68,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 		attributes.put("groupId", getGroupId());
 		attributes.put("name", getName());
 		attributes.put("description", getDescription());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -71,6 +79,12 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 
 		if (mvccVersion != null) {
 			setMvccVersion(mvccVersion);
+		}
+
+		String uuid = (String)attributes.get("uuid");
+
+		if (uuid != null) {
+			setUuid(uuid);
 		}
 
 		Long teamId = (Long)attributes.get("teamId");
@@ -126,6 +140,12 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 		if (description != null) {
 			setDescription(description);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -154,7 +174,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	* @return the create date of this team
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _team.getCreateDate();
 	}
 
@@ -169,7 +189,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _team.getExpandoBridge();
 	}
 
@@ -184,12 +204,22 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	}
 
 	/**
+	* Returns the last publish date of this team.
+	*
+	* @return the last publish date of this team
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _team.getLastPublishDate();
+	}
+
+	/**
 	* Returns the modified date of this team.
 	*
 	* @return the modified date of this team
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _team.getModifiedDate();
 	}
 
@@ -224,7 +254,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _team.getPrimaryKeyObj();
 	}
 
@@ -274,6 +304,16 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 		return _team.getUserUuid();
 	}
 
+	/**
+	* Returns the uuid of this team.
+	*
+	* @return the uuid of this team
+	*/
+	@Override
+	public java.lang.String getUuid() {
+		return _team.getUuid();
+	}
+
 	@Override
 	public int hashCode() {
 		return _team.hashCode();
@@ -320,7 +360,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	* @param createDate the create date of this team
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_team.setCreateDate(createDate);
 	}
 
@@ -335,20 +375,17 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_team.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_team.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_team.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -363,12 +400,22 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	}
 
 	/**
+	* Sets the last publish date of this team.
+	*
+	* @param lastPublishDate the last publish date of this team
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_team.setLastPublishDate(lastPublishDate);
+	}
+
+	/**
 	* Sets the modified date of this team.
 	*
 	* @param modifiedDate the modified date of this team
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_team.setModifiedDate(modifiedDate);
 	}
 
@@ -408,7 +455,7 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_team.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -452,8 +499,18 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 		_team.setUserUuid(userUuid);
 	}
 
+	/**
+	* Sets the uuid of this team.
+	*
+	* @param uuid the uuid of this team
+	*/
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Team> toCacheModel() {
+	public void setUuid(java.lang.String uuid) {
+		_team.setUuid(uuid);
+	}
+
+	@Override
+	public CacheModel<com.liferay.portal.model.Team> toCacheModel() {
 		return _team.toCacheModel();
 	}
 
@@ -496,12 +553,9 @@ public class TeamWrapper implements Team, ModelWrapper<Team> {
 		return false;
 	}
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Team getWrappedTeam() {
-		return _team;
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _team.getStagedModelType();
 	}
 
 	@Override

@@ -49,21 +49,21 @@ public class LayoutSetBranchServiceWrapper implements LayoutSetBranchService,
 		_layoutSetBranchService.deleteLayoutSetBranch(layoutSetBranchId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _layoutSetBranchService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<com.liferay.portal.model.LayoutSetBranch> getLayoutSetBranches(
 		long groupId, boolean privateLayout) {
 		return _layoutSetBranchService.getLayoutSetBranches(groupId,
 			privateLayout);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _layoutSetBranchService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -75,16 +75,6 @@ public class LayoutSetBranchServiceWrapper implements LayoutSetBranchService,
 			mergeLayoutSetBranchId, serviceContext);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_layoutSetBranchService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public com.liferay.portal.model.LayoutSetBranch updateLayoutSetBranch(
 		long groupId, long layoutSetBranchId, java.lang.String name,
@@ -93,23 +83,6 @@ public class LayoutSetBranchServiceWrapper implements LayoutSetBranchService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutSetBranchService.updateLayoutSetBranch(groupId,
 			layoutSetBranchId, name, description, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public LayoutSetBranchService getWrappedLayoutSetBranchService() {
-		return _layoutSetBranchService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedLayoutSetBranchService(
-		LayoutSetBranchService layoutSetBranchService) {
-		_layoutSetBranchService = layoutSetBranchService;
 	}
 
 	@Override

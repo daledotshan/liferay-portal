@@ -1,0 +1,26 @@
+<definition>
+	<command name="configureSetupPG">
+		<execute macro="Portlet#gotoPortletOptions">
+			<var name="portletName" value="Wiki Display" />
+			<var name="portletOption" value="Configuration" />
+		</execute>
+
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+
+		<execute function="Select" locator1="WikiConfiguration#COMMUNICATION_SELECT_NODE_ID" value1="${wikiNodeName}" />
+
+		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="You have successfully updated the setup." />
+		<execute function="AssertSelectedLabel" locator1="WikiConfiguration#COMMUNICATION_SELECT_NODE_ID" value1="${wikiNodeName}" />
+
+		<execute function="Select" locator1="WikiConfiguration#COMMUNICATION_SELECT_TITLE" value1="${wikiPageName}" />
+
+		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+
+		<execute function="AssertSelectedLabel" locator1="WikiConfiguration#COMMUNICATION_SELECT_TITLE" value1="${wikiPageName}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="You have successfully updated the setup." />
+
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+</definition>

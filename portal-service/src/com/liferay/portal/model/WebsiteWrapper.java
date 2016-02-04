@@ -16,8 +16,13 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -65,6 +70,7 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 		attributes.put("url", getUrl());
 		attributes.put("typeId", getTypeId());
 		attributes.put("primary", getPrimary());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -148,6 +154,12 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 		if (primary != null) {
 			setPrimary(primary);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -206,13 +218,23 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	* @return the create date of this website
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _website.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _website.getExpandoBridge();
+	}
+
+	/**
+	* Returns the last publish date of this website.
+	*
+	* @return the last publish date of this website
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _website.getLastPublishDate();
 	}
 
 	/**
@@ -221,7 +243,7 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	* @return the modified date of this website
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _website.getModifiedDate();
 	}
 
@@ -256,7 +278,7 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _website.getPrimaryKeyObj();
 	}
 
@@ -417,26 +439,33 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	* @param createDate the create date of this website
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_website.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_website.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_website.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_website.setExpandoBridgeAttributes(serviceContext);
+	}
+
+	/**
+	* Sets the last publish date of this website.
+	*
+	* @param lastPublishDate the last publish date of this website
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_website.setLastPublishDate(lastPublishDate);
 	}
 
 	/**
@@ -445,7 +474,7 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	* @param modifiedDate the modified date of this website
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_website.setModifiedDate(modifiedDate);
 	}
 
@@ -485,7 +514,7 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_website.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -560,7 +589,7 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Website> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Website> toCacheModel() {
 		return _website.toCacheModel();
 	}
 
@@ -606,14 +635,6 @@ public class WebsiteWrapper implements Website, ModelWrapper<Website> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _website.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Website getWrappedWebsite() {
-		return _website;
 	}
 
 	@Override

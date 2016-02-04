@@ -16,8 +16,13 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -186,7 +191,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the create date of this layout set prototype
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _layoutSetPrototype.getCreateDate();
 	}
 
@@ -269,12 +274,12 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the locales and localized descriptions of this layout set prototype
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getDescriptionMap() {
+	public Map<java.util.Locale, java.lang.String> getDescriptionMap() {
 		return _layoutSetPrototype.getDescriptionMap();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _layoutSetPrototype.getExpandoBridge();
 	}
 
@@ -312,7 +317,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the modified date of this layout set prototype
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _layoutSetPrototype.getModifiedDate();
 	}
 
@@ -399,7 +404,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @return the locales and localized names of this layout set prototype
 	*/
 	@Override
-	public java.util.Map<java.util.Locale, java.lang.String> getNameMap() {
+	public Map<java.util.Locale, java.lang.String> getNameMap() {
 		return _layoutSetPrototype.getNameMap();
 	}
 
@@ -414,7 +419,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _layoutSetPrototype.getPrimaryKeyObj();
 	}
 
@@ -476,6 +481,11 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	@Override
 	public java.lang.String getUuid() {
 		return _layoutSetPrototype.getUuid();
+	}
+
+	@Override
+	public boolean hasSetModifiedDate() {
+		return _layoutSetPrototype.hasSetModifiedDate();
 	}
 
 	@Override
@@ -557,7 +567,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param createDate the create date of this layout set prototype
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_layoutSetPrototype.setCreateDate(createDate);
 	}
 
@@ -608,7 +618,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap) {
+		Map<java.util.Locale, java.lang.String> descriptionMap) {
 		_layoutSetPrototype.setDescriptionMap(descriptionMap);
 	}
 
@@ -620,26 +630,23 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	*/
 	@Override
 	public void setDescriptionMap(
-		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
+		Map<java.util.Locale, java.lang.String> descriptionMap,
 		java.util.Locale defaultLocale) {
 		_layoutSetPrototype.setDescriptionMap(descriptionMap, defaultLocale);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_layoutSetPrototype.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_layoutSetPrototype.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_layoutSetPrototype.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -659,7 +666,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param modifiedDate the modified date of this layout set prototype
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_layoutSetPrototype.setModifiedDate(modifiedDate);
 	}
 
@@ -718,8 +725,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param nameMap the locales and localized names of this layout set prototype
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap) {
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap) {
 		_layoutSetPrototype.setNameMap(nameMap);
 	}
 
@@ -730,8 +736,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	* @param defaultLocale the default locale
 	*/
 	@Override
-	public void setNameMap(
-		java.util.Map<java.util.Locale, java.lang.String> nameMap,
+	public void setNameMap(Map<java.util.Locale, java.lang.String> nameMap,
 		java.util.Locale defaultLocale) {
 		_layoutSetPrototype.setNameMap(nameMap, defaultLocale);
 	}
@@ -752,7 +757,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_layoutSetPrototype.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -813,7 +818,7 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.LayoutSetPrototype> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.LayoutSetPrototype> toCacheModel() {
 		return _layoutSetPrototype.toCacheModel();
 	}
 
@@ -860,14 +865,6 @@ public class LayoutSetPrototypeWrapper implements LayoutSetPrototype,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _layoutSetPrototype.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public LayoutSetPrototype getWrappedLayoutSetPrototype() {
-		return _layoutSetPrototype;
 	}
 
 	@Override

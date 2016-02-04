@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +110,7 @@ public class PortalPreferencesWrapper implements PortalPreferences,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _portalPreferences.getExpandoBridge();
 	}
 
@@ -170,7 +175,7 @@ public class PortalPreferencesWrapper implements PortalPreferences,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _portalPreferences.getPrimaryKeyObj();
 	}
 
@@ -205,20 +210,17 @@ public class PortalPreferencesWrapper implements PortalPreferences,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_portalPreferences.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_portalPreferences.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_portalPreferences.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -288,12 +290,12 @@ public class PortalPreferencesWrapper implements PortalPreferences,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_portalPreferences.setPrimaryKeyObj(primaryKeyObj);
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.PortalPreferences> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.PortalPreferences> toCacheModel() {
 		return _portalPreferences.toCacheModel();
 	}
 
@@ -335,14 +337,6 @@ public class PortalPreferencesWrapper implements PortalPreferences,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public PortalPreferences getWrappedPortalPreferences() {
-		return _portalPreferences;
 	}
 
 	@Override

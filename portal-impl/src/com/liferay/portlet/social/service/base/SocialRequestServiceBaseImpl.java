@@ -15,21 +15,21 @@
 package com.liferay.portlet.social.service.base;
 
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.bean.IdentifiableBean;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
 import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.service.BaseServiceImpl;
 import com.liferay.portal.service.persistence.ClassNamePersistence;
 import com.liferay.portal.service.persistence.UserFinder;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.util.PortalUtil;
 
-import com.liferay.portlet.social.model.SocialRequest;
-import com.liferay.portlet.social.service.SocialRequestService;
-import com.liferay.portlet.social.service.persistence.SocialRequestPersistence;
+import com.liferay.social.kernel.model.SocialRequest;
+import com.liferay.social.kernel.service.SocialRequestService;
+import com.liferay.social.kernel.service.persistence.SocialRequestPersistence;
 
 import javax.sql.DataSource;
 
@@ -42,15 +42,15 @@ import javax.sql.DataSource;
  *
  * @author Brian Wing Shun Chan
  * @see com.liferay.portlet.social.service.impl.SocialRequestServiceImpl
- * @see com.liferay.portlet.social.service.SocialRequestServiceUtil
+ * @see com.liferay.social.kernel.service.SocialRequestServiceUtil
  * @generated
  */
 public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
-	implements SocialRequestService, IdentifiableBean {
+	implements SocialRequestService, IdentifiableOSGiService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this class directly. Always use {@link com.liferay.portlet.social.service.SocialRequestServiceUtil} to access the social request remote service.
+	 * Never modify or reference this class directly. Always use {@link com.liferay.social.kernel.service.SocialRequestServiceUtil} to access the social request remote service.
 	 */
 
 	/**
@@ -58,7 +58,7 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social request local service
 	 */
-	public com.liferay.portlet.social.service.SocialRequestLocalService getSocialRequestLocalService() {
+	public com.liferay.social.kernel.service.SocialRequestLocalService getSocialRequestLocalService() {
 		return socialRequestLocalService;
 	}
 
@@ -68,7 +68,7 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	 * @param socialRequestLocalService the social request local service
 	 */
 	public void setSocialRequestLocalService(
-		com.liferay.portlet.social.service.SocialRequestLocalService socialRequestLocalService) {
+		com.liferay.social.kernel.service.SocialRequestLocalService socialRequestLocalService) {
 		this.socialRequestLocalService = socialRequestLocalService;
 	}
 
@@ -77,7 +77,7 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social request remote service
 	 */
-	public com.liferay.portlet.social.service.SocialRequestService getSocialRequestService() {
+	public SocialRequestService getSocialRequestService() {
 		return socialRequestService;
 	}
 
@@ -87,7 +87,7 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	 * @param socialRequestService the social request remote service
 	 */
 	public void setSocialRequestService(
-		com.liferay.portlet.social.service.SocialRequestService socialRequestService) {
+		SocialRequestService socialRequestService) {
 		this.socialRequestService = socialRequestService;
 	}
 
@@ -265,7 +265,7 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	 *
 	 * @return the social request interpreter local service
 	 */
-	public com.liferay.portlet.social.service.SocialRequestInterpreterLocalService getSocialRequestInterpreterLocalService() {
+	public com.liferay.social.kernel.service.SocialRequestInterpreterLocalService getSocialRequestInterpreterLocalService() {
 		return socialRequestInterpreterLocalService;
 	}
 
@@ -275,7 +275,7 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	 * @param socialRequestInterpreterLocalService the social request interpreter local service
 	 */
 	public void setSocialRequestInterpreterLocalService(
-		com.liferay.portlet.social.service.SocialRequestInterpreterLocalService socialRequestInterpreterLocalService) {
+		com.liferay.social.kernel.service.SocialRequestInterpreterLocalService socialRequestInterpreterLocalService) {
 		this.socialRequestInterpreterLocalService = socialRequestInterpreterLocalService;
 	}
 
@@ -286,23 +286,13 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
-	 * Returns the Spring bean ID for this bean.
+	 * Returns the OSGi service identifier.
 	 *
-	 * @return the Spring bean ID for this bean
+	 * @return the OSGi service identifier
 	 */
 	@Override
-	public String getBeanIdentifier() {
-		return _beanIdentifier;
-	}
-
-	/**
-	 * Sets the Spring bean ID for this bean.
-	 *
-	 * @param beanIdentifier the Spring bean ID for this bean
-	 */
-	@Override
-	public void setBeanIdentifier(String beanIdentifier) {
-		_beanIdentifier = beanIdentifier;
+	public String getOSGiServiceIdentifier() {
+		return SocialRequestService.class.getName();
 	}
 
 	protected Class<?> getModelClass() {
@@ -322,7 +312,7 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 		try {
 			DataSource dataSource = socialRequestPersistence.getDataSource();
 
-			DB db = DBFactoryUtil.getDB();
+			DB db = DBManagerUtil.getDB();
 
 			sql = db.buildSQL(sql);
 			sql = PortalUtil.transformSQL(sql);
@@ -337,10 +327,10 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 		}
 	}
 
-	@BeanReference(type = com.liferay.portlet.social.service.SocialRequestLocalService.class)
-	protected com.liferay.portlet.social.service.SocialRequestLocalService socialRequestLocalService;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialRequestService.class)
-	protected com.liferay.portlet.social.service.SocialRequestService socialRequestService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialRequestLocalService.class)
+	protected com.liferay.social.kernel.service.SocialRequestLocalService socialRequestLocalService;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialRequestService.class)
+	protected SocialRequestService socialRequestService;
 	@BeanReference(type = SocialRequestPersistence.class)
 	protected SocialRequestPersistence socialRequestPersistence;
 	@BeanReference(type = com.liferay.counter.service.CounterLocalService.class)
@@ -359,7 +349,6 @@ public abstract class SocialRequestServiceBaseImpl extends BaseServiceImpl
 	protected UserPersistence userPersistence;
 	@BeanReference(type = UserFinder.class)
 	protected UserFinder userFinder;
-	@BeanReference(type = com.liferay.portlet.social.service.SocialRequestInterpreterLocalService.class)
-	protected com.liferay.portlet.social.service.SocialRequestInterpreterLocalService socialRequestInterpreterLocalService;
-	private String _beanIdentifier;
+	@BeanReference(type = com.liferay.social.kernel.service.SocialRequestInterpreterLocalService.class)
+	protected com.liferay.social.kernel.service.SocialRequestInterpreterLocalService socialRequestInterpreterLocalService;
 }

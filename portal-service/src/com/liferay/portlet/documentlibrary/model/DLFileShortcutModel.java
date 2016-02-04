@@ -21,13 +21,15 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
+import com.liferay.portal.model.ShardedModel;
 import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.trash.model.TrashEntry;
+
+import com.liferay.trash.kernel.model.TrashEntry;
 
 import java.io.Serializable;
 
@@ -48,7 +50,7 @@ import java.util.Date;
  */
 @ProviderType
 public interface DLFileShortcutModel extends BaseModel<DLFileShortcut>,
-	StagedGroupedModel, TrashedModel, WorkflowedModel {
+	ShardedModel, StagedGroupedModel, TrashedModel, WorkflowedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
@@ -292,6 +294,22 @@ public interface DLFileShortcutModel extends BaseModel<DLFileShortcut>,
 	public void setActive(boolean active);
 
 	/**
+	 * Returns the last publish date of this document library file shortcut.
+	 *
+	 * @return the last publish date of this document library file shortcut
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this document library file shortcut.
+	 *
+	 * @param lastPublishDate the last publish date of this document library file shortcut
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
+
+	/**
 	 * Returns the status of this document library file shortcut.
 	 *
 	 * @return the status of this document library file shortcut
@@ -417,13 +435,6 @@ public interface DLFileShortcutModel extends BaseModel<DLFileShortcut>,
 
 	@Override
 	public boolean isInTrashImplicitly();
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	 */
-	@Deprecated
-	@Override
-	public boolean getApproved();
 
 	/**
 	 * Returns <code>true</code> if this document library file shortcut is approved.

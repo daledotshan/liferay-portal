@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +58,7 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("portletPreferencesId", getPortletPreferencesId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("ownerId", getOwnerId());
 		attributes.put("ownerType", getOwnerType());
 		attributes.put("plid", getPlid());
@@ -74,6 +80,12 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 
 		if (portletPreferencesId != null) {
 			setPortletPreferencesId(portletPreferencesId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long ownerId = (Long)attributes.get("ownerId");
@@ -118,8 +130,18 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 		return _portletPreferences.compareTo(portletPreferences);
 	}
 
+	/**
+	* Returns the company ID of this portlet preferences.
+	*
+	* @return the company ID of this portlet preferences
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _portletPreferences.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _portletPreferences.getExpandoBridge();
 	}
 
@@ -204,7 +226,7 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _portletPreferences.getPrimaryKeyObj();
 	}
 
@@ -238,21 +260,28 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 		_portletPreferences.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this portlet preferences.
+	*
+	* @param companyId the company ID of this portlet preferences
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_portletPreferences.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_portletPreferences.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_portletPreferences.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_portletPreferences.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -342,12 +371,12 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_portletPreferences.setPrimaryKeyObj(primaryKeyObj);
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.PortletPreferences> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.PortletPreferences> toCacheModel() {
 		return _portletPreferences.toCacheModel();
 	}
 
@@ -389,14 +418,6 @@ public class PortletPreferencesWrapper implements PortletPreferences,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public PortletPreferences getWrappedPortletPreferences() {
-		return _portletPreferences;
 	}
 
 	@Override

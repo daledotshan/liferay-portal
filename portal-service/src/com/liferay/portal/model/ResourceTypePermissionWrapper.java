@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -141,7 +146,7 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _resourceTypePermission.getExpandoBridge();
 	}
 
@@ -186,7 +191,7 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _resourceTypePermission.getPrimaryKeyObj();
 	}
 
@@ -208,6 +213,12 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	@Override
 	public long getRoleId() {
 		return _resourceTypePermission.getRoleId();
+	}
+
+	@Override
+	public boolean hasAction(
+		com.liferay.portal.model.ResourceAction resourceAction) {
+		return _resourceTypePermission.hasAction(resourceAction);
 	}
 
 	@Override
@@ -271,20 +282,17 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_resourceTypePermission.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_resourceTypePermission.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_resourceTypePermission.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -334,7 +342,7 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_resourceTypePermission.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -359,7 +367,7 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.ResourceTypePermission> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.ResourceTypePermission> toCacheModel() {
 		return _resourceTypePermission.toCacheModel();
 	}
 
@@ -401,14 +409,6 @@ public class ResourceTypePermissionWrapper implements ResourceTypePermission,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public ResourceTypePermission getWrappedResourceTypePermission() {
-		return _resourceTypePermission;
 	}
 
 	@Override

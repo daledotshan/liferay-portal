@@ -18,6 +18,11 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +58,7 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("tagStatsId", getTagStatsId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("tagId", getTagId());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("assetCount", getAssetCount());
@@ -66,6 +72,12 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 
 		if (tagStatsId != null) {
 			setTagStatsId(tagStatsId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long tagId = (Long)attributes.get("tagId");
@@ -128,8 +140,18 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 		return _assetTagStats.getClassNameId();
 	}
 
+	/**
+	* Returns the company ID of this asset tag stats.
+	*
+	* @return the company ID of this asset tag stats
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _assetTagStats.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _assetTagStats.getExpandoBridge();
 	}
 
@@ -144,7 +166,7 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _assetTagStats.getPrimaryKeyObj();
 	}
 
@@ -223,6 +245,16 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 		_assetTagStats.setClassNameId(classNameId);
 	}
 
+	/**
+	* Sets the company ID of this asset tag stats.
+	*
+	* @param companyId the company ID of this asset tag stats
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_assetTagStats.setCompanyId(companyId);
+	}
+
 	@Override
 	public void setExpandoBridgeAttributes(
 		com.liferay.portal.model.BaseModel<?> baseModel) {
@@ -230,14 +262,12 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_assetTagStats.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_assetTagStats.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -257,7 +287,7 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_assetTagStats.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -323,14 +353,6 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public AssetTagStats getWrappedAssetTagStats() {
-		return _assetTagStats;
 	}
 
 	@Override

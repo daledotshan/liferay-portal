@@ -15,8 +15,8 @@
 package com.liferay.portal.kernel.repository.model;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.Accessor;
-import com.liferay.portal.security.permission.PermissionChecker;
 
 import java.util.Date;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author Alexander Chow
  */
-public interface Folder extends RepositoryModel<Folder> {
+public interface Folder extends RepositoryEntry, RepositoryModel<Folder> {
 
 	public static final Accessor<Folder, Long> FOLDER_ID_ACCESSOR =
 

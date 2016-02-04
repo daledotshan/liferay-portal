@@ -16,9 +16,14 @@ package com.liferay.portlet.messageboards.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -300,7 +305,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	* @return the create date of this message boards mailing list
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _mbMailingList.getCreateDate();
 	}
 
@@ -315,7 +320,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _mbMailingList.getExpandoBridge();
 	}
 
@@ -415,7 +420,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	* @return the modified date of this message boards mailing list
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _mbMailingList.getModifiedDate();
 	}
 
@@ -500,7 +505,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _mbMailingList.getPrimaryKeyObj();
 	}
 
@@ -670,7 +675,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	* @param createDate the create date of this message boards mailing list
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_mbMailingList.setCreateDate(createDate);
 	}
 
@@ -691,14 +696,12 @@ public class MBMailingListWrapper implements MBMailingList,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_mbMailingList.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_mbMailingList.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -798,7 +801,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	* @param modifiedDate the modified date of this message boards mailing list
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_mbMailingList.setModifiedDate(modifiedDate);
 	}
 
@@ -888,7 +891,7 @@ public class MBMailingListWrapper implements MBMailingList,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_mbMailingList.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -979,14 +982,6 @@ public class MBMailingListWrapper implements MBMailingList,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _mbMailingList.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public MBMailingList getWrappedMBMailingList() {
-		return _mbMailingList;
 	}
 
 	@Override

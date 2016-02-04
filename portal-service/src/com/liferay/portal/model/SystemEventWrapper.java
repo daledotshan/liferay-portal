@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -230,12 +235,12 @@ public class SystemEventWrapper implements SystemEvent,
 	* @return the create date of this system event
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _systemEvent.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _systemEvent.getExpandoBridge();
 	}
 
@@ -290,7 +295,7 @@ public class SystemEventWrapper implements SystemEvent,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _systemEvent.getPrimaryKeyObj();
 	}
 
@@ -450,25 +455,22 @@ public class SystemEventWrapper implements SystemEvent,
 	* @param createDate the create date of this system event
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_systemEvent.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_systemEvent.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_systemEvent.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_systemEvent.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -528,7 +530,7 @@ public class SystemEventWrapper implements SystemEvent,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_systemEvent.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -608,7 +610,7 @@ public class SystemEventWrapper implements SystemEvent,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.SystemEvent> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.SystemEvent> toCacheModel() {
 		return _systemEvent.toCacheModel();
 	}
 
@@ -649,14 +651,6 @@ public class SystemEventWrapper implements SystemEvent,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public SystemEvent getWrappedSystemEvent() {
-		return _systemEvent;
 	}
 
 	@Override

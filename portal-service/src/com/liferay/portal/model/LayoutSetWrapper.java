@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -237,7 +242,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	* @return the create date of this layout set
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _layoutSet.getCreateDate();
 	}
 
@@ -252,7 +257,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _layoutSet.getExpandoBridge();
 	}
 
@@ -260,8 +265,6 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	* Returns the layout set's group.
 	*
 	* @return the layout set's group
-	* @throws PortalException if a group with the primary key could not be
-	found
 	*/
 	@Override
 	public com.liferay.portal.model.Group getGroup()
@@ -299,8 +302,6 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	*
 	* @return the layout set prototype's ID, or <code>0</code> if it has no
 	layout set prototype
-	* @throws PortalException if a matching layout set prototype could not be
-	found
 	*/
 	@Override
 	public long getLayoutSetPrototypeId()
@@ -354,7 +355,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	* @return the modified date of this layout set
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _layoutSet.getModifiedDate();
 	}
 
@@ -389,7 +390,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _layoutSet.getPrimaryKeyObj();
 	}
 
@@ -491,6 +492,11 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	}
 
 	@Override
+	public boolean hasSetModifiedDate() {
+		return _layoutSet.hasSetModifiedDate();
+	}
+
+	@Override
 	public int hashCode() {
 		return _layoutSet.hashCode();
 	}
@@ -582,7 +588,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	* @param createDate the create date of this layout set
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_layoutSet.setCreateDate(createDate);
 	}
 
@@ -597,20 +603,17 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_layoutSet.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_layoutSet.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_layoutSet.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -672,7 +675,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	* @param modifiedDate the modified date of this layout set
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_layoutSet.setModifiedDate(modifiedDate);
 	}
 
@@ -712,7 +715,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_layoutSet.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -784,7 +787,7 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.LayoutSet> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.LayoutSet> toCacheModel() {
 		return _layoutSet.toCacheModel();
 	}
 
@@ -825,14 +828,6 @@ public class LayoutSetWrapper implements LayoutSet, ModelWrapper<LayoutSet> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public LayoutSet getWrappedLayoutSet() {
-		return _layoutSet;
 	}
 
 	@Override

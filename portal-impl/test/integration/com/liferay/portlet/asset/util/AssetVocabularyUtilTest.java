@@ -25,7 +25,6 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 
@@ -49,8 +48,7 @@ public class AssetVocabularyUtilTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -65,8 +63,8 @@ public class AssetVocabularyUtilTest {
 				_group.getGroupId(), TestPropsValues.getUserId());
 
 		_vocabulary = AssetVocabularyLocalServiceUtil.addVocabulary(
-			TestPropsValues.getUserId(), _TITLE, titleMap, null, null,
-			serviceContext);
+			TestPropsValues.getUserId(), _group.getGroupId(), _TITLE, titleMap,
+			null, null, serviceContext);
 
 		Company company = CompanyLocalServiceUtil.getCompany(
 			_group.getCompanyId());
@@ -77,8 +75,8 @@ public class AssetVocabularyUtilTest {
 			_companyGroup.getGroupId(), TestPropsValues.getUserId());
 
 		_companyVocabulary = AssetVocabularyLocalServiceUtil.addVocabulary(
-			TestPropsValues.getUserId(), _TITLE, titleMap, null, null,
-			serviceContext);
+			TestPropsValues.getUserId(), _companyGroup.getGroupId(), _TITLE,
+			titleMap, null, null, serviceContext);
 	}
 
 	@Test

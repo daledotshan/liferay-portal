@@ -16,8 +16,13 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -213,12 +218,12 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	* @return the create date of this phone
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _phone.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _phone.getExpandoBridge();
 	}
 
@@ -238,7 +243,7 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	* @return the modified date of this phone
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _phone.getModifiedDate();
 	}
 
@@ -293,7 +298,7 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _phone.getPrimaryKeyObj();
 	}
 
@@ -434,25 +439,22 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	* @param createDate the create date of this phone
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_phone.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_phone.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_phone.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_phone.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -472,7 +474,7 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	* @param modifiedDate the modified date of this phone
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_phone.setModifiedDate(modifiedDate);
 	}
 
@@ -532,7 +534,7 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_phone.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -587,7 +589,7 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Phone> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Phone> toCacheModel() {
 		return _phone.toCacheModel();
 	}
 
@@ -633,14 +635,6 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _phone.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Phone getWrappedPhone() {
-		return _phone;
 	}
 
 	@Override

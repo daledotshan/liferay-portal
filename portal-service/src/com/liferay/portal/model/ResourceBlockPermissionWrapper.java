@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +60,7 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("resourceBlockPermissionId",
 			getResourceBlockPermissionId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("resourceBlockId", getResourceBlockId());
 		attributes.put("roleId", getRoleId());
 		attributes.put("actionIds", getActionIds());
@@ -75,6 +81,12 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 
 		if (resourceBlockPermissionId != null) {
 			setResourceBlockPermissionId(resourceBlockPermissionId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long resourceBlockId = (Long)attributes.get("resourceBlockId");
@@ -117,8 +129,18 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 		return _resourceBlockPermission.getActionIds();
 	}
 
+	/**
+	* Returns the company ID of this resource block permission.
+	*
+	* @return the company ID of this resource block permission
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _resourceBlockPermission.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _resourceBlockPermission.getExpandoBridge();
 	}
 
@@ -143,7 +165,7 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _resourceBlockPermission.getPrimaryKeyObj();
 	}
 
@@ -217,21 +239,28 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 		_resourceBlockPermission.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this resource block permission.
+	*
+	* @param companyId the company ID of this resource block permission
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_resourceBlockPermission.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_resourceBlockPermission.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_resourceBlockPermission.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_resourceBlockPermission.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -261,7 +290,7 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_resourceBlockPermission.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -296,7 +325,7 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.ResourceBlockPermission> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.ResourceBlockPermission> toCacheModel() {
 		return _resourceBlockPermission.toCacheModel();
 	}
 
@@ -338,14 +367,6 @@ public class ResourceBlockPermissionWrapper implements ResourceBlockPermission,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public ResourceBlockPermission getWrappedResourceBlockPermission() {
-		return _resourceBlockPermission;
 	}
 
 	@Override

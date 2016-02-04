@@ -23,8 +23,10 @@ import com.liferay.portal.service.ServiceWrapper;
  *
  * @author Brian Wing Shun Chan
  * @see CalEventLocalService
+ * @deprecated As of 7.0.0, with no direct replacement
  * @generated
  */
+@Deprecated
 @ProviderType
 public class CalEventLocalServiceWrapper implements CalEventLocalService,
 	ServiceWrapper<CalEventLocalService> {
@@ -63,33 +65,6 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 			firstReminder, secondReminder, serviceContext);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEvent(long, String,
-	String, String, int, int, int, int, int, int, int, boolean,
-	boolean, String, boolean, TZSRecurrence, int, int, int,
-	ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.calendar.model.CalEvent addEvent(long userId,
-		java.lang.String title, java.lang.String description,
-		java.lang.String location, int startDateMonth, int startDateDay,
-		int startDateYear, int startDateHour, int startDateMinute,
-		int endDateMonth, int endDateDay, int endDateYear, int durationHour,
-		int durationMinute, boolean allDay, boolean timeZoneSensitive,
-		java.lang.String type, boolean repeating,
-		com.liferay.portal.kernel.cal.TZSRecurrence recurrence, int remindBy,
-		int firstReminder, int secondReminder,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _calEventLocalService.addEvent(userId, title, description,
-			location, startDateMonth, startDateDay, startDateYear,
-			startDateHour, startDateMinute, endDateMonth, endDateDay,
-			endDateYear, durationHour, durationMinute, allDay,
-			timeZoneSensitive, type, repeating, recurrence, remindBy,
-			firstReminder, secondReminder, serviceContext);
-	}
-
 	@Override
 	public void addEventResources(
 		com.liferay.portlet.calendar.model.CalEvent event,
@@ -102,10 +77,9 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 	@Override
 	public void addEventResources(
 		com.liferay.portlet.calendar.model.CalEvent event,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		_calEventLocalService.addEventResources(event, groupPermissions,
-			guestPermissions);
+		_calEventLocalService.addEventResources(event, modelPermissions);
 	}
 
 	@Override
@@ -118,10 +92,9 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 
 	@Override
 	public void addEventResources(long eventId,
-		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		com.liferay.portal.service.permission.ModelPermissions modelPermissions)
 		throws com.liferay.portal.kernel.exception.PortalException {
-		_calEventLocalService.addEventResources(eventId, groupPermissions,
-			guestPermissions);
+		_calEventLocalService.addEventResources(eventId, modelPermissions);
 	}
 
 	@Override
@@ -326,16 +299,6 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _calEventLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the cal event with the primary key.
 	*
 	* @param eventId the primary key of the cal event
@@ -481,13 +444,28 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext) {
+		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _calEventLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _calEventLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	@Override
 	public java.util.List<com.liferay.portlet.calendar.model.CalEvent> getNoAssetEvents() {
 		return _calEventLocalService.getNoAssetEvents();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _calEventLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -533,16 +511,6 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 		_calEventLocalService.importICal4j(userId, groupId, inputStream);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_calEventLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void updateAsset(long userId,
 		com.liferay.portlet.calendar.model.CalEvent event,
@@ -582,51 +550,6 @@ public class CalEventLocalServiceWrapper implements CalEventLocalService,
 			startDateHour, startDateMinute, durationHour, durationMinute,
 			allDay, timeZoneSensitive, type, repeating, recurrence, remindBy,
 			firstReminder, secondReminder, serviceContext);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #updateEvent(long, long,
-	String, String, String, int, int, int, int, int, int, int,
-	boolean, boolean, String, boolean, TZSRecurrence, int, int,
-	int, ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.calendar.model.CalEvent updateEvent(
-		long userId, long eventId, java.lang.String title,
-		java.lang.String description, java.lang.String location,
-		int startDateMonth, int startDateDay, int startDateYear,
-		int startDateHour, int startDateMinute, int endDateMonth,
-		int endDateDay, int endDateYear, int durationHour, int durationMinute,
-		boolean allDay, boolean timeZoneSensitive, java.lang.String type,
-		boolean repeating,
-		com.liferay.portal.kernel.cal.TZSRecurrence recurrence, int remindBy,
-		int firstReminder, int secondReminder,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _calEventLocalService.updateEvent(userId, eventId, title,
-			description, location, startDateMonth, startDateDay, startDateYear,
-			startDateHour, startDateMinute, endDateMonth, endDateDay,
-			endDateYear, durationHour, durationMinute, allDay,
-			timeZoneSensitive, type, repeating, recurrence, remindBy,
-			firstReminder, secondReminder, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public CalEventLocalService getWrappedCalEventLocalService() {
-		return _calEventLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedCalEventLocalService(
-		CalEventLocalService calEventLocalService) {
-		_calEventLocalService = calEventLocalService;
 	}
 
 	@Override

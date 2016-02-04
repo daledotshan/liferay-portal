@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -207,7 +212,7 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _company.getExpandoBridge();
 	}
 
@@ -317,14 +322,8 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _company.getPrimaryKeyObj();
-	}
-
-	@Override
-	public java.lang.String getShardName()
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _company.getShardName();
 	}
 
 	@Override
@@ -485,20 +484,17 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_company.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_company.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_company.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -583,7 +579,7 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_company.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -613,7 +609,7 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Company> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Company> toCacheModel() {
 		return _company.toCacheModel();
 	}
 
@@ -654,14 +650,6 @@ public class CompanyWrapper implements Company, ModelWrapper<Company> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Company getWrappedCompany() {
-		return _company;
 	}
 
 	@Override

@@ -14,7 +14,7 @@
 
 package com.liferay.portal.util.test;
 
-import com.liferay.portal.NoSuchLayoutException;
+import com.liferay.portal.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -269,23 +269,6 @@ public class LayoutTestUtil {
 		portletPreferences.store();
 
 		return newPortletId;
-	}
-
-	public static Layout addTypeArticleLayout(long groupId, String articleId)
-		throws Exception {
-
-		Layout layout = addLayout(groupId, false);
-
-		UnicodeProperties typeSettingsProperties =
-			layout.getTypeSettingsProperties();
-
-		typeSettingsProperties.setProperty("article-id", articleId);
-
-		layout.setType(LayoutConstants.TYPE_ARTICLE);
-
-		LayoutLocalServiceUtil.updateLayout(layout);
-
-		return layout;
 	}
 
 	public static Layout addTypeLinkToLayoutLayout(

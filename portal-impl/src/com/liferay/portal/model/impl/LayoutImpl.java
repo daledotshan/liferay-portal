@@ -14,13 +14,15 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.LayoutFriendlyURLException;
-import com.liferay.portal.NoSuchGroupException;
+import com.liferay.portal.exception.LayoutFriendlyURLException;
+import com.liferay.portal.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.CookieKeys;
@@ -34,8 +36,10 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.ColorScheme;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutFriendlyURL;
@@ -44,13 +48,15 @@ import com.liferay.portal.model.LayoutType;
 import com.liferay.portal.model.LayoutTypeController;
 import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.LayoutTypePortletConstants;
+import com.liferay.portal.model.Portlet;
+import com.liferay.portal.model.PortletPreferences;
 import com.liferay.portal.model.Theme;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.service.PortletLocalServiceUtil;
+import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.service.ThemeLocalServiceUtil;
 import com.liferay.portal.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
@@ -58,13 +64,15 @@ import com.liferay.portal.util.LayoutClone;
 import com.liferay.portal.util.LayoutCloneFactory;
 import com.liferay.portal.util.LayoutTypePortletFactoryUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
+import com.liferay.portlet.PortalPreferences;
 import com.liferay.portlet.PortletURLImpl;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -78,6 +86,7 @@ import javax.portlet.WindowState;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Represents a portal layout, providing access to the layout's URLs, parent
@@ -197,7 +206,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * the current layout.
 	 *
 	 * @return the ID of the topmost parent layout of the current layout
-	 * @throws PortalException if a matching layout could not be found
 	 */
 	@Override
 	public long getAncestorLayoutId() throws PortalException {
@@ -226,7 +234,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * of the current layout.
 	 *
 	 * @return the plid of the topmost parent layout of the current layout
-	 * @throws PortalException if a matching layout could not be found
 	 */
 	@Override
 	public long getAncestorPlid() throws PortalException {
@@ -256,7 +263,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * parent listed last.
 	 *
 	 * @return the current layout's list of parent layouts
-	 * @throws PortalException if a matching layout could not be found
 	 */
 	@Override
 	public List<Layout> getAncestors() throws PortalException {
@@ -294,7 +300,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * @param  permissionChecker the user-specific context to check permissions
 	 * @return the list of all child layouts that the user has permission to
 	 *         access
-	 * @throws PortalException if a portal exception occurred
 	 */
 	@Override
 	public List<Layout> getChildren(PermissionChecker permissionChecker)
@@ -326,17 +331,19 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * @return the color scheme that is configured for the current layout, or
 	 *         the color scheme  of the layout set that contains the current
 	 *         layout if no color scheme is configured
-	 * @throws PortalException if a portal exception occurred
 	 */
 	@Override
 	public ColorScheme getColorScheme() throws PortalException {
 		if (isInheritLookAndFeel()) {
-			return getLayoutSet().getColorScheme();
+			LayoutSet layoutSet = getLayoutSet();
+
+			return layoutSet.getColorScheme();
 		}
 		else {
+			Theme theme = getTheme();
+
 			return ThemeLocalServiceUtil.getColorScheme(
-				getCompanyId(), getTheme().getThemeId(), getColorSchemeId(),
-				false);
+				getCompanyId(), theme.getThemeId(), getColorSchemeId(), false);
 		}
 	}
 
@@ -351,12 +358,13 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 *
 	 * @return the CSS text for the current layout, or for the layout set if no
 	 *         CSS text is configured in the current layout
-	 * @throws PortalException if a portal exception occurred
 	 */
 	@Override
 	public String getCssText() throws PortalException {
 		if (isInheritLookAndFeel()) {
-			return getLayoutSet().getCss();
+			LayoutSet layoutSet = getLayoutSet();
+
+			return layoutSet.getCss();
 		}
 		else {
 			return getCss();
@@ -388,6 +396,59 @@ public class LayoutImpl extends LayoutBaseImpl {
 		return StringPool.BLANK;
 	}
 
+	@Override
+	public List<Portlet> getEmbeddedPortlets() {
+		return getEmbeddedPortlets(getGroupId());
+	}
+
+	@Override
+	public List<Portlet> getEmbeddedPortlets(long groupId) {
+		List<PortletPreferences> portletPreferences = _getPortletPreferences(
+			groupId);
+
+		if (portletPreferences.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<Portlet> portlets = new ArrayList<>(portletPreferences.size());
+
+		for (PortletPreferences portletPreference : portletPreferences) {
+			String portletId = portletPreference.getPortletId();
+
+			Portlet portlet = PortletLocalServiceUtil.getPortletById(
+				getCompanyId(), portletId);
+
+			if ((portlet == null) || !portlet.isReady() ||
+				portlet.isUndeployedPortlet() || !portlet.isActive()) {
+
+				continue;
+			}
+
+			Portlet embeddedPortlet = portlet;
+
+			if (portlet.isInstanceable()) {
+
+				// Instanceable portlets do not need to be cloned because they
+				// are already cloned. See the method getPortletById in the
+				// class PortletLocalServiceImpl and how it references the
+				// method getClonedInstance in the class PortletImpl.
+
+			}
+			else {
+				embeddedPortlet = (Portlet)embeddedPortlet.clone();
+			}
+
+			// We set embedded portlets as static on order to avoid adding the
+			// close and/or move icons.
+
+			embeddedPortlet.setStatic(true);
+
+			portlets.add(embeddedPortlet);
+		}
+
+		return portlets;
+	}
+
 	/**
 	 * Returns the layout's friendly URL for the given locale.
 	 *
@@ -407,7 +468,8 @@ public class LayoutImpl extends LayoutBaseImpl {
 				group.getTypeSettingsProperties();
 
 			if (!GetterUtil.getBoolean(
-					typeSettingsProperties.getProperty("inheritLocales"),
+					typeSettingsProperties.getProperty(
+						GroupConstants.TYPE_SETTINGS_KEY_INHERIT_LOCALES),
 					true)) {
 
 				String[] locales = StringUtil.split(
@@ -485,8 +547,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * </p>
 	 *
 	 * @return the current layout's group
-	 * @throws PortalException if a group with the primary key could not be
-	 *         found
 	 */
 	@Override
 	public Group getGroup() throws PortalException {
@@ -549,7 +609,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * Returns the current layout's {@link LayoutSet}.
 	 *
 	 * @return the current layout's layout set
-	 * @throws PortalException if a portal exception occurred
 	 */
 	@Override
 	public LayoutSet getLayoutSet() throws PortalException {
@@ -599,7 +658,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 *
 	 * @return the current layout's parent plid, or <code>0</code> if the
 	 *         current layout is the topmost parent layout
-	 * @throws PortalException if a matching layout could not be found
 	 */
 	@Override
 	public long getParentPlid() throws PortalException {
@@ -659,12 +717,13 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 *
 	 * @return the current layout's theme, or the layout set's theme if no
 	 *         layout theme is configured
-	 * @throws PortalException if a portal exception occurred
 	 */
 	@Override
 	public Theme getTheme() throws PortalException {
 		if (isInheritLookAndFeel()) {
-			return getLayoutSet().getTheme();
+			LayoutSet layoutSet = getLayoutSet();
+
+			return layoutSet.getTheme();
 		}
 		else {
 			return ThemeLocalServiceUtil.getTheme(
@@ -731,19 +790,25 @@ public class LayoutImpl extends LayoutBaseImpl {
 	@Override
 	public ColorScheme getWapColorScheme() throws PortalException {
 		if (isInheritLookAndFeel()) {
-			return getLayoutSet().getWapColorScheme();
+			LayoutSet layoutSet = getLayoutSet();
+
+			return layoutSet.getWapColorScheme();
 		}
 		else {
+			Theme theme = getWapTheme();
+
 			return ThemeLocalServiceUtil.getColorScheme(
-				getCompanyId(), getWapTheme().getThemeId(),
-				getWapColorSchemeId(), true);
+				getCompanyId(), theme.getThemeId(), getWapColorSchemeId(),
+				true);
 		}
 	}
 
 	@Override
 	public Theme getWapTheme() throws PortalException {
 		if (isInheritWapLookAndFeel()) {
-			return getLayoutSet().getWapTheme();
+			LayoutSet layoutSet = getLayoutSet();
+
+			return layoutSet.getWapTheme();
 		}
 		else {
 			return ThemeLocalServiceUtil.getTheme(
@@ -760,8 +825,6 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 * @return <code>true</code> if the given layout ID matches one of the
 	 *         current layout's hierarchical parents; <code>false</code>
 	 *         otherwise
-	 * @throws PortalException if any one of the current layout's acestors could
-	 *         not be retrieved
 	 */
 	@Override
 	public boolean hasAncestor(long layoutId) throws PortalException {
@@ -803,6 +866,11 @@ public class LayoutImpl extends LayoutBaseImpl {
 		else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean hasSetModifiedDate() {
+		return true;
 	}
 
 	@Override
@@ -951,6 +1019,35 @@ public class LayoutImpl extends LayoutBaseImpl {
 		return false;
 	}
 
+	@Override
+	public boolean isPortletEmbedded(String portletId) {
+		List<PortletPreferences> portletPreferences = _getPortletPreferences(
+			getGroupId());
+
+		if (portletPreferences.isEmpty()) {
+			return false;
+		}
+
+		for (PortletPreferences portletPreference : portletPreferences) {
+			String currentPortletId = portletPreference.getPortletId();
+
+			if (!portletId.equals(currentPortletId)) {
+				continue;
+			}
+
+			Portlet portlet = PortletLocalServiceUtil.getPortletById(
+				getCompanyId(), currentPortletId);
+
+			if ((portlet != null) && portlet.isReady() &&
+				!portlet.isUndeployedPortlet() && portlet.isActive()) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * Returns <code>true</code> if the current layout is part of the public
 	 * {@link LayoutSet}.
@@ -1007,27 +1104,29 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public boolean isSupportsEmbeddedPortlets() {
-		if (isTypeArticle() || isTypeEmbedded() || isTypePanel() ||
-			isTypePortlet()) {
-
+		if (isTypeEmbedded() || isTypePanel() || isTypePortlet()) {
 			return true;
 		}
 
 		return false;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public boolean isTypeArticle() {
-		if (getType().equals(LayoutConstants.TYPE_ARTICLE)) {
-			return true;
-		}
-
 		return false;
 	}
 
 	@Override
 	public boolean isTypeControlPanel() {
-		if (getType().equals(LayoutConstants.TYPE_CONTROL_PANEL)) {
+		if (Validator.equals(getType(), LayoutConstants.TYPE_CONTROL_PANEL) ||
+			Validator.equals(
+				_getLayoutTypeControllerType(),
+				LayoutConstants.TYPE_CONTROL_PANEL)) {
+
 			return true;
 		}
 
@@ -1036,7 +1135,11 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 	@Override
 	public boolean isTypeEmbedded() {
-		if (getType().equals(LayoutConstants.TYPE_EMBEDDED)) {
+		if (Validator.equals(getType(), LayoutConstants.TYPE_EMBEDDED) ||
+			Validator.equals(
+				_getLayoutTypeControllerType(),
+				LayoutConstants.TYPE_EMBEDDED)) {
+
 			return true;
 		}
 
@@ -1045,7 +1148,11 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 	@Override
 	public boolean isTypeLinkToLayout() {
-		if (getType().equals(LayoutConstants.TYPE_LINK_TO_LAYOUT)) {
+		if (Validator.equals(getType(), LayoutConstants.TYPE_LINK_TO_LAYOUT) ||
+			Validator.equals(
+				_getLayoutTypeControllerType(),
+				LayoutConstants.TYPE_LINK_TO_LAYOUT)) {
+
 			return true;
 		}
 
@@ -1054,7 +1161,10 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 	@Override
 	public boolean isTypePanel() {
-		if (getType().equals(LayoutConstants.TYPE_PANEL)) {
+		if (Validator.equals(getType(), LayoutConstants.TYPE_PANEL) ||
+			Validator.equals(
+				_getLayoutTypeControllerType(), LayoutConstants.TYPE_PANEL)) {
+
 			return true;
 		}
 
@@ -1063,7 +1173,19 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 	@Override
 	public boolean isTypePortlet() {
-		if (getType().equals(LayoutConstants.TYPE_PORTLET)) {
+		if (Validator.equals(getType(), LayoutConstants.TYPE_PORTLET) ||
+			Validator.equals(
+				_getLayoutTypeControllerType(), LayoutConstants.TYPE_PORTLET)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean isTypeSharedPortlet() {
+		if (Validator.equals(getType(), LayoutConstants.TYPE_SHARED_PORTLET)) {
 			return true;
 		}
 
@@ -1072,16 +1194,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 	@Override
 	public boolean isTypeURL() {
-		if (getType().equals(LayoutConstants.TYPE_URL)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean isTypeUserPersonalPanel() {
-		if (getType().equals(LayoutConstants.TYPE_USER_PERSONAL_PANEL)) {
+		if (Validator.equals(getType(), LayoutConstants.TYPE_URL)) {
 			return true;
 		}
 
@@ -1182,6 +1295,15 @@ public class LayoutImpl extends LayoutBaseImpl {
 		}
 	}
 
+	private String _getLayoutTypeControllerType() {
+		LayoutType layoutType = getLayoutType();
+
+		LayoutTypeController layoutTypeController =
+			layoutType.getLayoutTypeController();
+
+		return layoutTypeController.getType();
+	}
+
 	private LayoutTypePortlet _getLayoutTypePortletClone(
 			HttpServletRequest request)
 		throws IOException {
@@ -1218,6 +1340,34 @@ public class LayoutImpl extends LayoutBaseImpl {
 		}
 
 		return layoutTypePortlet;
+	}
+
+	private List<PortletPreferences> _getPortletPreferences(long groupId) {
+		List<PortletPreferences> portletPreferences =
+			PortletPreferencesLocalServiceUtil.getPortletPreferences(
+				groupId, PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
+				PortletKeys.PREFS_PLID_SHARED);
+
+		if (isTypePortlet()) {
+			LayoutTypePortlet layoutTypePortlet =
+				(LayoutTypePortlet)getLayoutType();
+
+			PortalPreferences portalPreferences =
+				layoutTypePortlet.getPortalPreferences();
+
+			if ((portalPreferences != null) &&
+				layoutTypePortlet.isCustomizable()) {
+
+				portletPreferences = ListUtil.copy(portletPreferences);
+
+				portletPreferences.addAll(
+					PortletPreferencesLocalServiceUtil.getPortletPreferences(
+						portalPreferences.getUserId(),
+						PortletKeys.PREFS_OWNER_TYPE_USER, getPlid()));
+			}
+		}
+
+		return portletPreferences;
 	}
 
 	private String _getURL(
@@ -1286,8 +1436,9 @@ public class LayoutImpl extends LayoutBaseImpl {
 		if (!CookieKeys.hasSessionId(request) &&
 			(url.startsWith(portalURL) || url.startsWith(StringPool.SLASH))) {
 
-			url = PortalUtil.getURLWithSessionId(
-				url, request.getSession().getId());
+			HttpSession session = request.getSession();
+
+			url = PortalUtil.getURLWithSessionId(url, session.getId());
 		}
 
 		if (!resetMaxState) {
@@ -1315,7 +1466,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 	}
 
 	private LayoutSet _layoutSet;
-	private LayoutType _layoutType;
+	private transient LayoutType _layoutType;
 	private UnicodeProperties _typeSettingsProperties;
 
 }

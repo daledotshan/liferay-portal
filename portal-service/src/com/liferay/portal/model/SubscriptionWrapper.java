@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -192,12 +197,12 @@ public class SubscriptionWrapper implements Subscription,
 	* @return the create date of this subscription
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _subscription.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _subscription.getExpandoBridge();
 	}
 
@@ -227,7 +232,7 @@ public class SubscriptionWrapper implements Subscription,
 	* @return the modified date of this subscription
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _subscription.getModifiedDate();
 	}
 
@@ -252,7 +257,7 @@ public class SubscriptionWrapper implements Subscription,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _subscription.getPrimaryKeyObj();
 	}
 
@@ -367,25 +372,22 @@ public class SubscriptionWrapper implements Subscription,
 	* @param createDate the create date of this subscription
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_subscription.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_subscription.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_subscription.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_subscription.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -415,7 +417,7 @@ public class SubscriptionWrapper implements Subscription,
 	* @param modifiedDate the modified date of this subscription
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_subscription.setModifiedDate(modifiedDate);
 	}
 
@@ -445,7 +447,7 @@ public class SubscriptionWrapper implements Subscription,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_subscription.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -490,7 +492,7 @@ public class SubscriptionWrapper implements Subscription,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Subscription> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Subscription> toCacheModel() {
 		return _subscription.toCacheModel();
 	}
 
@@ -531,14 +533,6 @@ public class SubscriptionWrapper implements Subscription,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Subscription getWrappedSubscription() {
-		return _subscription;
 	}
 
 	@Override

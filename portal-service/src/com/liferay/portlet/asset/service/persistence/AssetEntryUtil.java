@@ -24,6 +24,7 @@ import com.liferay.portal.service.ServiceContext;
 
 import com.liferay.portlet.asset.model.AssetEntry;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -115,8 +116,7 @@ public class AssetEntryUtil {
 	* @param groupId the group ID
 	* @return the matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByGroupId(
-		long groupId) {
+	public static List<AssetEntry> findByGroupId(long groupId) {
 		return getPersistence().findByGroupId(groupId);
 	}
 
@@ -124,7 +124,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset entries where groupId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param groupId the group ID
@@ -132,8 +132,8 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByGroupId(
-		long groupId, int start, int end) {
+	public static List<AssetEntry> findByGroupId(long groupId, int start,
+		int end) {
 		return getPersistence().findByGroupId(groupId, start, end);
 	}
 
@@ -141,7 +141,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset entries where groupId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param groupId the group ID
@@ -150,11 +150,32 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByGroupId(
-		long groupId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static List<AssetEntry> findByGroupId(long groupId, int start,
+		int end, OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .findByGroupId(groupId, start, end, orderByComparator);
+	}
+
+	/**
+	* Returns an ordered range of all the asset entries where groupId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param start the lower bound of the range of asset entries
+	* @param end the upper bound of the range of asset entries (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @param retrieveFromCache whether to retrieve from the finder cache
+	* @return the ordered range of matching asset entries
+	*/
+	public static List<AssetEntry> findByGroupId(long groupId, int start,
+		int end, OrderByComparator<AssetEntry> orderByComparator,
+		boolean retrieveFromCache) {
+		return getPersistence()
+				   .findByGroupId(groupId, start, end, orderByComparator,
+			retrieveFromCache);
 	}
 
 	/**
@@ -163,12 +184,11 @@ public class AssetEntryUtil {
 	* @param groupId the group ID
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByGroupId_First(
-		long groupId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByGroupId_First(long groupId,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().findByGroupId_First(groupId, orderByComparator);
 	}
 
@@ -179,9 +199,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByGroupId_First(
-		long groupId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByGroupId_First(long groupId,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence().fetchByGroupId_First(groupId, orderByComparator);
 	}
 
@@ -191,12 +210,11 @@ public class AssetEntryUtil {
 	* @param groupId the group ID
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByGroupId_Last(
-		long groupId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByGroupId_Last(long groupId,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().findByGroupId_Last(groupId, orderByComparator);
 	}
 
@@ -207,9 +225,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByGroupId_Last(
-		long groupId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByGroupId_Last(long groupId,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence().fetchByGroupId_Last(groupId, orderByComparator);
 	}
 
@@ -220,12 +237,11 @@ public class AssetEntryUtil {
 	* @param groupId the group ID
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the previous, current, and next asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry[] findByGroupId_PrevAndNext(
-		long entryId, long groupId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry[] findByGroupId_PrevAndNext(long entryId,
+		long groupId, OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByGroupId_PrevAndNext(entryId, groupId,
 			orderByComparator);
@@ -256,8 +272,7 @@ public class AssetEntryUtil {
 	* @param companyId the company ID
 	* @return the matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByCompanyId(
-		long companyId) {
+	public static List<AssetEntry> findByCompanyId(long companyId) {
 		return getPersistence().findByCompanyId(companyId);
 	}
 
@@ -265,7 +280,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset entries where companyId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param companyId the company ID
@@ -273,8 +288,8 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByCompanyId(
-		long companyId, int start, int end) {
+	public static List<AssetEntry> findByCompanyId(long companyId, int start,
+		int end) {
 		return getPersistence().findByCompanyId(companyId, start, end);
 	}
 
@@ -282,7 +297,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset entries where companyId = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param companyId the company ID
@@ -291,11 +306,32 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByCompanyId(
-		long companyId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static List<AssetEntry> findByCompanyId(long companyId, int start,
+		int end, OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .findByCompanyId(companyId, start, end, orderByComparator);
+	}
+
+	/**
+	* Returns an ordered range of all the asset entries where companyId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param companyId the company ID
+	* @param start the lower bound of the range of asset entries
+	* @param end the upper bound of the range of asset entries (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @param retrieveFromCache whether to retrieve from the finder cache
+	* @return the ordered range of matching asset entries
+	*/
+	public static List<AssetEntry> findByCompanyId(long companyId, int start,
+		int end, OrderByComparator<AssetEntry> orderByComparator,
+		boolean retrieveFromCache) {
+		return getPersistence()
+				   .findByCompanyId(companyId, start, end, orderByComparator,
+			retrieveFromCache);
 	}
 
 	/**
@@ -304,12 +340,11 @@ public class AssetEntryUtil {
 	* @param companyId the company ID
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByCompanyId_First(
-		long companyId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByCompanyId_First(long companyId,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByCompanyId_First(companyId, orderByComparator);
 	}
@@ -321,9 +356,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByCompanyId_First(
-		long companyId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByCompanyId_First(long companyId,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByCompanyId_First(companyId, orderByComparator);
 	}
@@ -334,12 +368,11 @@ public class AssetEntryUtil {
 	* @param companyId the company ID
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByCompanyId_Last(
-		long companyId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByCompanyId_Last(long companyId,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByCompanyId_Last(companyId, orderByComparator);
 	}
@@ -351,9 +384,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByCompanyId_Last(
-		long companyId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByCompanyId_Last(long companyId,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByCompanyId_Last(companyId, orderByComparator);
 	}
@@ -365,12 +397,11 @@ public class AssetEntryUtil {
 	* @param companyId the company ID
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the previous, current, and next asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry[] findByCompanyId_PrevAndNext(
-		long entryId, long companyId,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry[] findByCompanyId_PrevAndNext(long entryId,
+		long companyId, OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByCompanyId_PrevAndNext(entryId, companyId,
 			orderByComparator);
@@ -401,8 +432,7 @@ public class AssetEntryUtil {
 	* @param visible the visible
 	* @return the matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByVisible(
-		boolean visible) {
+	public static List<AssetEntry> findByVisible(boolean visible) {
 		return getPersistence().findByVisible(visible);
 	}
 
@@ -410,7 +440,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset entries where visible = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param visible the visible
@@ -418,8 +448,8 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByVisible(
-		boolean visible, int start, int end) {
+	public static List<AssetEntry> findByVisible(boolean visible, int start,
+		int end) {
 		return getPersistence().findByVisible(visible, start, end);
 	}
 
@@ -427,7 +457,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset entries where visible = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param visible the visible
@@ -436,11 +466,32 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByVisible(
-		boolean visible, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static List<AssetEntry> findByVisible(boolean visible, int start,
+		int end, OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .findByVisible(visible, start, end, orderByComparator);
+	}
+
+	/**
+	* Returns an ordered range of all the asset entries where visible = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param visible the visible
+	* @param start the lower bound of the range of asset entries
+	* @param end the upper bound of the range of asset entries (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @param retrieveFromCache whether to retrieve from the finder cache
+	* @return the ordered range of matching asset entries
+	*/
+	public static List<AssetEntry> findByVisible(boolean visible, int start,
+		int end, OrderByComparator<AssetEntry> orderByComparator,
+		boolean retrieveFromCache) {
+		return getPersistence()
+				   .findByVisible(visible, start, end, orderByComparator,
+			retrieveFromCache);
 	}
 
 	/**
@@ -449,12 +500,11 @@ public class AssetEntryUtil {
 	* @param visible the visible
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByVisible_First(
-		boolean visible,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByVisible_First(boolean visible,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().findByVisible_First(visible, orderByComparator);
 	}
 
@@ -465,9 +515,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByVisible_First(
-		boolean visible,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByVisible_First(boolean visible,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence().fetchByVisible_First(visible, orderByComparator);
 	}
 
@@ -477,12 +526,11 @@ public class AssetEntryUtil {
 	* @param visible the visible
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByVisible_Last(
-		boolean visible,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByVisible_Last(boolean visible,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().findByVisible_Last(visible, orderByComparator);
 	}
 
@@ -493,9 +541,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByVisible_Last(
-		boolean visible,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByVisible_Last(boolean visible,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence().fetchByVisible_Last(visible, orderByComparator);
 	}
 
@@ -506,12 +553,11 @@ public class AssetEntryUtil {
 	* @param visible the visible
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the previous, current, and next asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry[] findByVisible_PrevAndNext(
-		long entryId, boolean visible,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry[] findByVisible_PrevAndNext(long entryId,
+		boolean visible, OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByVisible_PrevAndNext(entryId, visible,
 			orderByComparator);
@@ -542,8 +588,7 @@ public class AssetEntryUtil {
 	* @param publishDate the publish date
 	* @return the matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByPublishDate(
-		java.util.Date publishDate) {
+	public static List<AssetEntry> findByPublishDate(Date publishDate) {
 		return getPersistence().findByPublishDate(publishDate);
 	}
 
@@ -551,7 +596,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset entries where publishDate = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param publishDate the publish date
@@ -559,8 +604,8 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByPublishDate(
-		java.util.Date publishDate, int start, int end) {
+	public static List<AssetEntry> findByPublishDate(Date publishDate,
+		int start, int end) {
 		return getPersistence().findByPublishDate(publishDate, start, end);
 	}
 
@@ -568,7 +613,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset entries where publishDate = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param publishDate the publish date
@@ -577,11 +622,32 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByPublishDate(
-		java.util.Date publishDate, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static List<AssetEntry> findByPublishDate(Date publishDate,
+		int start, int end, OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .findByPublishDate(publishDate, start, end, orderByComparator);
+	}
+
+	/**
+	* Returns an ordered range of all the asset entries where publishDate = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param publishDate the publish date
+	* @param start the lower bound of the range of asset entries
+	* @param end the upper bound of the range of asset entries (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @param retrieveFromCache whether to retrieve from the finder cache
+	* @return the ordered range of matching asset entries
+	*/
+	public static List<AssetEntry> findByPublishDate(Date publishDate,
+		int start, int end, OrderByComparator<AssetEntry> orderByComparator,
+		boolean retrieveFromCache) {
+		return getPersistence()
+				   .findByPublishDate(publishDate, start, end,
+			orderByComparator, retrieveFromCache);
 	}
 
 	/**
@@ -590,12 +656,11 @@ public class AssetEntryUtil {
 	* @param publishDate the publish date
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByPublishDate_First(
-		java.util.Date publishDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByPublishDate_First(Date publishDate,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByPublishDate_First(publishDate, orderByComparator);
 	}
@@ -607,9 +672,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByPublishDate_First(
-		java.util.Date publishDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByPublishDate_First(Date publishDate,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByPublishDate_First(publishDate, orderByComparator);
 	}
@@ -620,12 +684,11 @@ public class AssetEntryUtil {
 	* @param publishDate the publish date
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByPublishDate_Last(
-		java.util.Date publishDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByPublishDate_Last(Date publishDate,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByPublishDate_Last(publishDate, orderByComparator);
 	}
@@ -637,9 +700,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByPublishDate_Last(
-		java.util.Date publishDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByPublishDate_Last(Date publishDate,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByPublishDate_Last(publishDate, orderByComparator);
 	}
@@ -651,12 +713,11 @@ public class AssetEntryUtil {
 	* @param publishDate the publish date
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the previous, current, and next asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry[] findByPublishDate_PrevAndNext(
-		long entryId, java.util.Date publishDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry[] findByPublishDate_PrevAndNext(long entryId,
+		Date publishDate, OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByPublishDate_PrevAndNext(entryId, publishDate,
 			orderByComparator);
@@ -667,7 +728,7 @@ public class AssetEntryUtil {
 	*
 	* @param publishDate the publish date
 	*/
-	public static void removeByPublishDate(java.util.Date publishDate) {
+	public static void removeByPublishDate(Date publishDate) {
 		getPersistence().removeByPublishDate(publishDate);
 	}
 
@@ -677,7 +738,7 @@ public class AssetEntryUtil {
 	* @param publishDate the publish date
 	* @return the number of matching asset entries
 	*/
-	public static int countByPublishDate(java.util.Date publishDate) {
+	public static int countByPublishDate(Date publishDate) {
 		return getPersistence().countByPublishDate(publishDate);
 	}
 
@@ -687,8 +748,7 @@ public class AssetEntryUtil {
 	* @param expirationDate the expiration date
 	* @return the matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByExpirationDate(
-		java.util.Date expirationDate) {
+	public static List<AssetEntry> findByExpirationDate(Date expirationDate) {
 		return getPersistence().findByExpirationDate(expirationDate);
 	}
 
@@ -696,7 +756,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset entries where expirationDate = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param expirationDate the expiration date
@@ -704,8 +764,8 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByExpirationDate(
-		java.util.Date expirationDate, int start, int end) {
+	public static List<AssetEntry> findByExpirationDate(Date expirationDate,
+		int start, int end) {
 		return getPersistence().findByExpirationDate(expirationDate, start, end);
 	}
 
@@ -713,7 +773,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset entries where expirationDate = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param expirationDate the expiration date
@@ -722,12 +782,33 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByExpirationDate(
-		java.util.Date expirationDate, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static List<AssetEntry> findByExpirationDate(Date expirationDate,
+		int start, int end, OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .findByExpirationDate(expirationDate, start, end,
 			orderByComparator);
+	}
+
+	/**
+	* Returns an ordered range of all the asset entries where expirationDate = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param expirationDate the expiration date
+	* @param start the lower bound of the range of asset entries
+	* @param end the upper bound of the range of asset entries (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @param retrieveFromCache whether to retrieve from the finder cache
+	* @return the ordered range of matching asset entries
+	*/
+	public static List<AssetEntry> findByExpirationDate(Date expirationDate,
+		int start, int end, OrderByComparator<AssetEntry> orderByComparator,
+		boolean retrieveFromCache) {
+		return getPersistence()
+				   .findByExpirationDate(expirationDate, start, end,
+			orderByComparator, retrieveFromCache);
 	}
 
 	/**
@@ -736,12 +817,11 @@ public class AssetEntryUtil {
 	* @param expirationDate the expiration date
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByExpirationDate_First(
-		java.util.Date expirationDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByExpirationDate_First(Date expirationDate,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByExpirationDate_First(expirationDate, orderByComparator);
 	}
@@ -753,9 +833,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByExpirationDate_First(
-		java.util.Date expirationDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByExpirationDate_First(Date expirationDate,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByExpirationDate_First(expirationDate,
 			orderByComparator);
@@ -767,12 +846,11 @@ public class AssetEntryUtil {
 	* @param expirationDate the expiration date
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByExpirationDate_Last(
-		java.util.Date expirationDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByExpirationDate_Last(Date expirationDate,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByExpirationDate_Last(expirationDate, orderByComparator);
 	}
@@ -784,9 +862,8 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByExpirationDate_Last(
-		java.util.Date expirationDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static AssetEntry fetchByExpirationDate_Last(Date expirationDate,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByExpirationDate_Last(expirationDate, orderByComparator);
 	}
@@ -798,12 +875,11 @@ public class AssetEntryUtil {
 	* @param expirationDate the expiration date
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the previous, current, and next asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry[] findByExpirationDate_PrevAndNext(
-		long entryId, java.util.Date expirationDate,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry[] findByExpirationDate_PrevAndNext(long entryId,
+		Date expirationDate, OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByExpirationDate_PrevAndNext(entryId, expirationDate,
 			orderByComparator);
@@ -814,7 +890,7 @@ public class AssetEntryUtil {
 	*
 	* @param expirationDate the expiration date
 	*/
-	public static void removeByExpirationDate(java.util.Date expirationDate) {
+	public static void removeByExpirationDate(Date expirationDate) {
 		getPersistence().removeByExpirationDate(expirationDate);
 	}
 
@@ -824,7 +900,7 @@ public class AssetEntryUtil {
 	* @param expirationDate the expiration date
 	* @return the number of matching asset entries
 	*/
-	public static int countByExpirationDate(java.util.Date expirationDate) {
+	public static int countByExpirationDate(Date expirationDate) {
 		return getPersistence().countByExpirationDate(expirationDate);
 	}
 
@@ -834,8 +910,7 @@ public class AssetEntryUtil {
 	* @param layoutUuid the layout uuid
 	* @return the matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByLayoutUuid(
-		java.lang.String layoutUuid) {
+	public static List<AssetEntry> findByLayoutUuid(java.lang.String layoutUuid) {
 		return getPersistence().findByLayoutUuid(layoutUuid);
 	}
 
@@ -843,7 +918,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset entries where layoutUuid = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param layoutUuid the layout uuid
@@ -851,7 +926,7 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByLayoutUuid(
+	public static List<AssetEntry> findByLayoutUuid(
 		java.lang.String layoutUuid, int start, int end) {
 		return getPersistence().findByLayoutUuid(layoutUuid, start, end);
 	}
@@ -860,7 +935,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset entries where layoutUuid = &#63;.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param layoutUuid the layout uuid
@@ -869,11 +944,34 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findByLayoutUuid(
+	public static List<AssetEntry> findByLayoutUuid(
 		java.lang.String layoutUuid, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .findByLayoutUuid(layoutUuid, start, end, orderByComparator);
+	}
+
+	/**
+	* Returns an ordered range of all the asset entries where layoutUuid = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param layoutUuid the layout uuid
+	* @param start the lower bound of the range of asset entries
+	* @param end the upper bound of the range of asset entries (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @param retrieveFromCache whether to retrieve from the finder cache
+	* @return the ordered range of matching asset entries
+	*/
+	public static List<AssetEntry> findByLayoutUuid(
+		java.lang.String layoutUuid, int start, int end,
+		OrderByComparator<AssetEntry> orderByComparator,
+		boolean retrieveFromCache) {
+		return getPersistence()
+				   .findByLayoutUuid(layoutUuid, start, end, orderByComparator,
+			retrieveFromCache);
 	}
 
 	/**
@@ -882,12 +980,12 @@ public class AssetEntryUtil {
 	* @param layoutUuid the layout uuid
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByLayoutUuid_First(
+	public static AssetEntry findByLayoutUuid_First(
 		java.lang.String layoutUuid,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByLayoutUuid_First(layoutUuid, orderByComparator);
 	}
@@ -899,9 +997,9 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the first matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByLayoutUuid_First(
+	public static AssetEntry fetchByLayoutUuid_First(
 		java.lang.String layoutUuid,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByLayoutUuid_First(layoutUuid, orderByComparator);
 	}
@@ -912,12 +1010,12 @@ public class AssetEntryUtil {
 	* @param layoutUuid the layout uuid
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByLayoutUuid_Last(
+	public static AssetEntry findByLayoutUuid_Last(
 		java.lang.String layoutUuid,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByLayoutUuid_Last(layoutUuid, orderByComparator);
 	}
@@ -929,9 +1027,9 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the last matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByLayoutUuid_Last(
+	public static AssetEntry fetchByLayoutUuid_Last(
 		java.lang.String layoutUuid,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence()
 				   .fetchByLayoutUuid_Last(layoutUuid, orderByComparator);
 	}
@@ -943,12 +1041,12 @@ public class AssetEntryUtil {
 	* @param layoutUuid the layout uuid
 	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	* @return the previous, current, and next asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry[] findByLayoutUuid_PrevAndNext(
-		long entryId, java.lang.String layoutUuid,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry[] findByLayoutUuid_PrevAndNext(long entryId,
+		java.lang.String layoutUuid,
+		OrderByComparator<AssetEntry> orderByComparator)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence()
 				   .findByLayoutUuid_PrevAndNext(entryId, layoutUuid,
 			orderByComparator);
@@ -974,16 +1072,15 @@ public class AssetEntryUtil {
 	}
 
 	/**
-	* Returns the asset entry where groupId = &#63; and classUuid = &#63; or throws a {@link com.liferay.portlet.asset.NoSuchEntryException} if it could not be found.
+	* Returns the asset entry where groupId = &#63; and classUuid = &#63; or throws a {@link NoSuchEntryException} if it could not be found.
 	*
 	* @param groupId the group ID
 	* @param classUuid the class uuid
 	* @return the matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByG_CU(
-		long groupId, java.lang.String classUuid)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByG_CU(long groupId, java.lang.String classUuid)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().findByG_CU(groupId, classUuid);
 	}
 
@@ -994,8 +1091,8 @@ public class AssetEntryUtil {
 	* @param classUuid the class uuid
 	* @return the matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByG_CU(
-		long groupId, java.lang.String classUuid) {
+	public static AssetEntry fetchByG_CU(long groupId,
+		java.lang.String classUuid) {
 		return getPersistence().fetchByG_CU(groupId, classUuid);
 	}
 
@@ -1004,11 +1101,11 @@ public class AssetEntryUtil {
 	*
 	* @param groupId the group ID
 	* @param classUuid the class uuid
-	* @param retrieveFromCache whether to use the finder cache
+	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByG_CU(
-		long groupId, java.lang.String classUuid, boolean retrieveFromCache) {
+	public static AssetEntry fetchByG_CU(long groupId,
+		java.lang.String classUuid, boolean retrieveFromCache) {
 		return getPersistence()
 				   .fetchByG_CU(groupId, classUuid, retrieveFromCache);
 	}
@@ -1020,9 +1117,9 @@ public class AssetEntryUtil {
 	* @param classUuid the class uuid
 	* @return the asset entry that was removed
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry removeByG_CU(
-		long groupId, java.lang.String classUuid)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry removeByG_CU(long groupId,
+		java.lang.String classUuid)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().removeByG_CU(groupId, classUuid);
 	}
 
@@ -1038,16 +1135,15 @@ public class AssetEntryUtil {
 	}
 
 	/**
-	* Returns the asset entry where classNameId = &#63; and classPK = &#63; or throws a {@link com.liferay.portlet.asset.NoSuchEntryException} if it could not be found.
+	* Returns the asset entry where classNameId = &#63; and classPK = &#63; or throws a {@link NoSuchEntryException} if it could not be found.
 	*
 	* @param classNameId the class name ID
 	* @param classPK the class p k
 	* @return the matching asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a matching asset entry could not be found
+	* @throws NoSuchEntryException if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByC_C(
-		long classNameId, long classPK)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByC_C(long classNameId, long classPK)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().findByC_C(classNameId, classPK);
 	}
 
@@ -1058,8 +1154,7 @@ public class AssetEntryUtil {
 	* @param classPK the class p k
 	* @return the matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByC_C(
-		long classNameId, long classPK) {
+	public static AssetEntry fetchByC_C(long classNameId, long classPK) {
 		return getPersistence().fetchByC_C(classNameId, classPK);
 	}
 
@@ -1068,11 +1163,11 @@ public class AssetEntryUtil {
 	*
 	* @param classNameId the class name ID
 	* @param classPK the class p k
-	* @param retrieveFromCache whether to use the finder cache
+	* @param retrieveFromCache whether to retrieve from the finder cache
 	* @return the matching asset entry, or <code>null</code> if a matching asset entry could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByC_C(
-		long classNameId, long classPK, boolean retrieveFromCache) {
+	public static AssetEntry fetchByC_C(long classNameId, long classPK,
+		boolean retrieveFromCache) {
 		return getPersistence()
 				   .fetchByC_C(classNameId, classPK, retrieveFromCache);
 	}
@@ -1084,9 +1179,8 @@ public class AssetEntryUtil {
 	* @param classPK the class p k
 	* @return the asset entry that was removed
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry removeByC_C(
-		long classNameId, long classPK)
-		throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry removeByC_C(long classNameId, long classPK)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().removeByC_C(classNameId, classPK);
 	}
 
@@ -1106,8 +1200,7 @@ public class AssetEntryUtil {
 	*
 	* @param assetEntry the asset entry
 	*/
-	public static void cacheResult(
-		com.liferay.portlet.asset.model.AssetEntry assetEntry) {
+	public static void cacheResult(AssetEntry assetEntry) {
 		getPersistence().cacheResult(assetEntry);
 	}
 
@@ -1116,8 +1209,7 @@ public class AssetEntryUtil {
 	*
 	* @param assetEntries the asset entries
 	*/
-	public static void cacheResult(
-		java.util.List<com.liferay.portlet.asset.model.AssetEntry> assetEntries) {
+	public static void cacheResult(List<AssetEntry> assetEntries) {
 		getPersistence().cacheResult(assetEntries);
 	}
 
@@ -1127,8 +1219,7 @@ public class AssetEntryUtil {
 	* @param entryId the primary key for the new asset entry
 	* @return the new asset entry
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry create(
-		long entryId) {
+	public static AssetEntry create(long entryId) {
 		return getPersistence().create(entryId);
 	}
 
@@ -1137,27 +1228,26 @@ public class AssetEntryUtil {
 	*
 	* @param entryId the primary key of the asset entry
 	* @return the asset entry that was removed
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry remove(
-		long entryId) throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry remove(long entryId)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().remove(entryId);
 	}
 
-	public static com.liferay.portlet.asset.model.AssetEntry updateImpl(
-		com.liferay.portlet.asset.model.AssetEntry assetEntry) {
+	public static AssetEntry updateImpl(AssetEntry assetEntry) {
 		return getPersistence().updateImpl(assetEntry);
 	}
 
 	/**
-	* Returns the asset entry with the primary key or throws a {@link com.liferay.portlet.asset.NoSuchEntryException} if it could not be found.
+	* Returns the asset entry with the primary key or throws a {@link NoSuchEntryException} if it could not be found.
 	*
 	* @param entryId the primary key of the asset entry
 	* @return the asset entry
-	* @throws com.liferay.portlet.asset.NoSuchEntryException if a asset entry with the primary key could not be found
+	* @throws NoSuchEntryException if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry findByPrimaryKey(
-		long entryId) throws com.liferay.portlet.asset.NoSuchEntryException {
+	public static AssetEntry findByPrimaryKey(long entryId)
+		throws com.liferay.portlet.asset.exception.NoSuchEntryException {
 		return getPersistence().findByPrimaryKey(entryId);
 	}
 
@@ -1167,12 +1257,11 @@ public class AssetEntryUtil {
 	* @param entryId the primary key of the asset entry
 	* @return the asset entry, or <code>null</code> if a asset entry with the primary key could not be found
 	*/
-	public static com.liferay.portlet.asset.model.AssetEntry fetchByPrimaryKey(
-		long entryId) {
+	public static AssetEntry fetchByPrimaryKey(long entryId) {
 		return getPersistence().fetchByPrimaryKey(entryId);
 	}
 
-	public static java.util.Map<java.io.Serializable, com.liferay.portlet.asset.model.AssetEntry> fetchByPrimaryKeys(
+	public static java.util.Map<java.io.Serializable, AssetEntry> fetchByPrimaryKeys(
 		java.util.Set<java.io.Serializable> primaryKeys) {
 		return getPersistence().fetchByPrimaryKeys(primaryKeys);
 	}
@@ -1182,7 +1271,7 @@ public class AssetEntryUtil {
 	*
 	* @return the asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findAll() {
+	public static List<AssetEntry> findAll() {
 		return getPersistence().findAll();
 	}
 
@@ -1190,15 +1279,14 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset entries.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of asset entries
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findAll(
-		int start, int end) {
+	public static List<AssetEntry> findAll(int start, int end) {
 		return getPersistence().findAll(start, end);
 	}
 
@@ -1206,7 +1294,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset entries.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param start the lower bound of the range of asset entries
@@ -1214,10 +1302,29 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of asset entries
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> findAll(
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetEntry> orderByComparator) {
+	public static List<AssetEntry> findAll(int start, int end,
+		OrderByComparator<AssetEntry> orderByComparator) {
 		return getPersistence().findAll(start, end, orderByComparator);
+	}
+
+	/**
+	* Returns an ordered range of all the asset entries.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param start the lower bound of the range of asset entries
+	* @param end the upper bound of the range of asset entries (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @param retrieveFromCache whether to retrieve from the finder cache
+	* @return the ordered range of asset entries
+	*/
+	public static List<AssetEntry> findAll(int start, int end,
+		OrderByComparator<AssetEntry> orderByComparator,
+		boolean retrieveFromCache) {
+		return getPersistence()
+				   .findAll(start, end, orderByComparator, retrieveFromCache);
 	}
 
 	/**
@@ -1252,7 +1359,7 @@ public class AssetEntryUtil {
 	* @param pk the primary key of the asset entry
 	* @return the asset categories associated with the asset entry
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetCategory> getAssetCategories(
+	public static List<com.liferay.portlet.asset.model.AssetCategory> getAssetCategories(
 		long pk) {
 		return getPersistence().getAssetCategories(pk);
 	}
@@ -1261,7 +1368,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset categories associated with the asset entry.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param pk the primary key of the asset entry
@@ -1269,7 +1376,7 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of asset categories associated with the asset entry
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetCategory> getAssetCategories(
+	public static List<com.liferay.portlet.asset.model.AssetCategory> getAssetCategories(
 		long pk, int start, int end) {
 		return getPersistence().getAssetCategories(pk, start, end);
 	}
@@ -1278,7 +1385,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset categories associated with the asset entry.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param pk the primary key of the asset entry
@@ -1287,9 +1394,9 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of asset categories associated with the asset entry
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetCategory> getAssetCategories(
+	public static List<com.liferay.portlet.asset.model.AssetCategory> getAssetCategories(
 		long pk, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetCategory> orderByComparator) {
+		OrderByComparator<com.liferay.portlet.asset.model.AssetCategory> orderByComparator) {
 		return getPersistence()
 				   .getAssetCategories(pk, start, end, orderByComparator);
 	}
@@ -1363,7 +1470,7 @@ public class AssetEntryUtil {
 	* @param assetCategories the asset categories
 	*/
 	public static void addAssetCategories(long pk,
-		java.util.List<com.liferay.portlet.asset.model.AssetCategory> assetCategories) {
+		List<com.liferay.portlet.asset.model.AssetCategory> assetCategories) {
 		getPersistence().addAssetCategories(pk, assetCategories);
 	}
 
@@ -1414,7 +1521,7 @@ public class AssetEntryUtil {
 	* @param assetCategories the asset categories
 	*/
 	public static void removeAssetCategories(long pk,
-		java.util.List<com.liferay.portlet.asset.model.AssetCategory> assetCategories) {
+		List<com.liferay.portlet.asset.model.AssetCategory> assetCategories) {
 		getPersistence().removeAssetCategories(pk, assetCategories);
 	}
 
@@ -1435,7 +1542,7 @@ public class AssetEntryUtil {
 	* @param assetCategories the asset categories to be associated with the asset entry
 	*/
 	public static void setAssetCategories(long pk,
-		java.util.List<com.liferay.portlet.asset.model.AssetCategory> assetCategories) {
+		List<com.liferay.portlet.asset.model.AssetCategory> assetCategories) {
 		getPersistence().setAssetCategories(pk, assetCategories);
 	}
 
@@ -1455,7 +1562,7 @@ public class AssetEntryUtil {
 	* @param pk the primary key of the asset entry
 	* @return the asset tags associated with the asset entry
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetTag> getAssetTags(
+	public static List<com.liferay.portlet.asset.model.AssetTag> getAssetTags(
 		long pk) {
 		return getPersistence().getAssetTags(pk);
 	}
@@ -1464,7 +1571,7 @@ public class AssetEntryUtil {
 	* Returns a range of all the asset tags associated with the asset entry.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param pk the primary key of the asset entry
@@ -1472,7 +1579,7 @@ public class AssetEntryUtil {
 	* @param end the upper bound of the range of asset entries (not inclusive)
 	* @return the range of asset tags associated with the asset entry
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetTag> getAssetTags(
+	public static List<com.liferay.portlet.asset.model.AssetTag> getAssetTags(
 		long pk, int start, int end) {
 		return getPersistence().getAssetTags(pk, start, end);
 	}
@@ -1481,7 +1588,7 @@ public class AssetEntryUtil {
 	* Returns an ordered range of all the asset tags associated with the asset entry.
 	*
 	* <p>
-	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.portlet.asset.model.impl.AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AssetEntryModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
 	* @param pk the primary key of the asset entry
@@ -1490,9 +1597,9 @@ public class AssetEntryUtil {
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of asset tags associated with the asset entry
 	*/
-	public static java.util.List<com.liferay.portlet.asset.model.AssetTag> getAssetTags(
+	public static List<com.liferay.portlet.asset.model.AssetTag> getAssetTags(
 		long pk, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetTag> orderByComparator) {
+		OrderByComparator<com.liferay.portlet.asset.model.AssetTag> orderByComparator) {
 		return getPersistence().getAssetTags(pk, start, end, orderByComparator);
 	}
 
@@ -1565,7 +1672,7 @@ public class AssetEntryUtil {
 	* @param assetTags the asset tags
 	*/
 	public static void addAssetTags(long pk,
-		java.util.List<com.liferay.portlet.asset.model.AssetTag> assetTags) {
+		List<com.liferay.portlet.asset.model.AssetTag> assetTags) {
 		getPersistence().addAssetTags(pk, assetTags);
 	}
 
@@ -1616,7 +1723,7 @@ public class AssetEntryUtil {
 	* @param assetTags the asset tags
 	*/
 	public static void removeAssetTags(long pk,
-		java.util.List<com.liferay.portlet.asset.model.AssetTag> assetTags) {
+		List<com.liferay.portlet.asset.model.AssetTag> assetTags) {
 		getPersistence().removeAssetTags(pk, assetTags);
 	}
 
@@ -1637,7 +1744,7 @@ public class AssetEntryUtil {
 	* @param assetTags the asset tags to be associated with the asset entry
 	*/
 	public static void setAssetTags(long pk,
-		java.util.List<com.liferay.portlet.asset.model.AssetTag> assetTags) {
+		List<com.liferay.portlet.asset.model.AssetTag> assetTags) {
 		getPersistence().setAssetTags(pk, assetTags);
 	}
 
@@ -1650,13 +1757,6 @@ public class AssetEntryUtil {
 		}
 
 		return _persistence;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setPersistence(AssetEntryPersistence persistence) {
 	}
 
 	private static AssetEntryPersistence _persistence;

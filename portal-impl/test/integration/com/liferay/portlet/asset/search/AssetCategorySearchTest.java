@@ -23,7 +23,6 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.search.test.BaseSearchTestCase;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetCategoryConstants;
 import com.liferay.portlet.asset.model.AssetVocabulary;
@@ -50,76 +49,76 @@ public class AssetCategorySearchTest extends BaseSearchTestCase {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchAttachments() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchBaseModelWithTrash() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchByDDMStructureField() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchByKeywordsInsideParentBaseModel() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchComments() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchExpireAllVersions() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchExpireLatestVersion() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchMyEntries() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchRecentEntries() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchStatus() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchVersions() throws Exception {
 	}
 
-	@Ignore()
+	@Ignore
 	@Override
 	@Test
 	public void testSearchWithinDDMStructure() throws Exception {
@@ -134,8 +133,9 @@ public class AssetCategorySearchTest extends BaseSearchTestCase {
 		AssetVocabulary vocabulary = (AssetVocabulary)parentBaseModel;
 
 		return AssetCategoryServiceUtil.addCategory(
+			serviceContext.getScopeGroupId(),
 			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, keywordsMap,
-				null, vocabulary.getVocabularyId(), null, serviceContext);
+			null, vocabulary.getVocabularyId(), null, serviceContext);
 	}
 
 	@Override
@@ -147,7 +147,8 @@ public class AssetCategorySearchTest extends BaseSearchTestCase {
 		AssetVocabulary vocabulary = (AssetVocabulary)parentBaseModel;
 
 		return AssetCategoryServiceUtil.addCategory(
-			keywords, vocabulary.getVocabularyId(), serviceContext);
+			serviceContext.getScopeGroupId(), keywords,
+			vocabulary.getVocabularyId(), serviceContext);
 	}
 
 	@Override
@@ -166,7 +167,8 @@ public class AssetCategorySearchTest extends BaseSearchTestCase {
 		throws Exception {
 
 		return AssetVocabularyServiceUtil.addVocabulary(
-			RandomTestUtil.randomString(), serviceContext);
+			serviceContext.getScopeGroupId(), RandomTestUtil.randomString(),
+			serviceContext);
 	}
 
 	@Override

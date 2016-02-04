@@ -19,11 +19,16 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
+import com.liferay.portal.kernel.security.access.control.AccessControlled;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.security.ac.AccessControlled;
 import com.liferay.portal.service.BaseService;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.messageboards.model.MBCategory;
+
+import java.util.List;
 
 /**
  * Provides the remote service interface for MBCategory. Methods of this
@@ -47,8 +52,7 @@ public interface MBCategoryService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link MBCategoryServiceUtil} to access the message boards category remote service. Add custom service methods to {@link com.liferay.portlet.messageboards.service.impl.MBCategoryServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
-	public com.liferay.portlet.messageboards.model.MBCategory addCategory(
-		long parentCategoryId, java.lang.String name,
+	public MBCategory addCategory(long parentCategoryId, java.lang.String name,
 		java.lang.String description, java.lang.String displayStyle,
 		java.lang.String emailAddress, java.lang.String inProtocol,
 		java.lang.String inServerName, int inServerPort, boolean inUseSSL,
@@ -57,62 +61,69 @@ public interface MBCategoryService extends BaseService {
 		boolean outCustom, java.lang.String outServerName, int outServerPort,
 		boolean outUseSSL, java.lang.String outUserName,
 		java.lang.String outPassword, boolean mailingListActive,
-		boolean allowAnonymousEmail,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		boolean allowAnonymousEmail, ServiceContext serviceContext)
+		throws PortalException;
 
-	public com.liferay.portlet.messageboards.model.MBCategory addCategory(
-		long userId, long parentCategoryId, java.lang.String name,
-		java.lang.String description,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBCategory addCategory(long userId, long parentCategoryId,
+		java.lang.String name, java.lang.String description,
+		ServiceContext serviceContext) throws PortalException;
 
 	public void deleteCategory(long categoryId, boolean includeTrashedEntries)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	public void deleteCategory(long groupId, long categoryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId);
+	public List<MBCategory> getCategories(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId, long excludedCategoryId, long parentCategoryId,
+	public List<MBCategory> getCategories(long groupId,
+		long excludedCategoryId, long parentCategoryId, int status, int start,
+		int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<MBCategory> getCategories(long groupId,
+		long[] excludedCategoryIds, long[] parentCategoryIds, int status,
+		int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<MBCategory> getCategories(long groupId, long parentCategoryId,
+		int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<MBCategory> getCategories(long groupId, long parentCategoryId,
 		int status, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId, long[] excludedCategoryIds, long[] parentCategoryIds,
-		int status, int start, int end);
+	public List<MBCategory> getCategories(long groupId,
+		long[] parentCategoryIds, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId, long parentCategoryId, int start, int end);
+	public List<MBCategory> getCategories(long groupId,
+		long[] parentCategoryIds, int status, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId, long parentCategoryId, int status, int start, int end);
+	public List<MBCategory> getCategories(long groupId, int status);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId, long[] parentCategoryIds, int start, int end);
+	public List<java.lang.Object> getCategoriesAndThreads(long groupId,
+		long categoryId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId, long[] parentCategoryIds, int status, int start, int end);
+	public List<java.lang.Object> getCategoriesAndThreads(long groupId,
+		long categoryId, int status);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getCategories(
-		long groupId, int status);
+	public List<java.lang.Object> getCategoriesAndThreads(long groupId,
+		long categoryId, int status, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getCategoriesAndThreadsCount(long groupId, long categoryId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getCategoriesAndThreadsCount(long groupId, long categoryId,
+		int status);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getCategoriesCount(long groupId, long excludedCategoryId,
@@ -137,64 +148,57 @@ public interface MBCategoryService extends BaseService {
 		int status);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portlet.messageboards.model.MBCategory getCategory(
-		long categoryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBCategory getCategory(long categoryId) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public long[] getCategoryIds(long groupId, long categoryId);
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<java.lang.Long> getSubcategoryIds(
-		java.util.List<java.lang.Long> categoryIds, long groupId,
-		long categoryId);
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<com.liferay.portlet.messageboards.model.MBCategory> getSubscribedCategories(
-		long groupId, long userId, int start, int end);
+	public List<java.lang.Long> getSubcategoryIds(
+		List<java.lang.Long> categoryIds, long groupId, long categoryId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<MBCategory> getSubscribedCategories(long groupId, long userId,
+		int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getSubscribedCategoriesCount(long groupId, long userId);
 
-	public com.liferay.portlet.messageboards.model.MBCategory moveCategory(
-		long categoryId, long parentCategoryId, boolean mergeWithParentCategory)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBCategory moveCategory(long categoryId, long parentCategoryId,
+		boolean mergeWithParentCategory) throws PortalException;
 
-	public com.liferay.portlet.messageboards.model.MBCategory moveCategoryFromTrash(
-		long categoryId, long newCategoryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBCategory moveCategoryFromTrash(long categoryId, long newCategoryId)
+		throws PortalException;
 
-	public com.liferay.portlet.messageboards.model.MBCategory moveCategoryToTrash(
-		long categoryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBCategory moveCategoryToTrash(long categoryId)
+		throws PortalException;
 
 	public void restoreCategoryFromTrash(long categoryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+		throws PortalException;
 
 	public void subscribeCategory(long groupId, long categoryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
 	public void unsubscribeCategory(long groupId, long categoryId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+		throws PortalException;
 
-	public com.liferay.portlet.messageboards.model.MBCategory updateCategory(
-		long categoryId, long parentCategoryId, java.lang.String name,
-		java.lang.String description, java.lang.String displayStyle,
-		java.lang.String emailAddress, java.lang.String inProtocol,
-		java.lang.String inServerName, int inServerPort, boolean inUseSSL,
-		java.lang.String inUserName, java.lang.String inPassword,
-		int inReadInterval, java.lang.String outEmailAddress,
-		boolean outCustom, java.lang.String outServerName, int outServerPort,
-		boolean outUseSSL, java.lang.String outUserName,
-		java.lang.String outPassword, boolean mailingListActive,
-		boolean allowAnonymousEmail, boolean mergeWithParentCategory,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public MBCategory updateCategory(long categoryId, long parentCategoryId,
+		java.lang.String name, java.lang.String description,
+		java.lang.String displayStyle, java.lang.String emailAddress,
+		java.lang.String inProtocol, java.lang.String inServerName,
+		int inServerPort, boolean inUseSSL, java.lang.String inUserName,
+		java.lang.String inPassword, int inReadInterval,
+		java.lang.String outEmailAddress, boolean outCustom,
+		java.lang.String outServerName, int outServerPort, boolean outUseSSL,
+		java.lang.String outUserName, java.lang.String outPassword,
+		boolean mailingListActive, boolean allowAnonymousEmail,
+		boolean mergeWithParentCategory, ServiceContext serviceContext)
+		throws PortalException;
 }

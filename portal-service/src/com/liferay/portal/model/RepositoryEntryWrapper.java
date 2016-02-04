@@ -16,8 +16,13 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -65,6 +70,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 		attributes.put("repositoryId", getRepositoryId());
 		attributes.put("mappedId", getMappedId());
 		attributes.put("manualCheckInRequired", getManualCheckInRequired());
+		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -143,6 +149,12 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 		if (manualCheckInRequired != null) {
 			setManualCheckInRequired(manualCheckInRequired);
 		}
+
+		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
+
+		if (lastPublishDate != null) {
+			setLastPublishDate(lastPublishDate);
+		}
 	}
 
 	@Override
@@ -172,12 +184,12 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @return the create date of this repository entry
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _repositoryEntry.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _repositoryEntry.getExpandoBridge();
 	}
 
@@ -189,6 +201,16 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	@Override
 	public long getGroupId() {
 		return _repositoryEntry.getGroupId();
+	}
+
+	/**
+	* Returns the last publish date of this repository entry.
+	*
+	* @return the last publish date of this repository entry
+	*/
+	@Override
+	public Date getLastPublishDate() {
+		return _repositoryEntry.getLastPublishDate();
 	}
 
 	/**
@@ -217,7 +239,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @return the modified date of this repository entry
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _repositoryEntry.getModifiedDate();
 	}
 
@@ -242,7 +264,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _repositoryEntry.getPrimaryKeyObj();
 	}
 
@@ -362,25 +384,22 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @param createDate the create date of this repository entry
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_repositoryEntry.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_repositoryEntry.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_repositoryEntry.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_repositoryEntry.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -392,6 +411,16 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	@Override
 	public void setGroupId(long groupId) {
 		_repositoryEntry.setGroupId(groupId);
+	}
+
+	/**
+	* Sets the last publish date of this repository entry.
+	*
+	* @param lastPublishDate the last publish date of this repository entry
+	*/
+	@Override
+	public void setLastPublishDate(Date lastPublishDate) {
+		_repositoryEntry.setLastPublishDate(lastPublishDate);
 	}
 
 	/**
@@ -420,7 +449,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	* @param modifiedDate the modified date of this repository entry
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_repositoryEntry.setModifiedDate(modifiedDate);
 	}
 
@@ -450,7 +479,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_repositoryEntry.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -515,7 +544,7 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.RepositoryEntry> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.RepositoryEntry> toCacheModel() {
 		return _repositoryEntry.toCacheModel();
 	}
 
@@ -562,14 +591,6 @@ public class RepositoryEntryWrapper implements RepositoryEntry,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _repositoryEntry.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public RepositoryEntry getWrappedRepositoryEntry() {
-		return _repositoryEntry;
 	}
 
 	@Override

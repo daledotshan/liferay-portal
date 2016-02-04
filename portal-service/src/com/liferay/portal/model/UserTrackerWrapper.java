@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -153,7 +158,7 @@ public class UserTrackerWrapper implements UserTracker,
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _userTracker.getExpandoBridge();
 	}
 
@@ -173,7 +178,7 @@ public class UserTrackerWrapper implements UserTracker,
 	* @return the modified date of this user tracker
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _userTracker.getModifiedDate();
 	}
 
@@ -203,7 +208,7 @@ public class UserTrackerWrapper implements UserTracker,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _userTracker.getPrimaryKeyObj();
 	}
 
@@ -318,20 +323,17 @@ public class UserTrackerWrapper implements UserTracker,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_userTracker.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_userTracker.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_userTracker.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -341,7 +343,7 @@ public class UserTrackerWrapper implements UserTracker,
 	* @param modifiedDate the modified date of this user tracker
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_userTracker.setModifiedDate(modifiedDate);
 	}
 
@@ -371,7 +373,7 @@ public class UserTrackerWrapper implements UserTracker,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_userTracker.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -446,7 +448,7 @@ public class UserTrackerWrapper implements UserTracker,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.UserTracker> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.UserTracker> toCacheModel() {
 		return _userTracker.toCacheModel();
 	}
 
@@ -487,14 +489,6 @@ public class UserTrackerWrapper implements UserTracker,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public UserTracker getWrappedUserTracker() {
-		return _userTracker;
 	}
 
 	@Override

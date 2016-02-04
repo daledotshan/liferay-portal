@@ -60,7 +60,7 @@
 					%>
 
 				</aui:col>
-				<aui:col cssClass="<%= panelBodyCssClass %>"  width="<%= 80 %>">
+				<aui:col cssClass="<%= panelBodyCssClass %>" width="<%= 80 %>">
 					<%@ include file="/html/portal/layout/view/panel_description.jspf" %>
 				</aui:col>
 			</aui:row>
@@ -71,4 +71,4 @@
 	</c:otherwise>
 </c:choose>
 
-<%@ include file="/html/portal/layout/view/common.jspf" %>
+<liferay-ui:layout-common />

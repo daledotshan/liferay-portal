@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +60,7 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 		attributes.put("organizationId", getOrganizationId());
 		attributes.put("groupId", getGroupId());
 		attributes.put("roleId", getRoleId());
+		attributes.put("companyId", getCompanyId());
 
 		return attributes;
 	}
@@ -84,6 +90,12 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 		if (roleId != null) {
 			setRoleId(roleId);
 		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
+		}
 	}
 
 	@Override
@@ -108,8 +120,18 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 		return _orgGroupRole.containsOrganization(organizations);
 	}
 
+	/**
+	* Returns the company ID of this org group role.
+	*
+	* @return the company ID of this org group role
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _orgGroupRole.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _orgGroupRole.getExpandoBridge();
 	}
 
@@ -154,7 +176,7 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _orgGroupRole.getPrimaryKeyObj();
 	}
 
@@ -193,21 +215,28 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 		_orgGroupRole.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this org group role.
+	*
+	* @param companyId the company ID of this org group role
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_orgGroupRole.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_orgGroupRole.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_orgGroupRole.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_orgGroupRole.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -258,7 +287,7 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_orgGroupRole.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -273,7 +302,7 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.OrgGroupRole> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.OrgGroupRole> toCacheModel() {
 		return _orgGroupRole.toCacheModel();
 	}
 
@@ -314,14 +343,6 @@ public class OrgGroupRoleWrapper implements OrgGroupRole,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public OrgGroupRole getWrappedOrgGroupRole() {
-		return _orgGroupRole;
 	}
 
 	@Override

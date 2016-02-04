@@ -16,6 +16,8 @@ package com.liferay.portlet.expando.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.util.Accessor;
 import com.liferay.portal.model.PersistedModel;
 
 /**
@@ -27,6 +29,7 @@ import com.liferay.portal.model.PersistedModel;
  * @see com.liferay.portlet.expando.model.impl.ExpandoTableModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portlet.expando.model.impl.ExpandoTableImpl")
 @ProviderType
 public interface ExpandoTable extends ExpandoTableModel, PersistedModel {
 	/*
@@ -34,5 +37,22 @@ public interface ExpandoTable extends ExpandoTableModel, PersistedModel {
 	 *
 	 * Never modify this interface directly. Add methods to {@link com.liferay.portlet.expando.model.impl.ExpandoTableImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<ExpandoTable, Long> TABLE_ID_ACCESSOR = new Accessor<ExpandoTable, Long>() {
+			@Override
+			public Long get(ExpandoTable expandoTable) {
+				return expandoTable.getTableId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<ExpandoTable> getTypeClass() {
+				return ExpandoTable.class;
+			}
+		};
+
 	public boolean isDefaultTable();
 }

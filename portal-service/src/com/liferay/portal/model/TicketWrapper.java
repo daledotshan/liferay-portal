@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -184,12 +189,12 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	* @return the create date of this ticket
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _ticket.getCreateDate();
 	}
 
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _ticket.getExpandoBridge();
 	}
 
@@ -199,7 +204,7 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	* @return the expiration date of this ticket
 	*/
 	@Override
-	public java.util.Date getExpirationDate() {
+	public Date getExpirationDate() {
 		return _ticket.getExpirationDate();
 	}
 
@@ -244,7 +249,7 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _ticket.getPrimaryKeyObj();
 	}
 
@@ -344,25 +349,22 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	* @param createDate the create date of this ticket
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_ticket.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_ticket.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_ticket.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_ticket.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -372,7 +374,7 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	* @param expirationDate the expiration date of this ticket
 	*/
 	@Override
-	public void setExpirationDate(java.util.Date expirationDate) {
+	public void setExpirationDate(Date expirationDate) {
 		_ticket.setExpirationDate(expirationDate);
 	}
 
@@ -422,7 +424,7 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_ticket.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -447,7 +449,7 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Ticket> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Ticket> toCacheModel() {
 		return _ticket.toCacheModel();
 	}
 
@@ -488,14 +490,6 @@ public class TicketWrapper implements Ticket, ModelWrapper<Ticket> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Ticket getWrappedTicket() {
-		return _ticket;
 	}
 
 	@Override

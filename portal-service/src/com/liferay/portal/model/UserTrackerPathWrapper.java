@@ -17,6 +17,11 @@ package com.liferay.portal.model;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.service.ServiceContext;
+
+import com.liferay.portlet.expando.model.ExpandoBridge;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -54,6 +59,7 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 
 		attributes.put("mvccVersion", getMvccVersion());
 		attributes.put("userTrackerPathId", getUserTrackerPathId());
+		attributes.put("companyId", getCompanyId());
 		attributes.put("userTrackerId", getUserTrackerId());
 		attributes.put("path", getPath());
 		attributes.put("pathDate", getPathDate());
@@ -73,6 +79,12 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 
 		if (userTrackerPathId != null) {
 			setUserTrackerPathId(userTrackerPathId);
+		}
+
+		Long companyId = (Long)attributes.get("companyId");
+
+		if (companyId != null) {
+			setCompanyId(companyId);
 		}
 
 		Long userTrackerId = (Long)attributes.get("userTrackerId");
@@ -105,8 +117,18 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 		return _userTrackerPath.compareTo(userTrackerPath);
 	}
 
+	/**
+	* Returns the company ID of this user tracker path.
+	*
+	* @return the company ID of this user tracker path
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public long getCompanyId() {
+		return _userTrackerPath.getCompanyId();
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
 		return _userTrackerPath.getExpandoBridge();
 	}
 
@@ -136,7 +158,7 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 	* @return the path date of this user tracker path
 	*/
 	@Override
-	public java.util.Date getPathDate() {
+	public Date getPathDate() {
 		return _userTrackerPath.getPathDate();
 	}
 
@@ -151,7 +173,7 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 	}
 
 	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
+	public Serializable getPrimaryKeyObj() {
 		return _userTrackerPath.getPrimaryKeyObj();
 	}
 
@@ -205,21 +227,28 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 		_userTrackerPath.setCachedModel(cachedModel);
 	}
 
+	/**
+	* Sets the company ID of this user tracker path.
+	*
+	* @param companyId the company ID of this user tracker path
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setCompanyId(long companyId) {
+		_userTrackerPath.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_userTrackerPath.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
 		_userTrackerPath.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
 		_userTrackerPath.setExpandoBridgeAttributes(serviceContext);
 	}
 
@@ -254,7 +283,7 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 	* @param pathDate the path date of this user tracker path
 	*/
 	@Override
-	public void setPathDate(java.util.Date pathDate) {
+	public void setPathDate(Date pathDate) {
 		_userTrackerPath.setPathDate(pathDate);
 	}
 
@@ -269,7 +298,7 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 	}
 
 	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_userTrackerPath.setPrimaryKeyObj(primaryKeyObj);
 	}
 
@@ -294,7 +323,7 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.UserTrackerPath> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.UserTrackerPath> toCacheModel() {
 		return _userTrackerPath.toCacheModel();
 	}
 
@@ -336,14 +365,6 @@ public class UserTrackerPathWrapper implements UserTrackerPath,
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public UserTrackerPath getWrappedUserTrackerPath() {
-		return _userTrackerPath;
 	}
 
 	@Override
