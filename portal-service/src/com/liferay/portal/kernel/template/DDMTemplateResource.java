@@ -14,10 +14,10 @@
 
 package com.liferay.portal.kernel.template;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMTemplate;
+import com.liferay.dynamic.data.mapping.kernel.DDMTemplateManagerUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
-import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -102,8 +102,7 @@ public class DDMTemplateResource implements TemplateResource {
 		long ddmTemplateId = objectInput.readLong();
 
 		try {
-			_ddmTemplate = DDMTemplateLocalServiceUtil.getDDMTemplate(
-				ddmTemplateId);
+			_ddmTemplate = DDMTemplateManagerUtil.getTemplate(ddmTemplateId);
 		}
 		catch (Exception e) {
 			throw new IOException(

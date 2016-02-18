@@ -14,7 +14,8 @@
 
 package com.liferay.portal.security.pwd;
 
-import com.liferay.portal.model.PasswordPolicy;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.PasswordPolicy;
 import com.liferay.portal.model.impl.PasswordPolicyImpl;
 
 import org.junit.Assert;
@@ -45,16 +46,10 @@ public class PasswordPolicyToolkitTest {
 	}
 
 	@Test
-	public void testGeneratePassword() {
+	public void testGeneratePassword() throws PortalException {
 		String password = _passwordPolicyToolkit.generate(_passwordPolicy);
 
-		try {
-			_passwordPolicyToolkit.validate(
-				password, password, _passwordPolicy);
-		}
-		catch (Exception e) {
-			Assert.fail("Generated password does not validate against policy");
-		}
+		_passwordPolicyToolkit.validate(password, password, _passwordPolicy);
 	}
 
 	@Test

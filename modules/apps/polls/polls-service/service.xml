@@ -26,6 +26,7 @@
 		<column name="questionId" type="long" />
 		<column name="name" type="String" />
 		<column name="description" type="String" localized="true" />
+		<column name="lastPublishDate" type="Date" />
 
 		<!-- Order -->
 
@@ -72,6 +73,7 @@
 		<column name="title" type="String" localized="true" />
 		<column name="description" type="String" localized="true" />
 		<column name="expirationDate" type="Date" />
+		<column name="lastPublishDate" type="Date" />
 		<column name="lastVoteDate" type="Date" />
 
 		<!-- Order -->
@@ -116,6 +118,7 @@
 
 		<column name="questionId" type="long" />
 		<column name="choiceId" type="long" />
+		<column name="lastPublishDate" type="Date" />
 		<column name="voteDate" type="Date" />
 
 		<!-- Finder methods -->
@@ -126,7 +129,7 @@
 		<finder name="ChoiceId" return-type="Collection">
 			<finder-column name="choiceId" />
 		</finder>
-		<finder name="Q_U" return-type="PollsVote" unique="true">
+		<finder name="Q_U" return-type="Collection">
 			<finder-column name="questionId" />
 			<finder-column name="userId" />
 		</finder>

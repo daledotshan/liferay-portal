@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -147,9 +148,9 @@ public class HttpImpl implements Http {
 
 		httpConnectionManagerParams.setConnectionTimeout(_TIMEOUT);
 		httpConnectionManagerParams.setDefaultMaxConnectionsPerHost(
-			new Integer(_MAX_CONNECTIONS_PER_HOST));
+			Integer.valueOf(_MAX_CONNECTIONS_PER_HOST));
 		httpConnectionManagerParams.setMaxTotalConnections(
-			new Integer(_MAX_TOTAL_CONNECTIONS));
+			Integer.valueOf(_MAX_TOTAL_CONNECTIONS));
 		httpConnectionManagerParams.setSoTimeout(_TIMEOUT);
 
 		_httpClient.setHttpConnectionManager(httpConnectionManager);
@@ -227,7 +228,7 @@ public class HttpImpl implements Http {
 
 		String anchor = urlArray[1];
 
-		StringBundler sb = new StringBundler(7);
+		StringBundler sb = new StringBundler(6);
 
 		sb.append(url);
 
@@ -776,6 +777,10 @@ public class HttpImpl implements Http {
 			}
 		}
 
+		if (parts.isEmpty()) {
+			return StringPool.SLASH;
+		}
+
 		StringBundler sb = new StringBundler(parts.size() * 2 + 2);
 
 		for (String part : parts) {
@@ -1321,6 +1326,14 @@ public class HttpImpl implements Http {
 
 		URLConnection urlConnection = url.openConnection();
 
+		if (urlConnection == null) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Unable to open a connection to " + url);
+			}
+
+			return null;
+		}
+
 		try (InputStream inputStream = urlConnection.getInputStream();
 			UnsyncByteArrayOutputStream unsyncByteArrayOutputStream =
 				new UnsyncByteArrayOutputStream()) {
@@ -1795,7 +1808,7 @@ public class HttpImpl implements Http {
 	private final Credentials _proxyCredentials;
 	private final HttpClient _proxyHttpClient = new HttpClient();
 
-	private class FastProtocolSocketFactory
+	private static class FastProtocolSocketFactory
 		extends DefaultProtocolSocketFactory {
 
 		@Override

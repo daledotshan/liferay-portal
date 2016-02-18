@@ -59,6 +59,15 @@ public class StringUtil_IW {
 		return StringUtil.contains(s, text, delimiter);
 	}
 
+	public boolean containsIgnoreCase(java.lang.String s, java.lang.String text) {
+		return StringUtil.containsIgnoreCase(s, text);
+	}
+
+	public boolean containsIgnoreCase(java.lang.String s,
+		java.lang.String text, java.lang.String delimiter) {
+		return StringUtil.containsIgnoreCase(s, text, delimiter);
+	}
+
 	public int count(java.lang.String s, java.lang.String text) {
 		return StringUtil.count(s, text);
 	}
@@ -572,6 +581,10 @@ public class StringUtil_IW {
 		return StringUtil.strip(s, remove);
 	}
 
+	public java.lang.String strip(java.lang.String s, char[] remove) {
+		return StringUtil.strip(s, remove);
+	}
+
 	public java.lang.String stripBetween(java.lang.String s,
 		java.lang.String begin, java.lang.String end) {
 		return StringUtil.stripBetween(s, begin, end);
@@ -579,6 +592,10 @@ public class StringUtil_IW {
 
 	public java.lang.String stripCDATA(java.lang.String s) {
 		return StringUtil.stripCDATA(s);
+	}
+
+	public java.lang.String stripParentheticalSuffix(java.lang.String s) {
+		return StringUtil.stripParentheticalSuffix(s);
 	}
 
 	public java.lang.String toCharCode(java.lang.String s) {

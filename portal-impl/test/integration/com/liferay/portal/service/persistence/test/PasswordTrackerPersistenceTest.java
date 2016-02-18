@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchPasswordTrackerException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchPasswordTrackerException;
+import com.liferay.portal.kernel.model.PasswordTracker;
+import com.liferay.portal.kernel.service.PasswordTrackerLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.PasswordTrackerPersistence;
+import com.liferay.portal.kernel.service.persistence.PasswordTrackerUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -29,16 +33,13 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.PasswordTracker;
-import com.liferay.portal.service.PasswordTrackerLocalServiceUtil;
-import com.liferay.portal.service.persistence.PasswordTrackerPersistence;
-import com.liferay.portal.service.persistence.PasswordTrackerUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,8 +56,9 @@ import java.util.Set;
  * @generated
  */
 public class PasswordTrackerPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -115,6 +117,8 @@ public class PasswordTrackerPersistenceTest {
 
 		newPasswordTracker.setMvccVersion(RandomTestUtil.nextLong());
 
+		newPasswordTracker.setCompanyId(RandomTestUtil.nextLong());
+
 		newPasswordTracker.setUserId(RandomTestUtil.nextLong());
 
 		newPasswordTracker.setCreateDate(RandomTestUtil.nextDate());
@@ -129,6 +133,8 @@ public class PasswordTrackerPersistenceTest {
 			newPasswordTracker.getMvccVersion());
 		Assert.assertEquals(existingPasswordTracker.getPasswordTrackerId(),
 			newPasswordTracker.getPasswordTrackerId());
+		Assert.assertEquals(existingPasswordTracker.getCompanyId(),
+			newPasswordTracker.getCompanyId());
 		Assert.assertEquals(existingPasswordTracker.getUserId(),
 			newPasswordTracker.getUserId());
 		Assert.assertEquals(Time.getShortTimestamp(
@@ -139,15 +145,10 @@ public class PasswordTrackerPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
@@ -159,35 +160,23 @@ public class PasswordTrackerPersistenceTest {
 		Assert.assertEquals(existingPasswordTracker, newPasswordTracker);
 	}
 
-	@Test
+	@Test(expected = NoSuchPasswordTrackerException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchPasswordTrackerException");
-		}
-		catch (NoSuchPasswordTrackerException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<PasswordTracker> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("PasswordTracker",
-			"mvccVersion", true, "passwordTrackerId", true, "userId", true,
-			"createDate", true, "password", true);
+			"mvccVersion", true, "passwordTrackerId", true, "companyId", true,
+			"userId", true, "createDate", true, "password", true);
 	}
 
 	@Test
@@ -296,11 +285,9 @@ public class PasswordTrackerPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = PasswordTrackerLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<PasswordTracker>() {
 				@Override
-				public void performAction(Object object) {
-					PasswordTracker passwordTracker = (PasswordTracker)object;
-
+				public void performAction(PasswordTracker passwordTracker) {
 					Assert.assertNotNull(passwordTracker);
 
 					count.increment();
@@ -392,6 +379,8 @@ public class PasswordTrackerPersistenceTest {
 		PasswordTracker passwordTracker = _persistence.create(pk);
 
 		passwordTracker.setMvccVersion(RandomTestUtil.nextLong());
+
+		passwordTracker.setCompanyId(RandomTestUtil.nextLong());
 
 		passwordTracker.setUserId(RandomTestUtil.nextLong());
 

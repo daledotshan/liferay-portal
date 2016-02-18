@@ -16,10 +16,10 @@
 
 <%@ include file="/html/taglib/init.jsp" %>
 
-<%@ page import="com.liferay.portlet.social.model.SocialActivity" %><%@
-page import="com.liferay.portlet.social.model.SocialActivityFeedEntry" %><%@
-page import="com.liferay.portlet.social.service.SocialActivityInterpreterLocalServiceUtil" %><%@
-page import="com.liferay.portlet.social.service.SocialActivityLocalServiceUtil" %>
+<%@ page import="com.liferay.social.kernel.model.SocialActivity" %><%@
+page import="com.liferay.social.kernel.model.SocialActivityFeedEntry" %><%@
+page import="com.liferay.social.kernel.service.SocialActivityInterpreterLocalServiceUtil" %><%@
+page import="com.liferay.social.kernel.service.SocialActivityLocalServiceUtil" %>
 
 <%
 List<SocialActivity> activities = (List<SocialActivity>)request.getAttribute("liferay-ui:social-activities:activities");
@@ -28,10 +28,11 @@ long classPK = GetterUtil.getLong((String)request.getAttribute("liferay-ui:socia
 int feedDelta = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:social-activities:feedDelta"));
 String feedDisplayStyle = (String)request.getAttribute("liferay-ui:social-activities:feedDisplayStyle");
 boolean feedEnabled = !PortalUtil.isRSSFeedsEnabled() ? false : GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:social-activities:feedEnabled"));
-String feedLink = (String)request.getAttribute("liferay-ui:social-activities:feedLink");
-String feedLinkMessage = (String)request.getAttribute("liferay-ui:social-activities:feedLinkMessage");
+ResourceURL feedResourceURL = (ResourceURL)request.getAttribute("liferay-ui:social-activities:feedResourceURL");
 String feedTitle = (String)request.getAttribute("liferay-ui:social-activities:feedTitle");
 String feedType = (String)request.getAttribute("liferay-ui:social-activities:feedType");
+String feedURL = (String)request.getAttribute("liferay-ui:social-activities:feedURL");
+String feedURLMessage = (String)request.getAttribute("liferay-ui:social-activities:feedURLMessage");
 
 if (activities == null) {
 	activities = SocialActivityLocalServiceUtil.getActivities(0, className, classPK, QueryUtil.ALL_POS, QueryUtil.ALL_POS);

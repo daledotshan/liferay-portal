@@ -14,16 +14,14 @@
 
 package com.liferay.portal.search;
 
-import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
-import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.model.StagedModel;
-import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.spring.aop.AnnotationChainableMethodAdvice;
 
 import java.lang.annotation.Annotation;
@@ -64,46 +62,35 @@ public class IndexableAdvice
 			return;
 		}
 
-		if (StagedModel.class.isAssignableFrom(returnType)) {
-			if (ExportImportThreadLocal.isImportInProcess()) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						"Skipping indexing until the import is finished");
+		Indexer<Object> indexer = IndexerRegistryUtil.getIndexer(
+			returnType.getName());
+
+		if (indexer == null) {
+			serviceBeanAopCacheManager.removeMethodInterceptor(
+				methodInvocation, this);
+
+			return;
+		}
+
+		Object[] arguments = methodInvocation.getArguments();
+
+		for (int i = arguments.length - 1; i >= 0; i--) {
+			if (arguments[i] instanceof ServiceContext) {
+				ServiceContext serviceContext = (ServiceContext)arguments[i];
+
+				if (serviceContext.isIndexingEnabled()) {
+					break;
 				}
 
 				return;
 			}
 		}
 
-		Object[] arguments = methodInvocation.getArguments();
-
-		ServiceContext serviceContext = null;
-
-		for (int i = arguments.length - 1; i >= 0; i--) {
-			if (arguments[i] instanceof ServiceContext) {
-				serviceContext = (ServiceContext)arguments[i];
-
-				break;
-			}
-		}
-
-		Indexer indexer = null;
-
-		if ((serviceContext == null) || serviceContext.isIndexingEnabled()) {
-			indexer = IndexerRegistryUtil.getIndexer(returnType.getName());
-		}
-
-		if (indexer != null) {
-			if (indexable.type() == IndexableType.DELETE) {
-				indexer.delete(result);
-			}
-			else {
-				indexer.reindex(result);
-			}
+		if (indexable.type() == IndexableType.DELETE) {
+			indexer.delete(result);
 		}
 		else {
-			serviceBeanAopCacheManager.removeMethodInterceptor(
-				methodInvocation, this);
+			indexer.reindex(result);
 		}
 	}
 

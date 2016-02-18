@@ -29,16 +29,21 @@ boolean hasVoted = PollsUtil.hasVoted(request, question.getQuestionId());
 
 boolean viewResults = ParamUtil.getBoolean(request, "viewResults");
 
-if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.UPDATE)) {
+if (viewResults && !PollsQuestionPermissionChecker.contains(permissionChecker, question, ActionKeys.UPDATE)) {
 	viewResults = false;
 }
+
+renderResponse.setTitle(question.getTitle(locale));
+
+portletDisplay.setShowBackIcon(true);
+portletDisplay.setURLBack(redirect);
 %>
 
 <portlet:actionURL var="viewQuestionActionURL">
 	<portlet:param name="struts_action" value="/polls/view_question" />
 </portlet:actionURL>
 
-<aui:form action="<%= viewQuestionActionURL %>" method="post" name="fm">
+<aui:form action="<%= viewQuestionActionURL %>" cssClass="container-fluid-1280" method="post" name="fm">
 	<portlet:renderURL var="viewQuestionRenderURL">
 		<portlet:param name="struts_action" value="/polls/view_question" />
 		<portlet:param name="redirect" value="<%= redirect %>" />
@@ -53,13 +58,6 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 	<liferay-ui:error exception="<%= NoSuchChoiceException.class %>" message="please-select-an-option" />
 
 	<aui:fieldset>
-		<liferay-ui:header
-			backURL="<%= redirect %>"
-			escapeXml="<%= false %>"
-			localizeTitle="<%= false %>"
-			title="<%= question.getTitle(locale) %>"
-		/>
-
 		<span>
 			<%= StringUtil.replace(question.getDescription(locale), StringPool.NEW_LINE, "<br />") %>
 		</span>
@@ -67,7 +65,7 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 		<br /><br />
 
 		<c:choose>
-			<c:when test="<%= !viewResults && !question.isExpired() && !hasVoted && PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.ADD_VOTE) %>">
+			<c:when test="<%= !viewResults && !question.isExpired() && !hasVoted && PollsQuestionPermissionChecker.contains(permissionChecker, question, ActionKeys.ADD_VOTE) %>">
 				<aui:field-wrapper>
 
 					<%
@@ -83,7 +81,7 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 
 				</aui:field-wrapper>
 
-				<c:if test="<%= PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.UPDATE) %>">
+				<c:if test="<%= PollsQuestionPermissionChecker.contains(permissionChecker, question, ActionKeys.UPDATE) %>">
 					<portlet:renderURL var="viewResultsURL">
 						<portlet:param name="struts_action" value="/polls/view_question" />
 						<portlet:param name="redirect" value="<%= redirect %>" />
@@ -100,9 +98,9 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 				</c:if>
 
 				<aui:button-row>
-					<aui:button type="submit" value="vote[action]" />
+					<aui:button cssClass="btn-lg" type="submit" value="vote[action]" />
 
-					<aui:button href="<%= redirect %>" type="cancel" />
+					<aui:button cssClass="btn-lg" href="<%= redirect %>" type="cancel" />
 				</aui:button-row>
 
 				<%
@@ -119,13 +117,13 @@ if (viewResults && !PollsQuestionPermission.contains(permissionChecker, question
 					<portlet:param name="questionId" value="<%= String.valueOf(question.getQuestionId()) %>" />
 				</portlet:renderURL>
 
-				<aui:button-row>
+				<div class="button-holder">
 					<c:choose>
-						<c:when test="<%= !question.isExpired() && !hasVoted && PollsQuestionPermission.contains(permissionChecker, question, ActionKeys.ADD_VOTE) %>">
+						<c:when test="<%= !question.isExpired() && !hasVoted && PollsQuestionPermissionChecker.contains(permissionChecker, question, ActionKeys.ADD_VOTE) %>">
 							<aui:button href="<%= viewQuestionURL %>" value="back-to-vote" />
 						</c:when>
 					</c:choose>
-				</aui:button-row>
+				</div>
 
 				<%
 				PortalUtil.addPortletBreadcrumbEntry(request, HtmlUtil.unescape(question.getTitle(locale)), viewQuestionURL.toString());

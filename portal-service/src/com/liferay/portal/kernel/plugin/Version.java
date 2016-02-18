@@ -14,9 +14,11 @@
 
 package com.liferay.portal.kernel.plugin;
 
+import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -29,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Jorge Ferrer
  */
 public class Version implements Comparable<Version>, Serializable {
+
+	public static final String SNAPSHOT = "SNAPSHOT";
 
 	public static final String UNKNOWN = "unknown";
 
@@ -56,7 +60,7 @@ public class Version implements Comparable<Version>, Serializable {
 		return getInstance(
 			_toString(
 				version.getMajor(), version.getMinor(), bugFix,
-				version.getBuildNumber()));
+				version.getBuildNumber(), version.getQualifier()));
 	}
 
 	public static Version incrementBuildNumber(Version version) {
@@ -71,7 +75,7 @@ public class Version implements Comparable<Version>, Serializable {
 		return getInstance(
 			_toString(
 				version.getMajor(), version.getMinor(), version.getBugFix(),
-				buildNumber));
+				buildNumber, version.getQualifier()));
 	}
 
 	public static Version incrementMajor(Version version) {
@@ -86,7 +90,7 @@ public class Version implements Comparable<Version>, Serializable {
 		return getInstance(
 			_toString(
 				major, version.getMinor(), version.getBugFix(),
-				version.getBuildNumber()));
+				version.getBuildNumber(), version.getQualifier()));
 	}
 
 	public static Version incrementMinor(Version version) {
@@ -101,7 +105,7 @@ public class Version implements Comparable<Version>, Serializable {
 		return getInstance(
 			_toString(
 				version.getMajor(), minor, version.getBugFix(),
-				version.getBuildNumber()));
+				version.getBuildNumber(), version.getQualifier()));
 	}
 
 	@Override
@@ -138,7 +142,13 @@ public class Version implements Comparable<Version>, Serializable {
 			return result;
 		}
 
-		return _compareAsIntegers(getBuildNumber(), version.getBuildNumber());
+		result = _compareAsIntegers(getBuildNumber(), version.getBuildNumber());
+
+		if (result != 0) {
+			return result;
+		}
+
+		return _compareAsQualifiers(getQualifier(), version.getQualifier());
 	}
 
 	@Override
@@ -189,6 +199,14 @@ public class Version implements Comparable<Version>, Serializable {
 		}
 
 		return _minor;
+	}
+
+	public String getQualifier() {
+		if (_qualifier == null) {
+			return StringPool.BLANK;
+		}
+
+		return _qualifier;
 	}
 
 	@Override
@@ -271,10 +289,18 @@ public class Version implements Comparable<Version>, Serializable {
 
 	@Override
 	public String toString() {
-		return _toString(_major, _minor, _bugFix, _buildNumber);
+		return _toString(_major, _minor, _bugFix, _buildNumber, _qualifier);
 	}
 
 	protected Version(String version) {
+		int index = version.indexOf(CharPool.DASH);
+
+		if (index != -1) {
+			_qualifier = version.substring(index + 1);
+
+			version = version.substring(0, index);
+		}
+
 		StringTokenizer st = new StringTokenizer(version, _SEPARATOR);
 
 		_major = st.nextToken();
@@ -318,7 +344,8 @@ public class Version implements Comparable<Version>, Serializable {
 	}
 
 	private static String _toString(
-		String major, String minor, String bugFix, String buildNumber) {
+		String major, String minor, String bugFix, String buildNumber,
+		String qualifier) {
 
 		StringBundler sb = new StringBundler(7);
 
@@ -339,6 +366,11 @@ public class Version implements Comparable<Version>, Serializable {
 			}
 		}
 
+		if (Validator.isNotNull(qualifier)) {
+			sb.append(CharPool.DASH);
+			sb.append(qualifier);
+		}
+
 		return sb.toString();
 	}
 
@@ -357,6 +389,24 @@ public class Version implements Comparable<Version>, Serializable {
 		}
 	}
 
+	private int _compareAsQualifiers(String first, String second) {
+		String firstString = GetterUtil.getString(first);
+		String secondString = GetterUtil.getString(second);
+
+		if (StringUtil.equalsIgnoreCase(firstString, SNAPSHOT) &&
+			!StringUtil.equalsIgnoreCase(secondString, SNAPSHOT)) {
+
+			return -1;
+		}
+		else if (!StringUtil.equalsIgnoreCase(firstString, SNAPSHOT) &&
+				 StringUtil.equalsIgnoreCase(secondString, SNAPSHOT)) {
+
+			return 1;
+		}
+
+		return 0;
+	}
+
 	private static final String _SEPARATOR = StringPool.PERIOD;
 
 	private static final Map<String, Version> _versions =
@@ -366,5 +416,6 @@ public class Version implements Comparable<Version>, Serializable {
 	private final String _buildNumber;
 	private String _major;
 	private String _minor;
+	private String _qualifier;
 
 }

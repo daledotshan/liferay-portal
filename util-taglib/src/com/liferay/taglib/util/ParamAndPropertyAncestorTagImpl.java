@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 
 /**
@@ -62,7 +63,7 @@ public class ParamAndPropertyAncestorTagImpl
 
 		String[] values = params.get(name);
 
-		if (values == null) {
+		if (!_copyCurrentRenderParameters || (values == null)) {
 			values = new String[] {value};
 		}
 		else {
@@ -86,7 +87,7 @@ public class ParamAndPropertyAncestorTagImpl
 
 		String[] values = _properties.get(name);
 
-		if (values == null) {
+		if (!_copyCurrentRenderParameters || (values == null)) {
 			values = new String[] {value};
 		}
 		else {
@@ -151,9 +152,11 @@ public class ParamAndPropertyAncestorTagImpl
 		super.release();
 
 		request = null;
+		response = null;
 		servletContext = null;
 
 		_allowEmptyParam = false;
+		_copyCurrentRenderParameters = true;
 		_properties = null;
 		_removedParameterNames = null;
 	}
@@ -162,11 +165,18 @@ public class ParamAndPropertyAncestorTagImpl
 		_allowEmptyParam = allowEmptyParam;
 	}
 
+	public void setCopyCurrentRenderParameters(
+		boolean copyCurrentRenderParameters) {
+
+		_copyCurrentRenderParameters = copyCurrentRenderParameters;
+	}
+
 	@Override
 	public void setPageContext(PageContext pageContext) {
 		super.setPageContext(pageContext);
 
 		request = (HttpServletRequest)pageContext.getRequest();
+		response = (HttpServletResponse)pageContext.getResponse();
 
 		servletContext = (ServletContext)request.getAttribute(WebKeys.CTX);
 
@@ -180,9 +190,11 @@ public class ParamAndPropertyAncestorTagImpl
 	}
 
 	protected HttpServletRequest request;
+	protected HttpServletResponse response;
 	protected ServletContext servletContext;
 
 	private boolean _allowEmptyParam;
+	private boolean _copyCurrentRenderParameters = true;
 	private DynamicServletRequest _dynamicServletRequest;
 	private Map<String, String[]> _properties;
 	private Set<String> _removedParameterNames;

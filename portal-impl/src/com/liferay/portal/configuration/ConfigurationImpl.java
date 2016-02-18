@@ -22,13 +22,13 @@ import com.liferay.portal.configuration.easyconf.ClassLoaderComponentConfigurati
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.CompanyConstants;
-import com.liferay.portal.service.CompanyLocalServiceUtil;
 
 import java.lang.reflect.Field;
 
@@ -100,6 +100,8 @@ public class ConfigurationImpl
 			MapConfiguration newConfiguration = new MapConfiguration(
 				properties);
 
+			newConfiguration.setTrimmingDisabled(true);
+
 			configurations.add(0, newConfiguration);
 
 			// Add to configList of AggregatedProperties itself
@@ -124,6 +126,8 @@ public class ConfigurationImpl
 	@Override
 	public void clearCache() {
 		_values.clear();
+
+		_properties = null;
 	}
 
 	@Override
@@ -275,13 +279,8 @@ public class ConfigurationImpl
 		Properties componentPropertiesProperties =
 			componentProperties.getProperties();
 
-		for (Map.Entry<Object, Object> entry :
-				componentPropertiesProperties.entrySet()) {
-
-			String key = (String)entry.getKey();
-			String value = (String)entry.getValue();
-
-			_properties.setProperty(key, value);
+		for (String key : componentPropertiesProperties.stringPropertyNames()) {
+			_properties.setProperty(key, componentProperties.getString(key));
 		}
 
 		return _properties;
@@ -327,7 +326,7 @@ public class ConfigurationImpl
 				MapConfiguration mapConfiguration =
 					(MapConfiguration)configuration;
 
-				if (mapConfiguration.getMap() == properties) {
+				if (mapConfiguration.getMap() == (Map<?, ?>)properties) {
 					itr.remove();
 
 					classLoaderAggregateProperties.removeConfiguration(

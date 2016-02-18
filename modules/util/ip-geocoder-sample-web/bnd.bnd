@@ -2,10 +2,10 @@ Bundle-Name: Liferay IP Geocoder Sample Web
 Bundle-SymbolicName: com.liferay.ip.geocoder.sample.web
 Bundle-Version: 1.0.0
 Import-Package:\
+	com.liferay.exportimport.kernel.lar,\
 	com.liferay.ip.geocoder,\
 	com.liferay.portal.kernel.exception,\
 	com.liferay.portal.kernel.language,\
-	com.liferay.portal.kernel.lar,\
 	com.liferay.portal.kernel.portlet,\
 	com.liferay.portal.kernel.servlet,\
 	com.liferay.portal.kernel.servlet.filters.invoker,\
@@ -17,15 +17,8 @@ Import-Package:\
 	com.liferay.portal.servlet.filters.dynamiccss,\
 	com.liferay.portal.webserver,\
 	com.liferay.portlet,\
-	javax.portlet,\
-	javax.servlet,\
-	javax.servlet.http,\
 	*
-Require-Capability:\
-	osgi.extender;filter:="(&(osgi.extender=jsp.taglib)(uri=http://liferay.com/tld/ui))"
 Web-ContextPath: /ip-geocoder-sample-web
-
 -donotcopy: (docroot/WEB-INF/src|.*\.jar|.*\.java)
 -wab: docroot
--wablib:\
-	${app.server.portal.dir}/WEB-INF/lib/util-java.jar
+-wablib: ${app.server.portal.dir}/WEB-INF/lib/util-java.jar

@@ -14,9 +14,9 @@
 
 package com.liferay.portal.util;
 
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutConstants;
-import com.liferay.portal.model.LayoutTypeController;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.LayoutTypeController;
 import com.liferay.portal.model.impl.LayoutTypeControllerImpl;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
@@ -106,9 +106,9 @@ public class LayoutTypeControllerTracker {
 	}
 
 	private static final String[] _LAYOUT_TYPES = new String[] {
-		LayoutConstants.TYPE_CONTROL_PANEL, LayoutConstants.TYPE_EMBEDDED,
-		LayoutConstants.TYPE_LINK_TO_LAYOUT, LayoutConstants.TYPE_PANEL,
-		LayoutConstants.TYPE_PORTLET, LayoutConstants.TYPE_URL
+		LayoutConstants.TYPE_EMBEDDED, LayoutConstants.TYPE_LINK_TO_LAYOUT,
+		LayoutConstants.TYPE_PANEL, LayoutConstants.TYPE_PORTLET,
+		LayoutConstants.TYPE_URL
 	};
 
 	private static final LayoutTypeControllerTracker _instance =
