@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.portlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PredicateFilter;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.xml.simple.Element;
-import com.liferay.portal.theme.ThemeDisplay;
 
 import java.io.Serializable;
 
@@ -770,13 +770,13 @@ public class PortletRequestModel implements Serializable {
 	}
 
 	private static boolean _isValidAttributeName(String name) {
-		if (StringUtil.equalsIgnoreCase(name, "j_password") ||
+		if (StringUtil.equalsIgnoreCase(
+				name, WebKeys.PORTLET_RENDER_PARAMETERS) ||
+			StringUtil.equalsIgnoreCase(name, "j_password") ||
 			StringUtil.equalsIgnoreCase(name, "LAYOUT_CONTENT") ||
 			StringUtil.equalsIgnoreCase(name, "LAYOUTS") ||
-			StringUtil.equalsIgnoreCase(name, "PORTLET_RENDER_PARAMETERS") ||
 			StringUtil.equalsIgnoreCase(name, "USER_PASSWORD") ||
-			name.startsWith("javax.") ||
-			name.startsWith("liferay-ui:")) {
+			name.startsWith("javax.") || name.startsWith("liferay-ui:")) {
 
 			return false;
 		}

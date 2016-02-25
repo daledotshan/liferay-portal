@@ -16,29 +16,26 @@ package com.liferay.portal.model.impl;
 
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Account;
+import com.liferay.portal.kernel.model.CacheField;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.VirtualHost;
+import com.liferay.portal.kernel.service.AccountLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.service.VirtualHostLocalServiceUtil;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.CharPool;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Account;
-import com.liferay.portal.model.CacheField;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.CompanyConstants;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.LayoutSet;
-import com.liferay.portal.model.Shard;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.VirtualHost;
-import com.liferay.portal.service.AccountLocalServiceUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutSetLocalServiceUtil;
-import com.liferay.portal.service.ShardLocalServiceUtil;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.VirtualHostLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -146,8 +143,10 @@ public class CompanyImpl extends CompanyBaseImpl {
 
 	@Override
 	public String getPortalURL(long groupId) throws PortalException {
+		int portalPort = PortalUtil.getPortalServerPort(false);
+
 		String portalURL = PortalUtil.getPortalURL(
-			getVirtualHostname(), Http.HTTP_PORT, false);
+			getVirtualHostname(), portalPort, false);
 
 		if (groupId <= 0) {
 			return portalURL;
@@ -161,7 +160,7 @@ public class CompanyImpl extends CompanyBaseImpl {
 
 			if (Validator.isNotNull(layoutSet.getVirtualHostname())) {
 				portalURL = PortalUtil.getPortalURL(
-					layoutSet.getVirtualHostname(), Http.HTTP_PORT, false);
+					layoutSet.getVirtualHostname(), portalPort, false);
 			}
 		}
 		else if (group.hasPrivateLayouts()) {
@@ -170,19 +169,11 @@ public class CompanyImpl extends CompanyBaseImpl {
 
 			if (Validator.isNotNull(layoutSet.getVirtualHostname())) {
 				portalURL = PortalUtil.getPortalURL(
-					layoutSet.getVirtualHostname(), Http.HTTP_PORT, false);
+					layoutSet.getVirtualHostname(), portalPort, false);
 			}
 		}
 
 		return portalURL;
-	}
-
-	@Override
-	public String getShardName() throws PortalException {
-		Shard shard = ShardLocalServiceUtil.getShard(
-			Company.class.getName(), getCompanyId());
-
-		return shard.getName();
 	}
 
 	@Override

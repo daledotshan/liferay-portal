@@ -17,10 +17,12 @@ package com.liferay.portal.kernel.repository;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.capabilities.Capability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.repository.model.RepositoryEntry;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.service.ServiceContext;
 
 import java.io.File;
 import java.io.InputStream;
@@ -67,6 +69,14 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public FileShortcut addFileShortcut(
+		long userId, long folderId, long toFileEntryId,
+		ServiceContext serviceContext) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Folder addFolder(
 		long userId, long parentFolderId, String name, String description,
 		ServiceContext serviceContext) {
@@ -76,12 +86,12 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 
 	@Override
 	public void checkInFileEntry(
-			long userId, long fileEntryId, boolean major, String changeLog,
-			ServiceContext serviceContext)
+			long userId, long fileEntryId, boolean majorVersion,
+			String changeLog, ServiceContext serviceContext)
 		throws PortalException {
 
 		_repository.checkInFileEntry(
-			userId, fileEntryId, major, changeLog, serviceContext);
+			userId, fileEntryId, majorVersion, changeLog, serviceContext);
 	}
 
 	@Override
@@ -115,6 +125,16 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public void deleteFileShortcut(long fileShortcutId) throws PortalException {
+		_repository.deleteFileShortcut(fileShortcutId);
+	}
+
+	@Override
+	public void deleteFileShortcuts(long toFileEntryId) throws PortalException {
+		_repository.deleteFileShortcuts(toFileEntryId);
+	}
+
+	@Override
 	public void deleteFolder(long folderId) throws PortalException {
 		_repository.deleteFolder(folderId);
 	}
@@ -122,6 +142,52 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 	@Override
 	public <T extends Capability> T getCapability(Class<T> capabilityClass) {
 		return _repository.getCapability(capabilityClass);
+	}
+
+	@Override
+	public List<FileEntry> getFileEntries(
+			long folderId, int status, int start, int end,
+			OrderByComparator<FileEntry> obc)
+		throws PortalException {
+
+		return _repository.getFileEntries(folderId, status, start, end, obc);
+	}
+
+	@Override
+	public List<FileEntry> getFileEntries(
+			long folderId, int start, int end, OrderByComparator<FileEntry> obc)
+		throws PortalException {
+
+		return _repository.getFileEntries(folderId, start, end, obc);
+	}
+
+	@Override
+	public List<RepositoryEntry> getFileEntriesAndFileShortcuts(
+			long folderId, int status, int start, int end)
+		throws PortalException {
+
+		return _repository.getFileEntriesAndFileShortcuts(
+			folderId, status, start, end);
+	}
+
+	@Override
+	public int getFileEntriesAndFileShortcutsCount(long folderId, int status)
+		throws PortalException {
+
+		return _repository.getFileEntriesAndFileShortcutsCount(
+			folderId, status);
+	}
+
+	@Override
+	public int getFileEntriesCount(long folderId) throws PortalException {
+		return _repository.getFileEntriesCount(folderId);
+	}
+
+	@Override
+	public int getFileEntriesCount(long folderId, int status)
+		throws PortalException {
+
+		return _repository.getFileEntriesCount(folderId, status);
 	}
 
 	@Override
@@ -142,6 +208,11 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public FileShortcut getFileShortcut(long fileShortcutId) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public FileVersion getFileVersion(long fileVersionId)
 		throws PortalException {
 
@@ -158,6 +229,61 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 		throws PortalException {
 
 		return _repository.getFolder(parentFolderId, name);
+	}
+
+	@Override
+	public List<Folder> getFolders(
+			long parentFolderId, boolean includeMountFolders, int start,
+			int end, OrderByComparator<Folder> obc)
+		throws PortalException {
+
+		return _repository.getFolders(
+			parentFolderId, includeMountFolders, start, end, obc);
+	}
+
+	@Override
+	public List<Folder> getFolders(
+			long parentFolderId, int status, boolean includeMountFolders,
+			int start, int end, OrderByComparator<Folder> obc)
+		throws PortalException {
+
+		return _repository.getFolders(
+			parentFolderId, status, includeMountFolders, start, end, obc);
+	}
+
+	@Override
+	public List<RepositoryEntry> getFoldersAndFileEntriesAndFileShortcuts(
+			long folderId, int status, boolean includeMountFolders, int start,
+			int end, OrderByComparator<?> obc)
+		throws PortalException {
+
+		return _repository.getFoldersAndFileEntriesAndFileShortcuts(
+			folderId, status, includeMountFolders, start, end, obc);
+	}
+
+	@Override
+	public int getFoldersAndFileEntriesAndFileShortcutsCount(
+			long folderId, int status, boolean includeMountFolders)
+		throws PortalException {
+
+		return _repository.getFoldersAndFileEntriesAndFileShortcutsCount(
+			folderId, status, includeMountFolders);
+	}
+
+	@Override
+	public int getFoldersCount(long parentFolderId, boolean includeMountfolders)
+		throws PortalException {
+
+		return _repository.getFoldersCount(parentFolderId, includeMountfolders);
+	}
+
+	@Override
+	public int getFoldersCount(
+			long parentFolderId, int status, boolean includeMountfolders)
+		throws PortalException {
+
+		return _repository.getFoldersCount(
+			parentFolderId, status, includeMountfolders);
 	}
 
 	@Override
@@ -236,6 +362,21 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 		String title, String description, String changeLog,
 		boolean majorVersion, InputStream is, long size,
 		ServiceContext serviceContext) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public FileShortcut updateFileShortcut(
+		long userId, long fileShortcutId, long folderId, long toFileEntryId,
+		ServiceContext serviceContext) {
+
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void updateFileShortcuts(
+		long oldToFileEntryId, long newToFileEntryId) {
 
 		throw new UnsupportedOperationException();
 	}

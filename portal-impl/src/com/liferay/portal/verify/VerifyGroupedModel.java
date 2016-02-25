@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.verify.model.VerifiableGroupedModel;
+import com.liferay.portal.kernel.verify.model.VerifiableGroupedModel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -100,14 +100,11 @@ public class VerifyGroupedModel extends VerifyProcess {
 			String tableName, String primaryKeColumnName, long primKey)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select groupId from " + tableName + " where " +
 					primaryKeColumnName + " = ?");
 
@@ -126,7 +123,7 @@ public class VerifyGroupedModel extends VerifyProcess {
 			return 0;
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
@@ -134,13 +131,10 @@ public class VerifyGroupedModel extends VerifyProcess {
 			VerifiableGroupedModel verifiableGroupedModel)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
+		try (Connection con = DataAccess.getUpgradeOptimizedConnection()) {
 			StringBundler sb = new StringBundler(7);
 
 			sb.append("select ");
@@ -181,11 +175,11 @@ public class VerifyGroupedModel extends VerifyProcess {
 				sb.append(" = ");
 				sb.append(primKey);
 
-				runSQL(sb.toString());
+				runSQL(con, sb.toString());
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 

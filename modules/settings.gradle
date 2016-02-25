@@ -1,1 +1,49 @@
-apply from: "${rootDir}/../tools/sdk/settings.gradle"
+FileTree fileTree = fileTree(rootDir) {
+	exclude "**/bin/"
+	exclude "sdk/*/samples/"
+
+	if (Boolean.getBoolean("portal.build")) {
+		String excludesString = System.properties["portal.build.modules.excludes"]
+		String includesString = System.properties["portal.build.modules.includes"]
+
+		if (excludesString) {
+			exclude excludesString.tokenize(",")
+		}
+
+		if (includesString) {
+			include includesString.tokenize(",")
+		}
+	}
+	else {
+		include "*/**/build.gradle"
+		include "apps/platform/frontend/frontend-theme/*/gulpfile.js"
+	}
+}
+
+URI rootURI = rootDir.toURI()
+
+fileTree.each {
+	String dirName = rootURI.relativize(it.parentFile.toURI())
+
+	dirName = dirName[0 .. -2]
+	dirName = dirName.replace("/" as char, ":" as char)
+
+	include ":" + dirName
+}
+
+String testClassGroupIndex = System.getProperty("test.class.group.index")
+
+if (testClassGroupIndex) {
+	Properties properties = new Properties()
+
+	File file = new File(rootDir, "../test.class.file.names.properties")
+
+	properties.load(new StringReader(file.text.replace("\\", "/")))
+
+	String testClassGroup = properties["TEST_CLASS_GROUP_" + testClassGroupIndex]
+	String testClassGroups = properties["TEST_CLASS_GROUPS"]
+
+	gradle.ext.testClasses = testClassGroup.tokenize(",")
+	gradle.ext.testClassGroupIndex = testClassGroupIndex
+	gradle.ext.testClassGroups = testClassGroups
+}

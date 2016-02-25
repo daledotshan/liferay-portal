@@ -14,16 +14,20 @@
 
 package com.liferay.portal.kernel.search;
 
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.theme.ThemeDisplay;
 
 import java.io.Serializable;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -67,6 +71,20 @@ public class SearchContextFactory {
 			}
 		}
 
+		if (!parameters.containsKey("groupId")) {
+			String[] scopes = parameters.get("scope");
+
+			if (scopes != null) {
+				String groupId = "0";
+
+				if (Validator.equals(scopes[0], "this-site")) {
+					groupId = String.valueOf(themeDisplay.getScopeGroupId());
+				}
+
+				attributes.put("groupId", groupId);
+			}
+		}
+
 		searchContext.setAttributes(attributes);
 
 		// Asset
@@ -91,6 +109,50 @@ public class SearchContextFactory {
 		QueryConfig queryConfig = searchContext.getQueryConfig();
 
 		queryConfig.setLocale(themeDisplay.getLocale());
+
+		return searchContext;
+	}
+
+	public static SearchContext getInstance(
+		long[] assetCategoryIds, String[] assetTagNames,
+		Map<String, Serializable> attributes, long companyId, String keywords,
+		Layout layout, Locale locale, long scopeGroupId, TimeZone timeZone,
+		long userId) {
+
+		SearchContext searchContext = new SearchContext();
+
+		// Theme display
+
+		searchContext.setCompanyId(companyId);
+		searchContext.setGroupIds(new long[] {scopeGroupId});
+		searchContext.setLayout(layout);
+		searchContext.setLocale(locale);
+		searchContext.setTimeZone(timeZone);
+		searchContext.setUserId(userId);
+
+		// Attributes
+
+		if (attributes != null) {
+			searchContext.setAttributes(attributes);
+		}
+		else {
+			searchContext.setAttributes(new HashMap<String, Serializable>());
+		}
+
+		// Asset
+
+		searchContext.setAssetCategoryIds(assetCategoryIds);
+		searchContext.setAssetTagNames(assetTagNames);
+
+		// Keywords
+
+		searchContext.setKeywords(keywords);
+
+		// Query config
+
+		QueryConfig queryConfig = searchContext.getQueryConfig();
+
+		queryConfig.setLocale(locale);
 
 		return searchContext;
 	}

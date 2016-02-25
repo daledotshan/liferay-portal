@@ -14,7 +14,7 @@
 
 package com.liferay.portal.security.auth.bundle.fullnamegeneratorfactory;
 
-import com.liferay.portal.security.auth.FullNameGenerator;
+import com.liferay.portal.kernel.security.auth.FullNameGenerator;
 
 import java.util.Locale;
 
@@ -52,7 +52,7 @@ public class TestFullNameGenerator implements FullNameGenerator {
 
 	@Override
 	public String[] splitFullName(String fullName) {
-		return new String [] {"firstName", "middleName", "lastName"};
+		return new String[] {"firstName", "middleName", "lastName"};
 	}
 
 }

@@ -14,11 +14,9 @@
 
 package com.liferay.portal.servlet;
 
-import com.liferay.portal.cache.SingleVMPoolImpl;
-import com.liferay.portal.cache.memory.MemoryPortalCacheManager;
-import com.liferay.portal.kernel.cache.SingleVMPoolUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.util.PortletKeys;
+import com.liferay.portal.tools.ToolDependencies;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,15 +30,7 @@ public class ModulePathContainerTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		SingleVMPoolImpl singleVMPoolImpl = new SingleVMPoolImpl();
-
-		singleVMPoolImpl.setPortalCacheManager(
-			MemoryPortalCacheManager.createMemoryPortalCacheManager(
-				ModulePathContainerTest.class.getName()));
-
-		SingleVMPoolUtil singleVMPoolUtil = new SingleVMPoolUtil();
-
-		singleVMPoolUtil.setSingleVMPool(singleVMPoolImpl);
+		ToolDependencies.wireCaches();
 	}
 
 	@Test

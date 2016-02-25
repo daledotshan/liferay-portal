@@ -28,18 +28,16 @@ import java.util.Set;
 public abstract class BaseDestination implements Destination {
 
 	@Override
-	public void addDestinationEventListener(
+	public boolean addDestinationEventListener(
 		DestinationEventListener destinationEventListener) {
 
-		_destinationEventListeners.add(destinationEventListener);
+		return _destinationEventListeners.add(destinationEventListener);
 	}
 
 	public void afterPropertiesSet() {
 		if (Validator.isNull(name)) {
 			throw new IllegalArgumentException("Name is null");
 		}
-
-		open();
 	}
 
 	@Override
@@ -70,6 +68,20 @@ public abstract class BaseDestination implements Destination {
 				invokerMessageListener.getMessageListener(),
 				invokerMessageListener.getClassLoader());
 		}
+	}
+
+	@Override
+	public void destroy() {
+		close(true);
+
+		removeDestinationEventListeners();
+
+		unregisterMessageListeners();
+	}
+
+	@Override
+	public DestinationStatistics getDestinationStatistics() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -120,15 +132,20 @@ public abstract class BaseDestination implements Destination {
 	}
 
 	@Override
-	public void removeDestinationEventListener(
+	public boolean removeDestinationEventListener(
 		DestinationEventListener destinationEventListener) {
 
-		_destinationEventListeners.remove(destinationEventListener);
+		return _destinationEventListeners.remove(destinationEventListener);
 	}
 
 	@Override
 	public void removeDestinationEventListeners() {
 		_destinationEventListeners.clear();
+	}
+
+	@Override
+	public void send(Message message) {
+		throw new UnsupportedOperationException();
 	}
 
 	public void setName(String name) {

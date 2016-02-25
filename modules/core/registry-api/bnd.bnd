@@ -4,11 +4,6 @@ Bundle-Version: 1.0.0
 Export-Package:\
 	com.liferay.registry,\
 	com.liferay.registry.collections,\
+	com.liferay.registry.dependency,\
 	com.liferay.registry.util
-Import-Package:\
-	com.liferay.registry;version=${@},\
-	com.liferay.registry.collections;version=${@},\
-	com.liferay.registry.util;version=${@}
-Include-Resource:\
-	classes,\
-	@lib/aQute.bnd.jar!/aQute/lib/filter/Filter.class
+Include-Resource: @lib/biz.aQute.bndlib.jar!/aQute/lib/filter/*

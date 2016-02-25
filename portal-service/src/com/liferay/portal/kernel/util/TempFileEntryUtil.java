@@ -14,24 +14,22 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.util.DLAppHelperThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Repository;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.LocalRepository;
+import com.liferay.portal.kernel.repository.RepositoryProviderUtil;
 import com.liferay.portal.kernel.repository.capabilities.TemporaryFileEntriesCapability;
 import com.liferay.portal.kernel.repository.capabilities.TemporaryFileEntriesScope;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Repository;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.RepositoryLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFolder;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.util.DLAppHelperThreadLocal;
+import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.RepositoryLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +47,8 @@ import java.util.UUID;
  * @author Iván Zaera
  */
 public class TempFileEntryUtil {
+
+	public static final String TEMP_RANDOM_SUFFIX = "--tempRandomSuffix--";
 
 	public static FileEntry addTempFileEntry(
 			long groupId, long userId, String folderName, String fileName,
@@ -76,36 +76,73 @@ public class TempFileEntryUtil {
 			InputStream inputStream, String mimeType)
 		throws PortalException {
 
-		TemporaryFileEntriesCapability temporaryFileEntriesCapability =
-			_getTemporaryFileEntriesCapability(groupId);
+		boolean dlAppHelperEnabled = DLAppHelperThreadLocal.isEnabled();
 
-		return temporaryFileEntriesCapability.addTemporaryFileEntry(
-			new TemporaryFileEntriesScope(_UUID, userId, folderName), fileName,
-			mimeType, inputStream);
+		try {
+			DLAppHelperThreadLocal.setEnabled(false);
+
+			TemporaryFileEntriesCapability temporaryFileEntriesCapability =
+				_getTemporaryFileEntriesCapability(groupId);
+
+			return temporaryFileEntriesCapability.addTemporaryFileEntry(
+				new TemporaryFileEntriesScope(_UUID, userId, folderName),
+				fileName, mimeType, inputStream);
+		}
+		finally {
+			DLAppHelperThreadLocal.setEnabled(dlAppHelperEnabled);
+		}
 	}
 
 	public static void deleteTempFileEntry(long fileEntryId)
 		throws PortalException {
 
-		DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.getDLFileEntry(
-			fileEntryId);
+		LocalRepository localRepository =
+			RepositoryProviderUtil.getFileEntryLocalRepository(fileEntryId);
 
-		DLFolder dlFolder = dlFileEntry.getFolder();
+		FileEntry fileEntry = localRepository.getFileEntry(fileEntryId);
+
+		Folder folder = fileEntry.getFolder();
 
 		deleteTempFileEntry(
-			dlFileEntry.getGroupId(), dlFileEntry.getUserId(),
-			dlFolder.getName(), dlFileEntry.getTitle());
+			fileEntry.getGroupId(), fileEntry.getUserId(), folder.getName(),
+			fileEntry.getTitle());
 	}
 
 	public static void deleteTempFileEntry(
 			long groupId, long userId, String folderName, String fileName)
 		throws PortalException {
 
-		TemporaryFileEntriesCapability temporaryFileEntriesCapability =
-			_getTemporaryFileEntriesCapability(groupId);
+		boolean dlAppHelperEnabled = DLAppHelperThreadLocal.isEnabled();
 
-		temporaryFileEntriesCapability.deleteTemporaryFileEntry(
-			new TemporaryFileEntriesScope(_UUID, userId, folderName), fileName);
+		try {
+			DLAppHelperThreadLocal.setEnabled(false);
+
+			TemporaryFileEntriesCapability temporaryFileEntriesCapability =
+				_getTemporaryFileEntriesCapability(groupId);
+
+			temporaryFileEntriesCapability.deleteTemporaryFileEntry(
+				new TemporaryFileEntriesScope(_UUID, userId, folderName),
+				fileName);
+		}
+		finally {
+			DLAppHelperThreadLocal.setEnabled(dlAppHelperEnabled);
+		}
+	}
+
+	public static String getOriginalTempFileName(String tempFileName) {
+		String extension = FileUtil.getExtension(tempFileName);
+
+		int pos = tempFileName.lastIndexOf(TEMP_RANDOM_SUFFIX);
+
+		if (pos != -1) {
+			tempFileName = tempFileName.substring(0, pos);
+
+			if (Validator.isNotNull(extension)) {
+				tempFileName = tempFileName + StringPool.PERIOD + extension;
+			}
+		}
+
+		return tempFileName;
 	}
 
 	public static FileEntry getTempFileEntry(
@@ -117,6 +154,23 @@ public class TempFileEntryUtil {
 
 		return temporaryFileEntriesCapability.getTemporaryFileEntry(
 			new TemporaryFileEntriesScope(_UUID, userId, folderName), fileName);
+	}
+
+	public static String getTempFileName(String originalFileName) {
+		StringBundler sb = new StringBundler(5);
+
+		sb.append(FileUtil.stripExtension(originalFileName));
+		sb.append(TEMP_RANDOM_SUFFIX);
+		sb.append(StringUtil.randomString());
+
+		String extension = FileUtil.getExtension(originalFileName);
+
+		if (Validator.isNotNull(extension)) {
+			sb.append(StringPool.PERIOD);
+			sb.append(extension);
+		}
+
+		return sb.toString();
 	}
 
 	public static String[] getTempFileNames(
@@ -147,7 +201,7 @@ public class TempFileEntryUtil {
 			groupId, TempFileEntryUtil.class.getName(), StringPool.BLANK);
 
 		if (repository != null) {
-			return RepositoryLocalServiceUtil.getLocalRepositoryImpl(
+			return RepositoryProviderUtil.getLocalRepository(
 				repository.getRepositoryId());
 		}
 
@@ -172,7 +226,7 @@ public class TempFileEntryUtil {
 				TempFileEntryUtil.class.getName(), StringPool.BLANK,
 				StringPool.BLANK, typeSettingsProperties, true, serviceContext);
 
-			return RepositoryLocalServiceUtil.getLocalRepositoryImpl(
+			return RepositoryProviderUtil.getLocalRepository(
 				repository.getRepositoryId());
 		}
 		finally {

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.util;
 
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 
@@ -135,6 +136,7 @@ public class HttpImplTest extends PowerMockito {
 
 	@Test
 	public void testNormalizePath() {
+		Assert.assertEquals("/", _httpImpl.normalizePath("/.."));
 		Assert.assertEquals(
 			"/api/axis", _httpImpl.normalizePath("/api/%61xis"));
 		Assert.assertEquals(

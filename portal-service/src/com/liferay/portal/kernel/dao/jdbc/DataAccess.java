@@ -14,14 +14,17 @@
 
 package com.liferay.portal.kernel.dao.jdbc;
 
+import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.jndi.JNDIUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.upgrade.dao.orm.UpgradeOptimizedConnectionHandler;
+import com.liferay.portal.kernel.upgrade.dao.orm.UpgradeOptimizedConnectionProvider;
+import com.liferay.portal.kernel.upgrade.dao.orm.UpgradeOptimizedConnectionProviderRegistryUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.kernel.util.ProxyUtil;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -56,6 +59,7 @@ public class DataAccess {
 
 	public static void cleanUp(Connection connection, Statement statement) {
 		cleanUp(statement);
+
 		cleanUp(connection);
 	}
 
@@ -63,7 +67,9 @@ public class DataAccess {
 		Connection connection, Statement statement, ResultSet resultSet) {
 
 		cleanUp(resultSet);
+
 		cleanUp(statement);
+
 		cleanUp(connection);
 	}
 
@@ -93,14 +99,20 @@ public class DataAccess {
 		}
 	}
 
+	public static void cleanUp(Statement statement, ResultSet resultSet) {
+		cleanUp(resultSet);
+
+		cleanUp(statement);
+	}
+
 	public static void deepCleanUp(ResultSet resultSet) {
 		try {
 			if (resultSet != null) {
 				Statement statement = resultSet.getStatement();
 
-				Connection con = statement.getConnection();
+				Connection connection = statement.getConnection();
 
-				cleanUp(con, statement, resultSet);
+				cleanUp(connection, statement, resultSet);
 			}
 		}
 		catch (SQLException sqle) {
@@ -127,15 +139,19 @@ public class DataAccess {
 	public static Connection getUpgradeOptimizedConnection()
 		throws SQLException {
 
-		Connection con = getConnection();
+		DB db = DBManagerUtil.getDB();
 
-		Thread currentThread = Thread.currentThread();
+		DBType dbType = db.getDBType();
 
-		ClassLoader classLoader = currentThread.getContextClassLoader();
+		UpgradeOptimizedConnectionProvider upgradeOptimizedConnectionProvider =
+			UpgradeOptimizedConnectionProviderRegistryUtil.
+				getUpgradeOptimizedConnectionProvider(dbType);
 
-		return (Connection)ProxyUtil.newProxyInstance(
-			classLoader, new Class[] {Connection.class},
-			new UpgradeOptimizedConnectionHandler(con));
+		if (upgradeOptimizedConnectionProvider != null) {
+			return upgradeOptimizedConnectionProvider.getConnection();
+		}
+
+		return getConnection();
 	}
 
 	public interface PACL {

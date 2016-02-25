@@ -16,14 +16,14 @@ package com.liferay.portal.verify;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.NotificationThreadLocal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
-import com.liferay.portal.staging.StagingAdvicesThreadLocal;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.exportimport.staging.StagingAdvicesThreadLocal;
 
 /**
  * @author Brian Wing Shun Chan
@@ -60,9 +60,9 @@ public class VerifyProcessUtil {
 			PropsValues.INDEX_ON_STARTUP = true;
 		}
 
-		boolean tempIndexReadOnly = SearchEngineUtil.isIndexReadOnly();
+		boolean tempIndexReadOnly = IndexWriterHelperUtil.isIndexReadOnly();
 
-		SearchEngineUtil.setIndexReadOnly(true);
+		IndexWriterHelperUtil.setIndexReadOnly(true);
 
 		NotificationThreadLocal.setEnabled(false);
 		StagingAdvicesThreadLocal.setEnabled(false);
@@ -82,7 +82,7 @@ public class VerifyProcessUtil {
 			}
 		}
 		finally {
-			SearchEngineUtil.setIndexReadOnly(tempIndexReadOnly);
+			IndexWriterHelperUtil.setIndexReadOnly(tempIndexReadOnly);
 
 			NotificationThreadLocal.setEnabled(true);
 			StagingAdvicesThreadLocal.setEnabled(true);

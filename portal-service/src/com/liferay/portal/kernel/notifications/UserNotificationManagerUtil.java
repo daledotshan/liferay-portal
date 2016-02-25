@@ -17,10 +17,10 @@ package com.liferay.portal.kernel.notifications;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
+import com.liferay.portal.kernel.model.UserNotificationEvent;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.UserNotificationDeliveryConstants;
-import com.liferay.portal.model.UserNotificationEvent;
-import com.liferay.portal.service.ServiceContext;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
@@ -28,6 +28,7 @@ import com.liferay.registry.ServiceRegistration;
 import com.liferay.registry.ServiceTracker;
 import com.liferay.registry.ServiceTrackerCustomizer;
 import com.liferay.registry.collections.ServiceRegistrationMap;
+import com.liferay.registry.collections.ServiceRegistrationMapImpl;
 import com.liferay.registry.collections.ServiceTrackerCollections;
 import com.liferay.registry.collections.ServiceTrackerMap;
 
@@ -141,8 +142,6 @@ public class UserNotificationManagerUtil {
 			new UserNotificationHandlerServiceTrackerCustomizer());
 
 		_userNotificationHandlerServiceTracker.open();
-
-		_userNotificationDefinitions.open();
 	}
 
 	private void _addUserNotificationDefinition(
@@ -303,8 +302,9 @@ public class UserNotificationManagerUtil {
 		new UserNotificationManagerUtil();
 
 	private final ServiceTrackerMap<String, List<UserNotificationDefinition>>
-		_userNotificationDefinitions = ServiceTrackerCollections.multiValueMap(
-			UserNotificationDefinition.class, "javax.portlet.name");
+		_userNotificationDefinitions =
+			ServiceTrackerCollections.openMultiValueMap(
+				UserNotificationDefinition.class, "javax.portlet.name");
 	private final ConcurrentHashMap
 		<String, List<ServiceRegistration<UserNotificationDefinition>>>
 			_userNotificationDefinitionServiceRegistrations =
@@ -313,7 +313,7 @@ public class UserNotificationManagerUtil {
 		_userNotificationHandlers = new ConcurrentHashMap<>();
 	private final ServiceRegistrationMap<UserNotificationHandler>
 		_userNotificationHandlerServiceRegistrations =
-			new ServiceRegistrationMap<>();
+			new ServiceRegistrationMapImpl<>();
 	private final
 		ServiceTracker<UserNotificationHandler, UserNotificationHandler>
 			_userNotificationHandlerServiceTracker;

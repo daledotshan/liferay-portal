@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchUserNotificationEventException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchUserNotificationEventException;
+import com.liferay.portal.kernel.model.UserNotificationEvent;
+import com.liferay.portal.kernel.service.UserNotificationEventLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.UserNotificationEventPersistence;
+import com.liferay.portal.kernel.service.persistence.UserNotificationEventUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -29,16 +33,13 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.UserNotificationEvent;
-import com.liferay.portal.service.UserNotificationEventLocalServiceUtil;
-import com.liferay.portal.service.persistence.UserNotificationEventPersistence;
-import com.liferay.portal.service.persistence.UserNotificationEventUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,8 +56,9 @@ import java.util.Set;
  * @generated
  */
 public class UserNotificationEventPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -171,167 +173,128 @@ public class UserNotificationEventPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByU_DT() {
-		try {
-			_persistence.countByU_DT(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByType() throws Exception {
+		_persistence.countByType(StringPool.BLANK);
 
-			_persistence.countByU_DT(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByType(StringPool.NULL);
+
+		_persistence.countByType((String)null);
 	}
 
 	@Test
-	public void testCountByU_D() {
-		try {
-			_persistence.countByU_D(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByU_DT() throws Exception {
+		_persistence.countByU_DT(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByU_D(0L, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_DT(0L, 0);
 	}
 
 	@Test
-	public void testCountByU_A() {
-		try {
-			_persistence.countByU_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByU_D() throws Exception {
+		_persistence.countByU_D(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean());
 
-			_persistence.countByU_A(0L, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_D(0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByU_DT_D() {
-		try {
-			_persistence.countByU_DT_D(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean());
+	public void testCountByU_A() throws Exception {
+		_persistence.countByU_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean());
 
-			_persistence.countByU_DT_D(0L, 0, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_A(0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByU_DT_A() {
-		try {
-			_persistence.countByU_DT_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean());
+	public void testCountByU_DT_D() throws Exception {
+		_persistence.countByU_DT_D(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByU_DT_A(0L, 0, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_DT_D(0L, 0, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByU_D_A() {
-		try {
-			_persistence.countByU_D_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), RandomTestUtil.randomBoolean());
+	public void testCountByU_DT_A() throws Exception {
+		_persistence.countByU_DT_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByU_D_A(0L, RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_DT_A(0L, 0, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByU_A_A() {
-		try {
-			_persistence.countByU_A_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), RandomTestUtil.randomBoolean());
+	public void testCountByU_D_A() throws Exception {
+		_persistence.countByU_D_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByU_A_A(0L, RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_D_A(0L, RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByU_DT_D_A() {
-		try {
-			_persistence.countByU_DT_D_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByU_A_A() throws Exception {
+		_persistence.countByU_A_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByU_DT_D_A(0L, 0, RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_A_A(0L, RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByU_DT_A_A() {
-		try {
-			_persistence.countByU_DT_A_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByU_T_DT_D() throws Exception {
+		_persistence.countByU_T_DT_D(RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextInt(),
+			RandomTestUtil.randomBoolean());
 
-			_persistence.countByU_DT_A_A(0L, 0, RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_T_DT_D(0L, StringPool.NULL, 0,
+			RandomTestUtil.randomBoolean());
+
+		_persistence.countByU_T_DT_D(0L, (String)null, 0,
+			RandomTestUtil.randomBoolean());
+	}
+
+	@Test
+	public void testCountByU_DT_D_A() throws Exception {
+		_persistence.countByU_DT_D_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
+
+		_persistence.countByU_DT_D_A(0L, 0, RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
+	}
+
+	@Test
+	public void testCountByU_DT_A_A() throws Exception {
+		_persistence.countByU_DT_A_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt(), RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
+
+		_persistence.countByU_DT_A_A(0L, 0, RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -344,29 +307,17 @@ public class UserNotificationEventPersistenceTest {
 			newUserNotificationEvent);
 	}
 
-	@Test
+	@Test(expected = NoSuchUserNotificationEventException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchUserNotificationEventException");
-		}
-		catch (NoSuchUserNotificationEventException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<UserNotificationEvent> getOrderByComparator() {
@@ -374,7 +325,7 @@ public class UserNotificationEventPersistenceTest {
 			"mvccVersion", true, "uuid", true, "userNotificationEventId", true,
 			"companyId", true, "userId", true, "type", true, "timestamp", true,
 			"deliveryType", true, "deliverBy", true, "delivered", true,
-			"payload", true, "actionRequired", true, "archived", true);
+			"actionRequired", true, "archived", true);
 	}
 
 	@Test
@@ -486,11 +437,10 @@ public class UserNotificationEventPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = UserNotificationEventLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<UserNotificationEvent>() {
 				@Override
-				public void performAction(Object object) {
-					UserNotificationEvent userNotificationEvent = (UserNotificationEvent)object;
-
+				public void performAction(
+					UserNotificationEvent userNotificationEvent) {
 					Assert.assertNotNull(userNotificationEvent);
 
 					count.increment();

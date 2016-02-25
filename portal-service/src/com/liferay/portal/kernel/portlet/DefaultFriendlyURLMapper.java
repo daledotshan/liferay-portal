@@ -16,10 +16,11 @@ package com.liferay.portal.kernel.portlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.PortletInstance;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.util.PortalUtil;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -156,15 +157,25 @@ public class DefaultFriendlyURLMapper extends BaseFriendlyURLMapper {
 			return;
 		}
 
-		String portletId = getPortletId(routeParameters);
+		String namespace = null;
 
-		if (Validator.isNull(portletId)) {
+		String portletInstanceKey = getPortletId(routeParameters);
+
+		if (Validator.isNotNull(portletInstanceKey)) {
+			namespace = PortalUtil.getPortletNamespace(portletInstanceKey);
+
+			addParameter(namespace, parameterMap, "p_p_id", portletInstanceKey);
+		}
+		else if (isAllPublicRenderParameters(routeParameters)) {
+
+			// Portlet namespace is not needed if all the parameters are public
+			// render parameters
+
+			addParameter(null, parameterMap, "p_p_id", getPortletId());
+		}
+		else {
 			return;
 		}
-
-		String namespace = PortalUtil.getPortletNamespace(portletId);
-
-		addParameter(namespace, parameterMap, "p_p_id", portletId);
 
 		populateParams(parameterMap, namespace, routeParameters);
 	}
@@ -258,16 +269,21 @@ public class DefaultFriendlyURLMapper extends BaseFriendlyURLMapper {
 
 		// Populate virtual parameters for instanceable portlets
 
-		if (isPortletInstanceable()) {
-			String portletId = liferayPortletURL.getPortletId();
+		String portletInstanceKey = liferayPortletURL.getPortletId();
 
-			routeParameters.put("p_p_id", portletId);
+		if (Validator.isNotNull(portletInstanceKey)) {
+			routeParameters.put("p_p_id", portletInstanceKey);
 
-			if (Validator.isNotNull(portletId) &&
-				PortletConstants.hasInstanceId(portletId)) {
+			PortletInstance portletInstance =
+				PortletInstance.fromPortletInstanceKey(portletInstanceKey);
 
+			routeParameters.put(
+				"userIdAndInstanceId",
+				portletInstance.getUserIdAndInstanceId());
+
+			if (portletInstance.hasInstanceId()) {
 				routeParameters.put(
-					"instanceId", PortletConstants.getInstanceId(portletId));
+					"instanceId", portletInstance.getInstanceId());
 			}
 		}
 
@@ -280,36 +296,85 @@ public class DefaultFriendlyURLMapper extends BaseFriendlyURLMapper {
 	 * Returns the portlet ID, including the instance ID if applicable, from the
 	 * parameter map.
 	 *
+	 * @deprecated As of 7.0.0, replaced by {@link #getPortletInstanceKey(Map)}
 	 * @param  routeParameters the parameter map. For an instanceable portlet,
 	 *         this must contain either <code>p_p_id</code> or
 	 *         <code>instanceId</code>.
 	 * @return the portlet ID, including the instance ID if applicable, or
 	 *         <code>null</code> if it cannot be determined
 	 */
+	@Deprecated
 	protected String getPortletId(Map<String, String> routeParameters) {
-		if (!isPortletInstanceable()) {
+		return getPortletInstanceKey(routeParameters);
+	}
+
+	/**
+	 * Returns the portlet instance key, including the instance ID if
+	 * applicable, from the parameter map.
+	 *
+	 * @param  routeParameters the parameter map. For an instanceable portlet,
+	 *         this must contain either <code>p_p_id</code> or
+	 *         <code>instanceId</code>.
+	 * @return the portlet instance key, including the instance ID if
+	 *         applicable, or <code>null</code> if it cannot be determined
+	 */
+	protected String getPortletInstanceKey(
+		Map<String, String> routeParameters) {
+
+		String userIdAndInstanceId = routeParameters.remove(
+			"userIdAndInstanceId");
+
+		if (!isPortletInstanceable() && Validator.isNull(userIdAndInstanceId)) {
 			return getPortletId();
 		}
 
-		String portletId = routeParameters.remove("p_p_id");
+		String portletInstanceKey = routeParameters.remove("p_p_id");
 
-		if (Validator.isNotNull(portletId)) {
-			return portletId;
+		if (Validator.isNotNull(portletInstanceKey)) {
+			return portletInstanceKey;
+		}
+
+		if (Validator.isNotNull(userIdAndInstanceId)) {
+			PortletInstance portletInstance =
+				PortletInstance.fromPortletNameAndUserIdAndInstanceId(
+					getPortletId(), userIdAndInstanceId);
+
+			return portletInstance.getPortletInstanceKey();
 		}
 
 		String instanceId = routeParameters.remove("instanceId");
 
-		if (Validator.isNull(instanceId)) {
-			if (_log.isErrorEnabled()) {
-				_log.error(
-					"Either p_p_id or instanceId must be provided for an " +
-						"instanceable portlet");
-			}
-
-			return null;
+		if (Validator.isNotNull(instanceId)) {
+			return PortletConstants.assemblePortletId(
+				getPortletId(), instanceId);
 		}
 
-		return PortletConstants.assemblePortletId(getPortletId(), instanceId);
+		if (!isAllPublicRenderParameters(routeParameters)) {
+			_log.error(
+				"Either p_p_id or instanceId must be provided for an " +
+					"instanceable portlet");
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns <code>true</code> if all the route parameters are public render
+	 * parameters.
+	 *
+	 * @param  routeParameters the parameter map
+	 * @return <code>true</code> if all the route parameters are public render
+	 *         parameters; <code>false</code> otherwise
+	 */
+	protected boolean isAllPublicRenderParameters(
+		Map<String, String> routeParameters) {
+
+		Set<String> routeParameterKeys = routeParameters.keySet();
+
+		Map<String, String> publicRenderParameters =
+			FriendlyURLMapperThreadLocal.getPRPIdentifiers();
+
+		return routeParameterKeys.containsAll(publicRenderParameters.keySet());
 	}
 
 	/**

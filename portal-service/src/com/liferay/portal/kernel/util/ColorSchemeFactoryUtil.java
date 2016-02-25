@@ -14,8 +14,8 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.portal.kernel.model.ColorScheme;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
-import com.liferay.portal.model.ColorScheme;
 
 /**
  * @author Vilmos Papp
@@ -50,14 +50,6 @@ public class ColorSchemeFactoryUtil {
 
 	public static String getDefaultRegularColorSchemeId() {
 		return getColorSchemeFactory().getDefaultRegularColorSchemeId();
-	}
-
-	public static ColorScheme getDefaultWapColorScheme() {
-		return getColorSchemeFactory().getDefaultWapColorScheme();
-	}
-
-	public static String getDefaultWapColorSchemeId() {
-		return getColorSchemeFactory().getDefaultWapColorSchemeId();
 	}
 
 	public void setColorSchemeFactory(ColorSchemeFactory colorSchemeFactory) {

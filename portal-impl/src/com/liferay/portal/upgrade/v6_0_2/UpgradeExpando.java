@@ -14,14 +14,12 @@
 
 package com.liferay.portal.upgrade.v6_0_2;
 
+import com.liferay.expando.kernel.model.ExpandoTableConstants;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.expando.model.ExpandoTableConstants;
-import com.liferay.portlet.journal.model.JournalArticle;
-import com.liferay.portlet.journal.model.impl.JournalArticleImpl;
+import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -93,8 +91,8 @@ public class UpgradeExpando extends UpgradeProcess {
 	@Override
 	protected void doUpgrade() throws Exception {
 		updateTables(
-			JournalArticle.class.getName(), JournalArticleImpl.TABLE_NAME,
-			"id_");
+			"com.liferay.portlet.journal.model.JournalArticle",
+			"JournalArticle", "id_");
 
 		updateTables("com.liferay.wiki.model.WikiPage", "WikiPage", "pageId");
 	}
