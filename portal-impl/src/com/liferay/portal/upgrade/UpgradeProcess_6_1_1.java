@@ -35,10 +35,13 @@ public class UpgradeProcess_6_1_1 extends UpgradeProcess {
 	@Override
 	protected void doUpgrade() throws Exception {
 		upgrade(UpgradeSchema.class);
+
 		upgrade(UpgradeDocumentLibrary.class);
 		upgrade(UpgradeLayout.class);
 		upgrade(UpgradeLayoutSet.class);
 		upgrade(UpgradeLayoutSetBranch.class);
+
+		clearIndexesCache();
 	}
 
 }

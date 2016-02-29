@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchUserNotificationDeliveryException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchUserNotificationDeliveryException;
+import com.liferay.portal.kernel.model.UserNotificationDelivery;
+import com.liferay.portal.kernel.service.UserNotificationDeliveryLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.UserNotificationDeliveryPersistence;
+import com.liferay.portal.kernel.service.persistence.UserNotificationDeliveryUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,17 +35,13 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.UserNotificationDelivery;
-import com.liferay.portal.service.UserNotificationDeliveryLocalServiceUtil;
-import com.liferay.portal.service.persistence.UserNotificationDeliveryPersistence;
-import com.liferay.portal.service.persistence.UserNotificationDeliveryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class UserNotificationDeliveryPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -158,31 +159,21 @@ public class UserNotificationDeliveryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByU_P_C_N_D() {
-		try {
-			_persistence.countByU_P_C_N_D(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt(), RandomTestUtil.nextInt());
+	public void testCountByU_P_C_N_D() throws Exception {
+		_persistence.countByU_P_C_N_D(RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt(), RandomTestUtil.nextInt());
 
-			_persistence.countByU_P_C_N_D(0L, StringPool.NULL, 0L, 0, 0);
+		_persistence.countByU_P_C_N_D(0L, StringPool.NULL, 0L, 0, 0);
 
-			_persistence.countByU_P_C_N_D(0L, (String)null, 0L, 0, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_P_C_N_D(0L, (String)null, 0L, 0, 0);
 	}
 
 	@Test
@@ -195,29 +186,17 @@ public class UserNotificationDeliveryPersistenceTest {
 			newUserNotificationDelivery);
 	}
 
-	@Test
+	@Test(expected = NoSuchUserNotificationDeliveryException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchUserNotificationDeliveryException");
-		}
-		catch (NoSuchUserNotificationDeliveryException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<UserNotificationDelivery> getOrderByComparator() {
@@ -339,11 +318,10 @@ public class UserNotificationDeliveryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = UserNotificationDeliveryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<UserNotificationDelivery>() {
 				@Override
-				public void performAction(Object object) {
-					UserNotificationDelivery userNotificationDelivery = (UserNotificationDelivery)object;
-
+				public void performAction(
+					UserNotificationDelivery userNotificationDelivery) {
 					Assert.assertNotNull(userNotificationDelivery);
 
 					count.increment();
@@ -436,32 +414,34 @@ public class UserNotificationDeliveryPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		UserNotificationDelivery newUserNotificationDelivery = addUserNotificationDelivery();
 
 		_persistence.clearCache();
 
 		UserNotificationDelivery existingUserNotificationDelivery = _persistence.findByPrimaryKey(newUserNotificationDelivery.getPrimaryKey());
 
-		Assert.assertEquals(existingUserNotificationDelivery.getUserId(),
-			ReflectionTestUtil.invoke(existingUserNotificationDelivery,
+		Assert.assertEquals(Long.valueOf(
+				existingUserNotificationDelivery.getUserId()),
+			ReflectionTestUtil.<Long>invoke(existingUserNotificationDelivery,
 				"getOriginalUserId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingUserNotificationDelivery.getPortletId(),
 				ReflectionTestUtil.invoke(existingUserNotificationDelivery,
 					"getOriginalPortletId", new Class<?>[0])));
-		Assert.assertEquals(existingUserNotificationDelivery.getClassNameId(),
-			ReflectionTestUtil.invoke(existingUserNotificationDelivery,
+		Assert.assertEquals(Long.valueOf(
+				existingUserNotificationDelivery.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingUserNotificationDelivery,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingUserNotificationDelivery.getNotificationType(),
-			ReflectionTestUtil.invoke(existingUserNotificationDelivery,
+		Assert.assertEquals(Integer.valueOf(
+				existingUserNotificationDelivery.getNotificationType()),
+			ReflectionTestUtil.<Integer>invoke(
+				existingUserNotificationDelivery,
 				"getOriginalNotificationType", new Class<?>[0]));
-		Assert.assertEquals(existingUserNotificationDelivery.getDeliveryType(),
-			ReflectionTestUtil.invoke(existingUserNotificationDelivery,
-				"getOriginalDeliveryType", new Class<?>[0]));
+		Assert.assertEquals(Integer.valueOf(
+				existingUserNotificationDelivery.getDeliveryType()),
+			ReflectionTestUtil.<Integer>invoke(
+				existingUserNotificationDelivery, "getOriginalDeliveryType",
+				new Class<?>[0]));
 	}
 
 	protected UserNotificationDelivery addUserNotificationDelivery()

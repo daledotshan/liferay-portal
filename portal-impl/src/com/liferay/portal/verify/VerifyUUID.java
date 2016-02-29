@@ -17,11 +17,11 @@ package com.liferay.portal.verify;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.concurrent.ThrowableAwareRunnable;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.verify.model.VerifiableUUIDModel;
+import com.liferay.portal.kernel.verify.model.VerifiableUUIDModel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -75,10 +75,11 @@ public class VerifyUUID extends VerifyProcess {
 	}
 
 	protected void updateUUID(
-			VerifiableUUIDModel verifiableUUIDModel, long primKey)
+			Connection con, VerifiableUUIDModel verifiableUUIDModel,
+			long primKey)
 		throws Exception {
 
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
 		StringBundler sb = new StringBundler(8);
 
@@ -91,19 +92,16 @@ public class VerifyUUID extends VerifyProcess {
 		sb.append(" = ");
 		sb.append(primKey);
 
-		db.runSQL(sb.toString());
+		db.runSQL(con, sb.toString());
 	}
 
 	protected void verifyUUID(VerifiableUUIDModel verifiableUUIDModel)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
+		try (Connection con = DataAccess.getUpgradeOptimizedConnection()) {
 			ps = con.prepareStatement(
 				"select " + verifiableUUIDModel.getPrimaryKeyColumnName() +
 					" from " + verifiableUUIDModel.getTableName() +
@@ -115,11 +113,11 @@ public class VerifyUUID extends VerifyProcess {
 				long pk = rs.getLong(
 					verifiableUUIDModel.getPrimaryKeyColumnName());
 
-				updateUUID(verifiableUUIDModel, pk);
+				updateUUID(con, verifiableUUIDModel, pk);
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 

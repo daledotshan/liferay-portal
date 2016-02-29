@@ -14,8 +14,8 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
-import com.liferay.portal.model.Theme;
 
 /**
  * @author Harrison Schueler
@@ -28,14 +28,6 @@ public class ThemeFactoryUtil {
 
 	public static String getDefaultRegularThemeId(long companyId) {
 		return getThemeFactory().getDefaultRegularThemeId(companyId);
-	}
-
-	public static Theme getDefaultWapTheme(long companyId) {
-		return getThemeFactory().getDefaultWapTheme(companyId);
-	}
-
-	public static String getDefaultWapThemeId(long companyId) {
-		return getThemeFactory().getDefaultWapThemeId(companyId);
 	}
 
 	public static Theme getTheme() {

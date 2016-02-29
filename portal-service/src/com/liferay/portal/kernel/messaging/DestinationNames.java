@@ -68,12 +68,6 @@ public interface DestinationNames {
 
 	public static final String FLAGS = "liferay/flags";
 
-	/**
-	 * This is a special destination. Binding a message listener to this
-	 * destination will allow it to listen to messages sent to all destinations.
-	 */
-	public static final String GLOBAL = "liferay/global";
-
 	public static final String HOT_DEPLOY = "liferay/hot_deploy";
 
 	public static final String IP_GEOCODER = "liferay/ip_geocoder";
@@ -127,12 +121,6 @@ public interface DestinationNames {
 
 	public static final String PUSH_NOTIFICATION = "liferay/push_notification";
 
-	public static final String REPORT_COMPILER = "liferay/report_compiler";
-
-	public static final String REPORT_REQUEST = "liferay/report_request";
-
-	public static final String REPORT_RESULT = "liferay/report_result";
-
 	public static final String SCHEDULER_DISPATCH =
 		"liferay/scheduler_dispatch";
 
@@ -154,6 +142,9 @@ public interface DestinationNames {
 		"liferay/subscription_sender";
 
 	public static final String TEST_TRANSACTION = "liferay/test_transaction";
+
+	public static final String WORKFLOW_COMPARATOR =
+		"liferay/workflow_comparator";
 
 	public static final String WORKFLOW_DEFINITION =
 		"liferay/workflow_definition";

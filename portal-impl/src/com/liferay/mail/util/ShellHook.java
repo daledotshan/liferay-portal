@@ -14,7 +14,8 @@
 
 package com.liferay.mail.util;
 
-import com.liferay.mail.model.Filter;
+import com.liferay.mail.kernel.model.Filter;
+import com.liferay.mail.kernel.util.Hook;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.process.ProcessUtil;
@@ -88,9 +89,7 @@ public class ShellHook implements Hook {
 	@Override
 	public void deleteUser(long companyId, long userId) {
 		execute(
-			new String[] {
-				SHELL_SCRIPT, "deleteUser", String.valueOf(userId)
-			}
+			new String[] {SHELL_SCRIPT, "deleteUser", String.valueOf(userId)}
 		);
 	}
 

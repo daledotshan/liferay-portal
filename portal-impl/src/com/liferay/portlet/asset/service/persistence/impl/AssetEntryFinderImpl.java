@@ -14,27 +14,29 @@
 
 package com.liferay.portlet.asset.service.persistence.impl;
 
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.persistence.AssetCategoryUtil;
+import com.liferay.asset.kernel.service.persistence.AssetEntryFinder;
+import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.Type;
+import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.util.CalendarUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.asset.model.AssetCategory;
-import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.impl.AssetEntryImpl;
-import com.liferay.portlet.asset.service.persistence.AssetCategoryUtil;
-import com.liferay.portlet.asset.service.persistence.AssetEntryFinder;
-import com.liferay.portlet.asset.service.persistence.AssetEntryQuery;
+import com.liferay.portlet.documentlibrary.service.persistence.impl.DLFileEntryFinderImpl;
+import com.liferay.portlet.documentlibrary.service.persistence.impl.DLFolderFinderImpl;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.sql.Timestamp;
@@ -51,13 +53,16 @@ import java.util.List;
  * @author Shuyang Zhou
  */
 public class AssetEntryFinderImpl
-	extends BasePersistenceImpl<AssetEntry> implements AssetEntryFinder {
+	extends AssetEntryFinderBaseImpl implements AssetEntryFinder {
 
 	public static final String FIND_BY_AND_CATEGORY_IDS =
 		AssetEntryFinder.class.getName() + ".findByAndCategoryIds";
 
 	public static final String FIND_BY_AND_TAG_IDS =
 		AssetEntryFinder.class.getName() + ".findByAndTagIds";
+
+	public static final String FIND_BY_CLASS_NAME_ID =
+		AssetEntryFinder.class.getName() + ".findByClassNameId";
 
 	@Override
 	public int countEntries(AssetEntryQuery entryQuery) {
@@ -79,6 +84,81 @@ public class AssetEntryFinderImpl
 			}
 
 			return 0;
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	public List<AssetEntry> findByDLFileEntryC_T(
+		long classNameId, String treePath) {
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String sql = CustomSQLUtil.get(FIND_BY_CLASS_NAME_ID);
+
+			sql = StringUtil.replace(
+				sql, "[$JOIN$]",
+				CustomSQLUtil.get(
+					DLFileEntryFinderImpl.JOIN_AE_BY_DL_FILE_ENTRY));
+			sql = StringUtil.replace(
+				sql, "[$WHERE$]", "DLFileEntry.treePath LIKE ? AND");
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(
+				CustomSQLUtil.keywords(treePath, WildcardMode.TRAILING)[0]);
+			qPos.add(classNameId);
+
+			q.addEntity(AssetEntryImpl.TABLE_NAME, AssetEntryImpl.class);
+
+			return q.list(true);
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	public List<AssetEntry> findByDLFolderC_T(
+		long classNameId, String treePath) {
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			String sql = CustomSQLUtil.get(FIND_BY_CLASS_NAME_ID);
+
+			sql = StringUtil.replace(
+				sql, "[$JOIN$]",
+				CustomSQLUtil.get(DLFolderFinderImpl.JOIN_AE_BY_DL_FOLDER));
+			sql = StringUtil.replace(
+				sql, "[$WHERE$]", "DLFolder.treePath LIKE ? AND");
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(
+				CustomSQLUtil.keywords(treePath, WildcardMode.TRAILING)[0]);
+			qPos.add(classNameId);
+
+			q.addEntity(AssetEntryImpl.TABLE_NAME, AssetEntryImpl.class);
+
+			return q.list(true);
 		}
 		catch (Exception e) {
 			throw new SystemException(e);
@@ -215,7 +295,7 @@ public class AssetEntryFinderImpl
 	protected SQLQuery buildAssetQuerySQL(
 		AssetEntryQuery entryQuery, boolean count, Session session) {
 
-		StringBundler sb = new StringBundler(64);
+		StringBundler sb = new StringBundler(52);
 
 		if (count) {
 			sb.append(
@@ -307,23 +387,29 @@ public class AssetEntryFinderImpl
 				 Validator.isNotNull(entryQuery.getDescription())) {
 
 			sb.append(" AND (");
-			sb.append(
-				entryQuery.isAndOperator() ? Boolean.TRUE : Boolean.FALSE);
+
+			boolean requiresOperator = false;
 
 			if (Validator.isNotNull(entryQuery.getUserName())) {
-				sb.append(entryQuery.isAndOperator() ? " AND " : " OR ");
-
 				sb.append("(AssetEntry.userName LIKE ?)");
+
+				requiresOperator = true;
 			}
 
 			if (Validator.isNotNull(entryQuery.getTitle())) {
-				sb.append(entryQuery.isAndOperator() ? " AND " : " OR ");
+				if (requiresOperator) {
+					sb.append(entryQuery.isAndOperator() ? " AND " : " OR ");
+				}
 
 				sb.append("(AssetEntry.title LIKE ?)");
+
+				requiresOperator = true;
 			}
 
 			if (Validator.isNotNull(entryQuery.getDescription())) {
-				sb.append(entryQuery.isAndOperator() ? " AND " : " OR ");
+				if (requiresOperator) {
+					sb.append(entryQuery.isAndOperator() ? " AND " : " OR ");
+				}
 
 				sb.append("(AssetEntry.description LIKE ?)");
 			}

@@ -16,7 +16,7 @@ package com.liferay.portal.kernel.workflow.messaging;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.BaseDestinationEventListener;
+import com.liferay.portal.kernel.messaging.DestinationEventListener;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.MessageListener;
@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.messaging.MessageListener;
  * @author Michael C. Han
  */
 public class DefaultWorkflowDestinationEventListener
-	extends BaseDestinationEventListener {
+	implements DestinationEventListener {
 
 	@Override
 	public void messageListenerRegistered(
@@ -39,6 +39,10 @@ public class DefaultWorkflowDestinationEventListener
 		if (!isProceed(destinationName, messageListener)) {
 			return;
 		}
+
+		MessageBusUtil.unregisterMessageListener(
+			DestinationNames.WORKFLOW_COMPARATOR,
+			_workflowComparatorFactoryListener);
 
 		MessageBusUtil.unregisterMessageListener(
 			DestinationNames.WORKFLOW_DEFINITION,
@@ -72,6 +76,10 @@ public class DefaultWorkflowDestinationEventListener
 		}
 
 		MessageBusUtil.registerMessageListener(
+			DestinationNames.WORKFLOW_COMPARATOR,
+			_workflowComparatorFactoryListener);
+
+		MessageBusUtil.registerMessageListener(
 			DestinationNames.WORKFLOW_DEFINITION,
 			_workflowDefinitionManagerListener);
 
@@ -87,6 +95,12 @@ public class DefaultWorkflowDestinationEventListener
 
 		MessageBusUtil.registerMessageListener(
 			DestinationNames.WORKFLOW_TASK, _workflowTaskManagerListener);
+	}
+
+	public void setWorkflowComparatorFactoryListener(
+		MessageListener workflowComparatorFactoryListener) {
+
+		_workflowComparatorFactoryListener = workflowComparatorFactoryListener;
 	}
 
 	public void setWorkflowDefinitionManagerListener(
@@ -137,6 +151,7 @@ public class DefaultWorkflowDestinationEventListener
 	private static final Log _log = LogFactoryUtil.getLog(
 		DefaultWorkflowDestinationEventListener.class);
 
+	private MessageListener _workflowComparatorFactoryListener;
 	private MessageListener _workflowDefinitionManagerListener;
 	private MessageListener _workflowEngineManagerListener;
 	private String _workflowEngineName;

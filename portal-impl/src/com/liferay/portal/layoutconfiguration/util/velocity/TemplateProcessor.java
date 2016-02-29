@@ -16,23 +16,26 @@ package com.liferay.portal.layoutconfiguration.util.velocity;
 
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.LayoutTypePortlet;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.portlet.PortletContainerUtil;
 import com.liferay.portal.kernel.portlet.PortletJSONUtil;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.BufferCacheServletResponse;
 import com.liferay.portal.kernel.settings.ModifiableSettings;
+import com.liferay.portal.kernel.settings.PortletInstanceSettingsLocator;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.layoutconfiguration.util.PortletRenderer;
-import com.liferay.portal.model.LayoutTypePortlet;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.service.PortletLocalServiceUtil;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.WebKeys;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -100,7 +103,7 @@ public class TemplateProcessor implements ColumnProcessor {
 
 		List<Portlet> portlets = layoutTypePortlet.getAllPortlets(columnId);
 
-		StringBundler sb = new StringBundler(portlets.size() + 11);
+		StringBundler sb = new StringBundler(portlets.size() * 3 + 11);
 
 		sb.append("<div class=\"");
 		sb.append("portlet-dropzone");
@@ -131,8 +134,8 @@ public class TemplateProcessor implements ColumnProcessor {
 		for (int i = 0; i < portlets.size(); i++) {
 			Portlet portlet = portlets.get(i);
 
-			Integer columnCount = new Integer(portlets.size());
-			Integer columnPos = new Integer(i);
+			Integer columnCount = Integer.valueOf(portlets.size());
+			Integer columnPos = Integer.valueOf(i);
 
 			PortletRenderer portletRenderer = new PortletRenderer(
 				portlet, columnId, columnCount, columnPos);
@@ -229,8 +232,9 @@ public class TemplateProcessor implements ColumnProcessor {
 		ThemeDisplay themeDisplay = (ThemeDisplay)_request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Settings settings = SettingsFactoryUtil.getPortletInstanceSettings(
-			themeDisplay.getLayout(), portletId);
+		Settings settings = SettingsFactoryUtil.getSettings(
+			new PortletInstanceSettingsLocator(
+				themeDisplay.getLayout(), portletId));
 
 		ModifiableSettings modifiableSettings =
 			settings.getModifiableSettings();
@@ -253,6 +257,18 @@ public class TemplateProcessor implements ColumnProcessor {
 		}
 
 		modifiableSettings.store();
+
+		return processPortlet(portletId);
+	}
+
+	@Override
+	public String processPortlet(
+			String portletProviderClassName,
+			PortletProvider.Action portletProviderAction)
+		throws Exception {
+
+		String portletId = PortletProviderUtil.getPortletId(
+			portletProviderClassName, portletProviderAction);
 
 		return processPortlet(portletId);
 	}

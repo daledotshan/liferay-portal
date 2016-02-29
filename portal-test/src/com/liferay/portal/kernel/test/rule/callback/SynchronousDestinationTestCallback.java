@@ -25,52 +25,103 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.SynchronousDestination;
 import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.rule.callback.SynchronousDestinationTestCallback.SyncHandler;
 import com.liferay.portal.kernel.transaction.Propagation;
-import com.liferay.portal.kernel.transaction.TransactionAttribute;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
+import com.liferay.registry.Filter;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.dependency.ServiceDependencyManager;
+
+import java.lang.reflect.Method;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.Test;
 import org.junit.runner.Description;
 
 /**
  * @author Shuyang Zhou
  */
 public class SynchronousDestinationTestCallback
-	extends BaseTestCallback<SyncHandler, SyncHandler> {
+	implements TestCallback<SyncHandler, SyncHandler> {
 
 	public static final SynchronousDestinationTestCallback INSTANCE =
 		new SynchronousDestinationTestCallback();
 
 	@Override
-	public void doAfterMethod(
-		Description description, SyncHandler syncHandler, Object target) {
+	public void afterClass(Description description, SyncHandler syncHandler)
+		throws Exception {
 
-		syncHandler.restorePreviousSync();
+		if (syncHandler != null) {
+			syncHandler.restorePreviousSync();
+		}
 	}
 
 	@Override
-	public SyncHandler doBeforeMethod(Description description, Object target) {
-		Sync sync = description.getAnnotation(Sync.class);
+	public void afterMethod(
+		Description description, SyncHandler syncHandler, Object target) {
 
-		if (sync == null) {
-			Class<?> testClass = description.getTestClass();
+		if (syncHandler != null) {
+			syncHandler.restorePreviousSync();
+		}
+	}
 
-			sync = testClass.getAnnotation(Sync.class);
+	@Override
+	public SyncHandler beforeClass(Description description) throws Throwable {
+		Class<?> testClass = description.getTestClass();
+
+		Sync sync = testClass.getAnnotation(Sync.class);
+
+		if (sync != null) {
+			return _createSyncHandler(sync);
 		}
 
-		SyncHandler syncHandler = new SyncHandler();
+		boolean hasSyncedMethod = false;
 
-		syncHandler.setForceSync(ProxyModeThreadLocal.isForceSync());
-		syncHandler.setSync(sync);
+		for (Method method : testClass.getMethods()) {
+			if ((method.getAnnotation(Sync.class) != null) &&
+				(method.getAnnotation(Test.class) != null)) {
 
-		syncHandler.enableSync();
+				hasSyncedMethod = true;
 
-		return syncHandler;
+				break;
+			}
+		}
+
+		if (!hasSyncedMethod) {
+			throw new AssertionError(
+				testClass.getName() + " uses " +
+					SynchronousDestinationTestRule.class.getName() +
+						" without any usage of " + Sync.class.getName());
+		}
+
+		return null;
+	}
+
+	@Override
+	public SyncHandler beforeMethod(Description description, Object target) {
+		Class<?> testClass = description.getTestClass();
+
+		Sync sync = testClass.getAnnotation(Sync.class);
+
+		if (sync != null) {
+			return null;
+		}
+
+		sync = description.getAnnotation(Sync.class);
+
+		if (sync == null) {
+			return null;
+		}
+
+		return _createSyncHandler(sync);
 	}
 
 	public static class SyncHandler {
@@ -78,7 +129,7 @@ public class SynchronousDestinationTestCallback
 		public BaseDestination createSynchronousDestination(
 			String destinationName) {
 
-			SynchronousDestination synchronousDestination;
+			SynchronousDestination synchronousDestination = null;
 
 			if ((_sync != null) && _sync.cleanTransaction()) {
 				synchronousDestination =
@@ -98,19 +149,55 @@ public class SynchronousDestinationTestCallback
 				return;
 			}
 
+			ServiceDependencyManager serviceDependencyManager =
+				new ServiceDependencyManager();
+
+			Filter asyncFilter = _registerDestinationFilter(
+				DestinationNames.ASYNC_SERVICE);
+			Filter backgroundTaskFilter = _registerDestinationFilter(
+				DestinationNames.BACKGROUND_TASK);
+			Filter backgroundTaskStatusFilter = _registerDestinationFilter(
+				DestinationNames.BACKGROUND_TASK_STATUS);
+			Filter mailFilter = _registerDestinationFilter(
+				DestinationNames.MAIL);
+			Filter pdfProcessorFilter = _registerDestinationFilter(
+				DestinationNames.DOCUMENT_LIBRARY_PDF_PROCESSOR);
+			Filter rawMetaDataProcessorFilter = _registerDestinationFilter(
+				DestinationNames.DOCUMENT_LIBRARY_RAW_METADATA_PROCESSOR);
+			Filter subscrpitionSenderFilter = _registerDestinationFilter(
+				DestinationNames.SUBSCRIPTION_SENDER);
+
+			serviceDependencyManager.registerDependencies(
+				asyncFilter, backgroundTaskFilter, backgroundTaskStatusFilter,
+				mailFilter, pdfProcessorFilter, rawMetaDataProcessorFilter,
+				subscrpitionSenderFilter);
+
+			serviceDependencyManager.waitForDependencies();
+
 			ProxyModeThreadLocal.setForceSync(true);
 
 			replaceDestination(DestinationNames.ASYNC_SERVICE);
 			replaceDestination(DestinationNames.BACKGROUND_TASK);
+			replaceDestination(DestinationNames.BACKGROUND_TASK_STATUS);
 			replaceDestination(DestinationNames.DOCUMENT_LIBRARY_PDF_PROCESSOR);
 			replaceDestination(
 				DestinationNames.DOCUMENT_LIBRARY_RAW_METADATA_PROCESSOR);
 			replaceDestination(
 				DestinationNames.DOCUMENT_LIBRARY_SYNC_EVENT_PROCESSOR);
 			replaceDestination(DestinationNames.MAIL);
-			replaceDestination(DestinationNames.SEARCH_READER);
-			replaceDestination(DestinationNames.SEARCH_WRITER);
+			replaceDestination(DestinationNames.SCHEDULER_ENGINE);
 			replaceDestination(DestinationNames.SUBSCRIPTION_SENDER);
+
+			for (String searchEngineId :
+					SearchEngineHelperUtil.getSearchEngineIds()) {
+
+				replaceDestination(
+					SearchEngineHelperUtil.getSearchReaderDestinationName(
+						searchEngineId));
+				replaceDestination(
+					SearchEngineHelperUtil.getSearchWriterDestinationName(
+						searchEngineId));
+			}
 		}
 
 		public void replaceDestination(String destinationName) {
@@ -123,7 +210,7 @@ public class SynchronousDestinationTestCallback
 				_asyncServiceDestinations.add(destination);
 
 				messageBus.replace(
-					createSynchronousDestination(destinationName));
+					createSynchronousDestination(destinationName), false);
 			}
 
 			if (destination == null) {
@@ -162,6 +249,14 @@ public class SynchronousDestinationTestCallback
 			_sync = sync;
 		}
 
+		private Filter _registerDestinationFilter(String destinationName) {
+			Registry registry = RegistryUtil.getRegistry();
+
+			return registry.getFilter(
+				"(&(destination.name=" + destinationName +
+					")(objectClass=" + Destination.class.getName() + "))");
+		}
+
 		private final List<String> _absentDestinationNames = new ArrayList<>();
 		private final List<Destination> _asyncServiceDestinations =
 			new ArrayList<>();
@@ -173,17 +268,27 @@ public class SynchronousDestinationTestCallback
 	protected SynchronousDestinationTestCallback() {
 	}
 
-	private static final TransactionAttribute _transactionAttribute;
+	private SyncHandler _createSyncHandler(Sync sync) {
+		SyncHandler syncHandler = new SyncHandler();
+
+		syncHandler.setForceSync(ProxyModeThreadLocal.isForceSync());
+		syncHandler.setSync(sync);
+
+		syncHandler.enableSync();
+
+		return syncHandler;
+	}
+
+	private static final TransactionConfig _transactionConfig;
 
 	static {
-		TransactionAttribute.Builder builder =
-			new TransactionAttribute.Builder();
+		TransactionConfig.Builder builder = new TransactionConfig.Builder();
 
 		builder.setPropagation(Propagation.NOT_SUPPORTED);
 		builder.setRollbackForClasses(
 			PortalException.class, SystemException.class);
 
-		_transactionAttribute = builder.build();
+		_transactionConfig = builder.build();
 	}
 
 	private static class CleanTransactionSynchronousDestination
@@ -193,16 +298,18 @@ public class SynchronousDestinationTestCallback
 		public void send(final Message message) {
 			try {
 				TransactionInvokerUtil.invoke(
-					_transactionAttribute, new Callable<Void>() {
+					_transactionConfig,
+					new Callable<Void>() {
 
-					@Override
-					public Void call() throws Exception {
-						CleanTransactionSynchronousDestination.super.send(
-							message);
+						@Override
+						public Void call() throws Exception {
+							CleanTransactionSynchronousDestination.super.send(
+								message);
 
-						return null;
-					}
-				});
+							return null;
+						}
+
+					});
 			}
 			catch (Throwable t) {
 				throw new RuntimeException(t);

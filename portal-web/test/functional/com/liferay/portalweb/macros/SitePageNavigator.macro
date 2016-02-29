@@ -1,0 +1,7 @@
+<definition>
+	<command name="gotoAddPage">
+		<var name="key_page" value="Pages" />
+
+		<execute function="Click#makeVisibleClickAt" locator1="ProductMenu#ADD_PAGE_ICON" />
+	</command>
+</definition>

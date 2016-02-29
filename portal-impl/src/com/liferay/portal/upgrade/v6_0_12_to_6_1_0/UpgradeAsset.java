@@ -14,17 +14,14 @@
 
 package com.liferay.portal.upgrade.v6_0_12_to_6_1_0;
 
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
-import com.liferay.portlet.journal.model.JournalArticle;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -42,14 +39,11 @@ public class UpgradeAsset extends UpgradeProcess {
 	}
 
 	protected long getJournalStructureId(String structureId) throws Exception {
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select id_ from JournalStructure where structureId = ?");
 
 			ps.setString(1, structureId);
@@ -63,21 +57,19 @@ public class UpgradeAsset extends UpgradeProcess {
 			return 0;
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
 	protected void updateAssetClassTypeId() throws Exception {
-		long classNameId = PortalUtil.getClassNameId(JournalArticle.class);
+		long classNameId = PortalUtil.getClassNameId(
+			"com.liferay.portlet.journal.model.JournalArticle");
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select resourcePrimKey, structureId from JournalArticle " +
 					"where structureId != ''");
 
@@ -96,13 +88,13 @@ public class UpgradeAsset extends UpgradeProcess {
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
 	protected void updateIGImageClassName() throws Exception {
 		long dlFileEntryClassNameId = PortalUtil.getClassNameId(
-			DLFileEntry.class.getName());
+			"com.liferay.document.library.kernel.model.DLFileEntry");
 		long igImageClassNameId = PortalUtil.getClassNameId(
 			"com.liferay.portlet.imagegallery.model.IGImage");
 
@@ -122,14 +114,11 @@ public class UpgradeAsset extends UpgradeProcess {
 			long dlFileEntryClassNameId, long igImageClassNameId)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select fileEntryTypeId, companyId from DLFileEntryType " +
 					"where name = ?");
 
@@ -156,7 +145,7 @@ public class UpgradeAsset extends UpgradeProcess {
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 

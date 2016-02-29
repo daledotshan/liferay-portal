@@ -14,15 +14,15 @@
 
 package com.liferay.portal.verify;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.util.PortalInstances;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 
 import java.util.List;
 
@@ -54,12 +54,10 @@ public class VerifyOrganization extends VerifyProcess {
 			OrganizationLocalServiceUtil.getActionableDynamicQuery();
 
 		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod() {
+			new ActionableDynamicQuery.PerformActionMethod<Organization>() {
 
 				@Override
-				public void performAction(Object object) {
-					Organization organization = (Organization)object;
-
+				public void performAction(Organization organization) {
 					try {
 						AssetEntry assetEntry =
 							AssetEntryLocalServiceUtil.getEntry(

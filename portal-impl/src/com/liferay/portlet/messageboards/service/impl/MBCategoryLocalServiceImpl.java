@@ -14,29 +14,29 @@
 
 package com.liferay.portlet.messageboards.service.impl;
 
+import com.liferay.message.boards.kernel.exception.CategoryNameException;
+import com.liferay.message.boards.kernel.model.MBCategory;
+import com.liferay.message.boards.kernel.model.MBCategoryConstants;
+import com.liferay.message.boards.kernel.model.MBMailingList;
+import com.liferay.message.boards.kernel.model.MBMessage;
+import com.liferay.message.boards.kernel.model.MBThread;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.SystemEventConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.messageboards.CategoryNameException;
-import com.liferay.portlet.messageboards.NoSuchMailingListException;
-import com.liferay.portlet.messageboards.model.MBCategory;
-import com.liferay.portlet.messageboards.model.MBCategoryConstants;
-import com.liferay.portlet.messageboards.model.MBMailingList;
-import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.messageboards.model.MBThread;
 import com.liferay.portlet.messageboards.model.impl.MBCategoryImpl;
 import com.liferay.portlet.messageboards.service.base.MBCategoryLocalServiceBaseImpl;
-import com.liferay.portlet.trash.model.TrashEntry;
-import com.liferay.portlet.trash.model.TrashVersion;
+import com.liferay.trash.kernel.model.TrashEntry;
+import com.liferay.trash.kernel.model.TrashVersion;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -78,7 +78,6 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		User user = userPersistence.findByPrimaryKey(userId);
 		long groupId = serviceContext.getScopeGroupId();
 		parentCategoryId = getParentCategoryId(groupId, parentCategoryId);
-		Date now = new Date();
 
 		validate(name);
 
@@ -91,8 +90,6 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		category.setCompanyId(user.getCompanyId());
 		category.setUserId(user.getUserId());
 		category.setUserName(user.getFullName());
-		category.setCreateDate(serviceContext.getCreateDate(now));
-		category.setModifiedDate(serviceContext.getModifiedDate(now));
 		category.setParentCategoryId(parentCategoryId);
 		category.setName(name);
 		category.setDescription(description);
@@ -112,8 +109,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		}
 		else {
 			addCategoryResources(
-				category, serviceContext.getGroupPermissions(),
-				serviceContext.getGuestPermissions());
+				category, serviceContext.getModelPermissions());
 		}
 
 		// Mailing list
@@ -149,8 +145,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 	@Override
 	public void addCategoryResources(
-			long categoryId, String[] groupPermissions,
-			String[] guestPermissions)
+			long categoryId, ModelPermissions modelPermissions)
 		throws PortalException {
 
 		if ((categoryId == MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) ||
@@ -162,7 +157,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		MBCategory category = mbCategoryPersistence.findByPrimaryKey(
 			categoryId);
 
-		addCategoryResources(category, groupPermissions, guestPermissions);
+		addCategoryResources(category, modelPermissions);
 	}
 
 	@Override
@@ -180,14 +175,13 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 	@Override
 	public void addCategoryResources(
-			MBCategory category, String[] groupPermissions,
-			String[] guestPermissions)
+			MBCategory category, ModelPermissions modelPermissions)
 		throws PortalException {
 
 		resourceLocalService.addModelResources(
 			category.getCompanyId(), category.getGroupId(),
 			category.getUserId(), MBCategory.class.getName(),
-			category.getCategoryId(), groupPermissions, guestPermissions);
+			category.getCategoryId(), modelPermissions);
 	}
 
 	@Override
@@ -242,11 +236,12 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 		// Mailing list
 
-		try {
-			mbMailingListLocalService.deleteCategoryMailingList(
+		MBMailingList mbMailingList =
+			mbMailingListLocalService.fetchCategoryMailingList(
 				category.getGroupId(), category.getCategoryId());
-		}
-		catch (NoSuchMailingListException nsmle) {
+
+		if (mbMailingList != null) {
+			mbMailingListLocalService.deleteMailingList(mbMailingList);
 		}
 
 		// Subscriptions
@@ -258,6 +253,11 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		// Expando
 
 		expandoRowLocalService.deleteRows(category.getCategoryId());
+
+		// Ratings
+
+		ratingsStatsLocalService.deleteStats(
+			MBCategory.class.getName(), category.getCategoryId());
 
 		// Resources
 
@@ -365,20 +365,51 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 	@Override
 	public List<Object> getCategoriesAndThreads(long groupId, long categoryId) {
-		List<Object> categoriesAndThreads = new ArrayList<>();
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
+			WorkflowConstants.STATUS_ANY);
 
-		List<MBCategory> categories = getCategories(
-			groupId, categoryId, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+		return mbCategoryFinder.findC_T_ByG_C(
+			groupId, categoryId, queryDefinition);
+	}
 
-		categoriesAndThreads.addAll(categories);
+	@Override
+	public List<Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status) {
 
-		List<MBThread> threads = mbThreadLocalService.getThreads(
-			groupId, categoryId, WorkflowConstants.STATUS_ANY,
-			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
 
-		categoriesAndThreads.addAll(threads);
+		return mbCategoryFinder.findC_T_ByG_C(
+			groupId, categoryId, queryDefinition);
+	}
 
-		return categoriesAndThreads;
+	@Override
+	public List<Object> getCategoriesAndThreads(
+		long groupId, long categoryId, int status, int start, int end) {
+
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
+			status, start, end, null);
+
+		return mbCategoryFinder.findC_T_ByG_C(
+			groupId, categoryId, queryDefinition);
+	}
+
+	@Override
+	public int getCategoriesAndThreadsCount(long groupId, long categoryId) {
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
+			WorkflowConstants.STATUS_ANY);
+
+		return mbCategoryFinder.countC_T_ByG_C(
+			groupId, categoryId, queryDefinition);
+	}
+
+	@Override
+	public int getCategoriesAndThreadsCount(
+		long groupId, long categoryId, int status) {
+
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
+
+		return mbCategoryFinder.countC_T_ByG_C(
+			groupId, categoryId, queryDefinition);
 	}
 
 	@Override
@@ -508,7 +539,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		QueryDefinition<MBCategory> queryDefinition = new QueryDefinition<>(
 			WorkflowConstants.STATUS_ANY, start, end, null);
 
-		return mbCategoryFinder.findByS_G_U_P(
+		return mbCategoryFinder.findC_ByS_G_U_P(
 			groupId, userId, null, queryDefinition);
 	}
 
@@ -517,7 +548,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		QueryDefinition<MBCategory> queryDefinition = new QueryDefinition<>(
 			WorkflowConstants.STATUS_ANY);
 
-		return mbCategoryFinder.countByS_G_U_P(
+		return mbCategoryFinder.countC_ByS_G_U_P(
 			groupId, userId, null, queryDefinition);
 	}
 
@@ -544,8 +575,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 		parentCategoryId = getParentCategoryId(category, parentCategoryId);
 
-		if (mergeWithParentCategory &&
-			(categoryId != parentCategoryId) &&
+		if (mergeWithParentCategory && (categoryId != parentCategoryId) &&
 			(parentCategoryId !=
 				MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) &&
 			(parentCategoryId != MBCategoryConstants.DISCUSSION_CATEGORY_ID)) {
@@ -597,7 +627,8 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 			User user = userPersistence.findByPrimaryKey(userId);
 
 			List<Object> categoriesAndThreads = getCategoriesAndThreads(
-				category.getGroupId(), categoryId);
+				category.getGroupId(), categoryId,
+				WorkflowConstants.STATUS_IN_TRASH);
 
 			restoreDependentsFromTrash(user, categoriesAndThreads);
 		}
@@ -651,7 +682,8 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		User user = userPersistence.findByPrimaryKey(userId);
 
 		List<Object> categoriesAndThreads = getCategoriesAndThreads(
-			category.getGroupId(), categoryId);
+			category.getGroupId(), categoryId,
+			WorkflowConstants.STATUS_IN_TRASH);
 
 		restoreDependentsFromTrash(user, categoriesAndThreads);
 
@@ -710,8 +742,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 		parentCategoryId = getParentCategoryId(category, parentCategoryId);
 
-		if (mergeWithParentCategory &&
-			(categoryId != parentCategoryId) &&
+		if (mergeWithParentCategory && (categoryId != parentCategoryId) &&
 			(parentCategoryId !=
 				MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) &&
 			(parentCategoryId != MBCategoryConstants.DISCUSSION_CATEGORY_ID)) {
@@ -725,7 +756,6 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 		validate(name);
 
-		category.setModifiedDate(serviceContext.getModifiedDate(null));
 		category.setParentCategoryId(parentCategoryId);
 		category.setName(name);
 		category.setDescription(description);
@@ -767,6 +797,48 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 	}
 
 	@Override
+	public MBCategory updateMessageCount(long categoryId) {
+		MBCategory mbCategory = mbCategoryPersistence.fetchByPrimaryKey(
+			categoryId);
+
+		if (mbCategory == null) {
+			return null;
+		}
+
+		int messageCount = mbMessageLocalService.getCategoryMessagesCount(
+			mbCategory.getGroupId(), mbCategory.getCategoryId(),
+			WorkflowConstants.STATUS_APPROVED);
+
+		mbCategory.setMessageCount(messageCount);
+
+		return mbCategoryPersistence.update(mbCategory);
+	}
+
+	@Override
+	public MBCategory updateStatistics(long categoryId) {
+		MBCategory mbCategory = mbCategoryPersistence.fetchByPrimaryKey(
+			categoryId);
+
+		if (mbCategory == null) {
+			return null;
+		}
+
+		int messageCount = mbMessageLocalService.getCategoryMessagesCount(
+			mbCategory.getGroupId(), mbCategory.getCategoryId(),
+			WorkflowConstants.STATUS_APPROVED);
+
+		mbCategory.setMessageCount(messageCount);
+
+		int threadCount = mbThreadLocalService.getCategoryThreadsCount(
+			mbCategory.getGroupId(), mbCategory.getCategoryId(),
+			WorkflowConstants.STATUS_APPROVED);
+
+		mbCategory.setThreadCount(threadCount);
+
+		return mbCategoryPersistence.update(mbCategory);
+	}
+
+	@Override
 	public MBCategory updateStatus(long userId, long categoryId, int status)
 		throws PortalException {
 
@@ -785,6 +857,24 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 		mbCategoryPersistence.update(category);
 
 		return category;
+	}
+
+	@Override
+	public MBCategory updateThreadCount(long categoryId) {
+		MBCategory mbCategory = mbCategoryPersistence.fetchByPrimaryKey(
+			categoryId);
+
+		if (mbCategory == null) {
+			return null;
+		}
+
+		int threadCount = mbThreadLocalService.getCategoryThreadsCount(
+			mbCategory.getGroupId(), mbCategory.getCategoryId(),
+			WorkflowConstants.STATUS_APPROVED);
+
+		mbCategory.setThreadCount(threadCount);
+
+		return mbCategoryPersistence.update(mbCategory);
 	}
 
 	protected long getParentCategoryId(long groupId, long parentCategoryId) {
@@ -881,8 +971,8 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 				// Indexer
 
-				Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-					MBMessage.class);
+				Indexer<MBMessage> indexer =
+					IndexerRegistryUtil.nullSafeGetIndexer(MBMessage.class);
 
 				indexer.reindex(message);
 			}
@@ -933,12 +1023,12 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 				// Threads
 
 				mbThreadLocalService.moveDependentsToTrash(
-					user.getUserId(), thread.getThreadId(), trashEntryId);
+					thread.getGroupId(), thread.getThreadId(), trashEntryId);
 
 				// Indexer
 
-				Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-					MBThread.class);
+				Indexer<MBThread> indexer =
+					IndexerRegistryUtil.nullSafeGetIndexer(MBThread.class);
 
 				indexer.reindex(thread);
 			}
@@ -1009,7 +1099,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 				// Threads
 
 				mbThreadLocalService.restoreDependentsFromTrash(
-					user.getUserId(), thread.getThreadId());
+					thread.getGroupId(), thread.getThreadId());
 
 				// Trash
 
@@ -1019,8 +1109,8 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 				// Indexer
 
-				Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-					MBThread.class);
+				Indexer<MBThread> indexer =
+					IndexerRegistryUtil.nullSafeGetIndexer(MBThread.class);
 
 				indexer.reindex(thread);
 			}
@@ -1053,7 +1143,8 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 				restoreDependentsFromTrash(
 					user,
 					getCategoriesAndThreads(
-						category.getGroupId(), category.getCategoryId()));
+						category.getGroupId(), category.getCategoryId(),
+						WorkflowConstants.STATUS_IN_TRASH));
 
 				// Trash
 
@@ -1083,7 +1174,7 @@ public class MBCategoryLocalServiceImpl extends MBCategoryLocalServiceBaseImpl {
 
 	protected void validate(String name) throws PortalException {
 		if (Validator.isNull(name)) {
-			throw new CategoryNameException();
+			throw new CategoryNameException("Name is null");
 		}
 	}
 

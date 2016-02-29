@@ -22,11 +22,17 @@ import com.liferay.portal.kernel.util.StringPool;
  */
 public class BackgroundTaskConstants {
 
+	public static final String BACKGROUND_TASK_ID = "backgroundTaskId";
+
 	public static final int ISOLATION_LEVEL_CLASS = 1;
 
 	public static final int ISOLATION_LEVEL_COMPANY = 2;
 
 	public static final int ISOLATION_LEVEL_GROUP = 3;
+
+	public static final int ISOLATION_LEVEL_NOT_ISOLATED = 4;
+
+	public static final int ISOLATION_LEVEL_TASK_NAME = 5;
 
 	public static final String LABEL_CANCELLED = "cancelled";
 
@@ -54,21 +60,21 @@ public class BackgroundTaskConstants {
 
 	public static String getStatusCssClass(int status) {
 		if (status == STATUS_CANCELLED) {
-			return "label-info";
+			return "text-info";
 		}
 		else if (status == STATUS_FAILED) {
-			return "label-danger";
+			return "text-danger";
 		}
 		else if (status == STATUS_IN_PROGRESS) {
-			return "label-warning";
+			return "text-warning";
 		}
 		else if ((status == BackgroundTaskConstants.STATUS_NEW) ||
 				 (status == BackgroundTaskConstants.STATUS_QUEUED)) {
 
-			return "label-info";
+			return "text-info";
 		}
 		else if (status == STATUS_SUCCESSFUL) {
-			return "label-success";
+			return "text-success";
 		}
 
 		return StringPool.BLANK;

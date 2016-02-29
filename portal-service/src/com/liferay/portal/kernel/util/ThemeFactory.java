@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.util;
 
-import com.liferay.portal.model.Theme;
+import com.liferay.portal.kernel.model.Theme;
 
 /**
  * @author Harrison Schueler
@@ -24,10 +24,6 @@ public interface ThemeFactory {
 	public Theme getDefaultRegularTheme(long companyId);
 
 	public String getDefaultRegularThemeId(long companyId);
-
-	public Theme getDefaultWapTheme(long companyId);
-
-	public String getDefaultWapThemeId(long companyId);
 
 	public Theme getTheme();
 

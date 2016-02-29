@@ -14,14 +14,14 @@
 
 package com.liferay.portal.servlet;
 
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PredicateFilter;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.util.comparator.PortletNameComparator;
+import com.liferay.portal.kernel.util.comparator.PortletNameComparator;
 import com.liferay.portlet.PortletResourceAccessor;
 
 import java.util.ArrayList;
@@ -54,7 +54,13 @@ public class ComboServletStaticURLGenerator {
 						continue;
 					}
 
-					if (_visitedURLs.contains(portletResource)) {
+					String url = portletResource;
+
+					if (!HttpUtil.hasProtocol(portletResource)) {
+						url = portlet.getContextPath() + portletResource;
+					}
+
+					if (_visitedURLs.contains(url)) {
 						continue;
 					}
 
@@ -74,7 +80,7 @@ public class ComboServletStaticURLGenerator {
 						timestamp = Math.max(timestamp, portlet.getTimestamp());
 					}
 
-					_visitedURLs.add(portletResource);
+					_visitedURLs.add(url);
 				}
 			}
 		}

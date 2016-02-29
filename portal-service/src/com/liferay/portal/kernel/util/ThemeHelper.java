@@ -14,11 +14,10 @@
 
 package com.liferay.portal.kernel.util;
 
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateResourceLoaderUtil;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.Theme;
-import com.liferay.portal.util.PortalUtil;
 
 import java.net.URL;
 
@@ -39,7 +38,7 @@ public class ThemeHelper {
 		ServletContext servletContext, Theme theme, String portletId,
 		String path) {
 
-		StringBundler sb = new StringBundler(9);
+		StringBundler sb = new StringBundler(11);
 
 		String themeContextName = GetterUtil.getString(
 			theme.getServletContextName());
@@ -48,7 +47,7 @@ public class ThemeHelper {
 
 		String servletContextName = StringPool.BLANK;
 
-		String contextPath = ContextPathUtil.getContextPath(servletContext);
+		String contextPath = servletContext.getContextPath();
 
 		if (!Validator.equals(
 				PortalUtil.getPathContext(contextPath),

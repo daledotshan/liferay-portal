@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.scripting;
 
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 import com.liferay.portal.kernel.util.ClassLoaderPool;
+import com.liferay.portal.kernel.util.ProxyFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,22 @@ public class ScriptingUtil {
 
 	public static void clearCache(String language) throws ScriptingException {
 		getScripting().clearCache(language);
+	}
+
+	public static ScriptingExecutor createScriptingExecutor(
+		String language, boolean executeInSeparateThread) {
+
+		return getScripting().createScriptingExecutor(
+			language, executeInSeparateThread);
+	}
+
+	public static Map<String, Object> eval(
+			Set<String> allowedClasses, Map<String, Object> inputObjects,
+			Set<String> outputNames, String language, String script)
+		throws ScriptingException {
+
+		return getScripting().eval(
+			allowedClasses, inputObjects, outputNames, language, script);
 	}
 
 	/**
@@ -47,6 +64,11 @@ public class ScriptingUtil {
 			_getServletContextNames(classLoaders));
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #eval(Set, Map, Set, String,
+	 *             String)}
+	 */
+	@Deprecated
 	public static Map<String, Object> eval(
 			Set<String> allowedClasses, Map<String, Object> inputObjects,
 			Set<String> outputNames, String language, String script,
@@ -56,6 +78,14 @@ public class ScriptingUtil {
 		return getScripting().eval(
 			allowedClasses, inputObjects, outputNames, language, script,
 			servletContextNames);
+	}
+
+	public static void exec(
+			Set<String> allowedClasses, Map<String, Object> inputObjects,
+			String language, String script)
+		throws ScriptingException {
+
+		getScripting().exec(allowedClasses, inputObjects, language, script);
 	}
 
 	/**
@@ -73,6 +103,11 @@ public class ScriptingUtil {
 			_getServletContextNames(classLoaders));
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #exec(Set, Map, String,
+	 *             String)}
+	 */
+	@Deprecated
 	public static void exec(
 			Set<String> allowedClasses, Map<String, Object> inputObjects,
 			String language, String script, String... servletContextNames)
@@ -93,12 +128,6 @@ public class ScriptingUtil {
 		return getScripting().getSupportedLanguages();
 	}
 
-	public void setScripting(Scripting scripting) {
-		PortalRuntimePermission.checkSetBeanProperty(getClass());
-
-		_scripting = scripting;
-	}
-
 	private static String[] _getServletContextNames(
 		ClassLoader[] classLoaders) {
 
@@ -112,6 +141,7 @@ public class ScriptingUtil {
 		return servletContextNames;
 	}
 
-	private static Scripting _scripting;
+	private static final Scripting _scripting =
+		ProxyFactory.newServiceTrackedInstance(Scripting.class);
 
 }

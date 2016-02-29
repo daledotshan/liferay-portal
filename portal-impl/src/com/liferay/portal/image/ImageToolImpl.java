@@ -21,12 +21,11 @@ import com.liferay.portal.kernel.image.ImageTool;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.JavaDetector;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.model.Image;
 import com.liferay.portal.model.impl.ImageImpl;
 import com.liferay.portal.util.FileImpl;
 import com.liferay.portal.util.PropsUtil;
@@ -275,21 +274,16 @@ public class ImageToolImpl implements ImageTool {
 	public void encodeGIF(RenderedImage renderedImage, OutputStream os)
 		throws IOException {
 
-		if (JavaDetector.isJDK6()) {
-			ImageIO.write(renderedImage, TYPE_GIF, os);
+		BufferedImage bufferedImage = getBufferedImage(renderedImage);
+
+		if (!(bufferedImage.getColorModel() instanceof IndexColorModel)) {
+			bufferedImage = convertImageType(
+				bufferedImage, BufferedImage.TYPE_BYTE_INDEXED);
 		}
-		else {
-			BufferedImage bufferedImage = getBufferedImage(renderedImage);
 
-			if (!(bufferedImage.getColorModel() instanceof IndexColorModel)) {
-				bufferedImage = convertImageType(
-					bufferedImage, BufferedImage.TYPE_BYTE_INDEXED);
-			}
+		Gif89Encoder encoder = new Gif89Encoder(bufferedImage);
 
-			Gif89Encoder encoder = new Gif89Encoder(bufferedImage);
-
-			encoder.encode(os);
-		}
+		encoder.encode(os);
 	}
 
 	@Override

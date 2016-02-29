@@ -14,17 +14,17 @@
 
 package com.liferay.portlet.documentlibrary.asset;
 
+import com.liferay.asset.kernel.model.BaseDDMFormValuesReader;
+import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
+import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalServiceUtil;
+import com.liferay.dynamic.data.mapping.kernel.DDMFormValues;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
+import com.liferay.dynamic.data.mapping.kernel.DDMStructureManagerUtil;
+import com.liferay.dynamic.data.mapping.kernel.StorageEngineManagerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.model.BaseDDMFormValuesReader;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServiceUtil;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
-import com.liferay.portlet.dynamicdatamapping.storage.StorageEngineUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.List;
 
@@ -48,13 +48,13 @@ public class DLFileEntryDDMFormValuesReader extends BaseDDMFormValuesReader {
 			return new DDMFormValues(null);
 		}
 
-		return StorageEngineUtil.getDDMFormValues(
+		return StorageEngineManagerUtil.getDDMFormValues(
 			dlFileEntryMetadata.getDDMStorageId());
 	}
 
 	protected DLFileEntryMetadata getDLFileEntryMetadata() {
 		List<DDMStructure> ddmStructures =
-			DDMStructureLocalServiceUtil.getClassStructures(
+			DDMStructureManagerUtil.getClassStructures(
 				_fileEntry.getCompanyId(),
 				PortalUtil.getClassNameId(DLFileEntryMetadata.class));
 

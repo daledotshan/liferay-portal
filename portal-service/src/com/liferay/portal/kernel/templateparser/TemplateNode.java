@@ -16,19 +16,20 @@ package com.liferay.portal.kernel.templateparser;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class TemplateNode extends LinkedHashMap<String, Object> {
 		put("data", data);
 		put("type", type);
 		put("options", new ArrayList<String>());
+		put("optionsMap", new HashMap<String, String>());
 	}
 
 	public void appendChild(TemplateNode templateNode) {
@@ -70,10 +72,22 @@ public class TemplateNode extends LinkedHashMap<String, Object> {
 		options.add(option);
 	}
 
+	public void appendOptionMap(String value, String label) {
+		Map<String, String> optionsMap = getOptionsMap();
+
+		optionsMap.put(value, label);
+	}
+
 	public void appendOptions(List<String> options) {
 		List<String> curOptions = getOptions();
 
 		curOptions.addAll(options);
+	}
+
+	public void appendOptionsMap(Map<String, String> optionMap) {
+		Map<String, String> optionsMap = getOptionsMap();
+
+		optionsMap.putAll(optionMap);
 	}
 
 	public void appendSibling(TemplateNode templateNode) {
@@ -170,6 +184,10 @@ public class TemplateNode extends LinkedHashMap<String, Object> {
 
 	public List<String> getOptions() {
 		return (List<String>)get("options");
+	}
+
+	public Map<String, String> getOptionsMap() {
+		return (Map<String, String>)get("optionsMap");
 	}
 
 	public List<TemplateNode> getSiblings() {

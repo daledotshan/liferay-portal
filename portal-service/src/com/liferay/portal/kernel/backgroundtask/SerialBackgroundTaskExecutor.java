@@ -14,12 +14,12 @@
 
 package com.liferay.portal.kernel.backgroundtask;
 
-import com.liferay.portal.DuplicateLockException;
+import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.lock.DuplicateLockException;
+import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.model.BackgroundTask;
-import com.liferay.portal.model.Lock;
 
 /**
  * @author Michael C. Han
@@ -31,6 +31,14 @@ public class SerialBackgroundTaskExecutor
 		BackgroundTaskExecutor backgroundTaskExecutor) {
 
 		super(backgroundTaskExecutor);
+	}
+
+	@Override
+	public BackgroundTaskExecutor clone() {
+		BackgroundTaskExecutor backgroundTaskExecutor =
+			new SerialBackgroundTaskExecutor(getBackgroundTaskExecutor());
+
+		return backgroundTaskExecutor;
 	}
 
 	@Override
@@ -69,9 +77,9 @@ public class SerialBackgroundTaskExecutor
 
 				break;
 			}
-			catch (SystemException se) {
+			catch (ORMException | SystemException e) {
 				if (_log.isDebugEnabled()) {
-					_log.debug("Unable to acquire acquiring lock", se);
+					_log.debug("Unable to acquire acquiring lock", e);
 				}
 
 				try {

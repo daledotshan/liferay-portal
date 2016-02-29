@@ -14,17 +14,17 @@
 
 package com.liferay.taglib.aui;
 
+import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.servlet.taglib.aui.ValidatorTag;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.ModelHintsUtil;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.taglib.aui.base.BaseInputTag;
 
 import java.util.List;
@@ -76,7 +76,9 @@ public class InputTag extends BaseInputTag {
 
 				baseType = type;
 			}
-			else if (Validator.equals(type, "switch")) {
+			else if (Validator.equals(type, "toggle-card") ||
+					 Validator.equals(type, "toggle-switch")) {
+
 				baseType = "checkbox";
 			}
 		}
@@ -249,7 +251,7 @@ public class InputTag extends BaseInputTag {
 
 		String forLabel = id;
 
-		if (Validator.equals(type,"assetTags")) {
+		if (Validator.equals(type, "assetTags")) {
 			forLabel = forLabel.concat("assetTagNames");
 		}
 
@@ -267,8 +269,8 @@ public class InputTag extends BaseInputTag {
 
 		String title = getTitle();
 
-		if ((title == null) && (Validator.isNull(label) ||
-			 Validator.equals(type, "image"))) {
+		if ((title == null) &&
+			(Validator.isNull(label) || Validator.equals(type, "image"))) {
 
 			title = TextFormatter.format(name, TextFormatter.P);
 		}
@@ -307,12 +309,12 @@ public class InputTag extends BaseInputTag {
 	}
 
 	protected void updateFormCheckboxNames() {
-		if (!Validator.equals(getType(), "checkbox")) {
+		if (!Validator.equals(getBaseType(), "checkbox")) {
 			return;
 		}
 
 		List<String> checkboxNames = (List<String>)request.getAttribute(
-			"aui:form:checkboxNames");
+			"LIFERAY_SHARED_aui:form:checkboxNames");
 
 		if (checkboxNames != null) {
 			String inputName = getInputName();
