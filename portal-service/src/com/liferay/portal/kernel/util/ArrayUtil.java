@@ -653,12 +653,12 @@ public class ArrayUtil {
 	}
 
 	public static boolean contains(Object[] array, Object value) {
-		if (isEmpty(array) || (value == null)) {
+		if (isEmpty(array)) {
 			return false;
 		}
 
 		for (int i = 0; i < array.length; i++) {
-			if (value.equals(array[i])) {
+			if (Validator.equals(value, array[i])) {
 				return true;
 			}
 		}
@@ -689,12 +689,12 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (ignoreCase) {
-				if (StringUtil.equalsIgnoreCase(array[i], value )) {
+				if (StringUtil.equalsIgnoreCase(array[i], value)) {
 					return true;
 				}
 			}
 			else {
-				if (array[i].equals(value)) {
+				if (Validator.equals(array[i], value)) {
 					return true;
 				}
 			}
@@ -1205,7 +1205,7 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Byte(array[i]));
+				list.add(Byte.valueOf(array[i]));
 			}
 		}
 
@@ -1221,7 +1221,7 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Character(array[i]));
+				list.add(Character.valueOf(array[i]));
 			}
 		}
 
@@ -1237,7 +1237,7 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Double(array[i]));
+				list.add(Double.valueOf(array[i]));
 			}
 		}
 
@@ -1253,7 +1253,7 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Float(array[i]));
+				list.add(Float.valueOf(array[i]));
 			}
 		}
 
@@ -1269,7 +1269,7 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Integer(array[i]));
+				list.add(Integer.valueOf(array[i]));
 			}
 		}
 
@@ -1285,7 +1285,7 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Long(array[i]));
+				list.add(Long.valueOf(array[i]));
 			}
 		}
 
@@ -1301,7 +1301,7 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			if (value != array[i]) {
-				list.add(new Short(array[i]));
+				list.add(Short.valueOf(array[i]));
 			}
 		}
 
@@ -1322,6 +1322,29 @@ public class ArrayUtil {
 		}
 
 		return list.toArray(new String[list.size()]);
+	}
+
+	public static <T> T[] remove(T[] array, T value) {
+		if (isEmpty(array)) {
+			return array;
+		}
+
+		List<T> list = new ArrayList<>();
+
+		for (int i = 0; i < array.length; i++) {
+			if (value != array[i]) {
+				list.add(array[i]);
+			}
+		}
+
+		if (array.length == list.size()) {
+			return array;
+		}
+
+		Class<?> arrayClass = array.getClass();
+
+		return list.toArray(
+			(T[])Array.newInstance(arrayClass.getComponentType(), list.size()));
 	}
 
 	public static String[] removeByPrefix(String[] array, String prefix) {
@@ -1348,7 +1371,7 @@ public class ArrayUtil {
 
 	public static void reverse(boolean[] array) {
 		for (int left = 0, right = array.length - 1; left < right;
-				left++, right--) {
+			left++, right--) {
 
 			boolean value = array[left];
 
@@ -1359,7 +1382,7 @@ public class ArrayUtil {
 
 	public static void reverse(char[] array) {
 		for (int left = 0, right = array.length - 1; left < right;
-				left++, right--) {
+			left++, right--) {
 
 			char value = array[left];
 
@@ -1370,7 +1393,7 @@ public class ArrayUtil {
 
 	public static void reverse(double[] array) {
 		for (int left = 0, right = array.length - 1; left < right;
-				left++, right--) {
+			left++, right--) {
 
 			double value = array[left];
 
@@ -1381,7 +1404,7 @@ public class ArrayUtil {
 
 	public static void reverse(int[] array) {
 		for (int left = 0, right = array.length - 1; left < right;
-				left++, right--) {
+			left++, right--) {
 
 			int value = array[left];
 
@@ -1392,7 +1415,7 @@ public class ArrayUtil {
 
 	public static void reverse(long[] array) {
 		for (int left = 0, right = array.length - 1; left < right;
-				left++, right--) {
+			left++, right--) {
 
 			long value = array[left];
 
@@ -1403,7 +1426,7 @@ public class ArrayUtil {
 
 	public static void reverse(short[] array) {
 		for (int left = 0, right = array.length - 1; left < right;
-				left++, right--) {
+			left++, right--) {
 
 			short value = array[left];
 
@@ -1412,11 +1435,11 @@ public class ArrayUtil {
 		}
 	}
 
-	public static void reverse(String[] array) {
+	public static <T> void reverse(T[] array) {
 		for (int left = 0, right = array.length - 1; left < right;
-				left++, right--) {
+			left++, right--) {
 
-			String value = array[left];
+			T value = array[left];
 
 			array[left] = array[right];
 			array[right] = value;
@@ -1598,7 +1621,7 @@ public class ArrayUtil {
 		Double[] newArray = new Double[array.length];
 
 		for (int i = 0; i < array.length; i++) {
-			newArray[i] = new Double(array[i]);
+			newArray[i] = Double.valueOf(array[i]);
 		}
 
 		return newArray;
@@ -1618,7 +1641,7 @@ public class ArrayUtil {
 		Float[] newArray = new Float[array.length];
 
 		for (int i = 0; i < array.length; i++) {
-			newArray[i] = new Float(array[i]);
+			newArray[i] = Float.valueOf(array[i]);
 		}
 
 		return newArray;
@@ -1638,7 +1661,7 @@ public class ArrayUtil {
 		Integer[] newArray = new Integer[array.length];
 
 		for (int i = 0; i < array.length; i++) {
-			newArray[i] = new Integer(array[i]);
+			newArray[i] = Integer.valueOf(array[i]);
 		}
 
 		return newArray;
@@ -1658,7 +1681,7 @@ public class ArrayUtil {
 		Long[] newArray = new Long[array.length];
 
 		for (int i = 0; i < array.length; i++) {
-			newArray[i] = new Long(array[i]);
+			newArray[i] = Long.valueOf(array[i]);
 		}
 
 		return newArray;
@@ -1678,7 +1701,7 @@ public class ArrayUtil {
 		Short[] newArray = new Short[array.length];
 
 		for (int i = 0; i < array.length; i++) {
-			newArray[i] = new Short(array[i]);
+			newArray[i] = Short.valueOf(array[i]);
 		}
 
 		return newArray;
@@ -1689,6 +1712,16 @@ public class ArrayUtil {
 
 		for (int i = 0; i < array.length; i++) {
 			newArray[i] = array[i].shortValue();
+		}
+
+		return newArray;
+	}
+
+	public static String[] toArray(String[] array) {
+		String[] newArray = new String[array.length];
+
+		for (int i = 0; i < array.length; i++) {
+			newArray[i] = array[i].toString();
 		}
 
 		return newArray;
@@ -2163,6 +2196,16 @@ public class ArrayUtil {
 		}
 
 		return toArray(set.toArray(new Short[set.size()]));
+	}
+
+	public static String[] unique(String[] array) {
+		Set<String> set = new LinkedHashSet<>();
+
+		for (int i = 0; i < array.length; i++) {
+			set.add(array[i]);
+		}
+
+		return toArray(set.toArray(new String[set.size()]));
 	}
 
 }

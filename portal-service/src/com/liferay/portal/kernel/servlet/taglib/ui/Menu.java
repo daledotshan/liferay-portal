@@ -16,7 +16,9 @@ package com.liferay.portal.kernel.servlet.taglib.ui;
 
 import com.liferay.portal.kernel.util.StringPool;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sergio González
@@ -25,6 +27,14 @@ public class Menu extends BaseUIItem {
 
 	public String getCssClass() {
 		return _cssClass;
+	}
+
+	public Map<String, Object> getData() {
+		if (_data == null) {
+			_data = new HashMap<>();
+		}
+
+		return _data;
 	}
 
 	public String getDirection() {
@@ -37,6 +47,10 @@ public class Menu extends BaseUIItem {
 
 	public String getLabel() {
 		return _label;
+	}
+
+	public String getMarkupView() {
+		return _markupView;
 	}
 
 	public List<MenuItem> getMenuItems() {
@@ -55,6 +69,10 @@ public class Menu extends BaseUIItem {
 		return _extended;
 	}
 
+	public boolean isScroll() {
+		return _scroll;
+	}
+
 	public boolean isShowArrow() {
 		return _showArrow;
 	}
@@ -69,6 +87,10 @@ public class Menu extends BaseUIItem {
 
 	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
+	}
+
+	public void setData(Map<String, Object> data) {
+		_data = data;
 	}
 
 	public void setDirection(String direction) {
@@ -87,12 +109,20 @@ public class Menu extends BaseUIItem {
 		_label = label;
 	}
 
+	public void setMarkupView(String markupView) {
+		_markupView = markupView;
+	}
+
 	public void setMenuItems(List<MenuItem> menuItems) {
 		_menuItems = menuItems;
 	}
 
 	public void setMessage(String message) {
 		_message = message;
+	}
+
+	public void setScroll(boolean scroll) {
+		_scroll = scroll;
 	}
 
 	public void setShowArrow(boolean showArrow) {
@@ -112,12 +142,15 @@ public class Menu extends BaseUIItem {
 	}
 
 	private String _cssClass = StringPool.BLANK;
+	private Map<String, Object> _data;
 	private String _direction = "left";
 	private boolean _extended = true;
 	private String _icon = StringPool.BLANK;
 	private String _label = StringPool.BLANK;
+	private String _markupView = StringPool.BLANK;
 	private List<MenuItem> _menuItems;
 	private String _message = StringPool.BLANK;
+	private boolean _scroll = true;
 	private boolean _showArrow = true;
 	private boolean _showExpanded;
 	private boolean _showWhenSingleIcon;

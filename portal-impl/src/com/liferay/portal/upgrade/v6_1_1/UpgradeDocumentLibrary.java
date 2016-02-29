@@ -20,9 +20,9 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author Sergio González
@@ -37,14 +37,11 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 	protected boolean hasFileEntry(long groupId, long folderId, String title)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select count(*) from DLFileEntry where groupId = ? and " +
 					"folderId = ? and title = ?");
 
@@ -65,19 +62,16 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 			return false;
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
 	protected void updateFileEntries() throws Exception {
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select fileEntryId, groupId, folderId, title, extension, " +
 					"version from DLFileEntry");
 
@@ -121,27 +115,43 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 
 				uniqueTitle += periodAndExtension;
 
-				ps = con.prepareStatement(
-					"update DLFileEntry set title = ? where fileEntryId = ?");
-
-				ps.setString(1, uniqueTitle);
-				ps.setLong(2, fileEntryId);
-
-				ps.executeUpdate();
-
-				ps = con.prepareStatement(
-					"update DLFileVersion set title = ? where fileEntryId = " +
-						"? and version = ?");
-
-				ps.setString(1, uniqueTitle);
-				ps.setLong(2, fileEntryId);
-				ps.setString(3, version);
-
-				ps.executeUpdate();
+				updateFileEntry(fileEntryId, version, uniqueTitle);
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
+		}
+	}
+
+	protected void updateFileEntry(
+			long fileEntryId, String version, String newTitle)
+		throws SQLException {
+
+		PreparedStatement ps = null;
+
+		try {
+			ps = connection.prepareStatement(
+				"update DLFileEntry set title = ? where fileEntryId = ?");
+
+			ps.setString(1, newTitle);
+			ps.setLong(2, fileEntryId);
+
+			ps.executeUpdate();
+
+			DataAccess.cleanUp(ps);
+
+			ps = connection.prepareStatement(
+				"update DLFileVersion set title = ? where fileEntryId = " +
+					"? and version = ?");
+
+			ps.setString(1, newTitle);
+			ps.setLong(2, fileEntryId);
+			ps.setString(3, version);
+
+			ps.executeUpdate();
+		}
+		finally {
+			DataAccess.cleanUp(ps);
 		}
 	}
 

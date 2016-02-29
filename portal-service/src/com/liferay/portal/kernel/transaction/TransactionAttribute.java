@@ -17,64 +17,22 @@ package com.liferay.portal.kernel.transaction;
 /**
  * @author Shuyang Zhou
  */
-public class TransactionAttribute {
+public interface TransactionAttribute {
 
-	public Isolation getIsolation() {
-		return _isolation;
-	}
+	public Isolation getIsolation();
 
-	public Class<?>[] getNoRollbackForClasses() {
-		return _noRollbackForClasses;
-	}
+	public Propagation getPropagation();
 
-	public String[] getNoRollbackForClassNames() {
-		return _noRollbackForClassNames;
-	}
-
-	public Propagation getPropagation() {
-		return _propagation;
-	}
-
-	public Class<?>[] getRollbackForClasses() {
-		return _rollbackForClasses;
-	}
-
-	public String[] getRollbackForClassNames() {
-		return _rollbackForClassNames;
-	}
-
-	public int getTimeout() {
-		return _timeout;
-	}
-
-	public boolean isReadOnly() {
-		return _readOnly;
-	}
+	public boolean isReadOnly();
 
 	public static class Builder {
 
 		public TransactionAttribute build() {
-			return new TransactionAttribute(this);
+			return new DefaultTransactionAttribute(this);
 		}
 
 		public Builder setIsolation(Isolation isolation) {
 			_isolation = isolation;
-
-			return this;
-		}
-
-		public Builder setNoRollbackForClasses(
-			Class<?>... noRollbackForClasses) {
-
-			_noRollbackForClasses = noRollbackForClasses;
-
-			return this;
-		}
-
-		public Builder setNoRollbackForClassNames(
-			String... noRollbackForClassNames) {
-
-			_noRollbackForClassNames = noRollbackForClassNames;
 
 			return this;
 		}
@@ -91,49 +49,40 @@ public class TransactionAttribute {
 			return this;
 		}
 
-		public Builder setRollbackForClasses(Class<?>... rollbackForClasses) {
-			_rollbackForClasses = rollbackForClasses;
-
-			return this;
-		}
-
-		public Builder setRollbackForClassNames(
-			String... rollbackForClassNames) {
-
-			_rollbackForClassNames = rollbackForClassNames;
-
-			return this;
-		}
-
 		private Isolation _isolation = Isolation.DEFAULT;
-		private Class<?>[] _noRollbackForClasses = {};
-		private String[] _noRollbackForClassNames = {};
 		private Propagation _propagation = Propagation.REQUIRED;
 		private boolean _readOnly;
-		private Class<?>[] _rollbackForClasses = {};
-		private String[] _rollbackForClassNames = {};
-		private int _timeout = TransactionDefinition.TIMEOUT_DEFAULT;
 
 	}
 
-	private TransactionAttribute(Builder builder) {
-		_isolation = builder._isolation;
-		_noRollbackForClassNames = builder._noRollbackForClassNames;
-		_noRollbackForClasses = builder._noRollbackForClasses;
-		_propagation = builder._propagation;
-		_readOnly = builder._readOnly;
-		_rollbackForClassNames = builder._rollbackForClassNames;
-		_rollbackForClasses = builder._rollbackForClasses;
-		_timeout = builder._timeout;
-	}
+	public static class DefaultTransactionAttribute
+		implements TransactionAttribute {
 
-	private final Isolation _isolation;
-	private final Class<?>[] _noRollbackForClasses;
-	private final String[] _noRollbackForClassNames;
-	private final Propagation _propagation;
-	private final boolean _readOnly;
-	private final Class<?>[] _rollbackForClasses;
-	private final String[] _rollbackForClassNames;
-	private final int _timeout;
+		@Override
+		public Isolation getIsolation() {
+			return _isolation;
+		}
+
+		@Override
+		public Propagation getPropagation() {
+			return _propagation;
+		}
+
+		@Override
+		public boolean isReadOnly() {
+			return _readOnly;
+		}
+
+		private DefaultTransactionAttribute(Builder builder) {
+			_isolation = builder._isolation;
+			_propagation = builder._propagation;
+			_readOnly = builder._readOnly;
+		}
+
+		private final Isolation _isolation;
+		private final Propagation _propagation;
+		private final boolean _readOnly;
+
+	}
 
 }

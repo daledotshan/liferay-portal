@@ -16,22 +16,26 @@ package com.liferay.portlet.social.test;
 
 import com.liferay.portal.events.ServicePreAction;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextFactory;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.social.model.SocialActivity;
-import com.liferay.portlet.social.model.SocialActivityFeedEntry;
-import com.liferay.portlet.social.model.SocialActivityInterpreter;
-import com.liferay.portlet.social.service.SocialActivityLocalServiceUtil;
-import com.liferay.portlet.trash.util.TrashUtil;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.social.kernel.model.SocialActivity;
+import com.liferay.social.kernel.model.SocialActivityFeedEntry;
+import com.liferay.social.kernel.model.SocialActivityInterpreter;
+import com.liferay.social.kernel.service.SocialActivityLocalServiceUtil;
+import com.liferay.trash.kernel.util.TrashUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -134,9 +138,9 @@ public abstract class BaseSocialActivityInterpreterTestCase {
 
 				title = activityFeedEntry.getTitle();
 
-				if (title.matches("\\{\\d\\}")) {
-					Assert.fail("Title contains parameters: " + title);
-				}
+				Assert.assertFalse(
+					"Title contains parameters: " + title,
+					title.matches("\\{\\d\\}"));
 			}
 		}
 	}
@@ -183,6 +187,35 @@ public abstract class BaseSocialActivityInterpreterTestCase {
 	}
 
 	protected abstract SocialActivityInterpreter getActivityInterpreter();
+
+	protected SocialActivityInterpreter getActivityInterpreter(
+		String portletId, String className) {
+
+		try {
+			Registry registry = RegistryUtil.getRegistry();
+
+			Collection<SocialActivityInterpreter> socialActivityInterpreters =
+				registry.getServices(
+					SocialActivityInterpreter.class,
+					"(javax.portlet.name=" + portletId + ")");
+
+			for (SocialActivityInterpreter socialActivityInterpreter :
+					socialActivityInterpreters) {
+
+				if (ArrayUtil.contains(
+						socialActivityInterpreter.getClassNames(), className)) {
+
+					return socialActivityInterpreter;
+				}
+			}
+
+			throw new IllegalStateException(
+				"No activity interpreter found for class " + className);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	protected abstract int[] getActivityTypes();
 

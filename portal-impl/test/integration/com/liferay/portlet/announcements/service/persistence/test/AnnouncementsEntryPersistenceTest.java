@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.announcements.service.persistence.test;
 
+import com.liferay.announcements.kernel.exception.NoSuchEntryException;
+import com.liferay.announcements.kernel.model.AnnouncementsEntry;
+import com.liferay.announcements.kernel.service.AnnouncementsEntryLocalServiceUtil;
+import com.liferay.announcements.kernel.service.persistence.AnnouncementsEntryPersistence;
+import com.liferay.announcements.kernel.service.persistence.AnnouncementsEntryUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -32,15 +38,10 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.announcements.NoSuchEntryException;
-import com.liferay.portlet.announcements.model.AnnouncementsEntry;
-import com.liferay.portlet.announcements.service.AnnouncementsEntryLocalServiceUtil;
-import com.liferay.portlet.announcements.service.persistence.AnnouncementsEntryPersistence;
-import com.liferay.portlet.announcements.service.persistence.AnnouncementsEntryUtil;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -57,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class AnnouncementsEntryPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -192,70 +194,44 @@ public class AnnouncementsEntryPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_C_A() {
-		try {
-			_persistence.countByC_C_A(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
+	public void testCountByC_C_A() throws Exception {
+		_persistence.countByC_C_A(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByC_C_A(0L, 0L, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C_A(0L, 0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -267,37 +243,26 @@ public class AnnouncementsEntryPersistenceTest {
 		Assert.assertEquals(existingAnnouncementsEntry, newAnnouncementsEntry);
 	}
 
-	@Test
+	@Test(expected = NoSuchEntryException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchEntryException");
-		}
-		catch (NoSuchEntryException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<AnnouncementsEntry> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("AnnouncementsEntry",
 			"uuid", true, "entryId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
-			"classNameId", true, "classPK", true, "title", true, "content",
-			true, "url", true, "type", true, "displayDate", true,
-			"expirationDate", true, "priority", true, "alert", true);
+			"classNameId", true, "classPK", true, "title", true, "url", true,
+			"type", true, "displayDate", true, "expirationDate", true,
+			"priority", true, "alert", true);
 	}
 
 	@Test
@@ -406,11 +371,9 @@ public class AnnouncementsEntryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = AnnouncementsEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<AnnouncementsEntry>() {
 				@Override
-				public void performAction(Object object) {
-					AnnouncementsEntry announcementsEntry = (AnnouncementsEntry)object;
-
+				public void performAction(AnnouncementsEntry announcementsEntry) {
 					Assert.assertNotNull(announcementsEntry);
 
 					count.increment();

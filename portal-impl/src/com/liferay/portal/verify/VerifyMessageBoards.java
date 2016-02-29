@@ -14,17 +14,17 @@
 
 package com.liferay.portal.verify;
 
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.message.boards.kernel.model.MBCategory;
+import com.liferay.message.boards.kernel.model.MBMessage;
+import com.liferay.message.boards.kernel.model.MBThread;
+import com.liferay.message.boards.kernel.service.MBCategoryLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.MBMessageLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.MBThreadLocalServiceUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.messageboards.model.MBCategory;
-import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.messageboards.model.MBThread;
-import com.liferay.portlet.messageboards.service.MBCategoryLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil;
 
 import java.util.List;
 
@@ -101,7 +101,7 @@ public class VerifyMessageBoards extends VerifyProcess {
 					MBThread.class.getName(), thread.getThreadId(), null, 0,
 					new long[0], new String[0], false, null, null, null, null,
 					String.valueOf(thread.getRootMessageId()), null, null, null,
-					null, 0, 0, null, false);
+					null, 0, 0, null);
 			}
 			catch (Exception e) {
 				if (_log.isWarnEnabled()) {

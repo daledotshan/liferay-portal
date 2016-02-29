@@ -14,13 +14,14 @@
 
 package com.liferay.portal.kernel.repository;
 
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.document.library.kernel.service.DLAppHelperLocalService;
+import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.RepositoryEntryLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.service.CompanyLocalService;
-import com.liferay.portal.service.RepositoryEntryLocalService;
-import com.liferay.portal.service.UserLocalService;
-import com.liferay.portlet.asset.service.AssetEntryLocalService;
-import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalService;
 
 /**
  * @author Mika Koivisto
@@ -29,8 +30,20 @@ public interface BaseRepository extends Repository {
 
 	public LocalRepository getLocalRepository();
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             com.liferay.portal.kernel.repository.registry.RepositoryDefiner#getSupportedConfigurations(
+	 *             )}
+	 */
+	@Deprecated
 	public String[] getSupportedConfigurations();
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             com.liferay.portal.kernel.repository.registry.RepositoryDefiner#getSupportedParameters(
+	 *             )}
+	 */
+	@Deprecated
 	public String[][] getSupportedParameters();
 
 	public void initRepository() throws PortalException;
@@ -44,6 +57,9 @@ public interface BaseRepository extends Repository {
 
 	public void setDLAppHelperLocalService(
 		DLAppHelperLocalService dlAppHelperLocalService);
+
+	public void setDLFolderLocalService(
+		DLFolderLocalService dlFolderLocalService);
 
 	public void setGroupId(long groupId);
 

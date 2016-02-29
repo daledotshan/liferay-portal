@@ -19,28 +19,29 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.PortletApp;
+import com.liferay.portal.kernel.model.PortletURLListener;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.security.xml.SecureXMLFactoryProviderUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.URLEncoder;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutConstants;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.PortletApp;
-import com.liferay.portal.model.PortletURLListener;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.security.lang.DoPrivilegedUtil;
-import com.liferay.portal.security.xml.SecureXMLFactoryProviderUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.struts.StrutsActionPortletURL;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.Writer;
 
@@ -121,7 +122,7 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 			setDateHeader(name, date);
 		}
 		else {
-			values = ArrayUtil.append(values, new Long(date));
+			values = ArrayUtil.append(values, Long.valueOf(date));
 
 			_headers.put(name, values);
 		}
@@ -157,7 +158,7 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 			setIntHeader(name, value);
 		}
 		else {
-			values = ArrayUtil.append(values, new Integer(value));
+			values = ArrayUtil.append(values, Integer.valueOf(value));
 
 			_headers.put(name, values);
 		}
@@ -356,6 +357,7 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 		return _plid;
 	}
 
+	@Override
 	public Portlet getPortlet() {
 		if (_portlet == null) {
 			try {
@@ -412,7 +414,7 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 			_headers.remove(name);
 		}
 		else {
-			_headers.put(name, new Long[] {new Long(date)});
+			_headers.put(name, new Long[] {Long.valueOf(date)});
 		}
 	}
 
@@ -440,7 +442,7 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 			_headers.remove(name);
 		}
 		else {
-			_headers.put(name, new Integer[] {new Integer(value)});
+			_headers.put(name, new Integer[] {Integer.valueOf(value)});
 		}
 	}
 
@@ -650,12 +652,13 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 						Class<?> portletURLClassObj = Class.forName(
 							portletURLClass);
 
-						constructor = (Constructor<? extends PortletURLImpl>)
-							portletURLClassObj.getConstructor(
-								new Class[] {
-									PortletResponseImpl.class, long.class,
-									String.class
-								});
+						constructor =
+							(Constructor<? extends PortletURLImpl>)
+								portletURLClassObj.getConstructor(
+									new Class[] {
+										PortletResponseImpl.class, long.class,
+										String.class
+									});
 
 						_constructors.put(portletURLClass, constructor);
 					}

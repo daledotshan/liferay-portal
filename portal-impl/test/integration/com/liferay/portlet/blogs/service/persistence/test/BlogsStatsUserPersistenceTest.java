@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.blogs.service.persistence.test;
 
+import com.liferay.blogs.kernel.exception.NoSuchStatsUserException;
+import com.liferay.blogs.kernel.model.BlogsStatsUser;
+import com.liferay.blogs.kernel.service.BlogsStatsUserLocalServiceUtil;
+import com.liferay.blogs.kernel.service.persistence.BlogsStatsUserPersistence;
+import com.liferay.blogs.kernel.service.persistence.BlogsStatsUserUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -32,17 +38,11 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.blogs.NoSuchStatsUserException;
-import com.liferay.portlet.blogs.model.BlogsStatsUser;
-import com.liferay.portlet.blogs.service.BlogsStatsUserLocalServiceUtil;
-import com.liferay.portlet.blogs.service.persistence.BlogsStatsUserPersistence;
-import com.liferay.portlet.blogs.service.persistence.BlogsStatsUserUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,8 +59,9 @@ import java.util.Set;
  * @generated
  */
 public class BlogsStatsUserPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -159,79 +160,49 @@ public class BlogsStatsUserPersistenceTest {
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByG_U() {
-		try {
-			_persistence.countByG_U(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByG_U() throws Exception {
+		_persistence.countByG_U(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByG_U(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_NotE() {
-		try {
-			_persistence.countByG_NotE(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByG_NotE() throws Exception {
+		_persistence.countByG_NotE(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByG_NotE(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_NotE(0L, 0);
 	}
 
 	@Test
-	public void testCountByC_NotE() {
-		try {
-			_persistence.countByC_NotE(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByC_NotE() throws Exception {
+		_persistence.countByC_NotE(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_NotE(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_NotE(0L, 0);
 	}
 
 	@Test
-	public void testCountByU_L() {
-		try {
-			_persistence.countByU_L(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate());
+	public void testCountByU_L() throws Exception {
+		_persistence.countByU_L(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate());
 
-			_persistence.countByU_L(0L, RandomTestUtil.nextDate());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_L(0L, RandomTestUtil.nextDate());
 	}
 
 	@Test
@@ -243,28 +214,17 @@ public class BlogsStatsUserPersistenceTest {
 		Assert.assertEquals(existingBlogsStatsUser, newBlogsStatsUser);
 	}
 
-	@Test
+	@Test(expected = NoSuchStatsUserException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchStatsUserException");
-		}
-		catch (NoSuchStatsUserException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<BlogsStatsUser> getOrderByComparator() {
@@ -381,11 +341,9 @@ public class BlogsStatsUserPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = BlogsStatsUserLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<BlogsStatsUser>() {
 				@Override
-				public void performAction(Object object) {
-					BlogsStatsUser blogsStatsUser = (BlogsStatsUser)object;
-
+				public void performAction(BlogsStatsUser blogsStatsUser) {
 					Assert.assertNotNull(blogsStatsUser);
 
 					count.increment();
@@ -471,21 +429,17 @@ public class BlogsStatsUserPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		BlogsStatsUser newBlogsStatsUser = addBlogsStatsUser();
 
 		_persistence.clearCache();
 
 		BlogsStatsUser existingBlogsStatsUser = _persistence.findByPrimaryKey(newBlogsStatsUser.getPrimaryKey());
 
-		Assert.assertEquals(existingBlogsStatsUser.getGroupId(),
-			ReflectionTestUtil.invoke(existingBlogsStatsUser,
+		Assert.assertEquals(Long.valueOf(existingBlogsStatsUser.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingBlogsStatsUser,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingBlogsStatsUser.getUserId(),
-			ReflectionTestUtil.invoke(existingBlogsStatsUser,
+		Assert.assertEquals(Long.valueOf(existingBlogsStatsUser.getUserId()),
+			ReflectionTestUtil.<Long>invoke(existingBlogsStatsUser,
 				"getOriginalUserId", new Class<?>[0]));
 	}
 

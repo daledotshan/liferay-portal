@@ -14,13 +14,13 @@
 
 package com.liferay.portal.kernel.workflow;
 
+import com.liferay.asset.kernel.model.AssetRenderer;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
-import com.liferay.portal.model.WorkflowDefinitionLink;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.asset.model.AssetRenderer;
-import com.liferay.portlet.asset.model.AssetRendererFactory;
+import com.liferay.portal.kernel.service.ServiceContext;
 
 import java.io.Serializable;
 
@@ -30,8 +30,9 @@ import java.util.Map;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Bruno Farache
@@ -41,14 +42,19 @@ import javax.portlet.RenderResponse;
  */
 public interface WorkflowHandler<T> {
 
-	public AssetRenderer getAssetRenderer(long classPK) throws PortalException;
+	public AssetRenderer<T> getAssetRenderer(long classPK)
+		throws PortalException;
 
-	public AssetRendererFactory getAssetRendererFactory();
+	public AssetRendererFactory<T> getAssetRendererFactory();
 
 	public String getClassName();
 
 	public String getIconCssClass();
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public String getIconPath(LiferayPortletRequest liferayPortletRequest);
 
 	/**
@@ -87,15 +93,15 @@ public interface WorkflowHandler<T> {
 			long companyId, long groupId, long classPK)
 		throws PortalException;
 
+	public boolean include(
+		long classPK, HttpServletRequest request, HttpServletResponse response,
+		String template);
+
 	public boolean isAssetTypeSearchable();
 
 	public boolean isScopeable();
 
 	public boolean isVisible();
-
-	public String render(
-		long classPK, RenderRequest renderRequest,
-		RenderResponse renderResponse, String template);
 
 	public void startWorkflowInstance(
 			long companyId, long groupId, long userId, long classPK, T model,

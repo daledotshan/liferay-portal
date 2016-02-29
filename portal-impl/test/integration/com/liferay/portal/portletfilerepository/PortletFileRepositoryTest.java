@@ -14,7 +14,15 @@
 
 package com.liferay.portal.portletfilerepository;
 
+import com.liferay.document.library.kernel.exception.DuplicateFileEntryException;
+import com.liferay.document.library.kernel.exception.NoSuchFolderException;
+import com.liferay.document.library.kernel.model.DLFileEntryConstants;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
+import com.liferay.portal.kernel.repository.capabilities.WorkflowCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -25,22 +33,14 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.User;
+import com.liferay.portal.test.randomizerbumpers.TikaSafeRandomizerBumper;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portlet.documentlibrary.DuplicateFileException;
-import com.liferay.portlet.documentlibrary.NoSuchFolderException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-
-import org.testng.Assert;
 
 /**
  * @author Adolfo Pérez
@@ -50,8 +50,7 @@ public class PortletFileRepositoryTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -73,13 +72,15 @@ public class PortletFileRepositoryTest {
 		FileEntry fileEntry = _addPortletFileEntry(
 			RandomTestUtil.randomString());
 
-		DLFileEntry dlFileEntry = (DLFileEntry)fileEntry.getModel();
+		WorkflowCapability workflowCapability =
+			fileEntry.getRepositoryCapability(WorkflowCapability.class);
 
 		Assert.assertEquals(
-			WorkflowConstants.STATUS_APPROVED, dlFileEntry.getStatus());
+			WorkflowConstants.STATUS_APPROVED,
+			workflowCapability.getStatus(fileEntry));
 	}
 
-	@Test(expected = DuplicateFileException.class)
+	@Test(expected = DuplicateFileEntryException.class)
 	public void testFileEntryAddShouldFailIfDuplicateName() throws Exception {
 		String name = RandomTestUtil.randomString();
 
@@ -93,7 +94,7 @@ public class PortletFileRepositoryTest {
 			RandomTestUtil.randomString());
 
 		Assert.assertEquals(
-			fileEntry.getVersion(), DLFileEntryConstants.VERSION_DEFAULT);
+			DLFileEntryConstants.VERSION_DEFAULT, fileEntry.getVersion());
 	}
 
 	@Test
@@ -104,7 +105,7 @@ public class PortletFileRepositoryTest {
 		int count = PortletFileRepositoryUtil.getPortletFileEntriesCount(
 			_group.getGroupId(), _folder.getFolderId());
 
-		Assert.assertEquals(count, 2);
+		Assert.assertEquals(2, count);
 	}
 
 	@Test
@@ -114,7 +115,7 @@ public class PortletFileRepositoryTest {
 		int count = PortletFileRepositoryUtil.getPortletFileEntriesCount(
 			_group.getGroupId(), _folder.getFolderId());
 
-		Assert.assertEquals(count, 1);
+		Assert.assertEquals(1, count);
 	}
 
 	@Test
@@ -218,8 +219,9 @@ public class PortletFileRepositoryTest {
 		return PortletFileRepositoryUtil.addPortletFileEntry(
 			_group.getGroupId(), TestPropsValues.getUserId(),
 			User.class.getName(), TestPropsValues.getUserId(), _portletId,
-			_folder.getFolderId(), RandomTestUtil.randomInputStream(), name,
-			ContentTypes.APPLICATION_OCTET_STREAM, false);
+			_folder.getFolderId(),
+			RandomTestUtil.randomInputStream(TikaSafeRandomizerBumper.INSTANCE),
+			name, ContentTypes.APPLICATION_OCTET_STREAM, false);
 	}
 
 	private Folder _addPortletFolder(String name) throws PortalException {

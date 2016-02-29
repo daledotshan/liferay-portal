@@ -40,10 +40,12 @@ boolean auiImage = GetterUtil.getBoolean((String)request.getAttribute("liferay-u
 String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:icon:cssClass"));
 Map<String, Object> data = (Map<String, Object>)request.getAttribute("liferay-ui:icon:data");
 String details = GetterUtil.getString((String)request.getAttribute("liferay-ui:icon:details"));
+String icon = (String)request.getAttribute("liferay-ui:icon:icon");
 String iconCssClass = (String)request.getAttribute("liferay-ui:icon:iconCssClass");
 String id = (String)request.getAttribute("liferay-ui:icon:id");
 String image = (String)request.getAttribute("liferay-ui:icon:image");
 boolean forcePost = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:icon:forcePost"));
+String markupView = (String)request.getAttribute("liferay-ui:icon:markupView");
 String message = (String)request.getAttribute("liferay-ui:icon:message");
 boolean label = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:icon:label"));
 String lang = GetterUtil.getString((String)request.getAttribute("liferay-ui:icon:lang"));
@@ -55,6 +57,16 @@ String srcHover = (String)request.getAttribute("liferay-ui:icon:srcHover");
 String target = GetterUtil.getString((String)request.getAttribute("liferay-ui:icon:target"));
 String url = GetterUtil.getString((String)request.getAttribute("liferay-ui:icon:url"));
 boolean useDialog = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:icon:useDialog"));
+
+if (forcePost || useDialog) {
+	if (data == null) {
+		data = new HashMap<String, Object>();
+	}
+
+	data.put("senna-off", "true");
+}
+
+linkCssClass += " lfr-icon-item";
 %>
 
 <%!

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.template;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -25,6 +26,10 @@ import javax.servlet.http.HttpServletResponse;
  * @author Raymond Augé
  */
 public interface TemplateManager {
+
+	public void addContextObjects(
+		Map<String, Object> contextObjects,
+		Map<String, Object> newContextObjects);
 
 	public void addStaticClassSupport(
 		Map<String, Object> contextObjects, String variableName,
@@ -42,6 +47,10 @@ public interface TemplateManager {
 		Map<String, Object> contextObjects, String applicationName,
 		HttpServletRequest request, HttpServletResponse response);
 
+	public void addTaglibSupport(
+		Map<String, Object> contextObjects, HttpServletRequest request,
+		HttpServletResponse response);
+
 	public void addTaglibTheme(
 		Map<String, Object> contextObjects, String string,
 		HttpServletRequest request, HttpServletResponse response);
@@ -53,6 +62,13 @@ public interface TemplateManager {
 	public String getName();
 
 	public String[] getRestrictedVariables();
+
+	public Template getTemplate(
+		List<TemplateResource> templateResources, boolean restricted);
+
+	public Template getTemplate(
+		List<TemplateResource> templateResources,
+		TemplateResource errorTemplateResource, boolean restricted);
 
 	public Template getTemplate(
 		TemplateResource templateResource, boolean restricted);

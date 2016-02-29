@@ -14,12 +14,14 @@
 
 package com.liferay.portal.kernel.search;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +33,7 @@ public class DefaultSearchResultPermissionFilter
 	extends BaseSearchResultPermissionFilter {
 
 	public DefaultSearchResultPermissionFilter(
-		BaseIndexer baseIndexer, PermissionChecker permissionChecker) {
+		BaseIndexer<?> baseIndexer, PermissionChecker permissionChecker) {
 
 		_baseIndexer = baseIndexer;
 		_permissionChecker = permissionChecker;
@@ -40,43 +42,26 @@ public class DefaultSearchResultPermissionFilter
 	@Override
 	protected void filterHits(Hits hits, SearchContext searchContext) {
 		List<Document> docs = new ArrayList<>();
+		int excludeDocsSize = 0;
 		List<Float> scores = new ArrayList<>();
 
-		Document[] documents = hits.getDocs();
-
-		int excludeDocsSize = 0;
-
+		boolean companyAdmin = _permissionChecker.isCompanyAdmin(
+			_permissionChecker.getCompanyId());
 		int status = GetterUtil.getInteger(
 			searchContext.getAttribute(Field.STATUS),
 			WorkflowConstants.STATUS_APPROVED);
 
+		Document[] documents = hits.getDocs();
+
 		for (int i = 0; i < documents.length; i++) {
-			Document document = documents[i];
+			if (_isIncludeDocument(
+					documents[i], _permissionChecker.getCompanyId(),
+					companyAdmin, status)) {
 
-			String entryClassName = document.get(Field.ENTRY_CLASS_NAME);
-
-			Indexer indexer = IndexerRegistryUtil.getIndexer(entryClassName);
-
-			long entryClassPK = GetterUtil.getLong(
-				document.get(Field.ENTRY_CLASS_PK));
-
-			try {
-				if ((indexer == null) || (indexer.isFilterSearch() &&
-					 indexer.hasPermission(
-						 _permissionChecker, entryClassName, entryClassPK,
-						 ActionKeys.VIEW) &&
-					 indexer.isVisibleRelatedEntry(entryClassPK, status)) ||
-					!indexer.isFilterSearch() ||
-					!indexer.isPermissionAware()) {
-
-					docs.add(document);
-					scores.add(hits.score(i));
-				}
-				else {
-					excludeDocsSize++;
-				}
+				docs.add(documents[i]);
+				scores.add(hits.score(i));
 			}
-			catch (Exception e) {
+			else {
 				excludeDocsSize++;
 			}
 		}
@@ -94,7 +79,74 @@ public class DefaultSearchResultPermissionFilter
 		return _baseIndexer.doSearch(searchContext);
 	}
 
-	private final BaseIndexer _baseIndexer;
+	@Override
+	protected boolean isGroupAdmin(SearchContext searchContext) {
+		long[] groupIds = searchContext.getGroupIds();
+
+		if (groupIds == null) {
+			return false;
+		}
+
+		for (long groupId : groupIds) {
+			if (!_permissionChecker.isGroupAdmin(groupId)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private boolean _isIncludeDocument(
+		Document document, long companyId, boolean companyAdmin, int status) {
+
+		long entryCompanyId = GetterUtil.getLong(
+			document.get(Field.COMPANY_ID));
+
+		if (entryCompanyId != companyId) {
+			return false;
+		}
+
+		if (companyAdmin) {
+			return true;
+		}
+
+		String entryClassName = document.get(Field.ENTRY_CLASS_NAME);
+
+		Indexer<?> indexer = IndexerRegistryUtil.getIndexer(entryClassName);
+
+		if (indexer == null) {
+			return true;
+		}
+
+		if (!indexer.isFilterSearch()) {
+			return true;
+		}
+
+		long entryClassPK = GetterUtil.getLong(
+			document.get(Field.ENTRY_CLASS_PK));
+
+		try {
+			if (indexer.hasPermission(
+					_permissionChecker, entryClassName, entryClassPK,
+					ActionKeys.VIEW) &&
+				indexer.isVisibleRelatedEntry(entryClassPK, status)) {
+
+				return true;
+			}
+		}
+		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
+		}
+
+		return false;
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DefaultSearchResultPermissionFilter.class);
+
+	private final BaseIndexer<?> _baseIndexer;
 	private final PermissionChecker _permissionChecker;
 
 }

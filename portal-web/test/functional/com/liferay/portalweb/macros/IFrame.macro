@@ -1,0 +1,30 @@
+<definition>
+	<command name="addCP">
+		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION" />
+		<execute function="Type" locator1="TextInput#SOURCE_URL" value1="${sourceURL}" />
+		<execute macro="Button#clickSave" />
+		<execute macro="Alert#viewSuccessMessage" />
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
+	<command name="closeFrame">
+		<execute function="SelectFrame" value1="relative=top" />
+
+		<execute function="Click" locator1="Icon#CLOSE" />
+	</command>
+
+	<command name="saveConfiguration">
+		<execute macro="Button#clickSave" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+
+	<command name="selectConfigurationFrame">
+		<execute function="SelectFrame" locator1="Configuration#CONFIGURATION_IFRAME" />
+	</command>
+
+	<command name="selectTopFrame">
+		<execute function="SelectFrame" value1="relative=top" />
+	</command>
+</definition>

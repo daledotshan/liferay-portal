@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryPersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -33,17 +39,11 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryPersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,8 +60,9 @@ import java.util.Set;
  * @generated
  */
 public class DLFileEntryPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -174,6 +175,8 @@ public class DLFileEntryPersistenceTest {
 
 		newDLFileEntry.setManualCheckInRequired(RandomTestUtil.randomBoolean());
 
+		newDLFileEntry.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_dlFileEntries.add(_persistence.update(newDLFileEntry));
 
 		DLFileEntry existingDLFileEntry = _persistence.findByPrimaryKey(newDLFileEntry.getPrimaryKey());
@@ -238,271 +241,172 @@ public class DLFileEntryPersistenceTest {
 			newDLFileEntry.getCustom2ImageId());
 		Assert.assertEquals(existingDLFileEntry.getManualCheckInRequired(),
 			newDLFileEntry.getManualCheckInRequired());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingDLFileEntry.getLastPublishDate()),
+			Time.getShortTimestamp(newDLFileEntry.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByRepositoryId() {
-		try {
-			_persistence.countByRepositoryId(RandomTestUtil.nextLong());
+	public void testCountByRepositoryId() throws Exception {
+		_persistence.countByRepositoryId(RandomTestUtil.nextLong());
 
-			_persistence.countByRepositoryId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRepositoryId(0L);
 	}
 
 	@Test
-	public void testCountByMimeType() {
-		try {
-			_persistence.countByMimeType(StringPool.BLANK);
+	public void testCountByMimeType() throws Exception {
+		_persistence.countByMimeType(StringPool.BLANK);
 
-			_persistence.countByMimeType(StringPool.NULL);
+		_persistence.countByMimeType(StringPool.NULL);
 
-			_persistence.countByMimeType((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByMimeType((String)null);
 	}
 
 	@Test
-	public void testCountByFileEntryTypeId() {
-		try {
-			_persistence.countByFileEntryTypeId(RandomTestUtil.nextLong());
+	public void testCountByFileEntryTypeId() throws Exception {
+		_persistence.countByFileEntryTypeId(RandomTestUtil.nextLong());
 
-			_persistence.countByFileEntryTypeId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByFileEntryTypeId(0L);
 	}
 
 	@Test
-	public void testCountByG_U() {
-		try {
-			_persistence.countByG_U(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByG_U() throws Exception {
+		_persistence.countByG_U(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByG_U(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_F() {
-		try {
-			_persistence.countByG_F(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByG_F() throws Exception {
+		_persistence.countByG_F(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByG_F(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_FArrayable() {
-		try {
-			_persistence.countByG_F(RandomTestUtil.nextLong(),
-				new long[] { RandomTestUtil.nextLong(), 0L });
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByG_FArrayable() throws Exception {
+		_persistence.countByG_F(RandomTestUtil.nextLong(),
+			new long[] { RandomTestUtil.nextLong(), 0L });
 	}
 
 	@Test
-	public void testCountByR_F() {
-		try {
-			_persistence.countByR_F(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByR_F() throws Exception {
+		_persistence.countByR_F(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByR_F(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByR_F(0L, 0L);
 	}
 
 	@Test
-	public void testCountByF_N() {
-		try {
-			_persistence.countByF_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByF_N() throws Exception {
+		_persistence.countByF_N(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByF_N(0L, StringPool.NULL);
+		_persistence.countByF_N(0L, StringPool.NULL);
 
-			_persistence.countByF_N(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByF_N(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByG_U_F() {
-		try {
-			_persistence.countByG_U_F(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByG_U_F() throws Exception {
+		_persistence.countByG_U_F(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByG_U_F(0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U_F(0L, 0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_U_FArrayable() {
-		try {
-			_persistence.countByG_U_F(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(),
-				new long[] { RandomTestUtil.nextLong(), 0L });
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByG_U_FArrayable() throws Exception {
+		_persistence.countByG_U_F(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(),
+			new long[] { RandomTestUtil.nextLong(), 0L });
 	}
 
 	@Test
-	public void testCountByG_F_N() {
-		try {
-			_persistence.countByG_F_N(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByG_F_N() throws Exception {
+		_persistence.countByG_F_N(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByG_F_N(0L, 0L, StringPool.NULL);
+		_persistence.countByG_F_N(0L, 0L, StringPool.NULL);
 
-			_persistence.countByG_F_N(0L, 0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F_N(0L, 0L, (String)null);
 	}
 
 	@Test
-	public void testCountByG_F_FN() {
-		try {
-			_persistence.countByG_F_FN(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByG_F_FN() throws Exception {
+		_persistence.countByG_F_FN(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByG_F_FN(0L, 0L, StringPool.NULL);
+		_persistence.countByG_F_FN(0L, 0L, StringPool.NULL);
 
-			_persistence.countByG_F_FN(0L, 0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F_FN(0L, 0L, (String)null);
 	}
 
 	@Test
-	public void testCountByG_F_T() {
-		try {
-			_persistence.countByG_F_T(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByG_F_T() throws Exception {
+		_persistence.countByG_F_T(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByG_F_T(0L, 0L, StringPool.NULL);
+		_persistence.countByG_F_T(0L, 0L, StringPool.NULL);
 
-			_persistence.countByG_F_T(0L, 0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F_T(0L, 0L, (String)null);
 	}
 
 	@Test
-	public void testCountByG_F_F() {
-		try {
-			_persistence.countByG_F_F(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByG_F_F() throws Exception {
+		_persistence.countByG_F_F(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByG_F_F(0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F_F(0L, 0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_F_FArrayable() {
-		try {
-			_persistence.countByG_F_F(RandomTestUtil.nextLong(),
-				new long[] { RandomTestUtil.nextLong(), 0L },
-				RandomTestUtil.nextLong());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByG_F_FArrayable() throws Exception {
+		_persistence.countByG_F_F(RandomTestUtil.nextLong(),
+			new long[] { RandomTestUtil.nextLong(), 0L },
+			RandomTestUtil.nextLong());
 	}
 
 	@Test
@@ -514,39 +418,23 @@ public class DLFileEntryPersistenceTest {
 		Assert.assertEquals(existingDLFileEntry, newDLFileEntry);
 	}
 
-	@Test
+	@Test(expected = NoSuchFileEntryException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchFileEntryException");
-		}
-		catch (NoSuchFileEntryException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	@Test
 	public void testFilterFindByGroupId() throws Exception {
-		try {
-			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, getOrderByComparator());
 	}
 
 	protected OrderByComparator<DLFileEntry> getOrderByComparator() {
@@ -556,10 +444,10 @@ public class DLFileEntryPersistenceTest {
 			"classNameId", true, "classPK", true, "repositoryId", true,
 			"folderId", true, "treePath", true, "name", true, "fileName", true,
 			"extension", true, "mimeType", true, "title", true, "description",
-			true, "extraSettings", true, "fileEntryTypeId", true, "version",
-			true, "size", true, "readCount", true, "smallImageId", true,
-			"largeImageId", true, "custom1ImageId", true, "custom2ImageId",
-			true, "manualCheckInRequired", true);
+			true, "fileEntryTypeId", true, "version", true, "size", true,
+			"readCount", true, "smallImageId", true, "largeImageId", true,
+			"custom1ImageId", true, "custom2ImageId", true,
+			"manualCheckInRequired", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -668,11 +556,9 @@ public class DLFileEntryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileEntry>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileEntry dlFileEntry = (DLFileEntry)object;
-
+				public void performAction(DLFileEntry dlFileEntry) {
 					Assert.assertNotNull(dlFileEntry);
 
 					count.increment();
@@ -758,10 +644,6 @@ public class DLFileEntryPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		DLFileEntry newDLFileEntry = addDLFileEntry();
 
 		_persistence.clearCache();
@@ -771,35 +653,35 @@ public class DLFileEntryPersistenceTest {
 		Assert.assertTrue(Validator.equals(existingDLFileEntry.getUuid(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
 					"getOriginalUuid", new Class<?>[0])));
-		Assert.assertEquals(existingDLFileEntry.getGroupId(),
-			ReflectionTestUtil.invoke(existingDLFileEntry,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalGroupId", new Class<?>[0]));
 
-		Assert.assertEquals(existingDLFileEntry.getGroupId(),
-			ReflectionTestUtil.invoke(existingDLFileEntry,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingDLFileEntry.getFolderId(),
-			ReflectionTestUtil.invoke(existingDLFileEntry,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getFolderId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalFolderId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingDLFileEntry.getName(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
 					"getOriginalName", new Class<?>[0])));
 
-		Assert.assertEquals(existingDLFileEntry.getGroupId(),
-			ReflectionTestUtil.invoke(existingDLFileEntry,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingDLFileEntry.getFolderId(),
-			ReflectionTestUtil.invoke(existingDLFileEntry,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getFolderId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalFolderId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingDLFileEntry.getFileName(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
 					"getOriginalFileName", new Class<?>[0])));
 
-		Assert.assertEquals(existingDLFileEntry.getGroupId(),
-			ReflectionTestUtil.invoke(existingDLFileEntry,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingDLFileEntry.getFolderId(),
-			ReflectionTestUtil.invoke(existingDLFileEntry,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntry.getFolderId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntry,
 				"getOriginalFolderId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingDLFileEntry.getTitle(),
 				ReflectionTestUtil.invoke(existingDLFileEntry,
@@ -866,6 +748,8 @@ public class DLFileEntryPersistenceTest {
 		dlFileEntry.setCustom2ImageId(RandomTestUtil.nextLong());
 
 		dlFileEntry.setManualCheckInRequired(RandomTestUtil.randomBoolean());
+
+		dlFileEntry.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_dlFileEntries.add(_persistence.update(dlFileEntry));
 

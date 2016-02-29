@@ -39,6 +39,7 @@ public class UpgradeProcess_6_0_3 extends UpgradeProcess {
 	@Override
 	protected void doUpgrade() throws Exception {
 		upgrade(UpgradeSchema.class);
+
 		upgrade(UpgradeAsset.class);
 		upgrade(UpgradeAssetPublisher.class);
 		upgrade(UpgradeDocumentLibrary.class);
@@ -47,6 +48,8 @@ public class UpgradeProcess_6_0_3 extends UpgradeProcess {
 		upgrade(UpgradePermission.class);
 		upgrade(UpgradeScopes.class);
 		upgrade(UpgradeSitemap.class);
+
+		clearIndexesCache();
 	}
 
 }

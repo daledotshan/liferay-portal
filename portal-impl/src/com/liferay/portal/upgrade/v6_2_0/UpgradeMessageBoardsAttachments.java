@@ -14,13 +14,11 @@
 
 package com.liferay.portal.upgrade.v6_2_0;
 
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.message.boards.kernel.model.MBMessage;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.upgrade.v6_2_0.BaseUpgradeAttachments;
-import com.liferay.portal.util.PortletKeys;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.messageboards.model.MBMessage;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -68,19 +66,16 @@ public class UpgradeMessageBoardsAttachments extends BaseUpgradeAttachments {
 
 	@Override
 	protected String getPortletId() {
-		return PortletKeys.MESSAGE_BOARDS;
+		return "19";
 	}
 
 	@Override
 	protected void updateAttachments() throws Exception {
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select messageId, groupId, companyId, userId, userName, " +
 					"threadId from MBMessage where classNameId = 0 and " +
 						"classPK = 0");
@@ -100,7 +95,7 @@ public class UpgradeMessageBoardsAttachments extends BaseUpgradeAttachments {
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 

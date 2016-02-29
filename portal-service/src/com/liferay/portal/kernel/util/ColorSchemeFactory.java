@@ -14,7 +14,7 @@
 
 package com.liferay.portal.kernel.util;
 
-import com.liferay.portal.model.ColorScheme;
+import com.liferay.portal.kernel.model.ColorScheme;
 
 /**
  * @author Vilmos Papp
@@ -31,9 +31,5 @@ public interface ColorSchemeFactory {
 	public ColorScheme getDefaultRegularColorScheme();
 
 	public String getDefaultRegularColorSchemeId();
-
-	public ColorScheme getDefaultWapColorScheme();
-
-	public String getDefaultWapColorSchemeId();
 
 }

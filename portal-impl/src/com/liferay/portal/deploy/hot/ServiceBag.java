@@ -15,8 +15,8 @@
 package com.liferay.portal.deploy.hot;
 
 import com.liferay.portal.kernel.bean.ClassLoaderBeanHandler;
+import com.liferay.portal.kernel.service.ServiceWrapper;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.service.ServiceWrapper;
 
 import java.lang.reflect.InvocationHandler;
 
@@ -45,8 +45,8 @@ public class ServiceBag<V> {
 
 			previousService = ProxyUtil.newProxyInstance(
 				previousServiceClassLoader, new Class<?>[] {serviceTypeClass},
-					new ClassLoaderBeanHandler(
-						previousService, previousServiceClassLoader));
+				new ClassLoaderBeanHandler(
+					previousService, previousServiceClassLoader));
 
 			serviceWrapper.setWrappedService((V)previousService);
 		}

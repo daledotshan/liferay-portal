@@ -46,8 +46,7 @@ public class ASMUtil {
 		int sort = returnType.getSort();
 
 		if ((sort == Type.BOOLEAN) || (sort == Type.CHAR) ||
-			(sort == Type.BYTE) || (sort == Type.INT) ||
-			(sort == Type.SHORT)) {
+			(sort == Type.BYTE) || (sort == Type.INT) || (sort == Type.SHORT)) {
 
 			methodVisitor.visitInsn(Opcodes.ICONST_0);
 			methodVisitor.visitInsn(Opcodes.IRETURN);
@@ -143,16 +142,14 @@ public class ASMUtil {
 		ClassNode classNode = new ClassNode();
 
 		ClassVisitor classVisitor = new RemappingClassAdapter(
-			classNode,
-			new RenameClassRemapper(name, newName)) {
+			classNode, new RenameClassRemapper(name, newName)) {
 
-				@Override
-				public void visitInnerClass(
-					String name, String outerName, String innerName,
-					int access) {
-				}
+			@Override
+			public void visitInnerClass(
+				String name, String outerName, String innerName, int access) {
+			}
 
-			};
+		};
 
 		classReader.accept(
 			classVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
@@ -171,24 +168,24 @@ public class ASMUtil {
 				Opcodes.ASM5, methodNode, headMethodNode.access,
 				headMethodNode.name, headMethodNode.desc) {
 
-					@Override
-					protected void onMethodExit(int opcode) {
-						mv = _emptyMethodVisitor;
-					}
+				@Override
+				protected void onMethodExit(int opcode) {
+					mv = _emptyMethodVisitor;
+				}
 
-				});
+			});
 
 		tailMethodNode.accept(
 			new AdviceAdapter(
 				Opcodes.ASM5, _emptyMethodVisitor, tailMethodNode.access,
 				tailMethodNode.name, tailMethodNode.desc) {
 
-					@Override
-					protected void onMethodEnter() {
-						mv = methodNode;
-					}
+				@Override
+				protected void onMethodEnter() {
+					mv = methodNode;
+				}
 
-				});
+			});
 
 		containerMethodNode.instructions = methodNode.instructions;
 	}

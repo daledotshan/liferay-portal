@@ -14,12 +14,13 @@
 
 package com.liferay.taglib.ui;
 
+import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.DeterminateKeyGenerator;
+import com.liferay.portal.kernel.util.SessionClicks;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.SessionClicks;
 import com.liferay.taglib.servlet.PipingServletResponse;
 import com.liferay.taglib.util.IncludeTag;
 
@@ -116,7 +117,8 @@ public class ToggleTag extends IncludeTag {
 			"liferay-ui:toggle:defaultMessage", defaultMessage);
 
 		RequestDispatcher requestDispatcher =
-			servletContext.getRequestDispatcher(page);
+			DirectRequestDispatcherFactoryUtil.getRequestDispatcher(
+				servletContext, page);
 
 		requestDispatcher.include(request, response);
 	}

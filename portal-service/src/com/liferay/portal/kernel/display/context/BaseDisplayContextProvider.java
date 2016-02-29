@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
- * @author Iv·n Zaera
+ * @author Iv√°n Zaera
  */
 public class BaseDisplayContextProvider<T extends DisplayContextFactory>
 	implements DisplayContextProvider {
@@ -45,6 +45,10 @@ public class BaseDisplayContextProvider<T extends DisplayContextFactory>
 		_serviceTracker.open();
 	}
 
+	public void destroy() {
+		_serviceTracker.close();
+	}
+
 	public Iterable<T> getDisplayContextFactories() {
 		return new DisplayContextFactoriesIterable<>(
 			_displayContextFactoryReferences);
@@ -57,8 +61,8 @@ public class BaseDisplayContextProvider<T extends DisplayContextFactory>
 	private final ServiceTracker<T, T> _serviceTracker;
 
 	private static class DisplayContextFactoriesIterable
-			<T extends DisplayContextFactory>
-		implements Iterable<T>, Iterator<T> {
+		<T extends DisplayContextFactory>
+			implements Iterable<T>, Iterator<T> {
 
 		public DisplayContextFactoriesIterable(
 			Iterable<DisplayContextFactoryReference<T>> iterable) {

@@ -19,6 +19,9 @@ import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.taglib.FileAvailabilityUtil;
+import com.liferay.taglib.util.TagResourceBundleUtil;
+
+import java.util.ResourceBundle;
 
 /**
  * @author Brian Wing Shun Chan
@@ -48,16 +51,20 @@ public class IconDeactivateTag extends IconTag {
 		StringBundler sb = new StringBundler(5);
 
 		sb.append("javascript:if (confirm('");
+
+		ResourceBundle resourceBundle = TagResourceBundleUtil.getResourceBundle(
+			pageContext);
+
 		sb.append(
 			UnicodeLanguageUtil.get(
-				request, "are-you-sure-you-want-to-deactivate-this"));
+				resourceBundle, "are-you-sure-you-want-to-deactivate-this"));
+
 		sb.append("')) { ");
 		sb.append(url);
 		sb.append(" } else { self.focus(); }");
 
 		url = sb.toString();
 
-		setIconCssClass("icon-ban-circle");
 		setMessage("deactivate");
 		setUrl(url);
 

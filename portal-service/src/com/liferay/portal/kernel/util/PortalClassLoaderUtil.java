@@ -30,14 +30,34 @@ public class PortalClassLoaderUtil {
 		return _classLoader;
 	}
 
+	public static boolean isPortalClassLoader(ClassLoader classLoader) {
+		if ((classLoader == _classLoader) ||
+			(classLoader == _classLoader.getParent())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public static void setClassLoader(ClassLoader classLoader) {
 		PortalRuntimePermission.checkSetBeanProperty(
 			PortalClassLoaderUtil.class);
 
-		if (ServerDetector.isJOnAS() && JavaDetector.isJDK6()) {
+		if (classLoader == null) {
+			_classLoader = null;
+
+			return;
+		}
+
+		Class<?> clazz = classLoader.getClass();
+
+		try {
+			clazz.getMethod("destroy");
+
 			_classLoader = new URLClassLoader(new URL[0], classLoader);
 		}
-		else {
+		catch (NoSuchMethodException nsme) {
 			_classLoader = classLoader;
 		}
 	}

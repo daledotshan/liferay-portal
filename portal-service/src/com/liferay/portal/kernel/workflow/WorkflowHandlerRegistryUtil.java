@@ -19,14 +19,14 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
+import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
+import com.liferay.portal.kernel.model.WorkflowInstanceLink;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.WorkflowInstanceLinkLocalServiceUtil;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.model.WorkflowDefinitionLink;
-import com.liferay.portal.model.WorkflowInstanceLink;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.WorkflowInstanceLinkLocalServiceUtil;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
@@ -34,6 +34,7 @@ import com.liferay.registry.ServiceRegistration;
 import com.liferay.registry.ServiceTracker;
 import com.liferay.registry.ServiceTrackerCustomizer;
 import com.liferay.registry.collections.ServiceRegistrationMap;
+import com.liferay.registry.collections.ServiceRegistrationMapImpl;
 
 import java.io.Serializable;
 
@@ -174,7 +175,7 @@ public class WorkflowHandlerRegistryUtil {
 			final Map<String, Serializable> tempWorkflowContext =
 				workflowContext;
 
-			TransactionCommitCallbackRegistryUtil.registerCallback(
+			TransactionCommitCallbackUtil.registerCallback(
 				new Callable<Void>() {
 
 					@Override
@@ -321,7 +322,7 @@ public class WorkflowHandlerRegistryUtil {
 	private final Map<String, WorkflowHandler<?>> _scopeableWorkflowHandlerMap =
 		new ConcurrentSkipListMap<>();
 	private final ServiceRegistrationMap<WorkflowHandler<?>>
-		_serviceRegistrations = new ServiceRegistrationMap<>();
+		_serviceRegistrations = new ServiceRegistrationMapImpl<>();
 	private final ServiceTracker<WorkflowHandler<?>, WorkflowHandler<?>>
 		_serviceTracker;
 	private final Map<String, WorkflowHandler<?>> _workflowHandlerMap =

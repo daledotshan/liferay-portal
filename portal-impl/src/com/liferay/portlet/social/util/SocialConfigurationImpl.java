@@ -25,13 +25,14 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.DocumentType;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.util.JavaFieldsParser;
-import com.liferay.portlet.social.model.SocialAchievement;
-import com.liferay.portlet.social.model.SocialActivityCounterConstants;
-import com.liferay.portlet.social.model.SocialActivityCounterDefinition;
-import com.liferay.portlet.social.model.SocialActivityDefinition;
-import com.liferay.portlet.social.model.SocialActivityProcessor;
+import com.liferay.social.kernel.model.SocialAchievement;
+import com.liferay.social.kernel.model.SocialActivityCounterConstants;
+import com.liferay.social.kernel.model.SocialActivityCounterDefinition;
+import com.liferay.social.kernel.model.SocialActivityDefinition;
+import com.liferay.social.kernel.model.SocialActivityProcessor;
+import com.liferay.social.kernel.util.SocialConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +84,7 @@ public class SocialConfigurationImpl implements SocialConfiguration {
 						((ownerType ==
 							SocialActivityCounterConstants.TYPE_ALL) ||
 						 (ownerType ==
-							activityCounterDefinition.getOwnerType()))) {
+							 activityCounterDefinition.getOwnerType()))) {
 
 						activityCounterNames.add(
 							activityCounterDefinition.getName());
@@ -166,7 +167,7 @@ public class SocialConfigurationImpl implements SocialConfiguration {
 
 		xml = JavaFieldsParser.parse(classLoader, xml);
 
-		Document document = SAXReaderUtil.read(xml);
+		Document document = UnsecureSAXReaderUtil.read(xml);
 
 		DocumentType documentType = document.getDocumentType();
 

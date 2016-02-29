@@ -18,23 +18,21 @@ import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.PermissionedModel;
+import com.liferay.portal.kernel.model.ResourceBlock;
+import com.liferay.portal.kernel.model.ResourceBlockPermissionsContainer;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceBlockLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.model.PermissionedModel;
-import com.liferay.portal.model.ResourceBlock;
-import com.liferay.portal.model.ResourceBlockPermissionsContainer;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.ResourcePermission;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
-import com.liferay.portal.service.ResourceActionLocalServiceUtil;
-import com.liferay.portal.service.ResourceBlockLocalServiceUtil;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
-import com.liferay.portal.service.RoleLocalServiceUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -73,14 +71,11 @@ public class UpgradePermission extends UpgradeProcess {
 			String name, String tableName, String pkColumnName)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select " + pkColumnName + ", groupId, companyId from " +
 					tableName);
 
@@ -102,7 +97,7 @@ public class UpgradePermission extends UpgradeProcess {
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 
 		List<ResourcePermission> resourcePermissions =
@@ -127,8 +122,8 @@ public class UpgradePermission extends UpgradeProcess {
 			else if (scope == ResourceConstants.SCOPE_GROUP) {
 				ResourceBlockLocalServiceUtil.setGroupScopePermissions(
 					resourcePermission.getCompanyId(),
-					GetterUtil.getLong(resourcePermission.getPrimaryKey()),
-					name, resourcePermission.getRoleId(),
+					GetterUtil.getLong(resourcePermission.getPrimKey()), name,
+					resourcePermission.getRoleId(),
 					resourcePermission.getActionIds());
 			}
 		}
@@ -140,10 +135,10 @@ public class UpgradePermission extends UpgradeProcess {
 		// LPS-46141
 
 		List<String> modelActions = ResourceActionsUtil.getModelResourceActions(
-			Role.class.getName());
+			"com.liferay.portal.model.Role");
 
 		ResourceActionLocalServiceUtil.checkResourceActions(
-			Role.class.getName(), modelActions);
+			"com.liferay.portal.model.Role", modelActions);
 
 		// LPS-14202 and LPS-17841
 
