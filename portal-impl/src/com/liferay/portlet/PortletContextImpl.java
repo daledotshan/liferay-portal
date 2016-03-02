@@ -16,12 +16,12 @@ package com.liferay.portlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.PortletApp;
 import com.liferay.portal.kernel.portlet.LiferayPortletContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.PortletApp;
 import com.liferay.portal.security.lang.DoPrivilegedUtil;
 
 import java.io.InputStream;
@@ -105,7 +105,12 @@ public class PortletContextImpl implements LiferayPortletContext {
 		try {
 			requestDispatcher = _servletContext.getNamedDispatcher(name);
 		}
-		catch (IllegalArgumentException iae) {
+		catch (Throwable t) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get request dispatcher for name " + name, t);
+			}
+
 			return null;
 		}
 
@@ -141,7 +146,12 @@ public class PortletContextImpl implements LiferayPortletContext {
 		try {
 			requestDispatcher = _servletContext.getRequestDispatcher(path);
 		}
-		catch (IllegalArgumentException iae) {
+		catch (Throwable t) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to get request dispatcher for path " + path, t);
+			}
+
 			return null;
 		}
 

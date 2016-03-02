@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchTeamException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchTeamException;
+import com.liferay.portal.kernel.model.Team;
+import com.liferay.portal.kernel.service.TeamLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.TeamPersistence;
+import com.liferay.portal.kernel.service.persistence.TeamUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -32,17 +36,13 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Team;
-import com.liferay.portal.service.TeamLocalServiceUtil;
-import com.liferay.portal.service.persistence.TeamPersistence;
-import com.liferay.portal.service.persistence.TeamUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,8 +59,9 @@ import java.util.Set;
  * @generated
  */
 public class TeamPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -119,6 +120,8 @@ public class TeamPersistenceTest {
 
 		newTeam.setMvccVersion(RandomTestUtil.nextLong());
 
+		newTeam.setUuid(RandomTestUtil.randomString());
+
 		newTeam.setCompanyId(RandomTestUtil.nextLong());
 
 		newTeam.setUserId(RandomTestUtil.nextLong());
@@ -135,12 +138,15 @@ public class TeamPersistenceTest {
 
 		newTeam.setDescription(RandomTestUtil.randomString());
 
+		newTeam.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_teams.add(_persistence.update(newTeam));
 
 		Team existingTeam = _persistence.findByPrimaryKey(newTeam.getPrimaryKey());
 
 		Assert.assertEquals(existingTeam.getMvccVersion(),
 			newTeam.getMvccVersion());
+		Assert.assertEquals(existingTeam.getUuid(), newTeam.getUuid());
 		Assert.assertEquals(existingTeam.getTeamId(), newTeam.getTeamId());
 		Assert.assertEquals(existingTeam.getCompanyId(), newTeam.getCompanyId());
 		Assert.assertEquals(existingTeam.getUserId(), newTeam.getUserId());
@@ -154,32 +160,52 @@ public class TeamPersistenceTest {
 		Assert.assertEquals(existingTeam.getName(), newTeam.getName());
 		Assert.assertEquals(existingTeam.getDescription(),
 			newTeam.getDescription());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingTeam.getLastPublishDate()),
+			Time.getShortTimestamp(newTeam.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid(StringPool.NULL);
+
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByG_N() {
-		try {
-			_persistence.countByG_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByG_N(0L, StringPool.NULL);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByG_N(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
+	}
+
+	@Test
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
+
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
+
+		_persistence.countByUuid_C((String)null, 0L);
+	}
+
+	@Test
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
+
+		_persistence.countByGroupId(0L);
+	}
+
+	@Test
+	public void testCountByG_N() throws Exception {
+		_persistence.countByG_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+
+		_persistence.countByG_N(0L, StringPool.NULL);
+
+		_persistence.countByG_N(0L, (String)null);
 	}
 
 	@Test
@@ -191,46 +217,31 @@ public class TeamPersistenceTest {
 		Assert.assertEquals(existingTeam, newTeam);
 	}
 
-	@Test
+	@Test(expected = NoSuchTeamException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchTeamException");
-		}
-		catch (NoSuchTeamException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	@Test
 	public void testFilterFindByGroupId() throws Exception {
-		try {
-			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, getOrderByComparator());
 	}
 
 	protected OrderByComparator<Team> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Team", "mvccVersion", true,
-			"teamId", true, "companyId", true, "userId", true, "userName",
-			true, "createDate", true, "modifiedDate", true, "groupId", true,
-			"name", true, "description", true);
+			"uuid", true, "teamId", true, "companyId", true, "userId", true,
+			"userName", true, "createDate", true, "modifiedDate", true,
+			"groupId", true, "name", true, "description", true,
+			"lastPublishDate", true);
 	}
 
 	@Test
@@ -335,11 +346,9 @@ public class TeamPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = TeamLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Team>() {
 				@Override
-				public void performAction(Object object) {
-					Team team = (Team)object;
-
+				public void performAction(Team team) {
 					Assert.assertNotNull(team);
 
 					count.increment();
@@ -425,18 +434,21 @@ public class TeamPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		Team newTeam = addTeam();
 
 		_persistence.clearCache();
 
 		Team existingTeam = _persistence.findByPrimaryKey(newTeam.getPrimaryKey());
 
-		Assert.assertEquals(existingTeam.getGroupId(),
-			ReflectionTestUtil.invoke(existingTeam, "getOriginalGroupId",
+		Assert.assertTrue(Validator.equals(existingTeam.getUuid(),
+				ReflectionTestUtil.invoke(existingTeam, "getOriginalUuid",
+					new Class<?>[0])));
+		Assert.assertEquals(Long.valueOf(existingTeam.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingTeam, "getOriginalGroupId",
+				new Class<?>[0]));
+
+		Assert.assertEquals(Long.valueOf(existingTeam.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingTeam, "getOriginalGroupId",
 				new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingTeam.getName(),
 				ReflectionTestUtil.invoke(existingTeam, "getOriginalName",
@@ -449,6 +461,8 @@ public class TeamPersistenceTest {
 		Team team = _persistence.create(pk);
 
 		team.setMvccVersion(RandomTestUtil.nextLong());
+
+		team.setUuid(RandomTestUtil.randomString());
 
 		team.setCompanyId(RandomTestUtil.nextLong());
 
@@ -465,6 +479,8 @@ public class TeamPersistenceTest {
 		team.setName(RandomTestUtil.randomString());
 
 		team.setDescription(RandomTestUtil.randomString());
+
+		team.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_teams.add(_persistence.update(team));
 

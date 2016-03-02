@@ -9,16 +9,6 @@
 </thead>
 <tbody>
 <tr>
-	<td>PAGE_NAME</td>
-	<td></td>
-	<td>BasePortletStaging</td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
 	<td>EXPORT_IMPORT_STAGING_IFRAME</td>
 	<td>//iframe[contains(@id,'configurationIframeDialog')]</td>
 	<td></td>
@@ -46,7 +36,7 @@
 </tr>
 <tr>
 	<td>STAGING_DATE_RANGE</td>
-	<td>//span[@id='_86_selectedRange']</td>
+	<td>//span[contains(@id,'selectedRange')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -56,7 +46,7 @@
 </tr>
 <tr>
 	<td>STAGING_CONTENT_INFO</td>
-	<td>//span[contains(@id,'_86_selectedContent')]</td>
+	<td>//span[contains(@id,'selectedContent')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -72,11 +62,6 @@
 <tr>
 	<td>STAGING_COPY_FROM_LIVE_BUTTON</td>
 	<td>//button[contains(.,'Copy from Live')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>STAGING_CONFIRMATION</td>
-	<td></td>
 	<td></td>
 </tr>
 </tbody>

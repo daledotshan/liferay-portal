@@ -19,31 +19,26 @@ import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.spring.aop.Skip;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.ReflectionUtil;
+import com.liferay.portal.kernel.model.Release;
+import com.liferay.portal.kernel.model.ReleaseConstants;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.ReleaseLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.Release;
-import com.liferay.portal.model.ReleaseConstants;
-import com.liferay.portal.service.ClassNameLocalServiceUtil;
-import com.liferay.portal.service.ReleaseLocalServiceUtil;
-import com.liferay.portal.service.ResourceActionLocalServiceUtil;
-import com.liferay.portal.spring.aop.ServiceBeanAopCacheManager;
-import com.liferay.portal.spring.aop.ServiceBeanAopCacheManagerUtil;
+import com.liferay.portal.transaction.TransactionsUtil;
 import com.liferay.portal.util.InitUtil;
-import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceRegistrar;
 import com.liferay.util.dao.orm.CustomSQLUtil;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -51,9 +46,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.aopalliance.intercept.MethodInvocation;
+import java.util.Map;
 
 import org.apache.commons.lang.time.StopWatch;
 
@@ -69,16 +62,32 @@ public class DBUpgrader {
 
 			stopWatch.start();
 
-			InitUtil.initWithSpring(true);
+			InitUtil.initWithSpring(true, false);
 
 			upgrade();
 			verify();
 
+			InitUtil.registerContext();
+
+			Registry registry = RegistryUtil.getRegistry();
+
+			Map<String, Object> properties = new HashMap<>();
+
+			properties.put("module.service.lifecycle", "portal.initialized");
+			properties.put("service.vendor", ReleaseInfo.getVendor());
+			properties.put("service.version", ReleaseInfo.getVersion());
+
+			registry.registerService(
+				ModuleServiceLifecycle.class, new ModuleServiceLifecycle() {},
+				properties);
+
 			System.out.println(
-				"\nCompleted upgrade and verify processes in " +
+				"\nCompleted Liferay core upgrade and verify processes in " +
 					(stopWatch.getTime() / Time.SECOND) + " seconds");
 
-			System.exit(0);
+			System.out.println(
+				"Running modules upgrades. Connect to your Gogo Shell to " +
+					"check the status.");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -131,7 +140,7 @@ public class DBUpgrader {
 		_checkReleaseState(_getReleaseState());
 
 		if (PropsValues.UPGRADE_DATABASE_TRANSACTIONS_DISABLED) {
-			_disableTransactions();
+			TransactionsUtil.disableTransactions();
 		}
 
 		try {
@@ -144,7 +153,7 @@ public class DBUpgrader {
 		}
 		finally {
 			if (PropsValues.UPGRADE_DATABASE_TRANSACTIONS_DISABLED) {
-				_enableTransactions();
+				TransactionsUtil.enableTransactions();
 			}
 		}
 
@@ -178,14 +187,6 @@ public class DBUpgrader {
 		}
 
 		ResourceActionLocalServiceUtil.checkResourceActions();
-
-		// Delete temporary images
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Delete temporary images");
-		}
-
-		_deleteTempImages();
 
 		// Clear the caches only if the upgrade process was run
 
@@ -227,7 +228,7 @@ public class DBUpgrader {
 		// Verify
 
 		if (PropsValues.VERIFY_DATABASE_TRANSACTIONS_DISABLED) {
-			_disableTransactions();
+			TransactionsUtil.disableTransactions();
 		}
 
 		boolean newBuildNumber = false;
@@ -243,11 +244,14 @@ public class DBUpgrader {
 		catch (Exception e) {
 			_updateReleaseState(ReleaseConstants.STATE_VERIFY_FAILURE);
 
+			_log.error(
+				"Unable to execute verify process: " + e.getMessage(), e);
+
 			throw e;
 		}
 		finally {
 			if (PropsValues.VERIFY_DATABASE_TRANSACTIONS_DISABLED) {
-				_enableTransactions();
+				TransactionsUtil.enableTransactions();
 			}
 		}
 
@@ -267,13 +271,28 @@ public class DBUpgrader {
 			verified = true;
 		}
 
-		ReleaseLocalServiceUtil.updateRelease(
+		release = ReleaseLocalServiceUtil.updateRelease(
 			release.getReleaseId(), ReleaseInfo.getParentBuildNumber(),
 			ReleaseInfo.getBuildDate(), verified);
 
 		// Enable database caching after verify
 
 		CacheRegistryUtil.setActive(true);
+
+		// Register release service
+
+		Registry registry = RegistryUtil.getRegistry();
+
+		ServiceRegistrar<Release> serviceRegistrar =
+			registry.getServiceRegistrar(Release.class);
+
+		Map<String, Object> properties = new HashMap<>();
+
+		properties.put("build.date", release.getBuildDate());
+		properties.put("build.number", release.getBuildNumber());
+		properties.put("servlet.context.name", release.getServletContextName());
+
+		serviceRegistrar.registerService(Release.class, release, properties);
 	}
 
 	private static void _checkPermissionAlgorithm() throws Exception {
@@ -312,64 +331,6 @@ public class DBUpgrader {
 		sb.append("from a corrupt database.");
 
 		throw new IllegalStateException(sb.toString());
-	}
-
-	private static void _deleteTempImages() throws Exception {
-		DB db = DBFactoryUtil.getDB();
-
-		db.runSQL(_DELETE_TEMP_IMAGES_1);
-		db.runSQL(_DELETE_TEMP_IMAGES_2);
-	}
-
-	private static void _disableTransactions() throws Exception {
-		if (_log.isDebugEnabled()) {
-			_log.debug("Disable transactions");
-		}
-
-		PropsValues.SPRING_HIBERNATE_SESSION_DELEGATED = false;
-
-		Field field = ReflectionUtil.getDeclaredField(
-			ServiceBeanAopCacheManager.class, "_annotations");
-
-		field.set(
-			null,
-			new HashMap<MethodInvocation, Annotation[]>() {
-
-				@Override
-				public Annotation[] get(Object key) {
-					return _annotations;
-				}
-
-				private Annotation[] _annotations = new Annotation[] {
-					new Skip() {
-
-						@Override
-						public Class<? extends Annotation> annotationType() {
-							return Skip.class;
-						}
-
-					}
-				};
-
-			}
-		);
-	}
-
-	private static void _enableTransactions() throws Exception {
-		if (_log.isDebugEnabled()) {
-			_log.debug("Enable transactions");
-		}
-
-		PropsValues.SPRING_HIBERNATE_SESSION_DELEGATED = GetterUtil.getBoolean(
-			PropsUtil.get(PropsKeys.SPRING_HIBERNATE_SESSION_DELEGATED));
-
-		Field field = ReflectionUtil.getDeclaredField(
-			ServiceBeanAopCacheManager.class, "_annotations");
-
-		field.set(
-			null, new ConcurrentHashMap<MethodInvocation, Annotation[]>());
-
-		ServiceBeanAopCacheManagerUtil.reset();
 	}
 
 	private static int _getReleaseState() throws Exception {
@@ -429,7 +390,7 @@ public class DBUpgrader {
 	}
 
 	private static void _updateCompanyKey() throws Exception {
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
 		db.runSQL("update Company set key_ = null");
 	}
@@ -455,13 +416,6 @@ public class DBUpgrader {
 			DataAccess.cleanUp(con, ps);
 		}
 	}
-
-	private static final String _DELETE_TEMP_IMAGES_1 =
-		"delete from Image where imageId IN (SELECT articleImageId FROM " +
-			"JournalArticleImage where tempImage = TRUE)";
-
-	private static final String _DELETE_TEMP_IMAGES_2 =
-		"delete from JournalArticleImage where tempImage = TRUE";
 
 	private static final Log _log = LogFactoryUtil.getLog(DBUpgrader.class);
 

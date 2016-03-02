@@ -14,65 +14,47 @@
 
 package com.liferay.portal.setup;
 
-import com.liferay.portal.dao.jdbc.util.DataSourceSwapper;
 import com.liferay.portal.events.EventsProcessorUtil;
-import com.liferay.portal.events.StartupAction;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.cache.CacheRegistryUtil;
-import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dao.jdbc.DataSourceFactoryUtil;
-import com.liferay.portal.kernel.dao.orm.SessionFactory;
-import com.liferay.portal.kernel.deploy.hot.HotDeployUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Account;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Contact;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.auth.FullNameGenerator;
+import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
+import com.liferay.portal.kernel.security.auth.ScreenNameGenerator;
+import com.liferay.portal.kernel.service.AccountLocalServiceUtil;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
-import com.liferay.portal.kernel.util.CentralizedThreadLocal;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalLifecycleUtil;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
-import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.webcache.WebCachePoolUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Account;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.Contact;
-import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.FullNameGenerator;
-import com.liferay.portal.security.auth.FullNameGeneratorFactory;
-import com.liferay.portal.security.auth.ScreenNameGenerator;
 import com.liferay.portal.security.auth.ScreenNameGeneratorFactory;
-import com.liferay.portal.service.AccountLocalServiceUtil;
-import com.liferay.portal.service.CompanyLocalServiceUtil;
-import com.liferay.portal.service.QuartzLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalInstances;
-import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.IOException;
 
 import java.sql.Connection;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -109,41 +91,6 @@ public class SetupWizardUtil {
 		return hsqldb && !jndi;
 	}
 
-	public static boolean isSetupFinished() {
-		if (PropsValues.SETUP_WIZARD_ENABLED) {
-			return _setupFinished;
-		}
-
-		return true;
-	}
-
-	public static void reloadDataSources(Properties jdbcProperties)
-		throws Exception {
-
-		// Data sources
-
-		jdbcProperties = PropertiesUtil.getProperties(
-			jdbcProperties,"jdbc.default.",true);
-
-		DataSourceSwapper.swapCounterDataSource(jdbcProperties);
-		DataSourceSwapper.swapLiferayDataSource(jdbcProperties);
-
-		// Caches
-
-		CacheRegistryUtil.clear();
-		MultiVMPoolUtil.clear();
-		WebCachePoolUtil.clear();
-		CentralizedThreadLocal.clearShortLivedThreadLocals();
-
-		// Persistence beans
-
-		_reconfigurePersistenceBeans();
-	}
-
-	public static void setSetupFinished(boolean setupFinished) {
-		_setupFinished = setupFinished;
-	}
-
 	public static void testDatabase(HttpServletRequest request)
 		throws Exception {
 
@@ -173,10 +120,7 @@ public class SetupWizardUtil {
 
 		Locale locale = LocaleUtil.fromLanguageId(languageId);
 
-		List<Locale> availableLocales = ListUtil.fromArray(
-			LanguageUtil.getAvailableLocales());
-
-		if (!availableLocales.contains(locale)) {
+		if (!LanguageUtil.isAvailableLocale(locale)) {
 			return;
 		}
 
@@ -210,26 +154,16 @@ public class SetupWizardUtil {
 		_processDatabaseProperties(
 			request, unicodeProperties, databaseConfigured);
 
+		_processOtherProperties(request, unicodeProperties);
+
 		updateLanguage(request, response);
 
 		unicodeProperties.put(
 			PropsKeys.SETUP_WIZARD_ENABLED, String.valueOf(false));
 
-		PropsUtil.addProperties(unicodeProperties);
-
-		if (!databaseConfigured) {
-			_reloadServletContext(request, unicodeProperties);
-		}
-
 		_updateCompany(request);
+
 		_updateAdminUser(request, response, unicodeProperties);
-
-		_initPlugins();
-
-		if (ParamUtil.getBoolean(request, "addSampleData")) {
-			SetupWizardSampleDataUtil.addSampleData(
-				PortalInstances.getDefaultCompanyId());
-		}
 
 		HttpSession session = request.getSession();
 
@@ -248,15 +182,6 @@ public class SetupWizardUtil {
 		return ParamUtil.getString(request, name, defaultValue);
 	}
 
-	/**
-	 * @see com.liferay.portal.servlet.MainServlet#initPlugins
-	 */
-	private static void _initPlugins() {
-		HotDeployUtil.setCapturePrematureEvents(false);
-
-		PortalLifecycleUtil.flushInits();
-	}
-
 	private static boolean _isDatabaseConfigured(
 		UnicodeProperties unicodeProperties) {
 
@@ -272,7 +197,7 @@ public class SetupWizardUtil {
 				defaultDriverClassName) &&
 			PropsValues.JDBC_DEFAULT_PASSWORD.equals(defaultPassword) &&
 			PropsValues.JDBC_DEFAULT_URL.equals(defaultURL) &&
-			PropsValues.JDBC_DEFAULT_USERNAME.equals(defaultUsername) ) {
+			PropsValues.JDBC_DEFAULT_USERNAME.equals(defaultUsername)) {
 
 			return true;
 		}
@@ -296,50 +221,34 @@ public class SetupWizardUtil {
 		}
 	}
 
-	private static void _reconfigurePersistenceBeans() throws Exception {
-		@SuppressWarnings("rawtypes")
-		Map<String, BasePersistenceImpl> beanPersistenceImpls =
-			PortalBeanLocatorUtil.locate(BasePersistenceImpl.class);
-
-		SessionFactory sessionFactory =
-			(SessionFactory)PortalBeanLocatorUtil.locate(
-				"liferaySessionFactory");
-
-		for (String name : beanPersistenceImpls.keySet()) {
-			BasePersistenceImpl<?> beanPersistenceImpl =
-				beanPersistenceImpls.get(name);
-
-			beanPersistenceImpl.setSessionFactory(sessionFactory);
-		}
-	}
-
-	private static void _reloadServletContext(
+	private static void _processOtherProperties(
 			HttpServletRequest request, UnicodeProperties unicodeProperties)
 		throws Exception {
 
-		// Data sources
+		_processProperty(
+			request, unicodeProperties, "adminFirstName",
+			PropsKeys.DEFAULT_ADMIN_FIRST_NAME,
+			PropsValues.DEFAULT_ADMIN_FIRST_NAME);
+		_processProperty(
+			request, unicodeProperties, "adminLastName",
+			PropsKeys.DEFAULT_ADMIN_LAST_NAME,
+			PropsValues.DEFAULT_ADMIN_LAST_NAME);
+		_processProperty(
+			request, unicodeProperties, "companyName",
+			PropsKeys.COMPANY_DEFAULT_NAME, PropsValues.COMPANY_DEFAULT_NAME);
+	}
 
-		Properties jdbcProperties = new Properties();
+	private static void _processProperty(
+			HttpServletRequest request, UnicodeProperties unicodeProperties,
+			String parameterName, String propertyKey, String defaultValue)
+		throws Exception {
 
-		jdbcProperties.putAll(unicodeProperties);
+		String value = ParamUtil.getString(
+			request, parameterName, defaultValue);
 
-		reloadDataSources(jdbcProperties);
-
-		// Quartz
-
-		QuartzLocalServiceUtil.checkQuartzTables();
-
-		// Startup
-
-		StartupAction startupAction = new StartupAction();
-
-		startupAction.run(null);
-
-		// Servlet context
-
-		HttpSession session = request.getSession();
-
-		PortalInstances.reload(session.getServletContext());
+		if (!value.equals(defaultValue)) {
+			unicodeProperties.put(propertyKey, value);
+		}
 	}
 
 	private static void _testConnection(
@@ -439,10 +348,8 @@ public class SetupWizardUtil {
 				user.getComments(), firstName, user.getMiddleName(), lastName,
 				contact.getPrefixId(), contact.getSuffixId(), contact.isMale(),
 				birthdayMonth, birthdayDay, birthdayYear, contact.getSmsSn(),
-				contact.getAimSn(), contact.getFacebookSn(), contact.getIcqSn(),
-				contact.getJabberSn(), contact.getMsnSn(),
-				contact.getMySpaceSn(), contact.getSkypeSn(),
-				contact.getTwitterSn(), contact.getYmSn(),
+				contact.getFacebookSn(), contact.getJabberSn(),
+				contact.getSkypeSn(), contact.getTwitterSn(),
 				contact.getJobTitle(), null, null, null, null, null,
 				new ServiceContext());
 		}
@@ -545,7 +452,5 @@ public class SetupWizardUtil {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		SetupWizardUtil.class);
-
-	private static boolean _setupFinished = false;
 
 }

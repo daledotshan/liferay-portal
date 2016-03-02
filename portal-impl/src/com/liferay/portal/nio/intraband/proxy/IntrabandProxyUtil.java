@@ -698,8 +698,8 @@ public class IntrabandProxyUtil {
 			return (Class<?>)_defineClassMethod.invoke(
 				classLoader,
 				StringUtil.replace(
-					classNode.name, CharPool.SLASH, CharPool.PERIOD), data, 0,
-				data.length);
+					classNode.name, CharPool.SLASH, CharPool.PERIOD),
+				data, 0, data.length);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -956,8 +956,8 @@ public class IntrabandProxyUtil {
 			try {
 				Datagram responseDatagram = _intraband.sendSyncDatagram(
 					_registrationReference,
-						Datagram.createRequestDatagram(
-							_PROXY_TYPE, serializer.toByteBuffer()));
+					Datagram.createRequestDatagram(
+						_PROXY_TYPE, serializer.toByteBuffer()));
 
 				Deserializer deserializer = new Deserializer(
 					responseDatagram.getDataByteBuffer());

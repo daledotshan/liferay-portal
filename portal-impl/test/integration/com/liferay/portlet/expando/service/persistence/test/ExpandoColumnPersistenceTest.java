@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.expando.service.persistence.test;
 
+import com.liferay.expando.kernel.exception.NoSuchColumnException;
+import com.liferay.expando.kernel.model.ExpandoColumn;
+import com.liferay.expando.kernel.service.ExpandoColumnLocalServiceUtil;
+import com.liferay.expando.kernel.service.persistence.ExpandoColumnPersistence;
+import com.liferay.expando.kernel.service.persistence.ExpandoColumnUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -32,17 +38,11 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.expando.NoSuchColumnException;
-import com.liferay.portlet.expando.model.ExpandoColumn;
-import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
-import com.liferay.portlet.expando.service.persistence.ExpandoColumnPersistence;
-import com.liferay.portlet.expando.service.persistence.ExpandoColumnUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,8 +59,9 @@ import java.util.Set;
  * @generated
  */
 public class ExpandoColumnPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -150,43 +151,28 @@ public class ExpandoColumnPersistenceTest {
 	}
 
 	@Test
-	public void testCountByTableId() {
-		try {
-			_persistence.countByTableId(RandomTestUtil.nextLong());
+	public void testCountByTableId() throws Exception {
+		_persistence.countByTableId(RandomTestUtil.nextLong());
 
-			_persistence.countByTableId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByTableId(0L);
 	}
 
 	@Test
-	public void testCountByT_N() {
-		try {
-			_persistence.countByT_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByT_N() throws Exception {
+		_persistence.countByT_N(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByT_N(0L, StringPool.NULL);
+		_persistence.countByT_N(0L, StringPool.NULL);
 
-			_persistence.countByT_N(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByT_N(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByT_NArrayable() {
-		try {
-			_persistence.countByT_N(RandomTestUtil.nextLong(),
-				new String[] {
-					RandomTestUtil.randomString(), StringPool.BLANK,
-					StringPool.NULL, null, null
-				});
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByT_NArrayable() throws Exception {
+		_persistence.countByT_N(RandomTestUtil.nextLong(),
+			new String[] {
+				RandomTestUtil.randomString(), StringPool.BLANK, StringPool.NULL,
+				null, null
+			});
 	}
 
 	@Test
@@ -198,34 +184,22 @@ public class ExpandoColumnPersistenceTest {
 		Assert.assertEquals(existingExpandoColumn, newExpandoColumn);
 	}
 
-	@Test
+	@Test(expected = NoSuchColumnException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchColumnException");
-		}
-		catch (NoSuchColumnException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ExpandoColumn> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("ExpandoColumn", "columnId",
-			true, "companyId", true, "tableId", true, "name", true, "type",
-			true, "defaultData", true, "typeSettings", true);
+			true, "companyId", true, "tableId", true, "name", true, "type", true);
 	}
 
 	@Test
@@ -334,11 +308,9 @@ public class ExpandoColumnPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ExpandoColumnLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ExpandoColumn>() {
 				@Override
-				public void performAction(Object object) {
-					ExpandoColumn expandoColumn = (ExpandoColumn)object;
-
+				public void performAction(ExpandoColumn expandoColumn) {
 					Assert.assertNotNull(expandoColumn);
 
 					count.increment();
@@ -424,18 +396,14 @@ public class ExpandoColumnPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		ExpandoColumn newExpandoColumn = addExpandoColumn();
 
 		_persistence.clearCache();
 
 		ExpandoColumn existingExpandoColumn = _persistence.findByPrimaryKey(newExpandoColumn.getPrimaryKey());
 
-		Assert.assertEquals(existingExpandoColumn.getTableId(),
-			ReflectionTestUtil.invoke(existingExpandoColumn,
+		Assert.assertEquals(Long.valueOf(existingExpandoColumn.getTableId()),
+			ReflectionTestUtil.<Long>invoke(existingExpandoColumn,
 				"getOriginalTableId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingExpandoColumn.getName(),
 				ReflectionTestUtil.invoke(existingExpandoColumn,

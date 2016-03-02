@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.expando.service.persistence.test;
 
+import com.liferay.expando.kernel.exception.NoSuchValueException;
+import com.liferay.expando.kernel.model.ExpandoValue;
+import com.liferay.expando.kernel.service.ExpandoValueLocalServiceUtil;
+import com.liferay.expando.kernel.service.persistence.ExpandoValuePersistence;
+import com.liferay.expando.kernel.service.persistence.ExpandoValueUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -31,17 +37,11 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.expando.NoSuchValueException;
-import com.liferay.portlet.expando.model.ExpandoValue;
-import com.liferay.portlet.expando.service.ExpandoValueLocalServiceUtil;
-import com.liferay.portlet.expando.service.persistence.ExpandoValuePersistence;
-import com.liferay.portlet.expando.service.persistence.ExpandoValueUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class ExpandoValuePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -153,132 +154,82 @@ public class ExpandoValuePersistenceTest {
 	}
 
 	@Test
-	public void testCountByTableId() {
-		try {
-			_persistence.countByTableId(RandomTestUtil.nextLong());
+	public void testCountByTableId() throws Exception {
+		_persistence.countByTableId(RandomTestUtil.nextLong());
 
-			_persistence.countByTableId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByTableId(0L);
 	}
 
 	@Test
-	public void testCountByColumnId() {
-		try {
-			_persistence.countByColumnId(RandomTestUtil.nextLong());
+	public void testCountByColumnId() throws Exception {
+		_persistence.countByColumnId(RandomTestUtil.nextLong());
 
-			_persistence.countByColumnId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByColumnId(0L);
 	}
 
 	@Test
-	public void testCountByRowId() {
-		try {
-			_persistence.countByRowId(RandomTestUtil.nextLong());
+	public void testCountByRowId() throws Exception {
+		_persistence.countByRowId(RandomTestUtil.nextLong());
 
-			_persistence.countByRowId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRowId(0L);
 	}
 
 	@Test
-	public void testCountByT_C() {
-		try {
-			_persistence.countByT_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByT_C() throws Exception {
+		_persistence.countByT_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByT_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByT_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByT_R() {
-		try {
-			_persistence.countByT_R(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByT_R() throws Exception {
+		_persistence.countByT_R(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByT_R(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByT_R(0L, 0L);
 	}
 
 	@Test
-	public void testCountByT_CPK() {
-		try {
-			_persistence.countByT_CPK(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByT_CPK() throws Exception {
+		_persistence.countByT_CPK(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByT_CPK(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByT_CPK(0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_R() {
-		try {
-			_persistence.countByC_R(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_R() throws Exception {
+		_persistence.countByC_R(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_R(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_R(0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByT_C_C() {
-		try {
-			_persistence.countByT_C_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByT_C_C() throws Exception {
+		_persistence.countByT_C_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByT_C_C(0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByT_C_C(0L, 0L, 0L);
 	}
 
 	@Test
-	public void testCountByT_C_D() {
-		try {
-			_persistence.countByT_C_D(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByT_C_D() throws Exception {
+		_persistence.countByT_C_D(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByT_C_D(0L, 0L, StringPool.NULL);
+		_persistence.countByT_C_D(0L, 0L, StringPool.NULL);
 
-			_persistence.countByT_C_D(0L, 0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByT_C_D(0L, 0L, (String)null);
 	}
 
 	@Test
@@ -290,34 +241,23 @@ public class ExpandoValuePersistenceTest {
 		Assert.assertEquals(existingExpandoValue, newExpandoValue);
 	}
 
-	@Test
+	@Test(expected = NoSuchValueException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchValueException");
-		}
-		catch (NoSuchValueException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ExpandoValue> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("ExpandoValue", "valueId",
 			true, "companyId", true, "tableId", true, "columnId", true,
-			"rowId", true, "classNameId", true, "classPK", true, "data", true);
+			"rowId", true, "classNameId", true, "classPK", true);
 	}
 
 	@Test
@@ -426,11 +366,9 @@ public class ExpandoValuePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ExpandoValueLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ExpandoValue>() {
 				@Override
-				public void performAction(Object object) {
-					ExpandoValue expandoValue = (ExpandoValue)object;
-
+				public void performAction(ExpandoValue expandoValue) {
 					Assert.assertNotNull(expandoValue);
 
 					count.increment();
@@ -516,31 +454,27 @@ public class ExpandoValuePersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		ExpandoValue newExpandoValue = addExpandoValue();
 
 		_persistence.clearCache();
 
 		ExpandoValue existingExpandoValue = _persistence.findByPrimaryKey(newExpandoValue.getPrimaryKey());
 
-		Assert.assertEquals(existingExpandoValue.getColumnId(),
-			ReflectionTestUtil.invoke(existingExpandoValue,
+		Assert.assertEquals(Long.valueOf(existingExpandoValue.getColumnId()),
+			ReflectionTestUtil.<Long>invoke(existingExpandoValue,
 				"getOriginalColumnId", new Class<?>[0]));
-		Assert.assertEquals(existingExpandoValue.getRowId(),
-			ReflectionTestUtil.invoke(existingExpandoValue, "getOriginalRowId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingExpandoValue.getRowId()),
+			ReflectionTestUtil.<Long>invoke(existingExpandoValue,
+				"getOriginalRowId", new Class<?>[0]));
 
-		Assert.assertEquals(existingExpandoValue.getTableId(),
-			ReflectionTestUtil.invoke(existingExpandoValue,
+		Assert.assertEquals(Long.valueOf(existingExpandoValue.getTableId()),
+			ReflectionTestUtil.<Long>invoke(existingExpandoValue,
 				"getOriginalTableId", new Class<?>[0]));
-		Assert.assertEquals(existingExpandoValue.getColumnId(),
-			ReflectionTestUtil.invoke(existingExpandoValue,
+		Assert.assertEquals(Long.valueOf(existingExpandoValue.getColumnId()),
+			ReflectionTestUtil.<Long>invoke(existingExpandoValue,
 				"getOriginalColumnId", new Class<?>[0]));
-		Assert.assertEquals(existingExpandoValue.getClassPK(),
-			ReflectionTestUtil.invoke(existingExpandoValue,
+		Assert.assertEquals(Long.valueOf(existingExpandoValue.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingExpandoValue,
 				"getOriginalClassPK", new Class<?>[0]));
 	}
 
