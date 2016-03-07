@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 
+
 <project name="portal" basedir="." default="compile" xmlns:antelope="antlib:ise.antelope.tasks" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 	<import file="build-common.xml" />
 
-	<macrodef name="setup-jrebel">
+<!--	<macrodef name="setup-jrebel"> -->
 		<sequential>
 			<echo file="${app.server.lib.global.dir}/rebel.xml"><![CDATA[<?xml version="1.0"?>
 
