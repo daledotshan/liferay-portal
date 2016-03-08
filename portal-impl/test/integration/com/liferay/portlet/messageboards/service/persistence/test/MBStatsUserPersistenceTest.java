@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.messageboards.service.persistence.test;
 
+import com.liferay.message.boards.kernel.exception.NoSuchStatsUserException;
+import com.liferay.message.boards.kernel.model.MBStatsUser;
+import com.liferay.message.boards.kernel.service.MBStatsUserLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.persistence.MBStatsUserPersistence;
+import com.liferay.message.boards.kernel.service.persistence.MBStatsUserUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -31,17 +37,11 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.messageboards.NoSuchStatsUserException;
-import com.liferay.portlet.messageboards.model.MBStatsUser;
-import com.liferay.portlet.messageboards.service.MBStatsUserLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.persistence.MBStatsUserPersistence;
-import com.liferay.portlet.messageboards.service.persistence.MBStatsUserUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class MBStatsUserPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -118,6 +119,8 @@ public class MBStatsUserPersistenceTest {
 
 		newMBStatsUser.setGroupId(RandomTestUtil.nextLong());
 
+		newMBStatsUser.setCompanyId(RandomTestUtil.nextLong());
+
 		newMBStatsUser.setUserId(RandomTestUtil.nextLong());
 
 		newMBStatsUser.setMessageCount(RandomTestUtil.nextInt());
@@ -132,6 +135,8 @@ public class MBStatsUserPersistenceTest {
 			newMBStatsUser.getStatsUserId());
 		Assert.assertEquals(existingMBStatsUser.getGroupId(),
 			newMBStatsUser.getGroupId());
+		Assert.assertEquals(existingMBStatsUser.getCompanyId(),
+			newMBStatsUser.getCompanyId());
 		Assert.assertEquals(existingMBStatsUser.getUserId(),
 			newMBStatsUser.getUserId());
 		Assert.assertEquals(existingMBStatsUser.getMessageCount(),
@@ -142,53 +147,33 @@ public class MBStatsUserPersistenceTest {
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByG_U() {
-		try {
-			_persistence.countByG_U(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByG_U() throws Exception {
+		_persistence.countByG_U(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByG_U(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_U(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_NotU_NotM() {
-		try {
-			_persistence.countByG_NotU_NotM(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByG_NotU_NotM() throws Exception {
+		_persistence.countByG_NotU_NotM(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_NotU_NotM(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_NotU_NotM(0L, 0L, 0);
 	}
 
 	@Test
@@ -200,34 +185,23 @@ public class MBStatsUserPersistenceTest {
 		Assert.assertEquals(existingMBStatsUser, newMBStatsUser);
 	}
 
-	@Test
+	@Test(expected = NoSuchStatsUserException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchStatsUserException");
-		}
-		catch (NoSuchStatsUserException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<MBStatsUser> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("MBStatsUser",
-			"statsUserId", true, "groupId", true, "userId", true,
-			"messageCount", true, "lastPostDate", true);
+			"statsUserId", true, "groupId", true, "companyId", true, "userId",
+			true, "messageCount", true, "lastPostDate", true);
 	}
 
 	@Test
@@ -336,11 +310,9 @@ public class MBStatsUserPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = MBStatsUserLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBStatsUser>() {
 				@Override
-				public void performAction(Object object) {
-					MBStatsUser mbStatsUser = (MBStatsUser)object;
-
+				public void performAction(MBStatsUser mbStatsUser) {
 					Assert.assertNotNull(mbStatsUser);
 
 					count.increment();
@@ -426,22 +398,18 @@ public class MBStatsUserPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		MBStatsUser newMBStatsUser = addMBStatsUser();
 
 		_persistence.clearCache();
 
 		MBStatsUser existingMBStatsUser = _persistence.findByPrimaryKey(newMBStatsUser.getPrimaryKey());
 
-		Assert.assertEquals(existingMBStatsUser.getGroupId(),
-			ReflectionTestUtil.invoke(existingMBStatsUser,
+		Assert.assertEquals(Long.valueOf(existingMBStatsUser.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingMBStatsUser,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingMBStatsUser.getUserId(),
-			ReflectionTestUtil.invoke(existingMBStatsUser, "getOriginalUserId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingMBStatsUser.getUserId()),
+			ReflectionTestUtil.<Long>invoke(existingMBStatsUser,
+				"getOriginalUserId", new Class<?>[0]));
 	}
 
 	protected MBStatsUser addMBStatsUser() throws Exception {
@@ -450,6 +418,8 @@ public class MBStatsUserPersistenceTest {
 		MBStatsUser mbStatsUser = _persistence.create(pk);
 
 		mbStatsUser.setGroupId(RandomTestUtil.nextLong());
+
+		mbStatsUser.setCompanyId(RandomTestUtil.nextLong());
 
 		mbStatsUser.setUserId(RandomTestUtil.nextLong());
 

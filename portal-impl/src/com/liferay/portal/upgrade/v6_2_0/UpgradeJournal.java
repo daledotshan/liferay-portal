@@ -14,32 +14,25 @@
 
 package com.liferay.portal.upgrade.v6_2_0;
 
+import com.liferay.journal.kernel.util.JournalConverterManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.upgrade.BaseUpgradePortletPreferences;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.upgrade.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.upgrade.v6_2_0.util.JournalFeedTable;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
-import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
-import com.liferay.portlet.dynamicdatamapping.model.DDMTemplateConstants;
-import com.liferay.portlet.journal.model.JournalArticle;
-import com.liferay.portlet.journal.util.JournalConverterUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import java.util.HashMap;
@@ -64,12 +57,9 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			String storageType, int type)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
 			StringBundler sb = new StringBundler(6);
 
 			sb.append("insert into DDMStructure (uuid_, structureId, ");
@@ -81,7 +71,7 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 			String sql = sb.toString();
 
-			ps = con.prepareStatement(sql);
+			ps = connection.prepareStatement(sql);
 
 			ps.setString(1, uuid_);
 			ps.setLong(2, ddmStructureId);
@@ -98,7 +88,8 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			ps.setString(13, description);
 			ps.setString(
 				14,
-				JournalConverterUtil.getDDMXSD(xsd, getDefaultLocale(name)));
+				JournalConverterManagerUtil.getDDMXSD(
+					xsd, getDefaultLocale(companyId)));
 			ps.setString(15, storageType);
 			ps.setInt(16, type);
 
@@ -112,7 +103,7 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			throw e;
 		}
 		finally {
-			DataAccess.cleanUp(con, ps);
+			DataAccess.cleanUp(ps);
 		}
 	}
 
@@ -136,10 +127,10 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			addDDMStructure(
 				uuid_, ddmStructureId, groupId, companyId, userId, userName,
 				createDate, modifiedDate, parentDDMStructureId,
-				PortalUtil.getClassNameId(JournalArticle.class.getName()),
-				ddmStructureKey, name, description, xsd,
-				PropsValues.JOURNAL_ARTICLE_STORAGE_TYPE,
-				DDMStructureConstants.TYPE_DEFAULT);
+				PortalUtil.getClassNameId(
+					"com.liferay.portlet.journal.model.JournalArticle"),
+				ddmStructureKey, name, description, xsd, "xml",
+				_DDM_STRUCTURE_TYPE_DEFAULT);
 		}
 	}
 
@@ -152,12 +143,9 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			boolean smallImage, long smallImageId, String smallImageURL)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
 			StringBundler sb = new StringBundler(6);
 
 			sb.append("insert into DDMTemplate (uuid_, templateId, groupId, ");
@@ -169,7 +157,7 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 			String sql = sb.toString();
 
-			ps = con.prepareStatement(sql);
+			ps = connection.prepareStatement(sql);
 
 			ps.setString(1, uuid_);
 			ps.setLong(2, ddmTemplateId);
@@ -203,23 +191,15 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			throw e;
 		}
 		finally {
-			DataAccess.cleanUp(con, ps);
+			DataAccess.cleanUp(ps);
 		}
 	}
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		try {
-			runSQL(
-				"alter_column_name JournalFeed feedType feedFormat " +
-					"VARCHAR(75) null");
-		}
-		catch (SQLException sqle) {
-			upgradeTable(
-				JournalFeedTable.TABLE_NAME, JournalFeedTable.TABLE_COLUMNS,
-				JournalFeedTable.TABLE_SQL_CREATE,
-				JournalFeedTable.TABLE_SQL_ADD_INDEXES);
-		}
+		alter(
+			JournalFeedTable.class,
+			new AlterColumnName("feedType", "feedFormat VARCHAR(75) null"));
 
 		updateStructures();
 		updateTemplates();
@@ -229,12 +209,46 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 		super.doUpgrade();
 	}
 
-	protected long getDDMStructureId(long groupId, String structureId) {
-		return getDDMStructureId(groupId, structureId, true);
+	protected long getCompanyGroupId(long companyId) throws Exception {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			ps = connection.prepareStatement(
+				"select groupId from Group_ where classNameId = ? and " +
+					"classPK = ?");
+
+			ps.setLong(
+				1,
+				PortalUtil.getClassNameId("com.liferay.portal.model.Company"));
+			ps.setLong(2, companyId);
+
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				return rs.getLong("groupId");
+			}
+
+			return 0;
+		}
+		finally {
+			DataAccess.cleanUp(ps, rs);
+		}
+	}
+
+	protected long getDDMStructureClassNameId() {
+		return PortalUtil.getClassNameId(
+			"com.liferay.portlet.dynamicdatamapping.DDMStructure");
 	}
 
 	protected long getDDMStructureId(
-		long groupId, String structureId, boolean warn) {
+		long groupId, long companyGroupId, String structureId) {
+
+		return getDDMStructureId(groupId, companyGroupId, structureId, true);
+	}
+
+	protected long getDDMStructureId(
+		long groupId, long companyGroupId, String structureId, boolean warn) {
 
 		if (Validator.isNull(structureId)) {
 			return 0;
@@ -242,26 +256,65 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 		Long ddmStructureId = _ddmStructureIds.get(groupId + "#" + structureId);
 
-		if (ddmStructureId == null) {
-			if (warn) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"Unable to get the DDM structure ID for group " +
-							groupId + " and journal structure ID " +
-								structureId);
-				}
-			}
-
-			return 0;
+		if ((ddmStructureId == null) && (companyGroupId != 0)) {
+			ddmStructureId = _ddmStructureIds.get(
+				companyGroupId + "#" + structureId);
 		}
 
-		return ddmStructureId;
+		if (ddmStructureId != null) {
+			return ddmStructureId;
+		}
+
+		if (warn && _log.isWarnEnabled()) {
+			StringBundler sb = new StringBundler();
+
+			sb.append("Unable to get the DDM structure ID for group ");
+			sb.append(groupId);
+
+			if (companyGroupId != 0) {
+				sb.append(" or global group");
+			}
+
+			sb.append(" and journal structure ID ");
+			sb.append(structureId);
+
+			_log.warn(sb.toString());
+		}
+
+		return 0;
 	}
 
-	protected Locale getDefaultLocale(String xml) {
-		String defaultLanguageId = LocalizationUtil.getDefaultLanguageId(xml);
+	protected long getDDMStructureId(
+		long groupId, String structureId, boolean warn) {
 
-		return LocaleUtil.fromLanguageId(defaultLanguageId);
+		return getDDMStructureId(groupId, 0, structureId, warn);
+	}
+
+	protected Locale getDefaultLocale(long companyId) throws Exception {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			ps = connection.prepareStatement(
+				"select languageId from User_ where companyId = ? and " +
+					"defaultUser = ?");
+
+			ps.setLong(1, companyId);
+			ps.setBoolean(2, true);
+
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				String languageId = rs.getString("languageId");
+
+				return LocaleUtil.fromLanguageId(languageId);
+			}
+		}
+		finally {
+			DataAccess.cleanUp(ps, rs);
+		}
+
+		return LocaleUtil.getSiteDefault();
 	}
 
 	@Override
@@ -272,33 +325,35 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 	}
 
 	protected void updateAssetEntryClassTypeId() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps1 = connection.prepareStatement(
+				"select companyId, groupId, resourcePrimKey, structureId " +
+					"from JournalArticle where structureId != ''");
+			ResultSet rs = ps1.executeQuery()) {
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+			try (PreparedStatement ps2 =
+					AutoBatchPreparedStatementUtil.concurrentAutoBatch(
+						connection,
+						"update AssetEntry set classTypeId = ? where classPK " +
+							"= ?")) {
 
-			ps = con.prepareStatement(
-				"select groupId, resourcePrimKey, structureId from " +
-					"JournalArticle where structureId != ''");
+				while (rs.next()) {
+					long groupId = rs.getLong("groupId");
+					long companyId = rs.getLong("companyId");
+					long resourcePrimKey = rs.getLong("resourcePrimKey");
+					String structureId = rs.getString("structureId");
 
-			rs = ps.executeQuery();
+					long ddmStructureId = getDDMStructureId(
+						groupId, getCompanyGroupId(companyId), structureId);
 
-			while (rs.next()) {
-				long groupId = rs.getLong("groupId");
-				long resourcePrimKey = rs.getLong("resourcePrimKey");
-				String structureId = rs.getString("structureId");
+					ps2.setLong(1, ddmStructureId);
+					ps2.setLong(2, resourcePrimKey);
 
-				long ddmStructureId = getDDMStructureId(groupId, structureId);
+					ps2.addBatch();
+				}
 
-				runSQL(
-					"update AssetEntry set classTypeId = " +
-						ddmStructureId + " where classPK = " + resourcePrimKey);
+				ps2.executeBatch();
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -393,7 +448,8 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 		updateResourcePermission(
 			companyId, "com.liferay.portlet.journal.model.JournalStructure",
-			DDMStructure.class.getName(), id_, ddmStructureId);
+			"com.liferay.portlet.dynamicdatamapping.DDMStructure", id_,
+			ddmStructureId);
 
 		_ddmStructureIds.put(groupId + "#" + structureId, ddmStructureId);
 		_ddmStructurePKs.put(id_, ddmStructureId);
@@ -402,14 +458,11 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 	}
 
 	protected long updateStructure(String structureId) throws Exception {
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select * from JournalStructure where structureId = ?");
 
 			ps.setString(1, structureId);
@@ -430,44 +483,29 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 			throw e;
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
 	protected void updateStructures() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement("select * from JournalStructure");
-
-			rs = ps.executeQuery();
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(
+				"select * from JournalStructure");
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				updateStructure(rs);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 
-		runSQL("drop table JournalStructure");
+			runSQL("drop table JournalStructure");
+		}
 	}
 
 	protected void updateTemplates() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement("select * from JournalTemplate");
-
-			rs = ps.executeQuery();
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(
+				"select * from JournalTemplate");
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				String uuid_ = rs.getString("uuid_");
@@ -491,30 +529,27 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 				long ddmTemplateId = increment();
 
-				long classNameId = PortalUtil.getClassNameId(
-					DDMStructure.class.getName());
+				long classNameId = getDDMStructureClassNameId();
 
-				long classPK = getDDMStructureId(groupId, structureId);
+				long classPK = getDDMStructureId(
+					groupId, getCompanyGroupId(companyId), structureId);
 
 				addDDMTemplate(
 					uuid_, ddmTemplateId, groupId, companyId, userId, userName,
 					createDate, modifiedDate, classNameId, classPK, templateId,
-					name, description,
-					DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY,
-					DDMTemplateConstants.TEMPLATE_MODE_CREATE, language, script,
-					cacheable, smallImage, smallImageId, smallImageURL);
+					name, description, _DDM_TEMPLATE_TYPE_DISPLAY,
+					_DDM_TEMPLATE_MODE_CREATE, language, script, cacheable,
+					smallImage, smallImageId, smallImageURL);
 
 				updateResourcePermission(
 					companyId,
 					"com.liferay.portlet.journal.model.JournalTemplate",
-					DDMTemplate.class.getName(), id_, ddmTemplateId);
+					"com.liferay.portlet.dynamicdatamapping.DDMTemplate", id_,
+					ddmTemplateId);
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 
-		runSQL("drop table JournalTemplate");
+			runSQL("drop table JournalTemplate");
+		}
 	}
 
 	@Override
@@ -556,6 +591,12 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 		return PortletPreferencesFactoryUtil.toXML(preferences);
 	}
+
+	private static final int _DDM_STRUCTURE_TYPE_DEFAULT = 0;
+
+	private static final String _DDM_TEMPLATE_MODE_CREATE = "create";
+
+	private static final String _DDM_TEMPLATE_TYPE_DISPLAY = "display";
 
 	private static final String _PORTLET_ID_ASSET_PUBLISHER = "101";
 

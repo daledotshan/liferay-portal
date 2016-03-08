@@ -21,6 +21,8 @@ String currentURL = PortalUtil.getCurrentURL(request);
 
 String referer = ParamUtil.getString(request, WebKeys.REFERER, currentURL);
 
+Ticket ticket = (Ticket)request.getAttribute(WebKeys.TICKET);
+
 String ticketKey = ParamUtil.getString(request, "ticketKey");
 
 if (referer.startsWith(themeDisplay.getPathMain() + "/portal/update_password") && Validator.isNotNull(ticketKey)) {
@@ -31,6 +33,22 @@ PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 %>
 
 <c:choose>
+	<c:when test="<%= !themeDisplay.isSignedIn() && (ticket == null) %>">
+		<div class="alert alert-warning">
+			<liferay-ui:message key="your-password-reset-link-is-no-longer-valid" />
+
+			<%
+			PortletURL portletURL = new PortletURLImpl(request, PortletKeys.LOGIN, plid, PortletRequest.RENDER_PHASE);
+
+			portletURL.setParameter("mvcRenderCommandName", "/login/forgot_password");
+			portletURL.setWindowState(WindowState.MAXIMIZED);
+			%>
+
+			<div>
+				<aui:a href="<%= portletURL.toString() %>" label="request-a-new-password-reset-link"></aui:a>
+			</div>
+		</div>
+	</c:when>
 	<c:when test="<%= SessionErrors.contains(request, UserLockoutException.LDAPLockout.class.getName()) %>">
 		<div class="alert alert-danger">
 			<liferay-ui:message key="this-account-is-locked" />
@@ -55,10 +73,6 @@ PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 			<aui:input name="<%= WebKeys.REFERER %>" type="hidden" value="<%= referer %>" />
 			<aui:input name="ticketKey" type="hidden" value="<%= ticketKey %>" />
 
-			<div class="alert alert-info">
-				<liferay-ui:message key="please-set-a-new-password" />
-			</div>
-
 			<c:if test="<%= !SessionErrors.isEmpty(request) %>">
 				<div class="alert alert-danger">
 					<c:choose>
@@ -68,7 +82,7 @@ PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 							UserPasswordException.MustBeLonger upe = (UserPasswordException.MustBeLonger)SessionErrors.get(request, UserPasswordException.MustBeLonger.class.getName());
 							%>
 
-							<%= LanguageUtil.format(request, "that-password-is-too-short", String.valueOf(upe.minLength), false) %>
+							<liferay-ui:message arguments="<%= String.valueOf(upe.minLength) %>" key="that-password-is-too-short" translateArguments="<%= false %>" />
 						</c:when>
 
 						<c:when test="<%= SessionErrors.contains(request, UserPasswordException.MustComplyWithModelListeners.class.getName()) %>">
@@ -81,7 +95,7 @@ PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 							UserPasswordException.MustComplyWithRegex upe = (UserPasswordException.MustComplyWithRegex)SessionErrors.get(request, UserPasswordException.MustComplyWithRegex.class.getName());
 							%>
 
-							<%= LanguageUtil.format(request, "that-password-does-not-comply-with-the-regular-expression", upe.regex, false) %>
+							<liferay-ui:message arguments="<%= upe.regex %>" key="that-password-does-not-comply-with-the-regular-expression" translateArguments="<%= false %>" />
 						</c:when>
 
 						<c:when test="<%= SessionErrors.contains(request, UserPasswordException.MustMatch.class.getName()) %>">
@@ -115,14 +129,22 @@ PasswordPolicy passwordPolicy = user.getPasswordPolicy();
 				</div>
 			</c:if>
 
-			<aui:fieldset label="new-password">
-				<aui:input autoFocus="<%= true %>" class="lfr-input-text-container" label="password" name="password1" type="password" />
+			<aui:fieldset>
+				<aui:input autoFocus="<%= true %>" class="lfr-input-text-container" label="password" name="password1" showRequiredLabel="<%= false %>" type="password">
+					<aui:validator name="required" />
+				</aui:input>
 
-				<aui:input class="lfr-input-text-container" label="enter-again" name="password2" type="password" />
+				<aui:input class="lfr-input-text-container" label="enter-again" name="password2" showRequiredLabel="<%= false %>" type="password">
+					<aui:validator name="equalTo">
+						'#<portlet:namespace />password1'
+					</aui:validator>
+
+					<aui:validator name="required" />
+				</aui:input>
 			</aui:fieldset>
 
 			<aui:button-row>
-				<aui:button type="submit" />
+				<aui:button cssClass="btn-lg" type="submit" />
 			</aui:button-row>
 		</aui:form>
 	</c:otherwise>

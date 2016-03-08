@@ -60,6 +60,35 @@ public class HtmlImpl implements Html {
 	public static final int ESCAPE_MODE_URL = 5;
 
 	/**
+	 * Generates a string with the data-* attributes generated from the keys and
+	 * values of a map. For example, a map containing
+	 * <code>{key1=value1;key2=value2}</code> is returned as the string
+	 * <code>data-key1=value1 data-key2=value2</code>.
+	 *
+	 * @param  data the map of values to convert to data-* attributes
+	 * @return a string with the data attributes, or <code>null</code> if the
+	 *         map is <code>null</code>
+	 */
+	@Override
+	public String buildData(Map<String, Object> data) {
+		if ((data == null) || data.isEmpty()) {
+			return StringPool.BLANK;
+		}
+
+		StringBundler sb = new StringBundler(data.size() * 5);
+
+		for (Map.Entry<String, Object> entry : data.entrySet()) {
+			sb.append("data-");
+			sb.append(entry.getKey());
+			sb.append("=\"");
+			sb.append(escapeAttribute(String.valueOf(entry.getValue())));
+			sb.append("\" ");
+		}
+
+		return sb.toString();
+	}
+
+	/**
 	 * Escapes the text so that it is safe to use in an HTML context.
 	 *
 	 * @param  text the text to escape
@@ -203,13 +232,13 @@ public class HtmlImpl implements Html {
 			return escape(text);
 		}
 
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(text.length());
 
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);
 
-			if ((c > 255) || Character.isLetterOrDigit(c) ||
-				(c == CharPool.DASH) || (c == CharPool.UNDERLINE)) {
+			if ((c > 255) || (c == CharPool.DASH) ||
+				(c == CharPool.UNDERLINE) || Character.isLetterOrDigit(c)) {
 
 				sb.append(c);
 			}
@@ -230,9 +259,8 @@ public class HtmlImpl implements Html {
 		if (sb.length() == text.length()) {
 			return text;
 		}
-		else {
-			return sb.toString();
-		}
+
+		return sb.toString();
 	}
 
 	/**
@@ -278,7 +306,16 @@ public class HtmlImpl implements Html {
 			return StringPool.BLANK;
 		}
 
-		if (href.indexOf(StringPool.COLON) == 10) {
+		int index = href.indexOf(StringPool.COLON);
+
+		if (index == 4) {
+			String protocol = StringUtil.toLowerCase(href.substring(0, 4));
+
+			if (protocol.equals("data")) {
+				href = StringUtil.replaceFirst(href, StringPool.COLON, "%3a");
+			}
+		}
+		else if (index == 10) {
 			String protocol = StringUtil.toLowerCase(href.substring(0, 10));
 
 			if (protocol.equals("javascript")) {
@@ -718,7 +755,7 @@ public class HtmlImpl implements Html {
 
 	protected boolean isTag(char[] tag, String text, int pos) {
 		if ((pos + tag.length + 1) <= text.length()) {
-			char item;
+			char item = '\0';
 
 			for (int i = 0; i < tag.length; i++) {
 				item = text.charAt(pos++);
@@ -798,7 +835,8 @@ public class HtmlImpl implements Html {
 
 	private static final char[] _XPATH_TOKENS = {
 		'(', ')', '[', ']', '.', '@', ',', ':', '/', '|', '+', '-', '=', '!',
-		'<', '>', '*', '$', '"', '"', ' ', 9, 10, 13, 133, 8232};
+		'<', '>', '*', '$', '"', '"', ' ', 9, 10, 13, 133, 8232
+	};
 
 	private static final Map<String, String> _unescapeMap = new HashMap<>();
 

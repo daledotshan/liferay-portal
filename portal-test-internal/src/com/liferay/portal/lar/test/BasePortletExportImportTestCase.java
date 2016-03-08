@@ -14,37 +14,49 @@
 
 package com.liferay.portal.lar.test;
 
-import com.liferay.portal.LocaleException;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetLink;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetLinkLocalServiceUtil;
+import com.liferay.dynamic.data.mapping.kernel.DDMTemplate;
+import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
+import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactory;
+import com.liferay.exportimport.kernel.lar.ExportImportDateUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
+import com.liferay.exportimport.kernel.lar.PortletDataHandler;
+import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
+import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
+import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalServiceUtil;
+import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
+import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.lar.ExportImportClassedModelUtil;
-import com.liferay.portal.kernel.lar.ExportImportDateUtil;
-import com.liferay.portal.kernel.lar.PortletDataHandler;
-import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.portletdisplaytemplate.PortletDisplayTemplateManager;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.StagedModel;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.PortletLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.model.AssetLink;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil;
-import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMTemplateTestUtil;
-import com.liferay.portlet.portletdisplaytemplate.util.PortletDisplayTemplate;
 
+import java.io.Serializable;
+
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -178,15 +190,15 @@ public abstract class BasePortletExportImportTestCase
 	@Test
 	public void testExportImportInvalidAvailableLocales() throws Exception {
 		testExportImportAvailableLocales(
-			new Locale[] {LocaleUtil.US, LocaleUtil.SPAIN},
-			new Locale[] {LocaleUtil.US, LocaleUtil.GERMANY}, true);
+			Arrays.asList(LocaleUtil.US, LocaleUtil.SPAIN),
+			Arrays.asList(LocaleUtil.US, LocaleUtil.GERMANY), true);
 	}
 
 	@Test
 	public void testExportImportValidAvailableLocales() throws Exception {
 		testExportImportAvailableLocales(
-			new Locale[] {LocaleUtil.US, LocaleUtil.SPAIN},
-			new Locale[] {LocaleUtil.US, LocaleUtil.SPAIN, LocaleUtil.GERMANY},
+			Arrays.asList(LocaleUtil.US, LocaleUtil.SPAIN),
+			Arrays.asList(LocaleUtil.US, LocaleUtil.SPAIN, LocaleUtil.GERMANY),
 			false);
 	}
 
@@ -228,22 +240,24 @@ public abstract class BasePortletExportImportTestCase
 
 		Map<String, String[]> importParameterMap = new LinkedHashMap<>();
 
-		Date startDate = new Date(
-			stagedModelCreationDate.getTime() + Time.MINUTE);
-		Date endDate = new Date();
+		portletPreferences =
+			PortletPreferencesFactoryUtil.getStrictPortletSetup(
+				layout, getPortletId());
+
+		Date oldLastPublishDate = ExportImportDateUtil.getLastPublishDate(
+			portletPreferences);
 
 		exportImportPortlet(
-			getPortletId(), exportParameterMap, importParameterMap, startDate,
-			endDate);
+			getPortletId(), exportParameterMap, importParameterMap);
 
 		portletPreferences =
 			PortletPreferencesFactoryUtil.getStrictPortletSetup(
 				layout, getPortletId());
 
-		lastPublishDate = ExportImportDateUtil.getLastPublishDate(
+		Date newLastPublishDate = ExportImportDateUtil.getLastPublishDate(
 			portletPreferences);
 
-		Assert.assertEquals(endDate.getTime(), lastPublishDate.getTime());
+		Assert.assertTrue(newLastPublishDate.after(oldLastPublishDate));
 
 		StagedModel importedStagedModel = getStagedModel(
 			getStagedModelUuid(stagedModel), importedGroup.getGroupId());
@@ -251,23 +265,119 @@ public abstract class BasePortletExportImportTestCase
 		Assert.assertNotNull(importedStagedModel);
 	}
 
-	protected AssetLink addAssetLink(
-			StagedModel sourceStagedModel, StagedModel targetStagedModel,
-			int weight)
-		throws PortalException {
+	@Test
+	public void testVersioning1() throws Exception {
+		if (!isVersioningEnabled()) {
+			return;
+		}
 
-		AssetEntry originAssetEntry = getAssetEntry(sourceStagedModel);
-		AssetEntry targetAssetEntry = getAssetEntry(targetStagedModel);
+		StagedModel stagedModel = addStagedModel(group.getGroupId());
 
-		return AssetLinkLocalServiceUtil.addLink(
-			TestPropsValues.getUserId(), originAssetEntry.getEntryId(),
-			targetAssetEntry.getEntryId(), 0, weight);
+		addVersion(stagedModel);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+	}
+
+	@Test
+	public void testVersioning2() throws Exception {
+		if (!isVersioningEnabled()) {
+			return;
+		}
+
+		StagedModel stagedModel = addStagedModel(group.getGroupId());
+
+		Thread.sleep(4000);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+
+		addVersion(stagedModel);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+	}
+
+	@Test
+	public void testVersioningDeleteFirst() throws Exception {
+		if (!isVersioningEnabled()) {
+			return;
+		}
+
+		StagedModel stagedModel = addStagedModel(group.getGroupId());
+
+		stagedModel = addVersion(stagedModel);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+
+		deleteFirstVersion(stagedModel);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+	}
+
+	@Test
+	public void testVersioningDeleteLatest() throws Exception {
+		if (!isVersioningEnabled()) {
+			return;
+		}
+
+		StagedModel stagedModel = addStagedModel(group.getGroupId());
+
+		stagedModel = addVersion(stagedModel);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+
+		deleteLatestVersion(stagedModel);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+	}
+
+	@Test
+	public void testVersioningExportImportTwice() throws Exception {
+		if (!isVersioningEnabled()) {
+			return;
+		}
+
+		StagedModel stagedModel = addStagedModel(group.getGroupId());
+
+		addVersion(stagedModel);
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
+
+		exportImportPortlet(getPortletId());
+
+		validateVersions();
 	}
 
 	protected void addParameter(
 		Map<String, String[]> parameterMap, String name, boolean value) {
 
 		addParameter(parameterMap, getNamespace(), name, value);
+	}
+
+	protected StagedModel addVersion(StagedModel stagedModel) throws Exception {
+		return null;
+	}
+
+	protected void deleteFirstVersion(StagedModel stagedModel)
+		throws Exception {
+	}
+
+	protected void deleteLatestVersion(StagedModel stagedModel)
+		throws Exception {
 	}
 
 	protected void exportImportPortlet(String portletId) throws Exception {
@@ -281,37 +391,58 @@ public abstract class BasePortletExportImportTestCase
 			Map<String, String[]> importParameterMap)
 		throws Exception {
 
-		exportImportPortlet(
-			portletId, exportParameterMap, importParameterMap, null, null);
-	}
-
-	protected void exportImportPortlet(
-			String portletId, Map<String, String[]> exportParameterMap,
-			Map<String, String[]> importParameterMap, Date startDate,
-			Date endDate)
-		throws Exception {
+		User user = TestPropsValues.getUser();
 
 		MapUtil.merge(getExportParameterMap(), exportParameterMap);
 
-		larFile = LayoutLocalServiceUtil.exportPortletInfoAsFile(
-			layout.getPlid(), layout.getGroupId(), portletId,
-			exportParameterMap, startDate, endDate);
+		Map<String, Serializable> settingsMap =
+			ExportImportConfigurationSettingsMapFactory.
+				buildExportPortletSettingsMap(
+					user, layout.getPlid(), layout.getGroupId(), portletId,
+					exportParameterMap, StringPool.BLANK);
 
-		importedLayout = LayoutTestUtil.addLayout(importedGroup);
+		ExportImportConfiguration exportImportConfiguration =
+			ExportImportConfigurationLocalServiceUtil.
+				addDraftExportImportConfiguration(
+					user.getUserId(),
+					ExportImportConfigurationConstants.TYPE_EXPORT_PORTLET,
+					settingsMap);
 
-		MapUtil.merge(getImportParameterMap(), importParameterMap);
+		ExportImportThreadLocal.setPortletStagingInProcess(true);
 
-		LayoutLocalServiceUtil.importPortletInfo(
-			TestPropsValues.getUserId(), importedLayout.getPlid(),
-			importedGroup.getGroupId(), portletId, importParameterMap, larFile);
-	}
+		try {
+			larFile = ExportImportLocalServiceUtil.exportPortletInfoAsFile(
+				exportImportConfiguration);
 
-	protected AssetEntry getAssetEntry(StagedModel stagedModel)
-		throws PortalException {
+			importedLayout = LayoutTestUtil.addLayout(importedGroup);
 
-		return AssetEntryLocalServiceUtil.getEntry(
-			ExportImportClassedModelUtil.getClassName(stagedModel),
-			ExportImportClassedModelUtil.getClassPK(stagedModel));
+			MapUtil.merge(getImportParameterMap(), importParameterMap);
+
+			settingsMap =
+				ExportImportConfigurationSettingsMapFactory.
+					buildImportPortletSettingsMap(
+						user, importedLayout.getPlid(),
+						importedGroup.getGroupId(), portletId,
+						importParameterMap);
+
+			exportImportConfiguration =
+				ExportImportConfigurationLocalServiceUtil.
+					addExportImportConfiguration(
+						user.getUserId(), importedGroup.getGroupId(),
+						StringPool.BLANK, StringPool.BLANK,
+						ExportImportConfigurationConstants.TYPE_IMPORT_PORTLET,
+						settingsMap, WorkflowConstants.STATUS_DRAFT,
+						new ServiceContext());
+
+			ExportImportLocalServiceUtil.importPortletDataDeletions(
+				exportImportConfiguration, larFile);
+
+			ExportImportLocalServiceUtil.importPortletInfo(
+				exportImportConfiguration, larFile);
+		}
+		finally {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+		}
 	}
 
 	protected PortletPreferences getImportedPortletPreferences(
@@ -327,9 +458,13 @@ public abstract class BasePortletExportImportTestCase
 		return LayoutTestUtil.getPortletPreferences(importedLayout, portletId);
 	}
 
+	protected boolean isVersioningEnabled() {
+		return false;
+	}
+
 	protected void testExportImportAvailableLocales(
-			Locale[] sourceAvailableLocales, Locale[] targetAvailableLocales,
-			boolean expectFailure)
+			Collection<Locale> sourceAvailableLocales,
+			Collection<Locale> targetAvailableLocales, boolean expectFailure)
 		throws Exception {
 
 		Portlet portlet = PortletLocalServiceUtil.getPortletById(
@@ -356,14 +491,10 @@ public abstract class BasePortletExportImportTestCase
 		try {
 			exportImportPortlet(getPortletId());
 
-			if (expectFailure) {
-				Assert.fail();
-			}
+			Assert.assertFalse(expectFailure);
 		}
 		catch (LocaleException le) {
-			if (!expectFailure) {
-				Assert.fail();
-			}
+			Assert.assertTrue(expectFailure);
 		}
 	}
 
@@ -393,14 +524,18 @@ public abstract class BasePortletExportImportTestCase
 		}
 
 		String className = templateHandler.getClassName();
+		long resourceClassNameId = PortalUtil.getClassNameId(
+			"com.liferay.portlet.display.template.PortletDisplayTemplate");
 
 		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
-			displayStyleGroupId, PortalUtil.getClassNameId(className), 0);
+			displayStyleGroupId, PortalUtil.getClassNameId(className), 0,
+			resourceClassNameId);
 
 		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		String displayStyle =
-			PortletDisplayTemplate.DISPLAY_STYLE_PREFIX + ddmTemplate.getUuid();
+			PortletDisplayTemplateManager.DISPLAY_STYLE_PREFIX +
+				ddmTemplate.getTemplateKey();
 
 		preferenceMap.put("displayStyle", new String[] {displayStyle});
 
@@ -478,13 +613,15 @@ public abstract class BasePortletExportImportTestCase
 					AssetEntryLocalServiceUtil.getEntry(
 						importedLink.getEntryId2());
 
-				if (!sourceAssetEntry.getClassUuid().equals(
+				if (!Validator.equals(
+						sourceAssetEntry.getClassUuid(),
 						importedLinkSourceAssetEntry.getClassUuid())) {
 
 					continue;
 				}
 
-				if (!targetAssetEntry.getClassUuid().equals(
+				if (!Validator.equals(
+						targetAssetEntry.getClassUuid(),
 						importedLinkTargetAssetEntry.getClassUuid())) {
 
 					continue;
@@ -502,6 +639,9 @@ public abstract class BasePortletExportImportTestCase
 		}
 
 		Assert.assertEquals(0, importedAssetLinks.size());
+	}
+
+	protected void validateVersions() throws Exception {
 	}
 
 }

@@ -20,7 +20,9 @@ import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.SearchContainerReference;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.util.ParamAndPropertyAncestorTagImpl;
@@ -45,6 +47,7 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		pageContext.setAttribute(
 			_searchContainer.getTotalVar(), _searchContainer.getTotal());
 
+		_cssClass = StringPool.BLANK;
 		_curParam = SearchContainer.DEFAULT_CUR_PARAM;
 		_delta = SearchContainer.DEFAULT_DELTA;
 		_deltaConfigurable = SearchContainer.DEFAULT_DELTA_CONFIGURABLE;
@@ -52,7 +55,6 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		_displayTerms = null;
 		_emptyResultsMessage = null;
 		_headerNames = null;
-		_hover = false;
 		_id = null;
 		_iteratorURL = null;
 		_orderByCol = null;
@@ -91,6 +93,10 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 					getDelta(), _iteratorURL, null, _emptyResultsMessage);
 			}
 
+			if (Validator.isNotNull(_cssClass)) {
+				_searchContainer.setCssClass(_cssClass);
+			}
+
 			_searchContainer.setDeltaConfigurable(_deltaConfigurable);
 
 			if (Validator.isNotNull(_emptyResultsMessage)) {
@@ -101,27 +107,44 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 				_searchContainer.setHeaderNames(_headerNames);
 			}
 
-			_searchContainer.setHover(_hover);
-			_searchContainer.setId(_id);
-
-			if (Validator.isNotNull(_orderByCol)) {
-				_searchContainer.setOrderByCol(_orderByCol);
+			if (Validator.isNotNull(_id)) {
+				_searchContainer.setId(_id);
 			}
 
 			if (Validator.isNotNull(_orderByColParam)) {
 				_searchContainer.setOrderByColParam(_orderByColParam);
 			}
 
+			if (Validator.isNotNull(_orderByCol)) {
+				_searchContainer.setOrderByCol(_orderByCol);
+			}
+			else {
+				String orderByCol = ParamUtil.getString(
+					request, _searchContainer.getOrderByColParam(), null);
+
+				if (orderByCol != null) {
+					_searchContainer.setOrderByCol(orderByCol);
+				}
+			}
+
 			if (_orderByComparator != null) {
 				_searchContainer.setOrderByComparator(_orderByComparator);
+			}
+
+			if (Validator.isNotNull(_orderByTypeParam)) {
+				_searchContainer.setOrderByTypeParam(_orderByTypeParam);
 			}
 
 			if (Validator.isNotNull(_orderByType)) {
 				_searchContainer.setOrderByType(_orderByType);
 			}
+			else {
+				String orderByType = ParamUtil.getString(
+					request, _searchContainer.getOrderByTypeParam(), null);
 
-			if (Validator.isNotNull(_orderByTypeParam)) {
-				_searchContainer.setOrderByTypeParam(_orderByTypeParam);
+				if (orderByType != null) {
+					_searchContainer.setOrderByType(orderByType);
+				}
 			}
 
 			if (_rowChecker != null) {
@@ -155,6 +178,10 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		catch (Exception e) {
 			throw new JspException(e);
 		}
+	}
+
+	public String getCssClass() {
+		return _cssClass;
 	}
 
 	public String getCurParam() {
@@ -225,20 +252,22 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		return _var;
 	}
 
+	public boolean isCompactEmptyResultsMessage() {
+		return _compactEmptyResultsMessage;
+	}
+
 	public boolean isDeltaConfigurable() {
 		return _deltaConfigurable;
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, with no direct replacement. See LPS-41307.
-	 */
-	@Deprecated
-	public boolean isHasResults() {
-		return true;
+	public void setCompactEmptyResultsMessage(
+		boolean compactEmptyResultsMessage) {
+
+		_compactEmptyResultsMessage = compactEmptyResultsMessage;
 	}
 
-	public boolean isHover() {
-		return _hover;
+	public void setCssClass(String cssClass) {
+		_cssClass = cssClass;
 	}
 
 	public void setCurParam(String curParam) {
@@ -265,19 +294,8 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		_emptyResultsMessage = emptyResultsMessage;
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, see LPS-41307
-	 */
-	@Deprecated
-	public void setHasResults(boolean hasResults) {
-	}
-
 	public void setHeaderNames(String headerNames) {
 		_headerNames = ListUtil.toList(StringUtil.split(headerNames));
-	}
-
-	public void setHover(boolean hover) {
-		_hover = hover;
 	}
 
 	public void setId(String id) {
@@ -332,6 +350,8 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		_var = var;
 	}
 
+	private boolean _compactEmptyResultsMessage = false;
+	private String _cssClass = StringPool.BLANK;
 	private String _curParam = SearchContainer.DEFAULT_CUR_PARAM;
 	private int _delta = SearchContainer.DEFAULT_DELTA;
 	private boolean _deltaConfigurable =
@@ -340,7 +360,6 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 	private DisplayTerms _displayTerms;
 	private String _emptyResultsMessage;
 	private List<String> _headerNames;
-	private boolean _hover = true;
 	private String _id;
 	private PortletURL _iteratorURL;
 	private String _orderByCol;

@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.servlet.WebDirDetector;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ClassUtil;
@@ -30,8 +32,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.model.CompanyConstants;
-import com.liferay.portal.security.auth.CompanyThreadLocal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -257,11 +257,7 @@ public class PropsUtil {
 	private String _getDefaultLiferayHome() {
 		String defaultLiferayHome = null;
 
-		if (ServerDetector.isGeronimo()) {
-			defaultLiferayHome =
-				SystemProperties.get("org.apache.geronimo.home.dir") + "/..";
-		}
-		else if (ServerDetector.isGlassfish()) {
+		if (ServerDetector.isGlassfish()) {
 			defaultLiferayHome =
 				SystemProperties.get("com.sun.aas.installRoot") + "/..";
 		}

@@ -1,0 +1,35 @@
+apply plugin: "com.liferay.maven.plugin.builder"
+
+buildPluginDescriptor {
+	ext {
+		autoClean = false
+	}
+
+	finalizedBy formatSource
+	finalizedBy formatXML
+
+	goalPrefix = "liferay"
+}
+
+dependencies {
+	compile group: "com.memetix", name: "microsoft-translator-java-api", version: "0.6.2"
+	compile group: "log4j", name: "log4j", version: "1.2.17"
+
+	provided group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
+	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
+	provided group: "org.apache.ant", name: "ant", transitive: false, version: "1.9.4"
+	provided group: "org.apache.maven", name: "maven-plugin-api", transitive: false, version: "3.0.4"
+}
+
+formatSource {
+	mustRunAfter formatXML
+}
+
+liferay {
+	deployDir = "../../../tools/sdk/tmp/portal-tools/lang-builder"
+}
+
+updateFileVersions {
+	match(/\t\t\t\t<version>(.+)<\/version>/, "samples/pom.xml")
+	match(/com\.liferay\.lang\.builder=(.+)/, "../../sdk/gradle-plugins/src/main/resources/com/liferay/gradle/plugins/dependencies/portal-tools.properties")
+}

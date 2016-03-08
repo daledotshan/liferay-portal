@@ -14,22 +14,24 @@
 
 package com.liferay.util.mail;
 
-import com.liferay.mail.model.FileAttachment;
-import com.liferay.mail.service.MailServiceUtil;
+import com.liferay.mail.kernel.model.Account;
+import com.liferay.mail.kernel.model.FileAttachment;
+import com.liferay.mail.kernel.model.MailMessage;
+import com.liferay.mail.kernel.model.SMTPAccount;
+import com.liferay.mail.kernel.service.MailServiceUtil;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.log.LogUtil;
-import com.liferay.portal.kernel.mail.Account;
-import com.liferay.portal.kernel.mail.MailMessage;
-import com.liferay.portal.kernel.mail.SMTPAccount;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.File;
@@ -261,7 +263,7 @@ public class MailEngine {
 
 			subject = GetterUtil.getString(subject);
 
-			message.setSubject(subject);
+			message.setSubject(_sanitizeCRLF(subject));
 
 			if (ListUtil.isNotEmpty(fileAttachments)) {
 				MimeMultipart rootMultipart = new MimeMultipart(
@@ -337,12 +339,12 @@ public class MailEngine {
 			}
 
 			if (messageId != null) {
-				message.setHeader("Message-ID", messageId);
+				message.setHeader("Message-ID", _sanitizeCRLF(messageId));
 			}
 
 			if (inReplyTo != null) {
-				message.setHeader("In-Reply-To", inReplyTo);
-				message.setHeader("References", inReplyTo);
+				message.setHeader("In-Reply-To", _sanitizeCRLF(inReplyTo));
+				message.setHeader("References", _sanitizeCRLF(inReplyTo));
 			}
 
 			int batchSize = GetterUtil.getInteger(
@@ -517,6 +519,12 @@ public class MailEngine {
 	private static boolean _isThrowsExceptionOnFailure() {
 		return GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.MAIL_THROWS_EXCEPTION_ON_FAILURE));
+	}
+
+	private static String _sanitizeCRLF(String text) {
+		return StringUtil.replace(
+			text, new String[] {StringPool.NEW_LINE, StringPool.RETURN},
+			new String[] {StringPool.SPACE, StringPool.SPACE});
 	}
 
 	private static void _send(

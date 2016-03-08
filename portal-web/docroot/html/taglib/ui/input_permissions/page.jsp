@@ -86,13 +86,13 @@ String modelName = (String)request.getAttribute("liferay-ui:input-permissions:mo
 					<liferay-ui:message key="viewable-by" />
 				</label>
 
-				<select id="<%= uniqueNamespace %>inputPermissionsViewRole" name="<%= namespace %>inputPermissionsViewRole" onChange="<%= uniqueNamespace + "updatePermissionsView();" %>">
+				<select class="form-control" id="<%= uniqueNamespace %>inputPermissionsViewRole" name="<%= namespace %>inputPermissionsViewRole" onChange="<%= uniqueNamespace + "updatePermissionsView();" %>">
 
 					<%
 					String guestRoleLabel = LanguageUtil.format(request, "x-role", guestRole.getTitle(themeDisplay.getLocale()), false);
 
 					if (PropsValues.PERMISSIONS_CHECK_GUEST_ENABLED) {
-						guestRoleLabel = LanguageUtil.get(request, "anyone") + StringPool.SPACE + StringPool.OPEN_PARENTHESIS + guestRoleLabel + StringPool.CLOSE_PARENTHESIS;
+						guestRoleLabel = LanguageUtil.get(resourceBundle, "anyone") + StringPool.SPACE + StringPool.OPEN_PARENTHESIS + guestRoleLabel + StringPool.CLOSE_PARENTHESIS;
 					}
 					%>
 
@@ -121,10 +121,10 @@ String modelName = (String)request.getAttribute("liferay-ui:input-permissions:mo
 				</select>
 
 				<span <%= inputPermissionsShowOptions ? "class=\"hide\"" : "" %> id="<%= uniqueNamespace %>inputPermissionsShowOptionsLink">
-					<a href="javascript:<%= uniqueNamespace %>inputPermissionsShowOptions();" style="margin-left: 10px;"><liferay-ui:message key="more-options" /> &raquo;</a> <liferay-ui:icon-help message="input-permissions-more-options-help" />
+					<a href="javascript:<%= uniqueNamespace %>inputPermissionsShowOptions();"><liferay-ui:message key="more-options" /></a> <liferay-ui:icon-help message="input-permissions-more-options-help" />
 				</span>
 
-				<a <%= inputPermissionsShowOptions ? "" : "class=\"hide\"" %> href="javascript:<%= uniqueNamespace %>inputPermissionsHideOptions();" id="<%= uniqueNamespace %>inputPermissionsHideOptionsLink" style="margin-left: 10px;">&laquo; <liferay-ui:message key="hide-options" /></a>
+				<a <%= inputPermissionsShowOptions ? "" : "class=\"hide\"" %> href="javascript:<%= uniqueNamespace %>inputPermissionsHideOptions();" id="<%= uniqueNamespace %>inputPermissionsHideOptionsLink"><liferay-ui:message key="hide-options" /></a>
 			</p>
 		</c:if>
 
@@ -206,7 +206,7 @@ String modelName = (String)request.getAttribute("liferay-ui:input-permissions:mo
 						checkboxFieldId = checkboxFieldId + StringPool.UNDERLINE + action;
 					%>
 
-						<td <%= (action.equals(ActionKeys.VIEW)) ? "class=\"hide-accessible\"" : "" %>>
+						<td <%= (action.equals(ActionKeys.VIEW)) ? "class=\"hide\"" : "" %>>
 							<label class="hidden-label" for="<%= checkboxFieldId %>"><liferay-ui:message arguments="<%= new Object[] {ResourceActionsUtil.getAction(request, action), role.getTitle(themeDisplay.getLocale())} %>" key="give-x-permission-to-users-with-role-x" translateArguments="<%= false %>" /></label>
 
 							<input <%= checked ? "checked" : "" %> <%= disabled ? "disabled" : "" %> id="<%= checkboxFieldId %>" name="<%= checkboxFieldName %>" title='<%= LanguageUtil.format(request, "give-x-permission-to-users-with-role-x", new Object[] {ResourceActionsUtil.getAction(request, action), role.getTitle(themeDisplay.getLocale())}, false) %>' type="checkbox" value="<%= action %>" />
@@ -249,8 +249,8 @@ String modelName = (String)request.getAttribute("liferay-ui:input-permissions:mo
 
 				var viewableBy = $('#<%= uniqueNamespace %>inputPermissionsViewRole').val();
 
-				var checkGuestViewPermissions = false;
 				var checkGroupViewPermissions = false;
+				var checkGuestViewPermissions = false;
 
 				if (viewableBy == '<%= RoleConstants.GUEST %>') {
 					checkGuestViewPermissions = true;

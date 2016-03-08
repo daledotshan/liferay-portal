@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchOrgLaborException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchOrgLaborException;
+import com.liferay.portal.kernel.model.OrgLabor;
+import com.liferay.portal.kernel.service.OrgLaborLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.OrgLaborPersistence;
+import com.liferay.portal.kernel.service.persistence.OrgLaborUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -28,16 +32,13 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.model.OrgLabor;
-import com.liferay.portal.service.OrgLaborLocalServiceUtil;
-import com.liferay.portal.service.persistence.OrgLaborPersistence;
-import com.liferay.portal.service.persistence.OrgLaborUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -54,8 +55,9 @@ import java.util.Set;
  * @generated
  */
 public class OrgLaborPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -114,6 +116,8 @@ public class OrgLaborPersistenceTest {
 
 		newOrgLabor.setMvccVersion(RandomTestUtil.nextLong());
 
+		newOrgLabor.setCompanyId(RandomTestUtil.nextLong());
+
 		newOrgLabor.setOrganizationId(RandomTestUtil.nextLong());
 
 		newOrgLabor.setTypeId(RandomTestUtil.nextLong());
@@ -154,6 +158,8 @@ public class OrgLaborPersistenceTest {
 			newOrgLabor.getMvccVersion());
 		Assert.assertEquals(existingOrgLabor.getOrgLaborId(),
 			newOrgLabor.getOrgLaborId());
+		Assert.assertEquals(existingOrgLabor.getCompanyId(),
+			newOrgLabor.getCompanyId());
 		Assert.assertEquals(existingOrgLabor.getOrganizationId(),
 			newOrgLabor.getOrganizationId());
 		Assert.assertEquals(existingOrgLabor.getTypeId(),
@@ -189,15 +195,10 @@ public class OrgLaborPersistenceTest {
 	}
 
 	@Test
-	public void testCountByOrganizationId() {
-		try {
-			_persistence.countByOrganizationId(RandomTestUtil.nextLong());
+	public void testCountByOrganizationId() throws Exception {
+		_persistence.countByOrganizationId(RandomTestUtil.nextLong());
 
-			_persistence.countByOrganizationId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByOrganizationId(0L);
 	}
 
 	@Test
@@ -209,37 +210,27 @@ public class OrgLaborPersistenceTest {
 		Assert.assertEquals(existingOrgLabor, newOrgLabor);
 	}
 
-	@Test
+	@Test(expected = NoSuchOrgLaborException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchOrgLaborException");
-		}
-		catch (NoSuchOrgLaborException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<OrgLabor> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("OrgLabor", "mvccVersion",
-			true, "orgLaborId", true, "organizationId", true, "typeId", true,
-			"sunOpen", true, "sunClose", true, "monOpen", true, "monClose",
-			true, "tueOpen", true, "tueClose", true, "wedOpen", true,
-			"wedClose", true, "thuOpen", true, "thuClose", true, "friOpen",
-			true, "friClose", true, "satOpen", true, "satClose", true);
+			true, "orgLaborId", true, "companyId", true, "organizationId",
+			true, "typeId", true, "sunOpen", true, "sunClose", true, "monOpen",
+			true, "monClose", true, "tueOpen", true, "tueClose", true,
+			"wedOpen", true, "wedClose", true, "thuOpen", true, "thuClose",
+			true, "friOpen", true, "friClose", true, "satOpen", true,
+			"satClose", true);
 	}
 
 	@Test
@@ -348,11 +339,9 @@ public class OrgLaborPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = OrgLaborLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<OrgLabor>() {
 				@Override
-				public void performAction(Object object) {
-					OrgLabor orgLabor = (OrgLabor)object;
-
+				public void performAction(OrgLabor orgLabor) {
 					Assert.assertNotNull(orgLabor);
 
 					count.increment();
@@ -442,6 +431,8 @@ public class OrgLaborPersistenceTest {
 		OrgLabor orgLabor = _persistence.create(pk);
 
 		orgLabor.setMvccVersion(RandomTestUtil.nextLong());
+
+		orgLabor.setCompanyId(RandomTestUtil.nextLong());
 
 		orgLabor.setOrganizationId(RandomTestUtil.nextLong());
 

@@ -691,7 +691,7 @@ public class PluginsEnvironmentBuilder {
 			}
 		}
 
-		addClasspathEntry(sb, "/portal/portal-service/portal-service.jar");
+		addClasspathEntry(sb, "/portal/portal-kernel/portal-kernel.jar");
 		addClasspathEntry(sb, "/portal/util-bridges/util-bridges.jar");
 		addClasspathEntry(sb, "/portal/util-java/util-java.jar");
 
@@ -837,7 +837,7 @@ public class PluginsEnvironmentBuilder {
 			String projectDirName, String projectName, boolean javaProject)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(17);
+		StringBundler sb = new StringBundler(19);
 
 		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
 		sb.append("<projectDescription>\n");

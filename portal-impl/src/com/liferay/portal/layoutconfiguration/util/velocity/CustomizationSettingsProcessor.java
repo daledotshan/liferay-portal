@@ -14,15 +14,18 @@
 
 package com.liferay.portal.layoutconfiguration.util.velocity;
 
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.CustomizedPages;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.portlet.PortletProvider;
+import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.JSPSupportServlet;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.model.CustomizedPages;
-import com.liferay.portal.model.Layout;
-import com.liferay.portlet.layoutsadmin.context.LayoutsAdminDisplayContext;
-import com.liferay.portlet.sites.util.SitesUtil;
+import com.liferay.sites.kernel.util.SitesUtil;
 import com.liferay.taglib.aui.InputTag;
 
 import java.io.Writer;
@@ -42,8 +45,7 @@ import javax.servlet.jsp.tagext.Tag;
 public class CustomizationSettingsProcessor implements ColumnProcessor {
 
 	public CustomizationSettingsProcessor(
-			HttpServletRequest request, HttpServletResponse response)
-		throws PortalException {
+		HttpServletRequest request, HttpServletResponse response) {
 
 		JspFactory jspFactory = JspFactory.getDefaultFactory();
 
@@ -53,10 +55,14 @@ public class CustomizationSettingsProcessor implements ColumnProcessor {
 
 		_writer = _pageContext.getOut();
 
-		LayoutsAdminDisplayContext layoutsAdminDisplayContext =
-			new LayoutsAdminDisplayContext(request, null);
+		Layout selLayout = null;
 
-		Layout selLayout = layoutsAdminDisplayContext.getSelLayout();
+		long selPlid = ParamUtil.getLong(
+			request, "selPlid", LayoutConstants.DEFAULT_PLID);
+
+		if (selPlid != LayoutConstants.DEFAULT_PLID) {
+			selLayout = LayoutLocalServiceUtil.fetchLayout(selPlid);
+		}
 
 		_layoutTypeSettings = selLayout.getTypeSettingsProperties();
 
@@ -100,11 +106,15 @@ public class CustomizationSettingsProcessor implements ColumnProcessor {
 		InputTag inputTag = new InputTag();
 
 		inputTag.setDisabled(!_customizationEnabled);
-		inputTag.setLabel("customizable");
+		inputTag.setDynamicAttribute(
+			StringPool.BLANK, "labelOff", "no-customizable");
+		inputTag.setDynamicAttribute(
+			StringPool.BLANK, "labelOn", "customizable");
+		inputTag.setLabel(StringPool.BLANK);
 		inputTag.setName(
 			"TypeSettingsProperties--".concat(customizableKey).concat("--"));
 		inputTag.setPageContext(_pageContext);
-		inputTag.setType("checkbox");
+		inputTag.setType("toggle-switch");
 		inputTag.setValue(customizable);
 
 		int result = inputTag.doStartTag();
@@ -145,6 +155,18 @@ public class CustomizationSettingsProcessor implements ColumnProcessor {
 	public String processPortlet(
 			String portletId, Map<String, ?> defaultSettingsMap)
 		throws Exception {
+
+		return processPortlet(portletId);
+	}
+
+	@Override
+	public String processPortlet(
+			String portletProviderClassName,
+			PortletProvider.Action portletProviderAction)
+		throws Exception {
+
+		String portletId = PortletProviderUtil.getPortletId(
+			portletProviderClassName, portletProviderAction);
 
 		return processPortlet(portletId);
 	}

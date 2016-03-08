@@ -16,15 +16,20 @@ package com.liferay.portlet.blogs.subscriptions;
 
 import com.dumbster.smtp.MailMessage;
 
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.settings.GroupServiceSettingsLocator;
 import com.liferay.portal.kernel.settings.ModifiableSettings;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
-import com.liferay.portal.kernel.test.rule.SynchronousMailTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
-import com.liferay.portal.kernel.test.util.MailServiceTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -34,15 +39,10 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
-import com.liferay.portlet.blogs.util.BlogsConstants;
+import com.liferay.portal.test.rule.SynchronousMailTestRule;
+import com.liferay.portal.util.test.MailServiceTestUtil;
+import com.liferay.portlet.blogs.constants.BlogsConstants;
 import com.liferay.portlet.blogs.util.test.BlogsTestUtil;
 
 import org.junit.Assert;
@@ -61,8 +61,7 @@ public class BlogsSubscriptionEmailEntryUpdatedCommentTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
-			SynchronousMailTestRule.INSTANCE);
+			new LiferayIntegrationTestRule(), SynchronousMailTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
@@ -105,7 +104,7 @@ public class BlogsSubscriptionEmailEntryUpdatedCommentTest {
 	public void testEmailEntryUpdatedSentWithEmailEntryUpdatedComment()
 		throws Exception {
 
-		setUpBlogsSettings();
+		setUpBlogsGroupServiceSettings();
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -143,7 +142,7 @@ public class BlogsSubscriptionEmailEntryUpdatedCommentTest {
 	public void testEmailEntryUpdatedSentWithEmptyEmailEntryUpdatedComment()
 		throws Exception {
 
-		setUpBlogsSettings();
+		setUpBlogsGroupServiceSettings();
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -175,9 +174,10 @@ public class BlogsSubscriptionEmailEntryUpdatedCommentTest {
 		Assert.assertEquals(message.getBody(), StringPool.NEW_LINE);
 	}
 
-	protected void setUpBlogsSettings() throws Exception {
-		Settings settings = SettingsFactoryUtil.getGroupServiceSettings(
-			_group.getGroupId(), BlogsConstants.SERVICE_NAME);
+	protected void setUpBlogsGroupServiceSettings() throws Exception {
+		Settings settings = SettingsFactoryUtil.getSettings(
+			new GroupServiceSettingsLocator(
+				_group.getGroupId(), BlogsConstants.SERVICE_NAME));
 
 		ModifiableSettings modifiableSettings =
 			settings.getModifiableSettings();

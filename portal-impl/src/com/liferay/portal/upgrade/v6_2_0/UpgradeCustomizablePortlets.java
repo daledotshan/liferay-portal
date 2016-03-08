@@ -15,21 +15,20 @@
 package com.liferay.portal.upgrade.v6_2_0;
 
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.model.CustomizedPages;
+import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.PortletPreferences;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.model.CustomizedPages;
-import com.liferay.portal.model.LayoutTypePortletConstants;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.PortletPreferences;
 import com.liferay.portal.model.impl.PortletPreferencesImpl;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.PortalPreferencesImpl;
 import com.liferay.portlet.PortalPreferencesWrapper;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -43,17 +42,14 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select ownerId, ownerType, preferences from " +
 					"PortalPreferences where preferences like " +
-						"'%com.liferay.portal.model.CustomizedPages%'");
+						"'%com.liferay.portal.kernel.model.CustomizedPages%'");
 
 			rs = ps.executeQuery();
 
@@ -73,7 +69,7 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 			}
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
@@ -91,14 +87,11 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 			long ownerId, int ownerType, long plid, String portletId)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"select portletPreferencesId, ownerId, ownerType, plid, " +
 					"portletId, preferences from PortletPreferences where " +
 						"ownerId = ?, ownerType = ?, plid = ?, portletId = ?");
@@ -128,7 +121,7 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 			return portletPreferences;
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
@@ -154,14 +147,11 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 			long userId, long plid, String portletId, String newPortletId)
 		throws Exception {
 
-		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+			ps = connection.prepareStatement(
 				"update PortletPreferences set ownerId = ?, ownerType = ?, " +
 					"plid = ?, portletId = ? where ownerId = ? and " +
 						"ownerType = ? and plid = ? and portletId = ?");
@@ -178,7 +168,7 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 			ps.executeUpdate();
 		}
 		finally {
-			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps, rs);
 		}
 	}
 
@@ -203,8 +193,8 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 
 		while (x != -1) {
 
-			// <name>com.liferay.portal.model.CustomizedPages10415#column-1
-			// </name>
+			// <name>com.liferay.portal.kernel.model.CustomizedPages10415#
+			// column-1</name>
 
 			String[] parts = StringUtil.split(
 				preferences.substring(x, y), StringPool.POUND);
@@ -243,7 +233,7 @@ public class UpgradeCustomizablePortlets extends UpgradeProcess {
 	}
 
 	private static final String _PREFIX =
-		"<name>com.liferay.portal.model.CustomizedPages";
+		"<name>com.liferay.portal.kernel.model.CustomizedPages";
 
 	private static final String _SUFFIX = "</name>";
 
