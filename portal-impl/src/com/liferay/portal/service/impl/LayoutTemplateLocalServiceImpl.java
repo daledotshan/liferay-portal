@@ -18,6 +18,9 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.DummyWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.LayoutTemplate;
+import com.liferay.portal.kernel.model.LayoutTemplateConstants;
+import com.liferay.portal.kernel.model.PluginSetting;
 import com.liferay.portal.kernel.plugin.PluginPackage;
 import com.liferay.portal.kernel.template.StringTemplateResource;
 import com.liferay.portal.kernel.template.Template;
@@ -32,11 +35,8 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.layoutconfiguration.util.velocity.InitColumnProcessor;
-import com.liferay.portal.model.LayoutTemplate;
-import com.liferay.portal.model.LayoutTemplateConstants;
-import com.liferay.portal.model.PluginSetting;
 import com.liferay.portal.model.impl.LayoutTemplateImpl;
 import com.liferay.portal.service.base.LayoutTemplateLocalServiceBaseImpl;
 import com.liferay.portal.util.PropsValues;
@@ -215,45 +215,6 @@ public class LayoutTemplateLocalServiceImpl
 	}
 
 	@Override
-	public String getWapContent(
-		String layoutTemplateId, boolean standard, String themeId) {
-
-		LayoutTemplate layoutTemplate = getLayoutTemplate(
-			layoutTemplateId, standard, themeId);
-
-		if (layoutTemplate == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"Layout template " + layoutTemplateId + " does not exist");
-			}
-
-			layoutTemplate = getLayoutTemplate(
-				PropsValues.DEFAULT_LAYOUT_TEMPLATE_ID, standard, themeId);
-
-			if (layoutTemplate == null) {
-				_log.error(
-					"Layout template " + layoutTemplateId +
-						" and default layout template " +
-							PropsValues.DEFAULT_LAYOUT_TEMPLATE_ID +
-								" do not exist");
-
-				return StringPool.BLANK;
-			}
-		}
-
-		if (PropsValues.LAYOUT_TEMPLATE_CACHE_ENABLED) {
-			return layoutTemplate.getWapContent();
-		}
-
-		try {
-			return layoutTemplate.getUncachedWapContent();
-		}
-		catch (IOException ioe) {
-			throw new SystemException(ioe);
-		}
-	}
-
-	@Override
 	public List<LayoutTemplate> init(
 		ServletContext servletContext, String[] xmls,
 		PluginPackage pluginPackage) {
@@ -357,10 +318,6 @@ public class LayoutTemplateLocalServiceImpl
 				GetterUtil.getString(
 					layoutTemplateElement.elementText("template-path"),
 					layoutTemplateModel.getTemplatePath()));
-			layoutTemplateModel.setWapTemplatePath(
-				GetterUtil.getString(
-					layoutTemplateElement.elementText("wap-template-path"),
-					layoutTemplateModel.getWapTemplatePath()));
 			layoutTemplateModel.setThumbnailPath(
 				GetterUtil.getString(
 					layoutTemplateElement.elementText("thumbnail-path"),
@@ -404,36 +361,6 @@ public class LayoutTemplateLocalServiceImpl
 				layoutTemplateModel.setContent(content);
 				layoutTemplateModel.setColumns(
 					_getColumns(velocityTemplateId, content));
-			}
-
-			if (Validator.isNull(layoutTemplateModel.getWapTemplatePath())) {
-				_log.error(
-					"The element wap-template-path is not defined for " +
-						layoutTemplateId);
-			}
-			else {
-				String wapContent = null;
-
-				try {
-					wapContent = HttpUtil.URLtoString(
-						servletContext.getResource(
-							layoutTemplateModel.getWapTemplatePath()));
-				}
-				catch (Exception e) {
-					_log.error(
-						"Unable to get content at WAP template path " +
-							layoutTemplateModel.getWapTemplatePath() + ": " +
-								e.getMessage());
-				}
-
-				if (Validator.isNull(wapContent)) {
-					_log.error(
-						"No content found at WAP template path " +
-							layoutTemplateModel.getWapTemplatePath());
-				}
-				else {
-					layoutTemplateModel.setWapContent(wapContent);
-				}
 			}
 
 			Element rolesElement = layoutTemplateElement.element("roles");
@@ -607,7 +534,7 @@ public class LayoutTemplateLocalServiceImpl
 			return layoutTemplates;
 		}
 
-		Document document = SAXReaderUtil.read(xml, true);
+		Document document = UnsecureSAXReaderUtil.read(xml, true);
 
 		Element rootElement = document.getRootElement();
 

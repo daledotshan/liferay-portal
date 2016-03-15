@@ -14,13 +14,13 @@
 
 package com.liferay.portal.model.adapter.impl;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.model.Theme;
+import com.liferay.portal.kernel.model.adapter.StagedTheme;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Theme;
-import com.liferay.portal.model.adapter.StagedTheme;
 import com.liferay.portal.model.impl.ThemeImpl;
-import com.liferay.portal.security.auth.CompanyThreadLocal;
-import com.liferay.portlet.expando.model.ExpandoBridge;
 
 import java.io.Serializable;
 
@@ -93,12 +93,12 @@ public class StagedThemeImpl extends ThemeImpl implements StagedTheme {
 	}
 
 	@Override
-	public void setCreateDate(Date date) {
+	public void setCreateDate(Date createDate) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void setModifiedDate(Date date) {
+	public void setModifiedDate(Date modifiedDate) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -1,0 +1,165 @@
+<definition>
+	<var name="columnSize" value="12" />
+	<var name="formDescription" value="Created Form Description" />
+	<var name="formName" value="Created Form Name" />
+	<var name="rowNumber" value="1" />
+
+	<command name="addColumn">
+		<var name="key_columnLineNumber" value="${columnLineNumber}" />
+		<var name="key_rowNumber" value="${rowNumber}" />
+
+		<execute function="MouseOver#mouseOverNotVisible" locator1="Form#ADD_COLUMN_RIGHT" />
+
+		<execute function="DragAndDrop#dragAndDropToObjectNotVisible" locator1="Form#ADD_COLUMN_RIGHT" locator2="Form#ADD_COLUMN_LINE" value1="" />
+	</command>
+
+	<command name="addPage">
+		<execute function="Click" locator1="Form#PAGE_CONTROLS_ELLIPSIS_ICON" />
+
+		<execute function="AssertClick" locator1="Form#PAGE_CONTROLS_ADD_NEW_PAGE" value1="Add New Page" />
+	</command>
+
+	<command name="clickPublishSwitcher">
+		<execute function="Click" locator1="Form#PUBLISH_FORM_SWITCHER" />
+	</command>
+
+	<command name="configureWorkflow">
+		<execute function="Select" locator1="AssetWorkflow#ALL_STRUCTURES_WORKFLOW_SELECT" value1="${workflowDefinition}" />
+
+		<execute macro="Button#clickDone" />
+	</command>
+
+	<command name="editDescription">
+		<execute function="Type#typeAceEditor" locator1="Form#DESCRIPTION_FIELD" value1="${formDescription}" />
+	</command>
+
+	<command name="editFieldDataProvider">
+		<execute macro="FormFields#selectRadioOption">
+			<var name="fieldName" value="dataSourceType" />
+			<var name="radioOption" value="From Data Provider" />
+		</execute>
+
+		<execute macro="FormFields#selectSelectOption">
+			<var name="fieldName" value="ddmDataProviderInstanceId" />
+			<var name="selectOption" value="${dataProvider}" />
+		</execute>
+	</command>
+
+	<command name="editFieldLabel">
+		<execute macro="FormFields#editText">
+			<var name="fieldName" value="label" />
+			<var name="fieldValue" value="${fieldValue}" />
+		</execute>
+
+		<var method="StringUtil#replace('${fieldValue}', ' ', '')" name="fieldName" />
+
+		<execute macro="FormFields#viewFormName">
+			<var name="fieldName" value="${fieldName}" />
+		</execute>
+	</command>
+
+	<command name="editName">
+		<var name="key_columnSize" value="${columnSize}" />
+
+		<execute function="AssertVisible" locator1="Form#ADD_FIRST_FIELD" />
+		<execute function="AssertVisible" locator1="Form#NAME_FIELD" />
+		<execute function="AssertVisible" locator1="Form#DESCRIPTION_FIELD" />
+
+		<execute function="Pause" locator1="5000" />
+
+		<execute function="Click" locator1="Form#NAME_FIELD" />
+
+		<execute function="Type#typeEditor" locator1="AlloyEditor#NAME_FIELD" value1="${formName}" />
+	</command>
+
+	<command name="editPageDescription">
+		<execute function="Type" locator1="Form#PAGE_DESCRIPTION_FIELD" value1="${formPageDescription}" />
+	</command>
+
+	<command name="editPageTitle">
+		<execute function="Type" locator1="Form#PAGE_TITLE_FIELD" value1="${formPageName}" />
+	</command>
+
+	<command name="gotoAddAdditionalField">
+		<var name="key_columnSize" value="${columnSize}" />
+		<var name="key_previousFieldLabel" value="${previousFieldLabel}" />
+
+		<execute function="Click#makeVisibleClickAt" locator1="Form#ADD_ADDITIONAL_FIELD" />
+
+		<var method="StringUtil#lowerCase('${fieldType}')" name="key_fieldType" />
+
+		<execute function="AssertClick" locator1="Form#ADD_FIELD_TYPE" value1="${fieldType}" />
+	</command>
+
+	<command name="gotoAddFirstField">
+		<var name="key_columnSize" value="${columnSize}" />
+
+		<execute function="Click" locator1="Form#ADD_FIRST_FIELD" />
+
+		<var method="StringUtil#lowerCase('${fieldType}')" name="key_fieldType" />
+
+		<execute function="AssertClick" locator1="Form#ADD_FIELD_TYPE" value1="${fieldType}" />
+	</command>
+
+	<command name="previewForm">
+		<execute macro="Navigator#selectSpecificWindow">
+			<var name="windowTitle" value="Form - Forms" />
+		</execute>
+
+		<var name="key_formName" value="${formName}" />
+
+		<execute function="AssertTextEquals" locator1="Form#PUBLISH_FORM_NAME_FIELD" value1="${formName}" />
+
+		<execute macro="FormFields#viewTextLabel">
+			<var name="fieldLabel" value="${fieldLabel}" />
+			<var name="fieldName" value="${fieldName}" />
+		</execute>
+
+		<execute function="AssertElementNotPresent" locator1="Button#SUBMIT" value1="Submit" />
+	</command>
+
+	<command name="save">
+		<execute function="AssertClick" locator1="Form#SAVE_BUTTON" value1="Save" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
+	<command name="saveAndPublish">
+		<execute function="Click" locator1="Form#SAVE_BUTTON_DROPDOWN" />
+
+		<execute function="AssertClick" locator1="Form#SAVE_BUTTON_DROPDOWN_SAVE_AND_PUBLISH_LIVE_PAGE" value1="Save and Publish Live Page" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
+	<command name="saveWithoutFormName">
+		<execute function="AssertClick" locator1="Form#SAVE_BUTTON_DISABLED" value1="Save" />
+
+		<execute function="AssertElementNotPresent" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+	</command>
+
+	<command name="viewFormName">
+		<execute function="AssertTextEquals" locator1="Form#NAME_FIELD" value1="${formName}" />
+	</command>
+
+	<command name="viewFormNotPublished">
+		<execute macro="FormsAdminNavigator#openPublishURL" />
+
+		<execute function="AssertTextEquals" locator1="Message#ERROR_3_ALT" value1="This form is not available or it was not published." />
+	</command>
+
+	<command name="viewFormPublish">
+		<execute macro="FormsAdminNavigator#openPublishURL" />
+
+		<var name="key_formName" value="${formName}" />
+
+		<execute function="AssertTextEquals" locator1="Form#PUBLISH_FORM_NAME_FIELD" value1="${formName}" />
+
+		<execute macro="FormFields#viewTextLabel">
+			<var name="fieldLabel" value="${fieldLabel}" />
+			<var name="fieldName" value="${fieldName}" />
+		</execute>
+
+		<execute function="AssertElementPresent" locator1="Button#SUBMIT" value1="Submit" />
+	</command>
+</definition>

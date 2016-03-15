@@ -14,28 +14,29 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchUserGroupRoleException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchUserGroupRoleException;
+import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.UserGroupRolePK;
+import com.liferay.portal.kernel.service.persistence.UserGroupRolePersistence;
+import com.liferay.portal.kernel.service.persistence.UserGroupRoleUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
-import com.liferay.portal.model.UserGroupRole;
-import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
-import com.liferay.portal.service.persistence.UserGroupRolePK;
-import com.liferay.portal.service.persistence.UserGroupRolePersistence;
-import com.liferay.portal.service.persistence.UserGroupRoleUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -52,8 +53,9 @@ import java.util.Set;
  * @generated
  */
 public class UserGroupRolePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -114,6 +116,8 @@ public class UserGroupRolePersistenceTest {
 
 		newUserGroupRole.setMvccVersion(RandomTestUtil.nextLong());
 
+		newUserGroupRole.setCompanyId(RandomTestUtil.nextLong());
+
 		_userGroupRoles.add(_persistence.update(newUserGroupRole));
 
 		UserGroupRole existingUserGroupRole = _persistence.findByPrimaryKey(newUserGroupRole.getPrimaryKey());
@@ -126,68 +130,45 @@ public class UserGroupRolePersistenceTest {
 			newUserGroupRole.getGroupId());
 		Assert.assertEquals(existingUserGroupRole.getRoleId(),
 			newUserGroupRole.getRoleId());
+		Assert.assertEquals(existingUserGroupRole.getCompanyId(),
+			newUserGroupRole.getCompanyId());
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByRoleId() {
-		try {
-			_persistence.countByRoleId(RandomTestUtil.nextLong());
+	public void testCountByRoleId() throws Exception {
+		_persistence.countByRoleId(RandomTestUtil.nextLong());
 
-			_persistence.countByRoleId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRoleId(0L);
 	}
 
 	@Test
-	public void testCountByU_G() {
-		try {
-			_persistence.countByU_G(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByU_G() throws Exception {
+		_persistence.countByU_G(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByU_G(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_G(0L, 0L);
 	}
 
 	@Test
-	public void testCountByG_R() {
-		try {
-			_persistence.countByG_R(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByG_R() throws Exception {
+		_persistence.countByG_R(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByG_R(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_R(0L, 0L);
 	}
 
 	@Test
@@ -199,19 +180,12 @@ public class UserGroupRolePersistenceTest {
 		Assert.assertEquals(existingUserGroupRole, newUserGroupRole);
 	}
 
-	@Test
+	@Test(expected = NoSuchUserGroupRoleException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		UserGroupRolePK pk = new UserGroupRolePK(RandomTestUtil.nextLong(),
 				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchUserGroupRoleException");
-		}
-		catch (NoSuchUserGroupRoleException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
@@ -324,11 +298,9 @@ public class UserGroupRolePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = UserGroupRoleLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<UserGroupRole>() {
 				@Override
-				public void performAction(Object object) {
-					UserGroupRole userGroupRole = (UserGroupRole)object;
-
+				public void performAction(UserGroupRole userGroupRole) {
 					Assert.assertNotNull(userGroupRole);
 
 					count.increment();
@@ -427,6 +399,8 @@ public class UserGroupRolePersistenceTest {
 		UserGroupRole userGroupRole = _persistence.create(pk);
 
 		userGroupRole.setMvccVersion(RandomTestUtil.nextLong());
+
+		userGroupRole.setCompanyId(RandomTestUtil.nextLong());
 
 		_userGroupRoles.add(_persistence.update(userGroupRole));
 

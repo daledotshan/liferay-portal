@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchResourcePermissionException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchResourcePermissionException;
+import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersistence;
+import com.liferay.portal.kernel.service.persistence.ResourcePermissionUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,17 +35,13 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.ResourcePermission;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
-import com.liferay.portal.service.persistence.ResourcePermissionPersistence;
-import com.liferay.portal.service.persistence.ResourcePermissionUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class ResourcePermissionPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -126,11 +127,15 @@ public class ResourcePermissionPersistenceTest {
 
 		newResourcePermission.setPrimKey(RandomTestUtil.randomString());
 
+		newResourcePermission.setPrimKeyId(RandomTestUtil.nextLong());
+
 		newResourcePermission.setRoleId(RandomTestUtil.nextLong());
 
 		newResourcePermission.setOwnerId(RandomTestUtil.nextLong());
 
 		newResourcePermission.setActionIds(RandomTestUtil.nextLong());
+
+		newResourcePermission.setViewActionId(RandomTestUtil.randomBoolean());
 
 		_resourcePermissions.add(_persistence.update(newResourcePermission));
 
@@ -148,121 +153,117 @@ public class ResourcePermissionPersistenceTest {
 			newResourcePermission.getScope());
 		Assert.assertEquals(existingResourcePermission.getPrimKey(),
 			newResourcePermission.getPrimKey());
+		Assert.assertEquals(existingResourcePermission.getPrimKeyId(),
+			newResourcePermission.getPrimKeyId());
 		Assert.assertEquals(existingResourcePermission.getRoleId(),
 			newResourcePermission.getRoleId());
 		Assert.assertEquals(existingResourcePermission.getOwnerId(),
 			newResourcePermission.getOwnerId());
 		Assert.assertEquals(existingResourcePermission.getActionIds(),
 			newResourcePermission.getActionIds());
+		Assert.assertEquals(existingResourcePermission.getViewActionId(),
+			newResourcePermission.getViewActionId());
 	}
 
 	@Test
-	public void testCountByScope() {
-		try {
-			_persistence.countByScope(RandomTestUtil.nextInt());
+	public void testCountByScope() throws Exception {
+		_persistence.countByScope(RandomTestUtil.nextInt());
 
-			_persistence.countByScope(0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByScope(0);
 	}
 
 	@Test
-	public void testCountByScopeArrayable() {
-		try {
-			_persistence.countByScope(new int[] { RandomTestUtil.nextInt(), 0 });
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByScopeArrayable() throws Exception {
+		_persistence.countByScope(new int[] { RandomTestUtil.nextInt(), 0 });
 	}
 
 	@Test
-	public void testCountByRoleId() {
-		try {
-			_persistence.countByRoleId(RandomTestUtil.nextLong());
+	public void testCountByRoleId() throws Exception {
+		_persistence.countByRoleId(RandomTestUtil.nextLong());
 
-			_persistence.countByRoleId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRoleId(0L);
 	}
 
 	@Test
-	public void testCountByC_LikeP() {
-		try {
-			_persistence.countByC_LikeP(RandomTestUtil.nextLong(),
-				StringPool.BLANK);
+	public void testCountByC_LikeP() throws Exception {
+		_persistence.countByC_LikeP(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_LikeP(0L, StringPool.NULL);
+		_persistence.countByC_LikeP(0L, StringPool.NULL);
 
-			_persistence.countByC_LikeP(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_LikeP(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByC_N_S() {
-		try {
-			_persistence.countByC_N_S(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextInt());
+	public void testCountByC_N_S() throws Exception {
+		_persistence.countByC_N_S(RandomTestUtil.nextLong(), StringPool.BLANK,
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_N_S(0L, StringPool.NULL, 0);
+		_persistence.countByC_N_S(0L, StringPool.NULL, 0);
 
-			_persistence.countByC_N_S(0L, (String)null, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_N_S(0L, (String)null, 0);
 	}
 
 	@Test
-	public void testCountByC_N_S_P() {
-		try {
-			_persistence.countByC_N_S_P(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextInt(), StringPool.BLANK);
+	public void testCountByC_S_P() throws Exception {
+		_persistence.countByC_S_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt(), StringPool.BLANK);
 
-			_persistence.countByC_N_S_P(0L, StringPool.NULL, 0, StringPool.NULL);
+		_persistence.countByC_S_P(0L, 0, StringPool.NULL);
 
-			_persistence.countByC_N_S_P(0L, (String)null, 0, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_S_P(0L, 0, (String)null);
 	}
 
 	@Test
-	public void testCountByC_N_S_P_R() {
-		try {
-			_persistence.countByC_N_S_P_R(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextInt(), StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByC_N_S_P() throws Exception {
+		_persistence.countByC_N_S_P(RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextInt(), StringPool.BLANK);
 
-			_persistence.countByC_N_S_P_R(0L, StringPool.NULL, 0,
-				StringPool.NULL, 0L);
+		_persistence.countByC_N_S_P(0L, StringPool.NULL, 0, StringPool.NULL);
 
-			_persistence.countByC_N_S_P_R(0L, (String)null, 0, (String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_N_S_P(0L, (String)null, 0, (String)null);
 	}
 
 	@Test
-	public void testCountByC_N_S_P_RArrayable() {
-		try {
-			_persistence.countByC_N_S_P_R(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomString(), RandomTestUtil.nextInt(),
-				RandomTestUtil.randomString(),
-				new long[] { RandomTestUtil.nextLong(), 0L });
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByC_N_S_P_R() throws Exception {
+		_persistence.countByC_N_S_P_R(RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextInt(), StringPool.BLANK,
+			RandomTestUtil.nextLong());
+
+		_persistence.countByC_N_S_P_R(0L, StringPool.NULL, 0, StringPool.NULL,
+			0L);
+
+		_persistence.countByC_N_S_P_R(0L, (String)null, 0, (String)null, 0L);
+	}
+
+	@Test
+	public void testCountByC_N_S_P_RArrayable() throws Exception {
+		_persistence.countByC_N_S_P_R(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomString(), RandomTestUtil.nextInt(),
+			RandomTestUtil.randomString(),
+			new long[] { RandomTestUtil.nextLong(), 0L });
+	}
+
+	@Test
+	public void testCountByC_N_S_P_R_V() throws Exception {
+		_persistence.countByC_N_S_P_R_V(RandomTestUtil.nextLong(),
+			StringPool.BLANK, RandomTestUtil.nextInt(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean());
+
+		_persistence.countByC_N_S_P_R_V(0L, StringPool.NULL, 0, 0L, 0L,
+			RandomTestUtil.randomBoolean());
+
+		_persistence.countByC_N_S_P_R_V(0L, (String)null, 0, 0L, 0L,
+			RandomTestUtil.randomBoolean());
+	}
+
+	@Test
+	public void testCountByC_N_S_P_R_VArrayable() throws Exception {
+		_persistence.countByC_N_S_P_R_V(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomString(), RandomTestUtil.nextInt(),
+			RandomTestUtil.nextLong(),
+			new long[] { RandomTestUtil.nextLong(), 0L },
+			RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -274,36 +275,25 @@ public class ResourcePermissionPersistenceTest {
 		Assert.assertEquals(existingResourcePermission, newResourcePermission);
 	}
 
-	@Test
+	@Test(expected = NoSuchResourcePermissionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchResourcePermissionException");
-		}
-		catch (NoSuchResourcePermissionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ResourcePermission> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("ResourcePermission",
 			"mvccVersion", true, "resourcePermissionId", true, "companyId",
-			true, "name", true, "scope", true, "primKey", true, "roleId", true,
-			"ownerId", true, "actionIds", true);
+			true, "name", true, "scope", true, "primKey", true, "primKeyId",
+			true, "roleId", true, "ownerId", true, "actionIds", true,
+			"viewActionId", true);
 	}
 
 	@Test
@@ -412,11 +402,9 @@ public class ResourcePermissionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ResourcePermissionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ResourcePermission>() {
 				@Override
-				public void performAction(Object object) {
-					ResourcePermission resourcePermission = (ResourcePermission)object;
-
+				public void performAction(ResourcePermission resourcePermission) {
 					Assert.assertNotNull(resourcePermission);
 
 					count.increment();
@@ -505,32 +493,30 @@ public class ResourcePermissionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		ResourcePermission newResourcePermission = addResourcePermission();
 
 		_persistence.clearCache();
 
 		ResourcePermission existingResourcePermission = _persistence.findByPrimaryKey(newResourcePermission.getPrimaryKey());
 
-		Assert.assertEquals(existingResourcePermission.getCompanyId(),
-			ReflectionTestUtil.invoke(existingResourcePermission,
+		Assert.assertEquals(Long.valueOf(
+				existingResourcePermission.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingResourcePermission,
 				"getOriginalCompanyId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingResourcePermission.getName(),
 				ReflectionTestUtil.invoke(existingResourcePermission,
 					"getOriginalName", new Class<?>[0])));
-		Assert.assertEquals(existingResourcePermission.getScope(),
-			ReflectionTestUtil.invoke(existingResourcePermission,
+		Assert.assertEquals(Integer.valueOf(
+				existingResourcePermission.getScope()),
+			ReflectionTestUtil.<Integer>invoke(existingResourcePermission,
 				"getOriginalScope", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingResourcePermission.getPrimKey(),
 				ReflectionTestUtil.invoke(existingResourcePermission,
 					"getOriginalPrimKey", new Class<?>[0])));
-		Assert.assertEquals(existingResourcePermission.getRoleId(),
-			ReflectionTestUtil.invoke(existingResourcePermission,
+		Assert.assertEquals(Long.valueOf(existingResourcePermission.getRoleId()),
+			ReflectionTestUtil.<Long>invoke(existingResourcePermission,
 				"getOriginalRoleId", new Class<?>[0]));
 	}
 
@@ -550,11 +536,15 @@ public class ResourcePermissionPersistenceTest {
 
 		resourcePermission.setPrimKey(RandomTestUtil.randomString());
 
+		resourcePermission.setPrimKeyId(RandomTestUtil.nextLong());
+
 		resourcePermission.setRoleId(RandomTestUtil.nextLong());
 
 		resourcePermission.setOwnerId(RandomTestUtil.nextLong());
 
 		resourcePermission.setActionIds(RandomTestUtil.nextLong());
+
+		resourcePermission.setViewActionId(RandomTestUtil.randomBoolean());
 
 		_resourcePermissions.add(_persistence.update(resourcePermission));
 

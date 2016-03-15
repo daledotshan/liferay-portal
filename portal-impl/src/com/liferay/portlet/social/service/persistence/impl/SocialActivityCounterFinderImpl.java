@@ -22,18 +22,17 @@ import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.Type;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.social.model.SocialActivityCounter;
 import com.liferay.portlet.social.model.impl.SocialActivityCounterImpl;
-import com.liferay.portlet.social.service.persistence.SocialActivityCounterFinder;
-import com.liferay.portlet.social.util.SocialCounterPeriodUtil;
+import com.liferay.social.kernel.model.SocialActivityCounter;
+import com.liferay.social.kernel.service.persistence.SocialActivityCounterFinder;
+import com.liferay.social.kernel.util.SocialCounterPeriodUtil;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.io.Serializable;
@@ -46,7 +45,7 @@ import java.util.List;
  * @author Zsolt Berentey
  */
 public class SocialActivityCounterFinderImpl
-	extends BasePersistenceImpl<SocialActivityCounter>
+	extends SocialActivityCounterFinderBaseImpl
 	implements SocialActivityCounterFinder {
 
 	public static final String COUNT_U_BY_G_C_N_S_E =
@@ -355,6 +354,7 @@ public class SocialActivityCounterFinderImpl
 	}
 
 	private static final PortalCache<String, Serializable> _activityCounters =
-		MultiVMPoolUtil.getCache(SocialActivityCounterFinder.class.getName());
+		MultiVMPoolUtil.getPortalCache(
+			SocialActivityCounterFinder.class.getName());
 
 }

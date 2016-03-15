@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchWorkflowDefinitionLinkException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchWorkflowDefinitionLinkException;
+import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
+import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.WorkflowDefinitionLinkPersistence;
+import com.liferay.portal.kernel.service.persistence.WorkflowDefinitionLinkUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,17 +35,13 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.WorkflowDefinitionLink;
-import com.liferay.portal.service.WorkflowDefinitionLinkLocalServiceUtil;
-import com.liferay.portal.service.persistence.WorkflowDefinitionLinkPersistence;
-import com.liferay.portal.service.persistence.WorkflowDefinitionLinkUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class WorkflowDefinitionLinkPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -176,57 +177,37 @@ public class WorkflowDefinitionLinkPersistenceTest {
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByG_C_C() {
-		try {
-			_persistence.countByG_C_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByG_C_C() throws Exception {
+		_persistence.countByG_C_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByG_C_C(0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_C_C(0L, 0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_W_W() {
-		try {
-			_persistence.countByC_W_W(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextInt());
+	public void testCountByC_W_W() throws Exception {
+		_persistence.countByC_W_W(RandomTestUtil.nextLong(), StringPool.BLANK,
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_W_W(0L, StringPool.NULL, 0);
+		_persistence.countByC_W_W(0L, StringPool.NULL, 0);
 
-			_persistence.countByC_W_W(0L, (String)null, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_W_W(0L, (String)null, 0);
 	}
 
 	@Test
-	public void testCountByG_C_C_C_T() {
-		try {
-			_persistence.countByG_C_C_C_T(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
+	public void testCountByG_C_C_C_T() throws Exception {
+		_persistence.countByG_C_C_C_T(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
-			_persistence.countByG_C_C_C_T(0L, 0L, 0L, 0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_C_C_C_T(0L, 0L, 0L, 0L, 0L);
 	}
 
 	@Test
@@ -239,29 +220,17 @@ public class WorkflowDefinitionLinkPersistenceTest {
 			newWorkflowDefinitionLink);
 	}
 
-	@Test
+	@Test(expected = NoSuchWorkflowDefinitionLinkException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchWorkflowDefinitionLinkException");
-		}
-		catch (NoSuchWorkflowDefinitionLinkException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<WorkflowDefinitionLink> getOrderByComparator() {
@@ -384,11 +353,10 @@ public class WorkflowDefinitionLinkPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = WorkflowDefinitionLinkLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<WorkflowDefinitionLink>() {
 				@Override
-				public void performAction(Object object) {
-					WorkflowDefinitionLink workflowDefinitionLink = (WorkflowDefinitionLink)object;
-
+				public void performAction(
+					WorkflowDefinitionLink workflowDefinitionLink) {
 					Assert.assertNotNull(workflowDefinitionLink);
 
 					count.increment();
@@ -481,30 +449,31 @@ public class WorkflowDefinitionLinkPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		WorkflowDefinitionLink newWorkflowDefinitionLink = addWorkflowDefinitionLink();
 
 		_persistence.clearCache();
 
 		WorkflowDefinitionLink existingWorkflowDefinitionLink = _persistence.findByPrimaryKey(newWorkflowDefinitionLink.getPrimaryKey());
 
-		Assert.assertEquals(existingWorkflowDefinitionLink.getGroupId(),
-			ReflectionTestUtil.invoke(existingWorkflowDefinitionLink,
+		Assert.assertEquals(Long.valueOf(
+				existingWorkflowDefinitionLink.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingWorkflowDefinitionLink,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingWorkflowDefinitionLink.getCompanyId(),
-			ReflectionTestUtil.invoke(existingWorkflowDefinitionLink,
+		Assert.assertEquals(Long.valueOf(
+				existingWorkflowDefinitionLink.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingWorkflowDefinitionLink,
 				"getOriginalCompanyId", new Class<?>[0]));
-		Assert.assertEquals(existingWorkflowDefinitionLink.getClassNameId(),
-			ReflectionTestUtil.invoke(existingWorkflowDefinitionLink,
+		Assert.assertEquals(Long.valueOf(
+				existingWorkflowDefinitionLink.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingWorkflowDefinitionLink,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingWorkflowDefinitionLink.getClassPK(),
-			ReflectionTestUtil.invoke(existingWorkflowDefinitionLink,
+		Assert.assertEquals(Long.valueOf(
+				existingWorkflowDefinitionLink.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingWorkflowDefinitionLink,
 				"getOriginalClassPK", new Class<?>[0]));
-		Assert.assertEquals(existingWorkflowDefinitionLink.getTypePK(),
-			ReflectionTestUtil.invoke(existingWorkflowDefinitionLink,
+		Assert.assertEquals(Long.valueOf(
+				existingWorkflowDefinitionLink.getTypePK()),
+			ReflectionTestUtil.<Long>invoke(existingWorkflowDefinitionLink,
 				"getOriginalTypePK", new Class<?>[0]));
 	}
 

@@ -17,6 +17,7 @@ package com.liferay.portal.resiliency.spi.agent;
 import com.liferay.portal.kernel.io.BigEndianCodec;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.nio.intraband.Datagram;
 import com.liferay.portal.kernel.nio.intraband.mailbox.MailboxException;
 import com.liferay.portal.kernel.nio.intraband.mailbox.MailboxUtil;
@@ -36,11 +37,9 @@ import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtilAdvice;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.ThreadLocalDistributor;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.test.rule.AdviseWith;
 import com.liferay.portal.test.rule.AspectJNewEnvTestRule;
@@ -162,7 +161,8 @@ public class SPIAgentSerializableTest {
 			Assert.assertEquals(
 				"Nonserializable distributed request attribute name " +
 					distributedNonserializable + " with value " +
-						distributedNonserializable, logRecord.getMessage());
+						distributedNonserializable,
+				logRecord.getMessage());
 
 			Assert.assertEquals(1, distributedRequestAttributes.size());
 			Assert.assertEquals(
@@ -184,7 +184,8 @@ public class SPIAgentSerializableTest {
 			Assert.assertEquals(
 				"Nonserializable distributed request attribute name " +
 					distributedNonserializable + " with value " +
-						distributedNonserializable, logRecord.getMessage());
+						distributedNonserializable,
+				logRecord.getMessage());
 
 			logRecord = logRecords.get(1);
 
@@ -411,7 +412,8 @@ public class SPIAgentSerializableTest {
 			Assert.assertEquals(
 				"Nonserializable session attribute name " +
 					nonserializableAttribute + " with value " +
-						nonserializableAttribute, logRecord.getMessage());
+						nonserializableAttribute,
+				logRecord.getMessage());
 
 			Assert.assertEquals(2, sessionAttributes.size());
 			Assert.assertEquals(
@@ -440,14 +442,16 @@ public class SPIAgentSerializableTest {
 			Assert.assertEquals(
 				"Nonserializable session attribute name " +
 					nonserializableAttribute + " with value " +
-						nonserializableAttribute, logRecord.getMessage());
+						nonserializableAttribute,
+				logRecord.getMessage());
 
 			logRecord = logRecords.get(1);
 
 			Assert.assertEquals(
 				"Nonserializable session attribute name " +
 					nonserializableAttribute + " with value " +
-						nonserializableAttribute, logRecord.getMessage());
+						nonserializableAttribute,
+				logRecord.getMessage());
 
 			Assert.assertEquals(2, sessionAttributes.size());
 			Assert.assertEquals(
@@ -594,9 +598,9 @@ public class SPIAgentSerializableTest {
 		};
 
 		ClassLoader oldClassLoader = ClassLoaderPool.getClassLoader(
-			StringPool.BLANK);
+			_SERVLET_CONTEXT_NAME);
 
-		ClassLoaderPool.register(StringPool.BLANK, incapableClassLoader);
+		ClassLoaderPool.register(_SERVLET_CONTEXT_NAME, incapableClassLoader);
 
 		byte[] receiptData = new byte[8];
 
@@ -615,7 +619,7 @@ public class SPIAgentSerializableTest {
 				ClassNotFoundException.class, throwable.getClass());
 		}
 		finally {
-			ClassLoaderPool.register(StringPool.BLANK, oldClassLoader);
+			ClassLoaderPool.register(_SERVLET_CONTEXT_NAME, oldClassLoader);
 		}
 
 		// Successfully receive

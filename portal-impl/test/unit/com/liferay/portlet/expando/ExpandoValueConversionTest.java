@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.expando;
 
-import com.liferay.portlet.expando.model.ExpandoColumnConstants;
+import com.liferay.expando.kernel.model.ExpandoColumnConstants;
 import com.liferay.portlet.expando.service.impl.ExpandoValueLocalServiceImpl;
 
 import java.math.BigDecimal;
@@ -56,7 +56,7 @@ public class ExpandoValueConversionTest {
 
 	@Test
 	public void testBooleanArray1() {
-		boolean[] convertedBoooleans  = _converter.convertType(
+		boolean[] convertedBoooleans = _converter.convertType(
 			ExpandoColumnConstants.BOOLEAN_ARRAY, "true");
 
 		Assert.assertEquals(1, convertedBoooleans.length);
@@ -65,7 +65,7 @@ public class ExpandoValueConversionTest {
 
 	@Test
 	public void testBooleanArray2() {
-		boolean[] convertedBoooleans  = _converter.convertType(
+		boolean[] convertedBoooleans = _converter.convertType(
 			ExpandoColumnConstants.BOOLEAN_ARRAY, "false,true");
 
 		Assert.assertEquals(2, convertedBoooleans.length);
@@ -81,7 +81,7 @@ public class ExpandoValueConversionTest {
 
 	@Test
 	public void testBooleanArray4() {
-		boolean[] convertedBoooleans  = _converter.convertType(
+		boolean[] convertedBoooleans = _converter.convertType(
 			ExpandoColumnConstants.BOOLEAN_ARRAY, "[false,true]");
 
 		Assert.assertEquals(2, convertedBoooleans.length);
@@ -446,7 +446,7 @@ public class ExpandoValueConversionTest {
 	@Test(expected = TypeConversionException.class)
 	public void testFloatArray6() {
 		_converter.convertType(
-			ExpandoColumnConstants.FLOAT_ARRAY,"[\"34.67f\",12.45f]");
+			ExpandoColumnConstants.FLOAT_ARRAY, "[\"34.67f\",12.45f]");
 	}
 
 	@Test(expected = TypeConversionException.class)
@@ -674,7 +674,8 @@ public class ExpandoValueConversionTest {
 
 	@Test(expected = TypeConversionException.class)
 	public void testLongArray6() {
-		_converter.convertType(ExpandoColumnConstants.LONG_ARRAY,"[\"34\",12]");
+		_converter.convertType(
+			ExpandoColumnConstants.LONG_ARRAY, "[\"34\",12]");
 	}
 
 	@Test(expected = TypeConversionException.class)
@@ -968,7 +969,7 @@ public class ExpandoValueConversionTest {
 
 	private final Converter _converter = new Converter();
 
-	private class Converter extends ExpandoValueLocalServiceImpl {
+	private static class Converter extends ExpandoValueLocalServiceImpl {
 
 		@Override
 		public <T> T convertType(int type, Object data) {

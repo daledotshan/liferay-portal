@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.asset.service.persistence.test;
 
+import com.liferay.asset.kernel.exception.NoSuchCategoryPropertyException;
+import com.liferay.asset.kernel.model.AssetCategoryProperty;
+import com.liferay.asset.kernel.service.AssetCategoryPropertyLocalServiceUtil;
+import com.liferay.asset.kernel.service.persistence.AssetCategoryPropertyPersistence;
+import com.liferay.asset.kernel.service.persistence.AssetCategoryPropertyUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -33,17 +39,11 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.asset.NoSuchCategoryPropertyException;
-import com.liferay.portlet.asset.model.AssetCategoryProperty;
-import com.liferay.portlet.asset.service.AssetCategoryPropertyLocalServiceUtil;
-import com.liferay.portlet.asset.service.persistence.AssetCategoryPropertyPersistence;
-import com.liferay.portlet.asset.service.persistence.AssetCategoryPropertyUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,8 +60,9 @@ import java.util.Set;
  * @generated
  */
 public class AssetCategoryPropertyPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -162,55 +163,35 @@ public class AssetCategoryPropertyPersistenceTest {
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByCategoryId() {
-		try {
-			_persistence.countByCategoryId(RandomTestUtil.nextLong());
+	public void testCountByCategoryId() throws Exception {
+		_persistence.countByCategoryId(RandomTestUtil.nextLong());
 
-			_persistence.countByCategoryId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCategoryId(0L);
 	}
 
 	@Test
-	public void testCountByC_K() {
-		try {
-			_persistence.countByC_K(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByC_K() throws Exception {
+		_persistence.countByC_K(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_K(0L, StringPool.NULL);
+		_persistence.countByC_K(0L, StringPool.NULL);
 
-			_persistence.countByC_K(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_K(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByCA_K() {
-		try {
-			_persistence.countByCA_K(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByCA_K() throws Exception {
+		_persistence.countByCA_K(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByCA_K(0L, StringPool.NULL);
+		_persistence.countByCA_K(0L, StringPool.NULL);
 
-			_persistence.countByCA_K(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCA_K(0L, (String)null);
 	}
 
 	@Test
@@ -223,29 +204,17 @@ public class AssetCategoryPropertyPersistenceTest {
 			newAssetCategoryProperty);
 	}
 
-	@Test
+	@Test(expected = NoSuchCategoryPropertyException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchCategoryPropertyException");
-		}
-		catch (NoSuchCategoryPropertyException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<AssetCategoryProperty> getOrderByComparator() {
@@ -366,11 +335,10 @@ public class AssetCategoryPropertyPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = AssetCategoryPropertyLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<AssetCategoryProperty>() {
 				@Override
-				public void performAction(Object object) {
-					AssetCategoryProperty assetCategoryProperty = (AssetCategoryProperty)object;
-
+				public void performAction(
+					AssetCategoryProperty assetCategoryProperty) {
 					Assert.assertNotNull(assetCategoryProperty);
 
 					count.increment();
@@ -459,18 +427,15 @@ public class AssetCategoryPropertyPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		AssetCategoryProperty newAssetCategoryProperty = addAssetCategoryProperty();
 
 		_persistence.clearCache();
 
 		AssetCategoryProperty existingAssetCategoryProperty = _persistence.findByPrimaryKey(newAssetCategoryProperty.getPrimaryKey());
 
-		Assert.assertEquals(existingAssetCategoryProperty.getCategoryId(),
-			ReflectionTestUtil.invoke(existingAssetCategoryProperty,
+		Assert.assertEquals(Long.valueOf(
+				existingAssetCategoryProperty.getCategoryId()),
+			ReflectionTestUtil.<Long>invoke(existingAssetCategoryProperty,
 				"getOriginalCategoryId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingAssetCategoryProperty.getKey(),

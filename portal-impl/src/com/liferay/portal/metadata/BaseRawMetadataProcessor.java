@@ -14,17 +14,17 @@
 
 package com.liferay.portal.metadata;
 
+import com.liferay.dynamic.data.mapping.kernel.DDMForm;
+import com.liferay.dynamic.data.mapping.kernel.DDMFormField;
+import com.liferay.dynamic.data.mapping.kernel.DDMFormFieldValue;
+import com.liferay.dynamic.data.mapping.kernel.DDMFormValues;
+import com.liferay.dynamic.data.mapping.kernel.UnlocalizedValue;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.metadata.RawMetadataProcessor;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
-import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
-import com.liferay.portlet.dynamicdatamapping.model.UnlocalizedValue;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormFieldValue;
-import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 
 import java.io.File;
 import java.io.InputStream;
@@ -43,9 +43,10 @@ import org.apache.tika.metadata.CreativeCommons;
 import org.apache.tika.metadata.DublinCore;
 import org.apache.tika.metadata.Geographic;
 import org.apache.tika.metadata.HttpHeaders;
-import org.apache.tika.metadata.MSOffice;
 import org.apache.tika.metadata.Message;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.Office;
+import org.apache.tika.metadata.OfficeOpenXMLCore;
 import org.apache.tika.metadata.Property;
 import org.apache.tika.metadata.TIFF;
 import org.apache.tika.metadata.TikaMetadataKeys;
@@ -226,7 +227,8 @@ public abstract class BaseRawMetadataProcessor implements RawMetadataProcessor {
 		_addFields(Geographic.class, fields);
 		_addFields(HttpHeaders.class, fields);
 		_addFields(Message.class, fields);
-		_addFields(MSOffice.class, fields);
+		_addFields(Office.class, fields);
+		_addFields(OfficeOpenXMLCore.class, fields);
 		_addFields(TIFF.class, fields);
 		_addFields(TikaMetadataKeys.class, fields);
 		_addFields(TikaMimeKeys.class, fields);

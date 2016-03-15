@@ -14,13 +14,13 @@
 
 package com.liferay.portal.kernel.test.util;
 
-import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.test.randomizerbumpers.RandomizerBumper;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PwdGenerator;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import java.util.Arrays;
@@ -55,14 +55,59 @@ public class RandomTestUtil {
 		return _random.nextBoolean();
 	}
 
-	public static byte[] randomBytes() {
-		String string = randomString();
+	@SafeVarargs
+	public static byte[] randomBytes(
+		int size, RandomizerBumper<byte[]>... randomizerBumpers) {
 
-		return string.getBytes();
+		byte[] bytes = new byte[size];
+
+		generation:
+		for (int i = 0; i < _RANDOMIZER_BUMPER_TRIES_MAX; i++) {
+			_random.nextBytes(bytes);
+
+			for (RandomizerBumper<byte[]> randomizerBumper :
+					randomizerBumpers) {
+
+				if (!randomizerBumper.accept(bytes)) {
+					continue generation;
+				}
+			}
+
+			return bytes;
+		}
+
+		throw new IllegalStateException(
+			"Unable to generate a random byte array that is acceptable by " +
+				"all randomizer bumpers " + Arrays.toString(randomizerBumpers) +
+					" after " + _RANDOMIZER_BUMPER_TRIES_MAX + " tries");
 	}
 
-	public static InputStream randomInputStream() {
-		return new ByteArrayInputStream(randomBytes());
+	@SafeVarargs
+	public static byte[] randomBytes(
+		RandomizerBumper<byte[]>... randomizerBumpers) {
+
+		return randomBytes(8, randomizerBumpers);
+	}
+
+	public static double randomDouble() {
+		double value = _random.nextDouble();
+
+		if (value > 0) {
+			return value;
+		}
+		else if (value == 0) {
+			return randomDouble();
+		}
+		else {
+			return -value;
+		}
+	}
+
+	@SafeVarargs
+	public static InputStream randomInputStream(
+		RandomizerBumper<byte[]>... randomizerBumpers) {
+
+		return new UnsyncByteArrayInputStream(randomBytes(randomizerBumpers));
 	}
 
 	public static int randomInt() {
@@ -77,6 +122,31 @@ public class RandomTestUtil {
 		else {
 			return -value;
 		}
+	}
+
+	public static int randomInt(int min, int max)
+		throws IllegalArgumentException {
+
+		if ((min < 0) || (max < 0)) {
+			throw new IllegalArgumentException(
+				"Both min and max values must be positive");
+		}
+
+		if (max < min) {
+			throw new IllegalArgumentException(
+				"Max value must be greater than the min value");
+		}
+
+		int value = _random.nextInt(max - min + 1) + min;
+
+		if (value > 0) {
+			return value;
+		}
+		else if (value == 0) {
+			return randomInt(min, max);
+		}
+
+		return -value;
 	}
 
 	public static Map<Locale, String> randomLocaleStringMap() {

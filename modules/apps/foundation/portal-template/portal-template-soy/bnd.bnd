@@ -1,0 +1,26 @@
+Bundle-Name: Liferay Portal Template Soy
+Bundle-SymbolicName: com.liferay.portal.template.soy
+Bundle-Version: 1.0.1
+Import-Package:\
+	!com.google.inject.internal.asm.util,\
+	\
+	!javax.microedition.io,\
+	\
+	!org.objectweb.asm.util,\
+	*
+Liferay-Releng-Module-Group-Description:
+Liferay-Releng-Module-Group-Title: Template Engines
+-include: ../../app.bnd
+-liferay-includeresource:\
+	@aopalliance-*.jar,\
+	@args4j-*.jar,\
+	@asm-*.jar,\
+	@cglib-*.jar,\
+	@guava-*.jar,\
+	@guice-*.jar,\
+	@guice-assistedinject-*.jar,\
+	@guice-multibindings-*.jar,\
+	@icu4j-*.jar,\
+	@javax.inject-*.jar,\
+	@jsr305-*.jar,\
+	@soy-*.jar

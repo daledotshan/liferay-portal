@@ -14,12 +14,12 @@
 
 package com.liferay.portal.security.membershippolicy;
 
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.User;
 import com.liferay.registry.ServiceRegistration;
 
 import java.util.HashSet;
@@ -83,8 +83,7 @@ public abstract class BaseMembershipPolicyTestCase {
 	}
 
 	protected long[] addUsers() throws Exception {
-		User user1 = UserTestUtil.addUser(
-			RandomTestUtil.randomString(), group.getGroupId());
+		User user1 = UserTestUtil.addUser(group.getGroupId());
 
 		_userIds[0] = user1.getUserId();
 

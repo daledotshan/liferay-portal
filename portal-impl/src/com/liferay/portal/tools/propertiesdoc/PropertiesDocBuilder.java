@@ -40,17 +40,19 @@ import java.util.Map;
  */
 public class PropertiesDocBuilder {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		Map<String, String> arguments = ArgumentsUtil.parseArguments(args);
+
 		try {
-			new PropertiesDocBuilder (args);
+			new PropertiesDocBuilder(arguments);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			ArgumentsUtil.processMainException(arguments, e);
 		}
 	}
 
-	public PropertiesDocBuilder(String[] args) throws IOException {
-		Map<String, String> arguments = ArgumentsUtil.parseArguments(args);
+	public PropertiesDocBuilder(Map<String, String> arguments)
+		throws IOException {
 
 		String propertiesDestDirName = GetterUtil.getString(
 			arguments.get("properties.dest.dir"));
@@ -203,7 +205,7 @@ public class PropertiesDocBuilder {
 					previousLineIsExample = true;
 
 					String exampleProperty =
-						StringUtil.replaceFirst(line, "#", StringPool.BLANK) +
+						StringUtil.replaceFirst(line, '#', StringPool.BLANK) +
 							StringPool.NEW_LINE;
 
 					sb.append(exampleProperty);
@@ -247,7 +249,7 @@ public class PropertiesDocBuilder {
 				if (previousLineIsPreformatted) {
 					sb.append(
 						StringUtil.replaceFirst(
-							trimmedLine, "#", StringPool.BLANK));
+							trimmedLine, '#', StringPool.BLANK));
 				}
 				else {
 					addPropertyComment(propertyComments, sb.toString());
@@ -256,7 +258,7 @@ public class PropertiesDocBuilder {
 
 					sb.append(
 						StringUtil.replaceFirst(
-							trimmedLine, "#", StringPool.BLANK));
+							trimmedLine, '#', StringPool.BLANK));
 				}
 
 				sb.append(StringPool.NEW_LINE);
@@ -270,7 +272,7 @@ public class PropertiesDocBuilder {
 					sb = new StringBundler();
 
 					trimmedLine = StringUtil.replaceFirst(
-						trimmedLine, "#", StringPool.BLANK);
+						trimmedLine, '#', StringPool.BLANK);
 
 					sb.append(trimmedLine.trim());
 				}
@@ -279,7 +281,7 @@ public class PropertiesDocBuilder {
 						sb.append(StringPool.SPACE);
 					}
 
-					line = StringUtil.replaceFirst(line, "#", StringPool.BLANK);
+					line = StringUtil.replaceFirst(line, '#', StringPool.BLANK);
 
 					sb.append(line.trim());
 				}

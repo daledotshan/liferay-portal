@@ -28,6 +28,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface ExpectedLog {
 
+	public ExpectedDBType expectedDBType() default ExpectedDBType.NONE;
+
 	public String expectedLog();
 
 	public ExpectedType expectedType();

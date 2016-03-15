@@ -15,10 +15,9 @@
 package com.liferay.portal.upgrade.v6_0_0;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.upgrade.v6_0_0.util.ShoppingItemTable;
-
-import java.sql.SQLException;
 
 /**
  * @author Alexander Chow
@@ -27,24 +26,24 @@ public class UpgradeShopping extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		StringBundler sb = new StringBundler(3);
+		updateShoppingItem();
 
-		sb.append("update ShoppingItem set groupId = (select groupId from ");
-		sb.append("ShoppingCategory where ShoppingCategory.categoryId = ");
-		sb.append("ShoppingItem.categoryId)");
+		alter(
+			ShoppingItemTable.class,
+			new AlterColumnType("smallImageURL", "STRING null"),
+			new AlterColumnType("mediumImageURL", "STRING null"),
+			new AlterColumnType("largeImageURL", "STRING null"));
+	}
 
-		runSQL(sb.toString());
+	protected void updateShoppingItem() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			StringBundler sb = new StringBundler(3);
 
-		try {
-			runSQL("alter_column_type ShoppingItem smallImageURL STRING null");
-			runSQL("alter_column_type ShoppingItem mediumImageURL STRING null");
-			runSQL("alter_column_type ShoppingItem largeImageURL STRING null");
-		}
-		catch (SQLException sqle) {
-			upgradeTable(
-				ShoppingItemTable.TABLE_NAME, ShoppingItemTable.TABLE_COLUMNS,
-				ShoppingItemTable.TABLE_SQL_CREATE,
-				ShoppingItemTable.TABLE_SQL_ADD_INDEXES);
+			sb.append("update ShoppingItem set groupId = (select groupId ");
+			sb.append("from ShoppingCategory where ");
+			sb.append("ShoppingCategory.categoryId = ShoppingItem.categoryId)");
+
+			runSQL(sb.toString());
 		}
 	}
 
