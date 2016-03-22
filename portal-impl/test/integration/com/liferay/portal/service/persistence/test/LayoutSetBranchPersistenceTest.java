@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchLayoutSetBranchException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchLayoutSetBranchException;
+import com.liferay.portal.kernel.model.LayoutSetBranch;
+import com.liferay.portal.kernel.service.LayoutSetBranchLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.LayoutSetBranchPersistence;
+import com.liferay.portal.kernel.service.persistence.LayoutSetBranchUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -32,17 +36,13 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.LayoutSetBranch;
-import com.liferay.portal.service.LayoutSetBranchLocalServiceUtil;
-import com.liferay.portal.service.persistence.LayoutSetBranchPersistence;
-import com.liferay.portal.service.persistence.LayoutSetBranchUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,8 +59,9 @@ import java.util.Set;
  * @generated
  */
 public class LayoutSetBranchPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -145,10 +146,6 @@ public class LayoutSetBranchPersistenceTest {
 
 		newLayoutSetBranch.setColorSchemeId(RandomTestUtil.randomString());
 
-		newLayoutSetBranch.setWapThemeId(RandomTestUtil.randomString());
-
-		newLayoutSetBranch.setWapColorSchemeId(RandomTestUtil.randomString());
-
 		newLayoutSetBranch.setCss(RandomTestUtil.randomString());
 
 		newLayoutSetBranch.setSettings(RandomTestUtil.randomString());
@@ -193,10 +190,6 @@ public class LayoutSetBranchPersistenceTest {
 			newLayoutSetBranch.getThemeId());
 		Assert.assertEquals(existingLayoutSetBranch.getColorSchemeId(),
 			newLayoutSetBranch.getColorSchemeId());
-		Assert.assertEquals(existingLayoutSetBranch.getWapThemeId(),
-			newLayoutSetBranch.getWapThemeId());
-		Assert.assertEquals(existingLayoutSetBranch.getWapColorSchemeId(),
-			newLayoutSetBranch.getWapColorSchemeId());
 		Assert.assertEquals(existingLayoutSetBranch.getCss(),
 			newLayoutSetBranch.getCss());
 		Assert.assertEquals(existingLayoutSetBranch.getSettings(),
@@ -208,59 +201,39 @@ public class LayoutSetBranchPersistenceTest {
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByG_P() {
-		try {
-			_persistence.countByG_P(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByG_P() throws Exception {
+		_persistence.countByG_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean());
 
-			_persistence.countByG_P(0L, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P(0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByG_P_N() {
-		try {
-			_persistence.countByG_P_N(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), StringPool.BLANK);
+	public void testCountByG_P_N() throws Exception {
+		_persistence.countByG_P_N(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), StringPool.BLANK);
 
-			_persistence.countByG_P_N(0L, RandomTestUtil.randomBoolean(),
-				StringPool.NULL);
+		_persistence.countByG_P_N(0L, RandomTestUtil.randomBoolean(),
+			StringPool.NULL);
 
-			_persistence.countByG_P_N(0L, RandomTestUtil.randomBoolean(),
-				(String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P_N(0L, RandomTestUtil.randomBoolean(),
+			(String)null);
 	}
 
 	@Test
-	public void testCountByG_P_M() {
-		try {
-			_persistence.countByG_P_M(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), RandomTestUtil.randomBoolean());
+	public void testCountByG_P_M() throws Exception {
+		_persistence.countByG_P_M(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByG_P_M(0L, RandomTestUtil.randomBoolean(),
-				RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_P_M(0L, RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -272,40 +245,23 @@ public class LayoutSetBranchPersistenceTest {
 		Assert.assertEquals(existingLayoutSetBranch, newLayoutSetBranch);
 	}
 
-	@Test
+	@Test(expected = NoSuchLayoutSetBranchException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchLayoutSetBranchException");
-		}
-		catch (NoSuchLayoutSetBranchException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	@Test
 	public void testFilterFindByGroupId() throws Exception {
-		try {
-			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, getOrderByComparator());
 	}
 
 	protected OrderByComparator<LayoutSetBranch> getOrderByComparator() {
@@ -314,10 +270,8 @@ public class LayoutSetBranchPersistenceTest {
 			"companyId", true, "userId", true, "userName", true, "createDate",
 			true, "modifiedDate", true, "privateLayout", true, "name", true,
 			"description", true, "master", true, "logoId", true, "themeId",
-			true, "colorSchemeId", true, "wapThemeId", true,
-			"wapColorSchemeId", true, "css", true, "settings", true,
-			"layoutSetPrototypeUuid", true, "layoutSetPrototypeLinkEnabled",
-			true);
+			true, "colorSchemeId", true, "layoutSetPrototypeUuid", true,
+			"layoutSetPrototypeLinkEnabled", true);
 	}
 
 	@Test
@@ -426,11 +380,9 @@ public class LayoutSetBranchPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = LayoutSetBranchLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<LayoutSetBranch>() {
 				@Override
-				public void performAction(Object object) {
-					LayoutSetBranch layoutSetBranch = (LayoutSetBranch)object;
-
+				public void performAction(LayoutSetBranch layoutSetBranch) {
 					Assert.assertNotNull(layoutSetBranch);
 
 					count.increment();
@@ -518,21 +470,18 @@ public class LayoutSetBranchPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		LayoutSetBranch newLayoutSetBranch = addLayoutSetBranch();
 
 		_persistence.clearCache();
 
 		LayoutSetBranch existingLayoutSetBranch = _persistence.findByPrimaryKey(newLayoutSetBranch.getPrimaryKey());
 
-		Assert.assertEquals(existingLayoutSetBranch.getGroupId(),
-			ReflectionTestUtil.invoke(existingLayoutSetBranch,
+		Assert.assertEquals(Long.valueOf(existingLayoutSetBranch.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingLayoutSetBranch,
 				"getOriginalGroupId", new Class<?>[0]));
-		Assert.assertEquals(existingLayoutSetBranch.getPrivateLayout(),
-			ReflectionTestUtil.invoke(existingLayoutSetBranch,
+		Assert.assertEquals(Boolean.valueOf(
+				existingLayoutSetBranch.getPrivateLayout()),
+			ReflectionTestUtil.<Boolean>invoke(existingLayoutSetBranch,
 				"getOriginalPrivateLayout", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingLayoutSetBranch.getName(),
 				ReflectionTestUtil.invoke(existingLayoutSetBranch,
@@ -571,10 +520,6 @@ public class LayoutSetBranchPersistenceTest {
 		layoutSetBranch.setThemeId(RandomTestUtil.randomString());
 
 		layoutSetBranch.setColorSchemeId(RandomTestUtil.randomString());
-
-		layoutSetBranch.setWapThemeId(RandomTestUtil.randomString());
-
-		layoutSetBranch.setWapColorSchemeId(RandomTestUtil.randomString());
 
 		layoutSetBranch.setCss(RandomTestUtil.randomString());
 

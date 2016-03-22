@@ -32,21 +32,22 @@ MenuItem menuItem = (MenuItem)request.getAttribute("liferay-ui:menu_item:menuIte
 			url="<%= deleteMenuItem.getURL() %>"
 		/>
 	</c:when>
-	<c:when test="<%= menuItem instanceof JavascriptMenuItem %>">
+	<c:when test="<%= menuItem instanceof JavaScriptMenuItem %>">
 
 		<%
-		JavascriptMenuItem javascriptMenuItem = (JavascriptMenuItem)menuItem;
+		JavaScriptMenuItem javaScriptMenuItem = (JavaScriptMenuItem)menuItem;
 		%>
 
 		<liferay-ui:icon
-			iconCssClass="<%= javascriptMenuItem.getIcon() %>"
-			message="<%= javascriptMenuItem.getLabel() %>"
-			onClick="<%= javascriptMenuItem.getOnClick() %>"
+			data="<%= javaScriptMenuItem.getData() %>"
+			iconCssClass="<%= javaScriptMenuItem.getIcon() %>"
+			message="<%= javaScriptMenuItem.getLabel() %>"
+			onClick="<%= javaScriptMenuItem.getOnClick() %>"
 			url="javascript:;"
 		/>
 
 		<aui:script>
-			<%= javascriptMenuItem.getJavascript() %>
+			<%= javaScriptMenuItem.getJavaScript() %>
 		</aui:script>
 	</c:when>
 	<c:when test="<%= menuItem instanceof URLMenuItem %>">
@@ -56,6 +57,7 @@ MenuItem menuItem = (MenuItem)request.getAttribute("liferay-ui:menu_item:menuIte
 		%>
 
 		<liferay-ui:icon
+			data="<%= urlMenuItem.getData() %>"
 			iconCssClass="<%= urlMenuItem.getIcon() %>"
 			message="<%= urlMenuItem.getLabel() %>"
 			method="<%= urlMenuItem.getMethod() %>"

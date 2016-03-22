@@ -53,6 +53,14 @@ public abstract class BaseIconTag extends com.liferay.taglib.util.IncludeTag {
 		return _label;
 	}
 
+	public java.lang.String getMarkupView() {
+		return _markupView;
+	}
+
+	public java.lang.String getSrc() {
+		return _src;
+	}
+
 	public java.lang.String getTarget() {
 		return _target;
 	}
@@ -91,6 +99,18 @@ public abstract class BaseIconTag extends com.liferay.taglib.util.IncludeTag {
 		setScopedAttribute("label", label);
 	}
 
+	public void setMarkupView(java.lang.String markupView) {
+		_markupView = markupView;
+
+		setScopedAttribute("markupView", markupView);
+	}
+
+	public void setSrc(java.lang.String src) {
+		_src = src;
+
+		setScopedAttribute("src", src);
+	}
+
 	public void setTarget(java.lang.String target) {
 		_target = target;
 
@@ -112,6 +132,8 @@ public abstract class BaseIconTag extends com.liferay.taglib.util.IncludeTag {
 		_id = null;
 		_image = null;
 		_label = null;
+		_markupView = null;
+		_src = null;
 		_target = null;
 		_url = null;
 	}
@@ -128,6 +150,8 @@ public abstract class BaseIconTag extends com.liferay.taglib.util.IncludeTag {
 		setNamespacedAttribute(request, "id", _id);
 		setNamespacedAttribute(request, "image", _image);
 		setNamespacedAttribute(request, "label", _label);
+		setNamespacedAttribute(request, "markupView", _markupView);
+		setNamespacedAttribute(request, "src", _src);
 		setNamespacedAttribute(request, "target", _target);
 		setNamespacedAttribute(request, "url", _url);
 	}
@@ -142,6 +166,8 @@ public abstract class BaseIconTag extends com.liferay.taglib.util.IncludeTag {
 	private java.lang.String _id = null;
 	private java.lang.String _image = null;
 	private java.lang.String _label = null;
+	private java.lang.String _markupView = null;
+	private java.lang.String _src = null;
 	private java.lang.String _target = null;
 	private java.lang.String _url = null;
 

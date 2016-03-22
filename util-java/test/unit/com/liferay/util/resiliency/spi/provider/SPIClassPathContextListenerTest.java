@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,13 +108,13 @@ public class SPIClassPathContextListenerTest {
 
 		extNotJarFile.createNewFile();
 
-		// Global lib 1 directory for portal-service.jar
+		// Global lib 1 directory for portal-kernel.jar
 
 		File globalLib1Dir = new File(_CONTEXT_PATH, _GLOBAL_LIB_1_DIR_NAME);
 
 		globalLib1Dir.mkdir();
 
-		_portalServiceJarFile = new File(globalLib1Dir, "portal-service.jar");
+		_portalServiceJarFile = new File(globalLib1Dir, "portal-kernel.jar");
 
 		_portalServiceJarFile.createNewFile();
 
@@ -181,20 +182,21 @@ public class SPIClassPathContextListenerTest {
 
 				}));
 
-		PortalClassLoaderUtil.setClassLoader(new ClassLoader() {
+		PortalClassLoaderUtil.setClassLoader(
+			new ClassLoader() {
 
-			@Override
-			public URL getResource(String name) {
-				URL url = resources.get(name);
+				@Override
+				public URL getResource(String name) {
+					URL url = resources.get(name);
 
-				if (url != null) {
-					return url;
+					if (url != null) {
+						return url;
+					}
+
+					return super.getResource(name);
 				}
 
-				return super.getResource(name);
-			}
-
-		});
+			});
 	}
 
 	@After
@@ -470,7 +472,9 @@ public class SPIClassPathContextListenerTest {
 
 		// Does not exist
 
-		deleteFile(new File(_CONTEXT_PATH, dirName));
+		File file = new File(_CONTEXT_PATH, dirName);
+
+		deleteFile(file);
 
 		SPIClassPathContextListener spiClassPathContextListener =
 			new SPIClassPathContextListener();
@@ -483,13 +487,11 @@ public class SPIClassPathContextListenerTest {
 		}
 		catch (RuntimeException re) {
 			Assert.assertEquals(
-				"Unable to find directory " + _CONTEXT_PATH +
-					dirName, re.getMessage());
+				"Unable to find directory " + file.getAbsolutePath(),
+				re.getMessage());
 		}
 
 		// Not a directory
-
-		File file = new File(_CONTEXT_PATH, dirName);
 
 		file.deleteOnExit();
 
@@ -503,16 +505,16 @@ public class SPIClassPathContextListenerTest {
 		}
 		catch (RuntimeException re) {
 			Assert.assertEquals(
-				"Unable to find directory " + _CONTEXT_PATH +
-					dirName, re.getMessage());
+				"Unable to find directory " + file.getAbsolutePath(),
+				re.getMessage());
 		}
 		finally {
 			file.delete();
 		}
 	}
 
-	private static final String _CONTEXT_PATH = System.getProperty(
-		"java.io.tmpdir");
+	private static final String _CONTEXT_PATH = StringUtil.toLowerCase(
+		System.getProperty("java.io.tmpdir"));
 
 	private static final String _EMBEDDED_LIB_DIR_NAME = "/embeddedLib";
 
@@ -544,7 +546,7 @@ public class SPIClassPathContextListenerTest {
 
 	private File _portalServiceJarFile;
 
-	private class TestClass {
+	private static class TestClass {
 	}
 
 }

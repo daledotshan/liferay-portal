@@ -14,7 +14,15 @@
 
 package com.liferay.portlet.asset.service.impl;
 
+import com.liferay.asset.kernel.exception.DuplicateVocabularyException;
+import com.liferay.asset.kernel.exception.VocabularyNameException;
+import com.liferay.asset.kernel.model.AssetCategoryConstants;
+import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
@@ -26,27 +34,20 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.SystemEventConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.asset.DuplicateVocabularyException;
-import com.liferay.portlet.asset.VocabularyNameException;
-import com.liferay.portlet.asset.model.AssetCategoryConstants;
-import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.service.base.AssetVocabularyLocalServiceBaseImpl;
 import com.liferay.portlet.asset.util.AssetUtil;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -83,41 +84,22 @@ public class AssetVocabularyLocalServiceImpl
 		serviceContext.setScopeGroupId(groupId);
 
 		return assetVocabularyLocalService.addVocabulary(
-			defaultUserId, StringPool.BLANK, titleMap, null, StringPool.BLANK,
-			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	@Override
-	public AssetVocabulary addVocabulary(
-			long userId, Map<Locale, String> titleMap,
-			Map<Locale, String> descriptionMap, String settings,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return assetVocabularyLocalService.addVocabulary(
-			userId, StringPool.BLANK, titleMap, descriptionMap, settings,
-			serviceContext);
+			defaultUserId, groupId, StringPool.BLANK, titleMap, null,
+			StringPool.BLANK, serviceContext);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public AssetVocabulary addVocabulary(
-			long userId, String title, Map<Locale, String> titleMap,
-			Map<Locale, String> descriptionMap, String settings,
-			ServiceContext serviceContext)
+			long userId, long groupId, String title,
+			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
+			String settings, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Vocabulary
 
 		User user = userPersistence.findByPrimaryKey(userId);
-		long groupId = serviceContext.getScopeGroupId();
 		String name = titleMap.get(LocaleUtil.getSiteDefault());
-
-		Date now = new Date();
 
 		validate(groupId, name);
 
@@ -131,8 +113,6 @@ public class AssetVocabularyLocalServiceImpl
 		vocabulary.setCompanyId(user.getCompanyId());
 		vocabulary.setUserId(user.getUserId());
 		vocabulary.setUserName(user.getFullName());
-		vocabulary.setCreateDate(now);
-		vocabulary.setModifiedDate(now);
 		vocabulary.setName(name);
 
 		if (Validator.isNotNull(title)) {
@@ -158,8 +138,7 @@ public class AssetVocabularyLocalServiceImpl
 		}
 		else {
 			addVocabularyResources(
-				vocabulary, serviceContext.getGroupPermissions(),
-				serviceContext.getGuestPermissions());
+				vocabulary, serviceContext.getModelPermissions());
 		}
 
 		return vocabulary;
@@ -167,7 +146,8 @@ public class AssetVocabularyLocalServiceImpl
 
 	@Override
 	public AssetVocabulary addVocabulary(
-			long userId, String title, ServiceContext serviceContext)
+			long userId, long groupId, String title,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		Map<Locale, String> titleMap = new HashMap<>();
@@ -181,7 +161,8 @@ public class AssetVocabularyLocalServiceImpl
 		descriptionMap.put(locale, StringPool.BLANK);
 
 		return assetVocabularyLocalService.addVocabulary(
-			userId, title, titleMap, descriptionMap, null, serviceContext);
+			userId, groupId, title, titleMap, descriptionMap, null,
+			serviceContext);
 	}
 
 	@Override
@@ -199,14 +180,13 @@ public class AssetVocabularyLocalServiceImpl
 
 	@Override
 	public void addVocabularyResources(
-			AssetVocabulary vocabulary, String[] groupPermissions,
-			String[] guestPermissions)
+			AssetVocabulary vocabulary, ModelPermissions modelPermissions)
 		throws PortalException {
 
 		resourceLocalService.addModelResources(
 			vocabulary.getCompanyId(), vocabulary.getGroupId(),
 			vocabulary.getUserId(), AssetVocabulary.class.getName(),
-			vocabulary.getVocabularyId(), groupPermissions, guestPermissions);
+			vocabulary.getVocabularyId(), modelPermissions);
 	}
 
 	@Override
@@ -225,7 +205,7 @@ public class AssetVocabularyLocalServiceImpl
 		action = SystemEventConstants.ACTION_SKIP,
 		type = SystemEventConstants.TYPE_DELETE
 	)
-	public void deleteVocabulary(AssetVocabulary vocabulary)
+	public AssetVocabulary deleteVocabulary(AssetVocabulary vocabulary)
 		throws PortalException {
 
 		// Vocabulary
@@ -242,6 +222,8 @@ public class AssetVocabularyLocalServiceImpl
 
 		assetCategoryLocalService.deleteVocabularyCategories(
 			vocabulary.getVocabularyId());
+
+		return vocabulary;
 	}
 
 	@Override
@@ -355,8 +337,8 @@ public class AssetVocabularyLocalServiceImpl
 			if (vocabulary == null) {
 				vocabularies = null;
 
-				Indexer indexer = IndexerRegistryUtil.getIndexer(
-					AssetVocabulary.class);
+				Indexer<AssetVocabulary> indexer =
+					IndexerRegistryUtil.getIndexer(AssetVocabulary.class);
 
 				long companyId = GetterUtil.getLong(
 					document.get(Field.COMPANY_ID));
@@ -398,26 +380,19 @@ public class AssetVocabularyLocalServiceImpl
 			long companyId, long groupId, String title, int start, int end)
 		throws PortalException {
 
-		SearchContext searchContext = buildSearchContext(
-			companyId, groupId, title, start, end);
-
-		return searchVocabularies(searchContext);
+		return searchVocabularies(companyId, groupId, title, start, end, null);
 	}
 
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
 	@Override
-	public AssetVocabulary updateVocabulary(
-			long vocabularyId, Map<Locale, String> titleMap,
-			Map<Locale, String> descriptionMap, String settings,
-			ServiceContext serviceContext)
+	public BaseModelSearchResult<AssetVocabulary> searchVocabularies(
+			long companyId, long groupId, String title, int start, int end,
+			Sort sort)
 		throws PortalException {
 
-		return assetVocabularyLocalService.updateVocabulary(
-			vocabularyId, StringPool.BLANK, titleMap, descriptionMap, settings,
-			serviceContext);
+		SearchContext searchContext = buildSearchContext(
+			companyId, groupId, title, start, end, sort);
+
+		return searchVocabularies(searchContext);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -428,17 +403,15 @@ public class AssetVocabularyLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		long groupId = serviceContext.getScopeGroupId();
 		String name = titleMap.get(LocaleUtil.getSiteDefault());
 
 		AssetVocabulary vocabulary =
 			assetVocabularyPersistence.findByPrimaryKey(vocabularyId);
 
 		if (!vocabulary.getName().equals(name)) {
-			validate(groupId, name);
+			validate(vocabulary.getGroupId(), name);
 		}
 
-		vocabulary.setModifiedDate(new Date());
 		vocabulary.setName(name);
 		vocabulary.setTitleMap(titleMap);
 
@@ -455,15 +428,17 @@ public class AssetVocabularyLocalServiceImpl
 	}
 
 	protected SearchContext buildSearchContext(
-		long companyId, long groupId, String title, int start, int end) {
+		long companyId, long groupId, String title, int start, int end,
+		Sort sort) {
 
 		SearchContext searchContext = new SearchContext();
 
 		searchContext.setAttribute(Field.TITLE, title);
 		searchContext.setCompanyId(companyId);
 		searchContext.setEnd(end);
-		searchContext.setGroupIds(new long[]{groupId});
+		searchContext.setGroupIds(new long[] {groupId});
 		searchContext.setKeywords(title);
+		searchContext.setSorts(sort);
 		searchContext.setStart(start);
 
 		QueryConfig queryConfig = searchContext.getQueryConfig();
@@ -487,8 +462,8 @@ public class AssetVocabularyLocalServiceImpl
 			SearchContext searchContext)
 		throws PortalException {
 
-		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			AssetVocabulary.class);
+		Indexer<AssetVocabulary> indexer =
+			IndexerRegistryUtil.nullSafeGetIndexer(AssetVocabulary.class);
 
 		for (int i = 0; i < 10; i++) {
 			Hits hits = indexer.search(searchContext);
@@ -507,7 +482,8 @@ public class AssetVocabularyLocalServiceImpl
 
 	protected void validate(long groupId, String name) throws PortalException {
 		if (Validator.isNull(name)) {
-			throw new VocabularyNameException();
+			throw new VocabularyNameException(
+				"Category vocabulary name cannot be null for group " + groupId);
 		}
 
 		if (hasVocabulary(groupId, name)) {

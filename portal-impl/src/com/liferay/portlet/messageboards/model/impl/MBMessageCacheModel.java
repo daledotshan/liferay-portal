@@ -16,12 +16,12 @@ package com.liferay.portlet.messageboards.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.message.boards.kernel.model.MBMessage;
+
+import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-
-import com.liferay.portlet.messageboards.model.MBMessage;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(51);
+		StringBundler sb = new StringBundler(53);
 
 		sb.append("{uuid=");
 		sb.append(uuid);
@@ -110,6 +110,8 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 		sb.append(allowPingbacks);
 		sb.append(", answer=");
 		sb.append(answer);
+		sb.append(", lastPublishDate=");
+		sb.append(lastPublishDate);
 		sb.append(", status=");
 		sb.append(status);
 		sb.append(", statusByUserId=");
@@ -192,6 +194,14 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 		mbMessageImpl.setPriority(priority);
 		mbMessageImpl.setAllowPingbacks(allowPingbacks);
 		mbMessageImpl.setAnswer(answer);
+
+		if (lastPublishDate == Long.MIN_VALUE) {
+			mbMessageImpl.setLastPublishDate(null);
+		}
+		else {
+			mbMessageImpl.setLastPublishDate(new Date(lastPublishDate));
+		}
+
 		mbMessageImpl.setStatus(status);
 		mbMessageImpl.setStatusByUserId(statusByUserId);
 
@@ -217,27 +227,44 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		uuid = objectInput.readUTF();
+
 		messageId = objectInput.readLong();
+
 		groupId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
 		classNameId = objectInput.readLong();
+
 		classPK = objectInput.readLong();
+
 		categoryId = objectInput.readLong();
+
 		threadId = objectInput.readLong();
+
 		rootMessageId = objectInput.readLong();
+
 		parentMessageId = objectInput.readLong();
 		subject = objectInput.readUTF();
 		body = objectInput.readUTF();
 		format = objectInput.readUTF();
+
 		anonymous = objectInput.readBoolean();
+
 		priority = objectInput.readDouble();
+
 		allowPingbacks = objectInput.readBoolean();
+
 		answer = objectInput.readBoolean();
+		lastPublishDate = objectInput.readLong();
+
 		status = objectInput.readInt();
+
 		statusByUserId = objectInput.readLong();
 		statusByUserName = objectInput.readUTF();
 		statusDate = objectInput.readLong();
@@ -254,8 +281,11 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 		}
 
 		objectOutput.writeLong(messageId);
+
 		objectOutput.writeLong(groupId);
+
 		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
@@ -267,11 +297,17 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
+
 		objectOutput.writeLong(classNameId);
+
 		objectOutput.writeLong(classPK);
+
 		objectOutput.writeLong(categoryId);
+
 		objectOutput.writeLong(threadId);
+
 		objectOutput.writeLong(rootMessageId);
+
 		objectOutput.writeLong(parentMessageId);
 
 		if (subject == null) {
@@ -296,10 +332,16 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 		}
 
 		objectOutput.writeBoolean(anonymous);
+
 		objectOutput.writeDouble(priority);
+
 		objectOutput.writeBoolean(allowPingbacks);
+
 		objectOutput.writeBoolean(answer);
+		objectOutput.writeLong(lastPublishDate);
+
 		objectOutput.writeInt(status);
+
 		objectOutput.writeLong(statusByUserId);
 
 		if (statusByUserName == null) {
@@ -333,6 +375,7 @@ public class MBMessageCacheModel implements CacheModel<MBMessage>,
 	public double priority;
 	public boolean allowPingbacks;
 	public boolean answer;
+	public long lastPublishDate;
 	public int status;
 	public long statusByUserId;
 	public String statusByUserName;

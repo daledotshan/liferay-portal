@@ -14,17 +14,20 @@
 
 package com.liferay.portlet.documentlibrary.util;
 
-import com.liferay.portal.kernel.lar.PortletDataContext;
+import com.liferay.document.library.kernel.util.DLProcessor;
+import com.liferay.document.library.kernel.util.DLProcessorRegistry;
+import com.liferay.document.library.kernel.util.DLProcessorThreadLocal;
+import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.Registry;
@@ -35,6 +38,7 @@ import com.liferay.registry.collections.ServiceReferenceMapper;
 import com.liferay.registry.collections.ServiceTrackerCollections;
 import com.liferay.registry.collections.ServiceTrackerMap;
 import com.liferay.registry.collections.StringServiceRegistrationMap;
+import com.liferay.registry.collections.StringServiceRegistrationMapImpl;
 
 /**
  * @author Mika Koivisto
@@ -43,8 +47,6 @@ import com.liferay.registry.collections.StringServiceRegistrationMap;
 public class DLProcessorRegistryImpl implements DLProcessorRegistry {
 
 	public void afterPropertiesSet() throws Exception {
-		_dlProcessorServiceTrackerMap.open();
-
 		ClassLoader classLoader = ClassLoaderUtil.getPortalClassLoader();
 
 		for (String dlProcessorClassName : _DL_FILE_ENTRY_PROCESSORS) {
@@ -270,7 +272,7 @@ public class DLProcessorRegistryImpl implements DLProcessorRegistry {
 
 	private final ServiceTrackerMap<String, DLProcessor>
 		_dlProcessorServiceTrackerMap =
-			ServiceTrackerCollections.singleValueMap(
+			ServiceTrackerCollections.openSingleValueMap(
 				DLProcessor.class, null,
 				new ServiceReferenceMapper<String, DLProcessor>() {
 
@@ -292,9 +294,9 @@ public class DLProcessorRegistryImpl implements DLProcessorRegistry {
 						}
 					}
 
-			});
+				});
 
 	private final StringServiceRegistrationMap<DLProcessor>
-		_serviceRegistrations = new StringServiceRegistrationMap<>();
+		_serviceRegistrations = new StringServiceRegistrationMapImpl<>();
 
 }

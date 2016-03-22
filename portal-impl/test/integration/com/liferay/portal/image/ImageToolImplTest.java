@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -51,8 +50,7 @@ public class ImageToolImplTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Test
 	public void testCropBMP() throws Exception {
@@ -112,7 +110,7 @@ public class ImageToolImplTest {
 
 		ImageBag imageBag = ImageToolUtil.read(file);
 
-		RenderedImage image =  imageBag.getRenderedImage();
+		RenderedImage image = imageBag.getRenderedImage();
 
 		testCrop(
 			image, image.getHeight() / 2, image.getWidth() / 2,
@@ -193,6 +191,9 @@ public class ImageToolImplTest {
 
 		Assert.assertTrue(
 			StringUtil.equalsIgnoreCase(expectedType, resultType));
+		Assert.assertTrue(
+			expectedDataBuffer instanceof DataBufferByte ||
+			expectedDataBuffer instanceof DataBufferInt);
 
 		if (expectedDataBuffer instanceof DataBufferByte) {
 			DataBufferByte expectedDataBufferByte =
@@ -214,9 +215,6 @@ public class ImageToolImplTest {
 				Arrays.deepEquals(
 					expectedDataBufferInt.getBankData(),
 					resultDataBufferInt.getBankData()));
-		}
-		else {
-			Assert.fail();
 		}
 	}
 

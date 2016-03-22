@@ -14,10 +14,27 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence;
 
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFileEntryTypeConstants;
+import com.liferay.document.library.kernel.model.DLFileVersion;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLAppServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalServiceUtil;
+import com.liferay.document.library.kernel.service.DLTrashServiceUtil;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Repository;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.RepositoryLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
@@ -26,34 +43,17 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Repository;
-import com.liferay.portal.model.User;
 import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.RepositoryLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.spring.hibernate.LastSessionRecorderUtil;
+import com.liferay.portal.test.randomizerbumpers.TikaSafeRandomizerBumper;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
-import com.liferay.portlet.documentlibrary.model.DLFileVersion;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class DLFileEntryFinderTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@BeforeClass
@@ -940,7 +940,10 @@ public class DLFileEntryFinderTest {
 			DLFileEntryLocalServiceUtil.fetchFileEntryByAnyImageId(
 				_SMALL_IMAGE_ID);
 
-		Assert.assertEquals("FE1.txt", dlFileEntry.getTitle());
+		String title = dlFileEntry.getTitle();
+
+		Assert.assertTrue(
+			title.equals("FE1.txt") || title.equals("FE1.txt-NewRepository"));
 	}
 
 	@Test
@@ -1188,7 +1191,7 @@ public class DLFileEntryFinderTest {
 
 	@Test
 	public void testFindByMisversioned() throws Exception {
-		long oldFileEntryId =  _defaultRepositoryDLFileVersion.getFileEntryId();
+		long oldFileEntryId = _defaultRepositoryDLFileVersion.getFileEntryId();
 
 		try {
 			_defaultRepositoryDLFileVersion.setFileEntryId(
@@ -1233,21 +1236,19 @@ public class DLFileEntryFinderTest {
 	}
 
 	protected static FileEntry addFileEntry(
-			long repositoryId, Folder folder, String titleSuffix)
+			long userId, long repositoryId, long folderId, String fileName,
+			String titleSuffix, String contentType, long fileEntryTypeId)
 		throws Exception {
 
 		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), userId);
 
-		serviceContext.setAttribute(
-			"fileEntryTypeId",
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
-		serviceContext.setCommand(Constants.ADD);
-		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_PUBLISH);
+		DLAppTestUtil.populateServiceContext(serviceContext, fileEntryTypeId);
 
 		return DLAppLocalServiceUtil.addFileEntry(
-			_user.getUserId(), repositoryId, folder.getFolderId(), "FE1.txt",
-			ContentTypes.TEXT_PLAIN, "FE1.txt".concat(titleSuffix), null, null,
+			userId, repositoryId, folderId, fileName, contentType,
+			fileName.concat(titleSuffix), StringPool.BLANK, StringPool.BLANK,
 			(byte[])null, serviceContext);
 	}
 
@@ -1292,7 +1293,7 @@ public class DLFileEntryFinderTest {
 		List<Long> folderIds = ListUtil.toList(
 			new long[] {
 				_defaultRepositoryFolder.getFolderId(),
-				_newRepositoryFolder.getFolderId(),
+				_newRepositoryFolder.getFolderId()
 			});
 
 		return doCountBy_G_U_R_F_M(
@@ -1386,7 +1387,7 @@ public class DLFileEntryFinderTest {
 		List<Long> folderIds = ListUtil.toList(
 			new long[] {
 				_defaultRepositoryFolder.getFolderId(),
-				_newRepositoryFolder.getFolderId(),
+				_newRepositoryFolder.getFolderId()
 			});
 
 		return doFindBy_G_U_R_F_M(
@@ -1439,9 +1440,12 @@ public class DLFileEntryFinderTest {
 			TestPropsValues.getUserId(), repositoryId, folder.getFolderId(),
 			"Folder C", StringPool.BLANK, serviceContext);
 
-		DLAppServiceUtil.moveFolderToTrash(folderC.getFolderId());
+		DLTrashServiceUtil.moveFolderToTrash(folderC.getFolderId());
 
-		FileEntry fileEntry = addFileEntry(repositoryId, folder, titleSuffix);
+		FileEntry fileEntry = addFileEntry(
+			_user.getUserId(), repositoryId, folder.getFolderId(), "FE1.txt",
+			titleSuffix, ContentTypes.TEXT_PLAIN,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
 
 		LiferayFileEntry liferayFileEntry = (LiferayFileEntry)fileEntry;
 
@@ -1455,19 +1459,22 @@ public class DLFileEntryFinderTest {
 
 		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
 
-		DLAppTestUtil.addFileEntry(
-			_group.getGroupId(), repositoryId, folder.getFolderId(), "FE2.pdf",
-			ContentTypes.APPLICATION_PDF, "FE2.pdf".concat(titleSuffix), null,
-			WorkflowConstants.ACTION_PUBLISH);
+		addFileEntry(
+			TestPropsValues.getUserId(), repositoryId, folder.getFolderId(),
+			"FE2.pdf", titleSuffix, ContentTypes.APPLICATION_PDF,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL);
 
-		fileEntry = DLAppTestUtil.addFileEntry(
-			_group.getGroupId(), repositoryId, folder.getFolderId(), "FE3.txt",
-			ContentTypes.TEXT_PLAIN, "FE3.txt".concat(titleSuffix), null,
-			WorkflowConstants.ACTION_PUBLISH);
+		fileEntry = addFileEntry(
+			TestPropsValues.getUserId(), repositoryId, folder.getFolderId(),
+			"FE3.txt", titleSuffix, ContentTypes.TEXT_PLAIN,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_ALL);
 
-		fileEntry = DLAppTestUtil.updateFileEntry(
-			_group.getGroupId(), fileEntry.getFileEntryId(), "FE3.txt",
-			"FE3.txt".concat(titleSuffix));
+		fileEntry = DLAppServiceUtil.updateFileEntry(
+			fileEntry.getFileEntryId(), "FE3.txt", ContentTypes.TEXT_PLAIN,
+			"FE3.txt".concat(titleSuffix), StringPool.BLANK, StringPool.BLANK,
+			false,
+			RandomTestUtil.randomBytes(TikaSafeRandomizerBumper.INSTANCE),
+			serviceContext);
 
 		dlFileEntry = ((LiferayFileEntry)fileEntry).getDLFileEntry();
 
@@ -1481,7 +1488,7 @@ public class DLFileEntryFinderTest {
 
 		DLFileVersionLocalServiceUtil.updateDLFileVersion(dlFileVersion3);
 
-		DLAppServiceUtil.moveFileEntryToTrash(fileEntry.getFileEntryId());
+		DLTrashServiceUtil.moveFileEntryToTrash(fileEntry.getFileEntryId());
 
 		return new Object[] {folder, dlFileVersion};
 	}

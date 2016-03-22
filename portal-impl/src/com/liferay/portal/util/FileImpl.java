@@ -28,10 +28,12 @@ import com.liferay.portal.kernel.process.ProcessExecutorUtil;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.Digester;
 import com.liferay.portal.kernel.util.DigesterUtil;
 import com.liferay.portal.kernel.util.FileComparator;
 import com.liferay.portal.kernel.util.PwdGenerator;
+import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -85,6 +87,49 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 	}
 
 	@Override
+	public String appendParentheticalSuffix(String fileName, String suffix) {
+		String fileNameWithoutExtension = stripExtension(fileName);
+
+		String fileNameWithParentheticalSuffix =
+			StringUtil.appendParentheticalSuffix(
+				fileNameWithoutExtension, suffix);
+
+		String extension = getExtension(fileName);
+
+		if (Validator.isNull(extension)) {
+			return fileNameWithParentheticalSuffix;
+		}
+
+		StringBundler sb = new StringBundler(3);
+
+		sb.append(fileNameWithParentheticalSuffix);
+		sb.append(StringPool.PERIOD);
+		sb.append(extension);
+
+		return sb.toString();
+	}
+
+	@Override
+	public String appendSuffix(String fileName, String suffix) {
+		StringBundler sb = new StringBundler(4);
+
+		String fileNameWithoutExtension = stripExtension(fileName);
+
+		sb.append(fileNameWithoutExtension);
+
+		sb.append(suffix);
+
+		String extension = getExtension(fileName);
+
+		if (Validator.isNotNull(extension)) {
+			sb.append(StringPool.PERIOD);
+			sb.append(extension);
+		}
+
+		return sb.toString();
+	}
+
+	@Override
 	public void copyDirectory(File source, File destination)
 		throws IOException {
 
@@ -92,9 +137,7 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 			return;
 		}
 
-		if (!destination.exists()) {
-			destination.mkdirs();
-		}
+		mkdirs(destination);
 
 		File[] fileArray = source.listFiles();
 
@@ -244,10 +287,10 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 	}
 
 	@Override
-	public File createTempFolder() {
+	public File createTempFolder() throws IOException {
 		File file = new File(createTempFileName());
 
-		file.mkdirs();
+		mkdirs(file);
 
 		return file;
 	}
@@ -716,10 +759,28 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 	}
 
 	@Override
+	public void mkdirs(File file) throws IOException {
+		FileUtils.forceMkdir(file);
+	}
+
+	@Override
 	public void mkdirs(String pathName) {
 		File file = new File(pathName);
 
-		file.mkdirs();
+		if (file.exists() && file.isDirectory()) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Directory " + pathName + " already exists");
+			}
+
+			return;
+		}
+
+		try {
+			mkdirs(file);
+		}
+		catch (IOException ioe) {
+			ReflectionUtil.throwException(ioe);
+		}
 	}
 
 	@Override
@@ -824,6 +885,24 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 		else {
 			return fileName;
 		}
+	}
+
+	@Override
+	public String stripParentheticalSuffix(String fileName) {
+		StringBundler sb = new StringBundler(3);
+
+		String fileNameWithoutExtension = stripExtension(fileName);
+
+		sb.append(
+			StringUtil.stripParentheticalSuffix(fileNameWithoutExtension));
+
+		sb.append(StringPool.PERIOD);
+
+		String extension = getExtension(fileName);
+
+		sb.append(extension);
+
+		return sb.toString();
 	}
 
 	@Override
@@ -1020,7 +1099,7 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 		write(new File(pathName, fileName), s, lazy, append);
 	}
 
-	protected void mkdirsParentFile(File file) {
+	protected void mkdirsParentFile(File file) throws IOException {
 		File parentFile = file.getParentFile();
 
 		if (parentFile == null) {
@@ -1028,9 +1107,7 @@ public class FileImpl implements com.liferay.portal.kernel.util.File {
 		}
 
 		try {
-			if (!parentFile.exists()) {
-				parentFile.mkdirs();
-			}
+			mkdirs(parentFile);
 		}
 		catch (SecurityException se) {
 

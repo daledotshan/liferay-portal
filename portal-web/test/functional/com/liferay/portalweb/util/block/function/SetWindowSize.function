@@ -1,5 +1,0 @@
-<definition default="setWindowSize">
-	<command name="setWindowSize">
-		<execute selenium="setWindowSize" />
-	</command>
-</definition>

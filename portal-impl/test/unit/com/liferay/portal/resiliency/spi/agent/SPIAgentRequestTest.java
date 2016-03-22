@@ -14,9 +14,7 @@
 
 package com.liferay.portal.resiliency.spi.agent;
 
-import com.liferay.portal.cache.MultiVMPoolImpl;
-import com.liferay.portal.cache.memory.MemoryPortalCacheManager;
-import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.process.local.LocalProcessLauncher;
 import com.liferay.portal.kernel.resiliency.spi.MockSPI;
 import com.liferay.portal.kernel.resiliency.spi.SPI;
@@ -26,25 +24,25 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.rule.NewEnv;
 import com.liferay.portal.kernel.test.rule.NewEnvTestRule;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.FileItem;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.CookieUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.ThreadLocalDistributor;
-import com.liferay.portal.model.Portlet;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.resiliency.spi.agent.SPIAgentRequest.AgentHttpServletRequestWrapper;
-import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.tools.ToolDependencies;
 import com.liferay.portal.upload.UploadServletRequestImpl;
 import com.liferay.portal.util.FileImpl;
 import com.liferay.portal.util.PortalImpl;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +69,7 @@ import javax.servlet.http.HttpSession;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -88,6 +87,11 @@ public class SPIAgentRequestTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			CodeCoverageAssertor.INSTANCE, NewEnvTestRule.INSTANCE);
+
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		ToolDependencies.wireCaches();
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -107,19 +111,7 @@ public class SPIAgentRequestTest {
 					}
 				}
 
-			}
-		);
-
-		MultiVMPoolImpl multiVMPoolImpl = new MultiVMPoolImpl();
-
-		multiVMPoolImpl.setPortalCacheManager(
-			MemoryPortalCacheManager.
-				<Serializable, Serializable>createMemoryPortalCacheManager(
-					SPIAgentRequestTest.class.getName()));
-
-		MultiVMPoolUtil multiVMPoolUtil = new MultiVMPoolUtil();
-
-		multiVMPoolUtil.setMultiVMPool(multiVMPoolImpl);
+			});
 
 		PortalUtil portalUtil = new PortalUtil();
 
@@ -421,16 +413,12 @@ public class SPIAgentRequestTest {
 
 				@Override
 				public Map<String, FileItem[]> getMultipartParameterMap() {
-					Assert.fail();
-
-					return super.getMultipartParameterMap();
+					throw new Error();
 				}
 
 				@Override
 				public Map<String, List<String>> getRegularParameterMap() {
-					Assert.fail();
-
-					return super.getRegularParameterMap();
+					throw new Error();
 				}
 
 			};
@@ -655,8 +643,7 @@ public class SPIAgentRequestTest {
 		sb.append(spiAgentRequest.distributedRequestAttributes);
 		sb.append(", headerMap=");
 		sb.append(spiAgentRequest.headerMap);
-		sb.append(", multipartParameterMap=null");
-		sb.append(", originalSessionAttributes=");
+		sb.append(", multipartParameterMap=null, originalSessionAttributes=");
 		sb.append(spiAgentRequest.getOriginalSessionAttributes());
 		sb.append(", parameterMap={");
 
@@ -669,8 +656,8 @@ public class SPIAgentRequestTest {
 
 		sb.setIndex(sb.index() - 1);
 
-		sb.append("}, regularParameterMap=null, requestBodyFile=null");
-		sb.append(", serverName=");
+		sb.append("}, regularParameterMap=null, requestBodyFile=null, ");
+		sb.append("serverName=");
 		sb.append(_SERVER_NAME);
 		sb.append(", serverPort=");
 		sb.append(_SERVER_PORT);
@@ -684,13 +671,12 @@ public class SPIAgentRequestTest {
 
 		sb = new StringBundler(13 + parameterMap.size() * 4);
 
-		sb.append(
-			"{contentType=null, cookies=[], distributedRequestAttributes=");
+		sb.append("{contentType=null, cookies=[], ");
+		sb.append("distributedRequestAttributes=");
 		sb.append(spiAgentRequest.distributedRequestAttributes);
 		sb.append(", headerMap=");
 		sb.append(spiAgentRequest.headerMap);
-		sb.append(", multipartParameterMap=null");
-		sb.append(", originalSessionAttributes=");
+		sb.append(", multipartParameterMap=null, originalSessionAttributes=");
 		sb.append(spiAgentRequest.getOriginalSessionAttributes());
 		sb.append(", parameterMap={");
 
@@ -703,8 +689,8 @@ public class SPIAgentRequestTest {
 
 		sb.setIndex(sb.index() - 1);
 
-		sb.append("}, regularParameterMap=null, requestBodyFile=null");
-		sb.append(", serverName=");
+		sb.append("}, regularParameterMap=null, requestBodyFile=null, ");
+		sb.append("serverName=");
 		sb.append(_SERVER_NAME);
 		sb.append(", serverPort=");
 		sb.append(_SERVER_PORT);

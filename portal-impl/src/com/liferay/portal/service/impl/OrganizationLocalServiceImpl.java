@@ -14,15 +14,29 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.DuplicateOrganizationException;
-import com.liferay.portal.OrganizationNameException;
-import com.liferay.portal.OrganizationParentException;
-import com.liferay.portal.OrganizationTypeException;
-import com.liferay.portal.RequiredOrganizationException;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.DuplicateOrganizationException;
+import com.liferay.portal.kernel.exception.OrganizationNameException;
+import com.liferay.portal.kernel.exception.OrganizationParentException;
+import com.liferay.portal.kernel.exception.OrganizationTypeException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.RequiredOrganizationException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Country;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.ListTypeConstants;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.OrganizationConstants;
+import com.liferay.portal.kernel.model.Region;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
@@ -31,52 +45,38 @@ import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.tree.TreeModelTasksAdapter;
+import com.liferay.portal.kernel.tree.TreePathUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.TreeModelTasksAdapter;
-import com.liferay.portal.kernel.util.TreePathUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.comparator.OrganizationIdComparator;
+import com.liferay.portal.kernel.util.comparator.OrganizationNameComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.Country;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
-import com.liferay.portal.model.ListTypeConstants;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.OrganizationConstants;
-import com.liferay.portal.model.Region;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.SystemEventConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.UserGroupRole;
 import com.liferay.portal.model.impl.OrganizationImpl;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
-import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.OrganizationLocalServiceBaseImpl;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.comparator.OrganizationIdComparator;
-import com.liferay.portal.util.comparator.OrganizationNameComparator;
-import com.liferay.portlet.usersadmin.util.UsersAdminUtil;
+import com.liferay.users.admin.kernel.util.UsersAdminUtil;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -101,15 +101,11 @@ public class OrganizationLocalServiceImpl
 	/**
 	 * Adds the organizations to the group.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  organizationIds the primary keys of the organizations
-	 * @throws PortalException if a group or organization with the primary key
-	 *         could not be found
+	 * @param groupId the primary key of the group
+	 * @param organizationIds the primary keys of the organizations
 	 */
 	@Override
-	public void addGroupOrganizations(long groupId, long[] organizationIds)
-		throws PortalException {
-
+	public void addGroupOrganizations(long groupId, long[] organizationIds) {
 		groupPersistence.addOrganizations(groupId, organizationIds);
 
 		PermissionCacheUtil.clearCache();
@@ -132,9 +128,6 @@ public class OrganizationLocalServiceImpl
 	 * @param  site whether the organization is to be associated with a main
 	 *         site
 	 * @return the organization
-	 * @throws PortalException if a creator or parent organization with the
-	 *         primary key could not be found or if the organization's
-	 *         information was invalid
 	 */
 	@Override
 	public Organization addOrganization(
@@ -143,57 +136,9 @@ public class OrganizationLocalServiceImpl
 
 		return addOrganization(
 			userId, parentOrganizationId, name,
-			OrganizationConstants.TYPE_REGULAR_ORGANIZATION, 0, 0,
+			PropsValues.ORGANIZATIONS_TYPES[0], 0, 0,
 			ListTypeConstants.ORGANIZATION_STATUS_DEFAULT, StringPool.BLANK,
 			site, null);
-	}
-
-	/**
-	 * Adds an organization.
-	 *
-	 * <p>
-	 * This method handles the creation and bookkeeping of the organization
-	 * including its resources, metadata, and internal data structures. It is
-	 * not necessary to make a subsequent call to {@link
-	 * #addOrganizationResources(long, Organization)}.
-	 * </p>
-	 *
-	 * @param      userId the primary key of the creator/owner of the
-	 *             organization
-	 * @param      parentOrganizationId the primary key of the organization's
-	 *             parent organization
-	 * @param      name the organization's name
-	 * @param      type the organization's type
-	 * @param      recursable whether the permissions of the organization are to
-	 *             be inherited by its suborganizations
-	 * @param      regionId the primary key of the organization's region
-	 * @param      countryId the primary key of the organization's country
-	 * @param      statusId the organization's workflow status
-	 * @param      comments the comments about the organization
-	 * @param      site whether the organization is to be associated with a main
-	 *             site
-	 * @param      serviceContext the service context to be applied (optionally
-	 *             <code>null</code>). Can set asset category IDs, asset tag
-	 *             names, and expando bridge attributes for the organization.
-	 * @return     the organization
-	 * @throws     PortalException if a creator or parent organization with the
-	 *             primary key could not be found or if the organization's
-	 *             information was invalid
-	 * @deprecated As of 6.2.0, replaced by {@link #addOrganization(long, long,
-	 *             String, String, long, long, int, String, boolean,
-	 *             ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Organization addOrganization(
-			long userId, long parentOrganizationId, String name, String type,
-			boolean recursable, long regionId, long countryId, long statusId,
-			String comments, boolean site, ServiceContext serviceContext)
-		throws PortalException {
-
-		return addOrganization(
-			userId, parentOrganizationId, name, type, regionId, countryId,
-			statusId, comments, site, serviceContext);
 	}
 
 	/**
@@ -221,9 +166,6 @@ public class OrganizationLocalServiceImpl
 	 *         <code>null</code>). Can set asset category IDs, asset tag names,
 	 *         and expando bridge attributes for the organization.
 	 * @return the organization
-	 * @throws PortalException if a creator or parent organization with the
-	 *         primary key could not be found or if the organization's
-	 *         information was invalid
 	 */
 	@Override
 	public Organization addOrganization(
@@ -237,7 +179,6 @@ public class OrganizationLocalServiceImpl
 		User user = userPersistence.findByPrimaryKey(userId);
 		parentOrganizationId = getParentOrganizationId(
 			user.getCompanyId(), parentOrganizationId);
-		Date now = new Date();
 
 		validate(
 			user.getCompanyId(), parentOrganizationId, name, type, countryId,
@@ -255,16 +196,6 @@ public class OrganizationLocalServiceImpl
 		organization.setCompanyId(user.getCompanyId());
 		organization.setUserId(user.getUserId());
 		organization.setUserName(user.getFullName());
-
-		if (serviceContext != null) {
-			organization.setCreateDate(serviceContext.getCreateDate(now));
-			organization.setModifiedDate(serviceContext.getModifiedDate(now));
-		}
-		else {
-			organization.setCreateDate(now);
-			organization.setModifiedDate(now);
-		}
-
 		organization.setParentOrganizationId(parentOrganizationId);
 		organization.setTreePath(organization.buildTreePath());
 		organization.setName(name);
@@ -327,8 +258,8 @@ public class OrganizationLocalServiceImpl
 		// Indexer
 
 		if ((serviceContext == null) || serviceContext.isIndexingEnabled()) {
-			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				Organization.class);
+			Indexer<Organization> indexer =
+				IndexerRegistryUtil.nullSafeGetIndexer(Organization.class);
 
 			indexer.reindex(organization);
 		}
@@ -340,9 +271,8 @@ public class OrganizationLocalServiceImpl
 	 * Adds a resource for each type of permission available on the
 	 * organization.
 	 *
-	 * @param  userId the primary key of the creator/owner of the organization
-	 * @param  organization the organization
-	 * @throws PortalException if a portal exception occurred
+	 * @param userId the primary key of the creator/owner of the organization
+	 * @param organization the organization
 	 */
 	@Override
 	public void addOrganizationResources(long userId, Organization organization)
@@ -373,10 +303,7 @@ public class OrganizationLocalServiceImpl
 	/**
 	 * Deletes the organization's logo.
 	 *
-	 * @param  organizationId the primary key of the organization
-	 * @throws PortalException if an organization or parent organization with
-	 *         the primary key could not be found or if the organization's logo
-	 *         could not be found
+	 * @param organizationId the primary key of the organization
 	 */
 	@Override
 	public void deleteLogo(long organizationId) throws PortalException {
@@ -391,9 +318,6 @@ public class OrganizationLocalServiceImpl
 	 *
 	 * @param  organizationId the primary key of the organization
 	 * @return the deleted organization
-	 * @throws PortalException if an organization with the primary key could not
-	 *         be found, if the organization had a workflow in approved status,
-	 *         or if the organization was a parent organization
 	 */
 	@Override
 	public Organization deleteOrganization(long organizationId)
@@ -411,20 +335,19 @@ public class OrganizationLocalServiceImpl
 	 *
 	 * @param  organization the organization
 	 * @return the deleted organization
-	 * @throws PortalException if the organization had a workflow in approved
-	 *         status or if the organization was a parent organization
 	 */
 	@Override
 	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public Organization deleteOrganization(Organization organization)
 		throws PortalException {
 
-		if ((userLocalService.getOrganizationUsersCount(
+		if (!CompanyThreadLocal.isDeleteInProcess() &&
+			((userLocalService.getOrganizationUsersCount(
 				organization.getOrganizationId(),
 				WorkflowConstants.STATUS_APPROVED) > 0) ||
-			(organizationPersistence.countByC_P(
-				organization.getCompanyId(),
-				organization.getOrganizationId()) > 0)) {
+			 (organizationPersistence.countByC_P(
+				 organization.getCompanyId(),
+				 organization.getOrganizationId()) > 0))) {
 
 			throw new RequiredOrganizationException();
 		}
@@ -560,8 +483,6 @@ public class OrganizationLocalServiceImpl
 	 * @param  companyId the primary key of the organization's company
 	 * @param  name the organization's name
 	 * @return the organization with the name
-	 * @throws PortalException if the organization with the name could not be
-	 *         found
 	 */
 	@Override
 	public Organization getOrganization(long companyId, String name)
@@ -651,8 +572,7 @@ public class OrganizationLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -663,7 +583,7 @@ public class OrganizationLocalServiceImpl
 	 * @param  end the upper bound of the range of organizations to return (not
 	 *         inclusive)
 	 * @return the range of organizations belonging to the parent organization
-	 * @see    com.liferay.portal.service.persistence.OrganizationPersistence#findByC_P(
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationPersistence#findByC_P(
 	 *         long, long, int, int)
 	 */
 	@Override
@@ -687,8 +607,6 @@ public class OrganizationLocalServiceImpl
 	 *
 	 * @param  organizationIds the primary keys of the organizations
 	 * @return the organizations with the primary keys
-	 * @throws PortalException if any one of the organizations could not be
-	 *         found
 	 */
 	@Override
 	public List<Organization> getOrganizations(long[] organizationIds)
@@ -735,8 +653,6 @@ public class OrganizationLocalServiceImpl
 	 *
 	 * @param  organizationId the primary key of the organization
 	 * @return the parent organizations in order by closest ancestor
-	 * @throws PortalException if an organization with the primary key could not
-	 *         be found
 	 */
 	@Override
 	public List<Organization> getParentOrganizations(long organizationId)
@@ -850,8 +766,6 @@ public class OrganizationLocalServiceImpl
 	 * @return the IDs of organizations with which the user is explicitly
 	 *         associated, optionally including the IDs of organizations that
 	 *         the user administers or owns
-	 * @throws PortalException if a user with the primary key could not be found
-	 *         or if a portal exception occurred
 	 */
 	@Override
 	public long[] getUserOrganizationIds(
@@ -903,7 +817,6 @@ public class OrganizationLocalServiceImpl
 	 * @return the organizations with which the user is explicitly associated,
 	 *         optionally including the organizations that the user administers
 	 *         or owns
-	 * @throws PortalException if a user with the primary key could not be found
 	 */
 	@Override
 	public List<Organization> getUserOrganizations(
@@ -1002,9 +915,7 @@ public class OrganizationLocalServiceImpl
 	 *         considered in the determination
 	 * @return <code>true</code> if the user has access to the organization;
 	 *         <code>false</code> otherwise
-	 * @throws PortalException if an organization with the primary key could not
-	 *         be found
-	 * @see    com.liferay.portal.service.persistence.OrganizationFinder
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationFinder
 	 */
 	@Override
 	public boolean hasUserOrganization(
@@ -1016,24 +927,26 @@ public class OrganizationLocalServiceImpl
 			return userPersistence.containsOrganization(userId, organizationId);
 		}
 
-		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
-
 		List<Organization> organizationsTree = new ArrayList<>();
 
 		Organization organization = organizationPersistence.findByPrimaryKey(
 			organizationId);
 
-		if (!includeSpecifiedOrganization) {
+		if (includeSpecifiedOrganization) {
 			organizationsTree.add(organization);
 		}
 		else {
-			organizationsTree.add(organization.getParentOrganization());
+			organizationsTree.addAll(organization.getSuborganizations());
 		}
 
-		params.put("usersOrgsTree", organizationsTree);
+		if (!ListUtil.isEmpty(organizationsTree)) {
+			LinkedHashMap<String, Object> params = new LinkedHashMap<>();
 
-		if (userFinder.countByUser(userId, params) > 0) {
-			return true;
+			params.put("usersOrgsTree", organizationsTree);
+
+			if (userFinder.countByUser(userId, params) > 0) {
+				return true;
+			}
 		}
 
 		return false;
@@ -1048,9 +961,7 @@ public class OrganizationLocalServiceImpl
 	 * automatically rebuilt whenever necessary.
 	 * </p>
 	 *
-	 * @param  companyId the primary key of the organization's company
-	 * @throws PortalException if an organization with the primary key could not
-	 *         be found
+	 * @param companyId the primary key of the organization's company
 	 */
 	@Override
 	public void rebuildTree(long companyId) throws PortalException {
@@ -1070,8 +981,7 @@ public class OrganizationLocalServiceImpl
 						new OrganizationIdComparator(true));
 				}
 
-			}
-		);
+			});
 	}
 
 	/**
@@ -1084,8 +994,7 @@ public class OrganizationLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1154,8 +1063,7 @@ public class OrganizationLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1171,12 +1079,12 @@ public class OrganizationLocalServiceImpl
 	 * @param  countryId the primary key of the organization's country
 	 *         (optionally <code>null</code>)
 	 * @param  params the finder params. For more information see {@link
-	 *         com.liferay.portal.service.persistence.OrganizationFinder}
+	 *         com.liferay.portal.kernel.service.persistence.OrganizationFinder}
 	 * @param  start the lower bound of the range of organizations to return
 	 * @param  end the upper bound of the range of organizations to return (not
 	 *         inclusive)
 	 * @return the matching organizations ordered by name
-	 * @see    com.liferay.portal.service.persistence.OrganizationFinder
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationFinder
 	 */
 	@Override
 	public List<Organization> search(
@@ -1203,8 +1111,7 @@ public class OrganizationLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1220,14 +1127,14 @@ public class OrganizationLocalServiceImpl
 	 * @param  countryId the primary key of the organization's country
 	 *         (optionally <code>null</code>)
 	 * @param  params the finder params. For more information see {@link
-	 *         com.liferay.portal.service.persistence.OrganizationFinder}
+	 *         com.liferay.portal.kernel.service.persistence.OrganizationFinder}
 	 * @param  start the lower bound of the range of organizations to return
 	 * @param  end the upper bound of the range of organizations to return (not
 	 *         inclusive)
 	 * @param  obc the comparator to order the organizations (optionally
 	 *         <code>null</code>)
 	 * @return the matching organizations ordered by comparator <code>obc</code>
-	 * @see    com.liferay.portal.service.persistence.OrganizationFinder
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationFinder
 	 */
 	@Override
 	public List<Organization> search(
@@ -1261,8 +1168,7 @@ public class OrganizationLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1280,7 +1186,7 @@ public class OrganizationLocalServiceImpl
 	 *         (optionally <code>null</code>)
 	 * @param  params the finder parameters (optionally <code>null</code>). For
 	 *         more information see {@link
-	 *         com.liferay.portal.service.persistence.OrganizationFinder}
+	 *         com.liferay.portal.kernel.service.persistence.OrganizationFinder}
 	 * @param  andOperator whether every field must match its keywords, or just
 	 *         one field. For example, &quot;organizations with the name
 	 *         'Employees' and city 'Chicago'&quot; vs &quot;organizations with
@@ -1289,7 +1195,7 @@ public class OrganizationLocalServiceImpl
 	 * @param  end the upper bound of the range of organizations to return (not
 	 *         inclusive)
 	 * @return the matching organizations ordered by name
-	 * @see    com.liferay.portal.service.persistence.OrganizationFinder
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationFinder
 	 */
 	@Override
 	public List<Organization> search(
@@ -1317,8 +1223,7 @@ public class OrganizationLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1337,7 +1242,7 @@ public class OrganizationLocalServiceImpl
 	 *         (optionally <code>null</code>)
 	 * @param  params the finder parameters (optionally <code>null</code>). For
 	 *         more information see {@link
-	 *         com.liferay.portal.service.persistence.OrganizationFinder}
+	 *         com.liferay.portal.kernel.service.persistence.OrganizationFinder}
 	 * @param  andOperator whether every field must match its keywords, or just
 	 *         one field. For example, &quot;organizations with the name
 	 *         'Employees' and city 'Chicago'&quot; vs &quot;organizations with
@@ -1348,7 +1253,7 @@ public class OrganizationLocalServiceImpl
 	 * @param  obc the comparator to order the organizations (optionally
 	 *         <code>null</code>)
 	 * @return the matching organizations ordered by comparator <code>obc</code>
-	 * @see    com.liferay.portal.service.persistence.OrganizationFinder
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationFinder
 	 */
 	@Override
 	public List<Organization> search(
@@ -1382,8 +1287,7 @@ public class OrganizationLocalServiceImpl
 	 * start</code> instances. <code>start</code> and <code>end</code> are not
 	 * primary keys, they are indexes in the result set. Thus, <code>0</code>
 	 * refers to the first result in the set. Setting both <code>start</code>
-	 * and <code>end</code> to {@link
-	 * com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full
+	 * and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
 	 * result set.
 	 * </p>
 	 *
@@ -1419,8 +1323,8 @@ public class OrganizationLocalServiceImpl
 		int end, Sort sort) {
 
 		try {
-			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				Organization.class);
+			Indexer<Organization> indexer =
+				IndexerRegistryUtil.nullSafeGetIndexer(Organization.class);
 
 			SearchContext searchContext = buildSearchContext(
 				companyId, parentOrganizationId, name, type, street, city, zip,
@@ -1450,16 +1354,19 @@ public class OrganizationLocalServiceImpl
 	 *         (optionally <code>null</code>)
 	 * @param  params the finder parameters (optionally <code>null</code>). For
 	 *         more information see {@link
-	 *         com.liferay.portal.service.persistence.OrganizationFinder}
+	 *         com.liferay.portal.kernel.service.persistence.OrganizationFinder}
 	 * @return the number of matching organizations
-	 * @see    com.liferay.portal.service.persistence.OrganizationFinder
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationFinder
 	 */
 	@Override
 	public int searchCount(
 		long companyId, long parentOrganizationId, String keywords, String type,
 		Long regionId, Long countryId, LinkedHashMap<String, Object> params) {
 
-		if (!PropsValues.ORGANIZATIONS_INDEXER_ENABLED ||
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			Organization.class);
+
+		if (!indexer.isIndexerEnabled() ||
 			!PropsValues.ORGANIZATIONS_SEARCH_WITH_INDEX ||
 			isUseCustomSQL(params)) {
 
@@ -1497,17 +1404,12 @@ public class OrganizationLocalServiceImpl
 				params.put("keywords", keywords);
 			}
 
-			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				Organization.class);
-
 			SearchContext searchContext = buildSearchContext(
 				companyId, parentOrganizationId, name, type, street, city, zip,
 				regionId, countryId, params, andOperator, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null);
 
-			Hits hits = indexer.search(searchContext);
-
-			return hits.getLength();
+			return (int)indexer.searchCount(searchContext);
 		}
 		catch (Exception e) {
 			throw new SystemException(e);
@@ -1534,13 +1436,13 @@ public class OrganizationLocalServiceImpl
 	 *         (optionally <code>null</code>)
 	 * @param  params the finder parameters (optionally <code>null</code>). For
 	 *         more information see {@link
-	 *         com.liferay.portal.service.persistence.OrganizationFinder}
+	 *         com.liferay.portal.kernel.service.persistence.OrganizationFinder}
 	 * @param  andOperator whether every field must match its keywords, or just
 	 *         one field. For example, &quot;organizations with the name
 	 *         'Employees' and city 'Chicago'&quot; vs &quot;organizations with
 	 *         the name 'Employees' or the city 'Chicago'&quot;.
 	 * @return the number of matching organizations
-	 * @see    com.liferay.portal.service.persistence.OrganizationFinder
+	 * @see    com.liferay.portal.kernel.service.persistence.OrganizationFinder
 	 */
 	@Override
 	public int searchCount(
@@ -1548,7 +1450,10 @@ public class OrganizationLocalServiceImpl
 		String street, String city, String zip, Long regionId, Long countryId,
 		LinkedHashMap<String, Object> params, boolean andOperator) {
 
-		if (!PropsValues.ORGANIZATIONS_INDEXER_ENABLED ||
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			Organization.class);
+
+		if (!indexer.isIndexerEnabled() ||
 			!PropsValues.ORGANIZATIONS_SEARCH_WITH_INDEX ||
 			isUseCustomSQL(params)) {
 
@@ -1567,17 +1472,12 @@ public class OrganizationLocalServiceImpl
 		}
 
 		try {
-			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				Organization.class);
-
 			SearchContext searchContext = buildSearchContext(
 				companyId, parentOrganizationId, name, type, street, city, zip,
 				regionId, countryId, params, andOperator, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null);
 
-			Hits hits = indexer.search(searchContext);
-
-			return hits.getLength();
+			return (int)indexer.searchCount(searchContext);
 		}
 		catch (Exception e) {
 			throw new SystemException(e);
@@ -1629,7 +1529,7 @@ public class OrganizationLocalServiceImpl
 			boolean andSearch, int start, int end, Sort sort)
 		throws PortalException {
 
-		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+		Indexer<Organization> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			Organization.class);
 
 		SearchContext searchContext = buildSearchContext(
@@ -1656,14 +1556,11 @@ public class OrganizationLocalServiceImpl
 	 * Sets the organizations in the group, removing and adding organizations to
 	 * the group as necessary.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  organizationIds the primary keys of the organizations
-	 * @throws PortalException if a portal exception occurred
+	 * @param groupId the primary key of the group
+	 * @param organizationIds the primary keys of the organizations
 	 */
 	@Override
-	public void setGroupOrganizations(long groupId, long[] organizationIds)
-		throws PortalException {
-
+	public void setGroupOrganizations(long groupId, long[] organizationIds) {
 		groupPersistence.setOrganizations(groupId, organizationIds);
 
 		PermissionCacheUtil.clearCache();
@@ -1672,14 +1569,11 @@ public class OrganizationLocalServiceImpl
 	/**
 	 * Removes the organizations from the group.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  organizationIds the primary keys of the organizations
-	 * @throws PortalException if a portal exception occurred
+	 * @param groupId the primary key of the group
+	 * @param organizationIds the primary keys of the organizations
 	 */
 	@Override
-	public void unsetGroupOrganizations(long groupId, long[] organizationIds)
-		throws PortalException {
-
+	public void unsetGroupOrganizations(long groupId, long[] organizationIds) {
 		groupPersistence.removeOrganizations(groupId, organizationIds);
 
 		PermissionCacheUtil.clearCache();
@@ -1703,11 +1597,10 @@ public class OrganizationLocalServiceImpl
 	 * Updates the organization's asset with the new asset categories and tag
 	 * names, removing and adding asset categories and tag names as necessary.
 	 *
-	 * @param  userId the primary key of the user
-	 * @param  organization the organization
-	 * @param  assetCategoryIds the primary keys of the asset categories
-	 * @param  assetTagNames the asset tag names
-	 * @throws PortalException if a user with the primary key could not be found
+	 * @param userId the primary key of the user
+	 * @param organization the organization
+	 * @param assetCategoryIds the primary keys of the asset categories
+	 * @param assetTagNames the asset tag names
 	 */
 	@Override
 	public void updateAsset(
@@ -1725,53 +1618,9 @@ public class OrganizationLocalServiceImpl
 		assetEntryLocalService.updateEntry(
 			userId, companyGroup.getGroupId(), null, null,
 			Organization.class.getName(), organization.getOrganizationId(),
-			organization.getUuid(), 0, assetCategoryIds, assetTagNames, false,
-			null, null, null, null, organization.getName(), StringPool.BLANK,
-			null, null, null, 0, 0, null, false);
-	}
-
-	/**
-	 * Updates the organization.
-	 *
-	 * @param      companyId the primary key of the organization's company
-	 * @param      organizationId the primary key of the organization
-	 * @param      parentOrganizationId the primary key of organization's parent
-	 *             organization
-	 * @param      name the organization's name
-	 * @param      type the organization's type
-	 * @param      recursable whether permissions of the organization are to be
-	 *             inherited by its suborganizations
-	 * @param      regionId the primary key of the organization's region
-	 * @param      countryId the primary key of the organization's country
-	 * @param      statusId the organization's workflow status
-	 * @param      comments the comments about the organization
-	 * @param      site whether the organization is to be associated with a main
-	 *             site
-	 * @param      serviceContext the service context to be applied (optionally
-	 *             <code>null</code>). Can set asset category IDs and asset tag
-	 *             names for the organization, and merge expando bridge
-	 *             attributes for the organization.
-	 * @return     the organization
-	 * @throws     PortalException if an organization or parent organization
-	 *             with the primary key could not be found or if the new
-	 *             information was invalid
-	 * @deprecated As of 6.2.0, replaced by {@link #updateOrganization(long,
-	 *             long, long, String, String, long, long, int, String, boolean,
-	 *             byte[], boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Organization updateOrganization(
-			long companyId, long organizationId, long parentOrganizationId,
-			String name, String type, boolean recursable, long regionId,
-			long countryId, long statusId, String comments, boolean site,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return updateOrganization(
-			companyId, organizationId, parentOrganizationId, name, type,
-			regionId, countryId, statusId, comments, true, null, site,
-			serviceContext);
+			organization.getUuid(), 0, assetCategoryIds, assetTagNames, true,
+			false, null, null, null, null, organization.getName(),
+			StringPool.BLANK, null, null, null, 0, 0, null);
 	}
 
 	/**
@@ -1796,9 +1645,6 @@ public class OrganizationLocalServiceImpl
 	 *         names for the organization, and merge expando bridge attributes
 	 *         for the organization.
 	 * @return the organization
-	 * @throws PortalException if an organization or parent organization with
-	 *         the primary key could not be found or if the new information was
-	 *         invalid
 	 */
 	@Override
 	public Organization updateOrganization(
@@ -1823,7 +1669,6 @@ public class OrganizationLocalServiceImpl
 		long oldParentOrganizationId = organization.getParentOrganizationId();
 		String oldName = organization.getName();
 
-		organization.setModifiedDate(new Date());
 		organization.setParentOrganizationId(parentOrganizationId);
 		organization.setTreePath(organization.buildTreePath());
 		organization.setName(name);
@@ -1926,13 +1771,24 @@ public class OrganizationLocalServiceImpl
 
 		// Indexer
 
-		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+		Indexer<Organization> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			Organization.class);
 
 		if (oldParentOrganizationId != parentOrganizationId) {
-			long[] organizationIds = getReindexOrganizationIds(organization);
+			long[] reindexOrganizationIds = getReindexOrganizationIds(
+				organization);
 
-			indexer.reindex(organizationIds);
+			List<Organization> reindexOrganizations = new ArrayList<>(
+				reindexOrganizationIds.length);
+
+			for (long reindexOrganizationId : reindexOrganizationIds) {
+				Organization reindexOrganization = fetchOrganization(
+					reindexOrganizationId);
+
+				reindexOrganizations.add(reindexOrganization);
+			}
+
+			indexer.reindex(reindexOrganizations);
 		}
 		else {
 			indexer.reindex(organization);
@@ -1961,11 +1817,8 @@ public class OrganizationLocalServiceImpl
 	 *             names for the organization, and merge expando bridge
 	 *             attributes for the organization.
 	 * @return     the organization
-	 * @throws     PortalException if an organization or parent organization
-	 *             with the primary key could not be found or if the new
-	 *             information was invalid
 	 * @deprecated As of 7.0.0, replaced by {@link #updateOrganization(long,
-	 *             long, long, String, String, long, long, int, String, boolean,
+	 *             long, long, String, String, long, long, long, String, boolean,
 	 *             byte[], boolean, ServiceContext)}
 	 */
 	@Deprecated
@@ -2009,7 +1862,7 @@ public class OrganizationLocalServiceImpl
 		String regionCode = null;
 
 		if (regionId != null) {
-			Region region = regionService.fetchRegion(regionId);
+			Region region = regionPersistence.fetchByPrimaryKey(regionId);
 
 			regionCode = region.getRegionCode();
 		}
@@ -2017,7 +1870,7 @@ public class OrganizationLocalServiceImpl
 		String countryName = null;
 
 		if (countryId != null) {
-			Country country = countryService.fetchCountry(countryId);
+			Country country = countryPersistence.fetchByPrimaryKey(countryId);
 
 			countryName = country.getName();
 		}
@@ -2275,7 +2128,7 @@ public class OrganizationLocalServiceImpl
 			countryPersistence.findByPrimaryKey(countryId);
 		}
 
-		listTypeService.validate(
+		listTypeLocalService.validate(
 			statusId, ListTypeConstants.ORGANIZATION_STATUS);
 	}
 

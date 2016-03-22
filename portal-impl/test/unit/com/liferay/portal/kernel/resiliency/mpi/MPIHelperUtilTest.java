@@ -14,7 +14,6 @@
 
 package com.liferay.portal.kernel.resiliency.mpi;
 
-import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.config.AbstractMessagingConfigurator;
 import com.liferay.portal.kernel.messaging.config.MessagingConfigurator;
 import com.liferay.portal.kernel.messaging.config.MessagingConfiguratorRegistry;
@@ -102,8 +101,7 @@ public class MPIHelperUtilTest {
 				public void unregisterSPI(SPI spi) {
 				}
 
-			}
-		);
+			});
 	}
 
 	@After
@@ -785,7 +783,7 @@ public class MPIHelperUtilTest {
 
 			Assert.assertEquals(
 				"Not registering SPI " + mockSPI1 +
-					" with unknown SPI provider " +  mockSPI1.spiProviderName,
+					" with unknown SPI provider " + mockSPI1.spiProviderName,
 				logRecord.getMessage());
 
 			// No such SPI provider, without log
@@ -834,24 +832,20 @@ public class MPIHelperUtilTest {
 			MessagingConfigurator messagingConfigurator =
 				new AbstractMessagingConfigurator() {
 
-				@Override
-				public void connect() {
-				}
+					@Override
+					public void connect() {
+					}
 
-				@Override
-				public void disconnect() {
-				}
+					@Override
+					public void disconnect() {
+					}
 
-				@Override
-				protected MessageBus getMessageBus() {
-					return null;
-				}
+					@Override
+					protected ClassLoader getOperatingClassloader() {
+						return null;
+					}
 
-				@Override
-				protected ClassLoader getOperatingClassloader() {
-					return null;
-				}
-			};
+				};
 
 			MessagingConfiguratorRegistry.registerMessagingConfigurator(
 				"servletContextName2", messagingConfigurator);
@@ -878,7 +872,8 @@ public class MPIHelperUtilTest {
 
 			Assert.assertEquals(
 				"Not registering SPI " + mockSPI1 + " because it duplicates " +
-					mockSPI1, logRecord.getMessage());
+					mockSPI1,
+				logRecord.getMessage());
 
 			// Duplicate register, without log
 

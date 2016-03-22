@@ -14,12 +14,12 @@
 
 package com.liferay.portlet.subscriptions.test;
 
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.User;
 
 import org.junit.Before;
 
@@ -34,20 +34,31 @@ public abstract class BaseSubscriptionTestCase {
 		group = GroupTestUtil.addGroup();
 
 		user = UserTestUtil.addGroupUser(group, RoleConstants.SITE_MEMBER);
+
+		creatorUser = UserTestUtil.addGroupUser(
+			group, RoleConstants.SITE_MEMBER);
 	}
 
-	protected long addBaseModel(long containerModelId) throws Exception {
+	protected long addBaseModel(long userId, long containerModelId)
+		throws Exception {
+
 		return 0;
 	}
 
-	protected long addContainerModel(long containerModelId) throws Exception {
+	protected long addContainerModel(long userId, long containerModelId)
+		throws Exception {
+
 		return 0;
 	}
 
-	protected void updateBaseModel(long baseModelId) throws Exception {
+	protected void updateBaseModel(long userId, long baseModelId)
+		throws Exception {
 	}
 
 	protected static final long PARENT_CONTAINER_MODEL_ID_DEFAULT = 0;
+
+	@DeleteAfterTestRun
+	protected User creatorUser;
 
 	@DeleteAfterTestRun
 	protected Group group;

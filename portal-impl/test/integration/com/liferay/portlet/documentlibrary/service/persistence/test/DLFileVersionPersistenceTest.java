@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileVersionException;
+import com.liferay.document.library.kernel.model.DLFileVersion;
+import com.liferay.document.library.kernel.service.DLFileVersionLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileVersionPersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileVersionUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -33,17 +39,11 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileVersionException;
-import com.liferay.portlet.documentlibrary.model.DLFileVersion;
-import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileVersionPersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileVersionUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,8 +60,9 @@ import java.util.Set;
  * @generated
  */
 public class DLFileVersionPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -162,6 +163,8 @@ public class DLFileVersionPersistenceTest {
 
 		newDLFileVersion.setChecksum(RandomTestUtil.randomString());
 
+		newDLFileVersion.setLastPublishDate(RandomTestUtil.nextDate());
+
 		newDLFileVersion.setStatus(RandomTestUtil.nextInt());
 
 		newDLFileVersion.setStatusByUserId(RandomTestUtil.nextLong());
@@ -222,6 +225,9 @@ public class DLFileVersionPersistenceTest {
 			newDLFileVersion.getSize());
 		Assert.assertEquals(existingDLFileVersion.getChecksum(),
 			newDLFileVersion.getChecksum());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingDLFileVersion.getLastPublishDate()),
+			Time.getShortTimestamp(newDLFileVersion.getLastPublishDate()));
 		Assert.assertEquals(existingDLFileVersion.getStatus(),
 			newDLFileVersion.getStatus());
 		Assert.assertEquals(existingDLFileVersion.getStatusByUserId(),
@@ -234,153 +240,96 @@ public class DLFileVersionPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByFileEntryId() {
-		try {
-			_persistence.countByFileEntryId(RandomTestUtil.nextLong());
+	public void testCountByFileEntryId() throws Exception {
+		_persistence.countByFileEntryId(RandomTestUtil.nextLong());
 
-			_persistence.countByFileEntryId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByFileEntryId(0L);
 	}
 
 	@Test
-	public void testCountByMimeType() {
-		try {
-			_persistence.countByMimeType(StringPool.BLANK);
+	public void testCountByMimeType() throws Exception {
+		_persistence.countByMimeType(StringPool.BLANK);
 
-			_persistence.countByMimeType(StringPool.NULL);
+		_persistence.countByMimeType(StringPool.NULL);
 
-			_persistence.countByMimeType((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByMimeType((String)null);
 	}
 
 	@Test
-	public void testCountByC_NotS() {
-		try {
-			_persistence.countByC_NotS(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByC_NotS() throws Exception {
+		_persistence.countByC_NotS(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_NotS(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_NotS(0L, 0);
 	}
 
 	@Test
-	public void testCountByF_V() {
-		try {
-			_persistence.countByF_V(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByF_V() throws Exception {
+		_persistence.countByF_V(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByF_V(0L, StringPool.NULL);
+		_persistence.countByF_V(0L, StringPool.NULL);
 
-			_persistence.countByF_V(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByF_V(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByF_S() {
-		try {
-			_persistence.countByF_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByF_S() throws Exception {
+		_persistence.countByF_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByF_S(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByF_S(0L, 0);
 	}
 
 	@Test
-	public void testCountByG_F_S() {
-		try {
-			_persistence.countByG_F_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByG_F_S() throws Exception {
+		_persistence.countByG_F_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_F_S(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F_S(0L, 0L, 0);
 	}
 
 	@Test
-	public void testCountByG_F_T_V() {
-		try {
-			_persistence.countByG_F_T_V(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK, StringPool.BLANK);
+	public void testCountByG_F_T_V() throws Exception {
+		_persistence.countByG_F_T_V(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK, StringPool.BLANK);
 
-			_persistence.countByG_F_T_V(0L, 0L, StringPool.NULL, StringPool.NULL);
+		_persistence.countByG_F_T_V(0L, 0L, StringPool.NULL, StringPool.NULL);
 
-			_persistence.countByG_F_T_V(0L, 0L, (String)null, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F_T_V(0L, 0L, (String)null, (String)null);
 	}
 
 	@Test
@@ -392,29 +341,17 @@ public class DLFileVersionPersistenceTest {
 		Assert.assertEquals(existingDLFileVersion, newDLFileVersion);
 	}
 
-	@Test
+	@Test(expected = NoSuchFileVersionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchFileVersionException");
-		}
-		catch (NoSuchFileVersionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<DLFileVersion> getOrderByComparator() {
@@ -424,8 +361,8 @@ public class DLFileVersionPersistenceTest {
 			"modifiedDate", true, "repositoryId", true, "folderId", true,
 			"fileEntryId", true, "treePath", true, "fileName", true,
 			"extension", true, "mimeType", true, "title", true, "description",
-			true, "changeLog", true, "extraSettings", true, "fileEntryTypeId",
-			true, "version", true, "size", true, "checksum", true, "status",
+			true, "changeLog", true, "fileEntryTypeId", true, "version", true,
+			"size", true, "checksum", true, "lastPublishDate", true, "status",
 			true, "statusByUserId", true, "statusByUserName", true,
 			"statusDate", true);
 	}
@@ -536,11 +473,9 @@ public class DLFileVersionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileVersionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileVersion>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileVersion dlFileVersion = (DLFileVersion)object;
-
+				public void performAction(DLFileVersion dlFileVersion) {
 					Assert.assertNotNull(dlFileVersion);
 
 					count.increment();
@@ -628,10 +563,6 @@ public class DLFileVersionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		DLFileVersion newDLFileVersion = addDLFileVersion();
 
 		_persistence.clearCache();
@@ -641,12 +572,12 @@ public class DLFileVersionPersistenceTest {
 		Assert.assertTrue(Validator.equals(existingDLFileVersion.getUuid(),
 				ReflectionTestUtil.invoke(existingDLFileVersion,
 					"getOriginalUuid", new Class<?>[0])));
-		Assert.assertEquals(existingDLFileVersion.getGroupId(),
-			ReflectionTestUtil.invoke(existingDLFileVersion,
+		Assert.assertEquals(Long.valueOf(existingDLFileVersion.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileVersion,
 				"getOriginalGroupId", new Class<?>[0]));
 
-		Assert.assertEquals(existingDLFileVersion.getFileEntryId(),
-			ReflectionTestUtil.invoke(existingDLFileVersion,
+		Assert.assertEquals(Long.valueOf(existingDLFileVersion.getFileEntryId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileVersion,
 				"getOriginalFileEntryId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingDLFileVersion.getVersion(),
 				ReflectionTestUtil.invoke(existingDLFileVersion,
@@ -701,6 +632,8 @@ public class DLFileVersionPersistenceTest {
 		dlFileVersion.setSize(RandomTestUtil.nextLong());
 
 		dlFileVersion.setChecksum(RandomTestUtil.randomString());
+
+		dlFileVersion.setLastPublishDate(RandomTestUtil.nextDate());
 
 		dlFileVersion.setStatus(RandomTestUtil.nextInt());
 

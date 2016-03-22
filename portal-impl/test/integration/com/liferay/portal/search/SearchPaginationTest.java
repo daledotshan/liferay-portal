@@ -15,6 +15,7 @@
 package com.liferay.portal.search;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
@@ -23,6 +24,8 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
@@ -31,11 +34,9 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +59,7 @@ public class SearchPaginationTest {
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE,
+			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
@@ -76,9 +77,10 @@ public class SearchPaginationTest {
 
 		for (int i = 0; i < _USERS_COUNT; i ++) {
 			User user = UserTestUtil.addUser(
-				RandomTestUtil.randomString(), false,
-				RandomTestUtil.randomString(), _randomLastName,
-				new long[] {TestPropsValues.getGroupId()});
+				RandomTestUtil.randomString(
+					NumericStringRandomizerBumper.INSTANCE),
+				LocaleUtil.getDefault(), RandomTestUtil.randomString(),
+				_randomLastName, new long[] {TestPropsValues.getGroupId()});
 
 			_users.add(user);
 		}
@@ -219,7 +221,7 @@ public class SearchPaginationTest {
 	protected Hits getHits(String keyword, int start, int end)
 		throws Exception {
 
-		Indexer indexer = IndexerRegistryUtil.getIndexer(User.class);
+		Indexer<User> indexer = IndexerRegistryUtil.getIndexer(User.class);
 
 		SearchContext searchContext = new SearchContext();
 

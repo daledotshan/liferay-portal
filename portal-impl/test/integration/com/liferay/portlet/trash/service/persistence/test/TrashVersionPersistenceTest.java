@@ -30,17 +30,17 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
-import com.liferay.portlet.trash.NoSuchVersionException;
-import com.liferay.portlet.trash.model.TrashVersion;
-import com.liferay.portlet.trash.service.TrashVersionLocalServiceUtil;
-import com.liferay.portlet.trash.service.persistence.TrashVersionPersistence;
-import com.liferay.portlet.trash.service.persistence.TrashVersionUtil;
+import com.liferay.trash.kernel.exception.NoSuchVersionException;
+import com.liferay.trash.kernel.model.TrashVersion;
+import com.liferay.trash.kernel.service.TrashVersionLocalServiceUtil;
+import com.liferay.trash.kernel.service.persistence.TrashVersionPersistence;
+import com.liferay.trash.kernel.service.persistence.TrashVersionUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -57,8 +57,9 @@ import java.util.Set;
  * @generated
  */
 public class TrashVersionPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -115,6 +116,8 @@ public class TrashVersionPersistenceTest {
 
 		TrashVersion newTrashVersion = _persistence.create(pk);
 
+		newTrashVersion.setCompanyId(RandomTestUtil.nextLong());
+
 		newTrashVersion.setEntryId(RandomTestUtil.nextLong());
 
 		newTrashVersion.setClassNameId(RandomTestUtil.nextLong());
@@ -131,6 +134,8 @@ public class TrashVersionPersistenceTest {
 
 		Assert.assertEquals(existingTrashVersion.getVersionId(),
 			newTrashVersion.getVersionId());
+		Assert.assertEquals(existingTrashVersion.getCompanyId(),
+			newTrashVersion.getCompanyId());
 		Assert.assertEquals(existingTrashVersion.getEntryId(),
 			newTrashVersion.getEntryId());
 		Assert.assertEquals(existingTrashVersion.getClassNameId(),
@@ -144,41 +149,26 @@ public class TrashVersionPersistenceTest {
 	}
 
 	@Test
-	public void testCountByEntryId() {
-		try {
-			_persistence.countByEntryId(RandomTestUtil.nextLong());
+	public void testCountByEntryId() throws Exception {
+		_persistence.countByEntryId(RandomTestUtil.nextLong());
 
-			_persistence.countByEntryId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByEntryId(0L);
 	}
 
 	@Test
-	public void testCountByE_C() {
-		try {
-			_persistence.countByE_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByE_C() throws Exception {
+		_persistence.countByE_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByE_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByE_C(0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
@@ -190,34 +180,23 @@ public class TrashVersionPersistenceTest {
 		Assert.assertEquals(existingTrashVersion, newTrashVersion);
 	}
 
-	@Test
+	@Test(expected = NoSuchVersionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchVersionException");
-		}
-		catch (NoSuchVersionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<TrashVersion> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("TrashVersion", "versionId",
-			true, "entryId", true, "classNameId", true, "classPK", true,
-			"typeSettings", true, "status", true);
+			true, "companyId", true, "entryId", true, "classNameId", true,
+			"classPK", true, "status", true);
 	}
 
 	@Test
@@ -326,11 +305,9 @@ public class TrashVersionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = TrashVersionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<TrashVersion>() {
 				@Override
-				public void performAction(Object object) {
-					TrashVersion trashVersion = (TrashVersion)object;
-
+				public void performAction(TrashVersion trashVersion) {
 					Assert.assertNotNull(trashVersion);
 
 					count.increment();
@@ -416,21 +393,17 @@ public class TrashVersionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		TrashVersion newTrashVersion = addTrashVersion();
 
 		_persistence.clearCache();
 
 		TrashVersion existingTrashVersion = _persistence.findByPrimaryKey(newTrashVersion.getPrimaryKey());
 
-		Assert.assertEquals(existingTrashVersion.getClassNameId(),
-			ReflectionTestUtil.invoke(existingTrashVersion,
+		Assert.assertEquals(Long.valueOf(existingTrashVersion.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingTrashVersion,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingTrashVersion.getClassPK(),
-			ReflectionTestUtil.invoke(existingTrashVersion,
+		Assert.assertEquals(Long.valueOf(existingTrashVersion.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingTrashVersion,
 				"getOriginalClassPK", new Class<?>[0]));
 	}
 
@@ -438,6 +411,8 @@ public class TrashVersionPersistenceTest {
 		long pk = RandomTestUtil.nextLong();
 
 		TrashVersion trashVersion = _persistence.create(pk);
+
+		trashVersion.setCompanyId(RandomTestUtil.nextLong());
 
 		trashVersion.setEntryId(RandomTestUtil.nextLong());
 

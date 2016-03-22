@@ -14,18 +14,17 @@
 
 package com.liferay.portlet.asset.util;
 
-import com.liferay.portal.NoSuchGroupException;
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.exception.AssetCategoryException;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.service.ClassNameLocalServiceUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.AssetCategoryException;
-import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
-import com.liferay.portlet.asset.model.AssetRendererFactory;
-import com.liferay.portlet.asset.model.AssetVocabulary;
-import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.List;
 
@@ -47,17 +46,15 @@ public class BaseAssetEntryValidator implements AssetEntryValidator {
 		Group group = GroupLocalServiceUtil.getGroup(groupId);
 
 		if (!group.isCompany()) {
-			try {
-				Group companyGroup = GroupLocalServiceUtil.getCompanyGroup(
-					group.getCompanyId());
+			Group companyGroup = GroupLocalServiceUtil.fetchCompanyGroup(
+				group.getCompanyId());
 
+			if (companyGroup != null) {
 				vocabularies = ListUtil.copy(vocabularies);
 
 				vocabularies.addAll(
 					AssetVocabularyLocalServiceUtil.getGroupVocabularies(
 						companyGroup.getGroupId()));
-			}
-			catch (NoSuchGroupException nsge) {
 			}
 		}
 
@@ -71,7 +68,7 @@ public class BaseAssetEntryValidator implements AssetEntryValidator {
 	protected boolean isAssetCategorizable(long classNameId) {
 		String className = PortalUtil.getClassName(classNameId);
 
-		AssetRendererFactory assetRendererFactory =
+		AssetRendererFactory<?> assetRendererFactory =
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 

@@ -14,30 +14,23 @@
 
 package com.liferay.portal.upgrade.v6_1_0;
 
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Tuple;
-import com.liferay.portal.model.User;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.journal.model.JournalArticle;
-import com.liferay.portlet.messageboards.model.MBCategory;
-import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.messageboards.model.MBThread;
-import com.liferay.portlet.social.model.SocialActivityConstants;
-import com.liferay.portlet.social.model.SocialActivityCounterConstants;
-import com.liferay.portlet.social.model.SocialActivityCounterDefinition;
-import com.liferay.portlet.social.util.SocialCounterPeriodUtil;
+import com.liferay.social.kernel.model.SocialActivityConstants;
+import com.liferay.social.kernel.model.SocialActivityCounterConstants;
+import com.liferay.social.kernel.model.SocialActivityCounterDefinition;
+import com.liferay.social.kernel.util.SocialCounterPeriodUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -52,68 +45,79 @@ public class UpgradeSocial extends UpgradeProcess {
 
 	public UpgradeSocial() {
 		putEquityToActivityMap(
-			BlogsEntry.class.getName(), ActionKeys.ADD_DISCUSSION,
+			"com.liferay.portlet.blogs.model.BlogsEntry",
+			ActionKeys.ADD_DISCUSSION,
 			SocialActivityConstants.TYPE_ADD_COMMENT);
 		putEquityToActivityMap(
-			BlogsEntry.class.getName(), ActionKeys.ADD_ENTRY, 2);
+			"com.liferay.portlet.blogs.model.BlogsEntry", ActionKeys.ADD_ENTRY,
+			2);
 		putEquityToActivityMap(
-			BlogsEntry.class.getName(), ActionKeys.ADD_VOTE,
+			"com.liferay.portlet.blogs.model.BlogsEntry", ActionKeys.ADD_VOTE,
 			SocialActivityConstants.TYPE_ADD_VOTE);
 		putEquityToActivityMap(
-			BlogsEntry.class.getName(), ActionKeys.SUBSCRIBE,
+			"com.liferay.portlet.blogs.model.BlogsEntry", ActionKeys.SUBSCRIBE,
 			SocialActivityConstants.TYPE_SUBSCRIBE);
 		putEquityToActivityMap(
-			BlogsEntry.class.getName(), ActionKeys.UPDATE, 3);
+			"com.liferay.portlet.blogs.model.BlogsEntry", ActionKeys.UPDATE, 3);
 		putEquityToActivityMap(
-			BlogsEntry.class.getName(), ActionKeys.VIEW,
+			"com.liferay.portlet.blogs.model.BlogsEntry", ActionKeys.VIEW,
 			SocialActivityConstants.TYPE_VIEW);
 
 		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.ADD_ARTICLE, 1);
+			"com.liferay.portlet.messageboards.model.MBCategory",
+			ActionKeys.SUBSCRIBE, SocialActivityConstants.TYPE_SUBSCRIBE);
 		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.ADD_DISCUSSION,
+			"com.liferay.portlet.messageboards.model.MBMessage",
+			ActionKeys.ADD_MESSAGE, 1);
+		putEquityToActivityMap(
+			"com.liferay.portlet.messageboards.model.MBMessage",
+			ActionKeys.ADD_VOTE, SocialActivityConstants.TYPE_ADD_VOTE);
+		putEquityToActivityMap(
+			"com.liferay.portlet.messageboards.model.MBMessage",
+			ActionKeys.REPLY_TO_MESSAGE, 2);
+		putEquityToActivityMap(
+			"com.liferay.portlet.messageboards.model.MBMessage",
+			ActionKeys.VIEW, SocialActivityConstants.TYPE_VIEW);
+		putEquityToActivityMap(
+			"com.liferay.portlet.messageboards.model.MBThread",
+			ActionKeys.SUBSCRIBE,
+			"com.liferay.portlet.messageboards.model.MBMessage",
+			SocialActivityConstants.TYPE_SUBSCRIBE);
+
+		putEquityToActivityMap(
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ActionKeys.ADD_ARTICLE, 1);
+		putEquityToActivityMap(
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ActionKeys.ADD_DISCUSSION,
 			SocialActivityConstants.TYPE_ADD_COMMENT);
 		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.UPDATE, 2);
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ActionKeys.UPDATE, 2);
 		putEquityToActivityMap(
-			JournalArticle.class.getName(), ActionKeys.VIEW,
+			"com.liferay.portlet.journal.model.JournalArticle", ActionKeys.VIEW,
 			SocialActivityConstants.TYPE_VIEW);
 
 		putEquityToActivityMap(
-			MBCategory.class.getName(), ActionKeys.SUBSCRIBE,
+			"com.liferay.portlet.wiki.model.WikiNode", ActionKeys.SUBSCRIBE,
 			SocialActivityConstants.TYPE_SUBSCRIBE);
 		putEquityToActivityMap(
-			MBMessage.class.getName(), ActionKeys.ADD_MESSAGE, 1);
-		putEquityToActivityMap(
-			MBMessage.class.getName(), ActionKeys.ADD_VOTE,
-			SocialActivityConstants.TYPE_ADD_VOTE);
-		putEquityToActivityMap(
-			MBMessage.class.getName(), ActionKeys.REPLY_TO_MESSAGE, 2);
-		putEquityToActivityMap(
-			MBMessage.class.getName(), ActionKeys.VIEW,
-			SocialActivityConstants.TYPE_VIEW);
-		putEquityToActivityMap(
-			MBThread.class.getName(), ActionKeys.SUBSCRIBE,
-			MBMessage.class.getName(), SocialActivityConstants.TYPE_SUBSCRIBE);
-
-		putEquityToActivityMap(
-			"com.liferay.wiki.model.WikiNode", ActionKeys.SUBSCRIBE,
-			SocialActivityConstants.TYPE_SUBSCRIBE);
-		putEquityToActivityMap(
-			"com.liferay.wiki.model.WikiPage", ActionKeys.ADD_ATTACHMENT,
+			"com.liferay.portlet.wiki.model.WikiPage",
+			ActionKeys.ADD_ATTACHMENT,
 			SocialActivityConstants.TYPE_ADD_ATTACHMENT);
 		putEquityToActivityMap(
-			"com.liferay.wiki.model.WikiPage", ActionKeys.ADD_DISCUSSION,
+			"com.liferay.portlet.wiki.model.WikiPage",
+			ActionKeys.ADD_DISCUSSION,
 			SocialActivityConstants.TYPE_ADD_COMMENT);
 		putEquityToActivityMap(
-			"com.liferay.wiki.model.WikiPage", ActionKeys.ADD_PAGE, 1);
+			"com.liferay.portlet.wiki.model.WikiPage", ActionKeys.ADD_PAGE, 1);
 		putEquityToActivityMap(
-			"com.liferay.wiki.model.WikiPage", ActionKeys.SUBSCRIBE,
+			"com.liferay.portlet.wiki.model.WikiPage", ActionKeys.SUBSCRIBE,
 			SocialActivityConstants.TYPE_SUBSCRIBE);
 		putEquityToActivityMap(
-			"com.liferay.wiki.model.WikiPage", ActionKeys.UPDATE, 2);
+			"com.liferay.portlet.wiki.model.WikiPage", ActionKeys.UPDATE, 2);
 		putEquityToActivityMap(
-			"com.liferay.wiki.model.WikiPage", ActionKeys.VIEW,
+			"com.liferay.portlet.wiki.model.WikiPage", ActionKeys.VIEW,
 			SocialActivityConstants.TYPE_VIEW);
 	}
 
@@ -124,22 +128,16 @@ public class UpgradeSocial extends UpgradeProcess {
 			int endPeriod)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		StringBundler sb = new StringBundler(5);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		sb.append("insert into SocialActivityCounter (activityCounterId, ");
+		sb.append("groupId, companyId, classNameId, classPK, name, ");
+		sb.append("ownerType, currentValue, totalValue, graceValue, ");
+		sb.append("startPeriod, endPeriod) values (?, ?, ?, ?, ?, ?, ?, ?, ");
+		sb.append("?, ?, ?, ?)");
 
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("insert into SocialActivityCounter (activityCounterId, ");
-			sb.append("groupId, companyId, classNameId, classPK, name, ");
-			sb.append("ownerType, currentValue, totalValue, graceValue, ");
-			sb.append("startPeriod, endPeriod) values (?, ?, ?, ?, ?, ?, ?, ");
-			sb.append("?, ?, ?, ?, ?)");
-
-			ps = con.prepareStatement(sb.toString());
+		try (PreparedStatement ps = connection.prepareStatement(
+				sb.toString())) {
 
 			ps.setLong(1, activityCounterId);
 			ps.setLong(2, groupId);
@@ -155,9 +153,6 @@ public class UpgradeSocial extends UpgradeProcess {
 			ps.setInt(12, endPeriod);
 
 			ps.executeUpdate();
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -185,17 +180,10 @@ public class UpgradeSocial extends UpgradeProcess {
 			long classNameId, int activityType, String name, String value)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (PreparedStatement ps = connection.prepareStatement(
 				"insert into SocialActivitySetting (activitySettingId, " +
 					"groupId, companyId, classNameId, activityType, name, " +
-						"value) values (?, ?, ?, ?, ?, ?, ?)");
+						"value) values (?, ?, ?, ?, ?, ?, ?)")) {
 
 			ps.setLong(1, activitySettingId);
 			ps.setLong(2, groupId);
@@ -206,9 +194,6 @@ public class UpgradeSocial extends UpgradeProcess {
 			ps.setString(7, value);
 
 			ps.executeUpdate();
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -222,12 +207,14 @@ public class UpgradeSocial extends UpgradeProcess {
 	}
 
 	protected void dropEquityTables() throws Exception {
-		runSQL("drop table SocialEquityAssetEntry");
-		runSQL("drop table SocialEquityGroupSetting");
-		runSQL("drop table SocialEquityHistory");
-		runSQL("drop table SocialEquityLog");
-		runSQL("drop table SocialEquitySetting");
-		runSQL("drop table SocialEquityUser");
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			runSQL("drop table SocialEquityAssetEntry");
+			runSQL("drop table SocialEquityGroupSetting");
+			runSQL("drop table SocialEquityHistory");
+			runSQL("drop table SocialEquityLog");
+			runSQL("drop table SocialEquitySetting");
+			runSQL("drop table SocialEquityUser");
+		}
 	}
 
 	protected String encodeEquityToActivityKey(
@@ -247,21 +234,15 @@ public class UpgradeSocial extends UpgradeProcess {
 			int ownerType, int startPeriod, int endPeriod)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		StringBundler sb = new StringBundler(4);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		sb.append("select activityCounterId, totalValue from ");
+		sb.append("SocialActivityCounter where groupId = ? and classNameId ");
+		sb.append("= ? and classPK = ? and name = ? and ownerType = ? and ");
+		sb.append("startPeriod = ? and endPeriod = ?");
 
-			StringBundler sb = new StringBundler(4);
-
-			sb.append("select activityCounterId, totalValue from ");
-			sb.append("SocialActivityCounter where groupId = ? and ");
-			sb.append("classNameId = ? and classPK = ? and name = ? and ");
-			sb.append("ownerType = ? and startPeriod = ? and endPeriod = ?");
-
-			ps = con.prepareStatement(sb.toString());
+		try (PreparedStatement ps = connection.prepareStatement(
+				sb.toString())) {
 
 			ps.setLong(1, groupId);
 			ps.setLong(2, classNameId);
@@ -271,35 +252,24 @@ public class UpgradeSocial extends UpgradeProcess {
 			ps.setInt(6, startPeriod);
 			ps.setInt(7, endPeriod);
 
-			rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					long activityCounterId = rs.getLong("activityCounterId");
+					int totalValue = rs.getInt("totalValue");
 
-			if (rs.next()) {
-				long activityCounterId = rs.getLong("activityCounterId");
-				int totalValue = rs.getInt("totalValue");
+					return new Object[] {activityCounterId, totalValue};
+				}
 
-				return new Object[] {activityCounterId, totalValue};
+				return null;
 			}
-
-			return null;
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
 	protected long[] getAssetEntryArray(long assetEntryId) throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (PreparedStatement ps = connection.prepareStatement(
 				"select groupId, companyId, userId, classNameId, classPK " +
 					"from AssetEntry where entryId = " + assetEntryId);
-
-			rs = ps.executeQuery();
+			ResultSet rs = ps.executeQuery()) {
 
 			if (rs.next()) {
 				long groupId = rs.getLong("groupId");
@@ -315,34 +285,23 @@ public class UpgradeSocial extends UpgradeProcess {
 
 			return null;
 		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 	}
 
 	protected long[] getAssetEntryArray(String className, long classPK)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		long classNameId = PortalUtil.getClassNameId(className);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		StringBundler sb = new StringBundler(5);
 
-			long classNameId = PortalUtil.getClassNameId(className);
+		sb.append("select groupId, companyId, userId from AssetEntry where ");
+		sb.append("classNameId = ");
+		sb.append(classNameId);
+		sb.append(" and classPK = ");
+		sb.append(classPK);
 
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("select groupId, companyId, userId from AssetEntry ");
-			sb.append("where classNameId = ");
-			sb.append(classNameId);
-			sb.append(" and classPK = ");
-			sb.append(classPK);
-
-			ps = con.prepareStatement(sb.toString());
-
-			rs = ps.executeQuery();
+		try (PreparedStatement ps = connection.prepareStatement(sb.toString());
+			ResultSet rs = ps.executeQuery()) {
 
 			if (rs.next()) {
 				long groupId = rs.getLong("groupId");
@@ -356,33 +315,19 @@ public class UpgradeSocial extends UpgradeProcess {
 
 			return null;
 		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
 	}
 
 	protected long getMBThreadRootMessageId(long mbThreadId) throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (PreparedStatement ps = connection.prepareStatement(
 				"select rootMessageId from MBThread where threadId = " +
 					mbThreadId);
-
-			rs = ps.executeQuery();
+			ResultSet rs = ps.executeQuery()) {
 
 			if (rs.next()) {
 				return rs.getLong("rootMessageId");
 			}
 
 			return -1;
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -391,21 +336,15 @@ public class UpgradeSocial extends UpgradeProcess {
 			int ownerType, int startPeriod)
 		throws Exception {
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		StringBundler sb = new StringBundler(4);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		sb.append("select max(totalValue) as totalValue from ");
+		sb.append("SocialActivityCounter where groupId = ? and classNameId ");
+		sb.append("= ? and classPK = ? and name = ? and ownerType = ? and ");
+		sb.append("startPeriod < ?");
 
-			StringBundler sb = new StringBundler(4);
-
-			sb.append("select max(totalValue) as totalValue from ");
-			sb.append("SocialActivityCounter where groupId = ? and ");
-			sb.append("classNameId = ? and classPK = ? and name = ? and ");
-			sb.append("ownerType = ? and startPeriod < ?");
-
-			ps = con.prepareStatement(sb.toString());
+		try (PreparedStatement ps = connection.prepareStatement(
+				sb.toString())) {
 
 			ps.setLong(1, groupId);
 			ps.setLong(2, classNameId);
@@ -414,89 +353,78 @@ public class UpgradeSocial extends UpgradeProcess {
 			ps.setInt(5, ownerType);
 			ps.setInt(6, startPeriod);
 
-			rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return rs.getInt("totalValue");
+				}
 
-			if (rs.next()) {
-				return rs.getInt("totalValue");
+				return 0;
 			}
-
-			return 0;
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
 	protected void migrateEquityGroupSettings() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			try (PreparedStatement ps = connection.prepareStatement(
+					"select groupId, companyId, classNameId, enabled from " +
+						"SocialEquityGroupSetting where type_ = 1");
+				ResultSet rs = ps.executeQuery()) {
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+				while (rs.next()) {
+					long groupId = rs.getLong("groupId");
+					long companyId = rs.getLong("companyId");
+					long classNameId = rs.getLong("classNameId");
+					boolean enabled = rs.getBoolean("enabled");
 
-			ps = con.prepareStatement(
-				"select groupId, companyId, classNameId, enabled from " +
-					"SocialEquityGroupSetting where type_ = 1");
-
-			rs = ps.executeQuery();
-
-			while (rs.next()) {
-				long groupId = rs.getLong("groupId");
-				long companyId = rs.getLong("companyId");
-				long classNameId = rs.getLong("classNameId");
-				boolean enabled = rs.getBoolean("enabled");
-
-				addActivitySetting(
-					increment(), groupId, companyId, classNameId, 0, "enabled",
-					String.valueOf(enabled));
+					addActivitySetting(
+						increment(), groupId, companyId, classNameId, 0,
+						"enabled", String.valueOf(enabled));
+				}
 			}
 
-			DataAccess.cleanUp(null, ps, rs);
-
-			StringBundler sb = new StringBundler(12);
+			StringBundler sb = new StringBundler(7);
 
 			sb.append("select groupId from SocialActivitySetting where ");
-			sb.append("activityType = 0 and name = 'enabled' and ");
-			sb.append("value = 'true' and classNameId in (");
+			sb.append("activityType = 0 and name = 'enabled' and value = ");
+			sb.append("'true' and classNameId in (");
 
 			long mbMessageClassNameId = PortalUtil.getClassNameId(
-				MBMessage.class);
+				"com.liferay.portlet.messageboards.model.MBMessage");
 
 			sb.append(mbMessageClassNameId);
 			sb.append(", ");
 
 			long mbThreadClassNameId = PortalUtil.getClassNameId(
-				MBThread.class);
+				"com.liferay.portlet.messageboards.model.MBThread");
 
 			sb.append(mbThreadClassNameId);
 			sb.append(StringPool.CLOSE_PARENTHESIS);
 
-			ps = con.prepareStatement(sb.toString());
+			try (PreparedStatement ps = connection.prepareStatement(
+					sb.toString());
+				ResultSet rs = ps.executeQuery()) {
 
-			rs = ps.executeQuery();
+				while (rs.next()) {
+					long groupId = rs.getLong("groupId");
 
-			while (rs.next()) {
-				long groupId = rs.getLong("groupId");
+					sb = new StringBundler(6);
 
-				sb = new StringBundler(6);
+					sb.append(
+						"update SocialActivitySetting set value = 'true' ");
+					sb.append("where groupId = ");
+					sb.append(groupId);
+					sb.append(
+						" and activityType = 0 and value = 'enabled' and ");
+					sb.append("classNameId = ");
+					sb.append(mbThreadClassNameId);
 
-				sb.append("update SocialActivitySetting set value = 'true' ");
-				sb.append("where groupId = ");
-				sb.append(groupId);
-				sb.append(" and activityType = 0 and value = 'enabled' and ");
-				sb.append("classNameId = ");
-				sb.append(mbThreadClassNameId);
+					runSQL(sb.toString());
+				}
 
-				runSQL(sb.toString());
+				runSQL(
+					"delete from SocialActivitySetting where classNameId = " +
+						mbThreadClassNameId);
 			}
-
-			runSQL(
-				"delete from SocialActivitySetting where classNameId = " +
-					mbThreadClassNameId);
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
@@ -516,7 +444,9 @@ public class UpgradeSocial extends UpgradeProcess {
 
 			String className = PortalUtil.getClassName(classNameId);
 
-			if (className.equals(MBThread.class.getName())) {
+			if (className.equals(
+					"com.liferay.portlet.messageboards.model.MBThread")) {
+
 				long classPK = assetEntryArray[4];
 
 				long mbThreadRootMessageId = getMBThreadRootMessageId(classPK);
@@ -526,7 +456,8 @@ public class UpgradeSocial extends UpgradeProcess {
 				}
 
 				assetEntryArray = getAssetEntryArray(
-					MBMessage.class.getName(), mbThreadRootMessageId);
+					"com.liferay.portlet.messageboards.model.MBMessage",
+					mbThreadRootMessageId);
 
 				if (assetEntryArray == null) {
 					return;
@@ -534,7 +465,8 @@ public class UpgradeSocial extends UpgradeProcess {
 			}
 		}
 
-		long classNameId = PortalUtil.getClassNameId(User.class);
+		long classNameId = PortalUtil.getClassNameId(
+			"com.liferay.portal.model.User");
 		long classPK = rs.getLong("userId");
 		String name = SocialActivityCounterConstants.NAME_PARTICIPATION;
 		int ownerType = SocialActivityCounterConstants.TYPE_ACTOR;
@@ -582,13 +514,7 @@ public class UpgradeSocial extends UpgradeProcess {
 	}
 
 	protected void migrateEquityLogs() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			StringBundler sb = new StringBundler(4);
 
 			sb.append("select AssetEntry.classNameId, AssetEntry.classPK, ");
@@ -596,70 +522,61 @@ public class UpgradeSocial extends UpgradeProcess {
 			sb.append("where SocialEquityLog.assetEntryId = ");
 			sb.append("AssetEntry.entryId order by actionDate");
 
-			ps = con.prepareStatement(sb.toString());
+			try (PreparedStatement ps = connection.prepareStatement(
+					sb.toString());
+				ResultSet rs = ps.executeQuery()) {
 
-			rs = ps.executeQuery();
-
-			while (rs.next()) {
-				migrateEquityLog(rs);
+				while (rs.next()) {
+					migrateEquityLog(rs);
+				}
 			}
-
-			DataAccess.cleanUp(null, ps, rs);
 
 			sb = new StringBundler(4);
 
 			sb.append("select groupId, classNameId, classPK, name, ");
-			sb.append("max(startPeriod) as startPeriod ");
-			sb.append("from SocialActivityCounter group by groupId, ");
-			sb.append("classNameId, classPK, name");
+			sb.append("max(startPeriod) as startPeriod from ");
+			sb.append("SocialActivityCounter group by groupId, classNameId, ");
+			sb.append("classPK, name");
 
-			ps = con.prepareStatement(sb.toString());
+			try (PreparedStatement ps = connection.prepareStatement(
+					sb.toString());
+				ResultSet rs = ps.executeQuery()) {
 
-			rs = ps.executeQuery();
+				while (rs.next()) {
+					long groupId = rs.getLong("groupId");
+					long classNameId = rs.getLong("classNameId");
+					long classPK = rs.getLong("classPK");
+					String name = rs.getString("name");
+					int startPeriod = rs.getInt("startPeriod");
 
-			while (rs.next()) {
-				long groupId = rs.getLong("groupId");
-				long classNameId = rs.getLong("classNameId");
-				long classPK = rs.getLong("classPK");
-				String name = rs.getString("name");
-				int startPeriod = rs.getInt("startPeriod");
+					sb = new StringBundler(12);
 
-				sb = new StringBundler(12);
+					sb.append("update SocialActivityCounter set endPeriod = ");
+					sb.append(
+						SocialActivityCounterConstants.END_PERIOD_UNDEFINED);
+					sb.append(" where groupId = ");
+					sb.append(groupId);
+					sb.append(" and classNameId = ");
+					sb.append(classNameId);
+					sb.append(" and classPK = ");
+					sb.append(classPK);
+					sb.append(" and name = '");
+					sb.append(name);
+					sb.append("' and startPeriod = ");
+					sb.append(startPeriod);
 
-				sb.append("update SocialActivityCounter set endPeriod = ");
-				sb.append(SocialActivityCounterConstants.END_PERIOD_UNDEFINED);
-				sb.append(" where groupId = ");
-				sb.append(groupId);
-				sb.append(" and classNameId = ");
-				sb.append(classNameId);
-				sb.append(" and classPK = ");
-				sb.append(classPK);
-				sb.append(" and name = '");
-				sb.append(name);
-				sb.append("' and startPeriod = ");
-				sb.append(startPeriod);
-
-				runSQL(sb.toString());
+					runSQL(sb.toString());
+				}
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 
 	protected void migrateEquitySettings() throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(
 				"select groupId, companyId, classNameId, actionId, " +
 					"dailyLimit, type_, value from SocialEquitySetting");
-
-			rs = ps.executeQuery();
+			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
 				long groupId = rs.getLong("groupId");
@@ -720,9 +637,6 @@ public class UpgradeSocial extends UpgradeProcess {
 						value);
 				}
 			}
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 	}
 

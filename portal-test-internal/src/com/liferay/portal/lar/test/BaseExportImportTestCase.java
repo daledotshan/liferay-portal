@@ -14,32 +14,73 @@
 
 package com.liferay.portal.lar.test;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetLink;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetLinkLocalServiceUtil;
+import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationConstants;
+import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactory;
+import com.liferay.exportimport.kernel.lar.ExportImportClassedModelUtil;
+import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
+import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
+import com.liferay.exportimport.kernel.model.ExportImportConfiguration;
+import com.liferay.exportimport.kernel.service.ExportImportConfigurationLocalServiceUtil;
+import com.liferay.exportimport.kernel.service.ExportImportServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
-import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.StagedModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.StagedModel;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.test.LayoutTestUtil;
 
 import java.io.File;
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 
 /**
  * @author Eduardo Garcia
  */
 public class BaseExportImportTestCase {
+
+	public void importLayouts(Map<String, String[]> parameterMap)
+		throws Exception {
+
+		User user = TestPropsValues.getUser();
+
+		Map<String, Serializable> importLayoutSettingsMap =
+			ExportImportConfigurationSettingsMapFactory.
+				buildImportLayoutSettingsMap(
+					user, importedGroup.getGroupId(), false, null,
+					parameterMap);
+
+		ExportImportConfiguration exportImportConfiguration =
+			ExportImportConfigurationLocalServiceUtil.
+				addExportImportConfiguration(
+					user.getUserId(), importedGroup.getGroupId(),
+					StringPool.BLANK, StringPool.BLANK,
+					ExportImportConfigurationConstants.TYPE_IMPORT_LAYOUT,
+					importLayoutSettingsMap, WorkflowConstants.STATUS_DRAFT,
+					new ServiceContext());
+
+		ExportImportServiceUtil.importLayouts(
+			exportImportConfiguration, larFile);
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -61,6 +102,19 @@ public class BaseExportImportTestCase {
 		if ((larFile != null) && larFile.exists()) {
 			FileUtil.delete(larFile);
 		}
+	}
+
+	protected AssetLink addAssetLink(
+			StagedModel sourceStagedModel, StagedModel targetStagedModel,
+			int weight)
+		throws PortalException {
+
+		AssetEntry originAssetEntry = getAssetEntry(sourceStagedModel);
+		AssetEntry targetAssetEntry = getAssetEntry(targetStagedModel);
+
+		return AssetLinkLocalServiceUtil.addLink(
+			TestPropsValues.getUserId(), originAssetEntry.getEntryId(),
+			targetAssetEntry.getEntryId(), 0, weight);
 	}
 
 	protected void addParameter(
@@ -94,6 +148,45 @@ public class BaseExportImportTestCase {
 	protected void deleteStagedModel(StagedModel stagedModel) throws Exception {
 	}
 
+	protected void exportImportLayouts(
+			long[] layoutIds, Map<String, String[]> parameterMap)
+		throws Exception {
+
+		exportLayouts(layoutIds, getExportParameterMap());
+
+		importLayouts(parameterMap);
+	}
+
+	protected void exportLayouts(
+			long[] layoutIds, Map<String, String[]> parameterMap)
+		throws Exception {
+
+		User user = TestPropsValues.getUser();
+
+		Map<String, Serializable> exportLayoutSettingsMap =
+			ExportImportConfigurationSettingsMapFactory.
+				buildExportLayoutSettingsMap(
+					user, group.getGroupId(), false, layoutIds, parameterMap);
+
+		ExportImportConfiguration exportImportConfiguration =
+			ExportImportConfigurationLocalServiceUtil.
+				addDraftExportImportConfiguration(
+					user.getUserId(),
+					ExportImportConfigurationConstants.TYPE_EXPORT_LAYOUT,
+					exportLayoutSettingsMap);
+
+		larFile = ExportImportServiceUtil.exportLayoutsAsFile(
+			exportImportConfiguration);
+	}
+
+	protected AssetEntry getAssetEntry(StagedModel stagedModel)
+		throws PortalException {
+
+		return AssetEntryLocalServiceUtil.getEntry(
+			ExportImportClassedModelUtil.getClassName(stagedModel),
+			ExportImportClassedModelUtil.getClassPK(stagedModel));
+	}
+
 	protected Map<String, String[]> getExportParameterMap() throws Exception {
 		Map<String, String[]> parameterMap = new LinkedHashMap<>();
 
@@ -122,7 +215,8 @@ public class BaseExportImportTestCase {
 		parameterMap.put(
 			PortletDataHandlerKeys.DATA_STRATEGY,
 			new String[] {
-				PortletDataHandlerKeys.DATA_STRATEGY_MIRROR_OVERWRITE});
+				PortletDataHandlerKeys.DATA_STRATEGY_MIRROR_OVERWRITE
+			});
 		parameterMap.put(
 			PortletDataHandlerKeys.PORTLET_CONFIGURATION,
 			new String[] {Boolean.TRUE.toString()});
@@ -154,6 +248,26 @@ public class BaseExportImportTestCase {
 		throws PortalException {
 
 		return stagedModel.getUuid();
+	}
+
+	protected void validateImportedStagedModel(
+			StagedModel stagedModel, StagedModel importedStagedModel)
+		throws Exception {
+
+		Assert.assertTrue(
+			stagedModel.getCreateDate() + " " +
+				importedStagedModel.getCreateDate(),
+			DateUtil.equals(
+				stagedModel.getCreateDate(),
+				importedStagedModel.getCreateDate()));
+		Assert.assertTrue(
+			stagedModel.getModifiedDate() + " " +
+				importedStagedModel.getModifiedDate(),
+			DateUtil.equals(
+				stagedModel.getModifiedDate(),
+				importedStagedModel.getModifiedDate()));
+		Assert.assertEquals(
+			stagedModel.getUuid(), importedStagedModel.getUuid());
 	}
 
 	@DeleteAfterTestRun
