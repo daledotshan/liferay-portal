@@ -16,12 +16,12 @@ package com.liferay.portlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.portlet.InvokerFilterContainer;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.PortletApp;
 import com.liferay.portal.model.impl.PortletFilterImpl;
-import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
@@ -71,27 +71,18 @@ public class InvokerFilterContainerImpl
 
 		_serviceTracker.open();
 
-		PortletApp portletApp = portlet.getPortletApp();
-
-		PortletContextBag portletContextBag = PortletContextBagPool.get(
-			portletApp.getServletContextName());
-
-		if (portletApp.isWARFile() && (portletContextBag == null)) {
-			return;
-		}
-
 		Map<String, Object> properties = new HashMap<>();
 
 		properties.put("javax.portlet.name", rootPortletId);
 		properties.put("preinitialized.filter", Boolean.TRUE);
 
-		Map<String, com.liferay.portal.model.PortletFilter> portletFilters =
-			portlet.getPortletFilters();
+		Map<String, com.liferay.portal.kernel.model.PortletFilter>
+			portletFilters = portlet.getPortletFilters();
 
-		for (Map.Entry<String, com.liferay.portal.model.PortletFilter> entry :
-				portletFilters.entrySet()) {
+		for (Map.Entry<String, com.liferay.portal.kernel.model.PortletFilter>
+				entry : portletFilters.entrySet()) {
 
-			com.liferay.portal.model.PortletFilter portletFilterModel =
+			com.liferay.portal.kernel.model.PortletFilter portletFilterModel =
 				entry.getValue();
 
 			PortletFilter portletFilter = PortletFilterFactory.create(
@@ -117,11 +108,12 @@ public class InvokerFilterContainerImpl
 			for (String portletFilterClassName :
 					PropsValues.PORTLET_FILTERS_SYSTEM) {
 
-				com.liferay.portal.model.PortletFilter portletFilterModel =
-					new PortletFilterImpl(
+				com.liferay.portal.kernel.model.PortletFilter
+					portletFilterModel = new PortletFilterImpl(
 						portletFilterClassName, portletFilterClassName,
 						Collections.<String>emptySet(),
-						Collections.<String, String>emptyMap(), portletApp);
+						Collections.<String, String>emptyMap(),
+						portlet.getPortletApp());
 
 				PortletFilter portletFilter = PortletFilterFactory.create(
 					portletFilterModel, portletContext);
@@ -195,21 +187,23 @@ public class InvokerFilterContainerImpl
 		new CopyOnWriteArrayList<>();
 	private final List<ResourceFilter> _resourceFilters =
 		new CopyOnWriteArrayList<>();
-	private final List<ServiceRegistrationTuple>
-		_serviceRegistrationTuples = new CopyOnWriteArrayList<>();
+	private final List<ServiceRegistrationTuple> _serviceRegistrationTuples =
+		new CopyOnWriteArrayList<>();
 	private final ServiceTracker<PortletFilter, PortletFilter> _serviceTracker;
 
 	private static class ServiceRegistrationTuple {
 
 		public ServiceRegistrationTuple(
-			com.liferay.portal.model.PortletFilter portletFilterModel,
+			com.liferay.portal.kernel.model.PortletFilter portletFilterModel,
 			ServiceRegistration<PortletFilter> serviceRegistration) {
 
 			_portletFilterModel = portletFilterModel;
 			_serviceRegistration = serviceRegistration;
 		}
 
-		public com.liferay.portal.model.PortletFilter getPortletFilterModel() {
+		public com.liferay.portal.kernel.model.PortletFilter
+			getPortletFilterModel() {
+
 			return _portletFilterModel;
 		}
 
@@ -217,7 +211,7 @@ public class InvokerFilterContainerImpl
 			return _serviceRegistration;
 		}
 
-		private final com.liferay.portal.model.PortletFilter
+		private final com.liferay.portal.kernel.model.PortletFilter
 			_portletFilterModel;
 		private final ServiceRegistration<PortletFilter> _serviceRegistration;
 
@@ -263,8 +257,8 @@ public class InvokerFilterContainerImpl
 				try {
 					portletFilter.init(filterConfig);
 				}
-				catch (PortletException e) {
-					_log.error(e, e);
+				catch (PortletException pe) {
+					_log.error(pe, pe);
 
 					registry.ungetService(serviceReference);
 

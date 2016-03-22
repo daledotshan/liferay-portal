@@ -31,17 +31,17 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
-import com.liferay.portlet.ratings.NoSuchStatsException;
-import com.liferay.portlet.ratings.model.RatingsStats;
-import com.liferay.portlet.ratings.service.RatingsStatsLocalServiceUtil;
-import com.liferay.portlet.ratings.service.persistence.RatingsStatsPersistence;
-import com.liferay.portlet.ratings.service.persistence.RatingsStatsUtil;
+import com.liferay.ratings.kernel.exception.NoSuchStatsException;
+import com.liferay.ratings.kernel.model.RatingsStats;
+import com.liferay.ratings.kernel.service.RatingsStatsLocalServiceUtil;
+import com.liferay.ratings.kernel.service.persistence.RatingsStatsPersistence;
+import com.liferay.ratings.kernel.service.persistence.RatingsStatsUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class RatingsStatsPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -116,6 +117,8 @@ public class RatingsStatsPersistenceTest {
 
 		RatingsStats newRatingsStats = _persistence.create(pk);
 
+		newRatingsStats.setCompanyId(RandomTestUtil.nextLong());
+
 		newRatingsStats.setClassNameId(RandomTestUtil.nextLong());
 
 		newRatingsStats.setClassPK(RandomTestUtil.nextLong());
@@ -132,6 +135,8 @@ public class RatingsStatsPersistenceTest {
 
 		Assert.assertEquals(existingRatingsStats.getStatsId(),
 			newRatingsStats.getStatsId());
+		Assert.assertEquals(existingRatingsStats.getCompanyId(),
+			newRatingsStats.getCompanyId());
 		Assert.assertEquals(existingRatingsStats.getClassNameId(),
 			newRatingsStats.getClassNameId());
 		Assert.assertEquals(existingRatingsStats.getClassPK(),
@@ -145,16 +150,11 @@ public class RatingsStatsPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
@@ -166,34 +166,23 @@ public class RatingsStatsPersistenceTest {
 		Assert.assertEquals(existingRatingsStats, newRatingsStats);
 	}
 
-	@Test
+	@Test(expected = NoSuchStatsException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchStatsException");
-		}
-		catch (NoSuchStatsException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<RatingsStats> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("RatingsStats", "statsId",
-			true, "classNameId", true, "classPK", true, "totalEntries", true,
-			"totalScore", true, "averageScore", true);
+			true, "companyId", true, "classNameId", true, "classPK", true,
+			"totalEntries", true, "totalScore", true, "averageScore", true);
 	}
 
 	@Test
@@ -302,11 +291,9 @@ public class RatingsStatsPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = RatingsStatsLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<RatingsStats>() {
 				@Override
-				public void performAction(Object object) {
-					RatingsStats ratingsStats = (RatingsStats)object;
-
+				public void performAction(RatingsStats ratingsStats) {
 					Assert.assertNotNull(ratingsStats);
 
 					count.increment();
@@ -392,21 +379,17 @@ public class RatingsStatsPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		RatingsStats newRatingsStats = addRatingsStats();
 
 		_persistence.clearCache();
 
 		RatingsStats existingRatingsStats = _persistence.findByPrimaryKey(newRatingsStats.getPrimaryKey());
 
-		Assert.assertEquals(existingRatingsStats.getClassNameId(),
-			ReflectionTestUtil.invoke(existingRatingsStats,
+		Assert.assertEquals(Long.valueOf(existingRatingsStats.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingRatingsStats,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingRatingsStats.getClassPK(),
-			ReflectionTestUtil.invoke(existingRatingsStats,
+		Assert.assertEquals(Long.valueOf(existingRatingsStats.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingRatingsStats,
 				"getOriginalClassPK", new Class<?>[0]));
 	}
 
@@ -414,6 +397,8 @@ public class RatingsStatsPersistenceTest {
 		long pk = RandomTestUtil.nextLong();
 
 		RatingsStats ratingsStats = _persistence.create(pk);
+
+		ratingsStats.setCompanyId(RandomTestUtil.nextLong());
 
 		ratingsStats.setClassNameId(RandomTestUtil.nextLong());
 

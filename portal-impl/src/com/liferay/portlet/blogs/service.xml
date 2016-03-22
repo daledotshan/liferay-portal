@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.0.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_0_0.dtd">
 
-<service-builder package-path="com.liferay.portlet.blogs" auto-import-default-references="false">
+<service-builder api-package-path="com.liferay.blogs.kernel" package-path="com.liferay.portlet.blogs" auto-import-default-references="false">
 	<namespace>Blogs</namespace>
 	<entity name="BlogsEntry" uuid="true" local-service="true" remote-service="true" trash-enabled="true">
 
@@ -32,12 +32,14 @@
 		<column name="allowPingbacks" type="boolean" />
 		<column name="allowTrackbacks" type="boolean" />
 		<column name="trackbacks" type="String" />
+		<column name="coverImageCaption" type="String" />
 		<column name="coverImageFileEntryId" type="long" />
 		<column name="coverImageURL" type="String" />
 		<column name="smallImage" type="boolean" />
 		<column name="smallImageFileEntryId" type="long" />
 		<column name="smallImageId" type="long" />
 		<column name="smallImageURL" type="String" />
+		<column name="lastPublishDate" type="Date" />
 		<column name="status" type="int" />
 		<column name="statusByUserId" type="long" />
 		<column name="statusByUserName" type="String" />
@@ -102,7 +104,7 @@
 		<finder name="G_U_S" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="userId" />
-			<finder-column name="status" />
+			<finder-column name="status" arrayable-operator="OR" />
 		</finder>
 		<finder name="G_U_NotS" return-type="Collection">
 			<finder-column name="groupId" />
@@ -168,7 +170,6 @@
 		<reference package-path="com.liferay.portlet.blogs" entity="BlogsStatsUser" />
 		<reference package-path="com.liferay.portlet.expando" entity="ExpandoRow" />
 		<reference package-path="com.liferay.portlet.ratings" entity="RatingsStats" />
-		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
 		<reference package-path="com.liferay.portlet.trash" entity="TrashEntry" />
 	</entity>
 	<entity name="BlogsStatsUser" local-service="true" remote-service="false">
@@ -231,13 +232,14 @@
 		<reference package-path="com.liferay.portlet.blogs" entity="BlogsEntry" />
 	</entity>
 	<exceptions>
-		<exception>CoverImageName</exception>
-		<exception>CoverImageSize</exception>
 		<exception>EntryContent</exception>
+		<exception>EntryCoverImageCrop</exception>
 		<exception>EntryDescription</exception>
 		<exception>EntryDisplayDate</exception>
+		<exception>EntryImageName</exception>
+		<exception>EntryImageSize</exception>
 		<exception>EntrySmallImageName</exception>
-		<exception>EntrySmallImageSize</exception>
+		<exception>EntrySmallImageScale</exception>
 		<exception>EntryTitle</exception>
 		<exception>TrackbackValidation</exception>
 	</exceptions>

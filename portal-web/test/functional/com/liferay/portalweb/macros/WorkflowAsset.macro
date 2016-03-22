@@ -1,0 +1,33 @@
+<definition>
+	<command name="createNewUserAccount">
+		<execute function="AssertClick" locator1="UserBar#USER_SIGN_IN" value1="Sign In" />
+
+		<execute macro="User#createAccount">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
+	</command>
+
+	<command name="gotoViaNotification">
+		<execute macro="Notifications#gotoNotifications" />
+
+		<execute function="AssertClick" locator1="Notifications#NOTIFICATIONS_WORKFLOW_TITLE" value1="${user} sent you a ${assetType} for review in the workflow." />
+	</command>
+
+	<command name="viewFormEntryTable">
+		<execute macro="FormsAdmin#viewFormTableEntry">
+			<var name="fieldLabel" value="${fieldLabel}" />
+			<var name="fieldValue" value="${fieldValue}" />
+		</execute>
+
+		<var name="key_fieldLabel" value="${fieldLabel}" />
+		<var name="key_fieldValue" value="${fieldValue}" />
+		<var name="key_workflowStatus" value="${workflowStatus}" />
+
+		<execute function="AssertTextEquals" locator1="FormsAdmin#FORM_ENTRY_WORKFLOW_STATUS" value1="${workflowStatus}" />
+	</command>
+</definition>

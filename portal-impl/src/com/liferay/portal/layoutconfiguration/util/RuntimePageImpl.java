@@ -16,15 +16,22 @@ package com.liferay.portal.layoutconfiguration.util;
 
 import com.liferay.portal.kernel.executor.PortalExecutorManagerUtil;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
+import com.liferay.portal.kernel.layoutconfiguration.util.RuntimePage;
+import com.liferay.portal.kernel.layoutconfiguration.util.xml.RuntimeLogic;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.LayoutTemplate;
+import com.liferay.portal.kernel.model.LayoutTemplateConstants;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
+import com.liferay.portal.kernel.service.LayoutTemplateLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.template.TemplateResource;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -32,21 +39,14 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.layoutconfiguration.util.velocity.CustomizationSettingsProcessor;
 import com.liferay.portal.layoutconfiguration.util.velocity.TemplateProcessor;
 import com.liferay.portal.layoutconfiguration.util.xml.ActionURLLogic;
 import com.liferay.portal.layoutconfiguration.util.xml.PortletLogic;
 import com.liferay.portal.layoutconfiguration.util.xml.RenderURLLogic;
-import com.liferay.portal.layoutconfiguration.util.xml.RuntimeLogic;
-import com.liferay.portal.model.LayoutTemplate;
-import com.liferay.portal.model.LayoutTemplateConstants;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.service.LayoutTemplateLocalServiceUtil;
 import com.liferay.portal.servlet.ThreadLocalFacadeServletRequestWrapperUtil;
-import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 import com.liferay.taglib.servlet.PipingServletResponse;
 import com.liferay.taglib.util.DummyVelocityTaglib;
 import com.liferay.taglib.util.VelocityTaglib;
@@ -491,11 +491,12 @@ public class RuntimePageImpl implements RuntimePage {
 			themeId = velocityTemplateId.substring(0, pos);
 		}
 
-		pos = layoutTemplateId.indexOf(PortletConstants.INSTANCE_SEPARATOR);
+		pos = layoutTemplateId.indexOf(
+			LayoutTemplateConstants.INSTANCE_SEPARATOR);
 
 		if (pos != -1) {
 			layoutTemplateId = layoutTemplateId.substring(
-				pos + PortletConstants.INSTANCE_SEPARATOR.length() + 1);
+				pos + LayoutTemplateConstants.INSTANCE_SEPARATOR.length() + 1);
 
 			pos = layoutTemplateId.indexOf(StringPool.UNDERLINE);
 

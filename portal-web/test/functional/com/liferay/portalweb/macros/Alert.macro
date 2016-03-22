@@ -1,0 +1,16 @@
+<definition>
+	<command name="viewRequestFailedToComplete">
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_REQUEST_FAILED_TO_COMPLETE" value1="Your request failed to complete." />
+	</command>
+
+	<command name="viewRequiredField">
+		<execute function="AssertTextEquals#assertPartialText" locator1="TextInput#REQUIRED_ALERT" value1="This field is required." />
+	</command>
+
+	<command name="viewSuccessMessage">
+		<execute macro-mobile="MobileNavigator#clickRemoveIcon" />
+
+		<execute function="AssertVisible" locator1="Message#SUCCESS" />
+		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
+	</command>
+</definition>

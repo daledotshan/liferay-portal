@@ -1,0 +1,73 @@
+import com.liferay.gradle.util.FileUtil
+
+import org.dm.gradle.plugins.bundle.JarBuilder
+
+task buildSystemPackagesExtraManifest
+task copySystemPackagesExtraManifest(type: Copy)
+
+File systemPackagesExtraBndFile = file("system.packages.extra.bnd")
+File systemPackagesExtraManifestFile = file("system.packages.extra.mf")
+
+buildSystemPackagesExtraManifest {
+	dependsOn classes
+	dependsOn copyLibs
+
+	doLast {
+		JarBuilder jarBuilder = bundle.jarBuilderFactory.create()
+
+		jarBuilder.withBase projectDir
+
+		Map<String, String> properties = liferay.bundleDefaultInstructions
+
+		properties["-include"] = relativePath(systemPackagesExtraBndFile)
+
+		jarBuilder.withClasspath configurations.runtime.files as File[]
+		jarBuilder.withName "system.packages.extra"
+		jarBuilder.withProperties properties
+		jarBuilder.withResources new File[0]
+		jarBuilder.withSourcepath sourceSets.main.allSource.srcDirs
+		jarBuilder.withTrace false
+		jarBuilder.withVersion project.version
+
+		systemPackagesExtraManifestFile.withOutputStream {
+			jarBuilder.writeManifestTo it
+		}
+	}
+}
+
+copySystemPackagesExtraManifest {
+	if (!FileUtil.isUpToDate(project, systemPackagesExtraBndFile, systemPackagesExtraManifestFile)) {
+		dependsOn buildSystemPackagesExtraManifest
+	}
+
+	from systemPackagesExtraManifestFile
+	into "tmp/META-INF"
+
+	rename {
+		"MANIFEST.MF"
+	}
+}
+
+dependencies {
+	provided group: "biz.aQute.bnd", name: "biz.aQute.bndlib", version: "3.1.0"
+	provided group: "com.liferay", name: "com.liferay.registry.api", version: "1.0.0"
+	provided group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "2.1.0"
+	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "2.1.0"
+	provided group: "javax.servlet", name: "javax.servlet-api", version: "3.0.1"
+	provided group: "org.osgi", name: "org.osgi.core", version: "5.0.0"
+	provided group: "org.springframework", name: "spring-beans", version: "3.2.15.RELEASE"
+	provided group: "org.springframework", name: "spring-context", version: "3.2.15.RELEASE"
+	provided group: "org.springframework", name: "spring-core", version: "3.2.15.RELEASE"
+	provided project(":apps:foundation:osgi:osgi-service-tracker-collections")
+	provided project(":core:jaxws-osgi-bridge")
+	provided project(":core:portal-app-license-api")
+	provided project(":core:registry-impl")
+}
+
+jar {
+	dependsOn copySystemPackagesExtraManifest
+}
+
+liferay {
+	deployDir = file("${liferayHome}/osgi/core")
+}

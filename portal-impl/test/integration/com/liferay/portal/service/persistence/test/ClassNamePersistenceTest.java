@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchClassNameException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchClassNameException;
+import com.liferay.portal.kernel.model.ClassName;
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
+import com.liferay.portal.kernel.service.persistence.ClassNameUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,17 +35,13 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.ClassName;
-import com.liferay.portal.service.ClassNameLocalServiceUtil;
-import com.liferay.portal.service.persistence.ClassNamePersistence;
-import com.liferay.portal.service.persistence.ClassNameUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class ClassNamePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -133,17 +134,12 @@ public class ClassNamePersistenceTest {
 	}
 
 	@Test
-	public void testCountByValue() {
-		try {
-			_persistence.countByValue(StringPool.BLANK);
+	public void testCountByValue() throws Exception {
+		_persistence.countByValue(StringPool.BLANK);
 
-			_persistence.countByValue(StringPool.NULL);
+		_persistence.countByValue(StringPool.NULL);
 
-			_persistence.countByValue((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByValue((String)null);
 	}
 
 	@Test
@@ -155,28 +151,17 @@ public class ClassNamePersistenceTest {
 		Assert.assertEquals(existingClassName, newClassName);
 	}
 
-	@Test
+	@Test(expected = NoSuchClassNameException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchClassNameException");
-		}
-		catch (NoSuchClassNameException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ClassName> getOrderByComparator() {
@@ -290,11 +275,9 @@ public class ClassNamePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ClassNameLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ClassName>() {
 				@Override
-				public void performAction(Object object) {
-					ClassName className = (ClassName)object;
-
+				public void performAction(ClassName className) {
 					Assert.assertNotNull(className);
 
 					count.increment();
@@ -380,10 +363,6 @@ public class ClassNamePersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		ClassName newClassName = addClassName();
 
 		_persistence.clearCache();

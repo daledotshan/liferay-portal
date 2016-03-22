@@ -31,17 +31,17 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
-import com.liferay.portlet.social.NoSuchRelationException;
-import com.liferay.portlet.social.model.SocialRelation;
-import com.liferay.portlet.social.service.SocialRelationLocalServiceUtil;
-import com.liferay.portlet.social.service.persistence.SocialRelationPersistence;
-import com.liferay.portlet.social.service.persistence.SocialRelationUtil;
+import com.liferay.social.kernel.exception.NoSuchRelationException;
+import com.liferay.social.kernel.model.SocialRelation;
+import com.liferay.social.kernel.service.SocialRelationLocalServiceUtil;
+import com.liferay.social.kernel.service.persistence.SocialRelationPersistence;
+import com.liferay.social.kernel.service.persistence.SocialRelationUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class SocialRelationPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -149,145 +150,89 @@ public class SocialRelationPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByUserId1() {
-		try {
-			_persistence.countByUserId1(RandomTestUtil.nextLong());
+	public void testCountByUserId1() throws Exception {
+		_persistence.countByUserId1(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId1(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId1(0L);
 	}
 
 	@Test
-	public void testCountByUserId2() {
-		try {
-			_persistence.countByUserId2(RandomTestUtil.nextLong());
+	public void testCountByUserId2() throws Exception {
+		_persistence.countByUserId2(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId2(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId2(0L);
 	}
 
 	@Test
-	public void testCountByType() {
-		try {
-			_persistence.countByType(RandomTestUtil.nextInt());
+	public void testCountByType() throws Exception {
+		_persistence.countByType(RandomTestUtil.nextInt());
 
-			_persistence.countByType(0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByType(0);
 	}
 
 	@Test
-	public void testCountByC_T() {
-		try {
-			_persistence.countByC_T(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByC_T() throws Exception {
+		_persistence.countByC_T(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_T(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_T(0L, 0);
 	}
 
 	@Test
-	public void testCountByU1_U2() {
-		try {
-			_persistence.countByU1_U2(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByU1_U2() throws Exception {
+		_persistence.countByU1_U2(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByU1_U2(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU1_U2(0L, 0L);
 	}
 
 	@Test
-	public void testCountByU1_T() {
-		try {
-			_persistence.countByU1_T(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByU1_T() throws Exception {
+		_persistence.countByU1_T(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByU1_T(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU1_T(0L, 0);
 	}
 
 	@Test
-	public void testCountByU2_T() {
-		try {
-			_persistence.countByU2_T(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByU2_T() throws Exception {
+		_persistence.countByU2_T(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByU2_T(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU2_T(0L, 0);
 	}
 
 	@Test
-	public void testCountByU1_U2_T() {
-		try {
-			_persistence.countByU1_U2_T(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByU1_U2_T() throws Exception {
+		_persistence.countByU1_U2_T(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByU1_U2_T(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU1_U2_T(0L, 0L, 0);
 	}
 
 	@Test
@@ -299,28 +244,17 @@ public class SocialRelationPersistenceTest {
 		Assert.assertEquals(existingSocialRelation, newSocialRelation);
 	}
 
-	@Test
+	@Test(expected = NoSuchRelationException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchRelationException");
-		}
-		catch (NoSuchRelationException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<SocialRelation> getOrderByComparator() {
@@ -435,11 +369,9 @@ public class SocialRelationPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialRelationLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialRelation>() {
 				@Override
-				public void performAction(Object object) {
-					SocialRelation socialRelation = (SocialRelation)object;
-
+				public void performAction(SocialRelation socialRelation) {
 					Assert.assertNotNull(socialRelation);
 
 					count.increment();
@@ -525,24 +457,20 @@ public class SocialRelationPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		SocialRelation newSocialRelation = addSocialRelation();
 
 		_persistence.clearCache();
 
 		SocialRelation existingSocialRelation = _persistence.findByPrimaryKey(newSocialRelation.getPrimaryKey());
 
-		Assert.assertEquals(existingSocialRelation.getUserId1(),
-			ReflectionTestUtil.invoke(existingSocialRelation,
+		Assert.assertEquals(Long.valueOf(existingSocialRelation.getUserId1()),
+			ReflectionTestUtil.<Long>invoke(existingSocialRelation,
 				"getOriginalUserId1", new Class<?>[0]));
-		Assert.assertEquals(existingSocialRelation.getUserId2(),
-			ReflectionTestUtil.invoke(existingSocialRelation,
+		Assert.assertEquals(Long.valueOf(existingSocialRelation.getUserId2()),
+			ReflectionTestUtil.<Long>invoke(existingSocialRelation,
 				"getOriginalUserId2", new Class<?>[0]));
-		Assert.assertEquals(existingSocialRelation.getType(),
-			ReflectionTestUtil.invoke(existingSocialRelation,
+		Assert.assertEquals(Integer.valueOf(existingSocialRelation.getType()),
+			ReflectionTestUtil.<Integer>invoke(existingSocialRelation,
 				"getOriginalType", new Class<?>[0]));
 	}
 

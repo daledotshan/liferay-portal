@@ -14,43 +14,44 @@
 
 package com.liferay.portal.security.membershippolicy.util.test;
 
+import com.liferay.announcements.kernel.model.AnnouncementsDelivery;
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetTag;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Address;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.EmailAddress;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.ListTypeConstants;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.OrganizationConstants;
+import com.liferay.portal.kernel.model.Phone;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroup;
+import com.liferay.portal.kernel.model.UserGroupRole;
+import com.liferay.portal.kernel.model.Website;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
+import com.liferay.portal.kernel.service.GroupServiceUtil;
+import com.liferay.portal.kernel.service.OrganizationServiceUtil;
+import com.liferay.portal.kernel.service.RoleServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserGroupServiceUtil;
+import com.liferay.portal.kernel.service.UserServiceUtil;
+import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Address;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.EmailAddress;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupConstants;
-import com.liferay.portal.model.ListTypeConstants;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.OrganizationConstants;
-import com.liferay.portal.model.Phone;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.UserGroup;
-import com.liferay.portal.model.UserGroupRole;
-import com.liferay.portal.model.Website;
-import com.liferay.portal.service.CompanyLocalServiceUtil;
-import com.liferay.portal.service.GroupServiceUtil;
-import com.liferay.portal.service.OrganizationServiceUtil;
-import com.liferay.portal.service.RoleServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserGroupServiceUtil;
-import com.liferay.portal.service.UserServiceUtil;
-import com.liferay.portlet.announcements.model.AnnouncementsDelivery;
-import com.liferay.portlet.asset.model.AssetCategory;
-import com.liferay.portlet.asset.model.AssetTag;
-import com.liferay.portlet.asset.model.AssetVocabulary;
-import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
 
 import java.io.Serializable;
 
@@ -94,7 +95,7 @@ public class MembershipPolicyTestUtil {
 
 		return OrganizationServiceUtil.addOrganization(
 			OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID, name,
-			OrganizationConstants.TYPE_REGULAR_ORGANIZATION, 0, 0,
+			OrganizationConstants.TYPE_ORGANIZATION, 0, 0,
 			ListTypeConstants.ORGANIZATION_STATUS_DEFAULT, StringPool.BLANK,
 			false, populateServiceContext(Organization.class, true));
 	}
@@ -167,7 +168,8 @@ public class MembershipPolicyTestUtil {
 		String reminderQueryQuestion = RandomTestUtil.randomString();
 		String reminderQueryAnswer = RandomTestUtil.randomString();
 
-		String screenName = RandomTestUtil.randomString();
+		String screenName = RandomTestUtil.randomString(
+			NumericStringRandomizerBumper.INSTANCE);
 		String emailAddress =
 			"UserServiceTest." + RandomTestUtil.nextLong() + "@liferay.com";
 		long facebookId = 0;
@@ -188,16 +190,10 @@ public class MembershipPolicyTestUtil {
 		String jobTitle = StringPool.BLANK;
 		String smsSn =
 			"UserServiceTestSmsSn." + RandomTestUtil.nextInt() + "@liferay.com";
-		String aimSn = RandomTestUtil.randomString();
 		String facebookSn = RandomTestUtil.randomString();
-		String icqSn = RandomTestUtil.randomString();
 		String jabberSn = RandomTestUtil.randomString();
-		String msnSn =
-			"UserServiceTestMsnSn." + RandomTestUtil.nextInt() + "@liferay.com";
-		String mySpaceSn = RandomTestUtil.randomString();
 		String skypeSn = RandomTestUtil.randomString();
 		String twitterSn = RandomTestUtil.randomString();
-		String ymSn = RandomTestUtil.randomString();
 
 		List<Address> addresses = new ArrayList<>();
 		List<EmailAddress> emailAddresses = new ArrayList<>();
@@ -213,10 +209,10 @@ public class MembershipPolicyTestUtil {
 			emailAddress, facebookId, openId, false, null, languageId,
 			timeZoneId, greeting, comments, firstName, middleName, lastName,
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
-			skypeSn, twitterSn, ymSn, jobTitle, siteIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, addresses, emailAddresses,
-			phones, websites, announcementsDelivers, serviceContext);
+			smsSn, facebookSn, jabberSn, skypeSn, twitterSn, jobTitle, siteIds,
+			organizationIds, roleIds, userGroupRoles, userGroupIds, addresses,
+			emailAddresses, phones, websites, announcementsDelivers,
+			serviceContext);
 	}
 
 	protected static Map<String, Serializable> addExpandoMap(Class<?> clazz)
@@ -252,8 +248,8 @@ public class MembershipPolicyTestUtil {
 
 		if (includeCategorization) {
 			AssetTag tag = AssetTagLocalServiceUtil.addTag(
-				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-				new ServiceContext());
+				TestPropsValues.getUserId(), TestPropsValues.getGroupId(),
+				RandomTestUtil.randomString(), new ServiceContext());
 
 			serviceContext.setAssetTagNames(new String[] {tag.getName()});
 
@@ -264,12 +260,13 @@ public class MembershipPolicyTestUtil {
 
 			AssetVocabulary vocabulary =
 				AssetVocabularyLocalServiceUtil.addVocabulary(
-					TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-					serviceContext);
+					TestPropsValues.getUserId(), company.getGroupId(),
+					RandomTestUtil.randomString(), serviceContext);
 
 			AssetCategory category = AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-				vocabulary.getVocabularyId(), serviceContext);
+				TestPropsValues.getUserId(), company.getGroupId(),
+				RandomTestUtil.randomString(), vocabulary.getVocabularyId(),
+				serviceContext);
 
 			serviceContext.setAssetCategoryIds(
 				new long[] {category.getCategoryId()});

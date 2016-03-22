@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchContactException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchContactException;
+import com.liferay.portal.kernel.model.Contact;
+import com.liferay.portal.kernel.service.ContactLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ContactPersistence;
+import com.liferay.portal.kernel.service.persistence.ContactUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -29,16 +33,13 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.Contact;
-import com.liferay.portal.service.ContactLocalServiceUtil;
-import com.liferay.portal.service.persistence.ContactPersistence;
-import com.liferay.portal.service.persistence.ContactUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,8 +56,9 @@ import java.util.Set;
  * @generated
  */
 public class ContactPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -151,23 +153,13 @@ public class ContactPersistenceTest {
 
 		newContact.setSmsSn(RandomTestUtil.randomString());
 
-		newContact.setAimSn(RandomTestUtil.randomString());
-
 		newContact.setFacebookSn(RandomTestUtil.randomString());
 
-		newContact.setIcqSn(RandomTestUtil.randomString());
-
 		newContact.setJabberSn(RandomTestUtil.randomString());
-
-		newContact.setMsnSn(RandomTestUtil.randomString());
-
-		newContact.setMySpaceSn(RandomTestUtil.randomString());
 
 		newContact.setSkypeSn(RandomTestUtil.randomString());
 
 		newContact.setTwitterSn(RandomTestUtil.randomString());
-
-		newContact.setYmSn(RandomTestUtil.randomString());
 
 		newContact.setEmployeeStatusId(RandomTestUtil.randomString());
 
@@ -223,20 +215,14 @@ public class ContactPersistenceTest {
 				existingContact.getBirthday()),
 			Time.getShortTimestamp(newContact.getBirthday()));
 		Assert.assertEquals(existingContact.getSmsSn(), newContact.getSmsSn());
-		Assert.assertEquals(existingContact.getAimSn(), newContact.getAimSn());
 		Assert.assertEquals(existingContact.getFacebookSn(),
 			newContact.getFacebookSn());
-		Assert.assertEquals(existingContact.getIcqSn(), newContact.getIcqSn());
 		Assert.assertEquals(existingContact.getJabberSn(),
 			newContact.getJabberSn());
-		Assert.assertEquals(existingContact.getMsnSn(), newContact.getMsnSn());
-		Assert.assertEquals(existingContact.getMySpaceSn(),
-			newContact.getMySpaceSn());
 		Assert.assertEquals(existingContact.getSkypeSn(),
 			newContact.getSkypeSn());
 		Assert.assertEquals(existingContact.getTwitterSn(),
 			newContact.getTwitterSn());
-		Assert.assertEquals(existingContact.getYmSn(), newContact.getYmSn());
 		Assert.assertEquals(existingContact.getEmployeeStatusId(),
 			newContact.getEmployeeStatusId());
 		Assert.assertEquals(existingContact.getEmployeeNumber(),
@@ -250,40 +236,25 @@ public class ContactPersistenceTest {
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByAccountId() {
-		try {
-			_persistence.countByAccountId(RandomTestUtil.nextLong());
+	public void testCountByAccountId() throws Exception {
+		_persistence.countByAccountId(RandomTestUtil.nextLong());
 
-			_persistence.countByAccountId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByAccountId(0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
@@ -295,28 +266,17 @@ public class ContactPersistenceTest {
 		Assert.assertEquals(existingContact, newContact);
 	}
 
-	@Test
+	@Test(expected = NoSuchContactException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchContactException");
-		}
-		catch (NoSuchContactException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<Contact> getOrderByComparator() {
@@ -326,11 +286,10 @@ public class ContactPersistenceTest {
 			"classNameId", true, "classPK", true, "accountId", true,
 			"parentContactId", true, "emailAddress", true, "firstName", true,
 			"middleName", true, "lastName", true, "prefixId", true, "suffixId",
-			true, "male", true, "birthday", true, "smsSn", true, "aimSn", true,
-			"facebookSn", true, "icqSn", true, "jabberSn", true, "msnSn", true,
-			"mySpaceSn", true, "skypeSn", true, "twitterSn", true, "ymSn",
-			true, "employeeStatusId", true, "employeeNumber", true, "jobTitle",
-			true, "jobClass", true, "hoursOfOperation", true);
+			true, "male", true, "birthday", true, "smsSn", true, "facebookSn",
+			true, "jabberSn", true, "skypeSn", true, "twitterSn", true,
+			"employeeStatusId", true, "employeeNumber", true, "jobTitle", true,
+			"jobClass", true, "hoursOfOperation", true);
 	}
 
 	@Test
@@ -437,11 +396,9 @@ public class ContactPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ContactLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Contact>() {
 				@Override
-				public void performAction(Object object) {
-					Contact contact = (Contact)object;
-
+				public void performAction(Contact contact) {
 					Assert.assertNotNull(contact);
 
 					count.increment();
@@ -568,23 +525,13 @@ public class ContactPersistenceTest {
 
 		contact.setSmsSn(RandomTestUtil.randomString());
 
-		contact.setAimSn(RandomTestUtil.randomString());
-
 		contact.setFacebookSn(RandomTestUtil.randomString());
 
-		contact.setIcqSn(RandomTestUtil.randomString());
-
 		contact.setJabberSn(RandomTestUtil.randomString());
-
-		contact.setMsnSn(RandomTestUtil.randomString());
-
-		contact.setMySpaceSn(RandomTestUtil.randomString());
 
 		contact.setSkypeSn(RandomTestUtil.randomString());
 
 		contact.setTwitterSn(RandomTestUtil.randomString());
-
-		contact.setYmSn(RandomTestUtil.randomString());
 
 		contact.setEmployeeStatusId(RandomTestUtil.randomString());
 

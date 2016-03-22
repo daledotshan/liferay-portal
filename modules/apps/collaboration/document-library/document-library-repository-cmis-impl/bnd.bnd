@@ -1,0 +1,24 @@
+Bundle-Name: Liferay Document Library Repository CMIS Implementation
+Bundle-SymbolicName: com.liferay.document.library.repository.cmis.impl
+Bundle-Version: 2.0.0
+Import-Package:\
+	!com.sun.msv.*,\
+	!com.sun.xml.*,\
+	\
+	!org.apache.cxf.*,\
+	!org.apache.http.*,\
+	\
+	!org.json.simple.*,\
+	\
+	!org.relaxng.datatype.*,\
+	*
+Liferay-Releng-Module-Group-Description:
+Liferay-Releng-Module-Group-Title: Document Library
+-liferay-includeresource:\
+	@chemistry-opencmis-client-api-*.jar,\
+	@chemistry-opencmis-client-bindings-*.jar,\
+	@chemistry-opencmis-client-impl-*.jar,\
+	@chemistry-opencmis-commons-api-*.jar,\
+	@chemistry-opencmis-commons-impl-*.jar,\
+	@stax2-api-*.jar,\
+	@woodstox-core-asl-*.jar

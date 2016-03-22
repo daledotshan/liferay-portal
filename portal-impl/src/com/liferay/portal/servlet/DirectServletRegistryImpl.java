@@ -109,7 +109,11 @@ public class DirectServletRegistryImpl implements DirectServletRegistry {
 
 		File file = new File(rootPath, path);
 
-		return file.lastModified();
+		if (file.exists()) {
+			return file.lastModified();
+		}
+
+		return -1;
 	}
 
 	protected Servlet reloadDependants(
@@ -212,7 +216,7 @@ public class DirectServletRegistryImpl implements DirectServletRegistry {
 	private final Map<String, ServletInfo> _servletInfos =
 		new ConcurrentHashMap<>();
 
-	private class ServletInfo {
+	private static class ServletInfo {
 
 		public long getLastModified() {
 			return _lastModified;

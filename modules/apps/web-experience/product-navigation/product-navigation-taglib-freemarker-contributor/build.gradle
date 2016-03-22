@@ -1,0 +1,3 @@
+dependencies {
+	provided project(":apps:web-experience:product-navigation:product-navigation-taglib")
+}

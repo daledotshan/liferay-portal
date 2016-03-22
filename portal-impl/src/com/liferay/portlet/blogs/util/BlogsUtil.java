@@ -14,30 +14,32 @@
 
 package com.liferay.portlet.blogs.util;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.service.AssetEntryServiceUtil;
+import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.util.comparator.EntryDisplayDateComparator;
+import com.liferay.blogs.kernel.util.comparator.EntryTitleComparator;
 import com.liferay.portal.kernel.comment.CommentManager;
+import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.dao.search.SearchContainerResults;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
+import com.liferay.portal.kernel.theme.PortletDisplay;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Company;
-import com.liferay.portal.model.ModelHintsUtil;
-import com.liferay.portal.theme.PortletDisplay;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.service.AssetEntryServiceUtil;
-import com.liferay.portlet.asset.service.persistence.AssetEntryQuery;
-import com.liferay.portlet.blogs.model.BlogsEntry;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.portlet.PortletRequest;
 
@@ -53,13 +55,8 @@ public class BlogsUtil {
 
 	public static final String DISPLAY_STYLE_TITLE = "title";
 
-	public static CommentManager getCommentManager() {
-		return (CommentManager)PortalBeanLocatorUtil.locate(
-			CommentManager.class.getName());
-	}
-
 	public static int getCommentsCount(BlogsEntry entry) {
-		CommentManager commentManager = getCommentManager();
+		CommentManager commentManager = CommentManagerUtil.getCommentManager();
 
 		return commentManager.getCommentsCount(
 			BlogsEntry.class.getName(), entry.getEntryId());
@@ -221,6 +218,27 @@ public class BlogsUtil {
 		return definitionTerms;
 	}
 
+	public static OrderByComparator<BlogsEntry> getOrderByComparator(
+		String orderByCol, String orderByType) {
+
+		boolean orderByAsc = true;
+
+		if (orderByType.equals("desc")) {
+			orderByAsc = false;
+		}
+
+		OrderByComparator<BlogsEntry> orderByComparator = null;
+
+		if (orderByCol.equals("display-date")) {
+			orderByComparator = new EntryDisplayDateComparator(orderByAsc);
+		}
+		else {
+			orderByComparator = new EntryTitleComparator(orderByAsc);
+		}
+
+		return orderByComparator;
+	}
+
 	public static SearchContainerResults<AssetEntry> getSearchContainerResults(
 			SearchContainer<?> searchContainer)
 		throws PortalException {
@@ -256,15 +274,12 @@ public class BlogsUtil {
 			title = String.valueOf(entryId);
 		}
 		else {
-			title = FriendlyURLNormalizerUtil.normalize(
-				title, _friendlyURLPattern);
+			title = FriendlyURLNormalizerUtil.normalizeWithPeriodsAndSlashes(
+				title);
 		}
 
 		return ModelHintsUtil.trimString(
 			BlogsEntry.class.getName(), "urlTitle", title);
 	}
-
-	private static final Pattern _friendlyURLPattern = Pattern.compile(
-		"[^a-z0-9_-]");
 
 }
