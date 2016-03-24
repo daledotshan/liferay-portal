@@ -47,7 +47,7 @@
 							{
 								body: <%= validatorTag.getBody() %>,
 								custom: <%= validatorTag.isCustom() %>,
-								errorMessage: '<%= UnicodeLanguageUtil.get(request, validatorTag.getErrorMessage()) %>',
+								errorMessage: '<%= UnicodeLanguageUtil.get(resourceBundle, validatorTag.getErrorMessage()) %>',
 								fieldName: '<%= namespace + HtmlUtil.escapeJS(fieldName) %>',
 								validatorName: '<%= validatorTag.getName() %>'
 							}
@@ -68,6 +68,14 @@
 			</c:if>
 		}
 	);
+
+	var onDestroyPortlet = function(event) {
+		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+			delete Liferay.Form._INSTANCES['<%= namespace + name %>'];
+		}
+	};
+
+	Liferay.on('destroyPortlet', onDestroyPortlet);
 
 	<c:if test="<%= Validator.isNotNull(onSubmit) %>">
 		A.all('#<%= namespace + name %> .input-container').removeAttribute('disabled');

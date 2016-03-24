@@ -1,0 +1,81 @@
+import com.liferay.gradle.util.GradleUtil
+
+buildscript {
+	dependencies {
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.poshi.runner", version: "1.0.8"
+	}
+
+	repositories {
+		if (!Boolean.getBoolean("maven.local.ignore")) {
+			mavenLocal()
+		}
+
+		maven {
+			url "http://cdn.repository.liferay.com/nexus/content/groups/public"
+		}
+	}
+}
+
+apply plugin: "com.liferay.poshi.runner"
+
+task updateGradleCache
+
+configurations {
+	sikuliComplete
+}
+
+dependencies {
+	["x86", "x86_64"].each {
+		sikuliComplete classifier: "linux-${it}", group: "org.bytedeco.javacpp-presets", name: "opencv", version: poshiRunner.openCVVersion
+		sikuliComplete classifier: "windows-${it}", group: "org.bytedeco.javacpp-presets", name: "opencv", version: poshiRunner.openCVVersion
+	}
+
+	sikuliComplete classifier: "macosx-x86_64", group: "org.bytedeco.javacpp-presets", name: "opencv", version: poshiRunner.openCVVersion
+}
+
+poshiRunner {
+	if (project.hasProperty("poshiRunnerExtProperties")) {
+		File poshiRunnerExtProperties = new File(project.properties["poshiRunnerExtProperties"])
+
+		if (poshiRunnerExtProperties.exists()) {
+			project.ext.testProperties = new Properties()
+
+			testProperties.load(new FileInputStream(project.properties["poshiRunnerExtProperties"]))
+
+			setPoshiProperties testProperties
+		}
+	}
+
+	version = "1.0.37"
+}
+
+repositories {
+	if (!Boolean.getBoolean("maven.local.ignore")) {
+		mavenLocal()
+	}
+
+	maven {
+		url "http://cdn.repository.liferay.com/nexus/content/groups/public"
+	}
+}
+
+runPoshi {
+	jvmArgs "-Dfile.encoding=UTF-8"
+}
+
+updateGradleCache << {
+	configurations.poshiRunner.resolve()
+	configurations.sikuliComplete.resolve()
+}
+
+if (GradleUtil.getProperty(project, "local", false)) {
+	File localPoshiDir = file("../tools/sdk/tmp/portal-tools/poshi-runner")
+
+	dependencies {
+		poshiRunner fileTree(dir: localPoshiDir, include: "*.jar")
+	}
+
+	expandPoshiRunner {
+		from zipTree(new File(localPoshiDir, "com.liferay.poshi.runner.jar"))
+	}
+}

@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchImageException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchImageException;
+import com.liferay.portal.kernel.model.Image;
+import com.liferay.portal.kernel.service.ImageLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ImagePersistence;
+import com.liferay.portal.kernel.service.persistence.ImageUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -29,16 +33,13 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.model.Image;
-import com.liferay.portal.service.ImageLocalServiceUtil;
-import com.liferay.portal.service.persistence.ImagePersistence;
-import com.liferay.portal.service.persistence.ImageUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -55,8 +56,9 @@ import java.util.Set;
  * @generated
  */
 public class ImagePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -115,6 +117,8 @@ public class ImagePersistenceTest {
 
 		newImage.setMvccVersion(RandomTestUtil.nextLong());
 
+		newImage.setCompanyId(RandomTestUtil.nextLong());
+
 		newImage.setModifiedDate(RandomTestUtil.nextDate());
 
 		newImage.setType(RandomTestUtil.randomString());
@@ -132,6 +136,8 @@ public class ImagePersistenceTest {
 		Assert.assertEquals(existingImage.getMvccVersion(),
 			newImage.getMvccVersion());
 		Assert.assertEquals(existingImage.getImageId(), newImage.getImageId());
+		Assert.assertEquals(existingImage.getCompanyId(),
+			newImage.getCompanyId());
 		Assert.assertEquals(Time.getShortTimestamp(
 				existingImage.getModifiedDate()),
 			Time.getShortTimestamp(newImage.getModifiedDate()));
@@ -142,15 +148,10 @@ public class ImagePersistenceTest {
 	}
 
 	@Test
-	public void testCountByLtSize() {
-		try {
-			_persistence.countByLtSize(RandomTestUtil.nextInt());
+	public void testCountByLtSize() throws Exception {
+		_persistence.countByLtSize(RandomTestUtil.nextInt());
 
-			_persistence.countByLtSize(0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByLtSize(0);
 	}
 
 	@Test
@@ -162,34 +163,23 @@ public class ImagePersistenceTest {
 		Assert.assertEquals(existingImage, newImage);
 	}
 
-	@Test
+	@Test(expected = NoSuchImageException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchImageException");
-		}
-		catch (NoSuchImageException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<Image> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Image", "mvccVersion",
-			true, "imageId", true, "modifiedDate", true, "type", true,
-			"height", true, "width", true, "size", true);
+			true, "imageId", true, "companyId", true, "modifiedDate", true,
+			"type", true, "height", true, "width", true, "size", true);
 	}
 
 	@Test
@@ -294,11 +284,9 @@ public class ImagePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ImageLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Image>() {
 				@Override
-				public void performAction(Object object) {
-					Image image = (Image)object;
-
+				public void performAction(Image image) {
 					Assert.assertNotNull(image);
 
 					count.increment();
@@ -388,6 +376,8 @@ public class ImagePersistenceTest {
 		Image image = _persistence.create(pk);
 
 		image.setMvccVersion(RandomTestUtil.nextLong());
+
+		image.setCompanyId(RandomTestUtil.nextLong());
 
 		image.setModifiedDate(RandomTestUtil.nextDate());
 

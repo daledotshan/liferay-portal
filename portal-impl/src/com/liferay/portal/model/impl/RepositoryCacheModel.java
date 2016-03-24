@@ -16,12 +16,12 @@ package com.liferay.portal.model.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.MVCCModel;
-import com.liferay.portal.model.Repository;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(31);
+		StringBundler sb = new StringBundler(33);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -111,6 +111,8 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 		sb.append(typeSettings);
 		sb.append(", dlFolderId=");
 		sb.append(dlFolderId);
+		sb.append(", lastPublishDate=");
+		sb.append(lastPublishDate);
 		sb.append("}");
 
 		return sb.toString();
@@ -187,6 +189,13 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 
 		repositoryImpl.setDlFolderId(dlFolderId);
 
+		if (lastPublishDate == Long.MIN_VALUE) {
+			repositoryImpl.setLastPublishDate(null);
+		}
+		else {
+			repositoryImpl.setLastPublishDate(new Date(lastPublishDate));
+		}
+
 		repositoryImpl.resetOriginalValues();
 
 		return repositoryImpl;
@@ -196,19 +205,26 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
+
 		repositoryId = objectInput.readLong();
+
 		groupId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
 		classNameId = objectInput.readLong();
 		name = objectInput.readUTF();
 		description = objectInput.readUTF();
 		portletId = objectInput.readUTF();
 		typeSettings = objectInput.readUTF();
+
 		dlFolderId = objectInput.readLong();
+		lastPublishDate = objectInput.readLong();
 	}
 
 	@Override
@@ -224,8 +240,11 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 		}
 
 		objectOutput.writeLong(repositoryId);
+
 		objectOutput.writeLong(groupId);
+
 		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
@@ -237,6 +256,7 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
+
 		objectOutput.writeLong(classNameId);
 
 		if (name == null) {
@@ -268,6 +288,7 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 		}
 
 		objectOutput.writeLong(dlFolderId);
+		objectOutput.writeLong(lastPublishDate);
 	}
 
 	public long mvccVersion;
@@ -285,4 +306,5 @@ public class RepositoryCacheModel implements CacheModel<Repository>,
 	public String portletId;
 	public String typeSettings;
 	public long dlFolderId;
+	public long lastPublishDate;
 }

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.tools;
 
+import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
@@ -73,9 +74,7 @@ public class PluginsSummaryBuilder {
 		directoryScanner.setExcludes(
 			new String[] {"**\\tmp\\**", "**\\tools\\**"});
 		directoryScanner.setIncludes(
-			new String[] {
-				"**\\liferay-plugin-package.properties"
-			});
+			new String[] {"**\\liferay-plugin-package.properties"});
 
 		directoryScanner.scan();
 
@@ -93,7 +92,7 @@ public class PluginsSummaryBuilder {
 
 		for (String fileName : fileNames) {
 			fileName = StringUtil.replace(
-				fileName, StringPool.BACK_SLASH, StringPool.SLASH);
+				fileName, CharPool.BACK_SLASH, CharPool.SLASH);
 
 			_createPluginSummary(sb, fileName);
 		}
@@ -189,7 +188,7 @@ public class PluginsSummaryBuilder {
 
 		String content = StringUtil.read(process.getInputStream());
 
-		content = StringUtil.replace(content, "\n", " ");
+		content = StringUtil.replace(content, '\n', ' ');
 
 		for (String ticketIdPrefix : _TICKET_ID_PREFIXES) {
 			int x = 0;
@@ -633,7 +632,8 @@ public class PluginsSummaryBuilder {
 		sb.append(value);
 	}
 
-	private static final String[] _TICKET_ID_PREFIXES = {"LPS", "SOS", "SYNC"};
+	private static final String[] _TICKET_ID_PREFIXES =
+		{"CLDSVCS", "LPS", "SOS", "SYNC"};
 
 	private static final FileImpl _fileUtil = FileImpl.getInstance();
 

@@ -14,6 +14,8 @@
 
 package com.liferay.portal.model.adapter.builder;
 
+import com.liferay.portal.kernel.model.adapter.builder.ModelAdapterBuilder;
+import com.liferay.portal.kernel.model.adapter.builder.ModelAdapterBuilderLocator;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.registry.Registry;
@@ -33,10 +35,6 @@ import java.lang.reflect.Type;
  */
 public class ServiceTrackerMapModelAdapterBuilderLocator
 	implements ModelAdapterBuilderLocator, Closeable {
-
-	public ServiceTrackerMapModelAdapterBuilderLocator() {
-		_modelAdapterBuilders.open();
-	}
 
 	@Override
 	public void close() {
@@ -59,7 +57,7 @@ public class ServiceTrackerMapModelAdapterBuilderLocator
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private final ServiceTrackerMap<String, ModelAdapterBuilder>
-		_modelAdapterBuilders = ServiceTrackerCollections.singleValueMap(
+		_modelAdapterBuilders = ServiceTrackerCollections.openSingleValueMap(
 			ModelAdapterBuilder.class, null,
 			new ServiceReferenceMapper<String, ModelAdapterBuilder>() {
 

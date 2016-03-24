@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.messageboards.service.persistence.test;
 
+import com.liferay.message.boards.kernel.exception.NoSuchDiscussionException;
+import com.liferay.message.boards.kernel.model.MBDiscussion;
+import com.liferay.message.boards.kernel.service.MBDiscussionLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.persistence.MBDiscussionPersistence;
+import com.liferay.message.boards.kernel.service.persistence.MBDiscussionUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -33,17 +39,11 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.messageboards.NoSuchDiscussionException;
-import com.liferay.portlet.messageboards.model.MBDiscussion;
-import com.liferay.portlet.messageboards.service.MBDiscussionLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.persistence.MBDiscussionPersistence;
-import com.liferay.portlet.messageboards.service.persistence.MBDiscussionUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,8 +60,9 @@ import java.util.Set;
  * @generated
  */
 public class MBDiscussionPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -138,6 +139,8 @@ public class MBDiscussionPersistenceTest {
 
 		newMBDiscussion.setThreadId(RandomTestUtil.nextLong());
 
+		newMBDiscussion.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_mbDiscussions.add(_persistence.update(newMBDiscussion));
 
 		MBDiscussion existingMBDiscussion = _persistence.findByPrimaryKey(newMBDiscussion.getPrimaryKey());
@@ -166,87 +169,58 @@ public class MBDiscussionPersistenceTest {
 			newMBDiscussion.getClassPK());
 		Assert.assertEquals(existingMBDiscussion.getThreadId(),
 			newMBDiscussion.getThreadId());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingMBDiscussion.getLastPublishDate()),
+			Time.getShortTimestamp(newMBDiscussion.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByClassNameId() {
-		try {
-			_persistence.countByClassNameId(RandomTestUtil.nextLong());
+	public void testCountByClassNameId() throws Exception {
+		_persistence.countByClassNameId(RandomTestUtil.nextLong());
 
-			_persistence.countByClassNameId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByClassNameId(0L);
 	}
 
 	@Test
-	public void testCountByThreadId() {
-		try {
-			_persistence.countByThreadId(RandomTestUtil.nextLong());
+	public void testCountByThreadId() throws Exception {
+		_persistence.countByThreadId(RandomTestUtil.nextLong());
 
-			_persistence.countByThreadId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByThreadId(0L);
 	}
 
 	@Test
-	public void testCountByC_C() {
-		try {
-			_persistence.countByC_C(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_C() throws Exception {
+		_persistence.countByC_C(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_C(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_C(0L, 0L);
 	}
 
 	@Test
@@ -258,29 +232,17 @@ public class MBDiscussionPersistenceTest {
 		Assert.assertEquals(existingMBDiscussion, newMBDiscussion);
 	}
 
-	@Test
+	@Test(expected = NoSuchDiscussionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchDiscussionException");
-		}
-		catch (NoSuchDiscussionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<MBDiscussion> getOrderByComparator() {
@@ -288,7 +250,7 @@ public class MBDiscussionPersistenceTest {
 			true, "discussionId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
 			"modifiedDate", true, "classNameId", true, "classPK", true,
-			"threadId", true);
+			"threadId", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -397,11 +359,9 @@ public class MBDiscussionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = MBDiscussionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBDiscussion>() {
 				@Override
-				public void performAction(Object object) {
-					MBDiscussion mbDiscussion = (MBDiscussion)object;
-
+				public void performAction(MBDiscussion mbDiscussion) {
 					Assert.assertNotNull(mbDiscussion);
 
 					count.increment();
@@ -489,10 +449,6 @@ public class MBDiscussionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		MBDiscussion newMBDiscussion = addMBDiscussion();
 
 		_persistence.clearCache();
@@ -502,19 +458,19 @@ public class MBDiscussionPersistenceTest {
 		Assert.assertTrue(Validator.equals(existingMBDiscussion.getUuid(),
 				ReflectionTestUtil.invoke(existingMBDiscussion,
 					"getOriginalUuid", new Class<?>[0])));
-		Assert.assertEquals(existingMBDiscussion.getGroupId(),
-			ReflectionTestUtil.invoke(existingMBDiscussion,
+		Assert.assertEquals(Long.valueOf(existingMBDiscussion.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingMBDiscussion,
 				"getOriginalGroupId", new Class<?>[0]));
 
-		Assert.assertEquals(existingMBDiscussion.getThreadId(),
-			ReflectionTestUtil.invoke(existingMBDiscussion,
+		Assert.assertEquals(Long.valueOf(existingMBDiscussion.getThreadId()),
+			ReflectionTestUtil.<Long>invoke(existingMBDiscussion,
 				"getOriginalThreadId", new Class<?>[0]));
 
-		Assert.assertEquals(existingMBDiscussion.getClassNameId(),
-			ReflectionTestUtil.invoke(existingMBDiscussion,
+		Assert.assertEquals(Long.valueOf(existingMBDiscussion.getClassNameId()),
+			ReflectionTestUtil.<Long>invoke(existingMBDiscussion,
 				"getOriginalClassNameId", new Class<?>[0]));
-		Assert.assertEquals(existingMBDiscussion.getClassPK(),
-			ReflectionTestUtil.invoke(existingMBDiscussion,
+		Assert.assertEquals(Long.valueOf(existingMBDiscussion.getClassPK()),
+			ReflectionTestUtil.<Long>invoke(existingMBDiscussion,
 				"getOriginalClassPK", new Class<?>[0]));
 	}
 
@@ -542,6 +498,8 @@ public class MBDiscussionPersistenceTest {
 		mbDiscussion.setClassPK(RandomTestUtil.nextLong());
 
 		mbDiscussion.setThreadId(RandomTestUtil.nextLong());
+
+		mbDiscussion.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_mbDiscussions.add(_persistence.update(mbDiscussion));
 

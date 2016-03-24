@@ -16,19 +16,19 @@ package com.liferay.portlet.notifications.test;
 
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserNotificationDelivery;
+import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
+import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
+import com.liferay.portal.kernel.service.UserNotificationDeliveryLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserNotificationEventLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
-import com.liferay.portal.kernel.test.util.MailServiceTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.UserNotificationDelivery;
-import com.liferay.portal.model.UserNotificationDeliveryConstants;
-import com.liferay.portal.model.UserNotificationEvent;
-import com.liferay.portal.service.UserNotificationDeliveryLocalServiceUtil;
-import com.liferay.portal.service.UserNotificationEventLocalServiceUtil;
+import com.liferay.portal.util.test.MailServiceTestUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -357,8 +357,8 @@ public abstract class BaseUserNotificationTestCase {
 			UserNotificationEventLocalServiceUtil.getUserNotificationEvents(
 				userId);
 
-		List<JSONObject> userNotificationEventJSONObjects =
-			new ArrayList<JSONObject>(userNotificationEvents.size());
+		List<JSONObject> userNotificationEventJSONObjects = new ArrayList<>(
+			userNotificationEvents.size());
 
 		for (UserNotificationEvent userNotificationEvent :
 				userNotificationEvents) {
@@ -396,6 +396,8 @@ public abstract class BaseUserNotificationTestCase {
 			int notificationType, int deliveryType, boolean deliver)
 		throws Exception {
 
+		boolean exists = false;
+
 		for (UserNotificationDelivery userNotificationDelivery :
 				userNotificationDeliveries) {
 
@@ -411,10 +413,12 @@ public abstract class BaseUserNotificationTestCase {
 					userNotificationDelivery.getUserNotificationDeliveryId(),
 					deliver);
 
-			return;
+			exists = true;
+
+			break;
 		}
 
-		Assert.fail("User notification does not exist");
+		Assert.assertTrue("User notification does not exist", exists);
 	}
 
 	protected void updateUserNotificationsDelivery(boolean deliver)

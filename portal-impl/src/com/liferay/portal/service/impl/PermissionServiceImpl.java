@@ -14,29 +14,29 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceMode;
+import com.liferay.portal.kernel.model.AuditedModel;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupedModel;
+import com.liferay.portal.kernel.model.PermissionedModel;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.Team;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
+import com.liferay.portal.kernel.service.permission.TeamPermissionUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.model.AuditedModel;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupedModel;
-import com.liferay.portal.model.PermissionedModel;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.ResourcePermission;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.Team;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.BaseModelPermissionChecker;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.base.PermissionServiceBaseImpl;
-import com.liferay.portal.service.permission.PortletPermissionUtil;
-import com.liferay.portal.service.permission.TeamPermissionUtil;
-import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
-import com.liferay.portlet.asset.model.AssetRendererFactory;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -73,12 +73,9 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	/**
 	 * Checks to see if the group has permission to the service.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  name the service name
-	 * @param  primKey the primary key of the service
-	 * @throws PortalException if the group did not have permission to the
-	 *         service, if a group with the primary key could not be found or if
-	 *         the permission information was invalid
+	 * @param groupId the primary key of the group
+	 * @param name the service name
+	 * @param primKey the primary key of the service
 	 */
 	@JSONWebService(mode = JSONWebServiceMode.IGNORE)
 	@Override
@@ -92,12 +89,9 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	/**
 	 * Checks to see if the group has permission to the service.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  name the service name
-	 * @param  primKey the primary key of the service
-	 * @throws PortalException if the group did not have permission to the
-	 *         service, if a group with the primary key could not be found or if
-	 *         the permission information was invalid
+	 * @param groupId the primary key of the group
+	 * @param name the service name
+	 * @param primKey the primary key of the service
 	 */
 	@Override
 	public void checkPermission(long groupId, String name, String primKey)
@@ -118,7 +112,7 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 
 			Team team = teamLocalService.fetchTeam(classPK);
 
-			groupId = team.getGroupId();
+			classPK = team.getGroupId();
 
 			actionId = ActionKeys.MANAGE_TEAMS;
 		}
@@ -164,7 +158,7 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 		else if (!permissionChecker.hasPermission(
 					groupId, name, primKey, ActionKeys.PERMISSIONS)) {
 
-			AssetRendererFactory assetRendererFactory =
+			AssetRendererFactory<?> assetRendererFactory =
 				AssetRendererFactoryRegistryUtil.
 					getAssetRendererFactoryByClassName(name);
 
@@ -239,7 +233,9 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 						groupId, name, primKey,
 						ActionKeys.DEFINE_PERMISSIONS)) {
 
-					throw new PrincipalException();
+					throw new PrincipalException.MustHavePermission(
+						permissionChecker, name, Long.valueOf(primKey),
+						ActionKeys.DEFINE_PERMISSIONS);
 				}
 			}
 		}
