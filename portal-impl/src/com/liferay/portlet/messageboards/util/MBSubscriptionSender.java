@@ -14,18 +14,16 @@
 
 package com.liferay.portlet.messageboards.util;
 
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.mail.kernel.model.Account;
+import com.liferay.mail.kernel.model.SMTPAccount;
+import com.liferay.message.boards.kernel.model.MBMailingList;
+import com.liferay.message.boards.kernel.service.MBMailingListLocalServiceUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.mail.Account;
-import com.liferay.portal.kernel.mail.SMTPAccount;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.GroupSubscriptionCheckSubscriptionSender;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.User;
-import com.liferay.portal.util.GroupSubscriptionCheckSubscriptionSender;
-import com.liferay.portlet.messageboards.NoSuchMailingListException;
-import com.liferay.portlet.messageboards.model.MBMailingList;
-import com.liferay.portlet.messageboards.service.MBMailingListLocalServiceUtil;
 
 /**
  * @author Brian Wing Shun Chan
@@ -38,26 +36,18 @@ public class MBSubscriptionSender
 		super(resourceName);
 	}
 
-	public void addMailingListSubscriber(long groupId, long categoryId)
-		throws PortalException {
-
+	public void addMailingListSubscriber(long groupId, long categoryId) {
 		if (_calledAddMailingListSubscriber) {
-			throw new IllegalArgumentException();
+			throw new IllegalStateException("Method may only be called once");
 		}
 
 		_calledAddMailingListSubscriber = true;
 
-		MBMailingList mailingList = null;
-
-		try {
-			mailingList = MBMailingListLocalServiceUtil.getCategoryMailingList(
+		MBMailingList mailingList =
+			MBMailingListLocalServiceUtil.fetchCategoryMailingList(
 				groupId, categoryId);
-		}
-		catch (NoSuchMailingListException nsmle) {
-			return;
-		}
 
-		if (!mailingList.isActive()) {
+		if ((mailingList == null) || !mailingList.isActive()) {
 			return;
 		}
 
@@ -98,10 +88,9 @@ public class MBSubscriptionSender
 	protected void sendNotification(User user) throws Exception {
 		sendEmailNotification(user);
 
-		if (contextUserId == user.getUserId() ) {
+		if (currentUserId == user.getUserId()) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"Skip notification for context user " + contextUserId);
+				_log.debug("Skip notification for user " + currentUserId);
 			}
 
 			return;

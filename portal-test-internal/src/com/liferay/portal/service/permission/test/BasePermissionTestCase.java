@@ -14,25 +14,25 @@
 
 package com.liferay.portal.service.permission.test;
 
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.PermissionThreadLocal;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
-import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-
 import com.liferay.portal.service.test.ServiceTestUtil;
+
 import org.junit.After;
 import org.junit.Before;
 
@@ -67,34 +67,38 @@ public abstract class BasePermissionTestCase {
 
 	protected void addPortletModelViewPermission() throws Exception {
 		RoleTestUtil.addResourcePermission(
-			RoleConstants.GUEST, getResourceName(),
-			ResourceConstants.SCOPE_GROUP, String.valueOf(group.getGroupId()),
-			ActionKeys.VIEW);
+			getRoleName(), getResourceName(), ResourceConstants.SCOPE_GROUP,
+			getPrimKey(), ActionKeys.VIEW);
 
 		Role role = RoleLocalServiceUtil.getRole(
-			TestPropsValues.getCompanyId(), RoleConstants.GUEST);
+			TestPropsValues.getCompanyId(), getRoleName());
 
 		ResourcePermissionLocalServiceUtil.setResourcePermissions(
 			group.getCompanyId(), getResourceName(),
-			ResourceConstants.SCOPE_INDIVIDUAL,
-			String.valueOf(group.getGroupId()), role.getRoleId(),
+			ResourceConstants.SCOPE_INDIVIDUAL, getPrimKey(), role.getRoleId(),
 			new String[] {ActionKeys.VIEW});
 	}
 
 	protected abstract void doSetUp() throws Exception;
 
+	protected String getPrimKey() {
+		return String.valueOf(group.getGroupId());
+	}
+
 	protected abstract String getResourceName();
+
+	protected String getRoleName() {
+		return RoleConstants.GUEST;
+	}
 
 	protected void removePortletModelViewPermission() throws Exception {
 		RoleTestUtil.removeResourcePermission(
-			RoleConstants.GUEST, getResourceName(),
-			ResourceConstants.SCOPE_GROUP, String.valueOf(group.getGroupId()),
-			ActionKeys.VIEW);
+			getRoleName(), getResourceName(), ResourceConstants.SCOPE_GROUP,
+			getPrimKey(), ActionKeys.VIEW);
 
 		RoleTestUtil.removeResourcePermission(
-			RoleConstants.GUEST, getResourceName(),
-			ResourceConstants.SCOPE_INDIVIDUAL,
-			String.valueOf(group.getGroupId()), ActionKeys.VIEW);
+			getRoleName(), getResourceName(),
+			ResourceConstants.SCOPE_INDIVIDUAL, getPrimKey(), ActionKeys.VIEW);
 	}
 
 	@DeleteAfterTestRun

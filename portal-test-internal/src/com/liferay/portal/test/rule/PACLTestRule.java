@@ -15,8 +15,6 @@
 package com.liferay.portal.test.rule;
 
 import com.liferay.portal.deploy.hot.HookHotDeployListener;
-import com.liferay.portal.deploy.hot.IndexerPostProcessorRegistry;
-import com.liferay.portal.deploy.hot.SchedulerEntryRegistry;
 import com.liferay.portal.deploy.hot.ServiceWrapperRegistry;
 import com.liferay.portal.kernel.deploy.hot.DependencyManagementThreadLocal;
 import com.liferay.portal.kernel.deploy.hot.HotDeployEvent;
@@ -24,16 +22,17 @@ import com.liferay.portal.kernel.deploy.hot.HotDeployUtil;
 import com.liferay.portal.kernel.portlet.PortletClassLoaderUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.filters.invoker.InvokerFilterHelper;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.util.ClassLoaderPool;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortalLifecycleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.service.test.ServiceTestUtil;
 import com.liferay.portal.spring.context.PortletContextLoaderListener;
 import com.liferay.portal.test.mock.AutoDeployMockServletContext;
 import com.liferay.portal.util.InitUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsUtil;
 
 import java.lang.reflect.Method;
@@ -48,8 +47,6 @@ import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.naming.Context;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -81,10 +78,14 @@ public class PACLTestRule implements TestRule {
 
 			@Override
 			public void evaluate() throws Throwable {
+				PortletContextLoaderListener portletContextLoaderListener =
+					new PortletContextLoaderListener();
+
 				HotDeployEvent hotDeployEvent = null;
 
 				if (description.getMethodName() != null) {
-					hotDeployEvent = beforeClass(description);
+					hotDeployEvent = beforeClass(
+						description, portletContextLoaderListener);
 				}
 
 				try {
@@ -92,7 +93,9 @@ public class PACLTestRule implements TestRule {
 				}
 				finally {
 					if (hotDeployEvent != null) {
-						afterClass(description, hotDeployEvent);
+						afterClass(
+							description, hotDeployEvent,
+							portletContextLoaderListener);
 					}
 				}
 			}
@@ -101,16 +104,17 @@ public class PACLTestRule implements TestRule {
 	}
 
 	protected void afterClass(
-		Description description, HotDeployEvent hotDeployEvent) {
+		Description description, HotDeployEvent hotDeployEvent,
+		PortletContextLoaderListener portletContextLoaderListener) {
 
 		HotDeployUtil.fireUndeployEvent(hotDeployEvent);
 
-		PortletContextLoaderListener portletContextLoaderListener =
-			new PortletContextLoaderListener();
+		ServletContext servletContext = hotDeployEvent.getServletContext();
 
 		ClassLoaderPool.register(
 			hotDeployEvent.getServletContextName(),
-			hotDeployEvent.getContextClassLoader());
+			servletContext.getClassLoader());
+
 		PortletClassLoaderUtil.setServletContextName(
 			hotDeployEvent.getServletContextName());
 
@@ -124,7 +128,9 @@ public class PACLTestRule implements TestRule {
 		}
 	}
 
-	protected HotDeployEvent beforeClass(Description description)
+	protected HotDeployEvent beforeClass(
+			Description description,
+			PortletContextLoaderListener portletContextLoaderListener)
 		throws ReflectiveOperationException {
 
 		_testClass = _loadTestClass(description.getTestClass());
@@ -151,24 +157,26 @@ public class PACLTestRule implements TestRule {
 
 		PortalLifecycleUtil.flushInits();
 
-		ClassLoader classLoader = _testClass.getClassLoader();
+		final ClassLoader classLoader = _testClass.getClassLoader();
 
 		MockServletContext mockServletContext = new MockServletContext(
-			new PACLResourceLoader(classLoader));
+			new PACLResourceLoader(classLoader)) {
+
+			@Override
+			public ClassLoader getClassLoader() {
+				return classLoader;
+			}
+
+		};
 
 		mockServletContext.setServletContextName("a-test-hook");
 
-		HotDeployEvent hotDeployEvent = getHotDeployEvent(
-			mockServletContext, classLoader);
+		HotDeployEvent hotDeployEvent = getHotDeployEvent(mockServletContext);
 
 		HotDeployUtil.fireDeployEvent(hotDeployEvent);
 
-		PortletContextLoaderListener portletContextLoaderListener =
-			new PortletContextLoaderListener();
-
 		ClassLoaderPool.register(
-			hotDeployEvent.getServletContextName(),
-			hotDeployEvent.getContextClassLoader());
+			hotDeployEvent.getServletContextName(), classLoader);
 		PortletClassLoaderUtil.setServletContextName(
 			hotDeployEvent.getServletContextName());
 
@@ -184,16 +192,14 @@ public class PACLTestRule implements TestRule {
 		return hotDeployEvent;
 	}
 
-	protected HotDeployEvent getHotDeployEvent(
-		ServletContext servletContext, ClassLoader classLoader) {
-
+	protected HotDeployEvent getHotDeployEvent(ServletContext servletContext) {
 		boolean dependencyManagementEnabled =
 			DependencyManagementThreadLocal.isEnabled();
 
 		try {
 			DependencyManagementThreadLocal.setEnabled(false);
 
-			return new HotDeployEvent(servletContext, classLoader);
+			return new HotDeployEvent(servletContext);
 		}
 		finally {
 			DependencyManagementThreadLocal.setEnabled(
@@ -234,29 +240,26 @@ public class PACLTestRule implements TestRule {
 		"com.liferay.portal.security.pacl.test.";
 
 	static {
-		URL resource = PACLTestRule.class.getResource("pacl-test.properties");
-
-		if (resource != null) {
-			System.setProperty("external-properties", resource.getPath());
-		}
-
-		System.setProperty(
-			Context.INITIAL_CONTEXT_FACTORY,
-			"org.apache.naming.java.javaURLContextFactory");
-
-		System.setProperty("catalina.base", ".");
-
 		List<String> configLocations = ListUtil.fromArray(
 			PropsUtil.getArray(PropsKeys.SPRING_CONFIGS));
 
-		InitUtil.initWithSpring(configLocations, true);
+		InitUtil.initWithSpring(configLocations, true, true);
 
+		ServiceTestUtil.initMainServletServices();
+		ServiceTestUtil.initStaticServices();
 		ServiceTestUtil.initServices();
 		ServiceTestUtil.initPermissions();
 
-		new IndexerPostProcessorRegistry();
-		new SchedulerEntryRegistry();
 		new ServiceWrapperRegistry();
+
+		try {
+			Class.forName(
+				TemplateManagerUtil.class.getName(), true,
+				PACLTestRule.class.getClassLoader());
+		}
+		catch (ClassNotFoundException cnfe) {
+			throw new ExceptionInInitializerError(cnfe);
+		}
 	}
 
 	private Object _instance;

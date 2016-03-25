@@ -14,22 +14,22 @@
 
 package com.liferay.portlet.asset.util.test;
 
-import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetCategoryConstants;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetTag;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetVocabularyServiceUtil;
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.asset.model.AssetCategory;
-import com.liferay.portlet.asset.model.AssetCategoryConstants;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.model.AssetTag;
-import com.liferay.portlet.asset.model.AssetVocabulary;
-import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetVocabularyServiceUtil;
 import com.liferay.portlet.asset.util.AssetVocabularySettingsHelper;
 
 import java.util.Date;
@@ -92,7 +92,7 @@ public class AssetTestUtil {
 				groupId, TestPropsValues.getUserId());
 
 		return AssetCategoryLocalServiceUtil.addCategory(
-			TestPropsValues.getUserId(), parentCategoryId, titleMap,
+			TestPropsValues.getUserId(), groupId, parentCategoryId, titleMap,
 			descriptionMap, vocabularyId, categoryProperties, serviceContext);
 	}
 
@@ -103,7 +103,7 @@ public class AssetTestUtil {
 			ServiceContextTestUtil.getServiceContext(groupId, userId);
 
 		return AssetTagLocalServiceUtil.addTag(
-			userId, RandomTestUtil.randomString(), serviceContext);
+			userId, groupId, RandomTestUtil.randomString(), serviceContext);
 	}
 
 	public static AssetVocabulary addVocabulary(long groupId) throws Exception {
@@ -113,7 +113,7 @@ public class AssetTestUtil {
 			ServiceContextTestUtil.getServiceContext(groupId, userId);
 
 		return AssetVocabularyLocalServiceUtil.addVocabulary(
-			userId, RandomTestUtil.randomString(), serviceContext);
+			userId, groupId, RandomTestUtil.randomString(), serviceContext);
 	}
 
 	public static AssetVocabulary addVocabulary(
@@ -143,7 +143,7 @@ public class AssetTestUtil {
 				groupId, TestPropsValues.getUserId());
 
 		AssetVocabulary vocabulary = AssetVocabularyServiceUtil.addVocabulary(
-			RandomTestUtil.randomString(), titleMap, descriptionMap,
+			groupId, RandomTestUtil.randomString(), titleMap, descriptionMap,
 			vocabularySettingsHelper.toString(), serviceContext);
 
 		return vocabulary;

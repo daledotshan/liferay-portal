@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence.test;
 
+import com.liferay.document.library.kernel.exception.NoSuchFileEntryTypeException;
+import com.liferay.document.library.kernel.model.DLFileEntryType;
+import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypePersistence;
+import com.liferay.document.library.kernel.service.persistence.DLFileEntryTypeUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -33,17 +39,11 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.documentlibrary.NoSuchFileEntryTypeException;
-import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
-import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypePersistence;
-import com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypeUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,8 +60,9 @@ import java.util.Set;
  * @generated
  */
 public class DLFileEntryTypePersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -138,6 +139,8 @@ public class DLFileEntryTypePersistenceTest {
 
 		newDLFileEntryType.setDescription(RandomTestUtil.randomString());
 
+		newDLFileEntryType.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_dlFileEntryTypes.add(_persistence.update(newDLFileEntryType));
 
 		DLFileEntryType existingDLFileEntryType = _persistence.findByPrimaryKey(newDLFileEntryType.getPrimaryKey());
@@ -166,86 +169,57 @@ public class DLFileEntryTypePersistenceTest {
 			newDLFileEntryType.getName());
 		Assert.assertEquals(existingDLFileEntryType.getDescription(),
 			newDLFileEntryType.getDescription());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingDLFileEntryType.getLastPublishDate()),
+			Time.getShortTimestamp(newDLFileEntryType.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByGroupId() {
-		try {
-			_persistence.countByGroupId(RandomTestUtil.nextLong());
+	public void testCountByGroupId() throws Exception {
+		_persistence.countByGroupId(RandomTestUtil.nextLong());
 
-			_persistence.countByGroupId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByGroupId(0L);
 	}
 
 	@Test
-	public void testCountByGroupIdArrayable() {
-		try {
-			_persistence.countByGroupId(new long[] { RandomTestUtil.nextLong(), 0L });
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+	public void testCountByGroupIdArrayable() throws Exception {
+		_persistence.countByGroupId(new long[] { RandomTestUtil.nextLong(), 0L });
 	}
 
 	@Test
-	public void testCountByG_F() {
-		try {
-			_persistence.countByG_F(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByG_F() throws Exception {
+		_persistence.countByG_F(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByG_F(0L, StringPool.NULL);
+		_persistence.countByG_F(0L, StringPool.NULL);
 
-			_persistence.countByG_F(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByG_F(0L, (String)null);
 	}
 
 	@Test
@@ -257,40 +231,23 @@ public class DLFileEntryTypePersistenceTest {
 		Assert.assertEquals(existingDLFileEntryType, newDLFileEntryType);
 	}
 
-	@Test
+	@Test(expected = NoSuchFileEntryTypeException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchFileEntryTypeException");
-		}
-		catch (NoSuchFileEntryTypeException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	@Test
 	public void testFilterFindByGroupId() throws Exception {
-		try {
-			_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.filterFindByGroupId(0, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, getOrderByComparator());
 	}
 
 	protected OrderByComparator<DLFileEntryType> getOrderByComparator() {
@@ -298,7 +255,7 @@ public class DLFileEntryTypePersistenceTest {
 			true, "fileEntryTypeId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
 			"modifiedDate", true, "fileEntryTypeKey", true, "name", true,
-			"description", true);
+			"description", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -407,11 +364,9 @@ public class DLFileEntryTypePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileEntryTypeLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileEntryType>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileEntryType dlFileEntryType = (DLFileEntryType)object;
-
+				public void performAction(DLFileEntryType dlFileEntryType) {
 					Assert.assertNotNull(dlFileEntryType);
 
 					count.increment();
@@ -499,10 +454,6 @@ public class DLFileEntryTypePersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		DLFileEntryType newDLFileEntryType = addDLFileEntryType();
 
 		_persistence.clearCache();
@@ -512,12 +463,12 @@ public class DLFileEntryTypePersistenceTest {
 		Assert.assertTrue(Validator.equals(existingDLFileEntryType.getUuid(),
 				ReflectionTestUtil.invoke(existingDLFileEntryType,
 					"getOriginalUuid", new Class<?>[0])));
-		Assert.assertEquals(existingDLFileEntryType.getGroupId(),
-			ReflectionTestUtil.invoke(existingDLFileEntryType,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntryType.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntryType,
 				"getOriginalGroupId", new Class<?>[0]));
 
-		Assert.assertEquals(existingDLFileEntryType.getGroupId(),
-			ReflectionTestUtil.invoke(existingDLFileEntryType,
+		Assert.assertEquals(Long.valueOf(existingDLFileEntryType.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingDLFileEntryType,
 				"getOriginalGroupId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingDLFileEntryType.getFileEntryTypeKey(),
@@ -549,6 +500,8 @@ public class DLFileEntryTypePersistenceTest {
 		dlFileEntryType.setName(RandomTestUtil.randomString());
 
 		dlFileEntryType.setDescription(RandomTestUtil.randomString());
+
+		dlFileEntryType.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_dlFileEntryTypes.add(_persistence.update(dlFileEntryType));
 

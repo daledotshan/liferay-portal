@@ -17,24 +17,27 @@ package com.liferay.taglib.util;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.taglib.DynamicIncludeUtil;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.template.TemplateContextContributor;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.template.TemplateResourceLoaderUtil;
+import com.liferay.portal.kernel.theme.PortletDisplay;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.ThemeHelper;
 import com.liferay.portal.kernel.util.UnsyncPrintWriterPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.Theme;
-import com.liferay.portal.theme.PortletDisplay;
-import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.registry.collections.ServiceTrackerCollections;
+import com.liferay.registry.collections.ServiceTrackerList;
 import com.liferay.taglib.servlet.PipingServletResponse;
 
 import java.io.Writer;
@@ -239,6 +242,14 @@ public class ThemeUtil {
 
 		template.prepare(request);
 
+		// Custom theme variables
+
+		for (TemplateContextContributor templateContextContributor :
+				_templateContextContributors) {
+
+			templateContextContributor.prepare(template, request);
+		}
+
 		// Theme servlet context
 
 		ServletContext themeServletContext = ServletContextPool.get(
@@ -262,14 +273,7 @@ public class ThemeUtil {
 			TemplateManagerUtil.getTemplateManager(
 				TemplateConstants.LANG_TYPE_FTL);
 
-		templateManager.addTaglibApplication(
-			template, "Application", request.getServletContext());
-		templateManager.addTaglibFactory(
-			template, "PortalJspTagLibs", servletContext);
-		templateManager.addTaglibFactory(
-			template, "ThemeJspTaglibs", themeServletContext);
-		templateManager.addTaglibRequest(
-			template, "Request", request, response);
+		templateManager.addTaglibSupport(template, request, response);
 		templateManager.addTaglibTheme(
 			template, "taglibLiferay", request,
 			new PipingServletResponse(response, writer));
@@ -366,9 +370,9 @@ public class ThemeUtil {
 
 		if (Validator.isNotNull(portletId)) {
 			if (PortletConstants.hasInstanceId(portletId) &&
-				(checkResourceExists = !
-				TemplateResourceLoaderUtil.hasTemplateResource(
-					TemplateConstants.LANG_TYPE_VM, resourcePath))) {
+				(checkResourceExists !=
+					TemplateResourceLoaderUtil.hasTemplateResource(
+						TemplateConstants.LANG_TYPE_VM, resourcePath))) {
 
 				String rootPortletId = PortletConstants.getRootPortletId(
 					portletId);
@@ -378,9 +382,9 @@ public class ThemeUtil {
 			}
 
 			if (checkResourceExists &&
-				(checkResourceExists = !
-				TemplateResourceLoaderUtil.hasTemplateResource(
-					TemplateConstants.LANG_TYPE_VM, resourcePath))) {
+				(checkResourceExists !=
+					TemplateResourceLoaderUtil.hasTemplateResource(
+						TemplateConstants.LANG_TYPE_VM, resourcePath))) {
 
 				resourcePath = theme.getResourcePath(
 					servletContext, null, page);
@@ -415,6 +419,14 @@ public class ThemeUtil {
 		// Velocity variables
 
 		template.prepare(request);
+
+		// Custom theme variables
+
+		for (TemplateContextContributor templateContextContributor :
+				_templateContextContributors) {
+
+			templateContextContributor.prepare(template, request);
+		}
 
 		// Theme servlet context
 
@@ -453,5 +465,10 @@ public class ThemeUtil {
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(ThemeUtil.class);
+
+	private static final ServiceTrackerList<TemplateContextContributor>
+		_templateContextContributors = ServiceTrackerCollections.openList(
+			TemplateContextContributor.class,
+			"(type=" + TemplateContextContributor.TYPE_THEME + ")");
 
 }
