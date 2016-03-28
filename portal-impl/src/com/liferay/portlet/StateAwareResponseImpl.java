@@ -16,12 +16,14 @@ package com.liferay.portlet;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.PortletApp;
+import com.liferay.portal.kernel.model.PublicRenderParameter;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.PortletQNameUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.PublicRenderParameter;
-import com.liferay.portal.model.User;
-import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.io.Serializable;
 
@@ -279,8 +281,13 @@ public abstract class StateAwareResponseImpl
 		_portletName = portletName;
 		_user = user;
 		_layout = layout;
+
+		Portlet portlet = portletRequestImpl.getPortlet();
+
+		PortletApp portletApp = portlet.getPortletApp();
+
 		_publicRenderParameters = PublicRenderParametersPool.get(
-			getHttpServletRequest(), layout.getPlid());
+			getHttpServletRequest(), layout.getPlid(), portletApp.isWARFile());
 
 		if (windowState != null) {
 			setWindowState(windowState);
@@ -294,6 +301,15 @@ public abstract class StateAwareResponseImpl
 		// setPortletMode sets it to true
 
 		_calledSetRenderParameter = false;
+	}
+
+	protected void reset() {
+		_calledSetRenderParameter = false;
+		_events.clear();
+		_params.clear();
+		_portletMode = null;
+		_redirectLocation = null;
+		_windowState = null;
 	}
 
 	protected boolean setPublicRenderParameter(String name, String[] values) {

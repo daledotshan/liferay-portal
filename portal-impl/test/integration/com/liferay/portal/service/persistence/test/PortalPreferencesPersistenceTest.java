@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchPreferencesException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchPreferencesException;
+import com.liferay.portal.kernel.model.PortalPreferences;
+import com.liferay.portal.kernel.service.PortalPreferencesLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.PortalPreferencesPersistence;
+import com.liferay.portal.kernel.service.persistence.PortalPreferencesUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -29,17 +33,13 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.model.PortalPreferences;
-import com.liferay.portal.service.PortalPreferencesLocalServiceUtil;
-import com.liferay.portal.service.persistence.PortalPreferencesPersistence;
-import com.liferay.portal.service.persistence.PortalPreferencesUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -56,8 +56,9 @@ import java.util.Set;
  * @generated
  */
 public class PortalPreferencesPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -139,16 +140,11 @@ public class PortalPreferencesPersistenceTest {
 	}
 
 	@Test
-	public void testCountByO_O() {
-		try {
-			_persistence.countByO_O(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByO_O() throws Exception {
+		_persistence.countByO_O(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByO_O(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByO_O(0L, 0);
 	}
 
 	@Test
@@ -160,35 +156,23 @@ public class PortalPreferencesPersistenceTest {
 		Assert.assertEquals(existingPortalPreferences, newPortalPreferences);
 	}
 
-	@Test
+	@Test(expected = NoSuchPreferencesException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchPreferencesException");
-		}
-		catch (NoSuchPreferencesException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<PortalPreferences> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("PortalPreferences",
 			"mvccVersion", true, "portalPreferencesId", true, "ownerId", true,
-			"ownerType", true, "preferences", true);
+			"ownerType", true);
 	}
 
 	@Test
@@ -297,11 +281,9 @@ public class PortalPreferencesPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = PortalPreferencesLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<PortalPreferences>() {
 				@Override
-				public void performAction(Object object) {
-					PortalPreferences portalPreferences = (PortalPreferences)object;
-
+				public void performAction(PortalPreferences portalPreferences) {
 					Assert.assertNotNull(portalPreferences);
 
 					count.increment();
@@ -389,21 +371,18 @@ public class PortalPreferencesPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		PortalPreferences newPortalPreferences = addPortalPreferences();
 
 		_persistence.clearCache();
 
 		PortalPreferences existingPortalPreferences = _persistence.findByPrimaryKey(newPortalPreferences.getPrimaryKey());
 
-		Assert.assertEquals(existingPortalPreferences.getOwnerId(),
-			ReflectionTestUtil.invoke(existingPortalPreferences,
+		Assert.assertEquals(Long.valueOf(existingPortalPreferences.getOwnerId()),
+			ReflectionTestUtil.<Long>invoke(existingPortalPreferences,
 				"getOriginalOwnerId", new Class<?>[0]));
-		Assert.assertEquals(existingPortalPreferences.getOwnerType(),
-			ReflectionTestUtil.invoke(existingPortalPreferences,
+		Assert.assertEquals(Integer.valueOf(
+				existingPortalPreferences.getOwnerType()),
+			ReflectionTestUtil.<Integer>invoke(existingPortalPreferences,
 				"getOriginalOwnerType", new Class<?>[0]));
 	}
 

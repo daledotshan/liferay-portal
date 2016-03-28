@@ -26,8 +26,8 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.InstancePool;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.IOException;
 
@@ -289,10 +289,10 @@ public class SimpleCaptchaImpl implements Captcha {
 
 	protected Integer incrementCounter(Integer count) {
 		if (count == null) {
-			count = new Integer(1);
+			count = Integer.valueOf(1);
 		}
 		else {
-			count = new Integer(count.intValue() + 1);
+			count = Integer.valueOf(count.intValue() + 1);
 		}
 
 		return count;

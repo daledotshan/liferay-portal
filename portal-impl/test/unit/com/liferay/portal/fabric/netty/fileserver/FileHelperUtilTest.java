@@ -315,9 +315,12 @@ public class FileHelperUtilTest {
 	@Test
 	public void testMoveRegularDirectoryWithRegularFile() throws IOException {
 		Path regularFromDirectoryPath = Paths.get("RegularFromDirectory");
+
 		Path regularFromFilePath = regularFromDirectoryPath.resolve(
 			"RegularFromFile");
+
 		Path regularToDirectoryPath = Paths.get("RegularToDirectory");
+
 		Path regularToFilePath = regularToDirectoryPath.resolve(
 			regularFromDirectoryPath.relativize(regularFromFilePath));
 
@@ -427,7 +430,9 @@ public class FileHelperUtilTest {
 
 		Path regularFromFilePath = unmoveableFromDirectoryPath.resolve(
 			"RegularFromFile");
+
 		Path regularToDirectoryPath = Paths.get("RegularToDirectoryPath");
+
 		Path regularToFilePath = regularToDirectoryPath.resolve(
 			unmoveableFromDirectoryPath.relativize(regularFromFilePath));
 
@@ -567,8 +572,8 @@ public class FileHelperUtilTest {
 	public void testUnzipImpossibleScenario() throws IOException {
 		FileSystem fileSystem = FileSystems.getDefault();
 
-		FileSystemProvider fileSystemProvider = new FileSystemProviderWrapper(
-			fileSystem.provider()) {
+		FileSystemProvider fileSystemProvider =
+			new FileSystemProviderWrapper(fileSystem.provider()) {
 
 				@Override
 				public InputStream newInputStream(
@@ -732,8 +737,8 @@ public class FileHelperUtilTest {
 	public void testZipImpossibleScenario() throws IOException {
 		FileSystem fileSystem = FileSystems.getDefault();
 
-		FileSystemProvider fileSystemProvider = new FileSystemProviderWrapper(
-			fileSystem.provider()) {
+		FileSystemProvider fileSystemProvider =
+			new FileSystemProviderWrapper(fileSystem.provider()) {
 
 				@Override
 				public OutputStream newOutputStream(
