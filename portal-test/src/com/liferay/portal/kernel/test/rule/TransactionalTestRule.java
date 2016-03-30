@@ -16,16 +16,26 @@ package com.liferay.portal.kernel.test.rule;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.BaseTestRule.StatementWrapper;
 import com.liferay.portal.kernel.transaction.Propagation;
-import com.liferay.portal.kernel.transaction.TransactionAttribute;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
+import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 
+import java.lang.reflect.Method;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.internal.runners.statements.RunAfters;
+import org.junit.internal.runners.statements.RunBefores;
+import org.junit.rules.RunRules;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
+import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
 /**
@@ -41,35 +51,142 @@ public class TransactionalTestRule implements TestRule {
 	}
 
 	public TransactionalTestRule(Propagation propagation) {
-		TransactionAttribute.Builder builder =
-			new TransactionAttribute.Builder();
-
-		builder.setPropagation(propagation);
-		builder.setRollbackForClasses(
-			PortalException.class, SystemException.class);
-
-		_transactionAttribute = builder.build();
+		_transactionConfig = TransactionConfig.Factory.create(
+			propagation,
+			new Class<?>[] {PortalException.class, SystemException.class});
 	}
 
 	@Override
-	public Statement apply(Statement statement, Description description) {
-		String methodName = description.getMethodName();
+	public Statement apply(Statement statement, final Description description) {
+		Statement currentStatement = statement;
 
-		if (methodName == null) {
-			return statement;
+		while (true) {
+			if (currentStatement instanceof StatementWrapper) {
+				StatementWrapper statementWrapper =
+					(StatementWrapper)currentStatement;
+
+				currentStatement = statementWrapper.getStatement();
+
+				continue;
+			}
+
+			if (currentStatement instanceof RunRules) {
+				currentStatement = ReflectionTestUtil.getFieldValue(
+					currentStatement, "statement");
+
+				continue;
+			}
+
+			if (currentStatement instanceof RunBefores) {
+				replaceFrameworkMethods(currentStatement, "befores");
+
+				currentStatement = ReflectionTestUtil.getFieldValue(
+					currentStatement, "next");
+
+				continue;
+			}
+
+			if (currentStatement instanceof RunAfters) {
+				replaceFrameworkMethods(currentStatement, "afters");
+
+				currentStatement = ReflectionTestUtil.getFieldValue(
+					currentStatement, "next");
+
+				continue;
+			}
+
+			return new StatementWrapper(statement) {
+
+				@Override
+				public void evaluate() throws Throwable {
+					TransactionInvokerUtil.invoke(
+						getTransactionConfig(
+							description.getAnnotation(Transactional.class)),
+						new Callable<Void>() {
+
+							@Override
+							public Void call() throws Exception {
+								try {
+									statement.evaluate();
+								}
+								catch (Throwable t) {
+									ReflectionUtil.throwException(t);
+								}
+
+								return null;
+							}
+
+						});
+				}
+
+			};
+		}
+	}
+
+	public TransactionConfig getTransactionConfig(Transactional transactional) {
+		if (transactional != null) {
+			return TransactionConfig.Factory.create(
+				transactional.isolation(), transactional.propagation(),
+				transactional.readOnly(), transactional.timeout(),
+				transactional.rollbackFor(),
+				transactional.rollbackForClassName(),
+				transactional.noRollbackFor(),
+				transactional.noRollbackForClassName());
 		}
 
-		return new StatementWrapper(statement) {
+		return _transactionConfig;
+	}
 
-			@Override
-			public void evaluate() throws Throwable {
-				TransactionInvokerUtil.invoke(
-					getTransactionAttribute(), new Callable<Void>() {
+	protected void replaceFrameworkMethods(Statement statement, String name) {
+		List<FrameworkMethod> newFrameworkMethods = new ArrayList<>();
+
+		List<FrameworkMethod> frameworkMethods =
+			ReflectionTestUtil.<List<FrameworkMethod>>getFieldValue(
+				statement, name);
+
+		for (FrameworkMethod frameworkMethod : frameworkMethods) {
+			if (frameworkMethod instanceof TransactionalFrameworkMethod) {
+				newFrameworkMethods.add(frameworkMethod);
+
+				continue;
+			}
+
+			Transactional transactional = frameworkMethod.getAnnotation(
+				Transactional.class);
+
+			if (transactional == null) {
+				newFrameworkMethods.add(
+					new TransactionalFrameworkMethod(
+						frameworkMethod.getMethod(), _transactionConfig));
+			}
+			else {
+				newFrameworkMethods.add(
+					new TransactionalFrameworkMethod(
+						frameworkMethod.getMethod(),
+						getTransactionConfig(transactional)));
+			}
+		}
+
+		ReflectionTestUtil.setFieldValue(statement, name, newFrameworkMethods);
+	}
+
+	protected static class TransactionalFrameworkMethod
+		extends FrameworkMethod {
+
+		@Override
+		public Object invokeExplosively(
+				final Object target, final Object... params)
+			throws Throwable {
+
+			return TransactionInvokerUtil.invoke(
+				_transactionConfig,
+				new Callable<Object>() {
 
 					@Override
-					public Void call() throws Exception {
+					public Object call() throws Exception {
 						try {
-							statement.evaluate();
+							return TransactionalFrameworkMethod.super.invokeExplosively(
+								target, params);
 						}
 						catch (Throwable t) {
 							ReflectionUtil.throwException(t);
@@ -77,16 +194,22 @@ public class TransactionalTestRule implements TestRule {
 
 						return null;
 					}
+
 				});
-			}
+		}
 
-		};
+		protected TransactionalFrameworkMethod(
+			Method method, TransactionConfig transactionConfig) {
+
+			super(method);
+
+			_transactionConfig = transactionConfig;
+		}
+
+		private final TransactionConfig _transactionConfig;
+
 	}
 
-	public TransactionAttribute getTransactionAttribute() {
-		return _transactionAttribute;
-	}
-
-	private final TransactionAttribute _transactionAttribute;
+	private final TransactionConfig _transactionConfig;
 
 }

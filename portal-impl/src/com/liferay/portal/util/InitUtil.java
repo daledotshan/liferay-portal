@@ -15,19 +15,19 @@
 package com.liferay.portal.util;
 
 import com.liferay.portal.bean.BeanLocatorImpl;
-import com.liferay.portal.cache.CacheRegistryImpl;
 import com.liferay.portal.configuration.ConfigurationFactoryImpl;
-import com.liferay.portal.dao.db.DBFactoryImpl;
+import com.liferay.portal.dao.db.DBManagerImpl;
 import com.liferay.portal.dao.jdbc.DataSourceFactoryImpl;
+import com.liferay.portal.kernel.bean.BeanLocator;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
-import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.configuration.ConfigurationFactoryUtil;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataSourceFactoryUtil;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.log.SanitizerLogWrapper;
+import com.liferay.portal.kernel.upgrade.dao.orm.UpgradeOptimizedConnectionProviderRegistryUtil;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.JavaDetector;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
@@ -38,7 +38,8 @@ import com.liferay.portal.log.Log4jLogFactoryImpl;
 import com.liferay.portal.module.framework.ModuleFrameworkUtilAdapter;
 import com.liferay.portal.security.lang.DoPrivilegedUtil;
 import com.liferay.portal.security.lang.SecurityManagerUtil;
-import com.liferay.portal.spring.util.SpringUtil;
+import com.liferay.portal.spring.context.ArrayApplicationContext;
+import com.liferay.portal.upgrade.dao.orm.UpgradeOptimizedConnectionProviderRegistryImpl;
 import com.liferay.util.log4j.Log4JUtil;
 
 import com.sun.syndication.io.XmlReader;
@@ -46,6 +47,9 @@ import com.sun.syndication.io.XmlReader;
 import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * @author Brian Wing Shun Chan
@@ -114,10 +118,6 @@ public class InitUtil {
 
 		SanitizerLogWrapper.init();
 
-		// Java properties
-
-		JavaDetector.isJDK5();
-
 		// Security manager
 
 		SecurityManagerUtil.init();
@@ -131,11 +131,6 @@ public class InitUtil {
 				DoPrivilegedUtil.wrap(LogFactoryUtil.getLogFactory()));
 		}
 
-		// Cache registry
-
-		CacheRegistryUtil.setCacheRegistry(
-			DoPrivilegedUtil.wrap(new CacheRegistryImpl()));
-
 		// Configuration factory
 
 		ConfigurationFactoryUtil.setConfigurationFactory(
@@ -146,9 +141,15 @@ public class InitUtil {
 		DataSourceFactoryUtil.setDataSourceFactory(
 			DoPrivilegedUtil.wrap(new DataSourceFactoryImpl()));
 
-		// DB factory
+		// DB manager
 
-		DBFactoryUtil.setDBFactory(DoPrivilegedUtil.wrap(new DBFactoryImpl()));
+		DBManagerUtil.setDBManager(DoPrivilegedUtil.wrap(new DBManagerImpl()));
+
+		// Upgrade optimized connection provider registry
+
+		UpgradeOptimizedConnectionProviderRegistryUtil.
+			setUpgradeOptimizedConnectionProviderRegistry(
+				new UpgradeOptimizedConnectionProviderRegistryImpl());
 
 		// ROME
 
@@ -163,17 +164,18 @@ public class InitUtil {
 	}
 
 	public synchronized static void initWithSpring(
-		boolean initModuleFramework) {
+		boolean initModuleFramework, boolean registerContext) {
 
 		List<String> configLocations = ListUtil.fromArray(
 			PropsUtil.getArray(
 				com.liferay.portal.kernel.util.PropsKeys.SPRING_CONFIGS));
 
-		initWithSpring(configLocations, initModuleFramework);
+		initWithSpring(configLocations, initModuleFramework, registerContext);
 	}
 
 	public synchronized static void initWithSpring(
-		List<String> configLocations, boolean initModuleFramework) {
+		List<String> configLocations, boolean initModuleFramework,
+		boolean registerContext) {
 
 		if (_initialized) {
 			return;
@@ -193,19 +195,38 @@ public class InitUtil {
 				PropsValues.LIFERAY_WEB_PORTAL_CONTEXT_TEMPDIR =
 					System.getProperty(SystemProperties.TMP_DIR);
 
+				ModuleFrameworkUtilAdapter.initFramework();
+			}
+
+			ApplicationContext infrastructureApplicationContext =
+				new ArrayApplicationContext(
+					PropsValues.SPRING_INFRASTRUCTURE_CONFIGS);
+
+			if (initModuleFramework) {
+				ModuleFrameworkUtilAdapter.registerContext(
+					infrastructureApplicationContext);
+
 				ModuleFrameworkUtilAdapter.startFramework();
 			}
 
-			SpringUtil.loadContext(configLocations);
+			ApplicationContext appApplicationContext =
+				new ClassPathXmlApplicationContext(
+					configLocations.toArray(new String[configLocations.size()]),
+					infrastructureApplicationContext);
+
+			BeanLocator beanLocator = new BeanLocatorImpl(
+				ClassLoaderUtil.getPortalClassLoader(), appApplicationContext);
+
+			PortalBeanLocatorUtil.setBeanLocator(beanLocator);
 
 			if (initModuleFramework) {
-				BeanLocatorImpl beanLocatorImpl =
-					(BeanLocatorImpl)PortalBeanLocatorUtil.getBeanLocator();
-
-				ModuleFrameworkUtilAdapter.registerContext(
-					beanLocatorImpl.getApplicationContext());
-
 				ModuleFrameworkUtilAdapter.startRuntime();
+			}
+
+			_appApplicationContext = appApplicationContext;
+
+			if (initModuleFramework && registerContext) {
+				registerContext();
 			}
 		}
 		catch (Exception e) {
@@ -219,17 +240,33 @@ public class InitUtil {
 		return _initialized;
 	}
 
+	public static void registerContext() {
+		if (_appApplicationContext != null) {
+			ModuleFrameworkUtilAdapter.registerContext(_appApplicationContext);
+		}
+	}
+
 	public synchronized static void stopModuleFramework() {
 		try {
-			ModuleFrameworkUtilAdapter.stopFramework();
+			ModuleFrameworkUtilAdapter.stopFramework(0);
 		}
 		catch (Exception e) {
-			new RuntimeException(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public synchronized static void stopRuntime() {
+		try {
+			ModuleFrameworkUtilAdapter.stopRuntime();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
 	private static final boolean _PRINT_TIME = false;
 
+	private static ApplicationContext _appApplicationContext;
 	private static boolean _initialized;
 	private static boolean _neverInitialized = true;
 

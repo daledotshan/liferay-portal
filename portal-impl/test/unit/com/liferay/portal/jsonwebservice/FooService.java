@@ -14,9 +14,9 @@
 
 package com.liferay.portal.jsonwebservice;
 
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.service.ServiceContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +29,9 @@ import java.util.Map;
  * @author Igor Spasic
  */
 public class FooService {
+
+	public static void addFile(String fileName) {
+	}
 
 	public static BarData bar() {
 		return new BarData();

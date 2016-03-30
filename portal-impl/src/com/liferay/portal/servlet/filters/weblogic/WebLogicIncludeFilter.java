@@ -14,17 +14,14 @@
 
 package com.liferay.portal.servlet.filters.weblogic;
 
-import com.liferay.portal.kernel.servlet.MetaInfoCacheServletResponse;
 import com.liferay.portal.kernel.servlet.WrapHttpServletResponseFilter;
-import com.liferay.portal.kernel.servlet.filters.invoker.InvokerFilterHelper;
-import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.servlet.filters.BasePortalFilter;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceTracker;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
  * @author Minhchau Dang
@@ -32,56 +29,44 @@ import javax.servlet.http.HttpServletResponseWrapper;
 public class WebLogicIncludeFilter
 	extends BasePortalFilter implements WrapHttpServletResponseFilter {
 
+	public WebLogicIncludeFilter() {
+		Registry registry = RegistryUtil.getRegistry();
+
+		_serviceTracker = registry.trackServices(
+			WebLogicIncludeServletResponseFactory.class);
+
+		_serviceTracker.open();
+	}
+
+	@Override
+	public void destroy() {
+		_serviceTracker.close();
+
+		super.destroy();
+	}
+
 	@Override
 	public HttpServletResponse getWrappedHttpServletResponse(
 		HttpServletRequest request, HttpServletResponse response) {
 
-		if (!ServerDetector.isWebLogic()) {
-			ServletContext servletContext = request.getServletContext();
+		WebLogicIncludeServletResponseFactory
+			webLogicIncludeServletResponseFactory =
+				_serviceTracker.getService();
 
-			InvokerFilterHelper invokerFilterHelper =
-				(InvokerFilterHelper)servletContext.getAttribute(
-					InvokerFilterHelper.class.getName());
-
-			FilterConfig filterConfig = getFilterConfig();
-
-			invokerFilterHelper.unregisterFilter(filterConfig.getFilterName());
-		}
-
-		if (isWrap(response)) {
-			return new WebLogicIncludeServletResponse(response);
+		if (webLogicIncludeServletResponseFactory != null) {
+			return webLogicIncludeServletResponseFactory.create(response);
 		}
 
 		return response;
 	}
 
-	protected boolean isWrap(HttpServletResponse response) {
-		if (response instanceof WebLogicIncludeServletResponse) {
-			return false;
-		}
-
-		boolean wrap = false;
-
-		HttpServletResponseWrapper previousResponseWrapper = null;
-
-		while (response instanceof HttpServletResponseWrapper) {
-			if (!wrap && (response instanceof MetaInfoCacheServletResponse)) {
-				wrap = true;
-			}
-
-			HttpServletResponseWrapper responseWrapper =
-				(HttpServletResponseWrapper)response;
-
-			response = (HttpServletResponse)responseWrapper.getResponse();
-
-			if (responseWrapper instanceof WebLogicIncludeServletResponse) {
-				previousResponseWrapper.setResponse(response);
-			}
-
-			previousResponseWrapper = responseWrapper;
-		}
-
-		return wrap;
+	@Override
+	public boolean isFilterEnabled() {
+		return !_serviceTracker.isEmpty();
 	}
+
+	private final ServiceTracker
+		<WebLogicIncludeServletResponseFactory,
+			WebLogicIncludeServletResponseFactory> _serviceTracker;
 
 }

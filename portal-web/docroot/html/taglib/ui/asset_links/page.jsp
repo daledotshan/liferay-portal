@@ -18,6 +18,7 @@
 
 <%
 long assetEntryId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:asset-links:assetEntryId"));
+PortletURL portletURL = (PortletURL)request.getAttribute("liferay-ui:asset-links:portletURL");
 
 List<AssetLink> assetLinks = null;
 
@@ -28,7 +29,11 @@ if (assetEntryId > 0) {
 
 <c:if test="<%= (assetLinks != null) && !assetLinks.isEmpty() %>">
 	<div class="taglib-asset-links">
-		<h2 class="asset-links-title icon-link"><liferay-ui:message key="related-assets" />:</h2>
+		<h2 class="asset-links-title">
+			<aui:icon image="link" />
+
+			<liferay-ui:message key="related-assets" />:
+		</h2>
 
 		<ul class="asset-links-list">
 
@@ -49,7 +54,7 @@ if (assetEntryId > 0) {
 
 				assetLinkEntry = assetLinkEntry.toEscapedModel();
 
-				AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassNameId(assetLinkEntry.getClassNameId());
+				AssetRendererFactory<?> assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassNameId(assetLinkEntry.getClassNameId());
 
 				if (Validator.isNull(assetRendererFactory)) {
 					if (_log.isWarnEnabled()) {
@@ -63,56 +68,48 @@ if (assetEntryId > 0) {
 					continue;
 				}
 
-				AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(assetLinkEntry.getClassPK());
+				AssetRenderer<?> assetRenderer = assetRendererFactory.getAssetRenderer(assetLinkEntry.getClassPK());
 
 				if (assetRenderer.hasViewPermission(permissionChecker)) {
 					String asseLinktEntryTitle = assetLinkEntry.getTitle(locale);
 
-					String portletId = PortletProviderUtil.getPortletId(assetRenderer.getClassName(), PortletProvider.Action.VIEW);
+					PortletURL viewAssetURL = null;
 
-					LiferayPortletURL assetPublisherURL = new PortletURLImpl(request, portletId, plid, PortletRequest.RENDER_PHASE);
+					if (portletURL != null) {
+						viewAssetURL = PortletURLUtil.clone(portletURL, PortalUtil.getLiferayPortletResponse(portletResponse));
+					}
+					else {
+						viewAssetURL = PortletProviderUtil.getPortletURL(request, assetRenderer.getClassName(), PortletProvider.Action.VIEW);
 
-					assetPublisherURL.setParameter("mvcPath", "/html/portlet/asset_publisher/view_content.jsp");
-					assetPublisherURL.setParameter("redirect", currentURL);
-					assetPublisherURL.setParameter("assetEntryId", String.valueOf(assetLinkEntry.getEntryId()));
-					assetPublisherURL.setParameter("type", assetRendererFactory.getType());
+						viewAssetURL.setParameter("redirect", currentURL);
+						viewAssetURL.setWindowState(WindowState.MAXIMIZED);
+					}
+
+					viewAssetURL.setParameter("assetEntryId", String.valueOf(assetLinkEntry.getEntryId()));
+					viewAssetURL.setParameter("type", assetRendererFactory.getType());
 
 					if (Validator.isNotNull(assetRenderer.getUrlTitle())) {
 						if (assetRenderer.getGroupId() != themeDisplay.getSiteGroupId()) {
-							assetPublisherURL.setParameter("groupId", String.valueOf(assetRenderer.getGroupId()));
+							viewAssetURL.setParameter("groupId", String.valueOf(assetRenderer.getGroupId()));
 						}
 
-						assetPublisherURL.setParameter("urlTitle", assetRenderer.getUrlTitle());
+						viewAssetURL.setParameter("urlTitle", assetRenderer.getUrlTitle());
 					}
 
-					assetPublisherURL.setWindowState(WindowState.MAXIMIZED);
+					String noSuchEntryRedirect = viewAssetURL.toString();
 
-					String viewFullContentURLString = assetPublisherURL.toString();
+					String urlViewInContext = assetRenderer.getURLViewInContext((LiferayPortletRequest)portletRequest, (LiferayPortletResponse)portletResponse, noSuchEntryRedirect);
 
-					viewFullContentURLString = HttpUtil.setParameter(viewFullContentURLString, "redirect", currentURL);
-
-					String urlViewInContext = assetRenderer.getURLViewInContext((LiferayPortletRequest)portletRequest, (LiferayPortletResponse)portletResponse, viewFullContentURLString);
-
-					urlViewInContext = HttpUtil.setParameter(urlViewInContext, "inheritRedirect", true);
-
-					String method = null;
-					String target = "_self";
-
-					if (themeDisplay.isStatePopUp()) {
-						method = "get";
-						target = "_blank";
+					if (Validator.isNotNull(urlViewInContext) && !Validator.equals(urlViewInContext, noSuchEntryRedirect)) {
+						urlViewInContext = HttpUtil.setParameter(urlViewInContext, "inheritRedirect", Boolean.TRUE);
+						urlViewInContext = HttpUtil.setParameter(urlViewInContext, "redirect", currentURL);
 					}
 			%>
 
 					<li class="asset-links-list-item">
-						<liferay-ui:icon
-							iconCssClass="<%= assetRenderer.getIconCssClass() %>"
-							label="<%= true %>"
-							message="<%= asseLinktEntryTitle %>"
-							method="<%= method %>"
-							target="<%= target %>"
-							url="<%= urlViewInContext %>"
-						/>
+						<aui:a href="<%= urlViewInContext %>" target='<%= themeDisplay.isStatePopUp() ? "_blank" : "_self" %>'>
+							<%= asseLinktEntryTitle %>
+						</aui:a>
 					</li>
 
 			<%
@@ -125,5 +122,5 @@ if (assetEntryId > 0) {
 </c:if>
 
 <%!
-private static Log _log = LogFactoryUtil.getLog("portal-web.docroot.html.taglib.ui.asset_links.page_jsp");
+private static Log _log = LogFactoryUtil.getLog("portal_web.docroot.html.taglib.ui.asset_links.page_jsp");
 %>

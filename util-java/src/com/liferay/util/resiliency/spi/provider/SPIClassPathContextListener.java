@@ -74,7 +74,7 @@ public class SPIClassPathContextListener implements ServletContextListener {
 
 		addJarFiles(jarFiles, spiEmbeddedLibDir);
 
-		// Load portal-service.jar from MPI
+		// Load portal-kernel.jar from MPI
 
 		addJarFiles(
 			jarFiles, PortalClassLoaderUtil.getClassLoader(),
@@ -90,7 +90,7 @@ public class SPIClassPathContextListener implements ServletContextListener {
 
 		addJarFiles(jarFiles, new File(spiEmbeddedLibDir, "ext"));
 
-		StringBundler sb = new StringBundler(jarFiles.size() * 2 + 4);
+		StringBundler sb = new StringBundler(jarFiles.size() * 2 + 2);
 
 		for (File file : jarFiles) {
 			sb.append(file.getAbsolutePath());
