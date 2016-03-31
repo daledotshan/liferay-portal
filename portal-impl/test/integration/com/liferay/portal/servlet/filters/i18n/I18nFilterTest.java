@@ -15,6 +15,8 @@
 package com.liferay.portal.servlet.filters.i18n;
 
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -22,10 +24,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.User;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
 
 import java.util.Locale;
 
@@ -51,8 +50,7 @@ public class I18nFilterTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -194,8 +192,8 @@ public class I18nFilterTest {
 
 		if (userLocale != null) {
 			User user = UserTestUtil.addUser(
-				RandomTestUtil.randomString(), true, userLocale,
-				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+				null, userLocale, RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(),
 				new long[] {_group.getGroupId()});
 
 			_mockHttpServletRequest.setAttribute(WebKeys.USER, user);

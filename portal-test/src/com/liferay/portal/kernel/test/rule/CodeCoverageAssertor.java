@@ -15,9 +15,11 @@
 package com.liferay.portal.kernel.test.rule;
 
 import com.liferay.portal.kernel.process.ClassPathUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.net.URL;
@@ -25,7 +27,6 @@ import java.net.URLClassLoader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.rules.TestRule;
@@ -69,11 +70,24 @@ public class CodeCoverageAssertor implements TestRule {
 			public void evaluate() throws Throwable {
 				String className = beforeClass(description);
 
+				String whipStaticInstrument = System.getProperty(
+					"whip.static.instrument");
+
+				System.setProperty("whip.static.instrument", StringPool.TRUE);
+
 				try {
 					statement.evaluate();
 				}
 				finally {
 					afterClass(description, className);
+
+					if (whipStaticInstrument == null) {
+						System.clearProperty("whip.static.instrument");
+					}
+					else {
+						System.setProperty(
+							"whip.static.instrument", whipStaticInstrument);
+					}
 				}
 			}
 
@@ -81,39 +95,62 @@ public class CodeCoverageAssertor implements TestRule {
 	}
 
 	protected void afterClass(Description description, String className)
-		throws Exception {
+		throws Throwable {
 
 		List<Class<?>> assertClasses = new ArrayList<>();
 
-		ClassLoader classLoader = getClassLoader();
+		if (className != null) {
+			ClassLoader classLoader = getClassLoader();
 
-		Class<?> clazz = classLoader.loadClass(className);
+			Class<?> clazz = classLoader.loadClass(className);
 
-		assertClasses.add(clazz);
+			assertClasses.add(clazz);
+		}
 
 		appendAssertClasses(assertClasses);
 
-		_purgeSyntheticClasses(assertClasses);
-
-		_ASSERT_COVERAGE_METHOD.invoke(
-			null, _includeInnerClasses,
-			assertClasses.toArray(new Class<?>[assertClasses.size()]));
+		try {
+			_ASSERT_COVERAGE_METHOD.invoke(
+				null, _includeInnerClasses,
+				assertClasses.toArray(new Class<?>[assertClasses.size()]));
+		}
+		catch (InvocationTargetException ite) {
+			throw ite.getCause();
+		}
 	}
 
-	protected String beforeClass(Description description) throws Exception {
+	protected String beforeClass(Description description) throws Throwable {
 		String className = description.getClassName();
 
 		if (className.endsWith("Test")) {
 			className = className.substring(0, className.length() - 4);
 		}
 
+		String jvmClassPath = ClassPathUtil.getJVMClassPath(false);
+
+		URL[] urls = ClassPathUtil.getClassPathURLs(jvmClassPath);
+
+		ClassLoader classLoader = new URLClassLoader(urls, null);
+
+		try {
+			classLoader.loadClass(className);
+		}
+		catch (ClassNotFoundException cnfe) {
+			className = null;
+		}
+
 		String[] includes = _includes;
 
 		if (includes == null) {
-			includes = _generateIncludes(className);
+			includes = _generateIncludes(classLoader, className);
 		}
 
-		_DYNAMICALLY_INSTRUMENT_METHOD.invoke(null, includes, _excludes);
+		try {
+			_DYNAMICALLY_INSTRUMENT_METHOD.invoke(null, includes, _excludes);
+		}
+		catch (InvocationTargetException ite) {
+			throw ite.getCause();
+		}
 
 		return className;
 	}
@@ -124,38 +161,27 @@ public class CodeCoverageAssertor implements TestRule {
 		return clazz.getClassLoader();
 	}
 
-	private static void _purgeSyntheticClasses(List<Class<?>> assertClasses) {
-		Iterator<Class<?>> iterator = assertClasses.iterator();
+	private String[] _generateIncludes(
+			ClassLoader classLoader, String mainClassName)
+		throws Exception {
 
-		while (iterator.hasNext()) {
-			Class<?> assertClass = iterator.next();
-
-			if (assertClass.isSynthetic()) {
-				iterator.remove();
-			}
-		}
-	}
-
-	private String[] _generateIncludes(String mainClassName) throws Exception {
 		List<Class<?>> assertClasses = new ArrayList<>();
 
-		String jvmClassPath = ClassPathUtil.getJVMClassPath(false);
+		if (mainClassName != null) {
+			Class<?> mainClass = classLoader.loadClass(mainClassName);
 
-		URL[] urls = ClassPathUtil.getClassPathURLs(jvmClassPath);
+			assertClasses.add(mainClass);
 
-		ClassLoader classLoader = new URLClassLoader(urls, null);
-
-		Class<?> mainClass = classLoader.loadClass(mainClassName);
-
-		assertClasses.add(mainClass);
-
-		if (_includeInnerClasses) {
-			assertClasses.addAll(Arrays.asList(mainClass.getDeclaredClasses()));
+			if (_includeInnerClasses) {
+				assertClasses.addAll(
+					Arrays.asList(mainClass.getDeclaredClasses()));
+			}
 		}
 
 		if (getClass() != CodeCoverageAssertor.class) {
-			Class<?> reloadedClass = classLoader.loadClass(
-				getClass().getName());
+			Class<?> clazz = getClass();
+
+			Class<?> reloadedClass = classLoader.loadClass(clazz.getName());
 
 			Method appendAssertClassesMethod = reloadedClass.getMethod(
 				"appendAssertClasses", List.class);
@@ -171,15 +197,13 @@ public class CodeCoverageAssertor implements TestRule {
 			appendAssertClassesMethod.invoke(reloadedObject, assertClasses);
 		}
 
-		_purgeSyntheticClasses(assertClasses);
-
 		String[] includes = new String[assertClasses.size()];
 
 		for (int i = 0; i < assertClasses.size(); i++) {
 			Class<?> assertClass = assertClasses.get(i);
 
 			includes[i] = StringUtil.replace(
-				assertClass.getName(), new String[] {".", "$"},
+				assertClass.getName(), new char[] {'.', '$'},
 				new String[] {"/", "\\$"});
 		}
 
@@ -195,7 +219,7 @@ public class CodeCoverageAssertor implements TestRule {
 
 		try {
 			Class<?> instrumentationAgentClass = systemClassLoader.loadClass(
-				"com.liferay.cobertura.instrument.InstrumentationAgent");
+				"com.liferay.whip.agent.InstrumentationAgent");
 
 			_ASSERT_COVERAGE_METHOD = instrumentationAgentClass.getMethod(
 				"assertCoverage", boolean.class, Class[].class);

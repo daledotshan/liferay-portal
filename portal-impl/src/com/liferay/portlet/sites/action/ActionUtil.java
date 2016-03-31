@@ -14,25 +14,24 @@
 
 package com.liferay.portlet.sites.action;
 
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutTypePortlet;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.PortletPreferencesIds;
+import com.liferay.portal.kernel.portlet.PortletLayoutListener;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutServiceUtil;
+import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutTypePortlet;
-import com.liferay.portal.model.MembershipRequest;
-import com.liferay.portal.model.PortletPreferencesIds;
-import com.liferay.portal.model.Team;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutServiceUtil;
-import com.liferay.portal.service.MembershipRequestLocalServiceUtil;
-import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
-import com.liferay.portal.service.TeamLocalServiceUtil;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletKeys;
-import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portlet.sites.util.SitesUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.util.List;
 
@@ -44,8 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author Brian Wing Shun Chan
  */
-public class ActionUtil
-	extends com.liferay.portlet.rolesadmin.action.ActionUtil {
+public class ActionUtil {
 
 	public static void copyPreferences(
 			HttpServletRequest request, Layout targetLayout,
@@ -110,6 +108,17 @@ public class ActionUtil
 				themeDisplay.getUserId(), sourceLayout, targetLayout,
 				sourcePreferences, targetPreferences, sourcePortletId,
 				themeDisplay.getLanguageId());
+
+			Portlet sourcePortlet = PortletLocalServiceUtil.getPortletById(
+				sourceLayout.getCompanyId(), sourcePortletId);
+
+			PortletLayoutListener sourcePortletLayoutListener =
+				sourcePortlet.getPortletLayoutListenerInstance();
+
+			if (sourcePortletLayoutListener != null) {
+				sourcePortletLayoutListener.onAddToLayout(
+					sourcePortletId, targetLayout.getPlid());
+			}
 		}
 	}
 
@@ -153,51 +162,6 @@ public class ActionUtil
 			portletRequest);
 
 		return getGroup(request);
-	}
-
-	public static void getMembershipRequest(HttpServletRequest request)
-		throws Exception {
-
-		long membershipRequestId = ParamUtil.getLong(
-			request, "membershipRequestId");
-
-		MembershipRequest membershipRequest = null;
-
-		if (membershipRequestId > 0) {
-			membershipRequest =
-				MembershipRequestLocalServiceUtil.getMembershipRequest(
-					membershipRequestId);
-		}
-
-		request.setAttribute(WebKeys.MEMBERSHIP_REQUEST, membershipRequest);
-	}
-
-	public static void getMembershipRequest(PortletRequest portletRequest)
-		throws Exception {
-
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			portletRequest);
-
-		getMembershipRequest(request);
-	}
-
-	public static void getTeam(HttpServletRequest request) throws Exception {
-		long teamId = ParamUtil.getLong(request, "teamId");
-
-		Team team = null;
-
-		if (teamId > 0) {
-			team = TeamLocalServiceUtil.getTeam(teamId);
-		}
-
-		request.setAttribute(WebKeys.TEAM, team);
-	}
-
-	public static void getTeam(PortletRequest portletRequest) throws Exception {
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
-			portletRequest);
-
-		getTeam(request);
 	}
 
 	public static void removePortletIds(

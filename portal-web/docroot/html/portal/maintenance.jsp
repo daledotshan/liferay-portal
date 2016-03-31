@@ -14,8 +14,8 @@
  */
 --%>
 
+<%@ page import="com.liferay.portal.kernel.util.PortalUtil" %>
 <%@ page import="com.liferay.portal.util.MaintenanceUtil" %>
-<%@ page import="com.liferay.portal.util.PortalUtil" %>
 
 <%
 boolean invokingSession = false;
@@ -28,7 +28,7 @@ if (session.getId().equals(MaintenanceUtil.getSessionId())) {
 <html>
 
 <head>
-	<meta content="30; url=<%= PortalUtil.getPortalURL(request) %>" http-equiv="refresh">
+	<meta content="30; url=<%= PortalUtil.getPortalURL(request) %>" http-equiv="refresh" />
 </head>
 
 <body>

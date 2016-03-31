@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.announcements.service.persistence.test;
 
+import com.liferay.announcements.kernel.exception.NoSuchFlagException;
+import com.liferay.announcements.kernel.model.AnnouncementsFlag;
+import com.liferay.announcements.kernel.service.AnnouncementsFlagLocalServiceUtil;
+import com.liferay.announcements.kernel.service.persistence.AnnouncementsFlagPersistence;
+import com.liferay.announcements.kernel.service.persistence.AnnouncementsFlagUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -31,17 +37,11 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.announcements.NoSuchFlagException;
-import com.liferay.portlet.announcements.model.AnnouncementsFlag;
-import com.liferay.portlet.announcements.service.AnnouncementsFlagLocalServiceUtil;
-import com.liferay.portlet.announcements.service.persistence.AnnouncementsFlagPersistence;
-import com.liferay.portlet.announcements.service.persistence.AnnouncementsFlagUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class AnnouncementsFlagPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -116,6 +117,8 @@ public class AnnouncementsFlagPersistenceTest {
 
 		AnnouncementsFlag newAnnouncementsFlag = _persistence.create(pk);
 
+		newAnnouncementsFlag.setCompanyId(RandomTestUtil.nextLong());
+
 		newAnnouncementsFlag.setUserId(RandomTestUtil.nextLong());
 
 		newAnnouncementsFlag.setCreateDate(RandomTestUtil.nextDate());
@@ -130,6 +133,8 @@ public class AnnouncementsFlagPersistenceTest {
 
 		Assert.assertEquals(existingAnnouncementsFlag.getFlagId(),
 			newAnnouncementsFlag.getFlagId());
+		Assert.assertEquals(existingAnnouncementsFlag.getCompanyId(),
+			newAnnouncementsFlag.getCompanyId());
 		Assert.assertEquals(existingAnnouncementsFlag.getUserId(),
 			newAnnouncementsFlag.getUserId());
 		Assert.assertEquals(Time.getShortTimestamp(
@@ -142,28 +147,18 @@ public class AnnouncementsFlagPersistenceTest {
 	}
 
 	@Test
-	public void testCountByEntryId() {
-		try {
-			_persistence.countByEntryId(RandomTestUtil.nextLong());
+	public void testCountByEntryId() throws Exception {
+		_persistence.countByEntryId(RandomTestUtil.nextLong());
 
-			_persistence.countByEntryId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByEntryId(0L);
 	}
 
 	@Test
-	public void testCountByU_E_V() {
-		try {
-			_persistence.countByU_E_V(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
+	public void testCountByU_E_V() throws Exception {
+		_persistence.countByU_E_V(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
-			_persistence.countByU_E_V(0L, 0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_E_V(0L, 0L, 0);
 	}
 
 	@Test
@@ -175,34 +170,23 @@ public class AnnouncementsFlagPersistenceTest {
 		Assert.assertEquals(existingAnnouncementsFlag, newAnnouncementsFlag);
 	}
 
-	@Test
+	@Test(expected = NoSuchFlagException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchFlagException");
-		}
-		catch (NoSuchFlagException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<AnnouncementsFlag> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("AnnouncementsFlag",
-			"flagId", true, "userId", true, "createDate", true, "entryId",
-			true, "value", true);
+			"flagId", true, "companyId", true, "userId", true, "createDate",
+			true, "entryId", true, "value", true);
 	}
 
 	@Test
@@ -311,11 +295,9 @@ public class AnnouncementsFlagPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = AnnouncementsFlagLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<AnnouncementsFlag>() {
 				@Override
-				public void performAction(Object object) {
-					AnnouncementsFlag announcementsFlag = (AnnouncementsFlag)object;
-
+				public void performAction(AnnouncementsFlag announcementsFlag) {
 					Assert.assertNotNull(announcementsFlag);
 
 					count.increment();
@@ -401,24 +383,21 @@ public class AnnouncementsFlagPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		AnnouncementsFlag newAnnouncementsFlag = addAnnouncementsFlag();
 
 		_persistence.clearCache();
 
 		AnnouncementsFlag existingAnnouncementsFlag = _persistence.findByPrimaryKey(newAnnouncementsFlag.getPrimaryKey());
 
-		Assert.assertEquals(existingAnnouncementsFlag.getUserId(),
-			ReflectionTestUtil.invoke(existingAnnouncementsFlag,
+		Assert.assertEquals(Long.valueOf(existingAnnouncementsFlag.getUserId()),
+			ReflectionTestUtil.<Long>invoke(existingAnnouncementsFlag,
 				"getOriginalUserId", new Class<?>[0]));
-		Assert.assertEquals(existingAnnouncementsFlag.getEntryId(),
-			ReflectionTestUtil.invoke(existingAnnouncementsFlag,
+		Assert.assertEquals(Long.valueOf(existingAnnouncementsFlag.getEntryId()),
+			ReflectionTestUtil.<Long>invoke(existingAnnouncementsFlag,
 				"getOriginalEntryId", new Class<?>[0]));
-		Assert.assertEquals(existingAnnouncementsFlag.getValue(),
-			ReflectionTestUtil.invoke(existingAnnouncementsFlag,
+		Assert.assertEquals(Integer.valueOf(
+				existingAnnouncementsFlag.getValue()),
+			ReflectionTestUtil.<Integer>invoke(existingAnnouncementsFlag,
 				"getOriginalValue", new Class<?>[0]));
 	}
 
@@ -427,6 +406,8 @@ public class AnnouncementsFlagPersistenceTest {
 		long pk = RandomTestUtil.nextLong();
 
 		AnnouncementsFlag announcementsFlag = _persistence.create(pk);
+
+		announcementsFlag.setCompanyId(RandomTestUtil.nextLong());
 
 		announcementsFlag.setUserId(RandomTestUtil.nextLong());
 

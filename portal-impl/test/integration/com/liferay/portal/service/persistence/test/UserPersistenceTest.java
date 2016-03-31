@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchUserException;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.UserPersistence;
+import com.liferay.portal.kernel.service.persistence.UserUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -32,17 +36,13 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.persistence.UserPersistence;
-import com.liferay.portal.service.persistence.UserUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,8 +59,9 @@ import java.util.Set;
  * @generated
  */
 public class UserPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -153,6 +154,8 @@ public class UserPersistenceTest {
 
 		newUser.setFacebookId(RandomTestUtil.nextLong());
 
+		newUser.setGoogleUserId(RandomTestUtil.randomString());
+
 		newUser.setLdapServerId(RandomTestUtil.nextLong());
 
 		newUser.setOpenId(RandomTestUtil.randomString());
@@ -235,6 +238,8 @@ public class UserPersistenceTest {
 			newUser.getEmailAddress());
 		Assert.assertEquals(existingUser.getFacebookId(),
 			newUser.getFacebookId());
+		Assert.assertEquals(existingUser.getGoogleUserId(),
+			newUser.getGoogleUserId());
 		Assert.assertEquals(existingUser.getLdapServerId(),
 			newUser.getLdapServerId());
 		Assert.assertEquals(existingUser.getOpenId(), newUser.getOpenId());
@@ -276,229 +281,152 @@ public class UserPersistenceTest {
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByCompanyId() {
-		try {
-			_persistence.countByCompanyId(RandomTestUtil.nextLong());
+	public void testCountByCompanyId() throws Exception {
+		_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
-			_persistence.countByCompanyId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByCompanyId(0L);
 	}
 
 	@Test
-	public void testCountByContactId() {
-		try {
-			_persistence.countByContactId(RandomTestUtil.nextLong());
+	public void testCountByContactId() throws Exception {
+		_persistence.countByContactId(RandomTestUtil.nextLong());
 
-			_persistence.countByContactId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByContactId(0L);
 	}
 
 	@Test
-	public void testCountByEmailAddress() {
-		try {
-			_persistence.countByEmailAddress(StringPool.BLANK);
+	public void testCountByEmailAddress() throws Exception {
+		_persistence.countByEmailAddress(StringPool.BLANK);
 
-			_persistence.countByEmailAddress(StringPool.NULL);
+		_persistence.countByEmailAddress(StringPool.NULL);
 
-			_persistence.countByEmailAddress((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByEmailAddress((String)null);
 	}
 
 	@Test
-	public void testCountByPortraitId() {
-		try {
-			_persistence.countByPortraitId(RandomTestUtil.nextLong());
+	public void testCountByPortraitId() throws Exception {
+		_persistence.countByPortraitId(RandomTestUtil.nextLong());
 
-			_persistence.countByPortraitId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByPortraitId(0L);
 	}
 
 	@Test
-	public void testCountByC_U() {
-		try {
-			_persistence.countByC_U(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_U() throws Exception {
+		_persistence.countByC_U(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_U(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_U(0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_CD() {
-		try {
-			_persistence.countByC_CD(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate());
+	public void testCountByC_CD() throws Exception {
+		_persistence.countByC_CD(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate());
 
-			_persistence.countByC_CD(0L, RandomTestUtil.nextDate());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_CD(0L, RandomTestUtil.nextDate());
 	}
 
 	@Test
-	public void testCountByC_MD() {
-		try {
-			_persistence.countByC_MD(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate());
+	public void testCountByC_MD() throws Exception {
+		_persistence.countByC_MD(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate());
 
-			_persistence.countByC_MD(0L, RandomTestUtil.nextDate());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_MD(0L, RandomTestUtil.nextDate());
 	}
 
 	@Test
-	public void testCountByC_DU() {
-		try {
-			_persistence.countByC_DU(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean());
+	public void testCountByC_DU() throws Exception {
+		_persistence.countByC_DU(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean());
 
-			_persistence.countByC_DU(0L, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_DU(0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
-	public void testCountByC_SN() {
-		try {
-			_persistence.countByC_SN(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByC_SN() throws Exception {
+		_persistence.countByC_SN(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_SN(0L, StringPool.NULL);
+		_persistence.countByC_SN(0L, StringPool.NULL);
 
-			_persistence.countByC_SN(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_SN(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByC_EA() {
-		try {
-			_persistence.countByC_EA(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByC_EA() throws Exception {
+		_persistence.countByC_EA(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_EA(0L, StringPool.NULL);
+		_persistence.countByC_EA(0L, StringPool.NULL);
 
-			_persistence.countByC_EA(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_EA(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByC_FID() {
-		try {
-			_persistence.countByC_FID(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByC_FID() throws Exception {
+		_persistence.countByC_FID(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_FID(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_FID(0L, 0L);
 	}
 
 	@Test
-	public void testCountByC_O() {
-		try {
-			_persistence.countByC_O(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByC_GUID() throws Exception {
+		_persistence.countByC_GUID(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_O(0L, StringPool.NULL);
+		_persistence.countByC_GUID(0L, StringPool.NULL);
 
-			_persistence.countByC_O(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_GUID(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByC_S() {
-		try {
-			_persistence.countByC_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextInt());
+	public void testCountByC_O() throws Exception {
+		_persistence.countByC_O(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_S(0L, 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_O(0L, StringPool.NULL);
+
+		_persistence.countByC_O(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByC_CD_MD() {
-		try {
-			_persistence.countByC_CD_MD(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextDate(), RandomTestUtil.nextDate());
+	public void testCountByC_S() throws Exception {
+		_persistence.countByC_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextInt());
 
-			_persistence.countByC_CD_MD(0L, RandomTestUtil.nextDate(),
-				RandomTestUtil.nextDate());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_S(0L, 0);
 	}
 
 	@Test
-	public void testCountByC_DU_S() {
-		try {
-			_persistence.countByC_DU_S(RandomTestUtil.nextLong(),
-				RandomTestUtil.randomBoolean(), RandomTestUtil.nextInt());
+	public void testCountByC_CD_MD() throws Exception {
+		_persistence.countByC_CD_MD(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextDate(), RandomTestUtil.nextDate());
 
-			_persistence.countByC_DU_S(0L, RandomTestUtil.randomBoolean(), 0);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_CD_MD(0L, RandomTestUtil.nextDate(),
+			RandomTestUtil.nextDate());
+	}
+
+	@Test
+	public void testCountByC_DU_S() throws Exception {
+		_persistence.countByC_DU_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.randomBoolean(), RandomTestUtil.nextInt());
+
+		_persistence.countByC_DU_S(0L, RandomTestUtil.randomBoolean(), 0);
 	}
 
 	@Test
@@ -510,28 +438,17 @@ public class UserPersistenceTest {
 		Assert.assertEquals(existingUser, newUser);
 	}
 
-	@Test
+	@Test(expected = NoSuchUserException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchUserException");
-		}
-		catch (NoSuchUserException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<User> getOrderByComparator() {
@@ -542,15 +459,15 @@ public class UserPersistenceTest {
 			"passwordReset", true, "passwordModifiedDate", true, "digest",
 			true, "reminderQueryQuestion", true, "reminderQueryAnswer", true,
 			"graceLoginCount", true, "screenName", true, "emailAddress", true,
-			"facebookId", true, "ldapServerId", true, "openId", true,
-			"portraitId", true, "languageId", true, "timeZoneId", true,
-			"greeting", true, "comments", true, "firstName", true,
-			"middleName", true, "lastName", true, "jobTitle", true,
-			"loginDate", true, "loginIP", true, "lastLoginDate", true,
-			"lastLoginIP", true, "lastFailedLoginDate", true,
-			"failedLoginAttempts", true, "lockout", true, "lockoutDate", true,
-			"agreedToTermsOfUse", true, "emailAddressVerified", true, "status",
-			true);
+			"facebookId", true, "googleUserId", true, "ldapServerId", true,
+			"openId", true, "portraitId", true, "languageId", true,
+			"timeZoneId", true, "greeting", true, "comments", true,
+			"firstName", true, "middleName", true, "lastName", true,
+			"jobTitle", true, "loginDate", true, "loginIP", true,
+			"lastLoginDate", true, "lastLoginIP", true, "lastFailedLoginDate",
+			true, "failedLoginAttempts", true, "lockout", true, "lockoutDate",
+			true, "agreedToTermsOfUse", true, "emailAddressVerified", true,
+			"status", true);
 	}
 
 	@Test
@@ -655,11 +572,9 @@ public class UserPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = UserLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<User>() {
 				@Override
-				public void performAction(Object object) {
-					User user = (User)object;
-
+				public void performAction(User user) {
 					Assert.assertNotNull(user);
 
 					count.increment();
@@ -745,62 +660,65 @@ public class UserPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		User newUser = addUser();
 
 		_persistence.clearCache();
 
 		User existingUser = _persistence.findByPrimaryKey(newUser.getPrimaryKey());
 
-		Assert.assertEquals(existingUser.getContactId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalContactId",
+		Assert.assertEquals(Long.valueOf(existingUser.getContactId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalContactId", new Class<?>[0]));
+
+		Assert.assertEquals(Long.valueOf(existingUser.getPortraitId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalPortraitId", new Class<?>[0]));
+
+		Assert.assertEquals(Long.valueOf(existingUser.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingUser.getUserId()),
+			ReflectionTestUtil.<Long>invoke(existingUser, "getOriginalUserId",
 				new Class<?>[0]));
 
-		Assert.assertEquals(existingUser.getPortraitId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalPortraitId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingUser.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertEquals(Boolean.valueOf(existingUser.getDefaultUser()),
+			ReflectionTestUtil.<Boolean>invoke(existingUser,
+				"getOriginalDefaultUser", new Class<?>[0]));
 
-		Assert.assertEquals(existingUser.getCompanyId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalCompanyId",
-				new Class<?>[0]));
-		Assert.assertEquals(existingUser.getUserId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalUserId",
-				new Class<?>[0]));
-
-		Assert.assertEquals(existingUser.getCompanyId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalCompanyId",
-				new Class<?>[0]));
-		Assert.assertEquals(existingUser.getDefaultUser(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalDefaultUser",
-				new Class<?>[0]));
-
-		Assert.assertEquals(existingUser.getCompanyId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalCompanyId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingUser.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalCompanyId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingUser.getScreenName(),
 				ReflectionTestUtil.invoke(existingUser,
 					"getOriginalScreenName", new Class<?>[0])));
 
-		Assert.assertEquals(existingUser.getCompanyId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalCompanyId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingUser.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalCompanyId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingUser.getEmailAddress(),
 				ReflectionTestUtil.invoke(existingUser,
 					"getOriginalEmailAddress", new Class<?>[0])));
 
-		Assert.assertEquals(existingUser.getCompanyId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalCompanyId",
-				new Class<?>[0]));
-		Assert.assertEquals(existingUser.getFacebookId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalFacebookId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingUser.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingUser.getFacebookId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalFacebookId", new Class<?>[0]));
 
-		Assert.assertEquals(existingUser.getCompanyId(),
-			ReflectionTestUtil.invoke(existingUser, "getOriginalCompanyId",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingUser.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalCompanyId", new Class<?>[0]));
+		Assert.assertTrue(Validator.equals(existingUser.getGoogleUserId(),
+				ReflectionTestUtil.invoke(existingUser,
+					"getOriginalGoogleUserId", new Class<?>[0])));
+
+		Assert.assertEquals(Long.valueOf(existingUser.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingUser,
+				"getOriginalCompanyId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingUser.getOpenId(),
 				ReflectionTestUtil.invoke(existingUser, "getOriginalOpenId",
 					new Class<?>[0])));
@@ -846,6 +764,8 @@ public class UserPersistenceTest {
 		user.setEmailAddress(RandomTestUtil.randomString());
 
 		user.setFacebookId(RandomTestUtil.nextLong());
+
+		user.setGoogleUserId(RandomTestUtil.randomString());
 
 		user.setLdapServerId(RandomTestUtil.nextLong());
 

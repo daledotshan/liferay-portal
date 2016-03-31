@@ -14,6 +14,12 @@
 
 package com.liferay.portlet.messageboards.service.persistence.test;
 
+import com.liferay.message.boards.kernel.exception.NoSuchThreadFlagException;
+import com.liferay.message.boards.kernel.model.MBThreadFlag;
+import com.liferay.message.boards.kernel.service.MBThreadFlagLocalServiceUtil;
+import com.liferay.message.boards.kernel.service.persistence.MBThreadFlagPersistence;
+import com.liferay.message.boards.kernel.service.persistence.MBThreadFlagUtil;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -33,17 +39,11 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
-
-import com.liferay.portlet.messageboards.NoSuchThreadFlagException;
-import com.liferay.portlet.messageboards.model.MBThreadFlag;
-import com.liferay.portlet.messageboards.service.MBThreadFlagLocalServiceUtil;
-import com.liferay.portlet.messageboards.service.persistence.MBThreadFlagPersistence;
-import com.liferay.portlet.messageboards.service.persistence.MBThreadFlagUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,8 +60,9 @@ import java.util.Set;
  * @generated
  */
 public class MBThreadFlagPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -134,6 +135,8 @@ public class MBThreadFlagPersistenceTest {
 
 		newMBThreadFlag.setThreadId(RandomTestUtil.nextLong());
 
+		newMBThreadFlag.setLastPublishDate(RandomTestUtil.nextDate());
+
 		_mbThreadFlags.add(_persistence.update(newMBThreadFlag));
 
 		MBThreadFlag existingMBThreadFlag = _persistence.findByPrimaryKey(newMBThreadFlag.getPrimaryKey());
@@ -158,87 +161,58 @@ public class MBThreadFlagPersistenceTest {
 			Time.getShortTimestamp(newMBThreadFlag.getModifiedDate()));
 		Assert.assertEquals(existingMBThreadFlag.getThreadId(),
 			newMBThreadFlag.getThreadId());
+		Assert.assertEquals(Time.getShortTimestamp(
+				existingMBThreadFlag.getLastPublishDate()),
+			Time.getShortTimestamp(newMBThreadFlag.getLastPublishDate()));
 	}
 
 	@Test
-	public void testCountByUuid() {
-		try {
-			_persistence.countByUuid(StringPool.BLANK);
+	public void testCountByUuid() throws Exception {
+		_persistence.countByUuid(StringPool.BLANK);
 
-			_persistence.countByUuid(StringPool.NULL);
+		_persistence.countByUuid(StringPool.NULL);
 
-			_persistence.countByUuid((String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid((String)null);
 	}
 
 	@Test
-	public void testCountByUUID_G() {
-		try {
-			_persistence.countByUUID_G(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUUID_G() throws Exception {
+		_persistence.countByUUID_G(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUUID_G(StringPool.NULL, 0L);
+		_persistence.countByUUID_G(StringPool.NULL, 0L);
 
-			_persistence.countByUUID_G((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUUID_G((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUuid_C() {
-		try {
-			_persistence.countByUuid_C(StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByUuid_C() throws Exception {
+		_persistence.countByUuid_C(StringPool.BLANK, RandomTestUtil.nextLong());
 
-			_persistence.countByUuid_C(StringPool.NULL, 0L);
+		_persistence.countByUuid_C(StringPool.NULL, 0L);
 
-			_persistence.countByUuid_C((String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUuid_C((String)null, 0L);
 	}
 
 	@Test
-	public void testCountByUserId() {
-		try {
-			_persistence.countByUserId(RandomTestUtil.nextLong());
+	public void testCountByUserId() throws Exception {
+		_persistence.countByUserId(RandomTestUtil.nextLong());
 
-			_persistence.countByUserId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByUserId(0L);
 	}
 
 	@Test
-	public void testCountByThreadId() {
-		try {
-			_persistence.countByThreadId(RandomTestUtil.nextLong());
+	public void testCountByThreadId() throws Exception {
+		_persistence.countByThreadId(RandomTestUtil.nextLong());
 
-			_persistence.countByThreadId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByThreadId(0L);
 	}
 
 	@Test
-	public void testCountByU_T() {
-		try {
-			_persistence.countByU_T(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByU_T() throws Exception {
+		_persistence.countByU_T(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByU_T(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByU_T(0L, 0L);
 	}
 
 	@Test
@@ -250,36 +224,24 @@ public class MBThreadFlagPersistenceTest {
 		Assert.assertEquals(existingMBThreadFlag, newMBThreadFlag);
 	}
 
-	@Test
+	@Test(expected = NoSuchThreadFlagException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchThreadFlagException");
-		}
-		catch (NoSuchThreadFlagException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<MBThreadFlag> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("MBThreadFlag", "uuid",
 			true, "threadFlagId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "threadId", true);
+			"modifiedDate", true, "threadId", true, "lastPublishDate", true);
 	}
 
 	@Test
@@ -388,11 +350,9 @@ public class MBThreadFlagPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = MBThreadFlagLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MBThreadFlag>() {
 				@Override
-				public void performAction(Object object) {
-					MBThreadFlag mbThreadFlag = (MBThreadFlag)object;
-
+				public void performAction(MBThreadFlag mbThreadFlag) {
 					Assert.assertNotNull(mbThreadFlag);
 
 					count.increment();
@@ -480,10 +440,6 @@ public class MBThreadFlagPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		MBThreadFlag newMBThreadFlag = addMBThreadFlag();
 
 		_persistence.clearCache();
@@ -493,15 +449,15 @@ public class MBThreadFlagPersistenceTest {
 		Assert.assertTrue(Validator.equals(existingMBThreadFlag.getUuid(),
 				ReflectionTestUtil.invoke(existingMBThreadFlag,
 					"getOriginalUuid", new Class<?>[0])));
-		Assert.assertEquals(existingMBThreadFlag.getGroupId(),
-			ReflectionTestUtil.invoke(existingMBThreadFlag,
+		Assert.assertEquals(Long.valueOf(existingMBThreadFlag.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingMBThreadFlag,
 				"getOriginalGroupId", new Class<?>[0]));
 
-		Assert.assertEquals(existingMBThreadFlag.getUserId(),
-			ReflectionTestUtil.invoke(existingMBThreadFlag,
+		Assert.assertEquals(Long.valueOf(existingMBThreadFlag.getUserId()),
+			ReflectionTestUtil.<Long>invoke(existingMBThreadFlag,
 				"getOriginalUserId", new Class<?>[0]));
-		Assert.assertEquals(existingMBThreadFlag.getThreadId(),
-			ReflectionTestUtil.invoke(existingMBThreadFlag,
+		Assert.assertEquals(Long.valueOf(existingMBThreadFlag.getThreadId()),
+			ReflectionTestUtil.<Long>invoke(existingMBThreadFlag,
 				"getOriginalThreadId", new Class<?>[0]));
 	}
 
@@ -525,6 +481,8 @@ public class MBThreadFlagPersistenceTest {
 		mbThreadFlag.setModifiedDate(RandomTestUtil.nextDate());
 
 		mbThreadFlag.setThreadId(RandomTestUtil.nextLong());
+
+		mbThreadFlag.setLastPublishDate(RandomTestUtil.nextDate());
 
 		_mbThreadFlags.add(_persistence.update(mbThreadFlag));
 

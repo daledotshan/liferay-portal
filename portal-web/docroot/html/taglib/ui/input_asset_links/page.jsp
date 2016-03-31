@@ -16,11 +16,69 @@
 
 <%@ include file="/html/taglib/ui/input_asset_links/init.jsp" %>
 
+<liferay-util:buffer var="removeLinkIcon">
+	<liferay-ui:icon
+		icon="times"
+		markupView="lexicon"
+		message="remove"
+	/>
+</liferay-util:buffer>
+
+<liferay-ui:search-container
+	compactEmptyResultsMessage="<%= true %>"
+	emptyResultsMessage="none"
+	headerNames="type,title,scope,null"
+	total="<%= inputAssetLinksDisplayContext.getAssetLinksCount() %>"
+>
+	<liferay-ui:search-container-results
+		results="<%= inputAssetLinksDisplayContext.getAssetLinks() %>"
+	/>
+
+	<liferay-ui:search-container-row
+		className="com.liferay.asset.kernel.model.AssetLink"
+		keyProperty="entryId2"
+		modelVar="assetLink"
+	>
+
+		<%
+		AssetEntry assetLinkEntry = inputAssetLinksDisplayContext.getAssetLinkEntry(assetLink);
+		%>
+
+		<liferay-ui:search-container-column-text
+			cssClass="text-column type-column"
+			name="type"
+			value="<%= inputAssetLinksDisplayContext.getAssetType(assetLinkEntry) %>"
+		/>
+
+		<liferay-ui:search-container-column-text
+			cssClass="content-column title-column"
+			name="title"
+			truncate="<%= true %>"
+			value="<%= HtmlUtil.escape(assetLinkEntry.getTitle(locale)) %>"
+		/>
+
+		<liferay-ui:search-container-column-text
+			cssClass="scope-column text-column"
+			name="scope"
+			value="<%= HtmlUtil.escape(inputAssetLinksDisplayContext.getGroupDescriptiveName(assetLinkEntry)) %>"
+		/>
+
+		<liferay-ui:search-container-column-text
+			cssClass="entry-action-column"
+		>
+			<a class="modify-link" data-rowId="<%= assetLinkEntry.getEntryId() %>" href="javascript:;"><%= removeLinkIcon %></a>
+		</liferay-ui:search-container-column-text>
+	</liferay-ui:search-container-row>
+
+	<liferay-ui:search-iterator markupView="lexicon" paginate="<%= false %>" />
+</liferay-ui:search-container>
+
 <liferay-ui:icon-menu
 	cssClass="select-existing-selector"
-	icon="../aui/search"
+	direction="right"
 	id='<%= inputAssetLinksDisplayContext.getRandomNamespace() + "inputAssetLinks" %>'
 	message="select"
+	showArrow="<%= false %>"
 	showWhenSingleIcon="<%= true %>"
 >
 
@@ -31,7 +89,6 @@
 		<liferay-ui:icon
 			cssClass="asset-selector"
 			data='<%= (Map<String, Object>)selectorEntry.get("data") %>'
-			iconCssClass='<%= (String)selectorEntry.get("iconCssClass") %>'
 			id='<%= (String)selectorEntry.get("id") %>'
 			message='<%= (String)selectorEntry.get("message") %>'
 			url="javascript:;"
@@ -42,57 +99,6 @@
 	%>
 
 </liferay-ui:icon-menu>
-
-<br />
-
-<liferay-util:buffer var="removeLinkIcon">
-	<liferay-ui:icon
-		iconCssClass="icon-remove"
-		label="<%= true %>"
-		message="remove"
-	/>
-</liferay-util:buffer>
-
-<liferay-ui:search-container
-	headerNames="type,title,scope,null"
->
-	<liferay-ui:search-container-results
-		results="<%= inputAssetLinksDisplayContext.getAssetLinks() %>"
-		total="<%= inputAssetLinksDisplayContext.getAssetLinksCount() %>"
-	/>
-
-	<liferay-ui:search-container-row
-		className="com.liferay.portlet.asset.model.AssetLink"
-		keyProperty="entryId2"
-		modelVar="assetLink"
-	>
-
-		<%
-		AssetEntry assetLinkEntry = inputAssetLinksDisplayContext.getAssetLinkEntry(assetLink);
-		%>
-
-		<liferay-ui:search-container-column-text
-			name="type"
-			value="<%= inputAssetLinksDisplayContext.getAssetType(assetLinkEntry) %>"
-		/>
-
-		<liferay-ui:search-container-column-text
-			name="title"
-			value="<%= HtmlUtil.escape(assetLinkEntry.getTitle(locale)) %>"
-		/>
-
-		<liferay-ui:search-container-column-text
-			name="scope"
-			value="<%= HtmlUtil.escape(inputAssetLinksDisplayContext.getGroupDescriptiveName(assetLinkEntry)) %>"
-		/>
-
-		<liferay-ui:search-container-column-text>
-			<a class="modify-link" data-rowId="<%= assetLinkEntry.getEntryId() %>" href="javascript:;"><%= removeLinkIcon %></a>
-		</liferay-ui:search-container-column-text>
-	</liferay-ui:search-container-row>
-
-	<liferay-ui:search-iterator paginate="<%= false %>" />
-</liferay-ui:search-container>
 
 <aui:input name="assetLinkEntryIds" type="hidden" />
 

@@ -14,7 +14,9 @@
 
 package com.liferay.portal.security.pwd;
 
-import com.liferay.portal.PwdEncryptorException;
+import com.liferay.portal.kernel.exception.PwdEncryptorException;
+import com.liferay.portal.kernel.security.pwd.PasswordEncryptor;
+import com.liferay.portal.kernel.security.pwd.PasswordEncryptorUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Digester;
 import com.liferay.portal.kernel.util.Validator;
@@ -33,10 +35,9 @@ public class CryptPasswordEncryptor
 	extends BasePasswordEncryptor implements PasswordEncryptor {
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public String[] getSupportedAlgorithmTypes() {
 		return new String[] {
-			PasswordEncryptorUtil.TYPE_CRYPT,
+			PasswordEncryptorUtil.TYPE_UFC_CRYPT,
 			PasswordEncryptorUtil.TYPE_UFC_CRYPT
 		};
 	}

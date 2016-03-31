@@ -1,0 +1,24 @@
+dependencies {
+	compile gradleApi()
+	compile group: "com.liferay", name: "com.liferay.gradle.plugins", version: "1.0.239"
+	compile group: "com.liferay", name: "com.liferay.gradle.plugins.gulp", version: "1.0.1"
+	compile group: "com.liferay", name: "com.liferay.gradle.plugins.poshi.runner", version: "1.0.10"
+	compile group: "de.undercouch", name: "gradle-download-task", version: "2.1.0"
+}
+
+jarSources {
+	into("samples") {
+		exclude ".gradle"
+		exclude "build"
+
+		filesMatching("settings.gradle") {
+			filter {
+				String line ->
+
+				line.replace "latest.release", project.version
+			}
+		}
+
+		from "samples"
+	}
+}

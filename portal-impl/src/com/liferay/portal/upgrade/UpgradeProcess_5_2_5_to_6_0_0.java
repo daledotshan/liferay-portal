@@ -14,7 +14,6 @@
 
 package com.liferay.portal.upgrade;
 
-import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.upgrade.v5_2_5_to_6_0_0.UpgradeGroup;
 import com.liferay.portal.upgrade.v5_2_5_to_6_0_0.UpgradeSchema;
@@ -33,7 +32,7 @@ import com.liferay.portal.upgrade.v6_0_0.UpgradeShopping;
 /**
  * @author Douglas Wong
  */
-public class UpgradeProcess_5_2_5_to_6_0_0 extends UpgradeProcess {
+public class UpgradeProcess_5_2_5_to_6_0_0 extends Pre7UpgradeProcess {
 
 	@Override
 	public int getThreshold() {
@@ -43,6 +42,7 @@ public class UpgradeProcess_5_2_5_to_6_0_0 extends UpgradeProcess {
 	@Override
 	protected void doUpgrade() throws Exception {
 		upgrade(UpgradeSchema.class);
+
 		upgrade(UpgradeAsset.class);
 		upgrade(UpgradeAssetPublisher.class);
 		upgrade(UpgradeBlogs.class);
@@ -55,6 +55,8 @@ public class UpgradeProcess_5_2_5_to_6_0_0 extends UpgradeProcess {
 		upgrade(UpgradeResourceAction.class);
 		upgrade(UpgradeShopping.class);
 		upgrade(UpgradeWiki.class);
+
+		clearIndexesCache();
 	}
 
 }
