@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchResourceBlockException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchResourceBlockException;
+import com.liferay.portal.kernel.model.ResourceBlock;
+import com.liferay.portal.kernel.service.ResourceBlockLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ResourceBlockPersistence;
+import com.liferay.portal.kernel.service.persistence.ResourceBlockUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,17 +35,13 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.ResourceBlock;
-import com.liferay.portal.service.ResourceBlockLocalServiceUtil;
-import com.liferay.portal.service.persistence.ResourceBlockPersistence;
-import com.liferay.portal.service.persistence.ResourceBlockUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class ResourceBlockPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -149,47 +150,32 @@ public class ResourceBlockPersistenceTest {
 	}
 
 	@Test
-	public void testCountByC_N() {
-		try {
-			_persistence.countByC_N(RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByC_N() throws Exception {
+		_persistence.countByC_N(RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_N(0L, StringPool.NULL);
+		_persistence.countByC_N(0L, StringPool.NULL);
 
-			_persistence.countByC_N(0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_N(0L, (String)null);
 	}
 
 	@Test
-	public void testCountByC_G_N() {
-		try {
-			_persistence.countByC_G_N(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByC_G_N() throws Exception {
+		_persistence.countByC_G_N(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByC_G_N(0L, 0L, StringPool.NULL);
+		_persistence.countByC_G_N(0L, 0L, StringPool.NULL);
 
-			_persistence.countByC_G_N(0L, 0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_G_N(0L, 0L, (String)null);
 	}
 
 	@Test
-	public void testCountByC_G_N_P() {
-		try {
-			_persistence.countByC_G_N_P(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK, StringPool.BLANK);
+	public void testCountByC_G_N_P() throws Exception {
+		_persistence.countByC_G_N_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK, StringPool.BLANK);
 
-			_persistence.countByC_G_N_P(0L, 0L, StringPool.NULL, StringPool.NULL);
+		_persistence.countByC_G_N_P(0L, 0L, StringPool.NULL, StringPool.NULL);
 
-			_persistence.countByC_G_N_P(0L, 0L, (String)null, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_G_N_P(0L, 0L, (String)null, (String)null);
 	}
 
 	@Test
@@ -201,29 +187,17 @@ public class ResourceBlockPersistenceTest {
 		Assert.assertEquals(existingResourceBlock, newResourceBlock);
 	}
 
-	@Test
+	@Test(expected = NoSuchResourceBlockException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchResourceBlockException");
-		}
-		catch (NoSuchResourceBlockException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ResourceBlock> getOrderByComparator() {
@@ -339,11 +313,9 @@ public class ResourceBlockPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ResourceBlockLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ResourceBlock>() {
 				@Override
-				public void performAction(Object object) {
-					ResourceBlock resourceBlock = (ResourceBlock)object;
-
+				public void performAction(ResourceBlock resourceBlock) {
 					Assert.assertNotNull(resourceBlock);
 
 					count.increment();
@@ -431,21 +403,17 @@ public class ResourceBlockPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		ResourceBlock newResourceBlock = addResourceBlock();
 
 		_persistence.clearCache();
 
 		ResourceBlock existingResourceBlock = _persistence.findByPrimaryKey(newResourceBlock.getPrimaryKey());
 
-		Assert.assertEquals(existingResourceBlock.getCompanyId(),
-			ReflectionTestUtil.invoke(existingResourceBlock,
+		Assert.assertEquals(Long.valueOf(existingResourceBlock.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingResourceBlock,
 				"getOriginalCompanyId", new Class<?>[0]));
-		Assert.assertEquals(existingResourceBlock.getGroupId(),
-			ReflectionTestUtil.invoke(existingResourceBlock,
+		Assert.assertEquals(Long.valueOf(existingResourceBlock.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingResourceBlock,
 				"getOriginalGroupId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingResourceBlock.getName(),
 				ReflectionTestUtil.invoke(existingResourceBlock,

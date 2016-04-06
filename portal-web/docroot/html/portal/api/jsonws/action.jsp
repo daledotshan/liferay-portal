@@ -276,12 +276,15 @@ String signature = ParamUtil.getString(request, "signature");
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="serviceOutput"></pre>
 					</liferay-ui:section>
+
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="jsExample"></pre>
 					</liferay-ui:section>
+
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="curlExample"></pre>
 					</liferay-ui:section>
+
 					<liferay-ui:section>
 						<pre class="lfr-code-block" id="urlExample"></pre>
 					</liferay-ui:section>
@@ -396,8 +399,8 @@ String signature = ParamUtil.getString(request, "signature");
 
 			var tplDataTypes = Liferay.TPL_DATA_TYPES;
 
-			var stringType = tplDataTypes.string;
 			var arrayType = tplDataTypes.array;
+			var stringType = tplDataTypes.string;
 
 			var formatDataType = function(key, value, includeNull) {
 				value = decodeURIComponent(value.replace(/\+/g, ' '));
@@ -448,7 +451,7 @@ String signature = ParamUtil.getString(request, "signature");
 						'<%= jsonWebServiceActionMapping.getPath() %>',
 						formEl,
 						function(obj) {
-							serviceOutput.html(A.JSON.stringify(obj, null, 2));
+							serviceOutput.html(JSON.stringify(obj, null, 2));
 
 							output.removeClass('loading-results');
 
@@ -499,7 +502,7 @@ String signature = ParamUtil.getString(request, "signature");
 					scriptTpl.render(tplScriptData, jsExample);
 
 					var urlTplData = {
-						data : [],
+						data: [],
 						extraData: []
 					};
 

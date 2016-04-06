@@ -14,24 +14,30 @@
 
 package com.liferay.portal.service;
 
-import com.liferay.portal.NoSuchGroupException;
+import com.liferay.portal.kernel.exception.NoSuchGroupException;
+import com.liferay.portal.kernel.exception.RoleNameException;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.OrganizationConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
+import com.liferay.portal.kernel.model.Team;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.TeamLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.Organization;
-import com.liferay.portal.model.OrganizationConstants;
-import com.liferay.portal.model.Role;
-import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.model.Team;
-import com.liferay.portal.model.User;
+import com.liferay.portal.kernel.util.comparator.RoleRoleIdComparator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portal.util.comparator.RoleRoleIdComparator;
 import com.liferay.portal.util.test.LayoutTestUtil;
 
 import java.util.ArrayList;
@@ -54,12 +60,18 @@ public class RoleLocalServiceTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@BeforeClass
 	public static void setUpClass() {
 		IndexerRegistryUtil.unregister(Organization.class.getName());
+	}
+
+	@Test(expected = RoleNameException.class)
+	public void testAddRoleWithPlaceholderName() throws Exception {
+		RoleTestUtil.addRole(
+			RoleConstants.PLACEHOLDER_DEFAULT_GROUP_ROLE,
+			RoleConstants.TYPE_REGULAR);
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -108,7 +120,7 @@ public class RoleLocalServiceTest {
 		Collections.sort(actualRoles, roleIdComparator);
 		Collections.sort(expectedRoles, roleIdComparator);
 
-		Assert.assertEquals(actualRoles, expectedRoles);
+		Assert.assertEquals(expectedRoles, actualRoles);
 	}
 
 	@Test
@@ -197,7 +209,7 @@ public class RoleLocalServiceTest {
 
 		Team team = TeamLocalServiceUtil.addTeam(
 			user.getUserId(), organization.getGroupId(),
-			RandomTestUtil.randomString(), null);
+			RandomTestUtil.randomString(), null, new ServiceContext());
 
 		return new Object[] {organization, team};
 	}

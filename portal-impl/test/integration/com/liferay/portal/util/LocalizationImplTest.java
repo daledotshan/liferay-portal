@@ -14,6 +14,8 @@
 
 package com.liferay.portal.util;
 
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Localization;
@@ -22,7 +24,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portlet.PortletPreferencesImpl;
 
@@ -30,9 +32,11 @@ import java.lang.reflect.Field;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.portlet.PortletPreferences;
 
@@ -80,7 +84,7 @@ public class LocalizationImplTest {
 	public void setUp() throws Exception {
 		StringBundler sb = new StringBundler();
 
-		sb.append("<?xml version='1.0' encoding='UTF-8'?>");
+		sb.append("<?xml version=\"1.0\"?>");
 
 		sb.append("<root available-locales=\"en_US,es_ES\" ");
 		sb.append("default-locale=\"en_US\">");
@@ -115,17 +119,17 @@ public class LocalizationImplTest {
 
 	@Test
 	public void testGetAvailableLanguageIds() throws DocumentException {
-		Document document = SAXReaderUtil.read(_xml);
+		Document document = UnsecureSAXReaderUtil.read(_xml);
 
 		String[] documentAvailableLanguageIds =
 			LocalizationUtil.getAvailableLanguageIds(document);
 
-		Assert.assertEquals(documentAvailableLanguageIds.length, 2);
+		Assert.assertEquals(2, documentAvailableLanguageIds.length);
 
 		String[] xmlAvailableLanguageIds =
 			LocalizationUtil.getAvailableLanguageIds(_xml);
 
-		Assert.assertEquals(xmlAvailableLanguageIds.length, 2);
+		Assert.assertEquals(2, xmlAvailableLanguageIds.length);
 
 		Arrays.sort(documentAvailableLanguageIds);
 		Arrays.sort(xmlAvailableLanguageIds);
@@ -138,7 +142,7 @@ public class LocalizationImplTest {
 
 	@Test
 	public void testGetDefaultLanguageId() throws DocumentException {
-		Document document = SAXReaderUtil.read(_xml);
+		Document document = UnsecureSAXReaderUtil.read(_xml);
 
 		String languageIdsFromDoc = LocalizationUtil.getDefaultLanguageId(
 			document);
@@ -147,6 +151,55 @@ public class LocalizationImplTest {
 		Assert.assertEquals(
 			"The default language ids from Document and XML don't match",
 			languageIdsFromDoc, languageIdsFromXml);
+	}
+
+	@Test
+	public void testGetLocalizationMapWithNoValues() {
+		LocalizedValuesMap localizedValuesMap = new LocalizedValuesMap(
+			"defaultValue");
+
+		Map<Locale, String> map = LocalizationUtil.getMap(localizedValuesMap);
+
+		Assert.assertEquals(1, map.size());
+		Assert.assertEquals("defaultValue", map.get(LocaleUtil.getDefault()));
+	}
+
+	@Test
+	public void testGetLocalizationMapWithTwoValues() {
+		LocalizedValuesMap localizedValuesMap = new LocalizedValuesMap(
+			"defaultValue");
+
+		localizedValuesMap.put(LocaleUtil.GERMANY, _GERMAN_HELLO);
+		localizedValuesMap.put(LocaleUtil.US, _ENGLISH_HELLO);
+
+		Set<Locale> locales = new HashSet<>(
+			Arrays.asList(
+				LocaleUtil.getDefault(), LocaleUtil.GERMANY, LocaleUtil.US));
+
+		Map<Locale, String> map = LocalizationUtil.getMap(localizedValuesMap);
+
+		Assert.assertEquals(locales.size(), map.size());
+		Assert.assertEquals(_GERMAN_HELLO, map.get(LocaleUtil.GERMANY));
+		Assert.assertEquals(_ENGLISH_HELLO, map.get(LocaleUtil.US));
+	}
+
+	@Test
+	public void testGetLocalizationXml() {
+		LocalizedValuesMap localizedValuesMap = new LocalizedValuesMap(
+			"defaultValue");
+
+		String xml = LocalizationUtil.getXml(localizedValuesMap, "key");
+
+		for (Locale locale : LanguageUtil.getAvailableLocales()) {
+			Assert.assertTrue(
+				"Key for " +locale + "included in XML",
+				xml.contains(
+					"<key language-id=\"" + locale + "\">defaultValue</key>"));
+		}
+
+		Assert.assertTrue(
+			"Default locale included in XML",
+			xml.contains("default-locale=\"" + LocaleUtil.getDefault() + "\""));
 	}
 
 	@Test
@@ -286,46 +339,6 @@ public class LocalizationImplTest {
 	}
 
 	@Test
-	public void testLongTranslationText() {
-		StringBundler sb = new StringBundler();
-
-		sb.append("<?xml version='1.0' encoding='UTF-8'?>");
-
-		sb.append("<root available-locales=\"en_US,es_ES\" ");
-		sb.append("default-locale=\"en_US\">");
-		sb.append("<static-content language-id=\"es_ES\">");
-		sb.append("<![CDATA[");
-
-		int loops = 2000000;
-
-		for (int i = 0; i < loops; i++) {
-			sb.append("1234567890");
-		}
-
-		sb.append("]]>");
-		sb.append("</static-content>");
-		sb.append("<static-content language-id=\"en_US\">");
-		sb.append("<![CDATA[Example in English]]>");
-		sb.append("</static-content>");
-		sb.append("</root>");
-
-		int totalSize = loops * 10;
-
-		Assert.assertTrue(sb.length() > totalSize);
-
-		String translation = LocalizationUtil.getLocalization(
-			sb.toString(), "es_ES");
-
-		Assert.assertNotNull(translation);
-		Assert.assertEquals(totalSize, translation.length());
-
-		translation = LocalizationUtil.getLocalization(sb.toString(), "en_US");
-
-		Assert.assertNotNull(translation);
-		Assert.assertEquals(18, translation.length());
-	}
-
-	@Test
 	public void testPreferencesLocalization() throws Exception {
 		PortletPreferences preferences = new PortletPreferencesImpl();
 
@@ -396,6 +409,29 @@ public class LocalizationImplTest {
 		Assert.assertEquals(
 			StringPool.BLANK,
 			LocalizationUtil.getLocalization(xml, _GERMAN_LANGUAGE_ID, false));
+	}
+
+	@Test
+	public void testUpdateLocalizationWithAmpersand() {
+		Map<Locale, String> localizationMap = new HashMap<>();
+
+		String spanishValue = "bar&foo";
+
+		localizationMap.put(LocaleUtil.SPAIN, spanishValue);
+
+		String englishValue = "foo&bar";
+
+		localizationMap.put(LocaleUtil.US, englishValue);
+
+		String xml = LocalizationUtil.updateLocalization(
+			localizationMap, _xml, "static-content", "en_US");
+
+		Assert.assertEquals(
+			spanishValue,
+			LocalizationUtil.getLocalization(xml, _SPANISH_LANGUAGE_ID));
+		Assert.assertEquals(
+			englishValue,
+			LocalizationUtil.getLocalization(xml, _ENGLISH_LANGUAGE_ID));
 	}
 
 	private static final String _ENGLISH_HELLO = "Hello World";
