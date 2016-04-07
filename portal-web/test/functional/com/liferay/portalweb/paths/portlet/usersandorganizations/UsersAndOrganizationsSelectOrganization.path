@@ -9,16 +9,6 @@
 </thead>
 <tbody>
 <tr>
-	<td>PAGE_NAME</td>
-	<td></td>
-	<td>UsersAndOrganizationsSelectOrganization</td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
 	<td>PAGE_TITLE</td>
 	<td>//div[contains(@class,'modal-header') and contains(.,'Select Organization')]</td>
 	<td></td>
@@ -81,7 +71,7 @@
 </tr>
 <tr>
 	<td>ORGANIZATION_TABLE_CHOOSE_BUTTON</td>
-	<td>//tr[contains(.,'${key_orgName}')]/td[7]/button[contains(.,'Choose')]</td>
+	<td>//tr[contains(.,'${key_orgName}')]/td[7]//button[contains(.,'Choose')]</td>
 	<td></td>
 </tr>
 </tbody>

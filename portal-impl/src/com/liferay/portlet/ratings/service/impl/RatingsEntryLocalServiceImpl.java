@@ -14,21 +14,23 @@
 
 package com.liferay.portlet.ratings.service.impl;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.model.BlogsStatsUser;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.blogs.model.BlogsStatsUser;
-import com.liferay.portlet.ratings.EntryScoreException;
-import com.liferay.portlet.ratings.model.RatingsEntry;
-import com.liferay.portlet.ratings.model.RatingsStats;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.social.SocialActivityManagerUtil;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portlet.ratings.service.base.RatingsEntryLocalServiceBaseImpl;
-import com.liferay.portlet.social.model.SocialActivityConstants;
+import com.liferay.ratings.kernel.exception.EntryScoreException;
+import com.liferay.ratings.kernel.model.RatingsEntry;
+import com.liferay.ratings.kernel.model.RatingsStats;
+import com.liferay.social.kernel.model.SocialActivityConstants;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,16 +44,27 @@ public class RatingsEntryLocalServiceImpl
 	public void deleteEntry(long userId, String className, long classPK)
 		throws PortalException {
 
-		// Entry
-
 		long classNameId = classNameLocalService.getClassNameId(className);
 
 		RatingsEntry entry = ratingsEntryPersistence.fetchByU_C_C(
 			userId, classNameId, classPK);
 
+		ratingsEntryLocalService.deleteEntry(entry, userId, className, classPK);
+	}
+
+	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
+	public void deleteEntry(
+			RatingsEntry entry, long userId, String className, long classPK)
+		throws PortalException {
+
+		// Entry
+
 		if (entry == null) {
 			return;
 		}
+
+		long classNameId = classNameLocalService.getClassNameId(className);
 
 		double oldScore = entry.getScore();
 
@@ -142,7 +155,6 @@ public class RatingsEntryLocalServiceImpl
 
 		long classNameId = classNameLocalService.getClassNameId(className);
 		double oldScore = 0;
-		Date now = new Date();
 
 		validate(score);
 
@@ -152,7 +164,6 @@ public class RatingsEntryLocalServiceImpl
 		if (entry != null) {
 			oldScore = entry.getScore();
 
-			entry.setModifiedDate(serviceContext.getModifiedDate(now));
 			entry.setScore(score);
 
 			ratingsEntryPersistence.update(entry);
@@ -180,8 +191,6 @@ public class RatingsEntryLocalServiceImpl
 			entry.setCompanyId(user.getCompanyId());
 			entry.setUserId(user.getUserId());
 			entry.setUserName(user.getFullName());
-			entry.setCreateDate(serviceContext.getCreateDate(now));
-			entry.setModifiedDate(serviceContext.getModifiedDate(now));
 			entry.setClassNameId(classNameId);
 			entry.setClassPK(classPK);
 			entry.setScore(score);
@@ -243,9 +252,8 @@ public class RatingsEntryLocalServiceImpl
 
 			extraDataJSONObject.put("title", assetEntry.getTitle());
 
-			socialActivityLocalService.addActivity(
-				userId, assetEntry.getGroupId(), className, classPK,
-				SocialActivityConstants.TYPE_ADD_VOTE,
+			SocialActivityManagerUtil.addActivity(
+				userId, assetEntry, SocialActivityConstants.TYPE_ADD_VOTE,
 				extraDataJSONObject.toString(), 0);
 		}
 
@@ -254,7 +262,8 @@ public class RatingsEntryLocalServiceImpl
 
 	protected void validate(double score) throws PortalException {
 		if ((score > 1) || (score < 0)) {
-			throw new EntryScoreException();
+			throw new EntryScoreException(
+				"Score " + score + " is not a value between 0 and 1");
 		}
 	}
 

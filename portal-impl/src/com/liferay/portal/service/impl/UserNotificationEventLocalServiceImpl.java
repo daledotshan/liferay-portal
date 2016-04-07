@@ -19,13 +19,13 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
+import com.liferay.portal.kernel.model.UserNotificationEvent;
 import com.liferay.portal.kernel.notifications.NotificationEvent;
 import com.liferay.portal.kernel.notifications.NotificationEventFactoryUtil;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.UserNotificationDeliveryConstants;
-import com.liferay.portal.model.UserNotificationEvent;
-import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.service.base.UserNotificationEventLocalServiceBaseImpl;
 
 import java.util.ArrayList;
@@ -89,7 +89,7 @@ public class UserNotificationEventLocalServiceImpl
 		userNotificationEvent.setTimestamp(timestamp);
 		userNotificationEvent.setDeliveryType(deliveryType);
 		userNotificationEvent.setDeliverBy(deliverBy);
-		userNotificationEvent.setDelivered(false);
+		userNotificationEvent.setDelivered(true);
 		userNotificationEvent.setPayload(payload);
 		userNotificationEvent.setActionRequired(actionRequired);
 		userNotificationEvent.setArchived(archived);
@@ -357,32 +357,13 @@ public class UserNotificationEventLocalServiceImpl
 	}
 
 	@Override
+	public List<UserNotificationEvent> getTypeNotificationEvents(String type) {
+		return userNotificationEventPersistence.findByType(type);
+	}
+
+	@Override
 	public List<UserNotificationEvent> getUserNotificationEvents(long userId) {
 		return userNotificationEventPersistence.findByUserId(userId);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0 {@link #getArchivedUserNotificationEvents(long,
-	 *             boolean)}
-	 */
-	@Deprecated
-	@Override
-	public List<UserNotificationEvent> getUserNotificationEvents(
-		long userId, boolean archived) {
-
-		return getArchivedUserNotificationEvents(userId, archived);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0 {@link #getArchivedUserNotificationEvents(long,
-	 *             boolean, int, int)}
-	 */
-	@Deprecated
-	@Override
-	public List<UserNotificationEvent> getUserNotificationEvents(
-		long userId, boolean archived, int start, int end) {
-
-		return getArchivedUserNotificationEvents(userId, archived, start, end);
 	}
 
 	@Override
@@ -414,20 +395,18 @@ public class UserNotificationEventLocalServiceImpl
 		return userNotificationEventPersistence.countByUserId(userId);
 	}
 
-	/**
-	 * @deprecated As of 6.2.0 {@link
-	 *             #getArchivedUserNotificationEventsCount(long, boolean)}
-	 */
-	@Deprecated
-	@Override
-	public int getUserNotificationEventsCount(long userId, boolean archived) {
-		return getArchivedUserNotificationEventsCount(userId, archived);
-	}
-
 	@Override
 	public int getUserNotificationEventsCount(long userId, int deliveryType) {
 		return userNotificationEventPersistence.countByU_DT(
 			userId, deliveryType);
+	}
+
+	@Override
+	public int getUserNotificationEventsCount(
+		long userId, String type, int deliveryType, boolean archived) {
+
+		return userNotificationEventPersistence.countByU_T_DT_D(
+			userId, type, deliveryType, archived);
 	}
 
 	@Override
@@ -502,7 +481,7 @@ public class UserNotificationEventLocalServiceImpl
 	protected void sendPushNotification(
 		final NotificationEvent notificationEvent) {
 
-		TransactionCommitCallbackRegistryUtil.registerCallback(
+		TransactionCommitCallbackUtil.registerCallback(
 			new Callable<Void>() {
 
 				@Override
