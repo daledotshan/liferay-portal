@@ -14,9 +14,10 @@
 
 package com.liferay.portal.kernel.test.util;
 
-import com.liferay.counter.service.CounterLocalServiceUtil;
-import com.liferay.portal.model.ResourcePermission;
-import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 
 /**
  * @author Alberto Chaparro
@@ -55,8 +56,10 @@ public class ResourcePermissionTestUtil {
 		resourcePermission.setName(name);
 		resourcePermission.setScope(scope);
 		resourcePermission.setPrimKey(primKey);
+		resourcePermission.setPrimKeyId(GetterUtil.getLong(primKey));
 		resourcePermission.setRoleId(roleId);
 		resourcePermission.setActionIds(actionIds);
+		resourcePermission.setViewActionId(actionIds % 2 == 1);
 
 		return ResourcePermissionLocalServiceUtil.addResourcePermission(
 			resourcePermission);

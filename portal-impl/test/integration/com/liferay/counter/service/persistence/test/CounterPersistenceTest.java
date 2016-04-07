@@ -14,10 +14,10 @@
 
 package com.liferay.counter.service.persistence.test;
 
-import com.liferay.counter.NoSuchCounterException;
-import com.liferay.counter.model.Counter;
-import com.liferay.counter.service.persistence.CounterPersistence;
-import com.liferay.counter.service.persistence.CounterUtil;
+import com.liferay.counter.kernel.exception.NoSuchCounterException;
+import com.liferay.counter.kernel.model.Counter;
+import com.liferay.counter.kernel.service.persistence.CounterPersistence;
+import com.liferay.counter.kernel.service.persistence.CounterUtil;
 
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -36,6 +36,7 @@ import com.liferay.portal.test.rule.PersistenceTestRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -52,8 +53,9 @@ import java.util.Set;
  * @generated
  */
 public class CounterPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -130,28 +132,17 @@ public class CounterPersistenceTest {
 		Assert.assertEquals(existingCounter, newCounter);
 	}
 
-	@Test
+	@Test(expected = NoSuchCounterException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		String pk = RandomTestUtil.randomString();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail("Missing entity did not throw NoSuchCounterException");
-		}
-		catch (NoSuchCounterException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<Counter> getOrderByComparator() {

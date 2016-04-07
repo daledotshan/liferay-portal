@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchLayoutBranchException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchLayoutBranchException;
+import com.liferay.portal.kernel.model.LayoutBranch;
+import com.liferay.portal.kernel.service.LayoutBranchLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.LayoutBranchPersistence;
+import com.liferay.portal.kernel.service.persistence.LayoutBranchUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,17 +35,13 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.LayoutBranch;
-import com.liferay.portal.service.LayoutBranchLocalServiceUtil;
-import com.liferay.portal.service.persistence.LayoutBranchPersistence;
-import com.liferay.portal.service.persistence.LayoutBranchUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class LayoutBranchPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -165,56 +166,36 @@ public class LayoutBranchPersistenceTest {
 	}
 
 	@Test
-	public void testCountByLayoutSetBranchId() {
-		try {
-			_persistence.countByLayoutSetBranchId(RandomTestUtil.nextLong());
+	public void testCountByLayoutSetBranchId() throws Exception {
+		_persistence.countByLayoutSetBranchId(RandomTestUtil.nextLong());
 
-			_persistence.countByLayoutSetBranchId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByLayoutSetBranchId(0L);
 	}
 
 	@Test
-	public void testCountByL_P() {
-		try {
-			_persistence.countByL_P(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong());
+	public void testCountByL_P() throws Exception {
+		_persistence.countByL_P(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong());
 
-			_persistence.countByL_P(0L, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByL_P(0L, 0L);
 	}
 
 	@Test
-	public void testCountByL_P_N() {
-		try {
-			_persistence.countByL_P_N(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK);
+	public void testCountByL_P_N() throws Exception {
+		_persistence.countByL_P_N(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK);
 
-			_persistence.countByL_P_N(0L, 0L, StringPool.NULL);
+		_persistence.countByL_P_N(0L, 0L, StringPool.NULL);
 
-			_persistence.countByL_P_N(0L, 0L, (String)null);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByL_P_N(0L, 0L, (String)null);
 	}
 
 	@Test
-	public void testCountByL_P_M() {
-		try {
-			_persistence.countByL_P_M(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
+	public void testCountByL_P_M() throws Exception {
+		_persistence.countByL_P_M(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByL_P_M(0L, 0L, RandomTestUtil.randomBoolean());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByL_P_M(0L, 0L, RandomTestUtil.randomBoolean());
 	}
 
 	@Test
@@ -226,29 +207,17 @@ public class LayoutBranchPersistenceTest {
 		Assert.assertEquals(existingLayoutBranch, newLayoutBranch);
 	}
 
-	@Test
+	@Test(expected = NoSuchLayoutBranchException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchLayoutBranchException");
-		}
-		catch (NoSuchLayoutBranchException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<LayoutBranch> getOrderByComparator() {
@@ -365,11 +334,9 @@ public class LayoutBranchPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = LayoutBranchLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<LayoutBranch>() {
 				@Override
-				public void performAction(Object object) {
-					LayoutBranch layoutBranch = (LayoutBranch)object;
-
+				public void performAction(LayoutBranch layoutBranch) {
 					Assert.assertNotNull(layoutBranch);
 
 					count.increment();
@@ -457,22 +424,19 @@ public class LayoutBranchPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		LayoutBranch newLayoutBranch = addLayoutBranch();
 
 		_persistence.clearCache();
 
 		LayoutBranch existingLayoutBranch = _persistence.findByPrimaryKey(newLayoutBranch.getPrimaryKey());
 
-		Assert.assertEquals(existingLayoutBranch.getLayoutSetBranchId(),
-			ReflectionTestUtil.invoke(existingLayoutBranch,
+		Assert.assertEquals(Long.valueOf(
+				existingLayoutBranch.getLayoutSetBranchId()),
+			ReflectionTestUtil.<Long>invoke(existingLayoutBranch,
 				"getOriginalLayoutSetBranchId", new Class<?>[0]));
-		Assert.assertEquals(existingLayoutBranch.getPlid(),
-			ReflectionTestUtil.invoke(existingLayoutBranch, "getOriginalPlid",
-				new Class<?>[0]));
+		Assert.assertEquals(Long.valueOf(existingLayoutBranch.getPlid()),
+			ReflectionTestUtil.<Long>invoke(existingLayoutBranch,
+				"getOriginalPlid", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(existingLayoutBranch.getName(),
 				ReflectionTestUtil.invoke(existingLayoutBranch,
 					"getOriginalName", new Class<?>[0])));

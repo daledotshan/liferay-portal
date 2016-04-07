@@ -14,13 +14,17 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchResourceTypePermissionException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.exception.NoSuchResourceTypePermissionException;
+import com.liferay.portal.kernel.model.ResourceTypePermission;
+import com.liferay.portal.kernel.service.ResourceTypePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ResourceTypePermissionPersistence;
+import com.liferay.portal.kernel.service.persistence.ResourceTypePermissionUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -31,17 +35,13 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.ResourceTypePermission;
-import com.liferay.portal.service.ResourceTypePermissionLocalServiceUtil;
-import com.liferay.portal.service.persistence.ResourceTypePermissionPersistence;
-import com.liferay.portal.service.persistence.ResourceTypePermissionUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
-import com.liferay.portal.util.PropsValues;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -58,8 +58,9 @@ import java.util.Set;
  * @generated
  */
 public class ResourceTypePermissionPersistenceTest {
+	@ClassRule
 	@Rule
-	public final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
+	public static final AggregateTestRule aggregateTestRule = new AggregateTestRule(new LiferayIntegrationTestRule(),
 			PersistenceTestRule.INSTANCE,
 			new TransactionalTestRule(Propagation.REQUIRED));
 
@@ -150,46 +151,31 @@ public class ResourceTypePermissionPersistenceTest {
 	}
 
 	@Test
-	public void testCountByRoleId() {
-		try {
-			_persistence.countByRoleId(RandomTestUtil.nextLong());
+	public void testCountByRoleId() throws Exception {
+		_persistence.countByRoleId(RandomTestUtil.nextLong());
 
-			_persistence.countByRoleId(0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByRoleId(0L);
 	}
 
 	@Test
-	public void testCountByC_N_R() {
-		try {
-			_persistence.countByC_N_R(RandomTestUtil.nextLong(),
-				StringPool.BLANK, RandomTestUtil.nextLong());
+	public void testCountByC_N_R() throws Exception {
+		_persistence.countByC_N_R(RandomTestUtil.nextLong(), StringPool.BLANK,
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_N_R(0L, StringPool.NULL, 0L);
+		_persistence.countByC_N_R(0L, StringPool.NULL, 0L);
 
-			_persistence.countByC_N_R(0L, (String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_N_R(0L, (String)null, 0L);
 	}
 
 	@Test
-	public void testCountByC_G_N_R() {
-		try {
-			_persistence.countByC_G_N_R(RandomTestUtil.nextLong(),
-				RandomTestUtil.nextLong(), StringPool.BLANK,
-				RandomTestUtil.nextLong());
+	public void testCountByC_G_N_R() throws Exception {
+		_persistence.countByC_G_N_R(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), StringPool.BLANK,
+			RandomTestUtil.nextLong());
 
-			_persistence.countByC_G_N_R(0L, 0L, StringPool.NULL, 0L);
+		_persistence.countByC_G_N_R(0L, 0L, StringPool.NULL, 0L);
 
-			_persistence.countByC_G_N_R(0L, 0L, (String)null, 0L);
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.countByC_G_N_R(0L, 0L, (String)null, 0L);
 	}
 
 	@Test
@@ -202,29 +188,17 @@ public class ResourceTypePermissionPersistenceTest {
 			newResourceTypePermission);
 	}
 
-	@Test
+	@Test(expected = NoSuchResourceTypePermissionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
-		try {
-			_persistence.findByPrimaryKey(pk);
-
-			Assert.fail(
-				"Missing entity did not throw NoSuchResourceTypePermissionException");
-		}
-		catch (NoSuchResourceTypePermissionException nsee) {
-		}
+		_persistence.findByPrimaryKey(pk);
 	}
 
 	@Test
 	public void testFindAll() throws Exception {
-		try {
-			_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				getOrderByComparator());
-		}
-		catch (Exception e) {
-			Assert.fail(e.getMessage());
-		}
+		_persistence.findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			getOrderByComparator());
 	}
 
 	protected OrderByComparator<ResourceTypePermission> getOrderByComparator() {
@@ -345,11 +319,10 @@ public class ResourceTypePermissionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ResourceTypePermissionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ResourceTypePermission>() {
 				@Override
-				public void performAction(Object object) {
-					ResourceTypePermission resourceTypePermission = (ResourceTypePermission)object;
-
+				public void performAction(
+					ResourceTypePermission resourceTypePermission) {
 					Assert.assertNotNull(resourceTypePermission);
 
 					count.increment();
@@ -442,28 +415,27 @@ public class ResourceTypePermissionPersistenceTest {
 
 	@Test
 	public void testResetOriginalValues() throws Exception {
-		if (!PropsValues.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			return;
-		}
-
 		ResourceTypePermission newResourceTypePermission = addResourceTypePermission();
 
 		_persistence.clearCache();
 
 		ResourceTypePermission existingResourceTypePermission = _persistence.findByPrimaryKey(newResourceTypePermission.getPrimaryKey());
 
-		Assert.assertEquals(existingResourceTypePermission.getCompanyId(),
-			ReflectionTestUtil.invoke(existingResourceTypePermission,
+		Assert.assertEquals(Long.valueOf(
+				existingResourceTypePermission.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(existingResourceTypePermission,
 				"getOriginalCompanyId", new Class<?>[0]));
-		Assert.assertEquals(existingResourceTypePermission.getGroupId(),
-			ReflectionTestUtil.invoke(existingResourceTypePermission,
+		Assert.assertEquals(Long.valueOf(
+				existingResourceTypePermission.getGroupId()),
+			ReflectionTestUtil.<Long>invoke(existingResourceTypePermission,
 				"getOriginalGroupId", new Class<?>[0]));
 		Assert.assertTrue(Validator.equals(
 				existingResourceTypePermission.getName(),
 				ReflectionTestUtil.invoke(existingResourceTypePermission,
 					"getOriginalName", new Class<?>[0])));
-		Assert.assertEquals(existingResourceTypePermission.getRoleId(),
-			ReflectionTestUtil.invoke(existingResourceTypePermission,
+		Assert.assertEquals(Long.valueOf(
+				existingResourceTypePermission.getRoleId()),
+			ReflectionTestUtil.<Long>invoke(existingResourceTypePermission,
 				"getOriginalRoleId", new Class<?>[0]));
 	}
 

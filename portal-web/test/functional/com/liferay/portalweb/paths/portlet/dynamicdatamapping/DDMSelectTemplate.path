@@ -9,23 +9,13 @@
 </thead>
 <tbody>
 <tr>
-	<td>PAGE_NAME</td>
-	<td></td>
-	<td>DDMSelectTemplate</td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
-	<td>DDL_IFRAME</td>
-	<td>//iframe[contains(@src,'dynamic_data_lists')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>COPY_STRUCTURE_IFRAME</td>
 	<td>//iframe[contains(@id,'copyStructure_iframe_')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TEMPLATES_IFRAME</td>
+	<td>//iframe[contains(@src,'scopeTitle=Templates')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -41,6 +31,11 @@
 <tr>
 	<td>COPY_DISPLAY_TEMPLATES_CHECKBOX</td>
 	<td>//input[contains(@id,'copyDisplayTemplates')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INFO</td>
+	<td>//form[contains(@id,'DDMPortlet')]//div[contains(@class,'empty-message')]/span</td>
 	<td></td>
 </tr>
 <tr>
@@ -65,8 +60,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>TOOLBAR_ADD_TEMPLATE</td>
+	<td>//div[@class='navbar-inner' or contains(@class,'navbar-default')]//span[@class='nav-item-label' and contains(.,'Add')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TOOLBAR_ADVANCED_SEARCH_ICON</td>
+	<td>//div[@class='taglib-search-toggle']/div/a[contains(@id,'ddm_template')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>TOOLBAR_SEARCH_FIELD</td>
-	<td>//div[@class='navbar ' or contains(@class,'navbar-default')]//input[@name='_166_keywords']</td>
+	<td>//div[@class='navbar ' or contains(@class,'navbar-default')]//input[contains(@name,'keywords')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -82,88 +87,67 @@
 <!--TEMPLATE_TABLE-->
 <tr>
 	<td>TEMPLATE_TABLE_ALL_CHECKBOX</td>
-	<td>//div[contains(@id,'ddmTemplatesSearchContainer')]//input[contains(@name,'allRowIds')]</td>
+	<td>//div[contains(@id,'DDMPortlet_managementBarContainerId')]//input[contains(@name,'allRowIds')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_CHECKBOX</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[1]/input[contains(@name,'rowIds')])[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[1]//input[contains(@name,'rowIds')])[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_ID</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[2]/a)[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[2]//a)[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_NAME</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[3]/a)[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[3]//a)[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_DUPLICATE_TEMPLATE_NAME</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[3]/a)[2]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[3]//a)[2]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_DESCRIPTION</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[4]/a)[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[4]//a)[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_MODE</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[5]/a)[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[5]//a)[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_LANGUAGE</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[6]/a)[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[6]//a)[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_MODIFIED_DATE</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[8]/a)[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[8]//a)[1]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>TEMPLATE_TABLE_ACTIONS</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[9]/div/a)[1]</td>
+	<td>TEMPLATE_TABLE_ELLIPSIS</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr[contains(.,'${key_ddlTemplateName}')]/td[9]//div/a)[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>TEMPLATE_TABLE_NAME_1</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr/td[3]/a)[1]</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr/td[3]//a)[1]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>TEMPLATE_TABLE_ACTIONS_1</td>
-	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr/td[9]/div/a)[1]</td>
+	<td>TEMPLATE_TABLE_ELLIPSIS_1</td>
+	<td>xpath=(//div[contains(@id,'ddmTemplatesSearchContainer')]//tr/td[9]//div/a)[1]</td>
 	<td></td>
 </tr>
 <tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<!--TEMPLATE_MENULIST-->
-<tr>
-	<td>TEMPLATE_MENULIST_EDIT</td>
-	<td>//a[@role='menuitem' and contains(.,'Edit')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>TEMPLATE_MENULIST_PERMISSIONS</td>
-	<td>//a[@role='menuitem' and contains(.,'Permissions')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>TEMPLATE_MENULIST_COPY</td>
-	<td>//a[@role='menuitem' and contains(.,'Copy')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>TEMPLATE_MENULIST_DELETE</td>
-	<td>//a[@role='menuitem' and contains(.,'Delete')]</td>
+	<td>TEMPLATE_TABLE_CHOOSE_BUTTON</td>
+	<td>//tr[contains(.,'${key_ddlTemplateName}')]//button[contains(.,'Choose')]</td>
 	<td></td>
 </tr>
 </tbody>

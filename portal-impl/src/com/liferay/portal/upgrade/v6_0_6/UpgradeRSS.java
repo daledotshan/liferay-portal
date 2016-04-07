@@ -14,13 +14,11 @@
 
 package com.liferay.portal.upgrade.v6_0_6;
 
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.upgrade.BaseUpgradePortletPreferences;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portlet.PortletPreferencesFactoryUtil;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -35,30 +33,20 @@ public class UpgradeRSS extends BaseUpgradePortletPreferences {
 		long groupId = 0;
 		String articleId = StringPool.BLANK;
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
+		try (PreparedStatement ps = connection.prepareStatement(
 				"select groupId, articleId from JournalArticle where " +
-					"resourcePrimKey = ?");
+					"resourcePrimKey = ?")) {
 
 			ps.setLong(1, resourcePrimKey);
 
-			rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+				rs.next();
 
-			rs.next();
-
-			groupId = rs.getLong("groupId");
-			articleId = rs.getString("articleId");
+				groupId = rs.getLong("groupId");
+				articleId = rs.getString("articleId");
+			}
 		}
 		catch (Exception e) {
-		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
 		}
 
 		return new String[] {String.valueOf(groupId), articleId};

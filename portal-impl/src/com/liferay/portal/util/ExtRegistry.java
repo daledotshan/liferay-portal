@@ -16,7 +16,7 @@ package com.liferay.portal.util;
 
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -147,7 +147,7 @@ public class ExtRegistry {
 
 		Set<String> fileNames = new TreeSet<>();
 
-		Document document = SAXReaderUtil.read(
+		Document document = UnsecureSAXReaderUtil.read(
 			servletContext.getResourceAsStream(resourcePath));
 
 		Element rootElement = document.getRootElement();
@@ -167,9 +167,8 @@ public class ExtRegistry {
 		return fileNames;
 	}
 
-	private static final String[] _IGNORED_FILE_NAMES = new String[] {
-		"log4j.dtd", "service.xml", "sql/"
-	};
+	private static final String[] _IGNORED_FILE_NAMES =
+		new String[] {"log4j.dtd", "service.xml", "sql/"};
 
 	private static final String[] _SUPPORTED_MERGING_FILE_NAMES = new String[] {
 		"content/Language-ext", "ext-hbm.xml", "ext-model-hints.xml",

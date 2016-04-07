@@ -16,10 +16,10 @@ package com.liferay.taglib.ui;
 
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.RSSUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.taglib.util.IncludeTag;
-import com.liferay.util.RSSUtil;
 
 import javax.portlet.ResourceURL;
 
@@ -82,13 +82,11 @@ public class RSSTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute("liferay-ui:rss:message", _message);
-		request.setAttribute("liferay-ui:rss:url", getURL());
+		request.setAttribute("liferay-ui:rss:url", _getURL());
 	}
 
-	private String getURL() {
+	private String _getURL() {
 		if (_resourceURL != null) {
-			_resourceURL.setCacheability(ResourceURL.FULL);
-
 			if ((_delta > 0) && (_delta != SearchContainer.DEFAULT_DELTA)) {
 				_resourceURL.setParameter("max", String.valueOf(_delta));
 			}

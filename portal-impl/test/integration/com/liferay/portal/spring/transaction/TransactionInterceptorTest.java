@@ -14,14 +14,15 @@
 
 package com.liferay.portal.spring.transaction;
 
-import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.cache.CacheRegistryUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
+import com.liferay.portal.kernel.model.ClassName;
+import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ClassNameUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
-import com.liferay.portal.model.ClassName;
 import com.liferay.portal.model.impl.ClassNameImpl;
-import com.liferay.portal.service.ClassNameLocalServiceUtil;
-import com.liferay.portal.service.persistence.ClassNameUtil;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -56,6 +57,8 @@ public class TransactionInterceptorTest {
 		try (CaptureAppender captureAppender =
 				Log4JLoggerTestUtil.configureLog4JLogger(
 					DefaultTransactionExecutor.class.getName(), Level.ERROR)) {
+
+			CacheRegistryUtil.clear();
 
 			long classNameId = CounterLocalServiceUtil.increment();
 
@@ -107,7 +110,7 @@ public class TransactionInterceptorTest {
 		}
 	}
 
-	private class MockPlatformTransactionManager
+	private static class MockPlatformTransactionManager
 		implements PlatformTransactionManager {
 
 		public MockPlatformTransactionManager(

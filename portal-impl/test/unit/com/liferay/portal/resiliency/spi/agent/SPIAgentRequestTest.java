@@ -14,37 +14,37 @@
 
 package com.liferay.portal.resiliency.spi.agent;
 
-import com.liferay.portal.cache.MultiVMPoolImpl;
-import com.liferay.portal.cache.memory.MemoryPortalCacheManager;
-import com.liferay.portal.kernel.cache.MultiVMPoolUtil;
+import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
+import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.process.local.LocalProcessLauncher;
 import com.liferay.portal.kernel.resiliency.spi.MockSPI;
 import com.liferay.portal.kernel.resiliency.spi.SPI;
+import com.liferay.portal.kernel.servlet.ServletInputStreamAdapter;
 import com.liferay.portal.kernel.test.CaptureHandler;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.rule.NewEnv;
 import com.liferay.portal.kernel.test.rule.NewEnvTestRule;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.FileItem;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.CookieUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.ThreadLocalDistributor;
-import com.liferay.portal.model.Portlet;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.resiliency.spi.agent.SPIAgentRequest.AgentHttpServletRequestWrapper;
-import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.tools.ToolDependencies;
 import com.liferay.portal.upload.UploadServletRequestImpl;
 import com.liferay.portal.util.FileImpl;
 import com.liferay.portal.util.PortalImpl;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +71,7 @@ import javax.servlet.http.HttpSession;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -88,6 +89,11 @@ public class SPIAgentRequestTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			CodeCoverageAssertor.INSTANCE, NewEnvTestRule.INSTANCE);
+
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		ToolDependencies.wireCaches();
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -107,19 +113,7 @@ public class SPIAgentRequestTest {
 					}
 				}
 
-			}
-		);
-
-		MultiVMPoolImpl multiVMPoolImpl = new MultiVMPoolImpl();
-
-		multiVMPoolImpl.setPortalCacheManager(
-			MemoryPortalCacheManager.
-				<Serializable, Serializable>createMemoryPortalCacheManager(
-					SPIAgentRequestTest.class.getName()));
-
-		MultiVMPoolUtil multiVMPoolUtil = new MultiVMPoolUtil();
-
-		multiVMPoolUtil.setMultiVMPool(multiVMPoolImpl);
+			});
 
 		PortalUtil portalUtil = new PortalUtil();
 
@@ -135,36 +129,37 @@ public class SPIAgentRequestTest {
 
 		threadLocalDistributor.afterPropertiesSet();
 
-		_mockHttpServletRequest = new MockHttpServletRequest() {
+		_mockHttpServletRequest =
+			new BackwardCompatibleMockHttpServletRequest() {
 
-			@Override
-			public Enumeration<String> getHeaderNames() {
-				Enumeration<String> headerNameEnumeration =
-					super.getHeaderNames();
+				@Override
+				public Enumeration<String> getHeaderNames() {
+					Enumeration<String> headerNameEnumeration =
+						super.getHeaderNames();
 
-				List<String> headerNames = ListUtil.fromEnumeration(
-					headerNameEnumeration);
+					List<String> headerNames = ListUtil.fromEnumeration(
+						headerNameEnumeration);
 
-				// Header with no value
+					// Header with no value
 
-				headerNames.add(_HEADER_NAME_3);
+					headerNames.add(_HEADER_NAME_3);
 
-				return Collections.enumeration(headerNames);
-			}
+					return Collections.enumeration(headerNames);
+				}
 
-			@Override
-			public Map<String, String[]> getParameterMap() {
-				Map<String, String[]> parameterMap = new LinkedHashMap<>(
-					super.getParameterMap());
+				@Override
+				public Map<String, String[]> getParameterMap() {
+					Map<String, String[]> parameterMap = new LinkedHashMap<>(
+						super.getParameterMap());
 
-				// Parameter with no value
+					// Parameter with no value
 
-				parameterMap.put(_PARAMETER_NAME_3, new String[0]);
+					parameterMap.put(_PARAMETER_NAME_3, new String[0]);
 
-				return parameterMap;
-			}
+					return parameterMap;
+				}
 
-		};
+			};
 
 		_mockHttpServletRequest.addHeader(_HEADER_NAME_1, _HEADER_VALUE_1);
 		_mockHttpServletRequest.addHeader(_HEADER_NAME_1, _HEADER_VALUE_2);
@@ -229,7 +224,8 @@ public class SPIAgentRequestTest {
 			new UploadServletRequestImpl(_mockHttpServletRequest, null, null));
 
 		HttpServletRequest populateHttpServletRequest =
-			spiAgentRequest.populateRequest(new MockHttpServletRequest());
+			spiAgentRequest.populateRequest(
+				new BackwardCompatibleMockHttpServletRequest());
 
 		Assert.assertSame(
 			AgentHttpServletRequestWrapper.class,
@@ -246,7 +242,7 @@ public class SPIAgentRequestTest {
 				new HashMap<String, List<String>>()));
 
 		populateHttpServletRequest = spiAgentRequest.populateRequest(
-			new MockHttpServletRequest());
+			new BackwardCompatibleMockHttpServletRequest());
 
 		Assert.assertSame(
 			AgentHttpServletRequestWrapper.class,
@@ -271,7 +267,7 @@ public class SPIAgentRequestTest {
 				new HashMap<String, List<String>>()));
 
 		populateHttpServletRequest = spiAgentRequest.populateRequest(
-			new MockHttpServletRequest());
+			new BackwardCompatibleMockHttpServletRequest());
 
 		Assert.assertSame(
 			UploadServletRequestImpl.class,
@@ -308,7 +304,7 @@ public class SPIAgentRequestTest {
 				_mockHttpServletRequest, fileParameters, regularParameters));
 
 		populateHttpServletRequest = spiAgentRequest.populateRequest(
-			new MockHttpServletRequest());
+			new BackwardCompatibleMockHttpServletRequest());
 
 		Assert.assertSame(
 			UploadServletRequestImpl.class,
@@ -340,7 +336,7 @@ public class SPIAgentRequestTest {
 				regularParameters));
 
 		populateHttpServletRequest = spiAgentRequest.populateRequest(
-			new MockHttpServletRequest());
+			new BackwardCompatibleMockHttpServletRequest());
 
 		Assert.assertSame(
 			UploadServletRequestImpl.class,
@@ -382,7 +378,7 @@ public class SPIAgentRequestTest {
 			content, FileUtil.getBytes(spiAgentRequest.requestBodyFile));
 
 		populateHttpServletRequest = spiAgentRequest.populateRequest(
-			new MockHttpServletRequest());
+			new BackwardCompatibleMockHttpServletRequest());
 
 		Assert.assertEquals(
 			content.length, populateHttpServletRequest.getContentLength());
@@ -421,16 +417,12 @@ public class SPIAgentRequestTest {
 
 				@Override
 				public Map<String, FileItem[]> getMultipartParameterMap() {
-					Assert.fail();
-
-					return super.getMultipartParameterMap();
+					throw new Error();
 				}
 
 				@Override
 				public Map<String, List<String>> getRegularParameterMap() {
-					Assert.fail();
-
-					return super.getRegularParameterMap();
+					throw new Error();
 				}
 
 			};
@@ -466,7 +458,8 @@ public class SPIAgentRequestTest {
 		// Cookies
 
 		HttpServletRequest populatedHttpServletRequest =
-			spiAgentRequest.populateRequest(new MockHttpServletRequest());
+			spiAgentRequest.populateRequest(
+				new BackwardCompatibleMockHttpServletRequest());
 
 		Assert.assertNull(populatedHttpServletRequest.getCookies());
 
@@ -475,7 +468,7 @@ public class SPIAgentRequestTest {
 		spiAgentRequest = new SPIAgentRequest(_mockHttpServletRequest);
 
 		populatedHttpServletRequest = spiAgentRequest.populateRequest(
-			new MockHttpServletRequest());
+			new BackwardCompatibleMockHttpServletRequest());
 
 		Cookie[] cookies = populatedHttpServletRequest.getCookies();
 
@@ -655,8 +648,7 @@ public class SPIAgentRequestTest {
 		sb.append(spiAgentRequest.distributedRequestAttributes);
 		sb.append(", headerMap=");
 		sb.append(spiAgentRequest.headerMap);
-		sb.append(", multipartParameterMap=null");
-		sb.append(", originalSessionAttributes=");
+		sb.append(", multipartParameterMap=null, originalSessionAttributes=");
 		sb.append(spiAgentRequest.getOriginalSessionAttributes());
 		sb.append(", parameterMap={");
 
@@ -669,8 +661,8 @@ public class SPIAgentRequestTest {
 
 		sb.setIndex(sb.index() - 1);
 
-		sb.append("}, regularParameterMap=null, requestBodyFile=null");
-		sb.append(", serverName=");
+		sb.append("}, regularParameterMap=null, requestBodyFile=null, ");
+		sb.append("serverName=");
 		sb.append(_SERVER_NAME);
 		sb.append(", serverPort=");
 		sb.append(_SERVER_PORT);
@@ -684,13 +676,12 @@ public class SPIAgentRequestTest {
 
 		sb = new StringBundler(13 + parameterMap.size() * 4);
 
-		sb.append(
-			"{contentType=null, cookies=[], distributedRequestAttributes=");
+		sb.append("{contentType=null, cookies=[], ");
+		sb.append("distributedRequestAttributes=");
 		sb.append(spiAgentRequest.distributedRequestAttributes);
 		sb.append(", headerMap=");
 		sb.append(spiAgentRequest.headerMap);
-		sb.append(", multipartParameterMap=null");
-		sb.append(", originalSessionAttributes=");
+		sb.append(", multipartParameterMap=null, originalSessionAttributes=");
 		sb.append(spiAgentRequest.getOriginalSessionAttributes());
 		sb.append(", parameterMap={");
 
@@ -703,8 +694,8 @@ public class SPIAgentRequestTest {
 
 		sb.setIndex(sb.index() - 1);
 
-		sb.append("}, regularParameterMap=null, requestBodyFile=null");
-		sb.append(", serverName=");
+		sb.append("}, regularParameterMap=null, requestBodyFile=null, ");
+		sb.append("serverName=");
 		sb.append(_SERVER_NAME);
 		sb.append(", serverPort=");
 		sb.append(_SERVER_PORT);
@@ -719,7 +710,7 @@ public class SPIAgentRequestTest {
 		// Not an SPI
 
 		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
+			new BackwardCompatibleMockHttpServletRequest();
 
 		MockHttpSession mockHttpSession = new MockHttpSession();
 
@@ -750,7 +741,7 @@ public class SPIAgentRequestTest {
 		final List<String> names = new ArrayList<>();
 
 		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest() {
+			new BackwardCompatibleMockHttpServletRequest() {
 
 				@Override
 				public Object getAttribute(String name) {
@@ -798,7 +789,7 @@ public class SPIAgentRequestTest {
 		final List<String> names = new ArrayList<>();
 
 		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest() {
+			new BackwardCompatibleMockHttpServletRequest() {
 
 				@Override
 				public Object getAttribute(String name) {
@@ -841,10 +832,10 @@ public class SPIAgentRequestTest {
 		attributes.put(SPI.SPI_INSTANCE_PUBLICATION_KEY, new MockSPI());
 
 		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
+			new BackwardCompatibleMockHttpServletRequest();
 
 		MockHttpServletRequest originalMockHttpServletRequest =
-			new MockHttpServletRequest();
+			new BackwardCompatibleMockHttpServletRequest();
 
 		final String servletContextName = "servletContextName";
 
@@ -893,10 +884,10 @@ public class SPIAgentRequestTest {
 		attributes.put(SPI.SPI_INSTANCE_PUBLICATION_KEY, new MockSPI());
 
 		MockHttpServletRequest mockHttpServletRequest =
-			new MockHttpServletRequest();
+			new BackwardCompatibleMockHttpServletRequest();
 
 		MockHttpServletRequest originalMockHttpServletRequest =
-			new MockHttpServletRequest();
+			new BackwardCompatibleMockHttpServletRequest();
 
 		final String servletContextName = "servletContextName";
 
@@ -1071,5 +1062,29 @@ public class SPIAgentRequestTest {
 
 	private CaptureHandler _captureHandler;
 	private MockHttpServletRequest _mockHttpServletRequest;
+
+	private static class BackwardCompatibleMockHttpServletRequest
+		extends MockHttpServletRequest {
+
+		@Override
+		public ServletInputStream getInputStream() {
+			if (_content == null) {
+				return null;
+			}
+
+			return new ServletInputStreamAdapter(
+				new UnsyncByteArrayInputStream(_content));
+		}
+
+		@Override
+		public void setContent(byte[] content) {
+			super.setContent(content);
+
+			_content = content;
+		}
+
+		private byte[] _content;
+
+	}
 
 }

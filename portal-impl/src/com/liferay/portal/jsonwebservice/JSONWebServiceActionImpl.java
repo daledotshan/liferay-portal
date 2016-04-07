@@ -20,12 +20,12 @@ import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionMapping;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceNaming;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.CamelCaseUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MethodParameter;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.service.ServiceContext;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -316,7 +316,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			return list;
 		}
 
-		List<Object> newList = new ArrayList<Object>(list.size());
+		List<Object> newList = new ArrayList<>(list.size());
 
 		for (Object entry : list) {
 			if (entry != null) {
@@ -338,7 +338,7 @@ public class JSONWebServiceActionImpl implements JSONWebServiceAction {
 			return map;
 		}
 
-		Map<Object, Object> newMap = new HashMap<Object, Object>(map.size());
+		Map<Object, Object> newMap = new HashMap<>(map.size());
 
 		for (Map.Entry<?, ?> entry : map.entrySet()) {
 			Object key = _convertType(entry.getKey(), types[0]);
