@@ -19,10 +19,10 @@ import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.spring.util.FactoryBean;
 import com.liferay.portal.kernel.spring.util.SpringFactory;
 import com.liferay.portal.kernel.spring.util.SpringFactoryException;
+import com.liferay.portal.kernel.util.ClassLoaderUtil;
 import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.util.ClassLoaderUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,8 +46,8 @@ public class SpringFactoryImpl implements SpringFactory {
 		try {
 			return doNewBean(className, properties);
 		}
-		catch (SpringFactoryException se) {
-			throw se;
+		catch (SpringFactoryException sfe) {
+			throw sfe;
 		}
 		catch (Exception e) {
 			throw new SpringFactoryException(e);

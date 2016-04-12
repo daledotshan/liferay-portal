@@ -149,10 +149,10 @@ public class DoPrivilegedHandler
 	private static final String _BEAN_NAME_SUFFIX_PERSISTENCE = "Persistence";
 
 	private Object _bean;
-	private boolean _hasNotPrivilegedMethods = false;
+	private boolean _hasNotPrivilegedMethods;
 	private List<MethodKey> _notPrivilegedMethods;
 
-	private class InvokePrivilegedExceptionAction
+	private static class InvokePrivilegedExceptionAction
 		implements PrivilegedExceptionAction<Object> {
 
 		public InvokePrivilegedExceptionAction(
@@ -180,7 +180,7 @@ public class DoPrivilegedHandler
 	 * implementation, while the method being checked will be from an interface,
 	 * therefore the <code>equals</code> check is not symmetrical.
 	 */
-	private class MethodKey {
+	private static class MethodKey {
 
 		public MethodKey(Method method) {
 			_declaringClass = method.getDeclaringClass();

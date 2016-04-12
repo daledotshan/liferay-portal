@@ -14,20 +14,21 @@
 
 package com.liferay.portlet.expando.service;
 
-import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.expando.kernel.exception.ValueDataException;
+import com.liferay.expando.kernel.model.ExpandoColumn;
+import com.liferay.expando.kernel.model.ExpandoColumnConstants;
+import com.liferay.expando.kernel.model.ExpandoTable;
+import com.liferay.expando.kernel.model.ExpandoValue;
+import com.liferay.expando.kernel.service.ExpandoColumnLocalServiceUtil;
+import com.liferay.expando.kernel.service.ExpandoValueLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.MainServletTestRule;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.expando.ValueDataException;
-import com.liferay.portlet.expando.model.ExpandoColumn;
-import com.liferay.portlet.expando.model.ExpandoColumnConstants;
-import com.liferay.portlet.expando.model.ExpandoTable;
-import com.liferay.portlet.expando.model.ExpandoValue;
 import com.liferay.portlet.expando.util.test.ExpandoTestUtil;
 
 import java.io.Serializable;
@@ -51,8 +52,7 @@ public class ExpandoValueLocalServiceTest {
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			new LiferayIntegrationTestRule(), MainServletTestRule.INSTANCE);
+		new LiferayIntegrationTestRule();
 
 	@Before
 	public void setUp() throws Exception {
@@ -198,9 +198,9 @@ public class ExpandoValueLocalServiceTest {
 
 		Assert.assertEquals(_ptLocale, availableLocales.get(0));
 		Assert.assertEquals(_enLocale, availableLocales.get(1));
-		Assert.assertEquals("um" , value.getString(_ptLocale));
-		Assert.assertEquals("one" , value.getString(_enLocale));
-		Assert.assertEquals("um" , value.getString(_frLocale));
+		Assert.assertEquals("um", value.getString(_ptLocale));
+		Assert.assertEquals("one", value.getString(_enLocale));
+		Assert.assertEquals("um", value.getString(_frLocale));
 	}
 
 	@Test

@@ -19,6 +19,8 @@
 			<then>
 				<echo file="${lp.plugins.dir}/build.${user.name}.properties">app.server.tomcat.dir=${app.server.parent.dir}/tomcat-7.0.39
 
+liferay.home=${liferay.home}
+
 plugins.includes=marketplace-portlet</echo>
 
 				<antcall target="zip-portal-war" />
@@ -56,20 +58,14 @@ plugins.includes=marketplace-portlet</echo>
 
 		<antcall target="revert-test-properties" />
 
-		<ant dir="portal-impl" target="build-selenium-test-case" />
-
-		<antcall target="start-selenium" />
+		<antcall target="record-test-generated-properties" />
 
 		<antcall target="run-tcat" inheritAll="false">
-			<param name="test.class" value="${test.name}" />
+			<param name="test.class" value="${test.class}" />
 		</antcall>
-
-		<antcall target="stop-selenium" />
 	</target>
 
 	<target name="run-tcat">
 		<antcall target="run-simple-server" />
-
-		<antcall target="evaluate-logs" />
 	</target>
 </project>

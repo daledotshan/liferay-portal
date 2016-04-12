@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.configuration.Configuration;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.servlet.WebDirDetector;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ClassUtil;
@@ -30,8 +32,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.model.CompanyConstants;
-import com.liferay.portal.security.auth.CompanyThreadLocal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -73,7 +73,25 @@ public class PropsUtil {
 	}
 
 	public static Properties getProperties() {
-		return _instance._getProperties();
+		return getProperties(false);
+	}
+
+	public static Properties getProperties(boolean includeSystem) {
+		Properties properties = _instance._getProperties();
+
+		if (!includeSystem) {
+			return properties;
+		}
+
+		Properties systemCompanyProperties = _instance._getProperties(
+			CompanyConstants.SYSTEM);
+
+		Properties mergedProperties =
+			(Properties)systemCompanyProperties.clone();
+
+		mergedProperties.putAll(properties);
+
+		return mergedProperties;
 	}
 
 	public static Properties getProperties(
@@ -230,11 +248,13 @@ public class PropsUtil {
 	}
 
 	private Configuration _getConfiguration() {
+		return _getConfiguration(CompanyThreadLocal.getCompanyId());
+	}
+
+	private Configuration _getConfiguration(long companyId) {
 		if (_configurations == null) {
 			return _configuration;
 		}
-
-		Long companyId = CompanyThreadLocal.getCompanyId();
 
 		if (companyId > CompanyConstants.SYSTEM) {
 			Configuration configuration = _configurations.get(companyId);
@@ -257,11 +277,7 @@ public class PropsUtil {
 	private String _getDefaultLiferayHome() {
 		String defaultLiferayHome = null;
 
-		if (ServerDetector.isGeronimo()) {
-			defaultLiferayHome =
-				SystemProperties.get("org.apache.geronimo.home.dir") + "/..";
-		}
-		else if (ServerDetector.isGlassfish()) {
+		if (ServerDetector.isGlassfish()) {
 			defaultLiferayHome =
 				SystemProperties.get("com.sun.aas.installRoot") + "/..";
 		}
@@ -329,6 +345,10 @@ public class PropsUtil {
 
 	private Properties _getProperties() {
 		return _getConfiguration().getProperties();
+	}
+
+	private Properties _getProperties(long companyId) {
+		return _getConfiguration(companyId).getProperties();
 	}
 
 	private Properties _getProperties(String prefix, boolean removePrefix) {
