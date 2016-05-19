@@ -56,19 +56,13 @@ public abstract class BaseSearchResultPermissionFilter
 		if ((end == QueryUtil.ALL_POS) && (start == QueryUtil.ALL_POS)) {
 			Hits hits = getHits(searchContext);
 
-			if (!isGroupAdmin(searchContext)) {
-				filterHits(hits, searchContext);
-			}
+			filterHits(hits, searchContext);
 
 			return hits;
 		}
 
 		if ((start < 0) || (start > end)) {
 			return new HitsImpl();
-		}
-
-		if (isGroupAdmin(searchContext)) {
-			return getHits(searchContext);
 		}
 
 		double amplificationFactor = 1.0;

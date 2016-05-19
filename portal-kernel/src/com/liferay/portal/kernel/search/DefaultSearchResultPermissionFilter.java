@@ -125,6 +125,12 @@ public class DefaultSearchResultPermissionFilter
 		long entryClassPK = GetterUtil.getLong(
 			document.get(Field.ENTRY_CLASS_PK));
 
+		String groupId = document.get(Field.GROUP_ID);
+
+		if (_permissionChecker.isGroupAdmin(Long.parseLong(groupId))) {
+			return true;
+		}
+
 		try {
 			if (indexer.hasPermission(
 					_permissionChecker, entryClassName, entryClassPK,
