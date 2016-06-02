@@ -2311,7 +2311,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				}
 
 				checkInefficientStringMethods(
-					line, fileName, absolutePath, lineCount);
+					line, fileName, absolutePath, lineCount, true);
 
 				if (trimmedLine.startsWith(StringPool.EQUAL)) {
 					processErrorMessage(
@@ -2554,8 +2554,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					}
 
 					if (line.endsWith(" throws") ||
-						(previousLine.endsWith(
-							StringPool.OPEN_PARENTHESIS) &&
+						((previousLine.endsWith(StringPool.COMMA) ||
+						  previousLine.endsWith(StringPool.OPEN_PARENTHESIS)) &&
 						 line.contains(" throws ") &&
 						 (line.endsWith(StringPool.OPEN_CURLY_BRACE) ||
 						  line.endsWith(StringPool.SEMICOLON)))) {
@@ -3359,7 +3359,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			}
 
 			if (trimmedPreviousLine.equals("return") &&
-				line.endsWith(StringPool.OPEN_PARENTHESIS)) {
+				!line.endsWith(StringPool.PERIOD)) {
 
 				for (int i = 0;; i++) {
 					String nextLine = getLine(content, lineCount + i + 1);
@@ -3600,6 +3600,37 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			return null;
 		}
 
+		int x = -1;
+
+		while (true) {
+			x = trimmedLine.indexOf(") ", x + 1);
+
+			if (x == -1) {
+				break;
+			}
+
+			String linePart1 = trimmedLine.substring(0, x);
+
+			if (ToolsUtil.isInsideQuotes(trimmedLine, x) ||
+				(getLevel(linePart1) != 0)) {
+
+				continue;
+			}
+
+			String linePart2 = trimmedLine.substring(x + 2);
+
+			if (linePart2.matches("[!=<>\\+\\-\\*]+ .*")) {
+				int y = trimmedLine.indexOf(StringPool.SPACE, x + 2);
+
+				if (previousLineLength + y <= _maxLineLength) {
+					return getCombinedLinesContent(
+						content, fileName, line, trimmedLine, lineLength,
+						lineCount, previousLine, trimmedLine.substring(0, y),
+						true, true, 0);
+				}
+			}
+		}
+
 		if (StringUtil.count(previousLine, CharPool.OPEN_PARENTHESIS) > 1) {
 			int pos = trimmedPreviousLine.lastIndexOf(
 				CharPool.OPEN_PARENTHESIS, trimmedPreviousLine.length() - 2);
@@ -3625,9 +3656,10 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		}
 
 		if ((getLevel(trimmedLine) < 0) &&
-			(line.endsWith(StringPool.COMMA) ||
-			 (trimmedPreviousLine.startsWith("new ") &&
-			  line.endsWith(") {")))) {
+			(line.matches(".*[|&^]") ||
+			 (line.endsWith(StringPool.COMMA) ||
+			  (trimmedPreviousLine.startsWith("new ") &&
+			   line.endsWith(") {"))))) {
 
 			return getCombinedLinesContent(
 				content, fileName, line, trimmedLine, lineLength, lineCount,

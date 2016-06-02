@@ -152,13 +152,17 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 		printArtifactPublishCommandsTask.setDescription(
 			"Prints the artifact publish commands if this project has been " +
 				"changed since the last publish.");
+		printArtifactPublishCommandsTask.setGradleArguments(
+			"-Dforced.cache.enabled=true");
 
 		configureTaskEnabledIfStale(
 			printArtifactPublishCommandsTask, recordArtifactTask);
 
-		File gitRepoDir = GradleUtil.getRootDir(project, ".gitrepo");
+		String projectPath = project.getPath();
 
-		if (gitRepoDir != null) {
+		if (projectPath.startsWith(":apps:") ||
+			projectPath.startsWith(":private:apps:")) {
+
 			configureTaskEnabledIfLeaf(printArtifactPublishCommandsTask);
 		}
 
@@ -223,24 +227,12 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 			});
 
-		task.onlyIf(
-			new Spec<Task>() {
-
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					Properties artifactProperties = getArtifactProperties(
-						recordArtifactTask);
-
-					return isStale(
-						recordArtifactTask.getProject(), artifactProperties);
-				}
-
-			});
-
 		task.setDescription(
 			"Prints the project directory if this project has been changed " +
 				"since the last publish.");
 		task.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
+
+		configureTaskEnabledIfStale(task, recordArtifactTask);
 
 		GradleUtil.withPlugin(
 			project, LiferayOSGiDefaultsPlugin.class,
@@ -471,6 +463,22 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 	protected void configureTaskEnabledIfStale(
 		Task task, final WritePropertiesTask recordArtifactTask) {
+
+		task.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					if (FileUtil.exists(
+							task.getProject(), ".lfrbuild-releng-ignore")) {
+
+						return false;
+					}
+
+					return true;
+				}
+
+			});
 
 		task.onlyIf(
 			new Spec<Task>() {
