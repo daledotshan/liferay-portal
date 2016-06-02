@@ -80,6 +80,8 @@ import org.dom4j.io.SAXReader;
  */
 public abstract class BaseSourceProcessor implements SourceProcessor {
 
+	public static final int PLUGINS_MAX_DIR_LEVEL = 3;
+
 	public static final int PORTAL_MAX_DIR_LEVEL = 7;
 
 	@Override
@@ -369,11 +371,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected void checkInefficientStringMethods(
-		String line, String fileName, String absolutePath, int lineCount) {
-
-		if (isExcludedPath(getRunOutsidePortalExcludes(), absolutePath)) {
-			return;
-		}
+		String line, String fileName, int lineCount) {
 
 		String methodName = "toLowerCase";
 
@@ -396,6 +394,28 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 				fileName,
 				"Use StringUtil." + methodName + ": " + fileName + " " +
 					lineCount);
+		}
+	}
+
+	protected void checkInefficientStringMethods(
+		String line, String fileName, String absolutePath, int lineCount,
+		boolean javaSource) {
+
+		if (isExcludedPath(getRunOutsidePortalExcludes(), absolutePath)) {
+			return;
+		}
+
+		if (javaSource) {
+			checkInefficientStringMethods(line, fileName, lineCount);
+
+			return;
+		}
+
+		Matcher matcher = javaSourceInsideJSPLinePattern.matcher(line);
+
+		while (matcher.find()) {
+			checkInefficientStringMethods(
+				matcher.group(1), fileName, lineCount);
 		}
 	}
 
@@ -1303,7 +1323,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			return line;
 		}
 
-		Matcher matcher = javaSourceInsideJSPTagPattern.matcher(line);
+		Matcher matcher = javaSourceInsideJSPLinePattern.matcher(line);
 
 		while (matcher.find()) {
 			String linePart = matcher.group(1);
@@ -1617,24 +1637,20 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		List<String> fileNames = new ArrayList<>();
 
-		for (int i = 0; i < 3; i++) {
-			fileNames = getFileNames(basedir, new String[0], includes);
+		for (int i = 0; i < PLUGINS_MAX_DIR_LEVEL; i++) {
+			File sharedDir = new File(basedir + "shared");
 
-			if (!fileNames.isEmpty()) {
+			if (sharedDir.exists()) {
+				fileNames = getFileNames(basedir, new String[0], includes);
+
 				break;
 			}
 
-			basedir = "../" + basedir;
+			basedir = basedir + "../";
 		}
 
 		for (String fileName : fileNames) {
-			if (!fileName.startsWith(
-					sourceFormatterArgs.getBaseDirName() + "shared")) {
-
-				break;
-			}
-
-			File file = new File(basedir + fileName);
+			File file = new File(fileName);
 
 			String content = FileUtil.read(file);
 
@@ -2693,7 +2709,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		"GetterUtil\\.get(Boolean|Double|Float|Integer|Number|Object|Short|" +
 			"String)\\((.*?)\\);\n",
 		Pattern.DOTALL);
-	protected static Pattern javaSourceInsideJSPTagPattern = Pattern.compile(
+	protected static Pattern javaSourceInsideJSPLinePattern = Pattern.compile(
 		"<%=(.+?)%>");
 	protected static Pattern jsonObjectPutBlockPattern = Pattern.compile(
 		"(\t*\\w*(json|JSON)Object\\.put\\(\\s*\".*?\\);\n)+", Pattern.DOTALL);

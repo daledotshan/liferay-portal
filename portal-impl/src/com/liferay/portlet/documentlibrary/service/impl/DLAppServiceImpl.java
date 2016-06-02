@@ -2592,6 +2592,8 @@ public class DLAppServiceImpl extends DLAppServiceBaseImpl {
 			getUserId(), fileEntryId, sourceFileName, mimeType, title,
 			description, changeLog, majorVersion, is, size, serviceContext);
 
+		System.out.println("hello world");
+		
 		dlAppHelperLocalService.updateFileEntry(
 			getUserId(), fileEntry, null, fileEntry.getFileVersion(),
 			serviceContext);
