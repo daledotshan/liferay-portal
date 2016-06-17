@@ -23,6 +23,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.exportimport.kernel.staging.LayoutRevisionThreadLocal;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
@@ -57,7 +58,6 @@ import com.liferay.portal.kernel.service.LayoutTemplateLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.Constants;
@@ -340,29 +340,12 @@ public class LayoutStagedModelDataHandler
 		Element layoutElement =
 			portletDataContext.getImportDataStagedModelElement(layout);
 
-		String layoutUuid = GetterUtil.getString(
-			layoutElement.attributeValue("layout-uuid"));
-
 		long layoutId = GetterUtil.getInteger(
 			layoutElement.attributeValue("layout-id"));
 
 		long oldLayoutId = layoutId;
 
 		boolean privateLayout = portletDataContext.isPrivateLayout();
-
-		String action = layoutElement.attributeValue(Constants.ACTION);
-
-		if (action.equals(Constants.DELETE)) {
-			Layout deletingLayout =
-				_layoutLocalService.fetchLayoutByUuidAndGroupId(
-					layoutUuid, groupId, privateLayout);
-
-			_layoutLocalService.deleteLayout(
-				deletingLayout, false,
-				ServiceContextThreadLocal.getServiceContext());
-
-			return;
-		}
 
 		Map<Long, Layout> layouts =
 			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
@@ -651,7 +634,18 @@ public class LayoutStagedModelDataHandler
 
 		importTheme(portletDataContext, layout, importedLayout);
 
-		_layoutLocalService.updateLayout(importedLayout);
+		LayoutRevision layoutRevision = getLayoutRevision(importedLayout);
+
+		if (layoutRevision != null) {
+			_layoutLocalService.updateLayout(
+				groupId, privateLayout, importedLayout.getLayoutId(),
+				importedLayout.getTypeSettings());
+
+			LayoutRevisionThreadLocal.setLayoutRevisionId(0);
+		}
+		else {
+			_layoutLocalService.updateLayout(importedLayout);
+		}
 
 		_layoutSetLocalService.updatePageCount(groupId, privateLayout);
 
@@ -920,6 +914,19 @@ public class LayoutStagedModelDataHandler
 		}
 
 		return StringPool.SLASH + layoutId;
+	}
+
+	protected LayoutRevision getLayoutRevision(Layout layout) {
+		LayoutRevision layoutRevision = null;
+
+		LayoutStagingHandler layoutStagingHandler =
+			LayoutStagingUtil.getLayoutStagingHandler(layout);
+
+		if (layoutStagingHandler != null) {
+			layoutRevision = layoutStagingHandler.getLayoutRevision();
+		}
+
+		return layoutRevision;
 	}
 
 	protected String getUniqueFriendlyURL(
