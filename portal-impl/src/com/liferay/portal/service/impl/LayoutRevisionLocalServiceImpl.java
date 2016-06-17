@@ -392,6 +392,7 @@ public class LayoutRevisionLocalServiceImpl
 		// Layout revision
 
 		User user = userPersistence.findByPrimaryKey(userId);
+
 		LayoutRevision oldLayoutRevision =
 			layoutRevisionPersistence.findByPrimaryKey(layoutRevisionId);
 		Date now = new Date();
