@@ -209,7 +209,7 @@
 </tr>
 <tr>
 	<td>DESCRIPTIVE_LIST_FOLDER_ICON</td>
-	<td>//li[@data-title='${key_dmFolderName}']//img</td>
+	<td>//li[@data-title='${key_dmFolderName}']//*[name()='svg'][contains(@class,'icon-folder')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -338,7 +338,7 @@
 </tr>
 <tr>
 	<td>TOOLBAR_SELECT_ALL_CHECKBOX</td>
-	<td>//input[contains(@id,'allRowIds')]</td>
+	<td>xpath=(//div[@class='checkbox']//input[@title='Select All'])[2]</td>
 	<td></td>
 </tr>
 <tr>

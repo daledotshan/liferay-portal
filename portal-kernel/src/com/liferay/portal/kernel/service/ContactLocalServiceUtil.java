@@ -17,7 +17,10 @@ package com.liferay.portal.kernel.service;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
+
+import java.util.Date;
 
 /**
  * Provides the local service utility for Contact. This utility wraps
@@ -60,6 +63,14 @@ public class ContactLocalServiceUtil {
 	*/
 	public static com.liferay.portal.kernel.model.Contact addContact(
 		com.liferay.portal.kernel.model.Contact contact) {
+
+		Date now = new Date();
+		Date birthday = contact.getBirthday();
+
+		if(birthday != null && birthday.after(now)) {
+			throw new SystemException("Birthday can be set to a future date.");
+		}
+
 		return getService().addContact(contact);
 	}
 
@@ -140,6 +151,14 @@ public class ContactLocalServiceUtil {
 	*/
 	public static com.liferay.portal.kernel.model.Contact updateContact(
 		com.liferay.portal.kernel.model.Contact contact) {
+
+		Date now = new Date();
+		Date birthday = contact.getBirthday();
+
+		if(birthday != null && birthday.after(now)) {
+			throw new SystemException("Birthday can be set to a future date.");
+		}
+
 		return getService().updateContact(contact);
 	}
 
