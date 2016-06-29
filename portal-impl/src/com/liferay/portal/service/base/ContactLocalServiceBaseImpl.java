@@ -51,6 +51,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.io.Serializable;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -85,6 +86,9 @@ public abstract class ContactLocalServiceBaseImpl extends BaseLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public Contact addContact(Contact contact) {
+
+		validateBirthday(contact.getBirthday());
+
 		contact.setNew(true);
 
 		return contactPersistence.update(contact);
@@ -309,6 +313,9 @@ public abstract class ContactLocalServiceBaseImpl extends BaseLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public Contact updateContact(Contact contact) {
+
+		validateBirthday(contact.getBirthday());
+
 		return contactPersistence.update(contact);
 	}
 
@@ -676,6 +683,15 @@ public abstract class ContactLocalServiceBaseImpl extends BaseLocalServiceImpl
 		}
 		catch (Exception e) {
 			throw new SystemException(e);
+		}
+	}
+
+	protected void validateBirthday(Date birthday) {
+		Date now = new Date();
+
+		if (birthday != null && birthday.after(now)) {
+			throw new SystemException(
+				"Birthday cannot be set to a date in future.");
 		}
 	}
 

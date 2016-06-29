@@ -149,12 +149,7 @@
 
 		<execute function="AssertClick" locator1="Roles#ROLE_TABLE_TITLE_LINK" value1="${roleName}" />
 
-		<if>
-			<condition function="IsElementPresent#waitForVisible" locator1="MenuItem#ASSIGNEES" />
-			<then>
-				<execute function="Click" locator1="Button#PLUS" />
-			</then>
-		</if>
+		<execute function="Click" locator1="Button#PLUS" />
 
 		<execute function="SelectFrame" locator1="IFrame#SELECT_ASSIGNEES" />
 
@@ -490,6 +485,13 @@
 					</then>
 				</elseif>
 				<elseif>
+					<contains string="${permissionDefinitionKey}" substring="SITE_ADMIN_CONTENT_KALEO_FORMS" />
+					<then>
+						<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_KALEO_FORMS" />
+						<var name="permissionNavigationValue" value="Kaleo Forms Admin" />
+					</then>
+				</elseif>
+				<elseif>
 					<contains string="${permissionDefinitionKey}" substring="SITE_ADMIN_CONTENT_MESSAGE_BOARDS" />
 					<then>
 						<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_MESSAGE_BOARDS" />
@@ -575,13 +577,15 @@
 					<var name="key_siteNameScope" value="${siteNameScope}" />
 
 					<execute function="SelectFrame" locator1="RolesPermissionsSelectSite#SELECT_SITE_IFRAME" />
-					<execute function="AssertClick" locator1="RolesPermissionsSelectSite#SCOPE_SITES_TABLE_NAME" value1="${siteNameScope}" />
+
+					<execute function="AssertClick#assertPartialTextClickAt" locator1="RolesPermissionsSelectSite#SCOPE_SITES_TABLE_NAME" value1="${siteNameScope}" />
 
 					<var name="key_siteNameScope" value="${siteNameScope}" />
 					<var method="StringUtil#replace('${permissionDefinitionKey}', 'CHECKBOX', 'SITE_SCOPE')" name="permissionDefinitionKeySiteScope" />
 
 					<execute function="SelectFrame" value1="relative=top" />
-					<execute function="AssertTextEquals" locator1="RolesPermissions#${permissionDefinitionKeySiteScope}" value1="${siteNameScope}" />
+
+					<execute function="AssertTextEquals#assertPartialText" locator1="RolesPermissions#${permissionDefinitionKeySiteScope}" value1="${siteNameScope}" />
 				</then>
 			</if>
 		</for>
@@ -975,7 +979,7 @@
 				<contains string="${permissionDefinitionKey}" substring="CONTROL_PANEL_SITES_SITES_RESOURCE_PERMISSIONS_SITE" />
 				<then>
 					<var name="permissionNavigationKey" value="CONTROL_PANEL_SITES_SITES" />
-					<var name="permissionNavigationValue" value="Site Settings" />
+					<var name="permissionNavigationValue" value="Site Memberships" />
 				</then>
 			</elseif>
 			<elseif>

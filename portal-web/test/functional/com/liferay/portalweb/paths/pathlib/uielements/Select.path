@@ -30,7 +30,7 @@
 </tr>
 <tr>
 	<td>DEFAULT_LANGUAGE</td>
-	<td>//div[label[contains(.,'Default Language')]]/select</td>
+	<td>//div[contains(.,'Default Language')]//select</td>
 	<td></td>
 </tr>
 <tr>
@@ -66,6 +66,11 @@
 <tr>
 	<td>INCLUDED_PAGES</td>
 	<td>//div[label[contains(.,'Included Pages')]]/select</td>
+	<td></td>
+</tr>
+<tr>
+	<td>KNOWLEDGE_BASE_RATING</td>
+	<td>//select[contains(@id,'knowledge-base')]</td>
 	<td></td>
 </tr>
 <tr>
