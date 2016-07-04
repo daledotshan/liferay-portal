@@ -1101,14 +1101,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		blogsEntryPersistence.update(entry);
 
-		// Resources
-
-		if ((serviceContext.getGroupPermissions() != null) ||
-			(serviceContext.getGuestPermissions() != null)) {
-
-			updateEntryResources(entry, serviceContext.getModelPermissions());
-		}
-
 		// Asset
 
 		updateAsset(
@@ -1873,8 +1865,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	protected void pingPingback(BlogsEntry entry, ServiceContext serviceContext)
 		throws PortalException {
 
-		if (!PropsValues.BLOGS_PINGBACK_ENABLED ||
-			!entry.isAllowPingbacks() || !entry.isApproved()) {
+		if (!PropsValues.BLOGS_PINGBACK_ENABLED || !entry.isAllowPingbacks() ||
+			!entry.isApproved()) {
 
 			return;
 		}
