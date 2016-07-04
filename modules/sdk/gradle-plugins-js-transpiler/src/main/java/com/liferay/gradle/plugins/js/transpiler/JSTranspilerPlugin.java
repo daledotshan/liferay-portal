@@ -181,7 +181,7 @@ public class JSTranspilerPlugin implements Plugin<Project> {
 
 		FileCollection fileCollection = transpileJSTask.getSourceFiles();
 
-		if (fileCollection.isEmpty()) {
+		if (!transpileJSTask.isEnabled() || fileCollection.isEmpty()) {
 			transpileJSTask.setDependsOn(Collections.emptySet());
 			transpileJSTask.setEnabled(false);
 
@@ -207,9 +207,8 @@ public class JSTranspilerPlugin implements Plugin<Project> {
 
 				@Override
 				public String call() throws Exception {
-					return
-						npmInstallTask.getWorkingDir() +
-							"/node_modules/metal*/src/**/*.soy";
+					return npmInstallTask.getWorkingDir() +
+						"/node_modules/metal*/src/**/*.soy";
 				}
 
 			});

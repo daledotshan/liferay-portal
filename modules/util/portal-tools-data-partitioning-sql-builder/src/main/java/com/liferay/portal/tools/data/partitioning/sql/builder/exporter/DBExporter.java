@@ -14,6 +14,8 @@
 
 package com.liferay.portal.tools.data.partitioning.sql.builder.exporter;
 
+import com.liferay.portal.tools.data.partitioning.sql.builder.exporter.context.ExportContext;
+
 import java.io.OutputStream;
 
 import java.util.List;
@@ -23,13 +25,16 @@ import java.util.List;
  */
 public interface DBExporter {
 
-	public List<String> getControlTableNames(String schemaName);
+	public List<String> getControlTableNames(ExportContext exportContext);
 
-	public List<String> getPartitionedTableNames(String schemaName);
+	public List<String> getPartitionedTableNames(ExportContext exportContext);
 
 	public void write(
 		long companyId, String tableName, OutputStream outputStream);
 
 	public void write(String tableName, OutputStream outputStream);
+
+	public void writeDelete(
+		long companyId, String tableName, OutputStream outputStream);
 
 }
