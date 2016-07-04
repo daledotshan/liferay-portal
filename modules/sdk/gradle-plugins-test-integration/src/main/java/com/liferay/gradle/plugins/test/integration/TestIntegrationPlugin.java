@@ -267,7 +267,7 @@ public class TestIntegrationPlugin implements Plugin<Project> {
 									" to be reachable");
 						}
 
-						startTestableTomcatTask.waitForAppServer();
+						startTestableTomcatTask.waitForReachable();
 					}
 
 					throw new StopExecutionException();
@@ -412,7 +412,7 @@ public class TestIntegrationPlugin implements Plugin<Project> {
 
 		TaskExecutionGraph taskExecutionGraph = gradle.getTaskGraph();
 
-		Closure<Void> closure = new Closure<Void>(null) {
+		Closure<Void> closure = new Closure<Void>(gradle) {
 
 			@SuppressWarnings("unused")
 			public void doCall(TaskExecutionGraph taskExecutionGraph) {
@@ -549,7 +549,7 @@ public class TestIntegrationPlugin implements Plugin<Project> {
 		final TestIntegrationTomcatExtension testIntegrationTomcatExtension,
 		final StartTestableTomcatTask startTestableTomcatTask) {
 
-		Closure<Task> closure = new Closure<Task>(null) {
+		Closure<Task> closure = new Closure<Task>(test.getProject()) {
 
 			@SuppressWarnings("unused")
 			public Task doCall(Test test) {
@@ -583,7 +583,8 @@ public class TestIntegrationPlugin implements Plugin<Project> {
 
 				@Override
 				public void execute(Project project) {
-					configureTaskTestIntegrationEnabled(test);
+					configureTaskTestIntegrationEnabled(
+						test, testIntegrationSourceSet);
 
 					// GRADLE-2697
 
@@ -595,7 +596,9 @@ public class TestIntegrationPlugin implements Plugin<Project> {
 			});
 	}
 
-	protected void configureTaskTestIntegrationEnabled(Test test) {
+	protected void configureTaskTestIntegrationEnabled(
+		Test test, SourceSet testIntegrationSourceSet) {
+
 		Project project = test.getProject();
 
 		Map<String, Object> args = new HashMap<>();
@@ -607,7 +610,10 @@ public class TestIntegrationPlugin implements Plugin<Project> {
 			"includes",
 			StringUtil.replaceEnding(test.getIncludes(), ".class", ".java"));
 
-		for (File dir : test.getTestSrcDirs()) {
+		SourceDirectorySet sourceDirectorySet =
+			testIntegrationSourceSet.getJava();
+
+		for (File dir : sourceDirectorySet.getSrcDirs()) {
 			args.put("dir", dir);
 
 			FileTree fileTree = project.fileTree(args);

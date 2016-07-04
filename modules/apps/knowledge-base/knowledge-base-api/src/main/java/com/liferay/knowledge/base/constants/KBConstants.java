@@ -19,7 +19,6 @@ package com.liferay.knowledge.base.constants;
  */
 public class KBConstants {
 
-	public static final java.lang.String SERVICE_NAME =
-		"com.liferay.knowledge.base";
+	public static final String SERVICE_NAME = "com.liferay.knowledge.base";
 
 }
