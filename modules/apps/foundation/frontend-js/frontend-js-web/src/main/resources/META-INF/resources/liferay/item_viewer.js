@@ -204,6 +204,8 @@ AUI.add(
 							}
 						);
 
+						newLink.setData('metadata', JSON.stringify(instance._getUploadFileMetadata(imageData.file)));
+
 						linkContainer.placeAfter(newLinkContainer);
 
 						links.push(newLink);
@@ -337,6 +339,28 @@ AUI.add(
 						return instance._imageInfoNodes;
 					},
 
+					_getUploadFileMetadata: function(file) {
+						var instance = this;
+
+						return {
+							'groups': [
+								{
+									'data': [
+										{
+											'key': Liferay.Language.get('format'),
+											'value': file.type
+										},
+										{
+											'key': Liferay.Language.get('name'),
+											'value': file.title
+										}
+									],
+									'title': Liferay.Language.get('file-info')
+								}
+							]
+						};
+					},
+
 					_onClickEditIcon: function(event) {
 						var instance = this;
 
@@ -451,13 +475,16 @@ AUI.add(
 					},
 
 					_renderControls: function() {
-						var imageViewerBase = A.one(STR_DOT + CSS_IMAGE_VIEWER_BASE);
-						var imageViewerClose = A.one('.image-viewer-close');
+						var instance = this;
 
-						this._closeEl = A.Node.create(this.TPL_CLOSE);
+						var boundingBox = instance.get('boundingBox');
 
-						if (imageViewerBase && !imageViewerClose) {
-							imageViewerBase.prepend(this._closeEl);
+						var imageViewerClose = boundingBox.one('.image-viewer-close');
+
+						if (!imageViewerClose) {
+							this._closeEl = A.Node.create(this.TPL_CLOSE);
+
+							boundingBox.prepend(this._closeEl);
 						}
 					},
 

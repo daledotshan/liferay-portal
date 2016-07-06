@@ -338,13 +338,13 @@ renderResponse.setTitle((feed == null) ? LanguageUtil.get(request, "new-feed") :
 				groupId: <%= themeDisplay.getSiteGroupId() %>,
 				mvcPath: '/select_structure.jsp',
 				navigationStartsOn: '<%= DDMNavigationHelper.SELECT_STRUCTURE %>',
-				refererPortletName: '<%= JournalPortletKeys.JOURNAL %>',
+				refererPortletName: '<%= JournalPortletKeys.JOURNAL + ".selectStructure" %>',
 
 				<%
 				Portlet portlet = PortletLocalServiceUtil.getPortletById(portletDisplay.getId());
 				%>
 
-				refererWebDAVToken: '<%= WebDAVUtil.getStorageToken(portlet) %>',
+				refererWebDAVToken: '<%= HtmlUtil.escapeJS(WebDAVUtil.getStorageToken(portlet)) %>',
 
 				showAncestorScopes: true,
 				title: '<%= UnicodeLanguageUtil.get(request, "structures") %>'

@@ -20,7 +20,9 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplateConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.PortletPreferencesException;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -29,8 +31,9 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portlet.PortletURLImpl;
 import com.liferay.portlet.StrictPortletPreferencesImpl;
+
+import java.util.Objects;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletPreferences;
@@ -75,7 +78,7 @@ public abstract class DDMBaseMVCActionCommand extends BaseMVCActionCommand {
 			actionRequest, "availableFields");
 		String eventName = ParamUtil.getString(actionRequest, "eventName");
 
-		PortletURLImpl portletURL = new PortletURLImpl(
+		LiferayPortletURL portletURL = PortletURLFactoryUtil.create(
 			actionRequest, themeDisplay.getPpid(), themeDisplay.getPlid(),
 			PortletRequest.RENDER_PHASE);
 
@@ -112,7 +115,7 @@ public abstract class DDMBaseMVCActionCommand extends BaseMVCActionCommand {
 		String structureAvailableFields = ParamUtil.getString(
 			actionRequest, "structureAvailableFields");
 
-		PortletURLImpl portletURL = new PortletURLImpl(
+		LiferayPortletURL portletURL = PortletURLFactoryUtil.create(
 			actionRequest, themeDisplay.getPpid(), themeDisplay.getPlid(),
 			PortletRequest.RENDER_PHASE);
 
@@ -218,14 +221,18 @@ public abstract class DDMBaseMVCActionCommand extends BaseMVCActionCommand {
 			return;
 		}
 
-		String templateType = template.getType();
+		if (Objects.equals(
+				template.getType(),
+				DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY)) {
 
-		if (templateType.equals(DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY)) {
 			portletPreferences.setValue(
 				"displayDDMTemplateId",
 				String.valueOf(template.getTemplateId()));
 		}
-		else {
+		else if (Objects.equals(
+					template.getMode(),
+					DDMTemplateConstants.TEMPLATE_MODE_CREATE)) {
+
 			portletPreferences.setValue(
 				"formDDMTemplateId", String.valueOf(template.getTemplateId()));
 		}

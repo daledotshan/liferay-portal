@@ -51,6 +51,7 @@ import com.liferay.portal.kernel.model.impl.VirtualLayout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -100,7 +101,6 @@ import com.liferay.portal.util.LayoutCloneFactory;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.PortletURLImpl;
 import com.liferay.sites.kernel.util.SitesUtil;
 
 import java.io.File;
@@ -491,7 +491,6 @@ public class ServicePreAction extends Action {
 		LayoutSet layoutSet = null;
 
 		boolean hasCustomizeLayoutPermission = false;
-		boolean hasDeleteLayoutPermission = false;
 		boolean hasUpdateLayoutPermission = false;
 
 		boolean customizedView = SessionParamUtil.getBoolean(
@@ -505,9 +504,6 @@ public class ServicePreAction extends Action {
 
 			hasCustomizeLayoutPermission =
 				layoutTypeAccessPolicy.isCustomizeLayoutAllowed(
-					permissionChecker, layout);
-			hasDeleteLayoutPermission =
-				layoutTypeAccessPolicy.isDeleteLayoutAllowed(
 					permissionChecker, layout);
 			hasUpdateLayoutPermission =
 				layoutTypeAccessPolicy.isUpdateLayoutAllowed(
@@ -566,9 +562,8 @@ public class ServicePreAction extends Action {
 
 			boolean customizable = layoutTypePortlet.isCustomizable();
 
-			if (!customizable ||
-				group.isLayoutPrototype() || group.isLayoutSetPrototype() ||
-				group.isStagingGroup()) {
+			if (!customizable || group.isLayoutPrototype() ||
+				group.isLayoutSetPrototype() || group.isStagingGroup()) {
 
 				customizedView = false;
 			}
@@ -683,8 +678,8 @@ public class ServicePreAction extends Action {
 			colorScheme = ThemeLocalServiceUtil.getColorScheme(
 				companyId, theme.getThemeId(), colorSchemeId);
 
-			request.setAttribute(WebKeys.THEME, theme);
 			request.setAttribute(WebKeys.COLOR_SCHEME, colorScheme);
+			request.setAttribute(WebKeys.THEME, theme);
 		}
 
 		boolean themeCssFastLoad = PropsValues.THEME_CSS_FAST_LOAD;
@@ -830,7 +825,7 @@ public class ServicePreAction extends Action {
 
 		themeDisplay.setShowHomeIcon(true);
 		themeDisplay.setShowMyAccountIcon(signedIn);
-		themeDisplay.setShowPageSettingsIcon(hasDeleteLayoutPermission);
+		themeDisplay.setShowPageSettingsIcon(hasUpdateLayoutPermission);
 		themeDisplay.setShowPortalIcon(true);
 		themeDisplay.setShowSignInIcon(!signedIn);
 
@@ -965,7 +960,7 @@ public class ServicePreAction extends Action {
 				}
 
 				if (hasPublishStagingPermission) {
-					PortletURL publishToLiveURL = new PortletURLImpl(
+					PortletURL publishToLiveURL = PortletURLFactoryUtil.create(
 						request, PortletKeys.EXPORT_IMPORT, plid,
 						PortletRequest.RENDER_PHASE);
 
