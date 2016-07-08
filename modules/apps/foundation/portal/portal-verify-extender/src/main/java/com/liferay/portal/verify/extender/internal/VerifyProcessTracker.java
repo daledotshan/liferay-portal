@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.NotificationThreadLocal;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
 import com.liferay.portal.output.stream.container.OutputStreamContainer;
@@ -35,12 +36,14 @@ import com.liferay.portal.output.stream.container.OutputStreamContainerFactoryTr
 import com.liferay.portal.verify.VerifyException;
 import com.liferay.portal.verify.VerifyProcess;
 import com.liferay.portal.verify.extender.internal.configuration.VerifyProcessTrackerConfiguration;
+import com.liferay.portal.verify.extender.marker.VerifyProcessCompletionMarker;
 import com.liferay.portlet.exportimport.staging.StagingAdvicesThreadLocal;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,6 +138,8 @@ public class VerifyProcessTracker {
 	protected void activate(
 		BundleContext bundleContext, Map<String, Object> properties) {
 
+		_bundleContext = bundleContext;
+
 		_verifyProcessTrackerConfiguration =
 			ConfigurableUtil.createConfigurable(
 				VerifyProcessTrackerConfiguration.class, properties);
@@ -148,7 +153,7 @@ public class VerifyProcessTracker {
 		}
 
 		_verifyProcesses = ServiceTrackerMapFactory.multiValueMap(
-			bundleContext, VerifyProcess.class, null,
+			_bundleContext, VerifyProcess.class, null,
 			new PropertyServiceReferenceMapper<String, VerifyProcess>(
 				"verify.process.name"),
 			new PropertyServiceReferenceComparator("service.ranking"),
@@ -176,9 +181,6 @@ public class VerifyProcessTracker {
 
 		PrintWriter printWriter = new PrintWriter(outputStream, true);
 
-		printWriter.println(
-			"Executing verifiers registered for " + verifyProcessName);
-
 		List<VerifyProcess> verifyProcesses = getVerifyProcesses(
 			verifyProcessName);
 
@@ -192,13 +194,54 @@ public class VerifyProcessTracker {
 		WorkflowThreadLocal.setEnabled(false);
 
 		try {
+			Release release = _releaseLocalService.fetchRelease(
+				verifyProcessName);
+
+			if ((release != null) && release.isVerified()) {
+				return;
+			}
+
+			if (release == null) {
+
+				// Verification state must be persisted even though not all
+				// verifiers are associated with a database service
+
+				release = _releaseLocalService.createRelease(
+					_counterLocalService.increment());
+
+				release.setServletContextName(verifyProcessName);
+				release.setVerified(false);
+			}
+
+			printWriter.println(
+				"Executing verifiers registered for " + verifyProcessName);
+
+			VerifyException verifyException = null;
+
 			for (VerifyProcess verifyProcess : verifyProcesses) {
 				try {
 					verifyProcess.verify();
 				}
 				catch (VerifyException ve) {
 					_log.error(ve, ve);
+
+					verifyException = ve;
 				}
+			}
+
+			if (verifyException == null) {
+				release.setVerified(true);
+
+				_releaseLocalService.updateRelease(release);
+
+				Dictionary<String, String> dictionary =
+					new HashMapDictionary<>();
+
+				dictionary.put("verify.process.name", verifyProcessName);
+
+				_bundleContext.registerService(
+					VerifyProcessCompletionMarker.class,
+					new VerifyProcessCompletionMarker() {}, dictionary);
 			}
 		}
 		finally {
@@ -304,6 +347,7 @@ public class VerifyProcessTracker {
 	private static final Log _log = LogFactoryUtil.getLog(
 		VerifyProcessTracker.class);
 
+	private BundleContext _bundleContext;
 	private CounterLocalService _counterLocalService;
 	private OutputStreamContainerFactoryTracker
 		_outputStreamContainerFactoryTracker;
@@ -342,29 +386,7 @@ public class VerifyProcessTracker {
 			String key, VerifyProcess serviceVerifyProcess,
 			List<VerifyProcess> contentVerifyProcesses) {
 
-			Release release = _releaseLocalService.fetchRelease(key);
-
-			if ((release != null) && release.isVerified()) {
-				return;
-			}
-
-			if (release == null) {
-
-				// Verification state must be persisted even though not all
-				// verifiers are associated with a database service
-
-				release = _releaseLocalService.createRelease(
-					_counterLocalService.increment());
-
-				release.setServletContextName(key);
-				release.setVerified(false);
-			}
-
 			execute(key);
-
-			release.setVerified(true);
-
-			_releaseLocalService.updateRelease(release);
 		}
 
 		@Override

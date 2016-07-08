@@ -860,6 +860,12 @@ AUI.add(
 						if (Lang.isValue(label) && Lang.isNode(labelNode)) {
 							labelNode.html('&nbsp;' + A.Escape.html(label));
 
+							var fieldDefinition = instance.getFieldDefinition();
+
+							if (fieldDefinition.required) {
+								labelNode.append(TPL_REQUIRED_MARK);
+							}
+
 							labelNode.prepend(inputNode);
 						}
 
@@ -964,7 +970,7 @@ AUI.add(
 
 						var container = instance.get('container');
 
-						container.delegate('click', instance._handleButtonsClick, '.btn', instance);
+						container.delegate('click', instance._handleButtonsClick, '> .form-group .btn', instance);
 					},
 
 					syncUI: function() {
@@ -1146,21 +1152,17 @@ AUI.add(
 
 						var container = instance.get('container');
 
-						container.delegate('click', instance._handleButtonsClick, '.btn', instance);
+						container.delegate('click', instance._handleButtonsClick, '> .form-group .btn', instance);
 					},
 
 					syncUI: function() {
 						var instance = this;
 
-						var parsedValue = instance.getParsedValue(instance.getValue());
-
-						var titleNode = A.one('#' + instance.getInputName() + 'Title');
-
-						titleNode.val(parsedValue.assettitle || '');
-
 						var clearButtonNode = A.one('#' + instance.getInputName() + 'ClearButton');
 
-						clearButtonNode.toggle(!!parsedValue.assetclasspk);
+						var parsedValue = instance.getParsedValue(instance.getValue());
+
+						clearButtonNode.toggle(!!parsedValue.classPK);
 					},
 
 					getParsedValue: function(value) {
@@ -1177,7 +1179,7 @@ AUI.add(
 					},
 
 					getWebContentSelectorURL: function() {
-						var url = Liferay.PortletURL.createRenderURL();
+						var url = Liferay.PortletURL.createURL(themeDisplay.getURLControlPanel());
 
 						url.setParameter('eventName', 'selectContent');
 						url.setParameter('groupId', themeDisplay.getScopeGroupId());
@@ -1191,12 +1193,20 @@ AUI.add(
 						return url;
 					},
 
+					setTitle: function(title) {
+						var instance = this;
+
+						var titleNode = A.one('#' + instance.getInputName() + 'Title');
+
+						titleNode.val(title);
+					},
+
 					setValue: function(value) {
 						var instance = this;
 
 						var parsedValue = instance.getParsedValue(value);
 
-						if (!parsedValue.assetclasspk && !parsedValue.assetentryid) {
+						if (!parsedValue.className && !parsedValue.classPK) {
 							value = '';
 						}
 						else {
@@ -1249,11 +1259,11 @@ AUI.add(
 						}
 					},
 
-					_handleClearButtonClick: function(event) {
+					_handleClearButtonClick: function() {
 						var instance = this;
 
+						instance.setTitle('');
 						instance.setValue('');
-
 					},
 
 					_handleSelectButtonClick: function(event) {
@@ -1273,9 +1283,16 @@ AUI.add(
 							},
 							function(event) {
 								if (event.details.length > 0) {
-									var webContentSelected = event.details[0];
+									var selectedWebContent = event.details[0];
 
-									instance.setValue(webContentSelected);
+									instance.setTitle(selectedWebContent.assettitle || '');
+
+									instance.setValue(
+										{
+											className: selectedWebContent.assetclassname,
+											classPK: selectedWebContent.assetclasspk
+										}
+									);
 								}
 							}
 						);
@@ -1306,7 +1323,7 @@ AUI.add(
 
 						var container = instance.get('container');
 
-						container.delegate('click', instance._handleControlButtonsClick, '.btn', instance);
+						container.delegate('click', instance._handleControlButtonsClick, '> .form-group .btn', instance);
 					},
 
 					getInitialLayouts: function(privateLayout, callback) {
@@ -1640,7 +1657,7 @@ AUI.add(
 					getFieldNodes: function() {
 						var instance = this;
 
-						return instance.get('container').all('.field-wrapper');
+						return instance.get('container').all('> fieldset > div > .field-wrapper');
 					}
 				}
 			}
