@@ -34,7 +34,6 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.storage.Fields;
-import com.liferay.dynamic.data.mapping.util.DDMXML;
 import com.liferay.expando.kernel.util.ExpandoBridgeUtil;
 import com.liferay.exportimport.content.processor.ExportImportContentProcessor;
 import com.liferay.exportimport.content.processor.ExportImportContentProcessorRegistryUtil;
@@ -63,6 +62,7 @@ import com.liferay.journal.model.impl.JournalArticleDisplayImpl;
 import com.liferay.journal.service.base.JournalArticleLocalServiceBaseImpl;
 import com.liferay.journal.service.permission.JournalPermission;
 import com.liferay.journal.social.JournalActivityKeys;
+import com.liferay.journal.util.JournalConverter;
 import com.liferay.journal.util.comparator.ArticleIDComparator;
 import com.liferay.journal.util.comparator.ArticleVersionComparator;
 import com.liferay.journal.util.impl.JournalUtil;
@@ -774,8 +774,8 @@ public class JournalArticleLocalServiceImpl
 		else {
 			validate(newArticleId);
 
-			if (journalArticlePersistence.countByG_A(
-					groupId, newArticleId) > 0) {
+			if (journalArticlePersistence.countByG_A(groupId, newArticleId) >
+					0) {
 
 				StringBundler sb = new StringBundler(5);
 
@@ -3425,8 +3425,8 @@ public class JournalArticleLocalServiceImpl
 		for (JournalArticle article : articles) {
 			if (serviceContext != null) {
 				notifySubscribers(
-					serviceContext.getUserId(), article, article.getUrlTitle(),
-					"move_from", serviceContext);
+					serviceContext.getUserId(), article, "move_from",
+					serviceContext);
 			}
 
 			article.setFolderId(newFolderId);
@@ -3436,8 +3436,8 @@ public class JournalArticleLocalServiceImpl
 
 			if (serviceContext != null) {
 				notifySubscribers(
-					serviceContext.getUserId(), article, article.getUrlTitle(),
-					"move_to", serviceContext);
+					serviceContext.getUserId(), article, "move_to",
+					serviceContext);
 			}
 		}
 
@@ -3783,6 +3783,8 @@ public class JournalArticleLocalServiceImpl
 		List<TrashVersion> trashVersions = trashVersionLocalService.getVersions(
 			trashEntry.getEntryId());
 
+		boolean visible = false;
+
 		for (TrashVersion trashVersion : trashVersions) {
 			JournalArticle trashArticleVersion =
 				journalArticlePersistence.findByPrimaryKey(
@@ -3790,11 +3792,21 @@ public class JournalArticleLocalServiceImpl
 
 			trashArticleVersion.setStatus(trashVersion.getStatus());
 
+			if (trashVersion.getStatus() == WorkflowConstants.STATUS_APPROVED) {
+				visible = true;
+			}
+
 			journalArticlePersistence.update(trashArticleVersion);
 		}
 
 		trashEntryLocalService.deleteEntry(
 			JournalArticle.class.getName(), article.getResourcePrimKey());
+
+		if (visible) {
+			assetEntryLocalService.updateVisible(
+				JournalArticle.class.getName(), article.getResourcePrimKey(),
+				true);
+		}
 
 		// Comment
 
@@ -5911,9 +5923,7 @@ public class JournalArticleLocalServiceImpl
 			}
 
 			notifySubscribers(
-				user.getUserId(), article,
-				(String)workflowContext.get(WorkflowConstants.CONTEXT_URL),
-				action, serviceContext);
+				user.getUserId(), article, action, serviceContext);
 		}
 
 		return article;
@@ -7156,9 +7166,15 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	protected void notifySubscribers(
-			long userId, JournalArticle article, String articleURL,
-			String action, ServiceContext serviceContext)
+			long userId, JournalArticle article, String action,
+			ServiceContext serviceContext)
 		throws PortalException {
+
+		String portletId = PortletProviderUtil.getPortletId(
+			JournalArticle.class.getName(), PortletProvider.Action.EDIT);
+
+		String articleURL = PortalUtil.getControlPanelFullURL(
+			article.getGroupId(), portletId, null);
 
 		if (!article.isApproved() || Validator.isNull(articleURL)) {
 			return;
@@ -7199,6 +7215,9 @@ public class JournalArticleLocalServiceImpl
 		Map<Locale, String> localizedSubjectMap = null;
 		Map<Locale, String> localizedBodyMap = null;
 
+		int notificationType =
+			UserNotificationDefinition.NOTIFICATION_TYPE_ADD_ENTRY;
+
 		if (action.equals("add")) {
 			localizedSubjectMap = LocalizationUtil.getMap(
 				journalGroupServiceConfiguration.emailArticleAddedSubject());
@@ -7212,6 +7231,9 @@ public class JournalArticleLocalServiceImpl
 			localizedBodyMap = LocalizationUtil.getMap(
 				journalGroupServiceConfiguration.
 					emailArticleMovedToFolderBody());
+
+			notificationType =
+				JournalArticleConstants.NOTIFICATION_TYPE_MOVE_ENTRY_TO_FOLDER;
 		}
 		else if (action.equals("move_from")) {
 			localizedSubjectMap = LocalizationUtil.getMap(
@@ -7220,12 +7242,19 @@ public class JournalArticleLocalServiceImpl
 			localizedBodyMap = LocalizationUtil.getMap(
 				journalGroupServiceConfiguration.
 					emailArticleMovedFromFolderBody());
+
+			notificationType =
+				JournalArticleConstants.
+					NOTIFICATION_TYPE_MOVE_ENTRY_FROM_FOLDER;
 		}
 		else if (action.equals("update")) {
 			localizedSubjectMap = LocalizationUtil.getMap(
 				journalGroupServiceConfiguration.emailArticleUpdatedSubject());
 			localizedBodyMap = LocalizationUtil.getMap(
 				journalGroupServiceConfiguration.emailArticleUpdatedBody());
+
+			notificationType =
+				UserNotificationDefinition.NOTIFICATION_TYPE_UPDATE_ENTRY;
 		}
 
 		String articleContent = StringPool.BLANK;
@@ -7285,22 +7314,8 @@ public class JournalArticleLocalServiceImpl
 		subscriptionSender.setLocalizedBodyMap(localizedBodyMap);
 		subscriptionSender.setLocalizedSubjectMap(localizedSubjectMap);
 		subscriptionSender.setMailId("journal_article", article.getId());
-
-		int notificationType =
-			UserNotificationDefinition.NOTIFICATION_TYPE_ADD_ENTRY;
-
-		if (serviceContext.isCommandUpdate()) {
-			notificationType =
-				UserNotificationDefinition.NOTIFICATION_TYPE_UPDATE_ENTRY;
-		}
-
 		subscriptionSender.setNotificationType(notificationType);
-
-		String portletId = PortletProviderUtil.getPortletId(
-			JournalArticle.class.getName(), PortletProvider.Action.EDIT);
-
 		subscriptionSender.setPortletId(portletId);
-
 		subscriptionSender.setReplyToAddress(fromAddress);
 		subscriptionSender.setScopeGroupId(article.getGroupId());
 		subscriptionSender.setServiceContext(serviceContext);
@@ -7330,6 +7345,19 @@ public class JournalArticleLocalServiceImpl
 			JournalArticle.class.getName(), article.getResourcePrimKey());
 
 		subscriptionSender.flushNotificationsAsync();
+	}
+
+	/**
+	 * @deprecated As of 7.0.1, replaced by {@link #notifySubscribers(long,
+	 *             JournalArticle, String, ServiceContext)}
+	 */
+	@Deprecated
+	protected void notifySubscribers(
+			long userId, JournalArticle article, String articleURL,
+			String action, ServiceContext serviceContext)
+		throws PortalException {
+
+		notifySubscribers(userId, article, action, serviceContext);
 	}
 
 	protected void saveImages(
@@ -7524,14 +7552,6 @@ public class JournalArticleLocalServiceImpl
 		throws PortalException {
 
 		Map<String, Serializable> workflowContext = new HashMap<>();
-
-		String portletId = PortletProviderUtil.getPortletId(
-			JournalArticle.class.getName(), PortletProvider.Action.EDIT);
-
-		workflowContext.put(
-			WorkflowConstants.CONTEXT_URL,
-			PortalUtil.getControlPanelFullURL(
-				article.getGroupId(), portletId, null));
 
 		WorkflowHandlerRegistryUtil.startWorkflowInstance(
 			article.getCompanyId(), article.getGroupId(), userId,
@@ -7907,7 +7927,7 @@ public class JournalArticleLocalServiceImpl
 			Locale defaultlocale)
 		throws PortalException {
 
-		Fields fields = ddmXML.getFields(ddmStructure, content);
+		Fields fields = journalConverter.getDDMFields(ddmStructure, content);
 
 		validateDDMStructureFields(
 			ddmStructure, classNameId, fields, defaultlocale);
@@ -8031,8 +8051,8 @@ public class JournalArticleLocalServiceImpl
 	@ServiceReference(type = DDMTemplateLocalService.class)
 	protected DDMTemplateLocalService ddmTemplateLocalService;
 
-	@ServiceReference(type = DDMXML.class)
-	protected DDMXML ddmXML;
+	@ServiceReference(type = JournalConverter.class)
+	protected JournalConverter journalConverter;
 
 	private static final long _JOURNAL_ARTICLE_CHECK_INTERVAL =
 		JournalServiceConfigurationValues.JOURNAL_ARTICLE_CHECK_INTERVAL

@@ -58,7 +58,7 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 		if (dirName.endsWith("-taglib-web")) {
 			String newDirName = dirName.substring(0, dirName.length() - 4);
 
-			processErrorMessage(
+			processMessage(
 				fileName,
 				"Rename module '" + dirName + "' to '" + newDirName + "'");
 		}
@@ -78,8 +78,12 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 				"liferay" + StringUtil.removeChars(dirName, CharPool.DASH);
 
 			if (!strippedBundleName.equalsIgnoreCase(expectedBundleName)) {
-				processErrorMessage(fileName, "Bundle-Name: " + fileName);
+				processMessage(fileName, "Bundle-Name");
 			}
+		}
+
+		if (dirName.contains("-import-") || dirName.contains("-private-")) {
+			return;
 		}
 
 		matcher = _bundleSymbolicNamePattern.matcher(content);
@@ -92,13 +96,20 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 					StringUtil.replace(
 						dirName, StringPool.DASH, StringPool.PERIOD);
 
-			if (!expectedBundleSymbolicName.contains(".import.") &&
-				!expectedBundleSymbolicName.contains(".private.") &&
-				!bundleSymbolicName.equalsIgnoreCase(
+			if (!bundleSymbolicName.equalsIgnoreCase(
 					expectedBundleSymbolicName)) {
 
-				processErrorMessage(
-					fileName, "Bundle-SymbolicName: " + fileName);
+				processMessage(fileName, "Bundle-SymbolicName");
+			}
+		}
+
+		matcher = _webContextPathNamePattern.matcher(content);
+
+		if (matcher.find()) {
+			String webContextPath = matcher.group(1);
+
+			if (!webContextPath.equals("/" + dirName)) {
+				processMessage(fileName, "Web-ContextPath");
 			}
 		}
 	}
@@ -107,7 +118,10 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 		String fileName, String absolutePath, String content, Pattern pattern) {
 
 		if (absolutePath.contains("/portal-kernel/") ||
-			absolutePath.contains("/util-taglib/")) {
+			absolutePath.contains("/util-bridges/") ||
+			absolutePath.contains("/util-java/") ||
+			absolutePath.contains("/util-taglib/") ||
+			fileName.endsWith("/system.packages.extra.bnd")) {
 
 			return;
 		}
@@ -126,10 +140,10 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 			String wildcardImport = matcher.group(1);
 
 			if (wildcardImport.matches("^!?com\\.liferay\\..+")) {
-				processErrorMessage(
+				processMessage(
 					fileName,
-					"Don't use wildcard in Export-Package '" + wildcardImport +
-						"': " + fileName);
+					"Do not use wildcard in Export-Package '" + wildcardImport +
+						"'");
 			}
 		}
 	}
@@ -150,10 +164,10 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 		if (fileName.endsWith("-web/bnd.bnd") &&
 			content.contains("Liferay-Require-SchemaVersion: 1.0.0")) {
 
-			processErrorMessage(
+			processMessage(
 				fileName,
 				"Do not include the header Liferay-Require-SchemaVersion in " +
-					"web modules: " + fileName);
+					"web modules");
 		}
 
 		content = StringUtil.replace(content, " \\\n", "\\\n");
@@ -323,15 +337,16 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 		"\nImport-Package:(\\\\\n| )(.*?\n|\\Z)[^\t]",
 		Pattern.DOTALL | Pattern.MULTILINE);
 	private final Pattern _includeResourcePattern = Pattern.compile(
-		"^((-liferay)?-includeresource|Include-Resource):[\\s\\S]*?([^\\\\]" +
-			"\n|\\Z)",
+		"^(-includeresource|Include-Resource):[\\s\\S]*?([^\\\\]\n|\\Z)",
 		Pattern.MULTILINE);
 	private final Pattern _incorrectTabPattern = Pattern.compile(
 		"\n[^\t].*:\\\\\n(\t{2,})[^\t]");
 	private final Pattern _singleValueOnMultipleLinesPattern = Pattern.compile(
 		"\n.*:(\\\\\n\t).*(\n[^\t]|\\Z)");
+	private final Pattern _webContextPathNamePattern = Pattern.compile(
+		"^Web-ContextPath: (.*)\n", Pattern.MULTILINE);
 	private final Pattern _wilcardImportPattern = Pattern.compile(
-		"\\s(\\S+\\*)(,\\\\\n|\n|\\Z)");
+		"(\\S+\\*)(,\\\\\n|\n|\\Z)");
 
 	private static class DefinitionComparator implements Comparator<String> {
 

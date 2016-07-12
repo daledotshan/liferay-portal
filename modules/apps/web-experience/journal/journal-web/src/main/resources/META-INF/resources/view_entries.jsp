@@ -23,8 +23,8 @@ ArticleSearch articleSearchContainer = journalDisplayContext.getSearchContainer(
 
 request.setAttribute("view.jsp-total", String.valueOf(articleSearchContainer.getTotal()));
 
-request.setAttribute("view_entries.jsp-entryStart", String.valueOf(articleSearchContainer.getStart()));
 request.setAttribute("view_entries.jsp-entryEnd", String.valueOf(articleSearchContainer.getEnd()));
+request.setAttribute("view_entries.jsp-entryStart", String.valueOf(articleSearchContainer.getStart()));
 
 String displayStyle = journalDisplayContext.getDisplayStyle();
 
@@ -171,45 +171,38 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 					</c:when>
 					<c:otherwise>
 						<liferay-ui:search-container-column-text
-							cssClass="id-column"
 							name="id"
 							value="<%= HtmlUtil.escape(curArticle.getArticleId()) %>"
 						/>
 
 						<liferay-ui:search-container-column-jsp
-							cssClass="content-column title-column"
+							cssClass="table-cell-content"
 							href="<%= rowURL %>"
 							name="title"
 							path="/article_title.jsp"
-							truncate="<%= true %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="content-column description-column"
+							cssClass="table-cell-content"
 							name="description"
-							truncate="<%= true %>"
 							value="<%= HtmlUtil.escape(curArticle.getDescription(locale)) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="author-column text-column"
 							name="author"
 							value="<%= HtmlUtil.escape(PortalUtil.getUserName(curArticle)) %>"
 						/>
 
 						<liferay-ui:search-container-column-status
-							cssClass="status-column"
 							name="status"
 						/>
 
 						<liferay-ui:search-container-column-date
-							cssClass="modified-date-column text-column"
 							name="modified-date"
 							value="<%= curArticle.getModifiedDate() %>"
 						/>
 
 						<liferay-ui:search-container-column-date
-							cssClass="display-date-column text-column"
 							name="display-date"
 							value="<%= curArticle.getDisplayDate() %>"
 						/>
@@ -219,14 +212,12 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 						%>
 
 						<liferay-ui:search-container-column-text
-							cssClass="text-column type-column"
 							name="type"
 							value="<%= HtmlUtil.escape(ddmStructure.getName(locale)) %>"
 						/>
 
 						<c:if test="<%= journalDisplayContext.isShowEditActions() %>">
 							<liferay-ui:search-container-column-jsp
-								cssClass="entry-action-column"
 								path="/article_action.jsp"
 							/>
 						</c:if>
@@ -278,7 +269,7 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 
 							<h5>
 								<aui:a href="<%= rowURL != null ? rowURL.toString() : null %>">
-									<%= curFolder.getName() %>
+									<%= HtmlUtil.escape(curFolder.getName()) %>
 								</aui:a>
 							</h5>
 
@@ -318,59 +309,50 @@ String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 					</c:when>
 					<c:otherwise>
 						<liferay-ui:search-container-column-text
-							cssClass="id-column"
 							name="id"
 							value="<%= String.valueOf(curFolder.getFolderId()) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="content-column title-column"
+							cssClass="table-cell-content"
 							href="<%= rowURL.toString() %>"
 							name="title"
-							truncate="<%= true %>"
 							value="<%= HtmlUtil.escape(curFolder.getName()) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="content-column description-column"
+							cssClass="table-cell-content"
 							name="description"
-							truncate="<%= true %>"
 							value="<%= HtmlUtil.escape(curFolder.getDescription()) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="author-column text-column"
 							name="author"
 							value="<%= HtmlUtil.escape(PortalUtil.getUserName(curFolder)) %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="status-column"
 							name="status"
 							value="--"
 						/>
 
 						<liferay-ui:search-container-column-date
-							cssClass="modified-date-column text-column"
 							name="modified-date"
 							value="<%= curFolder.getModifiedDate() %>"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="display-date-column text-column"
 							name="display-date"
 							value="--"
 						/>
 
 						<liferay-ui:search-container-column-text
-							cssClass="text-column type-column"
 							name="type"
 							value='<%= LanguageUtil.get(request, "folder") %>'
 						/>
 
 						<c:if test="<%= journalDisplayContext.isShowEditActions() %>">
 							<liferay-ui:search-container-column-jsp
-								cssClass="entry-action-column"
 								path="/folder_action.jsp"
 							/>
 						</c:if>
