@@ -16,7 +16,7 @@ package com.liferay.sync.engine.session;
 
 import com.btr.proxy.search.ProxySearch;
 
-import com.liferay.sync.engine.documentlibrary.handler.Handler;
+import com.liferay.sync.engine.document.library.handler.Handler;
 import com.liferay.sync.engine.util.OSDetector;
 import com.liferay.sync.engine.util.PropsValues;
 import com.liferay.sync.engine.util.ReleaseInfo;
@@ -121,21 +121,22 @@ public class Session {
 
 		headers.add(syncBuildHeader);
 
-		String syncDevice = null;
+		String syncDeviceType = null;
 
 		if (OSDetector.isApple()) {
-			syncDevice = "desktop-mac";
+			syncDeviceType = "desktop-mac";
 		}
 		else if (OSDetector.isLinux()) {
-			syncDevice = "desktop-linux";
+			syncDeviceType = "desktop-linux";
 		}
 		else if (OSDetector.isWindows()) {
-			syncDevice = "desktop-windows";
+			syncDeviceType = "desktop-windows";
 		}
 
-		Header syncDeviceHeader = new BasicHeader("Sync-Device", syncDevice);
+		Header syncDeviceTypeHeader = new BasicHeader(
+			"Sync-Device", syncDeviceType);
 
-		headers.add(syncDeviceHeader);
+		headers.add(syncDeviceTypeHeader);
 
 		httpClientBuilder.setDefaultHeaders(headers);
 
