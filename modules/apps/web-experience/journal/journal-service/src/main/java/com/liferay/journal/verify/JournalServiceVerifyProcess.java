@@ -22,6 +22,9 @@ import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.storage.Fields;
 import com.liferay.journal.configuration.JournalServiceConfigurationValues;
+import com.liferay.journal.internal.verify.model.JournalArticleResourceVerifiableModel;
+import com.liferay.journal.internal.verify.model.JournalArticleVerifiableModel;
+import com.liferay.journal.internal.verify.model.JournalFeedVerifiableModel;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.model.JournalArticleImage;
@@ -35,9 +38,6 @@ import com.liferay.journal.service.JournalContentSearchLocalService;
 import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.journal.util.JournalConverter;
 import com.liferay.journal.util.comparator.ArticleVersionComparator;
-import com.liferay.journal.verify.model.JournalArticleResourceVerifiableModel;
-import com.liferay.journal.verify.model.JournalArticleVerifiableModel;
-import com.liferay.journal.verify.model.JournalFeedVerifiableModel;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
@@ -52,6 +52,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ResourceLocalService;
+import com.liferay.portal.kernel.service.SystemEventLocalService;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -119,6 +120,13 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		verifyUUIDModels();
 
 		verifyArticleImages();
+
+		VerifyProcess verifyProcess =
+			new JournalServiceSystemEventVerifyProcess(
+				_journalArticleLocalService,
+				_journalArticleResourceLocalService, _systemEventLocalService);
+
+		verifyProcess.verify();
 	}
 
 	@Reference(unbind = "-")
@@ -186,6 +194,13 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		ResourceLocalService resourceLocalService) {
 
 		_resourceLocalService = resourceLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setSystemEventLocalService(
+		SystemEventLocalService systemEventLocalService) {
+
+		_systemEventLocalService = systemEventLocalService;
 	}
 
 	protected void updateContentSearch(long groupId, String portletId)
@@ -968,6 +983,7 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 	private JournalConverter _journalConverter;
 	private JournalFolderLocalService _journalFolderLocalService;
 	private ResourceLocalService _resourceLocalService;
+	private SystemEventLocalService _systemEventLocalService;
 	private final VerifyResourcePermissions _verifyResourcePermissions =
 		new VerifyResourcePermissions();
 
