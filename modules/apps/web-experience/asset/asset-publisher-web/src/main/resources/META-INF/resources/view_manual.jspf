@@ -46,13 +46,13 @@ request.setAttribute("view.jsp-results", assetEntries);
 				request.setAttribute("view.jsp-assetEntryIndex", Integer.valueOf(assetEntryIndex));
 
 				request.setAttribute("view.jsp-assetEntry", assetEntry);
-				request.setAttribute("view.jsp-assetRendererFactory", assetRendererFactory);
 				request.setAttribute("view.jsp-assetRenderer", assetRenderer);
+				request.setAttribute("view.jsp-assetRendererFactory", assetRendererFactory);
 
 				request.setAttribute("view.jsp-title", title);
 
-				request.setAttribute("view.jsp-show", Boolean.valueOf(show));
 				request.setAttribute("view.jsp-print", Boolean.valueOf(print));
+				request.setAttribute("view.jsp-show", Boolean.valueOf(show));
 
 				try {
 			%>
@@ -73,10 +73,10 @@ request.setAttribute("view.jsp-results", assetEntries);
 		<liferay-ddm:template-renderer className="<%= AssetEntry.class.getName() %>" displayStyle="<%= assetPublisherDisplayContext.getDisplayStyle() %>" displayStyleGroupId="<%= assetPublisherDisplayContext.getDisplayStyleGroupId() %>" entries="<%= new ArrayList<AssetEntry>() %>">
 
 			<%
-			boolean hasAddPortletURLs = GetterUtil.getBoolean(request.getAttribute("liferay-ui:asset-add-button:hasAddPortletURLs"));
+			Map<Long, Map<String, PortletURL>> addPortletURLs = assetPublisherDisplayContext.getScopeAddPortletURLs(1);
 			%>
 
-			<c:if test="<%= !hasAddPortletURLs %>">
+			<c:if test="<%= MapUtil.isEmpty(addPortletURLs) %>">
 
 				<%
 				renderRequest.setAttribute(WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);

@@ -393,6 +393,10 @@ AUI.add(
 						},
 						validator: isObject,
 						value: {}
+					},
+
+					showCalendarResourceName: {
+						value: true
 					}
 				},
 
@@ -404,10 +408,17 @@ AUI.add(
 					getDisplayName: function() {
 						var instance = this;
 
-						var calendarResourceName = instance.get('calendarResourceName');
 						var name = instance.get('name');
 
-						return CalendarUtil.getCalendarName(name, calendarResourceName);
+						var showCalendarResourceName = instance.get('showCalendarResourceName');
+
+						if (showCalendarResourceName) {
+							var calendarResourceName = instance.get('calendarResourceName');
+
+							name = CalendarUtil.getCalendarName(name, calendarResourceName);
+						}
+
+						return name;
 					},
 
 					_afterColorChange: function(event) {
@@ -516,6 +527,10 @@ AUI.add(
 		var Scheduler = A.Component.create(
 			{
 				ATTRS: {
+					currentTimeFn: {
+						value: A.bind(CalendarUtil.getCurrentTime, CalendarUtil)
+					},
+
 					filterCalendarBookings: {
 						validator: isFunction
 					},
@@ -681,6 +696,12 @@ AUI.add(
 						instance.load();
 					},
 
+					_afterAddEventModalLoad: function(event) {
+						var instance = this;
+
+						event.target.node.getDOMNode().contentWindow.focus();
+					},
+
 					_afterDateChange: function(event) {
 						var instance = this;
 
@@ -816,39 +837,43 @@ AUI.add(
 					_onClickAddEvent: function(event) {
 						var instance = this;
 
-						if (Liferay.Session.get('sessionState') !== 'expired') {
-							var recorder = instance.get('eventRecorder');
+						var recorder = instance.get('eventRecorder');
 
-							var activeViewName = instance.get('activeView').get('name');
+						var activeViewName = instance.get('activeView').get('name');
 
-							var defaultUserCalendar = CalendarUtil.getDefaultUserCalendar();
+						var defaultUserCalendar = CalendarUtil.getDefaultUserCalendar();
 
-							var calendarId = defaultUserCalendar.get('calendarId');
+						var calendarId = defaultUserCalendar.get('calendarId');
 
-							var editCalendarBookingURL = decodeURIComponent(recorder.get('editCalendarBookingURL'));
+						var editCalendarBookingURL = decodeURIComponent(recorder.get('editCalendarBookingURL'));
 
-							var data = {
-								activeView: activeViewName,
-								calendarId: calendarId,
-								titleCurrentValue: ''
-							};
+						var data = {
+							activeView: activeViewName,
+							calendarId: calendarId,
+							titleCurrentValue: ''
+						};
 
-							Liferay.Util.openWindow(
-								{
-									dialog: {
-										after: {
-											destroy: function(event) {
-												instance.load();
-											}
-										},
-										destroyOnHide: true,
-										modal: true
+						Liferay.Util.openWindow(
+							{
+								dialog: {
+									after: {
+										destroy: function(event) {
+											instance.load();
+										}
 									},
-									title: Liferay.Language.get('new-calendar-booking'),
-									uri: Lang.sub(editCalendarBookingURL, data)
-								}
-							);
-						}
+									destroyOnHide: false,
+									modal: true
+								},
+								title: Liferay.Language.get('new-calendar-booking'),
+								uri: Lang.sub(editCalendarBookingURL, data)
+							},
+							function(modal) {
+								modal.iframe.on(
+									'load',
+									A.bind(instance._afterAddEventModalLoad, instance)
+								);
+							}
+						);
 					},
 
 					_onDeleteEvent: function(event) {
