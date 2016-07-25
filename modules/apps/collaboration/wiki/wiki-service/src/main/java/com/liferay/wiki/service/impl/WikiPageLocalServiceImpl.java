@@ -20,6 +20,8 @@ import com.liferay.asset.kernel.model.AssetLinkConstants;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeUtil;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.diff.DiffHtmlUtil;
@@ -69,6 +71,7 @@ import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
@@ -98,10 +101,11 @@ import com.liferay.wiki.model.WikiPageDisplay;
 import com.liferay.wiki.model.WikiPageResource;
 import com.liferay.wiki.model.impl.WikiPageDisplayImpl;
 import com.liferay.wiki.model.impl.WikiPageImpl;
+import com.liferay.wiki.processor.WikiPageRenameContentProcessor;
 import com.liferay.wiki.service.base.WikiPageLocalServiceBaseImpl;
 import com.liferay.wiki.social.WikiActivityKeys;
+import com.liferay.wiki.util.WikiCacheHelper;
 import com.liferay.wiki.util.WikiCacheThreadLocal;
-import com.liferay.wiki.util.WikiCacheUtil;
 import com.liferay.wiki.util.WikiUtil;
 import com.liferay.wiki.util.comparator.PageCreateDateComparator;
 import com.liferay.wiki.util.comparator.PageVersionComparator;
@@ -128,6 +132,10 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * Provides the local service for accessing, adding, deleting, moving,
@@ -463,6 +471,21 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	}
 
 	@Override
+	public void afterPropertiesSet() {
+		super.afterPropertiesSet();
+
+		Bundle bundle = FrameworkUtil.getBundle(WikiPageLocalServiceImpl.class);
+
+		BundleContext _bundleContext = bundle.getBundleContext();
+
+		_serviceTrackerMap = ServiceTrackerMapFactory.singleValueMap(
+			_bundleContext, WikiPageRenameContentProcessor.class,
+			"wiki.format.name");
+
+		_serviceTrackerMap.open();
+	}
+
+	@Override
 	public WikiPage changeParent(
 			long userId, long nodeId, String title, String newParentTitle,
 			ServiceContext serviceContext)
@@ -769,6 +792,13 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		PortletFileRepositoryUtil.deletePortletFileEntries(
 			page.getGroupId(), folderId, WorkflowConstants.STATUS_IN_TRASH);
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+
+		_serviceTrackerMap.close();
 	}
 
 	@Override
@@ -1114,7 +1144,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		Map<String, WikiPage> pages = new LinkedHashMap<>();
 
-		Map<String, Boolean> links = WikiCacheUtil.getOutgoingLinks(
+		Map<String, Boolean> links = wikiCacheHelper.getOutgoingLinks(
 			page, wikiEngineRenderer);
 
 		for (Map.Entry<String, Boolean> entry : links.entrySet()) {
@@ -1256,6 +1286,31 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			page.getUserId(), page.getNodeId(), page.getTitle(),
 			page.getVersion(), page.getContent(), formattedContent,
 			page.getFormat(), page.getHead(), page.getAttachmentsFileEntries());
+	}
+
+	@Override
+	public WikiPageDisplay getPageDisplay(
+			WikiPage page, PortletURL viewPageURL, PortletURL editPageURL,
+			String attachmentURLPrefix, ServiceContext serviceContext)
+		throws PortalException {
+
+		HttpServletRequest request = serviceContext.getRequest();
+
+		boolean workflowAssetPreview = false;
+
+		if (request != null) {
+			workflowAssetPreview = GetterUtil.getBoolean(
+				request.getAttribute(WebKeys.WORKFLOW_ASSET_PREVIEW));
+		}
+
+		if (!workflowAssetPreview && page.isApproved()) {
+			return wikiCacheHelper.getDisplay(
+				page.getNodeId(), page.getTitle(), viewPageURL, editPageURL,
+				attachmentURLPrefix);
+		}
+
+		return getPageDisplay(
+			page, viewPageURL, editPageURL, attachmentURLPrefix);
 	}
 
 	@Override
@@ -1705,14 +1760,12 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			userId, page, SocialActivityConstants.TYPE_MOVE_TO_TRASH,
 			extraDataJSONObject.toString(), 0);
 
-		if (!pageVersions.isEmpty()) {
-			Indexer<WikiPage> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				WikiPage.class);
+		// Indexer
 
-			for (WikiPage pageVersion : pageVersions) {
-				indexer.reindex(pageVersion);
-			}
-		}
+		Indexer<WikiPage> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			WikiPage.class);
+
+		indexer.reindex(page);
 
 		// Workflow
 
@@ -1766,10 +1819,33 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		serviceContext.setCommand(Constants.RENAME);
 
+		WikiPageRenameContentProcessor wikiPageRenameContentProcessor =
+			_serviceTrackerMap.getService(page.getFormat());
+
+		String content = page.getContent();
+
+		if (wikiPageRenameContentProcessor != null) {
+			List<WikiPage> versionPages = wikiPagePersistence.findByN_T_H(
+				nodeId, title, false);
+
+			for (WikiPage curPage : versionPages) {
+				curPage.setTitle(newTitle);
+				curPage.setContent(
+					wikiPageRenameContentProcessor.processContent(
+						curPage.getNodeId(), title, newTitle,
+						curPage.getContent()));
+
+				wikiPagePersistence.update(curPage);
+			}
+
+			content = wikiPageRenameContentProcessor.processContent(
+				page.getNodeId(), title, newTitle, content);
+		}
+
 		updatePage(
-			userId, page, 0, newTitle, page.getContent(), summary,
-			page.getMinorEdit(), page.getFormat(), page.getParentTitle(),
-			page.getRedirectTitle(), serviceContext);
+			userId, page, 0, newTitle, content, summary, page.getMinorEdit(),
+			page.getFormat(), page.getParentTitle(), page.getRedirectTitle(),
+			serviceContext);
 	}
 
 	@Override
@@ -2183,7 +2259,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			return;
 		}
 
-		WikiCacheUtil.clearCache(page.getNodeId());
+		wikiCacheHelper.clearCache(page.getNodeId());
 	}
 
 	protected void deletePageAttachment(long fileEntryId)
@@ -2406,7 +2482,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	protected boolean isLinkedTo(WikiPage page, String targetTitle)
 		throws PortalException {
 
-		Map<String, Boolean> links = WikiCacheUtil.getOutgoingLinks(
+		Map<String, Boolean> links = wikiCacheHelper.getOutgoingLinks(
 			page, wikiEngineRenderer);
 
 		Boolean link = links.get(StringUtil.toLowerCase(targetTitle));
@@ -2568,7 +2644,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 				node.getStatusByUserId(), fileEntry.getFileEntryId());
 		}
 
-		// Index
+		// Indexer
 
 		Indexer<WikiPage> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			WikiPage.class);
@@ -2730,7 +2806,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		// Cache
 
 		if (WikiCacheThreadLocal.isClearCache()) {
-			WikiCacheUtil.clearCache(page.getNodeId());
+			wikiCacheHelper.clearCache(page.getNodeId());
 		}
 
 		// Workflow
@@ -2870,14 +2946,10 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			userId, page, SocialActivityConstants.TYPE_RESTORE_FROM_TRASH,
 			extraDataJSONObject.toString(), 0);
 
-		if (!pageVersions.isEmpty()) {
-			Indexer<WikiPage> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				WikiPage.class);
+		Indexer<WikiPage> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			WikiPage.class);
 
-			for (WikiPage pageVersion : pageVersions) {
-				indexer.reindex(pageVersion);
-			}
-		}
+		indexer.reindex(page);
 	}
 
 	protected void notifySubscribers(
@@ -3108,7 +3180,9 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			nodeId = newNodeId;
 		}
 
-		validate(nodeId, content, format);
+		if (!format.equals(oldPage.getFormat())) {
+			validate(nodeId, content, format);
+		}
 
 		serviceContext.validateModifiedDate(
 			oldPage, PageVersionException.class);
@@ -3221,10 +3295,16 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 	@ServiceReference(type = ConfigurationProvider.class)
 	protected ConfigurationProvider configurationProvider;
 
+	@ServiceReference(type = WikiCacheHelper.class)
+	protected WikiCacheHelper wikiCacheHelper;
+
 	@ServiceReference(type = WikiEngineRenderer.class)
 	protected WikiEngineRenderer wikiEngineRenderer;
 
 	@ServiceReference(type = WikiPageTitleValidator.class)
 	protected WikiPageTitleValidator wikiPageTitleValidator;
+
+	private ServiceTrackerMap<String, WikiPageRenameContentProcessor>
+		_serviceTrackerMap;
 
 }

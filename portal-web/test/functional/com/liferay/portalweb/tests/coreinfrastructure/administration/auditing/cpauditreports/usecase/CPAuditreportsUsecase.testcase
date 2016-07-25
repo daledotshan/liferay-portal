@@ -26,15 +26,18 @@
 	</tear-down>
 
 	<command name="ViewResourceActionsCP" priority="4">
-		<property name="custom.properties" value="audit.message.com.liferay.portal.model.Layout.VIEW=true${line.separator}com.liferay.portal.servlet.filters.audit.AuditFilter=true" />
+		<execute macro="TestCase#getSiteName">
+			<return from="siteName" name="siteName" />
+			<var name="siteName" value="${siteName}" />
+		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Audit" />
 		</execute>
 
 		<execute macro="Audit#searchCP">
-			<var name="searchTerm" value="20250" />
-			<var name="userId" value="20250" />
+			<var name="searchTerm" value="20164" />
+			<var name="userId" value="20164" />
 			<var name="userName" value="Test Test" />
 		</execute>
 
@@ -52,8 +55,8 @@
 		</execute>
 
 		<execute macro="Audit#searchCP">
-			<var name="resourceId" value="20250" />
-			<var name="searchTerm" value="20250" />
+			<var name="resourceId" value="20164" />
+			<var name="searchTerm" value="20164" />
 			<var name="userName" value="Test Test" />
 		</execute>
 
@@ -123,11 +126,12 @@
 		</execute>
 
 		<execute macro="User#impersonateCP">
+			<var name="siteName" value="${siteName}" />
 			<var name="userScreenName" value="test1" />
 		</execute>
 
-		<execute function="Close#closeWindow" locator1="title=Welcome - Liferay" />
-		<execute function="SelectWindow" locator1="title=Users and Organizations - Control Panel - Liferay" />
+		<execute function="Close#closeWindow" locator1="title=Welcome - ${siteName}" />
+		<execute function="SelectWindow" locator1="title=Users and Organizations - Control Panel - ${siteName}" />
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
 			<var name="portlet" value="Audit" />

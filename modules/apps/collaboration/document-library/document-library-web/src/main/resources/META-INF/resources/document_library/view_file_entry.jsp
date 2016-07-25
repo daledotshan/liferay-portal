@@ -173,7 +173,6 @@ if (portletTitleBasedNavigation) {
 									<liferay-ui:message key="version" />
 								</span>
 							</dt>
-
 							<dd>
 								<%= HtmlUtil.escape(fileVersion.getVersion()) %>
 							</dd>
@@ -182,25 +181,20 @@ if (portletTitleBasedNavigation) {
 						<dt class="h5">
 							<liferay-ui:message key="status" />
 						</dt>
-
 						<dd>
 							<aui:model-context bean="<%= fileVersion %>" model="<%= DLFileVersion.class %>" />
 
 							<aui:workflow-status model="<%= DLFileEntry.class %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" />
 						</dd>
-
 						<dt class="h5">
 							<liferay-ui:message key="created" />
 						</dt>
-
 						<dd>
 							<liferay-ui:message arguments="<%= new Object[] {HtmlUtil.escape(fileVersion.getUserName()), dateFormatDateTime.format(fileVersion.getCreateDate())} %>" key="by-x-on-x" translateArguments="<%= false %>" />
 						</dd>
-
 						<dt class="h5">
 							<liferay-ui:message key="modified" />
 						</dt>
-
 						<dd>
 							<liferay-ui:message arguments="<%= new Object[] {HtmlUtil.escape(fileVersion.getStatusByUserName()), dateFormatDateTime.format(fileVersion.getModifiedDate())} %>" key="by-x-on-x" translateArguments="<%= false %>" />
 						</dd>
@@ -209,7 +203,6 @@ if (portletTitleBasedNavigation) {
 							<dt class="h5">
 								<liferay-ui:message key="description" />
 							</dt>
-
 							<dd>
 								<%= HtmlUtil.escape(fileEntry.getDescription()) %>
 							</dd>
@@ -225,7 +218,6 @@ if (portletTitleBasedNavigation) {
 								url="<%= DLUtil.getDownloadURL(fileEntry, fileVersion, themeDisplay, StringPool.BLANK) %>"
 							/>
 						</span>
-
 						<span class="conversions">
 
 							<%
@@ -246,13 +238,11 @@ if (portletTitleBasedNavigation) {
 							%>
 
 						</span>
-
 						<span class="webdav-url">
 							<c:choose>
 								<c:when test="<%= portletDisplay.isWebDAVEnabled() && fileEntry.isSupportsSocial() %>">
 									<liferay-ui:message key="get-url-or-webdav-url" />
 								</c:when>
-
 								<c:otherwise>
 									<liferay-ui:message key="get-url" />
 								</c:otherwise>
@@ -454,7 +444,6 @@ if (portletTitleBasedNavigation) {
 							<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="thumbnail" />" class="thumbnail" src="<%= thumbnailSrc %>" style="<%= DLUtil.getThumbnailStyle(true, 0, 128, 128) %>" />
 						</c:if>
 					</span>
-
 					<span class="user-date">
 
 						<%
@@ -537,7 +526,7 @@ if (portletTitleBasedNavigation) {
 
 			</c:if>
 
-			<c:if test="<%= PropsValues.DL_FILE_ENTRY_COMMENTS_ENABLED && showComments %>">
+			<c:if test="<%= showComments && fileEntry.isRepositoryCapabilityProvided(CommentCapability.class) %>">
 				<liferay-ui:panel collapsible="<%= true %>" cssClass="lfr-document-library-comments" extended="<%= true %>" markupView="lexicon" persistState="<%= true %>" title="<%= dlViewFileVersionDisplayContext.getDiscussionLabel(locale) %>">
 					<liferay-ui:discussion
 						className="<%= dlViewFileVersionDisplayContext.getDiscussionClassName() %>"
@@ -554,7 +543,12 @@ if (portletTitleBasedNavigation) {
 </div>
 
 <c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
-	<%@ include file="/document_library/version_details.jspf" %>
+
+	<%
+	request.setAttribute("edit_file_entry.jsp-checkedOut", fileEntry.isCheckedOut());
+	%>
+
+	<liferay-util:include page="/document_library/version_details.jsp" servletContext="<%= application %>" />
 </c:if>
 
 <aui:script>

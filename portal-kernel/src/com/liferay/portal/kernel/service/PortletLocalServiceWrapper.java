@@ -151,6 +151,12 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 		return _portletLocalService.fetchPortlet(id);
 	}
 
+	@Override
+	public com.liferay.portal.kernel.model.Portlet fetchPortletById(
+		long companyId, java.lang.String portletId) {
+		return _portletLocalService.fetchPortletById(companyId, portletId);
+	}
+
 	/**
 	* Returns the portlet with the primary key.
 	*
@@ -445,6 +451,12 @@ public class PortletLocalServiceWrapper implements PortletLocalService,
 	public void deletePortlets(long companyId, java.lang.String[] portletIds,
 		long plid) throws com.liferay.portal.kernel.exception.PortalException {
 		_portletLocalService.deletePortlets(companyId, portletIds, plid);
+	}
+
+	@Override
+	public void deployPortlet(com.liferay.portal.kernel.model.Portlet portlet)
+		throws java.lang.Exception {
+		_portletLocalService.deployPortlet(portlet);
 	}
 
 	@Override
