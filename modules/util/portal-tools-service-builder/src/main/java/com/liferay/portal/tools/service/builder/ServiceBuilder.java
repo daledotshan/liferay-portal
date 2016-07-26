@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.model.cache.CacheField;
 import com.liferay.portal.kernel.plugin.Version;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ArrayUtil_IW;
 import com.liferay.portal.kernel.util.CharPool;
@@ -1645,6 +1646,20 @@ public class ServiceBuilder {
 	public boolean isReadOnlyMethod(
 		JavaMethod method, List<String> txRequiredList, String[] prefixes) {
 
+		Annotation[] annotations = method.getAnnotations();
+
+		if (annotations != null) {
+			for (Annotation annotation : annotations) {
+				Type type = annotation.getType();
+
+				String className = type.getFullyQualifiedName();
+
+				if (className.equals(Transactional.class.getName())) {
+					return false;
+				}
+			}
+		}
+
 		String methodName = method.getName();
 
 		if (isTxRequiredMethod(method, txRequiredList)) {
@@ -2286,7 +2301,7 @@ public class ServiceBuilder {
 				"<?xml version=\"1.0\"?>\n" +
 				"<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" \"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd\">\n" +
 				"\n" +
-				"<hibernate-mapping default-lazy=\"false\" auto-import=\"false\">\n" +
+				"<hibernate-mapping auto-import=\"false\" default-lazy=\"false\">\n" +
 				"</hibernate-mapping>";
 
 			_write(xmlFile, xml);

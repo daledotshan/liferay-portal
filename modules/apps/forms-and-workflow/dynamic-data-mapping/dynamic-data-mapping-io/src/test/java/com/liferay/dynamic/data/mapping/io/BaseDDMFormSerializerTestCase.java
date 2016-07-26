@@ -67,6 +67,7 @@ public abstract class BaseDDMFormSerializerTestCase extends BaseDDMTestCase {
 
 		ddmFormFields.add(
 			createNestedDDMFormFields("ParentField", "ChildField"));
+
 		ddmFormFields.add(createRadioDDMFormField("BooleanField"));
 		ddmFormFields.add(createSelectDDMFormField("SelectField"));
 		ddmFormFields.add(createTextDDMFormField("TextField"));

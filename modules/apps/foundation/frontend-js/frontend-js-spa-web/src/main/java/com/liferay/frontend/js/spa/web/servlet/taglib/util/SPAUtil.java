@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
@@ -37,7 +38,9 @@ import com.liferay.portal.kernel.util.WebKeys;
 import java.lang.reflect.Field;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -55,7 +58,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 public class SPAUtil {
 
 	public long getCacheExpirationTime(long companyId) {
-		long cacheExpirationTime = -1;
+		long cacheExpirationTime = 0;
 
 		SPAConfiguration spaConfiguration =
 			_spaConfigurationActivator.getSPAConfiguration();
@@ -63,7 +66,7 @@ public class SPAUtil {
 		cacheExpirationTime = GetterUtil.getLong(
 			spaConfiguration.cacheExpirationTime(), cacheExpirationTime);
 
-		if (cacheExpirationTime > -1) {
+		if (cacheExpirationTime > 0) {
 			cacheExpirationTime *= Time.MINUTE;
 		}
 
@@ -81,6 +84,11 @@ public class SPAUtil {
 		}
 
 		return jsonArray.toString();
+	}
+
+	public ResourceBundle getLanguageResourceBundle(Locale locale) {
+		return ResourceBundleUtil.getBundle(
+			"content.Language", locale, getClass());
 	}
 
 	public String getLoginRedirect(HttpServletRequest request) {
@@ -107,20 +115,41 @@ public class SPAUtil {
 		return jsonObject.toString();
 	}
 
-	public String getValidStatusCodes() {
-		Class<?> clazz = ServletResponseConstants.class;
+	public int getRequestTimeout() {
+		int requestTimeout = 0;
 
-		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+		SPAConfiguration spaConfiguration =
+			_spaConfigurationActivator.getSPAConfiguration();
 
-		for (Field field : clazz.getDeclaredFields()) {
-			try {
-				jsonArray.put(field.getInt(null));
-			}
-			catch (Exception e) {
-			}
+		requestTimeout = GetterUtil.getInteger(
+			spaConfiguration.requestTimeout(), requestTimeout);
+
+		if (requestTimeout > 0) {
+			requestTimeout *= Time.SECOND;
 		}
 
-		return jsonArray.toJSONString();
+		return requestTimeout;
+	}
+
+	public int getUserNotificationTimeout() {
+		int userNotificationTimeout = 0;
+
+		SPAConfiguration spaConfiguration =
+			_spaConfigurationActivator.getSPAConfiguration();
+
+		userNotificationTimeout = GetterUtil.getInteger(
+			spaConfiguration.userNotificationTimeout(),
+			userNotificationTimeout);
+
+		if (userNotificationTimeout > 0) {
+			userNotificationTimeout *= Time.SECOND;
+		}
+
+		return userNotificationTimeout;
+	}
+
+	public String getValidStatusCodes() {
+		return _VALID_STATUS_CODES;
 	}
 
 	public boolean isClearScreensCache(
@@ -159,12 +188,36 @@ public class SPAUtil {
 	@Reference(
 		cardinality = ReferenceCardinality.OPTIONAL,
 		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY, unbind = "-"
+		policyOption = ReferencePolicyOption.GREEDY
 	)
 	protected void setSPAConfigurationActivator(
 		SPAConfigurationActivator spaConfigurationActivator) {
 
 		_spaConfigurationActivator = spaConfigurationActivator;
+	}
+
+	protected void unsetSPAConfigurationActivator(
+		SPAConfigurationActivator spaConfigurationActivator) {
+
+		_spaConfigurationActivator = null;
+	}
+
+	private static final String _VALID_STATUS_CODES;
+
+	static {
+		Class<?> clazz = ServletResponseConstants.class;
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		for (Field field : clazz.getDeclaredFields()) {
+			try {
+				jsonArray.put(field.getInt(null));
+			}
+			catch (Exception e) {
+			}
+		}
+
+		_VALID_STATUS_CODES = jsonArray.toJSONString();
 	}
 
 	private PortletLocalService _portletLocalService;
