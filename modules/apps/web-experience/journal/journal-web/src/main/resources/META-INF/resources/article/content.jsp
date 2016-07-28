@@ -67,12 +67,14 @@ boolean changeStructure = GetterUtil.getBoolean(request.getAttribute("edit_artic
 	String message = nsle.getMessage();
 	%>
 
-	<c:when test="<%= message.equals(JournalArticleConstants.DISPLAY_PAGE) %>">
-		<liferay-ui:message key="please-select-an-existing-display-page" />
-	</c:when>
-	<c:otherwise>
-		<liferay-ui:message key="the-content-references-a-missing-page" />
-	</c:otherwise>
+	<c:choose>
+		<c:when test="<%= Objects.equals(message, JournalArticleConstants.DISPLAY_PAGE) %>">
+			<liferay-ui:message key="please-select-an-existing-display-page" />
+		</c:when>
+		<c:otherwise>
+			<liferay-ui:message key="the-content-references-a-missing-page" />
+		</c:otherwise>
+	</c:choose>
 </liferay-ui:error>
 
 <liferay-ui:error exception="<%= NoSuchStructureException.class %>" message="please-select-an-existing-structure" />
@@ -80,6 +82,12 @@ boolean changeStructure = GetterUtil.getBoolean(request.getAttribute("edit_artic
 <liferay-ui:error exception="<%= StorageFieldRequiredException.class %>" message="please-fill-out-all-required-fields" />
 
 <aui:fieldset>
+	<aui:input autoFocus="<%= true %>" ignoreRequestValue="<%= changeStructure %>" name="title" wrapperCssClass="article-content-title">
+		<c:if test="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
+			<aui:validator name="required" />
+		</c:if>
+	</aui:input>
+
 	<c:if test="<%= (article == null) || article.isNew() %>">
 		<c:choose>
 			<c:when test="<%= journalWebConfiguration.journalArticleForceAutogenerateId() || (classNameId != JournalArticleConstants.CLASSNAME_ID_DEFAULT) %>">
@@ -87,29 +95,25 @@ boolean changeStructure = GetterUtil.getBoolean(request.getAttribute("edit_artic
 				<aui:input name="autoArticleId" type="hidden" value="<%= true %>" />
 			</c:when>
 			<c:otherwise>
-				<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) || windowState.equals(LiferayWindowState.POP_UP) %>" field="articleId" fieldParam="newArticleId" label="id" name="newArticleId" value="<%= newArticleId %>" />
+				<aui:input field="articleId" fieldParam="newArticleId" label="id" name="newArticleId" value="<%= newArticleId %>" />
 
 				<aui:input label="autogenerate-id" name="autoArticleId" type="checkbox" />
 			</c:otherwise>
 		</c:choose>
 	</c:if>
 
-	<aui:input autoFocus="<%= (((article != null) && !article.isNew()) || !journalWebConfiguration.journalArticleForceAutogenerateId()) && (windowState.equals(WindowState.MAXIMIZED) || windowState.equals(LiferayWindowState.POP_UP)) %>" ignoreRequestValue="<%= changeStructure %>" name="title" wrapperCssClass="article-content-title">
-		<c:if test="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
-			<aui:validator name="required" />
-		</c:if>
-	</aui:input>
+	<aui:input ignoreRequestValue="<%= changeStructure %>" label="summary" name="description" wrapperCssClass="article-content-description" />
 
-	<aui:input ignoreRequestValue="<%= changeStructure %>" label="summary" name="description" />
-
-	<liferay-ddm:html
-		checkRequired="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>"
-		classNameId="<%= PortalUtil.getClassNameId(DDMStructure.class) %>"
-		classPK="<%= ddmStructure.getStructureId() %>"
-		ddmFormValues="<%= journalDisplayContext.getDDMFormValues(ddmStructure) %>"
-		ignoreRequestValue="<%= changeStructure %>"
-		requestedLocale="<%= LocaleUtil.fromLanguageId(defaultLanguageId) %>"
-	/>
+	<div class="article-content-content">
+		<liferay-ddm:html
+			checkRequired="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>"
+			classNameId="<%= PortalUtil.getClassNameId(DDMStructure.class) %>"
+			classPK="<%= ddmStructure.getStructureId() %>"
+			ddmFormValues="<%= journalDisplayContext.getDDMFormValues(ddmStructure) %>"
+			ignoreRequestValue="<%= changeStructure %>"
+			requestedLocale="<%= LocaleUtil.fromLanguageId(defaultLanguageId) %>"
+		/>
+	</div>
 
 	<aui:input label="searchable" name="indexable" type="toggle-switch" value="<%= (article != null) ? article.isIndexable() : true %>" />
 </aui:fieldset>
@@ -140,11 +144,11 @@ boolean changeStructure = GetterUtil.getBoolean(request.getAttribute("edit_artic
 <aui:script use="liferay-journal-content">
 	var journalContent = new Liferay.Portlet.JournalContent(
 		{
-			'ddm.basePortletURL': '<%= PortletURLFactoryUtil.create(request, PortletProviderUtil.getPortletId(DDMStructure.class.getName(), PortletProvider.Action.VIEW), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
+			'ddm.basePortletURL': '<%= PortletURLFactoryUtil.create(request, PortletProviderUtil.getPortletId(DDMStructure.class.getName(), PortletProvider.Action.VIEW), PortletRequest.RENDER_PHASE) %>',
 			'ddm.classNameId': '<%= PortalUtil.getClassNameId(DDMStructure.class) %>',
 			'ddm.classPK': <%= ddmStructure.getPrimaryKey() %>,
 			'ddm.groupId': <%= groupId %>,
-			'ddm.refererPortletName': '<%= JournalPortletKeys.JOURNAL %>',
+			'ddm.refererPortletName': '<%= JournalPortletKeys.JOURNAL + ".selectStructure" %>',
 			'ddm.resourceClassNameId': '<%= ddmStructure.getClassNameId() %>',
 			'ddm.templateId': <%= (ddmTemplate != null) ? ddmTemplate.getTemplateId() : 0 %>,
 			descriptionInputLocalized: Liferay.component('<portlet:namespace />description'),
