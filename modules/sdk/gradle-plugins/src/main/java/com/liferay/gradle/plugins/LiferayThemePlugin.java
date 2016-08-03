@@ -21,7 +21,6 @@ import com.liferay.gradle.plugins.node.NodePlugin;
 import com.liferay.gradle.plugins.source.formatter.SourceFormatterPlugin;
 import com.liferay.gradle.plugins.util.FileUtil;
 import com.liferay.gradle.plugins.util.GradleUtil;
-import com.liferay.gradle.util.StringUtil;
 import com.liferay.gradle.util.Validator;
 
 import groovy.json.JsonOutput;
@@ -171,7 +170,7 @@ public class LiferayThemePlugin implements Plugin<Project> {
 
 		artifacts.add(
 			Dependency.ARCHIVES_CONFIGURATION, warFile,
-			new Closure<Void>(null) {
+			new Closure<Void>(project) {
 
 				@SuppressWarnings("unused")
 				public void doCall(
@@ -191,9 +190,6 @@ public class LiferayThemePlugin implements Plugin<Project> {
 			project, BasePlugin.CLEAN_TASK_NAME);
 
 		delete.delete("build", "dist");
-		delete.dependsOn(
-			BasePlugin.CLEAN_TASK_NAME +
-				StringUtil.capitalize(NodePlugin.NPM_INSTALL_TASK_NAME));
 	}
 
 	protected void configureTaskDeploy(Project project) {

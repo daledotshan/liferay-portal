@@ -144,6 +144,10 @@ public interface PortletLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Portlet fetchPortlet(long id);
 
+	@Skip
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Portlet fetchPortletById(long companyId, java.lang.String portletId);
+
 	/**
 	* Returns the portlet with the primary key.
 	*
@@ -349,6 +353,9 @@ public interface PortletLocalService extends BaseLocalService,
 
 	public void deletePortlets(long companyId, java.lang.String[] portletIds,
 		long plid) throws PortalException;
+
+	@Skip
+	public void deployPortlet(Portlet portlet) throws java.lang.Exception;
 
 	@Skip
 	public void destroyPortlet(Portlet portlet);

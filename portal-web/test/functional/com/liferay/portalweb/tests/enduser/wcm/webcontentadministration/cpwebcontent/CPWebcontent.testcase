@@ -543,7 +543,7 @@
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
 
-		<execute macro="WebContent#addDraftCP">
+		<execute macro="WebContent#addDraft">
 			<var name="webContentContent" value="WC WebContent Content" />
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
@@ -776,6 +776,7 @@
 		<execute macro="WebContentTemplates#addStructure">
 			<var name="structureName" value="WC Structure Name" />
 			<var name="templateFieldNames" value="Image" />
+			<var name="templateLanguage" value="ftl" />
 		</execute>
 
 		<execute macro="PortletEntry#save" />
@@ -805,6 +806,10 @@
 
 		<execute macro="Navigator#openURL" />
 
+		<execute macro="Page#add">
+			<var name="pageName" value="Test Page" />
+		</execute>
+
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Web Content Display" />
 		</execute>
@@ -813,7 +818,9 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Navigator#openURL" />
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Test Page" />
+		</execute>
 
 		<execute macro="WebContentDisplayPortlet#viewImageFieldViaWCD" />
 	</command>
@@ -1611,7 +1618,7 @@
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
 
-		<execute macro="WebContent#addDraftCP">
+		<execute macro="WebContent#addDraft">
 			<var name="webContentContent" value="WC WebContent Content" />
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
@@ -1788,6 +1795,11 @@
 	</command>
 
 	<command name="UserEditWebContent" priority="4">
+		<execute macro="TestCase#getSiteName">
+			<return from="siteName" name="siteName" />
+			<var name="siteName" value="${siteName}" />
+		</execute>
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
@@ -1850,7 +1862,7 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoSite">
-			<var name="site" value="Liferay" />
+			<var name="site" value="${siteName}" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoSitesMembers">
