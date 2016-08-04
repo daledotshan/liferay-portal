@@ -22,7 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author Brian Wing Shun Chan
  * @author Jorge Ferrer
+ * @deprecated As of 7.0.0
  */
+@Deprecated
 public class AssetCategoriesSelectorTag extends IncludeTag {
 
 	public void setClassName(String className) {
@@ -109,6 +111,6 @@ public class AssetCategoriesSelectorTag extends IncludeTag {
 	private long[] _groupIds;
 	private String _hiddenInput = "assetCategoryIds";
 	private boolean _ignoreRequestValue;
-	private boolean _showRequiredLabel;
+	private boolean _showRequiredLabel = true;
 
 }

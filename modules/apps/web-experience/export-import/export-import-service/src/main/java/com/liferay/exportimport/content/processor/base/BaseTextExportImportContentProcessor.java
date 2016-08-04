@@ -1194,8 +1194,7 @@ public class BaseTextExportImportContentProcessor
 
 				if (urlWithoutLocale.startsWith(
 						PRIVATE_GROUP_SERVLET_MAPPING) ||
-					urlWithoutLocale.startsWith(
-						PRIVATE_USER_SERVLET_MAPPING) ||
+					urlWithoutLocale.startsWith(PRIVATE_USER_SERVLET_MAPPING) ||
 					urlWithoutLocale.startsWith(
 						PUBLIC_GROUP_SERVLET_MAPPING)) {
 
@@ -1247,9 +1246,11 @@ public class BaseTextExportImportContentProcessor
 
 			String groupFriendlyURL = group.getFriendlyURL();
 
-			if (url.equals(groupFriendlyURL) ||
-				url.startsWith(groupFriendlyURL + StringPool.SLASH)) {
+			if (url.equals(groupFriendlyURL)) {
+				continue;
+			}
 
+			if (url.startsWith(groupFriendlyURL + StringPool.SLASH)) {
 				url = url.substring(groupFriendlyURL.length());
 			}
 
