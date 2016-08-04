@@ -146,6 +146,11 @@ public class PortletLocalServiceUtil {
 		return getService().fetchPortlet(id);
 	}
 
+	public static com.liferay.portal.kernel.model.Portlet fetchPortletById(
+		long companyId, java.lang.String portletId) {
+		return getService().fetchPortletById(companyId, portletId);
+	}
+
 	/**
 	* Returns the portlet with the primary key.
 	*
@@ -408,6 +413,12 @@ public class PortletLocalServiceUtil {
 		java.lang.String[] portletIds, long plid)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().deletePortlets(companyId, portletIds, plid);
+	}
+
+	public static void deployPortlet(
+		com.liferay.portal.kernel.model.Portlet portlet)
+		throws java.lang.Exception {
+		getService().deployPortlet(portlet);
 	}
 
 	public static void destroyPortlet(
