@@ -30,9 +30,6 @@ AUI.add(
 						}
 					},
 
-					dataProviders: {
-					},
-
 					definition: {
 						validator: Lang.isObject
 					},
@@ -49,6 +46,11 @@ AUI.add(
 						valueFn: '_valueFieldTypes'
 					},
 
+					getFieldTypeSettingFormContextURL: {
+						validator: Lang.isString,
+						value: ''
+					},
+
 					layouts: {
 						valueFn: '_valueLayouts'
 					},
@@ -59,6 +61,10 @@ AUI.add(
 					},
 
 					portletNamespace: {
+					},
+
+					recordSetId: {
+						value: 0
 					},
 
 					strings: {
@@ -156,8 +162,8 @@ AUI.add(
 								fieldType.get('defaultConfig'),
 								{
 									builder: instance,
-									dataProviders: instance.get('dataProviders'),
 									evaluatorURL: instance.get('evaluatorURL'),
+									getFieldTypeSettingFormContextURL: instance.get('getFieldTypeSettingFormContextURL'),
 									portletNamespace: instance.get('portletNamespace'),
 									readOnly: true
 								}
@@ -179,7 +185,7 @@ AUI.add(
 						instance.showFieldSettingsPanel(
 							field,
 							Lang.sub(
-								Liferay.Language.get('edit-x-field'),
+								Liferay.Language.get('edit-x'),
 								[fieldType.get('label')]
 							)
 						);
@@ -313,7 +319,7 @@ AUI.add(
 						instance.showFieldSettingsPanel(
 							field,
 							Lang.sub(
-								Liferay.Language.get('add-x-field'),
+								Liferay.Language.get('add-x'),
 								[fieldType.get('label')]
 							)
 						);
@@ -414,9 +420,15 @@ AUI.add(
 					_renderField: function(field) {
 						var instance = this;
 
+						var activeLayout = instance.getActiveLayout();
+
 						field.set('builder', instance);
 
 						field.render();
+
+						var row = instance.getFieldRow(field);
+
+						activeLayout.normalizeColsHeight(new A.NodeList(row));
 					},
 
 					_renderFields: function() {
@@ -581,6 +593,13 @@ AUI.add(
 					_valueFieldTypesModal: function() {
 						var instance = this;
 
+						var strings = A.merge(
+							instance.get('strings'),
+							{
+								addField: Liferay.Language.get('choose-a-field-type')
+							}
+						);
+
 						var fieldTypesModal = new Liferay.DDL.FormBuilderFieldTypesModal(
 							{
 								draggable: false,
@@ -588,9 +607,7 @@ AUI.add(
 								modal: true,
 								portletNamespace: instance.get('portletNamespace'),
 								resizable: false,
-								strings: {
-									addField: Liferay.Language.get('choose-a-field-type')
-								},
+								strings: strings,
 								visible: false
 							}
 						);
