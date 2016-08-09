@@ -15,15 +15,17 @@
 package com.liferay.gradle.plugins.node.tasks;
 
 import com.liferay.gradle.plugins.node.NodePlugin;
+import com.liferay.gradle.plugins.node.util.GradleUtil;
 import com.liferay.gradle.plugins.node.util.NodeExecutor;
 
 import java.io.File;
+import java.io.IOException;
 
 import java.util.List;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.process.ExecResult;
 
 /**
  * @author Andrea Di Giorgi
@@ -49,8 +51,32 @@ public class ExecuteNodeTask extends DefaultTask {
 	}
 
 	@TaskAction
-	public void executeNode() {
-		_execResult = _nodeExecutor.execute();
+	public void executeNode() throws Exception {
+		NpmInstallTask npmInstallTask = GradleUtil.fetchTask(
+			getProject(), NodePlugin.NPM_INSTALL_TASK_NAME,
+			NpmInstallTask.class);
+
+		if ((this instanceof ExecuteNpmTask) || (npmInstallTask == null)) {
+			_nodeExecutor.execute();
+
+			return;
+		}
+
+		Logger logger = getLogger();
+
+		for (int i = 0; i < _NPM_INSTALL_RETRIES; i++) {
+			try {
+				_nodeExecutor.execute();
+			}
+			catch (IOException ioe) {
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+						ioe.getMessage() + ". Running \"npm install\" again");
+				}
+
+				npmInstallTask.executeNpmInstall(true);
+			}
+		}
 	}
 
 	public List<String> getArgs() {
@@ -59,10 +85,6 @@ public class ExecuteNodeTask extends DefaultTask {
 
 	public String getCommand() {
 		return _nodeExecutor.getCommand();
-	}
-
-	public ExecResult getExecResult() {
-		return _execResult;
 	}
 
 	public File getNodeDir() {
@@ -93,7 +115,8 @@ public class ExecuteNodeTask extends DefaultTask {
 		_nodeExecutor.setWorkingDir(workingDir);
 	}
 
-	private ExecResult _execResult;
+	private static final int _NPM_INSTALL_RETRIES = 3;
+
 	private final NodeExecutor _nodeExecutor;
 
 }

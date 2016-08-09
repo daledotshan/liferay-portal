@@ -38,9 +38,10 @@ String portletNamespace = PortalUtil.getPortletNamespace(ProductNavigationProduc
 
 String productMenuState = SessionClicks.get(request, ProductNavigationProductMenuWebKeys.PRODUCT_NAVIGATION_PRODUCT_MENU_STATE, "closed");
 
-PortletURL portletURL = PortletURLFactoryUtil.create(request, ProductNavigationProductMenuPortletKeys.PRODUCT_NAVIGATION_PRODUCT_MENU, plid, RenderRequest.RENDER_PHASE);
+PortletURL portletURL = PortletURLFactoryUtil.create(request, ProductNavigationProductMenuPortletKeys.PRODUCT_NAVIGATION_PRODUCT_MENU, RenderRequest.RENDER_PHASE);
 
 portletURL.setParameter("mvcPath", "/portlet/product_menu.jsp");
+portletURL.setParameter("selPpid", portletDisplay.getId());
 portletURL.setWindowState(LiferayWindowState.EXCLUSIVE);
 %>
 
