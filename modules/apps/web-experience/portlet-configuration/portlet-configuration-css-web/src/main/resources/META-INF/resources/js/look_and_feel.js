@@ -220,6 +220,8 @@ AUI.add(
 							);
 						}
 
+						Liferay.Util.Window._setWindowDefaultSizeIfNeeded(instance._currentPopup);
+
 						instance._currentPopup.show();
 						instance._currentPopup.loadingmask.show();
 						instance._currentPopup.io.start();
@@ -577,7 +579,7 @@ AUI.add(
 				var customPortletNoteHTML = '<p class="alert alert-info form-hint"></p>';
 				var refreshText = EMPTY;
 
-				var portletId = instance._curPortletWrapperId;
+				var portletId = instance._portletId;
 
 				var portletClasses = instance._getCSSClasses(portletBoundary, portlet);
 
