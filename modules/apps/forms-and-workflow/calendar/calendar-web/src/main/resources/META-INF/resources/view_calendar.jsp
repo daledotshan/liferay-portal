@@ -135,6 +135,7 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 				<liferay-util:param name="permissionsCalendarBookingURL" value="<%= permissionsCalendarBookingURL %>" />
 
 				<liferay-util:param name="showAddEventBtn" value="<%= String.valueOf((defaultCalendar != null) && CalendarPermission.contains(permissionChecker, defaultCalendar, CalendarActionKeys.MANAGE_BOOKINGS)) %>" />
+				<liferay-util:param name="showSchedulerHeader" value="<%= String.valueOf(displaySchedulerHeader) %>" />
 
 				<portlet:renderURL var="viewCalendarBookingURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
 					<portlet:param name="mvcPath" value="/view_calendar_booking.jsp" />
@@ -200,6 +201,7 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 
 				calendars: <%= userCalendarsJSONArray %>,
 				scheduler: <portlet:namespace />scheduler,
+				showCalendarResourceName: false,
 				simpleMenu: window.<portlet:namespace />calendarsMenu,
 				visible: <%= !displaySchedulerOnly && themeDisplay.isSignedIn() %>
 			}
@@ -263,6 +265,7 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 
 				calendars: <%= groupCalendarsJSONArray %>,
 				scheduler: <portlet:namespace />scheduler,
+				showCalendarResourceName: false,
 				simpleMenu: window.<portlet:namespace />calendarsMenu,
 				visible: <%= !displaySchedulerOnly %>
 			}

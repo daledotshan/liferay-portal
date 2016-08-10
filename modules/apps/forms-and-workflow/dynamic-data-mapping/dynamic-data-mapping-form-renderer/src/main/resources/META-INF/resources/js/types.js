@@ -39,14 +39,12 @@ AUI.add(
 						},
 						fieldClass: Liferay.DDM.Renderer.Field,
 						icon: config.icon,
-						label: config.name
+						label: config.label
 					}
 				);
 
 				fieldType.set('className', config.javaScriptClass);
 				fieldType.set('name', config.name);
-				fieldType.set('settings', config.settings);
-				fieldType.set('settingsLayout', config.settingsLayout);
 				fieldType.set('system', config.system);
 
 				if (config.templateNamespace) {
