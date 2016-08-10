@@ -20,7 +20,7 @@ import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.PortalCacheMapSynchronizeUtil;
 import com.liferay.portal.kernel.cache.PortalCacheMapSynchronizeUtil.Synchronizer;
-import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
+import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
 import com.liferay.portal.kernel.exception.CompanyMaxUsersException;
@@ -141,6 +141,10 @@ import com.liferay.portal.security.pwd.RegExpToolkit;
 import com.liferay.portal.service.base.UserLocalServiceBaseImpl;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.dependency.ServiceDependencyListener;
+import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.social.kernel.model.SocialRelation;
 import com.liferay.social.kernel.model.SocialRelationConstants;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
@@ -955,30 +959,13 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
 
-		PortalCache<Serializable, Serializable> portalCache =
-			EntityCacheUtil.getPortalCache(UserImpl.class);
+		ServiceDependencyManager serviceDependencyManager =
+			new ServiceDependencyManager();
 
-		PortalCacheMapSynchronizeUtil.synchronize(
-			portalCache, _defaultUsers,
-			new Synchronizer<Serializable, Serializable>() {
+		serviceDependencyManager.addServiceDependencyListener(
+			_serviceDependencyListener);
 
-				@Override
-				public void onSynchronize(
-					Map<? extends Serializable, ? extends Serializable> map,
-					Serializable key, Serializable value, int timeToLive) {
-
-					if (!(value instanceof UserCacheModel)) {
-						return;
-					}
-
-					UserCacheModel userCacheModel = (UserCacheModel)value;
-
-					if (userCacheModel.defaultUser) {
-						_defaultUsers.remove(userCacheModel.companyId);
-					}
-				}
-
-			});
+		serviceDependencyManager.registerDependencies(EntityCache.class);
 	}
 
 	/**
@@ -1760,10 +1747,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		assetEntryLocalService.deleteEntry(
 			User.class.getName(), user.getUserId());
-
-		// Blogs
-
-		blogsStatsUserLocalService.deleteStatsUserByUserId(user.getUserId());
 
 		// Document library
 
@@ -5887,20 +5870,34 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			return false;
 		}
 
-		for (String key : params.keySet()) {
-			if (!key.equals("inherit") && !key.equals("usersGroups") &&
-				!key.equals("usersOrgs") && !key.equals("usersOrgsCount") &&
-				!key.equals("usersRoles") && !key.equals("usersTeams") &&
-				!key.equals("usersUserGroups")) {
+		for (Map.Entry<String, Object> entry : params.entrySet()) {
+			String key = entry.getKey();
+
+			if (key.equals("inherit")) {
+				if (Boolean.TRUE.equals(entry.getValue())) {
+					return true;
+				}
+			}
+			else if (key.equals("noOrganizations")) {
+				if (!Boolean.TRUE.equals(entry.getValue())) {
+					return true;
+				}
+
+				Object usersOrgsCount = params.get("usersOrgsCount");
+
+				if ((usersOrgsCount == null) ||
+					(GetterUtil.getLong(usersOrgsCount) != 0)) {
+
+					return true;
+				}
+			}
+			else if (!key.equals("usersGroups") && !key.equals("usersOrgs") &&
+					 !key.equals("usersOrgsCount") &&
+					 !key.equals("usersRoles") && !key.equals("usersTeams") &&
+					 !key.equals("usersUserGroups")) {
 
 				return true;
 			}
-		}
-
-		Boolean inherit = (Boolean)params.get("inherit");
-
-		if ((inherit != null) && inherit) {
-			return true;
 		}
 
 		return false;
@@ -6639,5 +6636,50 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		UserLocalServiceImpl.class);
 
 	private final Map<Long, User> _defaultUsers = new ConcurrentHashMap<>();
+
+	private final ServiceDependencyListener _serviceDependencyListener =
+		new ServiceDependencyListener() {
+
+			@Override
+			public void dependenciesFulfilled() {
+				Registry registry = RegistryUtil.getRegistry();
+
+				EntityCache entityCache = registry.getService(
+					EntityCache.class);
+
+				PortalCache<Serializable, Serializable> portalCache =
+					entityCache.getPortalCache(UserImpl.class);
+
+				PortalCacheMapSynchronizeUtil.synchronize(
+					portalCache, _defaultUsers,
+					new Synchronizer<Serializable, Serializable>() {
+
+						@Override
+						public void onSynchronize(
+							Map<? extends Serializable, ? extends Serializable>
+								map,
+							Serializable key, Serializable value,
+							int timeToLive) {
+
+							if (!(value instanceof UserCacheModel)) {
+								return;
+							}
+
+							UserCacheModel userCacheModel =
+								(UserCacheModel)value;
+
+							if (userCacheModel.defaultUser) {
+								_defaultUsers.remove(userCacheModel.companyId);
+							}
+						}
+
+					});
+			}
+
+			@Override
+			public void destroy() {
+			}
+
+		};
 
 }
