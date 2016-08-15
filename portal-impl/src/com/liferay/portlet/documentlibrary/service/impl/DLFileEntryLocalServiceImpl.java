@@ -1549,6 +1549,13 @@ public class DLFileEntryLocalServiceImpl
 			return;
 		}
 
+		dlFileEntry = dlFileEntryPersistence.fetchByPrimaryKey(
+			dlFileEntry.getFileEntryId());
+
+		if (dlFileEntry == null) {
+			return;
+		}
+
 		dlFileEntry.setModifiedDate(dlFileEntry.getModifiedDate());
 		dlFileEntry.setReadCount(dlFileEntry.getReadCount() + increment);
 
@@ -2437,6 +2444,8 @@ public class DLFileEntryLocalServiceImpl
 		for (DLFileVersion dlFileVersion : dlFileVersions) {
 			dlFileVersion.setFolderId(newFolderId);
 			dlFileVersion.setTreePath(dlFileVersion.buildTreePath());
+			dlFileVersion.setStatusByUserId(userId);
+			dlFileVersion.setStatusByUserName(user.getFullName());
 
 			dlFileVersionPersistence.update(dlFileVersion);
 		}

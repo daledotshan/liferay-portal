@@ -14,7 +14,7 @@
 
 package com.liferay.gradle.plugins;
 
-import com.liferay.gradle.plugins.util.GradleUtil;
+import com.liferay.gradle.plugins.internal.util.GradleUtil;
 
 import groovy.lang.Closure;
 
@@ -67,7 +67,7 @@ public class LiferayAntPlugin implements Plugin<Project> {
 
 		artifacts.add(
 			Dependency.ARCHIVES_CONFIGURATION, pluginFile,
-			new Closure<Void>(null) {
+			new Closure<Void>(project) {
 
 				@SuppressWarnings("unused")
 				public void doCall(

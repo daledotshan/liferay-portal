@@ -33,17 +33,19 @@ request.setAttribute(WebKeys.MESSAGE_BOARDS_TREE_INDEX, Integer.valueOf(index));
 if (message.getMessageId() == selMessage.getMessageId()) {
 	request.setAttribute("view_thread_tree.jsp-messageFound", true);
 }
+
+MBMessageDisplay messageDisplay = (MBMessageDisplay)request.getAttribute(WebKeys.MESSAGE_BOARDS_MESSAGE_DISPLAY);
 %>
 
 <c:if test="<%= (message.getMessageId() != selMessage.getMessageId()) || MBUtil.isViewableMessage(themeDisplay, message) %>">
 
 	<%
-	request.setAttribute("edit_message.jsp-category", category);
-	request.setAttribute("edit_message.jsp-editable", Boolean.TRUE);
-	request.setAttribute("edit_message.jsp-message", message);
 	request.setAttribute("edit-message.jsp-showDeletedAttachmentsFileEntries", Boolean.TRUE);
 	request.setAttribute("edit-message.jsp-showPermanentLink", Boolean.TRUE);
 	request.setAttribute("edit-message.jsp-showRecentPosts", Boolean.TRUE);
+	request.setAttribute("edit_message.jsp-category", category);
+	request.setAttribute("edit_message.jsp-editable", Boolean.TRUE);
+	request.setAttribute("edit_message.jsp-message", message);
 	request.setAttribute("edit_message.jsp-thread", thread);
 	%>
 
@@ -95,4 +97,13 @@ if (message.getMessageId() == selMessage.getMessageId()) {
 	}
 	%>
 
+	<c:if test="<%= MBCategoryPermission.contains(permissionChecker, scopeGroupId, message.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE) && !thread.isLocked() %>">
+
+		<%
+		MBMessage curMessage = message;
+		long replyToMessageId = message.getMessageId();
+		%>
+
+		<%@ include file="/message_boards/edit_message_quick.jspf" %>
+	</c:if>
 </c:if>
