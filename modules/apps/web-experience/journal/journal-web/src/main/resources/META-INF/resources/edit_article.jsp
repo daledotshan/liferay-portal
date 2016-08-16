@@ -180,6 +180,7 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 
 <aui:form action="<%= editArticleActionURL %>" cssClass="container-fluid-1280" enctype="multipart/form-data" method="post" name="fm1" onSubmit="event.preventDefault();">
 	<aui:input name="<%= ActionRequest.ACTION_NAME %>" type="hidden" />
+	<aui:input name="hideDefaultSuccessMessage" type="hidden" value="<%= classNameId == PortalUtil.getClassNameId(DDMStructure.class) %>" />
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="portletResource" type="hidden" value="<%= portletResource %>" />
 	<aui:input name="referringPlid" type="hidden" value="<%= referringPlid %>" />
@@ -210,51 +211,53 @@ request.setAttribute("edit_article.jsp-changeStructure", changeStructure);
 	}
 	%>
 
-	<aui:translation-manager
-		availableLocales="<%= availableLocales %>"
-		changeableDefaultLanguage="<%= changeableDefaultLanguage %>"
-		defaultLanguageId="<%= defaultLanguageId %>"
-		id="translationManager"
-	/>
+	<div class="lfr-form-content">
+		<aui:translation-manager
+			availableLocales="<%= availableLocales %>"
+			changeableDefaultLanguage="<%= changeableDefaultLanguage %>"
+			defaultLanguageId="<%= defaultLanguageId %>"
+			id="translationManager"
+		/>
 
-	<%
-	boolean approved = false;
-	boolean pending = false;
+		<%
+		boolean approved = false;
+		boolean pending = false;
 
-	long inheritedWorkflowDDMStructuresFolderId = JournalFolderLocalServiceUtil.getInheritedWorkflowFolderId(folderId);
+		long inheritedWorkflowDDMStructuresFolderId = JournalFolderLocalServiceUtil.getInheritedWorkflowFolderId(folderId);
 
-	boolean workflowEnabled = WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), folderId, ddmStructure.getStructureId()) || WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), inheritedWorkflowDDMStructuresFolderId, ddmStructure.getStructureId()) || WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), inheritedWorkflowDDMStructuresFolderId, JournalArticleConstants.DDM_STRUCTURE_ID_ALL);
+		boolean workflowEnabled = WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), folderId, ddmStructure.getStructureId()) || WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), inheritedWorkflowDDMStructuresFolderId, ddmStructure.getStructureId()) || WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), inheritedWorkflowDDMStructuresFolderId, JournalArticleConstants.DDM_STRUCTURE_ID_ALL);
 
-	if ((article != null) && (version > 0)) {
-		approved = article.isApproved();
+		if ((article != null) && (version > 0)) {
+			approved = article.isApproved();
 
-		if (workflowEnabled) {
-			pending = article.isPending();
+			if (workflowEnabled) {
+				pending = article.isPending();
+			}
 		}
-	}
-	%>
+		%>
 
-	<c:if test="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
-		<c:if test="<%= approved %>">
-			<div class="alert alert-info">
-				<liferay-ui:message key="a-new-version-is-created-automatically-if-this-content-is-modified" />
-			</div>
+		<c:if test="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
+			<c:if test="<%= approved %>">
+				<div class="alert alert-info">
+					<liferay-ui:message key="a-new-version-is-created-automatically-if-this-content-is-modified" />
+				</div>
+			</c:if>
+
+			<c:if test="<%= pending %>">
+				<div class="alert alert-info">
+					<liferay-ui:message key="there-is-a-publication-workflow-in-process" />
+				</div>
+			</c:if>
 		</c:if>
 
-		<c:if test="<%= pending %>">
-			<div class="alert alert-info">
-				<liferay-ui:message key="there-is-a-publication-workflow-in-process" />
-			</div>
-		</c:if>
-	</c:if>
-
-	<liferay-ui:form-navigator
-		formModelBean="<%= article %>"
-		formName="fm1"
-		id="<%= FormNavigatorConstants.FORM_NAVIGATOR_ID_JOURNAL %>"
-		markupView="lexicon"
-		showButtons="<%= false %>"
-	/>
+		<liferay-ui:form-navigator
+			formModelBean="<%= article %>"
+			formName="fm1"
+			id="<%= FormNavigatorConstants.FORM_NAVIGATOR_ID_JOURNAL %>"
+			markupView="lexicon"
+			showButtons="<%= false %>"
+		/>
+	</div>
 
 	<aui:button-row cssClass="journal-article-button-row">
 

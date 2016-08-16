@@ -78,9 +78,11 @@ import com.liferay.dynamic.data.mapping.storage.StorageType;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleConstants;
+import com.liferay.journal.model.JournalArticleLocalizationModel;
 import com.liferay.journal.model.JournalArticleModel;
 import com.liferay.journal.model.JournalArticleResourceModel;
 import com.liferay.journal.model.JournalContentSearchModel;
+import com.liferay.journal.model.impl.JournalArticleLocalizationModelImpl;
 import com.liferay.journal.model.impl.JournalArticleModelImpl;
 import com.liferay.journal.model.impl.JournalArticleResourceModelImpl;
 import com.liferay.journal.model.impl.JournalContentSearchModelImpl;
@@ -100,6 +102,7 @@ import com.liferay.message.boards.kernel.model.MBThread;
 import com.liferay.message.boards.kernel.model.MBThreadFlagModel;
 import com.liferay.message.boards.kernel.model.MBThreadModel;
 import com.liferay.message.boards.web.constants.MBPortletKeys;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.metadata.RawMetadataProcessor;
 import com.liferay.portal.kernel.model.AccountModel;
@@ -136,12 +139,14 @@ import com.liferay.portal.kernel.security.auth.FullNameGenerator;
 import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.IntegerWrapper;
+import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -213,6 +218,7 @@ import java.io.InputStreamReader;
 import java.text.Format;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -1118,23 +1124,6 @@ public class DataFactory {
 			null, dLFolderModel.getName());
 	}
 
-	public AssetEntryModel newAssetEntryModel(
-		JournalArticleModel journalArticleModel) {
-
-		long resourcePrimKey = journalArticleModel.getResourcePrimKey();
-
-		String resourceUuid = _journalArticleResourceUUIDs.get(resourcePrimKey);
-
-		return newAssetEntryModel(
-			journalArticleModel.getGroupId(),
-			journalArticleModel.getCreateDate(),
-			journalArticleModel.getModifiedDate(),
-			getClassNameId(JournalArticle.class), resourcePrimKey, resourceUuid,
-			_defaultJournalDDMStructureModel.getStructureId(),
-			journalArticleModel.isIndexable(), true, ContentTypes.TEXT_HTML,
-			journalArticleModel.getTitle());
-	}
-
 	public AssetEntryModel newAssetEntryModel(MBMessageModel mbMessageModel) {
 		long classNameId = 0;
 		boolean visible = false;
@@ -1163,6 +1152,28 @@ public class DataFactory {
 			mbThreadModel.getThreadId(), mbThreadModel.getUuid(), 0, true,
 			false, StringPool.BLANK,
 			String.valueOf(mbThreadModel.getRootMessageId()));
+	}
+
+	public AssetEntryModel newAssetEntryModel(
+		ObjectValuePair<JournalArticleModel, JournalArticleLocalizationModel>
+			objectValuePair) {
+
+		JournalArticleModel journalArticleModel = objectValuePair.getKey();
+		JournalArticleLocalizationModel journalArticleLocalizationModel =
+			objectValuePair.getValue();
+
+		long resourcePrimKey = journalArticleModel.getResourcePrimKey();
+
+		String resourceUUID = _journalArticleResourceUUIDs.get(resourcePrimKey);
+
+		return newAssetEntryModel(
+			journalArticleModel.getGroupId(),
+			journalArticleModel.getCreateDate(),
+			journalArticleModel.getModifiedDate(),
+			getClassNameId(JournalArticle.class), resourcePrimKey, resourceUUID,
+			_defaultJournalDDMStructureModel.getStructureId(),
+			journalArticleModel.isIndexable(), true, ContentTypes.TEXT_HTML,
+			journalArticleLocalizationModel.getTitle());
 	}
 
 	public AssetEntryModel newAssetEntryModel(WikiPageModel wikiPageModel) {
@@ -1675,9 +1686,37 @@ public class DataFactory {
 		return new IntegerWrapper();
 	}
 
+	public JournalArticleLocalizationModel newJournalArticleLocalizationModel(
+		JournalArticleModel journalArticleModel, int articleIndex,
+		int versionIndex) {
+
+		JournalArticleLocalizationModel journalArticleLocalizationModel =
+			new JournalArticleLocalizationModelImpl();
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append("TestJournalArticle_");
+		sb.append(articleIndex);
+		sb.append(StringPool.UNDERLINE);
+		sb.append(versionIndex);
+
+		journalArticleLocalizationModel.setArticleLocalizationId(
+			_counter.get());
+		journalArticleLocalizationModel.setCompanyId(
+			journalArticleModel.getCompanyId());
+		journalArticleLocalizationModel.setArticlePK(
+			journalArticleModel.getId());
+		journalArticleLocalizationModel.setTitle(sb.toString());
+		journalArticleLocalizationModel.setLanguageId(
+			journalArticleModel.getDefaultLanguageId());
+
+		return journalArticleLocalizationModel;
+	}
+
 	public JournalArticleModel newJournalArticleModel(
-		JournalArticleResourceModel journalArticleResourceModel,
-		int articleIndex, int versionIndex) {
+			JournalArticleResourceModel journalArticleResourceModel,
+			int articleIndex, int versionIndex)
+		throws PortalException {
 
 		JournalArticleModel journalArticleModel = new JournalArticleModelImpl();
 
@@ -1707,19 +1746,10 @@ public class DataFactory {
 
 		String urlTitle = sb.toString();
 
-		sb = new StringBundler(4);
-
-		sb.append("<?xml version=\"1.0\"?><root available-locales=\"en_US\" ");
-		sb.append("default-locale=\"en_US\"><Title language-id=\"en_US\">");
-		sb.append(urlTitle);
-		sb.append("</Title></root>");
-
-		String title = sb.toString();
-
-		journalArticleModel.setTitle(title);
 		journalArticleModel.setUrlTitle(urlTitle);
 
 		journalArticleModel.setContent(_journalArticleContent);
+		journalArticleModel.setDefaultLanguageId("en_US");
 		journalArticleModel.setDDMStructureKey(
 			_defaultJournalDDMStructureModel.getStructureKey());
 		journalArticleModel.setDDMTemplateKey(
@@ -2041,6 +2071,10 @@ public class DataFactory {
 		return mbThreadModels;
 	}
 
+	public <K, V> ObjectValuePair<K, V> newObjectValuePair(K key, V value) {
+		return new ObjectValuePair<>(key, value);
+	}
+
 	public PortletPreferencesModel newPortletPreferencesModel(
 			long plid, long groupId, String portletId, int currentIndex)
 		throws Exception {
@@ -2224,14 +2258,9 @@ public class DataFactory {
 		List<ResourcePermissionModel> resourcePermissionModels =
 			new ArrayList<>(3);
 
-		StringBundler sb = new StringBundler(3);
-
-		sb.append(getClassName(ddmStructureModel.getClassNameId()));
-		sb.append(StringPool.DASH);
-		sb.append(DDMStructure.class.getName());
-
-		String name = sb.toString();
-
+		String name = _getResourcePermissionModelName(
+			DDMStructure.class.getName(),
+			getClassName(ddmStructureModel.getClassNameId()));
 		String primKey = String.valueOf(ddmStructureModel.getStructureId());
 
 		resourcePermissionModels.add(
@@ -2254,14 +2283,9 @@ public class DataFactory {
 		List<ResourcePermissionModel> resourcePermissionModels =
 			new ArrayList<>(3);
 
-		StringBundler sb = new StringBundler(3);
-
-		sb.append(getClassName(ddmTemplateModel.getResourceClassNameId()));
-		sb.append(StringPool.DASH);
-		sb.append(DDMTemplate.class.getName());
-
-		String name = sb.toString();
-
+		String name = _getResourcePermissionModelName(
+			DDMTemplate.class.getName(),
+			getClassName(ddmTemplateModel.getResourceClassNameId()));
 		String primKey = String.valueOf(ddmTemplateModel.getTemplateId());
 
 		resourcePermissionModels.add(
@@ -3262,6 +3286,25 @@ public class DataFactory {
 	protected Date nextFutureDate() {
 		return new Date(
 			_FUTURE_TIME + (_futureDateCounter.get() * Time.SECOND));
+	}
+
+	private String _getResourcePermissionModelName(String... classNames) {
+		if (ArrayUtil.isEmpty(classNames)) {
+			return StringPool.BLANK;
+		}
+
+		Arrays.sort(classNames);
+
+		StringBundler sb = new StringBundler(classNames.length * 2);
+
+		for (String className : classNames) {
+			sb.append(className);
+			sb.append(StringPool.DASH);
+		}
+
+		sb.setIndex(sb.index() - 1);
+
+		return sb.toString();
 	}
 
 	private static final long _CURRENT_TIME = System.currentTimeMillis();
