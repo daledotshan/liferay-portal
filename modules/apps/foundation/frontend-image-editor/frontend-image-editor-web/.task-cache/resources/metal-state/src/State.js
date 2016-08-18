@@ -58,14 +58,6 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
     */
 			_this.stateInfo_ = {};
 
-			/**
-    * Object with the most recent values that state properties were set to
-    * through either the constructor or setState calls.
-    * @type {!Object<string, *>}
-    */
-			_this.config = {};
-
-			_this.updateConfig_(opt_config || {});
 			_this.setShouldUseFacade(true);
 			_this.mergeInvalidKeys_();
 			_this.addToStateFromStaticHint_(opt_config);
@@ -165,7 +157,12 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			var info = this.stateInfo_[name];
 			var config = info.config;
 			if (config.validator) {
-				return this.callFunction_(config.validator, [value, name]);
+				var validatorReturn = this.callFunction_(config.validator, [value, name, this]);
+
+				if (validatorReturn instanceof Error) {
+					console.error('Warning: ' + validatorReturn);
+				}
+				return validatorReturn;
 			}
 			return true;
 		};
@@ -220,6 +217,10 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		State.prototype.hasBeenSet = function hasBeenSet(name) {
 			var info = this.stateInfo_[name];
 			return info.state === State.KeyStates.INITIALIZED || info.initialValue;
+		};
+
+		State.prototype.hasStateKey = function hasStateKey(key) {
+			return !!this.stateInfo_[key];
 		};
 
 		State.prototype.informChange_ = function informChange_(name, prevVal) {
@@ -292,7 +293,9 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.set = function set(name, value) {
-			this[name] = value;
+			if (this.hasStateKey(name)) {
+				this[name] = value;
+			}
 		};
 
 		State.prototype.setDefaultValue_ = function setDefaultValue_(name) {
@@ -314,11 +317,11 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.setState = function setState(values, opt_callback) {
-			this.updateConfig_(values);
-			var names = Object.keys(values);
-			for (var i = 0; i < names.length; i++) {
-				this[names[i]] = values[names[i]];
-			}
+			var _this2 = this;
+
+			Object.keys(values).forEach(function (name) {
+				return _this2.set(name, values[name]);
+			});
 			if (opt_callback && this.scheduledBatchData_) {
 				this.once('stateChanged', opt_callback);
 			}
@@ -345,15 +348,6 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this[name]);
 		};
 
-		State.prototype.updateConfig_ = function updateConfig_(values) {
-			var prevConfig = this.config;
-			this.config = _metal.object.mixin({}, this.config, values);
-			this.emit('configChanged', {
-				newVal: this.config,
-				prevVal: prevConfig
-			});
-		};
-
 		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {
 			var info = this.stateInfo_[name];
 
@@ -369,7 +363,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
   * constructors, which will be merged together and handled automatically.
   * @type {!Array<string>}
   */
-	State.INVALID_KEYS = ['config', 'state', 'stateKey'];
+	State.INVALID_KEYS = ['state', 'stateKey'];
 
 	/**
   * Constants that represent the states that an a state key can be in.

@@ -14,11 +14,14 @@
 
 package com.liferay.portal.workflow.kaleo.service.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.workflow.kaleo.definition.Assignment;
 import com.liferay.portal.workflow.kaleo.definition.Task;
+import com.liferay.portal.workflow.kaleo.definition.TaskForm;
 import com.liferay.portal.workflow.kaleo.model.KaleoTask;
 import com.liferay.portal.workflow.kaleo.service.base.KaleoTaskLocalServiceBaseImpl;
 
@@ -28,6 +31,7 @@ import java.util.Set;
 /**
  * @author Brian Wing Shun Chan
  */
+@ProviderType
 public class KaleoTaskLocalServiceImpl extends KaleoTaskLocalServiceBaseImpl {
 
 	@Override
@@ -54,6 +58,7 @@ public class KaleoTaskLocalServiceImpl extends KaleoTaskLocalServiceBaseImpl {
 		kaleoTask.setKaleoDefinitionId(kaleoDefinitionId);
 		kaleoTask.setKaleoNodeId(kaleoNodeId);
 		kaleoTask.setName(task.getName());
+		kaleoTask.setDescription(task.getDescription());
 
 		kaleoTaskPersistence.update(kaleoTask);
 
@@ -65,6 +70,16 @@ public class KaleoTaskLocalServiceImpl extends KaleoTaskLocalServiceBaseImpl {
 			kaleoTaskAssignmentLocalService.addKaleoTaskAssignment(
 				KaleoTask.class.getName(), kaleoTaskId, kaleoDefinitionId,
 				assignment, serviceContext);
+		}
+
+		// Kaleo forms
+
+		Set<TaskForm> taskForms = task.getTaskForms();
+
+		for (TaskForm taskForm : taskForms) {
+			kaleoTaskFormLocalService.addKaleoTaskForm(
+				kaleoDefinitionId, kaleoNodeId, kaleoTask, taskForm,
+				serviceContext);
 		}
 
 		return kaleoTask;
@@ -81,6 +96,10 @@ public class KaleoTaskLocalServiceImpl extends KaleoTaskLocalServiceBaseImpl {
 
 		kaleoTaskAssignmentLocalService.deleteCompanyKaleoTaskAssignments(
 			companyId);
+
+		// Kaleo task forms
+
+		kaleoTaskFormLocalService.deleteCompanyKaleoTaskForms(companyId);
 	}
 
 	@Override
@@ -94,6 +113,11 @@ public class KaleoTaskLocalServiceImpl extends KaleoTaskLocalServiceBaseImpl {
 
 		kaleoTaskAssignmentLocalService.
 			deleteKaleoDefinitionKaleoTaskAssignments(kaleoDefinitionId);
+
+		// Kaleo task forms
+
+		kaleoTaskFormLocalService.deleteKaleoDefinitionKaleoTaskForms(
+			kaleoDefinitionId);
 	}
 
 	@Override

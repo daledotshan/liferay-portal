@@ -9,6 +9,11 @@
 </thead>
 <tbody>
 <tr>
+	<td>ADD_REPEATABLE_ENTRY</td>
+	<td>xpath=(//div[contains(@data-fieldname,'${key_assetType}')]/../div//a[contains(@class,'repeatable-add-button')])[${key_counter}]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ADVANCED_SEARCH</td>
 	<td>//button[contains(@class,'toggle-advanced') and span[@class='caret']] | //a[contains(@id,'searchtoggleAdvanced')]</td>
 	<td></td>
@@ -124,6 +129,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EDIT_PENCIL</td>
+	<td>//*[name()='svg'][contains(@class,'lexicon-icon-pencil')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EXPIRE</td>
 	<td>//*[@data-qa-id='expireButton'] | //a[contains(@id,'expireArticle') or contains(@href,'editEntry')]/span[contains(@class,'icon-time')]</td>
 	<td></td>
@@ -210,7 +220,7 @@
 </tr>
 <tr>
 	<td>INHERIT_CHANGES_TOOLTIP</td>
-	<td>//label[contains(.,'Inherit Changes')]//span/*[name()='svg'][contains(@class,'icon-question')]</td>
+	<td>//div[not(contains(@class,'hide'))]/div/label[contains(.,'Inherit Changes')]//span/*[name()='svg'][contains(@class,'icon-question')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -247,6 +257,11 @@
 <tr>
 	<td>HISTORY_VERTICAL_ELLIPSIS</td>
 	<td>//*[contains(@class,'lexicon-icon-ellipsis-v')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE__CUSTOMIZATION_ELLIPSIS</td>
+	<td>//*[@data-qa-id='controlMenu']//div[contains(@class,'icon-menu')]</td>
 	<td></td>
 </tr>
 <tr>

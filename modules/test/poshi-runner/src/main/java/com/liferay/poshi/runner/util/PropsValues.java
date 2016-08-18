@@ -25,6 +25,9 @@ public class PropsValues {
 	public static final String BROWSER_COMMANDS_DIR_NAME = PropsUtil.get(
 		"browser.commands.dir.name");
 
+	public static final String BROWSER_FIREFOX_BIN_FILE = PropsUtil.get(
+		"browser.firefox.bin.file");
+
 	public static final String BROWSER_TYPE = PropsUtil.get("browser.type");
 
 	public static final String BROWSER_VERSION = PropsUtil.get(
@@ -190,6 +193,9 @@ public class PropsValues {
 	public static final String[] TEST_BATCH_PROPERTY_NAMES = StringUtil.split(
 		PropsUtil.get("test.batch.property.names"));
 
+	public static final String TEST_BATCH_PROPERTY_QUERY = PropsUtil.get(
+		"test.batch.property.query");
+
 	public static final String[] TEST_BATCH_PROPERTY_VALUES = StringUtil.split(
 		PropsUtil.get("test.batch.property.values"));
 
@@ -239,6 +245,9 @@ public class PropsValues {
 
 	public static final boolean TEST_SKIP_TEAR_DOWN = GetterUtil.getBoolean(
 		PropsUtil.get("test.skip.tear.down"));
+
+	public static final String[] TEST_TOGGLE_FILE_NAMES = StringUtil.split(
+		PropsUtil.get("test.toggle.file.names"));
 
 	public static final boolean TESTING_CLASS_METHOD = GetterUtil.getBoolean(
 		PropsUtil.get("testing.class.method"));
