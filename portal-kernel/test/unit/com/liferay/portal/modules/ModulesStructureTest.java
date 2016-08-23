@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -56,6 +57,10 @@ public class ModulesStructureTest {
 			classLoader,
 			"com/liferay/portal/modules/dependencies/" +
 				"git_repo_build_gradle.tmpl");
+		final String gitRepoGradlePropertiesTemplate = StringUtil.read(
+			classLoader,
+			"com/liferay/portal/modules/dependencies/" +
+				"git_repo_gradle_properties.tmpl");
 		final String gitRepoSettingsGradleTemplate = StringUtil.read(
 			classLoader,
 			"com/liferay/portal/modules/dependencies/" +
@@ -87,8 +92,12 @@ public class ModulesStructureTest {
 
 					if (Files.exists(dirPath.resolve(".gitrepo"))) {
 						_testGitRepoBuildScripts(
-							dirPath, gitRepoBuildGradleTemplate,
+							dirPath, modulesDirPath, gitRepoBuildGradleTemplate,
+							gitRepoGradlePropertiesTemplate,
 							gitRepoSettingsGradleTemplate);
+					}
+					else if (Files.exists(dirPath.resolve("app.bnd"))) {
+						_testAppBuildScripts(dirPath);
 					}
 					else if (Files.exists(dirPath.resolve("bnd.bnd"))) {
 						if (Files.notExists(buildGradlePath)) {
@@ -115,6 +124,8 @@ public class ModulesStructureTest {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 					else if (Files.exists(dirPath.resolve("package.json"))) {
+						_testThemeBuildScripts(dirPath);
+
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 
@@ -193,13 +204,36 @@ public class ModulesStructureTest {
 		}
 	}
 
+	private boolean _contains(Path path, String s) throws IOException {
+		try (FileReader fileReader = new FileReader(path.toFile());
+			UnsyncBufferedReader unsyncBufferedReader =
+				new UnsyncBufferedReader(fileReader)) {
+
+			String line = null;
+
+			while ((line = unsyncBufferedReader.readLine()) != null) {
+				if (line.contains(s)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	private String _getGitRepoBuildGradle(
 			Path dirPath, String buildGradleTemplate)
 		throws IOException {
 
+		if (Files.notExists(dirPath.resolve("app.bnd"))) {
+			buildGradleTemplate = StringUtil.removeSubstring(
+				buildGradleTemplate,
+				_APP_BUILD_GRADLE + StringPool.NEW_LINE + StringPool.NEW_LINE);
+		}
+
 		final Set<String> pluginNames = new TreeSet<>();
 
-		pluginNames.add("com.liferay.gradle.plugins");
+		pluginNames.add("com.liferay.gradle.plugins.defaults");
 
 		Files.walkFileTree(
 			dirPath,
@@ -251,6 +285,22 @@ public class ModulesStructureTest {
 			buildGradleTemplate, "[$BUILDSCRIPT_DEPENDENCIES$]", sb.toString());
 	}
 
+	private String _getGitRepoGradleProperties(
+		Path dirPath, Path modulesDirPath, String gradlePropertiesTemplate) {
+
+		Path relativePath = modulesDirPath.relativize(dirPath);
+
+		String projectPathPrefix = relativePath.toString();
+
+		projectPathPrefix =
+			":" +
+				StringUtil.replace(
+					projectPathPrefix, File.separatorChar, CharPool.COLON);
+
+		return gradlePropertiesTemplate.replace(
+			"[$PROJECT_PATH_PREFIX$]", projectPathPrefix);
+	}
+
 	private String _read(Path path) throws IOException {
 		String s = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
 
@@ -258,15 +308,29 @@ public class ModulesStructureTest {
 			s, System.lineSeparator(), StringPool.NEW_LINE);
 	}
 
+	private void _testAppBuildScripts(Path dirPath) throws IOException {
+		Path buildGradlePath = dirPath.resolve("build.gradle");
+
+		Assert.assertTrue(
+			"Missing " + buildGradlePath, Files.exists(buildGradlePath));
+
+		String buildGradle = _read(buildGradlePath);
+
+		Assert.assertEquals(
+			"Incorrect " + buildGradlePath, _APP_BUILD_GRADLE, buildGradle);
+	}
+
 	private void _testGitRepoBuildScripts(
-			Path dirPath, String buildGradleTemplate,
-			String settingsGradleTemplate)
+			Path dirPath, Path modulesDirPath, String buildGradleTemplate,
+			String gradlePropertiesTemplate, String settingsGradleTemplate)
 		throws IOException {
 
 		Path buildGradlePath = dirPath.resolve("build.gradle");
+		Path gradlePropertiesPath = dirPath.resolve("gradle.properties");
 		Path settingsGradlePath = dirPath.resolve("settings.gradle");
 
 		boolean buildGradleExists = Files.exists(buildGradlePath);
+		boolean gradlePropertiesExists = Files.exists(gradlePropertiesPath);
 		boolean settingsGradleExists = Files.exists(settingsGradlePath);
 
 		if (!buildGradleExists) {
@@ -279,6 +343,18 @@ public class ModulesStructureTest {
 			"Incorrect " + buildGradlePath,
 			_getGitRepoBuildGradle(dirPath, buildGradleTemplate), buildGradle);
 
+		if (!gradlePropertiesExists) {
+			Assert.fail("Missing " + gradlePropertiesExists);
+		}
+
+		String gradleProperties = _read(gradlePropertiesPath);
+
+		Assert.assertEquals(
+			"Incorrect " + gradlePropertiesPath,
+			_getGitRepoGradleProperties(
+				dirPath, modulesDirPath, gradlePropertiesTemplate),
+			gradleProperties);
+
 		if (!settingsGradleExists) {
 			Assert.fail("Missing " + settingsGradlePath);
 		}
@@ -289,5 +365,22 @@ public class ModulesStructureTest {
 			"Incorrect " + settingsGradlePath, settingsGradleTemplate,
 			settingsGradle);
 	}
+
+	private void _testThemeBuildScripts(Path dirPath) throws IOException {
+		if (!_contains(
+				dirPath.resolve("package.json"), "\"liferay-theme-tasks\":")) {
+
+			return;
+		}
+
+		Path gulpfileJsPath = dirPath.resolve("gulpfile.js");
+
+		if (Files.notExists(gulpfileJsPath)) {
+			Assert.fail("Missing " + gulpfileJsPath);
+		}
+	}
+
+	private static final String _APP_BUILD_GRADLE =
+		"apply plugin: \"com.liferay.app.defaults.plugin\"";
 
 }

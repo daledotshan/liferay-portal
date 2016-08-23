@@ -17,6 +17,8 @@
 <%@ include file="/image_gallery_display/init.jsp" %>
 
 <%
+String redirect = ParamUtil.getString(request, "redirect");
+
 Folder folder = (Folder)request.getAttribute(WebKeys.DOCUMENT_LIBRARY_FOLDER);
 
 long folderId = BeanParamUtil.getLong(folder, request, "folderId", rootFolderId);
@@ -72,6 +74,11 @@ List fileEntries = DLAppServiceUtil.getGroupFileEntries(scopeGroupId, 0, folderI
 	PortletURL portletURL = renderResponse.createRenderURL();
 
 	portletURL.setParameter("mvcRenderCommandName", "/image_gallery_display/view");
+
+	if (Validator.isNotNull(redirect)) {
+		portletURL.setParameter("redirect", redirect);
+	}
+
 	portletURL.setParameter("topLink", topLink);
 	portletURL.setParameter("folderId", String.valueOf(folderId));
 
@@ -154,8 +161,8 @@ List fileEntries = DLAppServiceUtil.getGroupFileEntries(scopeGroupId, 0, folderI
 
 			igSearchContainer.setResults(results);
 
-			request.setAttribute("view.jsp-mediaGalleryMimeTypes", mediaGalleryMimeTypes);
 			request.setAttribute("view.jsp-igSearchContainer", igSearchContainer);
+			request.setAttribute("view.jsp-mediaGalleryMimeTypes", mediaGalleryMimeTypes);
 			%>
 
 			<div id="<portlet:namespace />imageGalleryAssetInfo">
@@ -234,8 +241,8 @@ List fileEntries = DLAppServiceUtil.getGroupFileEntries(scopeGroupId, 0, folderI
 
 			igSearchContainer.setResults(results);
 
-			request.setAttribute("view.jsp-mediaGalleryMimeTypes", mediaGalleryMimeTypes);
 			request.setAttribute("view.jsp-igSearchContainer", igSearchContainer);
+			request.setAttribute("view.jsp-mediaGalleryMimeTypes", mediaGalleryMimeTypes);
 			%>
 
 			<aui:row>
