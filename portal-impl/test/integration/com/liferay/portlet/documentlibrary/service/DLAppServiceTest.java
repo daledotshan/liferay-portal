@@ -145,19 +145,6 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 			}
 		}
 
-		@Test
-		public void shouldCreateDiscussion() throws Exception {
-			FileEntry fileEntry = addFileEntry(
-				group.getGroupId(), parentFolder.getFolderId());
-
-			boolean hasDiscussion = CommentManagerUtil.hasDiscussion(
-				DLFileEntryConstants.getClassName(),
-				fileEntry.getFileEntryId());
-
-			Assert.assertEquals(
-				PropsValues.DL_FILE_ENTRY_COMMENTS_ENABLED, hasDiscussion);
-		}
-
 		@Test(expected = DuplicateFileEntryException.class)
 		public void shouldFailIfDuplicateNameAndExtensionInFolder1()
 			throws Exception {
@@ -328,9 +315,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 		@ExpectedLogs(
 			expectedLogs = {
 				@ExpectedLog(
-					expectedLog =
-						"Deadlock found when trying to get lock; try " +
-							"restarting transaction",
+					expectedLog = "Deadlock found when trying to get lock; try restarting transaction",
 					expectedType = ExpectedType.EXACT
 				),
 				@ExpectedLog(

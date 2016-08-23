@@ -15,7 +15,7 @@
 package com.liferay.staging.taglib.servlet.taglib;
 
 import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.staging.taglib.servlet.ServletContextUtil;
+import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import java.util.List;
@@ -88,7 +88,7 @@ public class PortletListTag extends IncludeTag {
 	private static final String _PAGE = "/portlet_list/page.jsp";
 
 	private boolean _disableInputs;
-	private long _exportImportConfigurationId = 0;
+	private long _exportImportConfigurationId;
 	private List<Portlet> _portlets;
 	private boolean _showAllPortlets;
 	private String _type;

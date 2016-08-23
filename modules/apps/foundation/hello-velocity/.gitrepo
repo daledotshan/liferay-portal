@@ -4,7 +4,7 @@
 ;
 [subrepo]
 	cmdver = liferay
-	commit = 864dfa89c259977af94da06d11c1a49f4350c79e
+	commit = 5f51ad37c6dd69bc942673cf41fea36fdfab5541
 	mode = push
-	parent = 463b96fb25dc7ade7a3f8be735fcf57286399d90
+	parent = 98daf90257425b675c96f110219735e2f00494a9
 	remote = git@github.com:liferay/com-liferay-hello-velocity.git
