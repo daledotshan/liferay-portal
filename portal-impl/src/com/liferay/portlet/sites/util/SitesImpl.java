@@ -573,48 +573,9 @@ public class SitesImpl implements Sites {
 		LayoutServiceUtil.deleteLayout(
 			groupId, privateLayout, layoutId, serviceContext);
 
-		long newPlid = LayoutConstants.DEFAULT_PLID;
-
-		if (selPlid == themeDisplay.getRefererPlid()) {
-			if (layout.getParentLayoutId() !=
-					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID) {
-
-				Layout parentLayout = LayoutLocalServiceUtil.fetchLayout(
-					layout.getGroupId(), layout.isPrivateLayout(),
-					layout.getParentLayoutId());
-
-				if (parentLayout != null) {
-					newPlid = parentLayout.getPlid();
-				}
-			}
-
-			if (newPlid <= 0) {
-				Layout firstLayout = LayoutLocalServiceUtil.fetchFirstLayout(
-					layout.getGroupId(), layout.isPrivateLayout(),
-					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
-
-				if ((firstLayout != null) &&
-					(firstLayout.getPlid() != selPlid)) {
-
-					newPlid = firstLayout.getPlid();
-				}
-
-				if (newPlid <= 0) {
-					Layout otherLayoutSetFirstLayout =
-						LayoutLocalServiceUtil.fetchFirstLayout(
-							layout.getGroupId(), !layout.isPrivateLayout(),
-							LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
-
-					if ((otherLayoutSetFirstLayout != null) &&
-						(otherLayoutSetFirstLayout.getPlid() != selPlid)) {
-
-						newPlid = otherLayoutSetFirstLayout.getPlid();
-					}
-				}
-			}
-		}
-
-		return new Object[] {group, oldFriendlyURL, newPlid};
+		return new Object[] {
+			group, oldFriendlyURL, LayoutConstants.DEFAULT_PLID
+		};
 	}
 
 	@Override
@@ -751,6 +712,9 @@ public class SitesImpl implements Sites {
 			new String[] {Boolean.FALSE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_LINK_ENABLED,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_SETTINGS,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUT_SET_SETTINGS,
@@ -1389,10 +1353,21 @@ public class SitesImpl implements Sites {
 				layoutSet.isPrivateLayout(), parameterMap, importData);
 		}
 		catch (Exception e) {
-			_log.error(e, e);
+			mergeFailCount++;
+
+			StringBundler sb = new StringBundler(6);
+
+			sb.append("Merge fail count increased to ");
+			sb.append(mergeFailCount);
+			sb.append(" for layout set prototype ");
+			sb.append(layoutSetPrototype.getLayoutSetPrototypeId());
+			sb.append(" and layout set ");
+			sb.append(layoutSet.getLayoutSetId());
+
+			_log.error(sb.toString(), e);
 
 			layoutSetPrototypeSettingsProperties.setProperty(
-				MERGE_FAIL_COUNT, String.valueOf(++mergeFailCount));
+				MERGE_FAIL_COUNT, String.valueOf(mergeFailCount));
 
 			// Invoke updateImpl so that we do not trigger the listeners
 
@@ -1805,6 +1780,9 @@ public class SitesImpl implements Sites {
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_LINK_ENABLED,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_SETTINGS,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE,

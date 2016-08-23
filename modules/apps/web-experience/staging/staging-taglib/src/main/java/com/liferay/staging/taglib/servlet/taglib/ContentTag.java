@@ -14,7 +14,7 @@
 
 package com.liferay.staging.taglib.servlet.taglib;
 
-import com.liferay.staging.taglib.servlet.ServletContextUtil;
+import com.liferay.staging.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;
@@ -85,7 +85,7 @@ public class ContentTag extends IncludeTag {
 
 	private String _cmd;
 	private boolean _disableInputs;
-	private long _exportImportConfigurationId = 0;
+	private long _exportImportConfigurationId;
 	private boolean _showAllPortlets;
 	private String _type;
 

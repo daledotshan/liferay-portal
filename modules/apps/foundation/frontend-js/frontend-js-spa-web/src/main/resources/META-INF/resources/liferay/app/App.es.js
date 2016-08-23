@@ -13,6 +13,9 @@ class LiferayApp extends App {
 		this.portletsBlacklist = {};
 		this.validStatusCodes = [];
 
+		this.timeout = Math.max(Liferay.SPA.requestTimeout, 0) || Utils.getMaxTimeout();
+		this.timeoutAlert = null;
+
 		var exceptionsSelector = ':not([target="_blank"]):not([data-senna-off]):not([data-resource-href])';
 
 		this.setFormSelector('form' + exceptionsSelector);
@@ -48,7 +51,23 @@ class LiferayApp extends App {
 		return this.getCacheExpirationTime() > -1;
 	}
 
+	isInPortletBlacklist(element) {
+		return Object.keys(this.portletsBlacklist).some(
+			(portletId) => {
+				var boundaryId = Utils.getPortletBoundaryId(portletId);
+
+				var portlets = document.querySelectorAll('[id^="' + boundaryId + '"]');
+
+				return Array.prototype.slice.call(portlets).some(portlet => dom.contains(portlet, element));
+			}
+		);
+	}
+
 	isScreenCacheExpired(screen) {
+		if (this.getCacheExpirationTime() === 0) {
+			return false;
+		}
+
 		var lastModifiedInterval = (new Date()).getTime() - screen.getCacheLastModified();
 
 		return lastModifiedInterval > this.getCacheExpirationTime();
@@ -69,22 +88,19 @@ class LiferayApp extends App {
 	}
 
 	onDocClickDelegate_(event) {
-		var inPortletsBlacklist = false;
-
-		Object.keys(this.portletsBlacklist).forEach(
-			(portletId) => {
-				var boundaryId = Utils.getPortletBoundaryId(portletId);
-				var portlets = document.querySelectorAll('[id^="' + boundaryId + '"]');
-
-				inPortletsBlacklist = Array.prototype.slice.call(portlets).some(portlet => dom.contains(portlet, event.delegateTarget));
-			}
-		);
-
-		if (inPortletsBlacklist) {
+		if (this.isInPortletBlacklist(event.delegateTarget)) {
 			return;
 		}
 
 		super.onDocClickDelegate_(event);
+	}
+
+	onDocSubmitDelegate_(event) {
+		if (this.isInPortletBlacklist(event.delegateTarget)) {
+			return;
+		}
+
+		super.onDocSubmitDelegate_(event);
 	}
 
 	onEndNavigate(event) {
@@ -96,6 +112,11 @@ class LiferayApp extends App {
 				path: event.path
 			}
 		);
+
+		if (!this.pendingNavigate) {
+			this._clearRequestTimer();
+			this._hideTimeoutAlert();
+		}
 
 		if (event.error) {
 			if (event.error.invalidStatus || event.error.requestError || event.error.timeout) {
@@ -128,6 +149,8 @@ class LiferayApp extends App {
 				path: event.path
 			}
 		);
+
+		this._startRequestTimer(event.path);
 	}
 
 	setPortletsBlacklist(portletsBlacklist) {
@@ -136,6 +159,66 @@ class LiferayApp extends App {
 
 	setValidStatusCodes(validStatusCodes) {
 		this.validStatusCodes = validStatusCodes;
+	}
+
+	_clearRequestTimer() {
+		if (this.requestTimer) {
+			clearTimeout(this.requestTimer);
+		}
+	}
+
+	_createTimeoutNotification() {
+		var instance = this;
+
+		AUI().use(
+			'liferay-notification',
+			() => {
+				instance.timeoutAlert = new Liferay.Notification(
+					{
+						closeable: true,
+						delay: {
+							hide: 0,
+							show: 0
+						},
+						duration: 500,
+						message: Liferay.SPA.userNotification.message,
+						title: Liferay.SPA.userNotification.title,
+						type: 'warning'
+					}
+				).render('body');
+			}
+		);
+	}
+
+	_hideTimeoutAlert() {
+		if (this.timeoutAlert) {
+			this.timeoutAlert.hide();
+		}
+	}
+
+	_startRequestTimer(path) {
+		this._clearRequestTimer();
+
+		if (Liferay.SPA.userNotification.timeout > 0) {
+			this.requestTimer = setTimeout(
+				() => {
+					Liferay.fire(
+						'spaRequestTimeout',
+						{
+							path: path
+						}
+					);
+
+					if (!this.timeoutAlert) {
+						this._createTimeoutNotification();
+					}
+					else {
+						this.timeoutAlert.show();
+					}
+				},
+				Liferay.SPA.userNotification.timeout
+			);
+		}
 	}
 }
 

@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -99,6 +100,7 @@ public class UpgradeDynamicDataMappingTest {
 		_timestamp = new Timestamp(System.currentTimeMillis());
 
 		setUpClassNameIds();
+		setUpModelResourceNames();
 		setUpPrimaryKeys();
 		setUpUpgradeDynamicDataMapping();
 	}
@@ -859,7 +861,7 @@ public class UpgradeDynamicDataMappingTest {
 			sb.append(dateFieldName);
 			sb.append("_Data = getterUtil.getString(");
 			sb.append(dateFieldName);
-			sb.append(".getData())>");
+			sb.append(".getData()) />");
 
 			Assert.assertTrue(actualDefinition.contains(sb.toString()));
 
@@ -881,10 +883,42 @@ public class UpgradeDynamicDataMappingTest {
 			sb.append(dateFieldName);
 			sb.append("_DateObj = dateUtil.parseDate(\"yyyy-MM-dd\", ");
 			sb.append(dateFieldName);
-			sb.append("_Data, locale)>");
+			sb.append("_Data, locale) />");
 
 			Assert.assertTrue(actualDefinition.contains(sb.toString()));
 		}
+	}
+
+	@Test
+	public void testUpgradeTemplateFreemarkerScriptUTCDateFields()
+		throws Exception {
+
+		addStructure(
+			_structureId, DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
+			DDMStructureConstants.VERSION_DEFAULT,
+			read("ddm-structure-date-field.xsd"), "xml");
+
+		addTemplate(
+			_templateId, _structureId, null,
+			read("ddm-template-with-utc-date-field.ftl"), "ftl",
+			DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY);
+
+		_upgradeDynamicDataMapping.upgrade();
+
+		String actualDefinition = getTemplateScript(_templateId);
+
+		String dateFieldName = "date1";
+
+		// Date getDate statement
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append("dateUtil.getDate(");
+		sb.append(dateFieldName);
+		sb.append("_DateObj");
+		sb.append(", \"dd MMM yyyy - HH:mm:ss\", locale)");
+
+		Assert.assertTrue(actualDefinition.contains(sb.toString()));
 	}
 
 	@Test
@@ -1021,6 +1055,38 @@ public class UpgradeDynamicDataMappingTest {
 
 			Assert.assertTrue(actualDefinition.contains(sb.toString()));
 		}
+	}
+
+	@Test
+	public void testUpgradeTemplateVelocityScriptDateUTCFields()
+		throws Exception {
+
+		addStructure(
+			_structureId, DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
+			DDMStructureConstants.VERSION_DEFAULT,
+			read("ddm-structure-date-field.xsd"), "xml");
+
+		addTemplate(
+			_templateId, _structureId, null,
+			read("ddm-template-with-utc-date-field.vm"), "vm",
+			DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY);
+
+		_upgradeDynamicDataMapping.upgrade();
+
+		String actualDefinition = getTemplateScript(_templateId);
+
+		String dateFieldName = "$date1";
+
+		// Date getDate statement
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append("$dateUtil.getDate(");
+		sb.append(dateFieldName);
+		sb.append("_DateObj");
+		sb.append(", \"dd MMM yyyy - HH:mm:ss\", $locale)");
+
+		Assert.assertTrue(actualDefinition.contains(sb.toString()));
 	}
 
 	@Test
@@ -1431,6 +1497,46 @@ public class UpgradeDynamicDataMappingTest {
 				"ExpandoStorageAdapter");
 	}
 
+	protected void setUpModelResourceNames() {
+		_structureModelResourceNames.put(
+			"com.liferay.document.library.kernel.model.DLFileEntryMetadata",
+			ResourceActionsUtil.getCompositeModelName(
+				"com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata",
+				DDMStructure.class.getName()));
+
+		_structureModelResourceNames.put(
+			"com.liferay.document.library.kernel.util.RawMetadataProcessor",
+			DDMStructure.class.getName());
+
+		_structureModelResourceNames.put(
+			"com.liferay.portlet.dynamicdatalists.model.DDLRecordSet",
+			ResourceActionsUtil.getCompositeModelName(
+				"com.liferay.dynamic.data.lists.model.DDLRecordSet",
+				DDMStructure.class.getName()));
+
+		_structureModelResourceNames.put(
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ResourceActionsUtil.getCompositeModelName(
+				"com.liferay.journal.model.JournalArticle",
+				DDMStructure.class.getName()));
+
+		_templateModelResourceNames.put(
+			"com.liferay.portlet.display.template.PortletDisplayTemplate",
+			DDMTemplate.class.getName());
+
+		_templateModelResourceNames.put(
+			"com.liferay.portlet.dynamicdatalists.model.DDLRecordSet",
+			ResourceActionsUtil.getCompositeModelName(
+				"com.liferay.dynamic.data.lists.model.DDLRecordSet",
+				DDMTemplate.class.getName()));
+
+		_templateModelResourceNames.put(
+			"com.liferay.portlet.journal.model.JournalArticle",
+			ResourceActionsUtil.getCompositeModelName(
+				"com.liferay.journal.model.JournalArticle",
+				DDMTemplate.class.getName()));
+	}
+
 	protected void setUpPrimaryKeys() {
 		_structureId = RandomTestUtil.randomLong();
 		_parentStructureId = RandomTestUtil.randomLong();
@@ -1443,7 +1549,8 @@ public class UpgradeDynamicDataMappingTest {
 		Registry registry = RegistryUtil.getRegistry();
 
 		UpgradeStepRegistrator upgradeStepRegistror = registry.getService(
-			"com.liferay.dynamic.data.mapping.upgrade.DDMServiceUpgrade");
+			"com.liferay.dynamic.data.mapping.internal.upgrade." +
+				"DDMServiceUpgrade");
 
 		upgradeStepRegistror.register(
 			new UpgradeStepRegistrator.Registry() {
@@ -1468,46 +1575,6 @@ public class UpgradeDynamicDataMappingTest {
 			});
 	}
 
-	private static final Map<String, String> _structureModelResourceNames =
-		new HashMap<>();
-	private static final Map<String, String> _templateModelResourceNames =
-		new HashMap<>();
-
-	static {
-		_structureModelResourceNames.put(
-			"com.liferay.document.library.kernel.model.DLFileEntryMetadata",
-			"com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata-" +
-				DDMStructure.class.getName());
-
-		_structureModelResourceNames.put(
-			"com.liferay.document.library.kernel.util.RawMetadataProcessor",
-			DDMStructure.class.getName());
-
-		_structureModelResourceNames.put(
-			"com.liferay.portlet.dynamicdatalists.model.DDLRecordSet",
-			"com.liferay.dynamic.data.lists.model.DDLRecordSet-" +
-				DDMStructure.class.getName());
-
-		_structureModelResourceNames.put(
-			"com.liferay.portlet.journal.model.JournalArticle",
-			"com.liferay.journal.model.JournalArticle-" +
-				DDMStructure.class.getName());
-
-		_templateModelResourceNames.put(
-			"com.liferay.portlet.display.template.PortletDisplayTemplate",
-			DDMTemplate.class.getName());
-
-		_templateModelResourceNames.put(
-			"com.liferay.portlet.dynamicdatalists.model.DDLRecordSet",
-			"com.liferay.dynamic.data.lists.model.DDLRecordSet-" +
-				DDMTemplate.class.getName());
-
-		_templateModelResourceNames.put(
-			"com.liferay.portlet.journal.model.JournalArticle",
-			"com.liferay.journal.model.JournalArticle-" +
-				DDMTemplate.class.getName());
-	}
-
 	private long _classNameIdDDLRecordSet;
 	private long _classNameIdDDMContent;
 	private long _classNameIdDDMStructure;
@@ -1520,7 +1587,11 @@ public class UpgradeDynamicDataMappingTest {
 	private long _parentStructureId;
 	private long _storageLinkId;
 	private long _structureId;
+	private final Map<String, String> _structureModelResourceNames =
+		new HashMap<>();
 	private long _templateId;
+	private final Map<String, String> _templateModelResourceNames =
+		new HashMap<>();
 	private Timestamp _timestamp;
 	private UpgradeProcess _upgradeDynamicDataMapping;
 

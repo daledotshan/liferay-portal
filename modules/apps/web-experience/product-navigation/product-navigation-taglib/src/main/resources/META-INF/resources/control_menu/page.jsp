@@ -22,7 +22,7 @@ ProductNavigationControlMenuEntryRegistry productNavigationControlMenuEntryRegis
 %>
 
 <c:if test="<%= !productNavigationControlMenuCategories.isEmpty() %>">
-	<div class="control-menu control-menu-level-1" data-qa-id="controlMenu" id="<portlet:namespace/>ControlMenu">
+	<div class="control-menu control-menu-level-1 hidden-print" data-qa-id="controlMenu" id="<portlet:namespace/>ControlMenu">
 		<div class="container-fluid-1280">
 			<ul class="control-menu-level-1-nav control-menu-nav" data-namespace="<portlet:namespace />" data-qa-id="header" id="<portlet:namespace />controlMenu">
 
@@ -30,7 +30,7 @@ ProductNavigationControlMenuEntryRegistry productNavigationControlMenuEntryRegis
 				for (ProductNavigationControlMenuCategory productNavigationControlMenuCategory : productNavigationControlMenuCategories) {
 				%>
 
-					<li class="control-menu-nav-item <%= productNavigationControlMenuCategory.getKey() %>-control-group">
+					<li class="control-menu-nav-category <%= productNavigationControlMenuCategory.getKey() %>-control-group">
 						<ul class="control-menu-nav">
 
 							<%
@@ -42,16 +42,18 @@ ProductNavigationControlMenuEntryRegistry productNavigationControlMenuEntryRegis
 								}
 							%>
 
-								<liferay-ui:icon
-									data="<%= productNavigationControlMenuEntry.getData(request) %>"
-									icon="<%= productNavigationControlMenuEntry.getIcon(request) %>"
-									iconCssClass="<%= productNavigationControlMenuEntry.getIconCssClass(request) %>"
-									label="<%= false %>"
-									linkCssClass='<%= "control-menu-icon " + productNavigationControlMenuEntry.getLinkCssClass(request) %>'
-									markupView="<%= productNavigationControlMenuEntry.getMarkupView(request) %>"
-									message="<%= productNavigationControlMenuEntry.getLabel(locale) %>"
-									url="<%= productNavigationControlMenuEntry.getURL(request) %>"
-								/>
+								<li class="control-menu-nav-item">
+									<liferay-ui:icon
+										data="<%= productNavigationControlMenuEntry.getData(request) %>"
+										icon="<%= productNavigationControlMenuEntry.getIcon(request) %>"
+										iconCssClass="<%= productNavigationControlMenuEntry.getIconCssClass(request) %>"
+										label="<%= false %>"
+										linkCssClass='<%= "control-menu-icon " + productNavigationControlMenuEntry.getLinkCssClass(request) %>'
+										markupView="<%= productNavigationControlMenuEntry.getMarkupView(request) %>"
+										message="<%= productNavigationControlMenuEntry.getLabel(locale) %>"
+										url="<%= productNavigationControlMenuEntry.getURL(request) %>"
+									/>
+								</li>
 
 							<%
 							}

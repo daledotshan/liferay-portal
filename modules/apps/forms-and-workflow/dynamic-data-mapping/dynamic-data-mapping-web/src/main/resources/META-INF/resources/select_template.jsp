@@ -106,11 +106,39 @@ templateSearch.setOrderByType(ddmDisplayContext.getOrderByType());
 				/>
 
 				<liferay-ui:search-container-column-text
+					cssClass="table-cell-content"
 					name="name"
-					value="<%= HtmlUtil.escape(template.getName(locale)) %>"
-				/>
+				>
+					<c:choose>
+						<c:when test="<%= template.getTemplateId() != templateId %>">
+
+							<%
+							Map<String, Object> data = new HashMap<String, Object>();
+
+							if (ddmDisplay.isShowConfirmSelectTemplate()) {
+								data.put("confirm-selection", Boolean.TRUE.toString());
+								data.put("confirm-selection-message", ddmDisplay.getConfirmSelectTemplateMessage(locale));
+							}
+
+							data.put("ddmtemplateid", template.getTemplateId());
+							data.put("ddmtemplatekey", template.getTemplateKey());
+							data.put("description", template.getDescription(locale));
+							data.put("imageurl", template.getTemplateImageURL(themeDisplay));
+							data.put("name", template.getName(locale));
+							%>
+
+							<aui:a cssClass="selector-button" data="<%= data %>" href="javascript:;">
+								<%= HtmlUtil.escape(template.getName(locale)) %>
+							</aui:a>
+						</c:when>
+						<c:otherwise>
+							<%= HtmlUtil.escape(template.getName(locale)) %>
+						</c:otherwise>
+					</c:choose>
+				</liferay-ui:search-container-column-text>
 
 				<liferay-ui:search-container-column-jsp
+					cssClass="table-cell-content"
 					name="description"
 					path="/template_description.jsp"
 				/>
@@ -119,28 +147,6 @@ templateSearch.setOrderByType(ddmDisplayContext.getOrderByType());
 					name="modified-date"
 					value="<%= template.getModifiedDate() %>"
 				/>
-
-				<liferay-ui:search-container-column-text>
-					<c:if test="<%= template.getTemplateId() != templateId %>">
-
-						<%
-						Map<String, Object> data = new HashMap<String, Object>();
-
-						if (ddmDisplay.isShowConfirmSelectTemplate()) {
-							data.put("confirm-selection", Boolean.TRUE.toString());
-							data.put("confirm-selection-message", ddmDisplay.getConfirmSelectTemplateMessage(locale));
-						}
-
-						data.put("ddmtemplateid", template.getTemplateId());
-						data.put("ddmtemplatekey", template.getTemplateKey());
-						data.put("description", template.getDescription(locale));
-						data.put("imageurl", template.getTemplateImageURL(themeDisplay));
-						data.put("name", template.getName(locale));
-						%>
-
-						<aui:button cssClass="selector-button" data="<%= data %>" value="choose" />
-					</c:if>
-				</liferay-ui:search-container-column-text>
 			</liferay-ui:search-container-row>
 
 			<liferay-ui:search-iterator markupView="lexicon" />

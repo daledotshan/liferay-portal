@@ -19,16 +19,20 @@ import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldRenderer;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.io.DDMFormFieldTypesJSONSerializer;
-import com.liferay.dynamic.data.mapping.io.DDMFormJSONSerializer;
-import com.liferay.dynamic.data.mapping.io.DDMFormLayoutJSONSerializer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -61,20 +65,6 @@ public class DDMFormFieldTypesJSONSerializerImpl
 	}
 
 	@Reference(unbind = "-")
-	protected void setDDMFormJSONSerializer(
-		DDMFormJSONSerializer ddmFormJSONSerializer) {
-
-		_ddmFormJSONSerializer = ddmFormJSONSerializer;
-	}
-
-	@Reference(unbind = "-")
-	protected void setDDMFormLayoutJSONSerializer(
-		DDMFormLayoutJSONSerializer ddmFormLayoutJSONSerializer) {
-
-		_ddmFormLayoutJSONSerializer = ddmFormLayoutJSONSerializer;
-	}
-
-	@Reference(unbind = "-")
 	protected void setJSONFactory(JSONFactory jsonFactory) {
 		_jsonFactory = jsonFactory;
 	}
@@ -103,22 +93,20 @@ public class DDMFormFieldTypesJSONSerializerImpl
 			MapUtil.getString(
 				ddmFormFieldTypeProperties, "ddm.form.field.type.js.module",
 				"liferay-ddm-form-renderer-field"));
+
+		String label = MapUtil.getString(
+			ddmFormFieldTypeProperties, "ddm.form.field.type.label");
+
+		if (Validator.isNotNull(label)) {
+			Locale locale = LocaleThreadLocal.getThemeDisplayLocale();
+
+			ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+				"content.Language", locale, ddmFormFieldType.getClass());
+
+			jsonObject.put("label", LanguageUtil.get(resourceBundle, label));
+		}
+
 		jsonObject.put("name", ddmFormFieldType.getName());
-
-		DDMFormFieldTypeSettingsSerializerHelper
-			ddmFormFieldTypeSettingsSerializerHelper =
-				new DDMFormFieldTypeSettingsSerializerHelper(
-					ddmFormFieldType.getDDMFormFieldTypeSettings(),
-					_ddmFormJSONSerializer, _ddmFormLayoutJSONSerializer,
-					_jsonFactory);
-
-		jsonObject.put(
-			"settings",
-			ddmFormFieldTypeSettingsSerializerHelper.getSettingsJSONObject());
-		jsonObject.put(
-			"settingsLayout",
-			ddmFormFieldTypeSettingsSerializerHelper.
-				getSettingsLayoutJSONObject());
 		jsonObject.put(
 			"system",
 			MapUtil.getBoolean(
@@ -141,8 +129,6 @@ public class DDMFormFieldTypesJSONSerializerImpl
 	}
 
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
-	private DDMFormJSONSerializer _ddmFormJSONSerializer;
-	private DDMFormLayoutJSONSerializer _ddmFormLayoutJSONSerializer;
 	private JSONFactory _jsonFactory;
 
 }

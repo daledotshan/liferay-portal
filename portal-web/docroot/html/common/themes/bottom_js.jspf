@@ -44,6 +44,8 @@
 			</c:if>
 		</c:otherwise>
 	</c:choose>
+
+	Liferay.BrowserSelectors.run();
 </aui:script>
 
 <aui:script use="aui-base">
@@ -205,7 +207,7 @@ if (layout != null) {
 		%>
 
 		Liferay.currentURL = '<%= HtmlUtil.escapeJS(currentURL) %>';
-		Liferay.currentURLEncoded = '<%= HttpUtil.encodeURL(currentURL) %>';
+		Liferay.currentURLEncoded = '<%= HtmlUtil.escapeJS(HttpUtil.encodeURL(currentURL)) %>';
 
 	// ]]>
 </script>
