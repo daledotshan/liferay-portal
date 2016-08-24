@@ -82,7 +82,7 @@ renderResponse.setTitle(title);
 		</p>
 
 		<p>
-			<liferay-ui:message arguments="<%= new String[] {JournalFolderConstants.NAME_LABEL, JournalFolderConstants.getNameInvalidCharacters(JournalServiceConfigurationValues.CHAR_BLACKLIST)} %>" key="the-x-cannot-contain-the-following-invalid-characters-x" />
+			<liferay-ui:message arguments="<%= new String[] {JournalFolderConstants.NAME_LABEL, JournalFolderConstants.getNameInvalidCharacters(journalDisplayContext.getCharactersBlacklist())} %>" key="the-x-cannot-contain-the-following-invalid-characters-x" />
 		</p>
 	</liferay-ui:error>
 
@@ -221,7 +221,6 @@ renderResponse.setTitle(title);
 								modelVar="ddmStructure"
 							>
 								<liferay-ui:search-container-column-text
-									cssClass="content-column name-column title-column"
 									name="name"
 									truncate="<%= true %>"
 									value="<%= HtmlUtil.escape(ddmStructure.getName(locale)) %>"
@@ -259,9 +258,7 @@ renderResponse.setTitle(title);
 									</liferay-ui:search-container-column-text>
 								</c:if>
 
-								<liferay-ui:search-container-column-text
-									cssClass="entry-action-column"
-								>
+								<liferay-ui:search-container-column-text>
 									<a class="modify-link" data-rowId="<%= ddmStructure.getStructureId() %>" href="javascript:;"><%= removeDDMStructureIcon %></a>
 								</liferay-ui:search-container-column-text>
 							</liferay-ui:search-container-row>
@@ -361,7 +358,7 @@ renderResponse.setTitle(title);
 	function <portlet:namespace />openDDMStructureSelector() {
 		Liferay.Util.openDDMPortlet(
 			{
-				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletProviderUtil.getPortletId(DDMStructure.class.getName(), PortletProvider.Action.VIEW), themeDisplay.getPlid(), PortletRequest.RENDER_PHASE) %>',
+				basePortletURL: '<%= PortletURLFactoryUtil.create(request, PortletProviderUtil.getPortletId(DDMStructure.class.getName(), PortletProvider.Action.VIEW), PortletRequest.RENDER_PHASE) %>',
 				dialog: {
 					destroyOnHide: true
 				},
@@ -369,7 +366,7 @@ renderResponse.setTitle(title);
 				groupId: <%= scopeGroupId %>,
 				mvcPath: '/select_structure.jsp',
 				navigationStartsOn: '<%= DDMNavigationHelper.SELECT_STRUCTURE %>',
-				refererPortletName: '<%= JournalPortletKeys.JOURNAL %>',
+				refererPortletName: '<%= JournalPortletKeys.JOURNAL + ".selectStructureRestriction" %>',
 				showAncestorScopes: true,
 				title: '<%= UnicodeLanguageUtil.get(request, "structures") %>'
 			},

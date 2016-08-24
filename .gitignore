@@ -34,6 +34,7 @@
 /benchmarks/lib
 /benchmarks/log
 /bin
+/build
 /build.*.properties
 /classes/Test.class
 /dist
@@ -157,7 +158,6 @@
 /test.*.properties
 /tmp
 /tools/cobertura-agent/classes
-/tools/liferay-doclet
 /tools/maven/*.asc
 /tools/node*
 /tools/sdk

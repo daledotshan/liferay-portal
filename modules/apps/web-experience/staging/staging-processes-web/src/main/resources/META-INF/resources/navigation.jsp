@@ -94,14 +94,21 @@ PortletURL portletURL = renderResponse.createRenderURL();
 		<portlet:param name="searchContainerId" value="<%= searchContainerId %>" />
 	</liferay-portlet:resourceURL>
 
-	new Liferay.ExportImport(
+	var exportImport = new Liferay.ExportImport(
 		{
 			incompleteProcessMessageNode: '#<portlet:namespace />incompleteProcessMessage',
 			locale: '<%= locale.toLanguageTag() %>',
 			namespace: '<portlet:namespace />',
 			processesNode: '#publishProcessesSearchContainer',
 			processesResourceURL: '<%= HtmlUtil.escapeJS(publishProcessesURL.toString()) %>',
-			timeZone: '<%= timeZone.getID() %>'
+			timeZoneOffset: <%= timeZoneOffset %>
+		}
+	);
+
+	Liferay.once(
+		'destroyPortlet',
+		function() {
+			exportImport.destroy();
 		}
 	);
 </aui:script>

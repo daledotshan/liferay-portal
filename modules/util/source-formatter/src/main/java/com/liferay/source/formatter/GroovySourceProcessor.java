@@ -16,6 +16,7 @@ package com.liferay.source.formatter;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,16 +31,8 @@ public class GroovySourceProcessor extends JavaSourceProcessor {
 
 	@Override
 	protected void checkInefficientStringMethods(
-		String line, String fileName, String absolutePath, int lineCount) {
-	}
-
-	@Override
-	protected void checkMissingAuthor(
-		String content, String fileName, String className) {
-
-		if (Character.isUpperCase(className.charAt(0))) {
-			super.checkMissingAuthor(content, fileName, className);
-		}
+		String line, String fileName, String absolutePath, int lineCount,
+		boolean javaSource) {
 	}
 
 	@Override
@@ -49,6 +42,10 @@ public class GroovySourceProcessor extends JavaSourceProcessor {
 
 	@Override
 	protected List<String> doGetFileNames() throws Exception {
+		if (!portalSource) {
+			return new ArrayList<>();
+		}
+
 		return getFileNames(new String[0], getIncludes());
 	}
 

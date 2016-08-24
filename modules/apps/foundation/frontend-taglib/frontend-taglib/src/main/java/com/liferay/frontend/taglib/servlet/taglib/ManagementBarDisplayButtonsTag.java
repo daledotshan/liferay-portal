@@ -14,7 +14,7 @@
 
 package com.liferay.frontend.taglib.servlet.taglib;
 
-import com.liferay.frontend.taglib.servlet.ServletContextUtil;
+import com.liferay.frontend.taglib.internal.servlet.ServletContextUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.taglib.util.IncludeTag;
 
@@ -133,6 +133,6 @@ public class ManagementBarDisplayButtonsTag
 	private Boolean _disabled;
 	private String[] _displayViews;
 	private PortletURL _portletURL;
-	private String _selectedDisplayStyle;
+	private String _selectedDisplayStyle = StringPool.BLANK;
 
 }

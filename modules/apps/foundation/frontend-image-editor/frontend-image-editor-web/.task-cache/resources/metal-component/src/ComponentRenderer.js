@@ -5,6 +5,21 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		value: true
 	});
 
+	function _defineProperty(obj, key, value) {
+		if (key in obj) {
+			Object.defineProperty(obj, key, {
+				value: value,
+				enumerable: true,
+				configurable: true,
+				writable: true
+			});
+		} else {
+			obj[key] = value;
+		}
+
+		return obj;
+	}
+
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -50,8 +65,16 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			_this.component_ = component;
+
 			_this.componentRendererEvents_ = new _events.EventHandler();
-			_this.componentRendererEvents_.add(_this.component_.on('stateChanged', _this.handleComponentRendererStateChanged_.bind(_this)), _this.component_.once('render', _this.render.bind(_this)));
+			_this.componentRendererEvents_.add(_this.component_.once('render', _this.render.bind(_this)));
+			_this.on('rendered', _this.handleRendered_);
+
+			if (_this.component_.constructor.SYNC_UPDATES_MERGED) {
+				_this.componentRendererEvents_.add(_this.component_.on('stateKeyChanged', _this.handleComponentRendererStateKeyChanged_.bind(_this)));
+			} else {
+				_this.componentRendererEvents_.add(_this.component_.on('stateChanged', _this.handleComponentRendererStateChanged_.bind(_this)));
+			}
 			return _this;
 		}
 
@@ -66,15 +89,49 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		};
 
 		ComponentRenderer.prototype.handleComponentRendererStateChanged_ = function handleComponentRendererStateChanged_(changes) {
-			if (this.component_.wasRendered) {
+			if (this.shouldRerender_(changes)) {
 				this.update(changes);
 			}
+		};
+
+		ComponentRenderer.prototype.handleComponentRendererStateKeyChanged_ = function handleComponentRendererStateKeyChanged_(data) {
+			var changes = {
+				changes: _defineProperty({}, data.key, data)
+			};
+			if (this.shouldRerender_(changes)) {
+				this.update(changes);
+			}
+		};
+
+		ComponentRenderer.prototype.handleRendered_ = function handleRendered_() {
+			this.isRendered_ = true;
+		};
+
+		ComponentRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_(changes) {
+			var count = Object.keys(changes).length;
+			if (changes.hasOwnProperty('element')) {
+				count--;
+			}
+			return count > 0;
 		};
 
 		ComponentRenderer.prototype.render = function render() {
 			if (!this.component_.element) {
 				this.component_.element = document.createElement('div');
 			}
+			this.emit('rendered', !this.isRendered_);
+		};
+
+		ComponentRenderer.prototype.shouldRerender_ = function shouldRerender_(changes) {
+			return this.isRendered_ && !this.skipUpdates_ && this.hasChangedBesidesElement_(changes.changes);
+		};
+
+		ComponentRenderer.prototype.startSkipUpdates = function startSkipUpdates() {
+			this.skipUpdates_ = true;
+		};
+
+		ComponentRenderer.prototype.stopSkipUpdates = function stopSkipUpdates() {
+			this.skipUpdates_ = false;
 		};
 
 		ComponentRenderer.prototype.update = function update() {};
