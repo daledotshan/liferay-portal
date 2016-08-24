@@ -47,6 +47,7 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
@@ -1304,6 +1305,13 @@ public class CalendarBookingLocalServiceImpl
 		}
 
 		try {
+			Group group = groupLocalService.getGroup(
+				serviceContext.getScopeGroupId());
+
+			if (group.isStagingGroup()) {
+				return;
+			}
+
 			User sender = userLocalService.fetchUser(
 				serviceContext.getUserId());
 
