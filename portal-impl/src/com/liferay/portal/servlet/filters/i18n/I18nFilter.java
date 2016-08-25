@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.util.CookieKeys;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -155,6 +156,11 @@ public class I18nFilter extends BasePortalFilter {
 
 		String queryString = request.getQueryString();
 
+		if (Validator.isNull(queryString)) {
+			queryString = (String)request.getAttribute(
+				JavaConstants.JAVAX_SERVLET_FORWARD_QUERY_STRING);
+		}
+
 		if (Validator.isNotNull(queryString)) {
 			redirect += StringPool.QUESTION + request.getQueryString();
 		}
@@ -230,7 +236,9 @@ public class I18nFilter extends BasePortalFilter {
 				Locale locale = (Locale)session.getAttribute(
 					Globals.LOCALE_KEY);
 
-				if (userLanguageId.equals(LocaleUtil.toLanguageId(locale))) {
+				if (userLanguageId.equals(LocaleUtil.toLanguageId(locale)) ||
+					(locale == null)) {
+
 					return null;
 				}
 
