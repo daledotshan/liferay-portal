@@ -9,6 +9,11 @@
 </thead>
 <tbody>
 <tr>
+	<td>DATE_CONTAINER</td>
+	<td>//fieldset[@aria-labelledby='Title']//div[contains(@id,'DateContainer')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>EDIT_EVENT_IFRAME</td>
 	<td>//iframe[contains(@class,'dialog-iframe-node ')]</td>
 	<td></td>
@@ -159,6 +164,11 @@
 <tr>
 	<td>REPEAT_WEEKLY_CURRENT_DAY</td>
 	<td>//td[contains(@class,'calendar-recurrence-weekday-checkbox')]//input[@disabled='']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPEAT_REPEAT_ON_DAY_OF_THE_WEEK_WEEKDAY_WEEK_START_DAY</td>
+	<td>xpath=(//td[contains(@class,'calendar-recurrence-weekday-checkbox')]//div/label)[1]</td>
 	<td></td>
 </tr>
 <tr>
@@ -436,6 +446,22 @@
 	<td></td>
 	<td></td>
 </tr>
+<!--MINI_CALENDAR-->
+<tr>
+	<td>MINI_CALENDAR_WEEK_START_DAY_START_DATE</td>
+	<td>xpath=(//div[@class='yui3-widget-bd popover-content']//tr[@class='yui3-calendar-weekdayrow']/th[1])[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MINI_CALENDAR_WEEK_START_DAY_END_DATE</td>
+	<td>xpath=(//div[@class='yui3-widget-bd popover-content']//tr[@class='yui3-calendar-weekdayrow']/th[1])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--CATEGORIZATION-->
 <tr>
 	<td>CATEGORIZATION_PANEL_COLLAPSED</td>
@@ -527,7 +553,7 @@
 <!--RECURRING_EVENT_DIALOG_BOX-->
 <tr>
 	<td>RECURRING_EVENT_DIALOG_BOX_HEADER</td>
-	<td>//div[contains(@class,'modal-header')]</td>
+	<td>//h3[@class='modal-title' and contains(.,'Recurring Event')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -536,18 +562,18 @@
 	<td></td>
 </tr>
 <tr>
-	<td>ONLY_THIS_INSTANCE_BUTTON</td>
-	<td>//button[@type='button' and contains(.,'Only This Instance')]</td>
+	<td>SINGLE_EVENT_BUTTON</td>
+	<td>//button[@role='button' and contains(.,'Single Event')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>ALL_FOLLOWING_BUTTON</td>
-	<td>//button[@type='button' and contains(.,'All Following')]</td>
+	<td>FOLLOWING_EVENTS_BUTTON</td>
+	<td>//button[@role='button' and contains(.,'Following Events')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>ALL_EVENTS_IN_THE_SERIES_BUTTON</td>
-	<td>//button[@type='button' and contains(.,'All Events in the Series')]</td>
+	<td>ENTIRE_SERIES_BUTTON</td>
+	<td>//button[@role='button' and contains(.,'Entire Series')]</td>
 	<td></td>
 </tr>
 <tr>

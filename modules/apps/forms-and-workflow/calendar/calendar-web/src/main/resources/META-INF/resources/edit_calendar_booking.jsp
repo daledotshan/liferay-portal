@@ -27,9 +27,13 @@ if (allDay) {
 	calendarBookingTimeZone = utcTimeZone;
 }
 
-java.util.Calendar nowJCalendar = CalendarFactoryUtil.getCalendar(calendarBookingTimeZone);
+java.util.Calendar defaultStartTimeJCalendar = CalendarFactoryUtil.getCalendar(calendarBookingTimeZone);
 
-long date = ParamUtil.getLong(request, "date", nowJCalendar.getTimeInMillis());
+defaultStartTimeJCalendar.add(java.util.Calendar.HOUR, 1);
+
+defaultStartTimeJCalendar.set(java.util.Calendar.MINUTE, 0);
+
+long date = ParamUtil.getLong(request, "date", defaultStartTimeJCalendar.getTimeInMillis());
 
 long calendarBookingId = BeanPropertiesUtil.getLong(calendarBooking, "calendarBookingId");
 
@@ -37,13 +41,9 @@ int instanceIndex = BeanParamUtil.getInteger(calendarBooking, request, "instance
 
 long calendarId = BeanParamUtil.getLong(calendarBooking, request, "calendarId", defaultCalendar.getCalendarId());
 
-long startTime = BeanPropertiesUtil.getLong(calendarBooking, "startTime", nowJCalendar.getTimeInMillis());
+long startTime = BeanPropertiesUtil.getLong(calendarBooking, "startTime", defaultStartTimeJCalendar.getTimeInMillis());
 
 java.util.Calendar startTimeJCalendar = JCalendarUtil.getJCalendar(startTime, calendarBookingTimeZone);
-
-startTimeJCalendar.add(java.util.Calendar.HOUR, 1);
-
-startTimeJCalendar.set(java.util.Calendar.MINUTE, 0);
 
 int startTimeYear = ParamUtil.getInteger(request, "startTimeYear", startTimeJCalendar.get(java.util.Calendar.YEAR));
 int startTimeMonth = ParamUtil.getInteger(request, "startTimeMonth", startTimeJCalendar.get(java.util.Calendar.MONTH));
@@ -266,9 +266,18 @@ while (manageableCalendarsIterator.hasNext()) {
 						if ((calendarBooking != null) && (curCalendar.getCalendarId() != calendarId) && (CalendarBookingLocalServiceUtil.getCalendarBookingsCount(curCalendar.getCalendarId(), calendarBooking.getParentCalendarBookingId()) > 0)) {
 							continue;
 						}
+
+						CalendarResource curCalendarResource = curCalendar.getCalendarResource();
+
+						String calendarName = curCalendar.getName(locale);
+						String calendarResourceName = curCalendarResource.getName(locale);
+
+						if (!calendarName.equals(calendarResourceName)) {
+							calendarName = calendarResourceName + StringPool.SPACE + StringPool.DASH + StringPool.SPACE + calendarName;
+						}
 					%>
 
-						<aui:option selected="<%= curCalendar.getCalendarId() == calendarId %>" value="<%= curCalendar.getCalendarId() %>"><%= HtmlUtil.escape(curCalendar.getName(locale)) %></aui:option>
+						<aui:option selected="<%= curCalendar.getCalendarId() == calendarId %>" value="<%= curCalendar.getCalendarId() %>"><%= HtmlUtil.escape(calendarName) %></aui:option>
 
 					<%
 					}
@@ -369,9 +378,9 @@ while (manageableCalendarsIterator.hasNext()) {
 			</liferay-ui:panel>
 
 			<liferay-ui:panel collapsible="<%= true %>" defaultState="closed" extended="<%= false %>" id="calendarBookingCategorizationPanel" markupView="lexicon" persistState="<%= true %>" title="categorization">
-				<aui:input classPK="<%= calendarBookingId %>" name="categories" type="assetCategories" />
+				<liferay-asset:asset-categories-selector className="<%= CalendarBooking.class.getName() %>" classPK="<%= calendarBookingId %>" />
 
-				<aui:input classPK="<%= calendarBookingId %>" name="tags" type="assetTags" />
+				<liferay-asset:asset-tags-selector className="<%= CalendarBooking.class.getName() %>" classPK="<%= calendarBookingId %>" />
 			</liferay-ui:panel>
 
 			<liferay-ui:panel collapsible="<%= true %>" defaultState="closed" extended="<%= false %>" id="calendarBookingAssetLinksPanel" markupView="lexicon" persistState="<%= true %>" title="related-assets">

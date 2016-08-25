@@ -15,6 +15,7 @@
 package com.liferay.portal.template.velocity;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.cache.SingleVMPool;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.template.Template;
 import com.liferay.portal.kernel.template.TemplateConstants;
@@ -22,7 +23,6 @@ import com.liferay.portal.kernel.template.TemplateException;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.template.TemplateResourceLoader;
-import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.template.BaseSingleTemplateManager;
 import com.liferay.portal.template.RestrictedTemplate;
@@ -70,18 +70,7 @@ public class VelocityManager extends BaseSingleTemplateManager {
 			request.getServletContext(), request, response, contextObjects);
 
 		contextObjects.put(themeName, velocityTaglib);
-
-		try {
-			Class<?> clazz = VelocityTaglib.class;
-
-			Method method = clazz.getMethod(
-				"layoutIcon", new Class[] {Layout.class});
-
-			contextObjects.put("velocityTaglib_layoutIcon", method);
-		}
-		catch (Exception e) {
-			ReflectionUtil.throwException(e);
-		}
+		contextObjects.put("velocityTaglib_layoutIcon", _layoutIconMethod);
 
 		// Legacy support
 
@@ -284,8 +273,23 @@ public class VelocityManager extends BaseSingleTemplateManager {
 		return template;
 	}
 
+	@Reference(unbind = "-")
+	protected void setSingleVMPool(SingleVMPool singleVMPool) {
+	}
+
+	private static final Method _layoutIconMethod;
 	private static volatile VelocityEngineConfiguration
 		_velocityEngineConfiguration;
+
+	static {
+		try {
+			_layoutIconMethod = VelocityTaglib.class.getMethod(
+				"layoutIcon", new Class[] {Layout.class});
+		}
+		catch (NoSuchMethodException nsme) {
+			throw new ExceptionInInitializerError(nsme);
+		}
+	}
 
 	private VelocityEngine _velocityEngine;
 

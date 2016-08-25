@@ -92,7 +92,7 @@ $horizontal-spacing: 35px;
 		color: #869CAD;
 		cursor: pointer;
 		font-size: 15px;
-		font-weight: 400;
+		font-weight: normal;
 		line-height: 16px;
 		list-style-type: none;
 		padding: 11px 0;
@@ -145,7 +145,7 @@ $horizontal-spacing: 35px;
 		}
 
 		.has-error .key-value-editor {
-			display: none
+			display: none;
 		}
 
 		.key-value-editor {
@@ -399,7 +399,6 @@ $horizontal-spacing: 35px;
 .portlet-forms {
 	.form-control {
 		font-size: 14px;
-		height: 40px;
 	}
 
 	@include sm {
@@ -436,73 +435,6 @@ $horizontal-spacing: 35px;
 	padding-right: 21px;
 }
 
-.lfr-ddl-form-builder-field-types-modal {
-	height: 100%;
-	margin: 0;
-	outline: none;
-	width: 100%;
-
-	&.lfr-ddl-form-builder-field-types-modal-hidden {
-		display: none;
-	}
-
-	.form-builder-field-types-list {
-		margin-top: 10px;
-	}
-
-	.modal-body {
-		background-color: #FFF;
-		padding: 15px 25px;
-
-		.field-type {
-			border-radius: 5px;
-			padding: 20px 0;
-
-			&:hover {
-				background-color: #E8F1F7;
-			}
-
-			@include md {
-				float: none;
-				width: auto;
-			}
-
-			.field-type-icon,
-			.field-type-label {
-				color: #879CAC;
-			}
-
-			.field-type-icon {
-				font-size: 0;
-				margin: 0 0 10px;
-
-				.lexicon-icon {
-					height: 18px;
-					width: 18px;
-				}
-			}
-
-			.field-type-label {
-				font-family: inherit;
-				font-size: 12px;
-				font-weight: 500;
-				margin-top: 8px;
-				text-transform: capitalize;
-			}
-		}
-	}
-
-	&.modal-dialog {
-		width: 100%;
-	}
-
-	@include sm {
-		&.modal-dialog {
-			width: 392px;
-		}
-	}
-}
-
 .portal-popup,
 .portlet-forms-admin {
 	.alert {
@@ -514,8 +446,10 @@ $horizontal-spacing: 35px;
 		width: 32px;
 	}
 
-	.record-set-id, .record-set-modified-date {
-		margin-right: 20px;
+	.checkbox,
+	.radio {
+		margin-bottom: 0;
+		margin-top: 0;
 	}
 
 	.ddl-form-basic-info {
@@ -541,7 +475,7 @@ $horizontal-spacing: 35px;
 		.ddl-form-name,
 		.ddl-form-description {
 			border-width: 0;
-			color: white;
+			color: #FFF;
 			margin: 0;
 			padding-left: 0;
 
@@ -564,7 +498,7 @@ $horizontal-spacing: 35px;
 		}
 
 		.ddl-form-description {
-			font-weight: 400;
+			font-weight: normal;
 			padding: 17px 0 0 0;
 
 			p {
@@ -606,13 +540,13 @@ $horizontal-spacing: 35px;
 		padding: 20px 34px 11px 34px;
 		position: relative;
 	}
+
+	.record-set-id, .record-set-modified-date {
+		margin-right: 20px;
+	}
 }
 
 .portal-popup {
-	.portlet-layout {
-		margin: 0 0 75px;
-	}
-
 	.portlet-column {
 		padding: 0;
 	}
@@ -676,7 +610,7 @@ $horizontal-spacing: 35px;
 	.lfr-ddm-form-page-description,
 	.lfr-ddm-form-page-title {
 		color: #728694;
-		font-weight: 400;
+		font-weight: normal;
 		resize: none;
 		word-break: break-all;
 	}
@@ -1085,11 +1019,6 @@ $horizontal-spacing: 35px;
 			height: 100%;
 			max-height: 100%;
 		}
-	}
-
-	.lfr-ddl-form-builder-field-types-modal {
-		max-height: 550px;
-		width: 500px;
 	}
 }
 

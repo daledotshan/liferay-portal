@@ -164,28 +164,24 @@ AssetCategoryUtil.addPortletBreadcrumbEntry(assetCategoriesDisplayContext.getVoc
 				</c:when>
 				<c:when test='<%= Objects.equals(assetCategoriesDisplayContext.getDisplayStyle(), "list") %>'>
 					<liferay-ui:search-container-column-text
-						cssClass="content-column name-column title-column"
+						cssClass="table-cell-content"
 						href="<%= rowURL %>"
 						name="category"
-						truncate="<%= true %>"
 						value="<%= HtmlUtil.escape(curCategory.getTitle(locale)) %>"
 					/>
 
 					<liferay-ui:search-container-column-text
-						cssClass="content-column description-column"
+						cssClass="table-cell-content"
 						name="description"
-						truncate="<%= true %>"
 						value="<%= HtmlUtil.escape(curCategory.getDescription(locale)) %>"
 					/>
 
 					<liferay-ui:search-container-column-date
-						cssClass="create-date-column text-column"
 						name="create-date"
 						property="createDate"
 					/>
 
 					<liferay-ui:search-container-column-jsp
-						cssClass="entry-action-column"
 						path="/category_action.jsp"
 					/>
 				</c:when>

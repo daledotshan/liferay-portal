@@ -45,7 +45,19 @@ class LiferayApp extends App {
 	}
 
 	isCacheEnabled() {
-		return this.getCacheExpirationTime() > -1;
+		return this.getCacheExpirationTime() > 0;
+	}
+
+	isInPortletBlacklist(element) {
+		return Object.keys(this.portletsBlacklist).some(
+			(portletId) => {
+				var boundaryId = Utils.getPortletBoundaryId(portletId);
+
+				var portlets = document.querySelectorAll('[id^="' + boundaryId + '"]');
+
+				return Array.prototype.slice.call(portlets).some(portlet => dom.contains(portlet, element));
+			}
+		);
 	}
 
 	isScreenCacheExpired(screen) {
@@ -69,22 +81,19 @@ class LiferayApp extends App {
 	}
 
 	onDocClickDelegate_(event) {
-		var inPortletsBlacklist = false;
-
-		Object.keys(this.portletsBlacklist).forEach(
-			(portletId) => {
-				var boundaryId = Utils.getPortletBoundaryId(portletId);
-				var portlets = document.querySelectorAll('[id^="' + boundaryId + '"]');
-
-				inPortletsBlacklist = Array.prototype.slice.call(portlets).some(portlet => dom.contains(portlet, event.delegateTarget));
-			}
-		);
-
-		if (inPortletsBlacklist) {
+		if (this.isInPortletBlacklist(event.delegateTarget)) {
 			return;
 		}
 
 		super.onDocClickDelegate_(event);
+	}
+
+	onDocSubmitDelegate_(event) {
+		if (this.isInPortletBlacklist(event.delegateTarget)) {
+			return;
+		}
+
+		super.onDocSubmitDelegate_(event);
 	}
 
 	onEndNavigate(event) {

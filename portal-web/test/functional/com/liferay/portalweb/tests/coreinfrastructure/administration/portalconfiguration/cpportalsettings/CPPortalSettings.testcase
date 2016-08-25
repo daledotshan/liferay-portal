@@ -385,10 +385,6 @@
 			<var name="portletName" value="Asset Publisher" />
 		</execute>
 
-		<execute macro="ProductMenu#gotoControlPanelSites">
-			<var name="portlet" value="Sites" />
-		</execute>
-
 		<execute macro="Page#add">
 			<var name="pageName" value="WC Test Page" />
 			<var name="siteName" value="Child SiteName" />
@@ -405,6 +401,10 @@
 		<execute macro="WebContent#addPGViaWCD">
 			<var name="webContentContent" value="WC WebContent Content" />
 			<var name="webContentTitle" value="WC WebContent Title" />
+		</execute>
+
+		<execute macro="WebContent#viewPGViaWCD">
+			<var name="webContentContent" value="WC WebContent Content" />
 		</execute>
 
 		<execute macro="Navigator#openSiteURL">
@@ -443,7 +443,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Blogs#addViaAP">
+		<execute macro="Blogs#addViaAPSelectScope">
 			<var name="entryContent" value="Blogs Entry Content" />
 			<var name="entryTitle" value="Blogs Entry Title" />
 			<var name="siteScope" value="Site Name" />

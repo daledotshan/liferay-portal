@@ -65,15 +65,9 @@
 		<if>
 			<isset var="siteName" />
 			<then>
-				<var name="key_rowEntry" value="${siteName}" />
-
-				<execute function="ClickNoError#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
-
-				<execute function="AssertClick" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
-
-				<var name="key_portletTitle" value="Public Pages" />
-
-				<execute function="AssertTextEquals" locator1="Home#SITE_ADMINISTRATION_PORTLET_TITLE" value1="Public Pages" />
+				<execute macro="ProductMenu#gotoSite">
+					<var name="site" value="${siteName}" />
+				</execute>
 			</then>
 		</if>
 
@@ -134,6 +128,11 @@
 	</command>
 
 	<command name="addChild">
+		<execute macro="TestCase#getSiteName">
+			<return from="siteName" name="siteName" />
+			<var name="siteName" value="${siteName}" />
+		</execute>
+
 		<var name="key_siteName" value="${siteName}" />
 
 		<if>
@@ -188,6 +187,29 @@
 		<execute function="AssertTextEquals" locator1="SitePages#JAVASCRIPT_LABEL" value1="Paste JavaScript code that is executed at the bottom of the page." />
 		<execute function="Type" locator1="SitePages#JAVASCRIPT_TEXTAREA" value1="${javaScript}" />
 		<execute macro="PortletEntry#save" />
+	</command>
+
+	<command name="addPageCategory">
+		<execute macro="Navigator#gotoTab">
+			<var name="tab" value="SEO" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="SEO" />
+		</execute>
+
+		<var name="key_vocabularyName" value="${vocabularyName}" />
+
+		<execute function="Click" locator1="SitePagesEditPage#SELECT_CATEGORY_BUTTON" />
+
+		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+
+		<execute function="Click" locator1="SitePagesEditPage#CATEGORY_TREE_NODE" />
+
+		<execute function="SelectFrame" value1="relative=top" />
+
+		<execute function="AssertClick" locator1="Button#DONE" value1="Done" />
+		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
 	</command>
 
 	<command name="addPageTitle">
@@ -483,6 +505,12 @@
 		</execute>
 	</command>
 
+	<command name="localizedPG">
+		<var name="key_pageLocale" value="${pageLocale}" />
+
+		<execute function="Click" locator1="Link#PAGE_LOCALE"  value1="${pageLocale}" />
+	</command>
+
 	<command name="openURLLocale">
 		<execute function="Open" locator1="${localizationPageURL}" />
 
@@ -704,9 +732,8 @@
 		<execute function="Refresh" />
 	</command>
 
-	<command name="viewPageFriendURLPG">
-		<execute function="AssertTextNotPresent" locator1="SitePagesEditPage#FRIENDLY_URL_FIELD" value1="${pageName}" />
-		<execute function="AssertTextEquals" locator1="SitePagesEditPage#FRIENDLY_URL_FIELD" value1="/2" />
+	<command name="viewPageFriendlyURLPG">
+		<execute function="AssertTextEquals" locator1="SitePagesEditPage#FRIENDLY_URL_FIELD" value1="/${pageName}" />
 	</command>
 
 	<command name="viewPageLayout">

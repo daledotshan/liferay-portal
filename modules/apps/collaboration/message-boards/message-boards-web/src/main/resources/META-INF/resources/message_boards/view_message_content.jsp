@@ -295,6 +295,14 @@ if (portletTitleBasedNavigation) {
 		}
 		%>
 
+		<c:if test="<%= MBCategoryPermission.contains(permissionChecker, scopeGroupId, message.getCategoryId(), ActionKeys.REPLY_TO_MESSAGE) && !thread.isLocked() %>">
+
+			<%
+			long replyToMessageId = message.getRootMessageId();
+			%>
+
+			<%@ include file="/message_boards/edit_message_quick.jspf" %>
+		</c:if>
 	</div>
 
 	<%
@@ -311,7 +319,7 @@ if (portletTitleBasedNavigation) {
 			<portlet:param name="priority" value="<%= String.valueOf(rootMessage.getPriority()) %>" />
 		</portlet:renderURL>
 
-		<aui:button cssClass="btn-lg btn-primary" href="<%= replyURL.toString() %>" value="reply-to-main-thread" />
+		<aui:button cssClass="btn-lg" href="<%= replyURL.toString() %>" primary="<%= true %>" value="reply-to-main-thread" />
 	</c:if>
 
 	<c:if test="<%= moreMessagesPagination %>">
@@ -319,8 +327,10 @@ if (portletTitleBasedNavigation) {
 			<a class="btn btn-default" href="javascript:;" id="<portlet:namespace />moreMessages"><liferay-ui:message key="more-messages" /></a>
 		</div>
 
-		<aui:input name="rootIndexPage" type="hidden" value="<%= String.valueOf(rootIndexPage) %>" />
-		<aui:input name="index" type="hidden" value="<%= String.valueOf(index) %>" />
+		<aui:form name="fm">
+			<aui:input name="rootIndexPage" type="hidden" value="<%= String.valueOf(rootIndexPage) %>" />
+			<aui:input name="index" type="hidden" value="<%= String.valueOf(index) %>" />
+		</aui:form>
 	</c:if>
 
 	<%
@@ -344,7 +354,7 @@ if (portletTitleBasedNavigation) {
 				'<portlet:namespace />',
 				{
 					index: form.fm('index').val(),
-					rootIndexPage: form.fm('rootIndexPage').val(),
+					rootIndexPage: form.fm('rootIndexPage').val()
 				}
 			);
 
