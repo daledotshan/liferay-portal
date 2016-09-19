@@ -35,6 +35,7 @@ import groovy.lang.Closure;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import java.lang.reflect.Method;
 
@@ -98,8 +99,7 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 	}
 
 	public static File getRelengDir(Project project) {
-		File rootDir = GradleUtil.getRootDir(
-			project.getRootProject(), ".releng");
+		File rootDir = GradleUtil.getRootDir(project, ".releng");
 
 		if (rootDir == null) {
 			return null;
@@ -179,6 +179,8 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 			projectPath.startsWith(":private:apps:")) {
 
 			configureTaskEnabledIfLeaf(printArtifactPublishCommandsTask);
+			_configureTaskEnabledIfDependenciesArePublished(
+				printArtifactPublishCommandsTask);
 		}
 
 		GradleUtil.withPlugin(
@@ -664,6 +666,32 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 		}
 
 		return false;
+	}
+
+	private void _configureTaskEnabledIfDependenciesArePublished(Task task) {
+		task.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					try {
+						Project project = task.getProject();
+
+						if (FileUtil.contains(
+								project.getBuildFile(),
+								"version: \"default\"")) {
+
+							return false;
+						}
+
+						return true;
+					}
+					catch (IOException ioe) {
+						throw new UncheckedIOException(ioe);
+					}
+				}
+
+			});
 	}
 
 }
