@@ -857,6 +857,8 @@ public interface PropsKeys {
 
 	public static final String INDEX_DATE_FORMAT_PATTERN = "index.date.format.pattern";
 
+	public static final String INDEX_DEFAULT_INTERVAL = "index.default.interval";
+
 	public static final String INDEX_DUMP_COMPRESSION_ENABLED = "index.dump.compression.enabled";
 
 	public static final String INDEX_ON_STARTUP = "index.on.startup";
@@ -1784,6 +1786,8 @@ public interface PropsKeys {
 	public static final String REQUEST_HEADER_IGNORE_INIT_PARAMS = "request.header.ignore.init.params";
 
 	public static final String REQUEST_SHARED_ATTRIBUTES = "request.shared.attributes";
+
+	public static final String REQUEST_UNWRAP_PACKAGES = "request.unwrap.packages";
 
 	public static final String RESOURCE_ACTIONS_CONFIGS = "resource.actions.configs";
 

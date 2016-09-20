@@ -1175,10 +1175,7 @@
 		<execute macro="Gmail#viewMail">
 			<var name="emailFromUserName" value="Test Test" />
 			<var name="gmailAssetType" value="MB Category Name New Message" />
-			<var name="gmailMailTableMessageTitle" value="MB Thread Message Subject" />
 			<var name="gmailMessageBody" value="MB Thread Message Body" />
-			<var name="gmailMessageBodyClosing" value="Liferay Message Boards" />
-			<var name="gmailMessageBodyGreeting" value="MB Thread Message Body" />
 			<var name="gmailMessageTitle" value="MB Category Name New Message: MB Thread Message Subject" />
 		</execute>
 
@@ -1755,7 +1752,9 @@
 			<var name="portlet" value="Message Boards" />
 		</execute>
 
-		<execute macro="MessageboardsThread#viewMarkAsQuestionNotCheckedCP" />
+		<execute macro="MessageboardsThread#viewMarkAsQuestionNotCheckedCP" >
+			<var name="threadSubject" value="Thread Subject" />
+		</execute>
 
 		<execute macro="MessageboardsPortlet#configureGeneralCP">
 			<var name="threadAsQuestionByDefaultEnabled" value="true" />
@@ -1767,7 +1766,9 @@
 			<var name="portlet" value="Message Boards" />
 		</execute>
 
-		<execute macro="MessageboardsThread#viewMarkAsQuestionCheckedCP" />
+		<execute macro="MessageboardsThread#viewMarkAsQuestionCheckedCP" >
+			<var name="threadSubject" value="Thread Subject" />
+		</execute>
 
 		<execute macro="MessageboardsThread#addCP">
 			<var name="threadBody" value="Thread Body" />

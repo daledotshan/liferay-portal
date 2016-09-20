@@ -19,7 +19,7 @@ AUI.add(
 					},
 
 					description: {
-						value: 'No description'
+						value: ''
 					},
 
 					field: {
@@ -27,7 +27,8 @@ AUI.add(
 					},
 
 					title: {
-						value: 'Untitle'
+						setter: '_setTitle',
+						value: ''
 					},
 
 					toolbar: {
@@ -55,6 +56,26 @@ AUI.add(
 						instance._eventHandlers = eventHandlers;
 					},
 
+					destructor: function() {
+						var instance = this;
+
+						var toolbar = instance.get('toolbar');
+
+						toolbar.destroy();
+
+						instance.destroyFieldSettingsForm();
+
+						(new A.EventHandle(instance._eventHandlers)).detach();
+					},
+
+					destroyFieldSettingsForm: function() {
+						var instance = this;
+
+						if (instance.settingsForm) {
+							instance.settingsForm.destroy();
+						}
+					},
+
 					getFieldSettings: function() {
 						var instance = this;
 
@@ -67,10 +88,36 @@ AUI.add(
 						return settings;
 					},
 
+					getPreviousContext: function() {
+						var instance = this;
+
+						return instance._previousContext;
+					},
+
+					hasChanges: function() {
+						var instance = this;
+
+						var previousContext = instance.getPreviousContext();
+
+						var currentFieldSettings = instance.getFieldSettings();
+
+						return JSON.stringify(previousContext) !== JSON.stringify(currentFieldSettings.context);
+					},
+
 					_afterOpenStart: function() {
 						var instance = this;
 
 						instance._showLoading();
+					},
+
+					_afterPressEscapeKey: function() {
+						var instance = this;
+
+						if (instance.isOpen()) {
+							var field = instance.get('field');
+
+							instance.get('builder').cancelFieldEdition(field);
+						}
 					},
 
 					_afterSidebarOpen: function() {
@@ -79,6 +126,10 @@ AUI.add(
 						var field = instance.get('field');
 
 						var toolbar = instance.get('toolbar');
+
+						if (instance.settingsForm) {
+							instance._hideSettingsForm();
+						}
 
 						instance._showLoading();
 
@@ -106,6 +157,15 @@ AUI.add(
 							}
 						);
 
+						var evaluator = settingsForm.get('evaluator');
+
+						evaluator.after(
+							'evaluationStarted',
+							function() {
+								instance.set('title', settingsForm.getField('label').getValue());
+							}
+						);
+
 						settingsForm.render();
 
 						settingsForm.getFirstPageField().focus();
@@ -123,6 +183,14 @@ AUI.add(
 						return toolbar;
 					},
 
+					_hideSettingsForm: function() {
+						var instance = this;
+
+						var container = instance.settingsForm.get('container');
+
+						container.addClass('invisible');
+					},
+
 					_loadFieldSettingsForm: function(field) {
 						var instance = this;
 
@@ -131,6 +199,13 @@ AUI.add(
 								instance.settingsForm = settingsForm;
 
 								instance._configureSideBar();
+
+								settingsForm.evaluate(
+									function() {
+										instance._showSettingsForm();
+										instance._removeLoading();
+									}
+								);
 
 								field.setAttrs(field.getSettings(settingsForm));
 
@@ -145,6 +220,14 @@ AUI.add(
 								);
 							}
 						);
+					},
+
+					_removeLoading: function() {
+						var instance = this;
+
+						var boundingBox = instance.get('boundingBox');
+
+						boundingBox.one('.loading-icon').remove();
 					},
 
 					_saveCurrentContext: function() {
@@ -167,17 +250,26 @@ AUI.add(
 						}
 					},
 
+					_setTitle: function(value) {
+						return value || Liferay.Language.get('unlabeled');
+					},
+
 					_showLoading: function() {
 						var instance = this;
 
-						var bodyContent = instance.get('bodyContent');
+						var contentBox = instance.get('contentBox');
 
-						instance.set('description', '');
-						instance.set('title', '');
-
-						if (bodyContent !== TPL_LOADING) {
-							instance.set('bodyContent', TPL_LOADING);
+						if (!contentBox.one('.loading-icon')) {
+							contentBox.append(TPL_LOADING);
 						}
+					},
+
+					_showSettingsForm: function() {
+						var instance = this;
+
+						var container = instance.settingsForm.get('container');
+
+						container.removeClass('invisible');
 					}
 				}
 			}
