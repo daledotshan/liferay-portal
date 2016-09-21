@@ -30,6 +30,160 @@
 		</if>
 	</tear-down>
 
+	<command name="ConfigureAutocompleteWithTextField" priority="5">
+		<property name="portal.acceptance" value="pending" />
+		<property name="test.name.skip.portal.instance" value="Forms#ConfigureAutoCompleteWithTextField" />
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoDataProviders" />
+
+		<execute macro="FormsAdminNavigator#gotoAddDataProvider" />
+
+		<execute macro="FormsAdmin#editDataProvider">
+			<var name="displayedAttribute" value="nameCurrentValue" />
+			<var name="name" value="Countries Full Name" />
+			<var name="password" value="test" />
+			<var name="storedAttribute" value="name" />
+			<var name="url" value="${portalURL}/api/jsonws/country/get-countries" />
+			<var name="username" value="test@liferay.com" />
+		</execute>
+
+		<execute macro="FormsAdmin#saveDataProvider" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoDataProviders" />
+
+		<execute macro="FormsAdminNavigator#gotoAddDataProvider" />
+
+		<execute macro="FormsAdmin#editDataProvider">
+			<var name="displayedAttribute" value="a2" />
+			<var name="name" value="Countries A2" />
+			<var name="password" value="test" />
+			<var name="storedAttribute" value="a2" />
+			<var name="url" value="${portalURL}/api/jsonws/country/get-countries" />
+			<var name="username" value="test@liferay.com" />
+		</execute>
+
+		<execute macro="FormsAdmin#saveDataProvider" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#editDescription" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field With Autocomplete" />
+		</execute>
+
+		<execute macro="Form#gotoAdvancedTab" />
+
+		<execute macro="Form#gotoAutocompleteConfiguration" />
+
+		<execute macro="Form#editFieldDataProvider">
+			<var name="dataProvider" value="Countries A2" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Form#save" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoEdit">
+			<var name="formName" value="Created Form Name" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoEditField">
+			<var name="fieldName" value="TextFieldWithAutocomplete" />
+		</execute>
+
+		<execute macro="Form#gotoAdvancedTab" />
+
+		<execute macro="Form#gotoAutocompleteConfiguration" />
+
+		<execute macro="Form#editFieldDataProvider">
+			<var name="dataProvider" value="Countries Full Name" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Form#save" />
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Form Page" />
+		</execute>
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Form Page" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="pageName" value="Form Page" />
+			<var name="portletName" value="Form" />
+		</execute>
+
+		<execute macro="FormPortletNavigator#gotoSelectForm" />
+
+		<execute macro="FormPortletConfiguration#selectForm" />
+
+		<execute macro="PortletEntry#save" />
+
+		<execute macro="Navigator#gotoPage">
+			<var name="pageName" value="Form Page" />
+		</execute>
+
+		<execute macro="FormFields#editText">
+			<var name="fieldName" value="TextFieldWithAutocomplete" />
+			<var name="fieldValue" value="Un" />
+		</execute>
+
+		<execute macro="FormFields#selectAutoCompleteOption">
+			<var name="autocompleteOption" value="United States" />
+		</execute>
+
+		<execute macro="FormPortlet#submit" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoViewEntries" />
+
+		<execute macro="FormsAdmin#viewFormTableEntry">
+			<var name="fieldLabel" value="Text Field With Autocomplete" />
+			<var name="fieldValue" value="United States" />
+		</execute>
+	</command>
+
 	<command name="ConfigureDataProviderWithSelectField" priority="5">
 		<property name="portal.acceptance" value="true" />
 		<property name="test.name.skip.portal.instance" value="Forms#ConfigureDataProviderWithSelectField" />
@@ -483,6 +637,12 @@
 			<var name="fieldName" value="CheckboxName" />
 		</execute>
 
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
 		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#save" />
@@ -890,6 +1050,12 @@
 
 		<execute macro="Form#editFieldLabel">
 			<var name="fieldValue" value="Checkbox" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -1603,6 +1769,12 @@
 			<var name="fieldValue" value="Checkbox" />
 		</execute>
 
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
 		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#save" />
@@ -1821,7 +1993,8 @@
 			<var name="fieldValue" value="05/02/2016" />
 		</execute>
 
-		<execute macro="FormFields#enableCheckbox">
+		<execute macro="FormFields#selectCheckboxOption">
+			<var name="checkboxOption" value="Checkbox 1" />
 			<var name="fieldName" value="Checkbox" />
 		</execute>
 
@@ -2003,6 +2176,12 @@
 			<var name="fieldName" value="required" />
 		</execute>
 
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
 		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#addPage" />
@@ -2077,7 +2256,8 @@
 			<var name="fieldValue" value="05/02/2016" />
 		</execute>
 
-		<execute macro="FormFields#enableCheckbox">
+		<execute macro="FormFields#selectCheckboxOption">
+			<var name="checkboxOption" value="Checkbox 1" />
 			<var name="fieldName" value="Checkbox" />
 		</execute>
 
@@ -2178,7 +2358,7 @@
 			<var name="fieldValue" value="Text" />
 		</execute>
 
-		<execute macro="Form#goToAdvancedTab" />
+		<execute macro="Form#gotoAdvancedTab" />
 
 		<execute macro="FormFields#enableSwitcher">
 			<var name="fieldName" value="validation" />
@@ -2186,7 +2366,7 @@
 
 		<execute macro="FormFields#editValidation">
 			<var name="validationArgument" value="Contains" />
-			<var name="validationErrorMessage" value="Text must contain &quot;Test&quot;" />
+			<var name="validationErrorMessage" value="Text must contain &apos;&apos;Test&apos;&apos;" />
 			<var name="validationInput" value="Test" />
 			<var name="validationType" value="Text" />
 		</execute>
@@ -2229,7 +2409,7 @@
 		</execute>
 
 		<execute macro="FormPortlet#submitWithValidationError">
-			<var name="validationErrorMessage" value="Text must contain &quot;Test&quot;" />
+			<var name="validationErrorMessage" value="Text must contain &apos;&apos;Test&apos;&apos;" />
 		</execute>
 
 		<execute macro="FormFields#editText">
@@ -2284,6 +2464,12 @@
 
 		<execute macro="Form#editFieldLabel">
 			<var name="fieldValue" value="Checkbox Field" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -2370,7 +2556,8 @@
 			<var name="fieldName" value="CheckboxField" />
 		</execute>
 
-		<execute macro="FormFields#enableCheckbox">
+		<execute macro="FormFields#selectCheckboxOption">
+			<var name="checkboxOption" value="Checkbox 1" />
 			<var name="fieldName" value="CheckboxField" />
 		</execute>
 
@@ -2415,7 +2602,7 @@
 
 		<execute macro="FormsAdmin#viewFormTableEntry">
 			<var name="fieldLabel" value="Checkbox Field" />
-			<var name="fieldValue" value="Yes" />
+			<var name="fieldValue" value="Checkbox 1" />
 		</execute>
 
 		<execute macro="FormsAdmin#viewFormTableEntry">
@@ -2544,7 +2731,7 @@
 		</execute>
 
 		<execute macro="Form#editFieldLabel">
-			<var name="fieldName" value="ParagraphFieldTitle" />
+			<var name="fieldName" value="paragraph" />
 			<var name="fieldValue" value="Paragraph Field Title" />
 		</execute>
 
@@ -2561,7 +2748,7 @@
 		</execute>
 
 		<execute macro="FormFields#viewParagraphField">
-			<var name="fieldName" value="ParagraphFieldTitle" />
+			<var name="fieldName" value="paragraph" />
 			<var name="fieldTitle" value="Paragraph Field Title" />
 			<var name="fieldValue" value="New Paragraph body text." />
 		</execute>
@@ -2584,7 +2771,7 @@
 		<execute macro="FormsAdminNavigator#gotoView" />
 
 		<execute macro="FormsAdmin#viewParagraphEntry">
-			<var name="fieldName" value="ParagraphFieldTitle" />
+			<var name="fieldName" value="paragraph" />
 			<var name="fieldTitle" value="Paragraph Field Title" />
 			<var name="fieldValue" value="New Paragraph body text." />
 		</execute>
@@ -2615,6 +2802,12 @@
 
 		<execute macro="FormFields#enableSwitcher">
 			<var name="fieldName" value="required" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
 		</execute>
 
 		<execute macro="Form#closeSidebar" />
@@ -2653,7 +2846,8 @@
 
 		<execute macro="FormPortlet#submitWithValidationError" />
 
-		<execute macro="FormFields#enableCheckbox">
+		<execute macro="FormFields#selectCheckboxOption">
+			<var name="checkboxOption" value="Checkbox 1" />
 			<var name="fieldName" value="CheckboxField" />
 		</execute>
 
@@ -2669,7 +2863,7 @@
 
 		<execute macro="FormsAdmin#viewFormTableEntry">
 			<var name="fieldLabel" value="Checkbox Field" />
-			<var name="fieldValue" value="Yes" />
+			<var name="fieldValue" value="Checkbox 1" />
 		</execute>
 	</command>
 
@@ -2886,7 +3080,7 @@
 			<var name="fieldName" value="required" />
 		</execute>
 
-		<execute macro="Form#goToAdvancedTab" />
+		<execute macro="Form#gotoAdvancedTab" />
 
 		<execute macro="FormFields#enableSwitcher">
 			<var name="fieldName" value="repeatable" />
@@ -2930,7 +3124,7 @@
 			<var name="fieldValueRepeat" value="Text Field Value Repeat" />
 		</execute>
 
-		<execute macro="FormPortlet#submit" />
+		<execute macro="FormPortlet#submitSuccessfully" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -3057,6 +3251,18 @@
 			<var name="fieldName" value="showAsSwitcher" />
 		</execute>
 
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Switcher1" />
+			<var name="optionValue" value="Switcher 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Switcher2" />
+			<var name="optionValue" value="Switcher 2" />
+			<var name="rowNumber" value="2" />
+		</execute>
+
 		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#save" />
@@ -3089,8 +3295,9 @@
 			<var name="fieldName" value="CheckboxField" />
 		</execute>
 
-		<execute macro="FormFields#enableSwitcher">
+		<execute macro="FormFields#selectSwitcherOption">
 			<var name="fieldName" value="CheckboxField" />
+			<var name="switcherOption" value="Switcher 1" />
 		</execute>
 
 		<execute macro="FormPortlet#clickSubmit" />
@@ -3107,7 +3314,7 @@
 
 		<execute macro="FormsAdmin#viewFormTableEntry">
 			<var name="fieldLabel" value="Checkbox Field" />
-			<var name="fieldValue" value="Yes" />
+			<var name="fieldValue" value="Switcher 1" />
 		</execute>
 
 		<execute macro="FormsAdminNavigator#gotoView" />
@@ -3277,6 +3484,18 @@
 			<var name="fieldValue" value="Checkbox" />
 		</execute>
 
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox1" />
+			<var name="optionValue" value="Checkbox 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Checkbox2" />
+			<var name="optionValue" value="Checkbox 2" />
+			<var name="rowNumber" value="2" />
+		</execute>
+
 		<execute macro="Form#closeSidebar" />
 
 		<execute macro="Form#save" />
@@ -3339,7 +3558,8 @@
 			<var name="fieldName" value="Checkbox" />
 		</execute>
 
-		<execute macro="FormFields#enableCheckbox">
+		<execute macro="FormFields#selectCheckboxOption">
+			<var name="checkboxOption" value="Checkbox 1" />
 			<var name="fieldName" value="Checkbox" />
 		</execute>
 
@@ -3365,7 +3585,7 @@
 
 		<execute macro="FormsAdmin#viewFormTableEntry">
 			<var name="fieldLabel" value="Checkbox" />
-			<var name="fieldValue" value="Yes" />
+			<var name="fieldValue" value="Checkbox 1" />
 		</execute>
 	</command>
 
@@ -3505,7 +3725,13 @@
 			<var name="fieldName" value="showAsSwitcher" />
 		</execute>
 
-		<execute macro="Form#goToAdvancedTab" />
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Switcher1" />
+			<var name="optionValue" value="Switcher 1" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="Form#gotoAdvancedTab" />
 
 		<execute macro="FormFields#enableSwitcher">
 			<var name="fieldName" value="showLabel" />
@@ -3580,7 +3806,7 @@
 			<var name="fieldValue" value="Text Field" />
 		</execute>
 
-		<execute macro="Form#goToAdvancedTab" />
+		<execute macro="Form#gotoAdvancedTab" />
 
 		<execute macro="FormFields#enableSwitcher">
 			<var name="fieldName" value="repeatable" />
@@ -3657,7 +3883,7 @@
 			<var name="fieldValue" value="Hidden Field" />
 		</execute>
 
-		<execute macro="Form#goToAdvancedTab" />
+		<execute macro="Form#gotoAdvancedTab" />
 
 		<execute macro="FormFields#editText">
 			<var name="fieldName" value="visibility" />
