@@ -106,6 +106,7 @@ public class DDMFormFieldTemplateContextFactory {
 
 		setDDMFormFieldTemplateContextDataType(
 			ddmFormFieldTemplateContext, ddmFormField.getDataType());
+
 		setDDMFormFieldTemplateContextDir(ddmFormFieldTemplateContext);
 		setDDMFormFieldTemplateContextLocalizedValue(
 			ddmFormFieldTemplateContext, "label", ddmFormField.getLabel());
@@ -125,6 +126,7 @@ public class DDMFormFieldTemplateContextFactory {
 
 		setDDMFormFieldTemplateContextNestedTemplateContexts(
 			ddmFormFieldTemplateContext, nestedDDMFormFieldTemplateContext);
+
 		setDDMFormFieldTemplateContextReadOnly(
 			ddmFormFieldTemplateContext, ddmFormField.isReadOnly());
 		setDDMFormFieldTemplateContextRepeatable(
@@ -138,7 +140,8 @@ public class DDMFormFieldTemplateContextFactory {
 		setDDMFormFieldTemplateContextValid(
 			ddmFormFieldEvaluationResult, ddmFormFieldTemplateContext);
 		setDDMFormFieldTemplateContextValue(
-			ddmFormFieldTemplateContext, ddmFormFieldValue.getValue());
+			ddmFormFieldEvaluationResult, ddmFormFieldTemplateContext,
+			ddmFormFieldValue.getValue());
 		setDDMFormFieldTemplateContextVisible(
 			ddmFormFieldEvaluationResult, ddmFormFieldTemplateContext);
 		setDDMFormFieldTemplateContextOptions(
@@ -328,6 +331,7 @@ public class DDMFormFieldTemplateContextFactory {
 			LocalizedValue localizedValue = entry.getValue();
 
 			option.put("label", localizedValue.getString(_locale));
+
 			option.put("value", entry.getKey());
 
 			list.add(option);
@@ -381,9 +385,15 @@ public class DDMFormFieldTemplateContextFactory {
 	}
 
 	protected void setDDMFormFieldTemplateContextValue(
+		DDMFormFieldEvaluationResult ddmFormFieldEvaluationResult,
 		Map<String, Object> ddmFormFieldTemplateContext, Value value) {
 
-		if (value != null) {
+		if (ddmFormFieldEvaluationResult.getValue() != null) {
+			ddmFormFieldTemplateContext.put(
+				"value",
+				String.valueOf(ddmFormFieldEvaluationResult.getValue()));
+		}
+		else if (value != null) {
 			ddmFormFieldTemplateContext.put("value", value.getString(_locale));
 		}
 	}

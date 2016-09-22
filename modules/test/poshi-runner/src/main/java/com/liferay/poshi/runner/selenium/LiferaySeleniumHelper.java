@@ -189,6 +189,7 @@ public class LiferaySeleniumHelper {
 		Element rootElement = document.getRootElement();
 
 		List<Element> eventElements = rootElement.elements("event");
+
 		List<Exception> exceptions = new ArrayList<>();
 
 		for (Element eventElement : eventElements) {
@@ -418,6 +419,7 @@ public class LiferaySeleniumHelper {
 				Exception exception = _javaScriptExceptions.get(i);
 
 				sb.append(exception.getMessage());
+
 				sb.append("\n");
 			}
 
@@ -448,6 +450,7 @@ public class LiferaySeleniumHelper {
 				Exception exception = _liferayExceptions.get(i);
 
 				sb.append(exception.getMessage());
+
 				sb.append("\n");
 			}
 
@@ -1383,6 +1386,14 @@ public class LiferaySeleniumHelper {
 
 		Keyboard keyboard = new DesktopKeyboard();
 
+		String filePath =
+			FileUtil.getSeparator() + _TEST_DEPENDENCIES_DIR_NAME +
+				FileUtil.getSeparator() + value;
+
+		filePath = getSourceDirFilePath(filePath);
+
+		filePath = StringUtil.replace(filePath, "/", FileUtil.getSeparator());
+
 		if (OSDetector.isApple()) {
 			keyboard.keyDown(Key.CMD);
 			keyboard.keyDown(Key.SHIFT);
@@ -1391,6 +1402,10 @@ public class LiferaySeleniumHelper {
 
 			keyboard.keyUp(Key.CMD);
 			keyboard.keyUp(Key.SHIFT);
+
+			sikuliType(liferaySelenium, image, filePath);
+
+			keyboard.type(Key.ENTER);
 		}
 		else {
 			keyboard.keyDown(Key.CTRL);
@@ -1398,19 +1413,9 @@ public class LiferaySeleniumHelper {
 			keyboard.type("a");
 
 			keyboard.keyUp(Key.CTRL);
+
+			sikuliType(liferaySelenium, image, filePath);
 		}
-
-		String filePath =
-			FileUtil.getSeparator() + _TEST_DEPENDENCIES_DIR_NAME +
-				FileUtil.getSeparator() + value;
-
-		filePath = getSourceDirFilePath(filePath);
-
-		if (OSDetector.isWindows()) {
-			filePath = StringUtil.replace(filePath, "/", "\\");
-		}
-
-		sikuliType(liferaySelenium, image, filePath);
 
 		keyboard.type(Key.ENTER);
 	}
@@ -1501,6 +1506,7 @@ public class LiferaySeleniumHelper {
 		String idAttribute = liferaySelenium.getAttribute(locator + "@id");
 
 		int x = idAttribute.indexOf("cke__");
+
 		int y = idAttribute.indexOf("cke__", x + 1);
 
 		if (y == -1) {
