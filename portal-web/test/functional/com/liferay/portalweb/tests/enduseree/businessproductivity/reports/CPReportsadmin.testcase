@@ -288,12 +288,9 @@
 		<execute macro="Gmail#viewMail">
 			<var name="emailFromUserName" value="Joe Bloggs" />
 			<var name="gmailAssetType" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
-			<var name="gmailMailTableMessageTitle" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
+			<var name="gmailMessageAttachment" value="reports_admin_template_source_sample_class_name.pdf" />
 			<var name="gmailMessageBody" value="Please review the attached report." />
-			<var name="gmailMessageBodyClosing" value="Sincerly, test@liferay.com" />
-			<var name="gmailMessageBodyGreeting" value="Dear ${emailAddress3}," />
 			<var name="gmailMessageTitle" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
-			<var name="gmailMesssageAttachment" value="reports_admin_template_source_sample_class_name.pdf" />
 		</execute>
 
 		<execute macro="Gmail#tearDown">
@@ -641,10 +638,7 @@
 		<execute macro="Gmail#viewMail">
 			<var name="emailFromUserName" value="Joe Bloggs" />
 			<var name="gmailAssetType" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
-			<var name="gmailMailTableMessageTitle" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
 			<var name="gmailMessageBody" value="You have a new report." />
-			<var name="gmailMessageBodyClosing" value="Sincerly, Joe Bloggs test@liferay.com" />
-			<var name="gmailMessageBodyGreeting" value="Dear ${emailAddress2}," />
 			<var name="gmailMessageTitle" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
 		</execute>
 
@@ -722,12 +716,9 @@
 		<execute macro="Gmail#viewMail">
 			<var name="emailFromUserName" value="Joe Bloggs" />
 			<var name="gmailAssetType" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
-			<var name="gmailMailTableMessageTitle" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
+			<var name="gmailMessageAttachment" value="reports_admin_template_source_sample_class_name.pdf" />
 			<var name="gmailMessageBody" value="Please review the attached report." />
-			<var name="gmailMessageBodyClosing" value="Sincerly, test@liferay.com" />
-			<var name="gmailMessageBodyGreeting" value="Dear ${emailAddress2}," />
 			<var name="gmailMessageTitle" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
-			<var name="gmailMesssageAttachment" value="reports_admin_template_source_sample_class_name.pdf" />
 		</execute>
 
 		<var name="key_gmailAssetType" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
