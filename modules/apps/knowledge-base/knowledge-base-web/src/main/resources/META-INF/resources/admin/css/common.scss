@@ -157,7 +157,6 @@
 	}
 
 	.kb-attachments {
-		display: inline-block;
 		margin: 20px 0 0;
 
 		& > div {
@@ -311,6 +310,16 @@
 
 #wrapper .knowledge-base-portlet .card-horizontal.main-content-card {
 	min-height: 0;
+}
+
+.firefox .knowledge-base-portlet {
+	fieldset {
+		display: table-cell;
+	}
+
+	.kbarticle-navigation a {
+		word-wrap: break-word;
+	}
 }
 
 /* Skin */

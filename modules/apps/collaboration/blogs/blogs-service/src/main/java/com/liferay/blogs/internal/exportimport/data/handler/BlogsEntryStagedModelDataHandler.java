@@ -20,12 +20,12 @@ import com.liferay.blogs.service.BlogsEntryLocalService;
 import com.liferay.document.library.kernel.exception.NoSuchFileException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.exportimport.content.processor.ExportImportContentProcessorController;
+import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -424,7 +424,7 @@ public class BlogsEntryStagedModelDataHandler
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of 1.1.0
 	 */
 	@Deprecated
 	protected void setBlogsEntryExportImportContentProcessor(

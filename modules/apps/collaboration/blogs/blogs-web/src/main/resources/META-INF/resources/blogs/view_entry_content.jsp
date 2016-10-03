@@ -65,14 +65,14 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 
 					<c:if test="<%= viewSingleEntry %>">
 						<div class="cover-image-caption">
-							<small><%= entry.getCoverImageCaption() %></small>
+							<small><%= HtmlUtil.escape(entry.getCoverImageCaption()) %></small>
 						</div>
 					</c:if>
 				</c:if>
 
 				<div class="<%= colCssClass %> entry-info text-muted ">
 					<small>
-						<strong><%= entry.getUserName() %></strong>
+						<strong><%= HtmlUtil.escape(entry.getUserName()) %></strong>
 						<span> - </span>
 						<span class="hide-accessible"><liferay-ui:message key="published-date" /></span>
 						<%= dateFormatDate.format(entry.getDisplayDate()) %>
@@ -100,7 +100,7 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 						<c:choose>
 							<c:when test="<%= !viewSingleEntry %>">
 								<h2>
-									<aui:a href="<%= viewEntryURL %>"><%= HtmlUtil.escape(entry.getTitle()) %></aui:a>
+									<aui:a href="<%= viewEntryURL %>"><%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %></aui:a>
 								</h2>
 
 								<c:if test="<%= !entry.isApproved() %>">
@@ -114,7 +114,7 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 								</c:if>
 							</c:when>
 							<c:otherwise>
-								<h1><%= HtmlUtil.escape(entry.getTitle()) %></h1>
+								<h1><%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %></h1>
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -134,6 +134,11 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 			<div class="<%= colCssClass %> entry-body">
 				<c:choose>
 					<c:when test="<%= blogsPortletInstanceConfiguration.displayStyle().equals(BlogsUtil.DISPLAY_STYLE_ABSTRACT) && !viewSingleEntry %>">
+						<c:if test="<%= entry.isSmallImage() && Validator.isNull(coverImageURL) %>">
+							<div class="asset-small-image">
+								<img alt="" class="asset-small-image img-thumbnail" src="<%= HtmlUtil.escape(entry.getSmallImageURL(themeDisplay)) %>" width="150" />
+							</div>
+						</c:if>
 
 						<%
 						String summary = entry.getDescription();
@@ -286,7 +291,7 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 								contentId="<%= String.valueOf(entry.getEntryId()) %>"
 								displayStyle="<%= blogsPortletInstanceConfiguration.socialBookmarksDisplayStyle() %>"
 								target="_blank"
-								title="<%= entry.getTitle() %>"
+								title="<%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %>"
 								types="<%= blogsPortletInstanceConfiguration.socialBookmarksTypes() %>"
 								url="<%= PortalUtil.getCanonicalURL(bookmarkURL.toString(), themeDisplay, layout) %>"
 							/>
@@ -298,7 +303,7 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 							<liferay-flags:flags
 								className="<%= BlogsEntry.class.getName() %>"
 								classPK="<%= entry.getEntryId() %>"
-								contentTitle="<%= entry.getTitle() %>"
+								contentTitle="<%= BlogsEntryUtil.getDisplayTitle(resourceBundle, entry) %>"
 								reportedUserId="<%= entry.getUserId() %>"
 							/>
 						</div>
