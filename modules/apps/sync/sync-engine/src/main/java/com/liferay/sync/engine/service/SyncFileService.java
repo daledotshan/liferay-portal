@@ -63,7 +63,7 @@ public class SyncFileService {
 
 		// Local sync file
 
-		if (Files.notExists(filePath)) {
+		if (FileUtil.notExists(filePath)) {
 			return null;
 		}
 
@@ -93,7 +93,7 @@ public class SyncFileService {
 
 		// Local sync file
 
-		if (Files.notExists(filePath)) {
+		if (FileUtil.notExists(filePath)) {
 			return null;
 		}
 
@@ -208,7 +208,7 @@ public class SyncFileService {
 
 		// Local sync file
 
-		if (Files.notExists(filePath)) {
+		if (FileUtil.notExists(filePath)) {
 			return null;
 		}
 
@@ -808,7 +808,7 @@ public class SyncFileService {
 			SyncFileService.update(syncFile);
 
 			if (isAncestorInList(syncFile, unsyncedSyncFileIds) ||
-				!Files.exists(Paths.get(syncFile.getFilePathName()))) {
+				!FileUtil.exists(Paths.get(syncFile.getFilePathName()))) {
 
 				continue;
 			}
@@ -881,7 +881,7 @@ public class SyncFileService {
 			Path filePath, long syncAccountId, SyncFile syncFile)
 		throws Exception {
 
-		if (Files.notExists(filePath)) {
+		if (FileUtil.notExists(filePath)) {
 			return null;
 		}
 
@@ -965,6 +965,7 @@ public class SyncFileService {
 		String targetFilePathName = filePath.toString();
 
 		syncFile.setFilePathName(targetFilePathName);
+
 		syncFile.setLocalSyncTime(System.currentTimeMillis());
 		syncFile.setName(String.valueOf(filePath.getFileName()));
 		syncFile.setParentFolderId(parentFolderId);

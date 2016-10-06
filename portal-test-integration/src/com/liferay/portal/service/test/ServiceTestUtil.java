@@ -14,6 +14,8 @@
 
 package com.liferay.portal.service.test;
 
+import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
+import com.liferay.portal.kernel.executor.PortalExecutorManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.BaseDestination;
@@ -40,8 +42,10 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.tools.DBUpgrader;
@@ -59,6 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Brian Wing Shun Chan
@@ -267,12 +272,16 @@ public class ServiceTestUtil {
 
 		// Company
 
-		try {
-			CompanyLocalServiceUtil.checkCompany(
-				TestPropsValues.COMPANY_WEB_ID);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
+		if (!ArrayUtil.contains(
+				PortalInstances.getWebIds(), TestPropsValues.COMPANY_WEB_ID)) {
+
+			try {
+				CompanyLocalServiceUtil.checkCompany(
+					TestPropsValues.COMPANY_WEB_ID);
+			}
+			catch (Exception e) {
+				_log.error(e, e);
+			}
 		}
 	}
 
@@ -350,7 +359,33 @@ public class ServiceTestUtil {
 
 		MessageBus messageBus = MessageBusUtil.getMessageBus();
 
-		messageBus.replace(baseDestination);
+		Destination oldDestination = messageBus.getDestination(name);
+
+		messageBus.replace(baseDestination, false);
+
+		ThreadPoolExecutor threadPoolExecutor =
+			PortalExecutorManagerUtil.getPortalExecutor(
+				oldDestination.getName(), false);
+
+		if (threadPoolExecutor == null) {
+			return;
+		}
+
+		threadPoolExecutor.shutdown();
+
+		try {
+			if (!threadPoolExecutor.awaitTermination(
+					TestPropsValues.CI_TEST_TIMEOUT_TIME,
+					TimeUnit.MILLISECONDS)) {
+
+				throw new IllegalStateException(
+					"Destination " + oldDestination.getName() +
+						" shutdown timeout");
+			}
+		}
+		catch (InterruptedException ie) {
+			ReflectionUtil.throwException(ie);
+		}
 	}
 
 	private static void _setThreadLocals() {

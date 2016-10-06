@@ -233,7 +233,15 @@ public class LiferayThemeDefaultsPlugin implements Plugin<Project> {
 			ReplaceRegexTask.class);
 
 		replaceRegexTask.finalizedBy(writeParentThemesDigestTask);
-		replaceRegexTask.match("\\n\\t\"version\": \"(.+)\"", "package.json");
+
+		File npmShrinkwrapJsonFile = project.file("npm-shrinkwrap.json");
+
+		if (npmShrinkwrapJsonFile.exists()) {
+			replaceRegexTask.match(_JSON_VERSION_REGEX, npmShrinkwrapJsonFile);
+		}
+
+		replaceRegexTask.match(_JSON_VERSION_REGEX, "package.json");
+
 		replaceRegexTask.setDescription(
 			"Updates the project version in the package.json file.");
 		replaceRegexTask.setReplacement(
@@ -325,8 +333,8 @@ public class LiferayThemeDefaultsPlugin implements Plugin<Project> {
 	protected void applyConfigScripts(Project project) {
 		GradleUtil.applyScript(
 			project,
-			"com/liferay/gradle/plugins/defaults/dependencies/" +
-				"config-maven.gradle",
+			"com/liferay/gradle/plugins/defaults/dependencies" +
+				"/config-maven.gradle",
 			project);
 	}
 
@@ -447,16 +455,28 @@ public class LiferayThemeDefaultsPlugin implements Plugin<Project> {
 	}
 
 	protected void configureTaskUploadArchives(
-		Project project, Task updateThemeVersionTask) {
-
-		if (GradleUtil.isSnapshot(project)) {
-			return;
-		}
+		final Project project, Task updateThemeVersionTask) {
 
 		Task uploadArchivesTask = GradleUtil.getTask(
 			project, BasePlugin.UPLOAD_ARCHIVES_TASK_NAME);
 
-		uploadArchivesTask.finalizedBy(updateThemeVersionTask);
+		if (FileUtil.exists(project, ".lfrbuild-missing-resources-importer")) {
+			uploadArchivesTask.doFirst(
+				new Action<Task>() {
+
+					@Override
+					public void execute(Task task) {
+						throw new GradleException(
+							"Unable to publish " + project +
+								", resources-importer directory is missing");
+					}
+
+				});
+		}
+
+		if (!GradleUtil.isSnapshot(project)) {
+			uploadArchivesTask.finalizedBy(updateThemeVersionTask);
+		}
 	}
 
 	protected boolean getPluginPackageProperty(Project project, String key) {
@@ -489,5 +509,8 @@ public class LiferayThemeDefaultsPlugin implements Plugin<Project> {
 		"com.liferay.frontend.css.common";
 
 	private static final String _GROUP = "com.liferay.plugins";
+
+	private static final String _JSON_VERSION_REGEX =
+		"\\n\\t\"version\": \"(.+)\"";
 
 }
