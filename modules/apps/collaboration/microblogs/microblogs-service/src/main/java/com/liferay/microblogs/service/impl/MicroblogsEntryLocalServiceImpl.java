@@ -714,12 +714,12 @@ public class MicroblogsEntryLocalServiceImpl
 
 			int count = receiverUserIds.size();
 
-			int pages = count / Indexer.DEFAULT_INTERVAL;
+			int pages = count / Indexer.INTERVAL;
 
 			for (int i = 0; i <= pages; i++) {
-				int start = (i * Indexer.DEFAULT_INTERVAL);
+				int start = (i * Indexer.INTERVAL);
 
-				int end = start + Indexer.DEFAULT_INTERVAL;
+				int end = start + Indexer.INTERVAL;
 
 				if (count < end) {
 					end = count;

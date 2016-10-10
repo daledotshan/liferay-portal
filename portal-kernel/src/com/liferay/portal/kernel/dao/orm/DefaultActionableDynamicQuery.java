@@ -406,7 +406,7 @@ public class DefaultActionableDynamicQuery implements ActionableDynamicQuery {
 	private Method _dynamicQueryMethod;
 	private long _groupId;
 	private String _groupIdPropertyName = "groupId";
-	private int _interval = Indexer.DEFAULT_INTERVAL;
+	private int _interval = Indexer.INTERVAL;
 	private Class<?> _modelClass;
 	private boolean _parallel;
 
