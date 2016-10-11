@@ -1,7 +1,8 @@
 # Javadoc Formatter Gradle Plugin
 
 The Javadoc Formatter Gradle plugin lets you format project Javadoc comments
-using the Liferay Javadoc Formatter tool. The tool lets you generate:
+using the [Liferay Javadoc Formatter tool](https://github.com/liferay/liferay-portal/tree/master/modules/util/javadoc-formatter).
+The tool lets you generate:
 
 - Default [`@author`](http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#@author)
   tags to all classes.
@@ -99,7 +100,7 @@ manually adding a dependency to the `javadocFormatter` configuration:
 
 ```gradle
 dependencies {
-	javadocFormatter group: "com.liferay", name: "com.liferay.javadoc.formatter", version: "1.0.15"
+	javadocFormatter group: "com.liferay", name: "com.liferay.javadoc.formatter", version: "1.0.16"
 }
 ```
 

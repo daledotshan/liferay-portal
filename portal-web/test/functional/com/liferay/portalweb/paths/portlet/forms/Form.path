@@ -151,8 +151,13 @@
 </tr>
 <!--SIDEBAR -->
 <tr>
-	<td>SIDEBAR_ADVANCED_TAB</td>
-	<td>//a[contains(@class,'tab') and .='advanced']</td>
+	<td>SIDEBAR_HEADER</td>
+	<td>//h4[contains(@class,'form-builder-sidebar-title')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SIDEBAR_PROPERTIES_TAB</td>
+	<td>//a[contains(@class,'tab') and .='properties']</td>
 	<td></td>
 </tr>
 <tr>

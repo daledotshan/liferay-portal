@@ -48,7 +48,7 @@
 				<else>
 					<pathconvert pathsep="," property="plugin.build.path" setonempty="false">
 						<path>
-							<fileset dir="${project.dir}/modules" includes="**/@{plugin}/build.xml" />
+							<fileset dir="${project.dir}/modules" includes="**/@{plugin}/build.gradle,**/@{plugin}/build.xml" />
 						</path>
 					</pathconvert>
 
@@ -193,6 +193,15 @@ app.server.tomcat.dir=${app.server.parent.dir}/tomcat-7.0.42</echo>
 							<else>
 								<delete file="${plugin.path}/docroot/WEB-INF/src/portlet-ext.properties" />
 							</else>
+						</if>
+
+						<get-testcase-property property.name="solr.enabled" />
+
+						<if>
+							<equals arg1="${solr.enabled}" arg2="true" />
+							<then>
+								<echo file="${plugin.path}/WEB-INF/classes/solr-ext.properties">server.http.url=http://localhost:8983/solr</echo>
+							</then>
 						</if>
 
 						<if>

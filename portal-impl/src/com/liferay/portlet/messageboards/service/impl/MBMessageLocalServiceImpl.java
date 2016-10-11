@@ -71,6 +71,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -143,7 +144,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		long threadId = 0;
 		long parentMessageId = MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID;
+
 		String subject = String.valueOf(classPK);
+
 		String body = subject;
 
 		ServiceContext serviceContext = new ServiceContext();
@@ -266,6 +269,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		long messageId = counterLocalService.increment();
 
 		subject = getSubject(subject, body);
+
 		body = getBody(subject, body);
 
 		Map<String, Object> options = new HashMap<>();
@@ -1589,6 +1593,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			MBMessage.class.getName(), "subject", subject);
 
 		subject = getSubject(subject, body);
+
 		body = getBody(subject, body);
 
 		Map<String, Object> options = new HashMap<>();
@@ -2123,6 +2128,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			mbDiscussionLocalService.getThreadDiscussion(message.getThreadId());
 
 		String contentURL = (String)serviceContext.getAttribute("contentURL");
+
+		contentURL = HttpUtil.addParameter(
+			contentURL, serviceContext.getAttribute("namespace") + "messageId",
+			message.getMessageId());
 
 		String userAddress = StringPool.BLANK;
 		String userName = (String)serviceContext.getAttribute(
