@@ -49,14 +49,13 @@ PortletURL microblogsEntriesURL = (PortletURL)request.getAttribute(WebKeys.MICRO
 <%
 if (microblogsEntries != null) {
 	for (MicroblogsEntry microblogsEntry : microblogsEntries) {
-		String userDisplayURL = StringPool.BLANK;
 		String userFullName = HtmlUtil.escape(PortalUtil.getUserName(microblogsEntry));
 		String userScreenName = StringPool.BLANK;
+		User curUser = null;
 
 		try {
-			User curUser = UserLocalServiceUtil.getUserById(microblogsEntry.getUserId());
+			curUser = UserLocalServiceUtil.getUserById(microblogsEntry.getUserId());
 
-			userDisplayURL = curUser.getDisplayURL(themeDisplay);
 			userScreenName = curUser.getScreenName();
 		}
 		catch (NoSuchUserException nsue) {
@@ -73,7 +72,17 @@ if (microblogsEntries != null) {
 
 			<div class="entry-bubble">
 				<div class="user-name">
-					<span><a href="<%= userDisplayURL %>"><%= userFullName %></a></span>
+					<c:choose>
+						<c:when test="<%= curUser != null && curUser.isActive() %>">
+							<%
+							String userDisplayURL = curUser.getDisplayURL(themeDisplay);
+							%>
+							<span><a href="<%= userDisplayURL %>"><%= userFullName %></a></span>
+						</c:when>
+						<c:otherwise>
+							<span><%= userFullName %></span>
+						</c:otherwise>
+					</c:choose>
 
 					<c:if test="<%= microblogsEntry.getType() == MicroblogsEntryConstants.TYPE_REPOST %>">
 						<span class="small"><liferay-ui:message key="reposted-from" /></span> <span><%= HtmlUtil.escape(PortalUtil.getUserName(microblogsEntry.getParentMicroblogsEntryUserId(), StringPool.BLANK)) %></span>
