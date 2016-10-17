@@ -31,8 +31,12 @@ import com.liferay.blogs.kernel.service.persistence.BlogsEntryPersistence;
 import com.liferay.blogs.kernel.util.comparator.EntryDisplayDateComparator;
 import com.liferay.blogs.kernel.util.comparator.EntryIdComparator;
 import com.liferay.blogs.service.base.BlogsEntryLocalServiceBaseImpl;
+import com.liferay.blogs.settings.BlogsGroupServiceSettings;
+import com.liferay.blogs.util.BlogsEntryAttachmentFileEntryUtil;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.friendly.url.model.FriendlyURL;
+import com.liferay.friendly.url.service.FriendlyURLLocalService;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -93,8 +97,6 @@ import com.liferay.portal.spring.extender.service.ServiceReference;
 import com.liferay.portal.util.LayoutURLUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portlet.blogs.BlogsEntryAttachmentFileEntryHelper;
-import com.liferay.portlet.blogs.BlogsGroupServiceSettings;
 import com.liferay.portlet.blogs.constants.BlogsConstants;
 import com.liferay.portlet.blogs.service.permission.BlogsPermission;
 import com.liferay.portlet.blogs.social.BlogsActivityKeys;
@@ -277,10 +279,18 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		User user = userPersistence.findByPrimaryKey(userId);
 		long groupId = serviceContext.getScopeGroupId();
+		int status = WorkflowConstants.STATUS_DRAFT;
+
+		validate(title, urlTitle, content, status);
 
 		long entryId = counterLocalService.increment();
 
-		validate(title, urlTitle, content);
+		if (Validator.isNotNull(urlTitle)) {
+			long classNameId = PortalUtil.getClassNameId(BlogsEntry.class);
+
+			friendlyURLLocalService.validate(
+				user.getCompanyId(), groupId, classNameId, urlTitle);
+		}
 
 		BlogsEntry entry = blogsEntryPersistence.create(entryId);
 
@@ -293,7 +303,11 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry.setSubtitle(subtitle);
 
 		if (Validator.isNotNull(urlTitle)) {
-			entry.setUrlTitle(getUniqueUrlTitle(entryId, groupId, urlTitle));
+			FriendlyURL friendlyURL = friendlyURLLocalService.addFriendlyURL(
+				user.getCompanyId(), groupId, BlogsEntry.class, entryId,
+				urlTitle);
+
+			entry.setUrlTitle(friendlyURL.getUrlTitle());
 		}
 
 		entry.setDescription(description);
@@ -301,7 +315,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry.setDisplayDate(displayDate);
 		entry.setAllowPingbacks(allowPingbacks);
 		entry.setAllowTrackbacks(allowTrackbacks);
-		entry.setStatus(WorkflowConstants.STATUS_DRAFT);
+		entry.setStatus(status);
 		entry.setStatusByUserId(userId);
 		entry.setStatusDate(serviceContext.getModifiedDate(null));
 		entry.setExpandoBridgeAttributes(serviceContext);
@@ -485,14 +499,10 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return 0;
 		}
 
-		BlogsEntryAttachmentFileEntryHelper
-			blogsEntryAttachmentFileEntryHelper =
-				new BlogsEntryAttachmentFileEntryHelper();
-
 		Folder folder = addAttachmentsFolder(userId, groupId);
 
 		FileEntry originalFileEntry =
-			blogsEntryAttachmentFileEntryHelper.
+			BlogsEntryAttachmentFileEntryUtil.
 				addBlogsEntryAttachmentFileEntry(
 					groupId, userId, entryId, folder.getFolderId(),
 					imageSelector.getImageTitle(),
@@ -642,6 +652,12 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		expandoRowLocalService.deleteRows(entry.getEntryId());
 
+		// Friendly URL
+
+		friendlyURLLocalService.deleteFriendlyURL(
+			entry.getCompanyId(), entry.getGroupId(), BlogsEntry.class,
+			entry.getEntryId());
+
 		// Ratings
 
 		ratingsStatsLocalService.deleteStats(
@@ -707,6 +723,21 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		return
 			com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil.
 				fetchBlogsEntryByUuidAndGroupId(uuid, groupId);
+	}
+
+	@Override
+	public BlogsEntry fetchEntry(long groupId, String urlTitle) {
+		Group group = groupPersistence.fetchByPrimaryKey(groupId);
+
+		FriendlyURL friendlyURL = friendlyURLLocalService.fetchFriendlyURL(
+			group.getCompanyId(), groupId, BlogsEntry.class, urlTitle);
+
+		if (friendlyURL != null) {
+			return blogsEntryPersistence.fetchByPrimaryKey(
+				friendlyURL.getClassPK());
+		}
+
+		return blogsEntryPersistence.fetchByG_UT(groupId, urlTitle);
 	}
 
 	@Override
@@ -798,6 +829,16 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Override
 	public BlogsEntry getEntry(long groupId, String urlTitle)
 		throws PortalException {
+
+		Group group = groupPersistence.fetchByPrimaryKey(groupId);
+
+		FriendlyURL friendlyURL = friendlyURLLocalService.fetchFriendlyURL(
+			group.getCompanyId(), groupId, BlogsEntry.class, urlTitle);
+
+		if (friendlyURL != null) {
+			return blogsEntryPersistence.findByPrimaryKey(
+				friendlyURL.getClassPK());
+		}
 
 		return blogsEntryPersistence.findByG_UT(groupId, urlTitle);
 	}
@@ -1221,7 +1262,21 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
 
-		validate(title, urlTitle, content);
+		int status = entry.getStatus();
+
+		if (!entry.isPending() && !entry.isDraft()) {
+			status = WorkflowConstants.STATUS_DRAFT;
+		}
+
+		validate(title, urlTitle, content, status);
+
+		if (Validator.isNotNull(urlTitle)) {
+			long classNameId = PortalUtil.getClassNameId(BlogsEntry.class);
+
+			friendlyURLLocalService.validate(
+				entry.getCompanyId(), entry.getGroupId(), classNameId, entryId,
+				urlTitle);
+		}
 
 		String oldUrlTitle = entry.getUrlTitle();
 
@@ -1229,8 +1284,11 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry.setSubtitle(subtitle);
 
 		if (Validator.isNotNull(urlTitle)) {
-			entry.setUrlTitle(
-				getUniqueUrlTitle(entryId, entry.getGroupId(), urlTitle));
+			FriendlyURL friendlyURL = friendlyURLLocalService.addFriendlyURL(
+				entry.getCompanyId(), entry.getGroupId(), BlogsEntry.class,
+				entry.getEntryId(), urlTitle);
+
+			entry.setUrlTitle(friendlyURL.getUrlTitle());
 		}
 
 		entry.setDescription(description);
@@ -1238,12 +1296,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry.setDisplayDate(displayDate);
 		entry.setAllowPingbacks(allowPingbacks);
 		entry.setAllowTrackbacks(allowTrackbacks);
-
-		if (entry.isPending() || entry.isDraft()) {
-		}
-		else {
-			entry.setStatus(WorkflowConstants.STATUS_DRAFT);
-		}
+		entry.setStatus(status);
 
 		entry.setExpandoBridgeAttributes(serviceContext);
 
@@ -1450,6 +1503,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
 
+		validate(
+			entry.getTitle(), entry.getUrlTitle(), entry.getContent(), status);
+
 		int oldStatus = entry.getStatus();
 
 		if ((status == WorkflowConstants.STATUS_APPROVED) &&
@@ -1466,9 +1522,14 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		if ((status == WorkflowConstants.STATUS_APPROVED) &&
 			Validator.isNull(entry.getUrlTitle())) {
 
-			entry.setUrlTitle(
-				getUniqueUrlTitle(
-					entryId, entry.getGroupId(), entry.getTitle()));
+			String uniqueUrlTitle = getUniqueUrlTitle(
+				entryId, entry.getGroupId(), entry.getTitle());
+
+			FriendlyURL friendlyURL = friendlyURLLocalService.addFriendlyURL(
+				entry.getCompanyId(), entry.getGroupId(), BlogsEntry.class,
+				entry.getEntryId(), uniqueUrlTitle);
+
+			entry.setUrlTitle(friendlyURL.getUrlTitle());
 		}
 
 		blogsEntryPersistence.update(entry);
@@ -1660,12 +1721,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			title = StringUtil.randomString() + "_processedImage_" + entryId;
 		}
 
-		BlogsEntryAttachmentFileEntryHelper
-			blogsEntryAttachmentFileEntryHelper =
-				new BlogsEntryAttachmentFileEntryHelper();
-
 		FileEntry processedImageFileEntry =
-			blogsEntryAttachmentFileEntryHelper.
+			BlogsEntryAttachmentFileEntryUtil.
 				addBlogsEntryAttachmentFileEntry(
 					groupId, userId, entryId, folderId, title, mimeType, bytes);
 
@@ -1791,8 +1848,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		String urlTitle = BlogsUtil.getUrlTitle(entryId, title);
 
 		for (int i = 1;; i++) {
-			BlogsEntry entry = blogsEntryPersistence.fetchByG_UT(
-				groupId, urlTitle);
+			BlogsEntry entry = fetchEntry(groupId, urlTitle);
 
 			if ((entry == null) || (entryId == entry.getEntryId())) {
 				break;
@@ -2206,19 +2262,34 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #validate(String, String,
+	 *             String, int)}
+	 */
+	@Deprecated
 	protected void validate(String title, String urlTitle, String content)
 		throws PortalException {
 
-		if (Validator.isNull(title)) {
+		validate(title, urlTitle, content, WorkflowConstants.STATUS_APPROVED);
+	}
+
+	protected void validate(String title, String urlTitle, String content, int status)
+		throws PortalException {
+
+		if ((status == WorkflowConstants.STATUS_APPROVED) &&
+			Validator.isNull(title)) {
+
 			throw new EntryTitleException("Title is null");
 		}
 
-		int titleMaxLength = ModelHintsUtil.getMaxLength(
-			BlogsEntry.class.getName(), "title");
+		if (Validator.isNotNull(title)) {
+			int titleMaxLength = ModelHintsUtil.getMaxLength(
+				BlogsEntry.class.getName(), "title");
 
-		if (title.length() > titleMaxLength) {
-			throw new EntryTitleException(
-				"Title has more than " + titleMaxLength + " characters");
+			if (title.length() > titleMaxLength) {
+				throw new EntryTitleException(
+					"Title has more than " + titleMaxLength + " characters");
+			}
 		}
 
 		if (Validator.isNotNull(urlTitle)) {
@@ -2244,6 +2315,9 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 				"Content has more than " + contentMaxLength + " characters");
 		}
 	}
+
+	@ServiceReference(type = FriendlyURLLocalService.class)
+	protected FriendlyURLLocalService friendlyURLLocalService;
 
 	@ServiceReference(type = BlogsEntryFinder.class)
 	protected BlogsEntryFinder blogsEntryFinder;

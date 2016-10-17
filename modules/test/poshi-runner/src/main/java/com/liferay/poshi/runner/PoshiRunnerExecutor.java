@@ -508,6 +508,7 @@ public class PoshiRunnerExecutor {
 		Element ifConditionElement = ifChildElements.get(0);
 
 		boolean condition = evaluateConditionalElement(ifConditionElement);
+
 		boolean conditionRun = false;
 
 		if (condition) {
@@ -550,6 +551,7 @@ public class PoshiRunnerExecutor {
 					parseElement(elseIfThenElement);
 
 					XMLLoggerHandler.updateStatus(elseIfThenElement, "pass");
+
 					XMLLoggerHandler.updateStatus(elseIfElement, "pass");
 
 					break;
@@ -710,6 +712,7 @@ public class PoshiRunnerExecutor {
 		Element returnElement = executeElement.element("return");
 
 		String returnVariable = returnElement.attributeValue("name");
+
 		String className = executeElement.attributeValue("class");
 		String methodName = executeElement.attributeValue("method");
 
@@ -848,11 +851,15 @@ public class PoshiRunnerExecutor {
 			Throwable throwable = e1.getCause();
 
 			if (throwable instanceof StaleElementReferenceException) {
-				System.out.println(
-					"\nElement turned stale while running " + selenium +
-						". Retrying in " +
-							PropsValues.TEST_RETRY_COMMAND_WAIT_TIME +
-								"seconds.");
+				StringBuilder sb = new StringBuilder();
+
+				sb.append("\nElement turned stale while running ");
+				sb.append(selenium);
+				sb.append(". Retrying in ");
+				sb.append(PropsValues.TEST_RETRY_COMMAND_WAIT_TIME);
+				sb.append("seconds.");
+
+				System.out.println(sb.toString());
 
 				try {
 					_returnObject = method.invoke(
@@ -1176,6 +1183,7 @@ public class PoshiRunnerExecutor {
 		List<Element> whileChildElements = element.elements();
 
 		Element conditionElement = whileChildElements.get(0);
+
 		Element thenElement = element.element("then");
 
 		boolean conditionRun = false;
