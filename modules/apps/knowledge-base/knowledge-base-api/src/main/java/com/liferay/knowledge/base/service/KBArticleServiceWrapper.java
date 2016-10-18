@@ -154,7 +154,7 @@ public class KBArticleServiceWrapper implements KBArticleService,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getKBArticlesCount(long,
+	* @deprecated As of 1.1.0, replaced by {@link #getKBArticlesCount(long,
 	long, int)}
 	*/
 	@Deprecated
@@ -203,6 +203,20 @@ public class KBArticleServiceWrapper implements KBArticleService,
 
 	@Override
 	public java.util.List<com.liferay.knowledge.base.model.KBArticle> getAllDescendantKBArticles(
+		long groupId, long resourcePrimKey, int status,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.knowledge.base.model.KBArticle> orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _kbArticleService.getAllDescendantKBArticles(groupId,
+			resourcePrimKey, status, orderByComparator);
+	}
+
+	/**
+	* @deprecated As of 1.1.0, replaced by {@link #getAllDescendantKBArticles(
+	long, long, int, OrderByComparator)}
+	*/
+	@Deprecated
+	@Override
+	public java.util.List<com.liferay.knowledge.base.model.KBArticle> getAllDescendantKBArticles(
 		long resourcePrimKey, int status,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.knowledge.base.model.KBArticle> orderByComparator)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -228,7 +242,7 @@ public class KBArticleServiceWrapper implements KBArticleService,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of 1.1.0, replaced by {@link
 	#getKBArticleAndAllDescendantKBArticles(long, int,
 	OrderByComparator)}
 	*/
@@ -284,7 +298,7 @@ public class KBArticleServiceWrapper implements KBArticleService,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getKBArticles(long, long,
+	* @deprecated As of 1.1.0, replaced by {@link #getKBArticles(long, long,
 	int, int, int,
 	OrderByComparator)}
 	*/

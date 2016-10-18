@@ -58,7 +58,7 @@
 		</execute>
 
 		<execute macro="Role#addCP">
-			<var name="roleName" value="Regular Role Name" />
+			<var name="roleTitle" value="Regular Role Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -67,7 +67,7 @@
 
 		<execute macro="Role#definePermissionsCP">
 			<var name="permissionDefinitionKeys" value="SITE_ADMIN_CONTENT_WEB_CONTENT_GENERAL_PERMISSIONS_ACCESS_IN_SITE_ADMINISTRATION_CHECKBOX,SITE_ADMIN_CONTENT_WEB_CONTENT_GENERAL_PERMISSIONS_VIEW_CHECKBOX,SITE_ADMIN_CONTENT_WEB_CONTENT_RESOURCE_PERMISSIONS_WEB_CONTENT_ADD_WEB_CONTENT_CHECKBOX,SITE_ADMIN_CONTENT_WEB_CONTENT_RESOURCE_PERMISSIONS_WEB_CONTENT_VIEW_CHECKBOX" />
-			<var name="roleName" value="Regular Role Name" />
+			<var name="roleTitle" value="Regular Role Name" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelUsers">
@@ -76,7 +76,7 @@
 
 		<execute macro="Role#definePermissionsCP">
 			<var name="permissionDefinitionKeys" value="SITE_ADMIN_CONTENT_WEB_CONTENT_GENERAL_PERMISSIONS_ACCESS_IN_SITE_ADMINISTRATION_CHECKBOX,SITE_ADMIN_CONTENT_WEB_CONTENT_GENERAL_PERMISSIONS_VIEW_CHECKBOX,SITE_ADMIN_CONTENT_WEB_CONTENT_RESOURCE_PERMISSIONS_WEB_CONTENT_ADD_WEB_CONTENT_CHECKBOX,SITE_ADMIN_CONTENT_WEB_CONTENT_RESOURCE_PERMISSIONS_WEB_CONTENT_VIEW_CHECKBOX" />
-			<var name="roleName" value="Site Member" />
+			<var name="roleTitle" value="Site Member" />
 			<var name="roleType" value="Site" />
 		</execute>
 
@@ -184,7 +184,7 @@
 				<var name="portlet" value="Site Memberships" />
 			</execute>
 
-			<execute macro="Site#addMemberCP">
+			<execute macro="Site#assignUserAsMemberCP">
 				<var name="userFirstName" value="userfn${number}" />
 				<var name="userLastName" value="userln${number}" />
 				<var name="userScreenName" value="usersn${number}" />
@@ -196,7 +196,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Regular Role Name" />
+			<var name="roleTitle" value="Regular Role Name" />
 			<var name="userScreenName" value="usersn1" />
 		</execute>
 
@@ -270,12 +270,10 @@
 
 		<execute macro="ServerAdministration#configureExternalServices">
 			<var name="installXuggler" value="true" />
-			<var name="xugglerJarFile" value="Linux 64-bit JVM (with GNU libc v6) (xuggle-xuggler-arch-x86_64-pc-linux-gnu.jar)" />
+			<var name="xugglerJarFile" value="Linux 32-bit JVM (with GNU libc v6) (xuggle-xuggler-arch-i686-pc-linux-gnu.jar)" />
 		</execute>
 
 		<execute macro="Portlet#shutdownServer" />
-
-		<execute function="Pause" locator1="30000" />
 
 		<execute macro="Portlet#startServer" />
 
@@ -307,7 +305,7 @@
 			<var name="dmDocumentTitle" value="Document_1.mp3" />
 		</execute>
 
-		<execute function="AssertClick" locator1="Link#URL" value1="URL" />
+		<execute macro="DMNavigator#gotoURLDetail" />
 
 		<var method="selenium#getElementValue('//input[contains(@id,\'url\')]')" name="dmDocumentURL" />
 
@@ -358,6 +356,8 @@
 	</command>
 
 	<command name="AddEmbeddedPortletFreemarkerTemplate" priority="3">
+		<property name="osgi.modules.includes" value="currency-converter-web" />
+
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
 		</execute>
@@ -450,6 +450,8 @@
 	</command>
 
 	<command name="AddEmbeddedPortletVelocityTemplate" priority="3">
+		<property name="osgi.modules.includes" value="currency-converter-web" />
+
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
 		</execute>
@@ -626,7 +628,7 @@
 		<property name="portlet.properties.com.liferay.journal.service" value="journal.article.view.permission.check.enabled=true" />
 
 		<var name="portletOption" value="Configuration" />
-		<var name="roleName" value="Guest" />
+		<var name="roleTitle" value="Guest" />
 
 		<execute macro="Navigator#openURL" />
 
@@ -652,9 +654,9 @@
 		</execute>
 
 		<execute macro="Role#removePermissionPG" >
-			<var name="key_roleName" value="${key_roleName}" />
+			<var name="key_roleTitle" value="${key_roleTitle}" />
 			<var name="permissionDefinitionKey" value="CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX" />
-			<var name="roleName" value="Guest" />
+			<var name="roleTitle" value="Guest" />
 		</execute>
 
 		<execute macro="Navigator#openURL" />
@@ -681,8 +683,8 @@
 
 		<execute macro="PermissionsInline#gotoConfigurationPG" />
 
-		<var method="StringUtil#replace('${roleName}', ' ', '-')" name="key_roleName" />
-		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
+		<var method="StringUtil#replace('${roleTitle}', ' ', '-')" name="key_roleTitle" />
+		<var method="StringUtil#lowerCase('${key_roleTitle}')" name="key_roleTitle" />
 
 		<execute function="AssertChecked" locator1="Permissions#CONFIGURATION_PERMISSIONS_VIEW_CHECKBOX" />
 
@@ -876,19 +878,19 @@
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
-		<execute macro="Site#addMemberCP">
-			<var name="siteName" value="Liferay" />
+		<execute macro="Site#assignUserAsMemberCP">
 			<var name="userFirstName" value="test1" />
 			<var name="userLastName" value="test1" />
 			<var name="userScreenName" value="test1test" />
 		</execute>
 
-		<execute macro="Site#assignRoleCP">
-			<var name="roleName" value="Site Administrator" />
-			<var name="siteName" value="Liferay" />
-			<var name="userFirstName" value="test1" />
-			<var name="userLastName" value="test1" />
-			<var name="userScreenName" value="test1test" />
+		<execute macro="ProductMenu#gotoSitesMembers">
+			<var name="portlet" value="Site Memberships" />
+		</execute>
+
+		<execute macro="Site#assignSiteRoleCP">
+			<var name="resourceName" value="test1 test1" />
+			<var name="roleTitle" value="Site Administrator" />
 		</execute>
 
 		<execute macro="User#logoutAndLoginPG">
@@ -1560,7 +1562,7 @@
 		</execute>
 
 		<execute macro="User#assignRegularRoleCP">
-			<var name="roleName" value="Administrator" />
+			<var name="roleTitle" value="Administrator" />
 			<var name="userScreenName" value="usersn" />
 		</execute>
 

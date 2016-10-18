@@ -135,6 +135,27 @@
 	<td></td>
 	<td></td>
 </tr>
+<!--AUTHENTICATION_GOOGLE-->
+<tr>
+	<td>AUTHENTICATION_GOOGLE_ENABLED_CHECKBOX</td>
+	<td>//input[contains(@name,'google--enabled')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUTHENTICATION_GOOGLE_CLIENT_ID</td>
+	<td>//input[contains(@name,'google--clientId')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUTHENTICATION_GOOGLE_CLIENT_SECRET</td>
+	<td>//input[contains(@name,'google--clientSecret')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
 <!--AUTHENTICATION_LDAP-->
 <tr>
 	<td>AUTHENTICATION_LDAP_ENABLED_CHECKBOX</td>
@@ -149,6 +170,11 @@
 <tr>
 	<td>AUTHENTICATION_LDAP_IMPORT_ENABLED_CHECKBOX</td>
 	<td>//input[contains(@id,'ldapImportEnabled')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUTHENTICATION_LDAP_IMPORT_ON_STARTUP_ENABLED_CHECKBOX</td>
+	<td>//input[contains(@id,'importOnStartup')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -184,7 +210,7 @@
 </tr>
 <tr>
 	<td>LDAP_SERVERS_TABLE_EDIT</td>
-	<td>//tr[contains(.,'${key_LDAPServerName}')]/td[3]//span[@title='Edit']</td>
+	<td>//tr[contains(.,'${key_LDAPServerName}')]/td[3]//span[.='Edit']/preceding-sibling::i</td>
 	<td></td>
 </tr>
 <tr>

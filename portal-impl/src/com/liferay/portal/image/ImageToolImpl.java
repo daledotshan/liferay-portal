@@ -536,8 +536,10 @@ public class ImageToolImpl implements ImageTool {
 					int height = imageReader.getHeight(0);
 					int width = imageReader.getWidth(0);
 
-					if ((height > PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT) ||
-						(width > PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH)) {
+					if (((PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT > 0) &&
+						 (height > PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT)) ||
+						((PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH > 0) &&
+						 (width > PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH))) {
 
 						StringBundler sb = new StringBundler(9);
 
@@ -632,6 +634,7 @@ public class ImageToolImpl implements ImageTool {
 		double factor = (double)width / imageWidth;
 
 		int scaledHeight = (int)Math.round(factor * imageHeight);
+
 		int scaledWidth = width;
 
 		return doScale(renderedImage, scaledHeight, scaledWidth);
@@ -770,6 +773,7 @@ public class ImageToolImpl implements ImageTool {
 		}
 
 		int numBitsLeft = numBits;
+
 		byte[] multiBytes = new byte[(numBitsLeft + 6) / 7];
 
 		int maxIndex = multiBytes.length - 1;
