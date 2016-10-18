@@ -17,10 +17,13 @@ package com.liferay.dynamic.data.mapping.data.provider.rest.internal;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProvider;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderContext;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderException;
+import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderRequest;
+import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderResponse;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.KeyValuePair;
@@ -29,7 +32,9 @@ import com.liferay.portal.kernel.util.Validator;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
@@ -49,6 +54,40 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 		throws DDMDataProviderException {
 
 		try {
+			DDMDataProviderResponse ddmDataProviderResponse = doGetData(
+				ddmDataProviderContext);
+
+			DDMRESTDataProviderSettings ddmRESTDataProviderSettings =
+				ddmDataProviderContext.getSettingsInstance(
+					DDMRESTDataProviderSettings.class);
+
+			List<KeyValuePair> results = new ArrayList<>();
+
+			for (Map<Object, Object> map : ddmDataProviderResponse.getData()) {
+				String key = String.valueOf(
+					map.get(ddmRESTDataProviderSettings.key()));
+				String value = String.valueOf(
+					map.get(ddmRESTDataProviderSettings.value()));
+
+				results.add(new KeyValuePair(key, value));
+			}
+
+			return results;
+		}
+		catch (PortalException pe) {
+			throw new DDMDataProviderException(pe);
+		}
+	}
+
+	@Override
+	public DDMDataProviderResponse getData(
+			DDMDataProviderRequest ddmDataProviderRequest)
+		throws DDMDataProviderException {
+
+		try {
+			DDMDataProviderContext ddmDataProviderContext =
+				ddmDataProviderRequest.getDDMDataProviderContext();
+
 			return doGetData(ddmDataProviderContext);
 		}
 		catch (PortalException pe) {
@@ -61,9 +100,34 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 		return DDMRESTDataProviderSettings.class;
 	}
 
-	protected List<KeyValuePair> doGetData(
+	protected DDMDataProviderResponse createDDMDataProviderResponse(
+		JSONArray jsonArray,
+		DDMRESTDataProviderSettings ddmRESTDataProviderSettings) {
+
+		List<Map<Object, Object>> data = new ArrayList<>();
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			Map<Object, Object> map = new HashMap<>();
+
+			data.add(map);
+
+			String key = jsonObject.getString(
+				ddmRESTDataProviderSettings.key());
+
+			String value = jsonObject.getString(
+				ddmRESTDataProviderSettings.value());
+
+			map.put(key, value);
+		}
+
+		return new DDMDataProviderResponse(data);
+	}
+
+	protected DDMDataProviderResponse doGetData(
 			DDMDataProviderContext ddmDataProviderContext)
-		throws PortalException {
+		throws JSONException {
 
 		DDMRESTDataProviderSettings ddmRESTDataProviderSettings =
 			ddmDataProviderContext.getSettingsInstance(
@@ -80,6 +144,12 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 
 		httpRequest.query(ddmDataProviderContext.getParameters());
 
+		if (ddmRESTDataProviderSettings.filterable()) {
+			httpRequest.query(
+				ddmRESTDataProviderSettings.filterParameterName(),
+				ddmDataProviderContext.getParameter("filterParameterValue"));
+		}
+
 		String cacheKey = getCacheKey(httpRequest);
 
 		DDMRESTDataProviderResult ddmRESTDataProviderResult = _portalCache.get(
@@ -88,35 +158,41 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 		if ((ddmRESTDataProviderResult != null) &&
 			ddmRESTDataProviderSettings.cacheable()) {
 
-			return ddmRESTDataProviderResult.getKeyValuePairs();
+			return ddmRESTDataProviderResult.getDDMDataProviderResponse();
 		}
 
 		HttpResponse httpResponse = httpRequest.send();
 
-		JSONArray jsonArray = _jsonFactory.createJSONArray(httpResponse.body());
+		JSONArray jsonArray = getValue(httpResponse.body());
 
-		List<KeyValuePair> results = new ArrayList<>();
-
-		for (int i = 0; i < jsonArray.length(); i++) {
-			JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-			String key = jsonObject.getString(
-				ddmRESTDataProviderSettings.key());
-			String value = jsonObject.getString(
-				ddmRESTDataProviderSettings.value());
-
-			results.add(new KeyValuePair(key, value));
-		}
+		DDMDataProviderResponse ddmDataProviderResponse =
+			createDDMDataProviderResponse(
+				jsonArray, ddmRESTDataProviderSettings);
 
 		if (ddmRESTDataProviderSettings.cacheable()) {
-			_portalCache.put(cacheKey, new DDMRESTDataProviderResult(results));
+			_portalCache.put(
+				cacheKey,
+				new DDMRESTDataProviderResult(ddmDataProviderResponse));
 		}
 
-		return results;
+		return ddmDataProviderResponse;
 	}
 
 	protected String getCacheKey(HttpRequest httpRequest) {
 		return httpRequest.url();
+	}
+
+	protected JSONArray getValue(String valueString) throws JSONException {
+		try {
+			return _jsonFactory.createJSONArray(valueString);
+		}
+		catch (JSONException jsone) {
+			JSONArray jsonArray = _jsonFactory.createJSONArray();
+
+			jsonArray.put(_jsonFactory.createJSONObject(valueString));
+
+			return jsonArray;
+		}
 	}
 
 	@Reference(unbind = "-")
@@ -136,15 +212,17 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 
 	private static class DDMRESTDataProviderResult implements Serializable {
 
-		public DDMRESTDataProviderResult(List<KeyValuePair> keyValuePairs) {
-			_keyValuePairs = keyValuePairs;
+		public DDMRESTDataProviderResult(
+			DDMDataProviderResponse ddmDataProviderResponse) {
+
+			_ddmDataProviderResponse = ddmDataProviderResponse;
 		}
 
-		public List<KeyValuePair> getKeyValuePairs() {
-			return _keyValuePairs;
+		public DDMDataProviderResponse getDDMDataProviderResponse() {
+			return _ddmDataProviderResponse;
 		}
 
-		private final List<KeyValuePair> _keyValuePairs;
+		private final DDMDataProviderResponse _ddmDataProviderResponse;
 
 	}
 
