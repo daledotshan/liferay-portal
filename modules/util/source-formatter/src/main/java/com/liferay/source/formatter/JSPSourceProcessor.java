@@ -177,29 +177,18 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
-	protected void checkDefineObjectsVariable(
-		String line, String fileName, int lineCount, String objectType,
-		String variableName, String value, String tag) {
-
-		if (line.contains(objectType + " " + variableName + " = " + value)) {
-			processMessage(
-				fileName, "Use '" + tag + ":defineObjects' or rename var",
-				lineCount);
-		}
-	}
-
 	protected void checkDefineObjectsVariables(
-		String line, String fileName, String absolutePath, int lineCount) {
+		String fileName, String content, String absolutePath) {
 
 		for (String[] defineObject : _LIFERAY_THEME_DEFINE_OBJECTS) {
-			checkDefineObjectsVariable(
-				line, fileName, lineCount, defineObject[0], defineObject[1],
+			checkDefineObjectsVariables(
+				fileName, content, defineObject[0], defineObject[1],
 				defineObject[2], "liferay-theme");
 		}
 
 		for (String[] defineObject : _PORTLET_DEFINE_OBJECTS) {
-			checkDefineObjectsVariable(
-				line, fileName, lineCount, defineObject[0], defineObject[1],
+			checkDefineObjectsVariables(
+				fileName, content, defineObject[0], defineObject[1],
 				defineObject[2], "portlet");
 		}
 
@@ -220,9 +209,74 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		}
 
 		for (String[] defineObject : _LIFERAY_FRONTEND_DEFINE_OBJECTS) {
-			checkDefineObjectsVariable(
-				line, fileName, lineCount, defineObject[0], defineObject[1],
+			checkDefineObjectsVariables(
+				fileName, content, defineObject[0], defineObject[1],
 				defineObject[2], "liferay-frontend");
+		}
+	}
+
+	protected void checkDefineObjectsVariables(
+		String fileName, String content, String objectType, String variableName,
+		String value, String tag) {
+
+		int x = -1;
+
+		while (true) {
+			x = content.indexOf(
+				objectType + " " + variableName + " = " + value + ";", x + 1);
+
+			if (x == -1) {
+				return;
+			}
+
+			int y = content.lastIndexOf("<%", x);
+
+			if ((y == -1) ||
+				(getLevel(content.substring(y, x), "{", "}") > 0)) {
+
+				continue;
+			}
+
+			processMessage(
+				fileName,
+				"Use '" + tag + ":defineObjects' or rename var, see LPS-62493",
+				getLineCount(content, x));
+		}
+	}
+
+	protected void checkIfClauseParentheses(
+		String trimmedLine, String fileName, int lineCount,
+		boolean javaSource) {
+
+		if (javaSource) {
+			if ((trimmedLine.startsWith("if (") ||
+				 trimmedLine.startsWith("else if (") ||
+				 trimmedLine.startsWith("while (")) &&
+				trimmedLine.endsWith(") {")) {
+
+				checkIfClauseParentheses(trimmedLine, fileName, lineCount);
+			}
+
+			return;
+		}
+
+		Matcher matcher = _testTagPattern.matcher(trimmedLine);
+
+		if (matcher.find()) {
+			String ifClause = "if (" + matcher.group(2) + ") {";
+
+			checkIfClauseParentheses(ifClause, fileName, lineCount);
+		}
+	}
+
+	protected void checkSubnames(String fileName, String content) {
+		Matcher matcher = _subnamePattern.matcher(content);
+
+		while (matcher.find()) {
+			processMessage(
+				fileName,
+				"'sub' should be followed by a lowercase character for '" +
+					matcher.group(1) + "'");
 		}
 	}
 
@@ -233,7 +287,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			processMessage(
 				fileName,
 				"Use Objects.equals(Object, Object) instead of " +
-					"Validator.equals(Object, Object)",
+					"Validator.equals(Object, Object), see LPS-65135",
 				getLineCount(content, matcher.start()));
 		}
 	}
@@ -350,7 +404,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			!fileName.endsWith("touch.jsp") &&
 			(fileName.endsWith(".jspf") || content.contains("include file="))) {
 
-			processMessage(fileName, "move imports to init.jsp");
+			processMessage(fileName, "Move imports to init.jsp");
 		}
 
 		newContent = fixCopyright(newContent, absolutePath, fileName, null);
@@ -368,9 +422,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				"confirm(\"<%= UnicodeLanguageUtil."
 			});
 
-		if (newContent.contains("    ")) {
+		if (newContent.contains(StringPool.FOUR_SPACES)) {
 			if (!fileName.matches(".*template.*\\.vm$")) {
-				processMessage(fileName, "tab");
+				processMessage(fileName, "Use tabs instead of spaces");
 			}
 		}
 
@@ -391,6 +445,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			fileName, absolutePath, newContent, _taglibLanguageKeyPattern2);
 		checkLanguageKeys(
 			fileName, absolutePath, newContent, _taglibLanguageKeyPattern3);
+
+		checkSubnames(fileName, newContent);
 
 		newContent = sortPutOrSetCalls(
 			newContent, jsonObjectPutBlockPattern, jsonObjectPutPattern);
@@ -416,12 +472,15 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 		newContent = formatDefineObjects(newContent);
 
-		// LPS-59076
+		// LPS-62989
 
 		if (portalSource && isModulesFile(absolutePath) &&
 			newContent.contains("import=\"com.liferay.registry.Registry")) {
 
-			processMessage(fileName, "Do not use Registry in modules");
+			processMessage(
+				fileName,
+				"Do not use com.liferay.registry.Registry in modules, see " +
+					"LPS-62989");
 		}
 
 		// LPS-64335
@@ -430,7 +489,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			newContent.contains("import=\"com.liferay.util.ContentUtil")) {
 
 			processMessage(
-				fileName, "Do not use com.liferay.util.ContentUtil in modules");
+				fileName,
+				"Do not use com.liferay.util.ContentUtil in modules, see " +
+					"LPS-64335");
 		}
 
 		// LPS-62786
@@ -444,6 +505,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		checkGetterUtilGet(fileName, newContent);
 
 		checkValidatorEquals(fileName, newContent);
+
+		checkDefineObjectsVariables(fileName, newContent, absolutePath);
 
 		matcher = _javaClassPattern.matcher(newContent);
 
@@ -653,17 +716,20 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				if (line.contains("<aui:button ") &&
 					line.contains("type=\"button\"")) {
 
-					processMessage(fileName, "aui:button", lineCount);
+					processMessage(
+						fileName, "No need to set 'type=button' for aui:button",
+						lineCount);
 				}
 
 				if (line.contains("debugger.")) {
-					processMessage(fileName, "debugger", lineCount);
+					processMessage(fileName, "Do not use debugger", lineCount);
 				}
 
 				String trimmedLine = StringUtil.trimLeading(line);
 
 				if (line.matches(".*\\WgetClass\\(\\)\\..+")) {
-					processMessage(fileName, "chaining", lineCount);
+					processMessage(
+						fileName, "Avoid chaining on 'getClass'", lineCount);
 				}
 
 				checkEmptyCollection(trimmedLine, fileName, lineCount);
@@ -722,7 +788,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 					!fileName.endsWith("_jsp.jsp")) {
 
 					processMessage(
-						fileName, "Do not use sendRedirect in jsp", lineCount);
+						fileName,
+						"Do not use sendRedirect in jsp, see LPS-47179",
+						lineCount);
 				}
 
 				// LPS-55341
@@ -751,13 +819,11 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 				checkResourceUtil(line, fileName, lineCount);
 
-				checkDefineObjectsVariables(
-					line, fileName, absolutePath, lineCount);
-
 				if (!fileName.endsWith("test.jsp") &&
 					line.contains("System.out.print")) {
 
-					processMessage(fileName, "System.out.print", lineCount);
+					processMessage(
+						fileName, "Do not call 'System.out.print'", lineCount);
 				}
 
 				if (!trimmedLine.equals("%>") && line.contains("%>") &&
@@ -771,29 +837,17 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				}
 
 				if (javaSource &&
-					(trimmedLine.startsWith("if (") ||
-					 trimmedLine.startsWith("else if (") ||
-					 trimmedLine.startsWith("while (")) &&
-					trimmedLine.endsWith(") {")) {
-
-					checkIfClauseParentheses(trimmedLine, fileName, lineCount);
-				}
-
-				if (javaSource &&
 					trimmedLine.matches("^\\} (catch|else|finally) .*")) {
 
-					processMessage(fileName, "line break", lineCount);
+					processMessage(
+						fileName, "There should be a line break after '}'",
+						lineCount);
 				}
 
-				Matcher matcher = _ifTagPattern.matcher(trimmedLine);
+				checkIfClauseParentheses(
+					trimmedLine, fileName, lineCount, javaSource);
 
-				if (matcher.find()) {
-					String ifClause = "if (" + matcher.group(2) + ") {";
-
-					checkIfClauseParentheses(ifClause, fileName, lineCount);
-				}
-
-				matcher = _jspTaglibPattern.matcher(line);
+				Matcher matcher = _jspTaglibPattern.matcher(line);
 
 				while (matcher.find()) {
 					line = formatAttributes(
@@ -873,7 +927,11 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 								includeFileName);
 
 							if (!matcher.find()) {
-								processMessage(fileName, "include", lineCount);
+								processMessage(
+									fileName,
+									"Incorrect include '" + includeFileName +
+										"'",
+									lineCount);
 							}
 						}
 					}
@@ -928,7 +986,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			if ((StringUtil.count(content, currentException) > 1) ||
 				(StringUtil.count(content, previousException) > 1)) {
 
-				processMessage(fileName, "unsorted exceptions");
+				processMessage(
+					fileName, "Unsorted exception '" + currentException + "'");
 			}
 			else {
 				content = StringUtil.replaceFirst(
@@ -1013,13 +1072,13 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		}
 
 		String logFileName = StringUtil.replace(
-			absolutePath, StringPool.PERIOD, StringPool.UNDERLINE);
+			absolutePath, CharPool.PERIOD, CharPool.UNDERLINE);
 
 		logFileName = StringUtil.replace(
-			logFileName, StringPool.SLASH, StringPool.PERIOD);
+			logFileName, CharPool.SLASH, CharPool.PERIOD);
 
 		logFileName = StringUtil.replace(
-			logFileName, StringPool.DASH, StringPool.UNDERLINE);
+			logFileName, CharPool.DASH, CharPool.UNDERLINE);
 
 		int x = logFileName.lastIndexOf(".portal_web.");
 
@@ -1225,7 +1284,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 			if (!nextTag.contains(taglibName)) {
 				processMessage(
-					fileName, "No need to specify taglib variable",
+					fileName,
+					"No need to specify taglib variable '" + taglibName + "'",
 					getLineCount(content, matcher.start()));
 
 				continue;
@@ -1467,7 +1527,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			utilTaglibSrcDirName = utilTaglibDir.getAbsolutePath();
 
 			utilTaglibSrcDirName = StringUtil.replace(
-				utilTaglibSrcDirName, StringPool.BACK_SLASH, StringPool.SLASH);
+				utilTaglibSrcDirName, CharPool.BACK_SLASH, CharPool.SLASH);
 
 			utilTaglibSrcDirName += StringPool.SLASH;
 		}
@@ -1772,14 +1832,14 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 		List<String> allFileNames = getFileNames(
 			sourceFormatterArgs.getBaseDirName(), null, excludes,
-			getIncludes());
+			getIncludes(), true);
 
 		try {
 			for (String fileName : allFileNames) {
-				File file = new File(fileName);
-
 				fileName = StringUtil.replace(
-					fileName, StringPool.BACK_SLASH, StringPool.SLASH);
+					fileName, CharPool.BACK_SLASH, CharPool.SLASH);
+
+				File file = new File(fileName);
 
 				String absolutePath = getAbsolutePath(file);
 
@@ -1852,12 +1912,12 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		List<String> tldFileNames = getFileNames(
 			sourceFormatterArgs.getBaseDirName(), null,
 			new String[] {"**/dependencies/**", "**/util-taglib/**"},
-			new String[] {"**/*.tld"});
+			new String[] {"**/*.tld"}, true);
 
 		outerLoop:
 		for (String tldFileName : tldFileNames) {
 			tldFileName = StringUtil.replace(
-				tldFileName, StringPool.BACK_SLASH, StringPool.SLASH);
+				tldFileName, CharPool.BACK_SLASH, CharPool.SLASH);
 
 			File tldFile = new File(tldFileName);
 
@@ -1889,7 +1949,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 						srcDir = tldFile.getAbsolutePath();
 
 						srcDir = StringUtil.replace(
-							srcDir, StringPool.BACK_SLASH, StringPool.SLASH);
+							srcDir, CharPool.BACK_SLASH, CharPool.SLASH);
 
 						srcDir =
 							srcDir.substring(0, srcDir.lastIndexOf("/src/")) +
@@ -2089,8 +2149,6 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 	private final List<String> _duplicateImportClassNames = new ArrayList<>();
 	private final Pattern _emptyJavaSourceTagPattern = Pattern.compile(
 		"\n\t*<%\n+\t*%>\n");
-	private final Pattern _ifTagPattern = Pattern.compile(
-		"^<c:if test=('|\")<%= (.+) %>('|\")>$");
 	private final List<String> _importClassNames = new ArrayList<>();
 	private final Map<String, Integer> _importCountMap = new HashMap<>();
 	private final Pattern _importsPattern = Pattern.compile(
@@ -2126,6 +2184,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			"\\);)\n(String backURL = ParamUtil\\.getString\\(request, \"" +
 				"backURL\", redirect\\);)");
 	private boolean _stripJSPImports = true;
+	private final Pattern _subnamePattern = Pattern.compile(
+		"\\s(_?sub[A-Z]\\w+)[; ]");
 	private final Map<String, JavaClass> _tagJavaClassesMap = new HashMap<>();
 	private final Pattern _taglibLanguageKeyPattern1 = Pattern.compile(
 		"(?:confirmation|label|(?:M|m)essage|message key|names|title)=\"[^A-Z" +
@@ -2140,6 +2200,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			"(?:'|\").+(?:'|\"))");
 	private final Pattern _taglibVariablePattern = Pattern.compile(
 		"(\n\t*String (taglib\\w+) = (.*);)\n\\s*%>\\s+(<[\\S\\s]*?>)\n");
+	private final Pattern _testTagPattern = Pattern.compile(
+		"^<c:(if|when) test=['\"]<%= (.+) %>['\"]>$");
 	private final Pattern _uncompressedJSPImportPattern = Pattern.compile(
 		"(<.*page.import=\".*>\n*)+", Pattern.MULTILINE);
 	private final Pattern _uncompressedJSPTaglibPattern = Pattern.compile(

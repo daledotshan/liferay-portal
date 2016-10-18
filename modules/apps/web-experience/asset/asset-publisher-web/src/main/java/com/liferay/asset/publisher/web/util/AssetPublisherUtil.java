@@ -1300,7 +1300,7 @@ public class AssetPublisherUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0
+	 * @deprecated As of 1.2.0
 	 */
 	@Deprecated
 	public static void notifySubscribers(
@@ -1335,7 +1335,7 @@ public class AssetPublisherUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of 1.2.0, with no direct replacement
 	 */
 	@Deprecated
 	public static void registerAssetQueryProcessor(
@@ -1397,7 +1397,7 @@ public class AssetPublisherUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of 1.2.0, with no direct replacement
 	 */
 	@Deprecated
 	public static void unregisterAssetQueryProcessor(
@@ -1926,7 +1926,7 @@ public class AssetPublisherUtil {
 			List<AssetEntry> assetEntries)
 		throws PortalException {
 
-		if (getEmailAssetEntryAddedEnabled(portletPreferences)) {
+		if (!getEmailAssetEntryAddedEnabled(portletPreferences)) {
 			return;
 		}
 
