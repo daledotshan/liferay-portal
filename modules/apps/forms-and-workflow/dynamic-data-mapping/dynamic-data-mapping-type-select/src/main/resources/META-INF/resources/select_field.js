@@ -19,12 +19,12 @@ AUI.add(
 
 					options: {
 						getter: '_getOptions',
+						state: true,
 						validator: Array.isArray,
 						value: []
 					},
 
 					strings: {
-						repaint: false,
 						value: {
 							chooseAnOption: Liferay.Language.get('choose-an-option'),
 							dynamicallyLoadedData: Liferay.Language.get('dynamically-loaded-data')
@@ -36,7 +36,6 @@ AUI.add(
 					},
 
 					value: {
-						repaint: false,
 						value: []
 					}
 				},
@@ -46,12 +45,23 @@ AUI.add(
 				NAME: 'liferay-ddm-form-field-select',
 
 				prototype: {
+					cleanSelect: function() {
+						var instance = this;
+
+						var inputNode = instance.getInputNode();
+
+						inputNode.setAttribute('selected', false);
+
+						instance.set('value', []);
+					},
+
 					getTemplateContext: function() {
 						var instance = this;
 
 						return A.merge(
 							SelectField.superclass.getTemplateContext.apply(instance, arguments),
 							{
+								strings: instance.get('strings'), //to be removed after diogo's pr
 								options: instance.get('options'),
 								value: instance.getValueArray()
 							}

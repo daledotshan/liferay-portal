@@ -377,7 +377,7 @@ public class ResourcePermissionLocalServiceImpl
 				}
 			}
 
-			if (availableActionIds.size() > 0) {
+			if (!availableActionIds.isEmpty()) {
 				roleIdsToActionIds.put(
 					resourcePermission.getRoleId(), availableActionIds);
 			}
@@ -1387,12 +1387,31 @@ public class ResourcePermissionLocalServiceImpl
 		try {
 			long[] roleIds = ArrayUtil.toLongArray(roleIdsToActionIds.keySet());
 
-			List<ResourcePermission> resourcePermissions =
+			List<ResourcePermission> resourcePermissions = new ArrayList<>(
+				roleIds.length);
+
+			int batchSize = 1000;
+			int start = 0;
+
+			while (start < (roleIds.length - batchSize)) {
+				resourcePermissions.addAll(
+					resourcePermissionPersistence.findByC_N_S_P_R(
+						companyId, name, scope, primKey,
+						ArrayUtil.subset(roleIds, start, start + batchSize)));
+
+				start += batchSize;
+			}
+
+			resourcePermissions.addAll(
 				resourcePermissionPersistence.findByC_N_S_P_R(
-					companyId, name, scope, primKey, roleIds);
+					companyId, name, scope, primKey,
+					ArrayUtil.subset(roleIds, start, roleIds.length)));
+
+			roleIdsToActionIds = new HashMap<>(roleIdsToActionIds);
 
 			for (ResourcePermission resourcePermission : resourcePermissions) {
 				long roleId = resourcePermission.getRoleId();
+
 				String[] actionIds = roleIdsToActionIds.remove(roleId);
 
 				doUpdateResourcePermission(
