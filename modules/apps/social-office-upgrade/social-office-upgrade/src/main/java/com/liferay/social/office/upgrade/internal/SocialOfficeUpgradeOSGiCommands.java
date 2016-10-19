@@ -26,12 +26,16 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.osgi.service.component.annotations.Component;
@@ -101,43 +105,19 @@ public class SocialOfficeUpgradeOSGiCommands {
 	}
 
 	public void removeTasksPortlet() throws PortalException {
-		ActionableDynamicQuery actionableDynamicQuery =
-			_portletPreferencesLocalService.getActionableDynamicQuery();
-
-		actionableDynamicQuery.setAddCriteriaMethod(
-			new ActionableDynamicQuery.AddCriteriaMethod() {
-
-				public void addCriteria(DynamicQuery dynamicQuery) {
-					dynamicQuery.add(
-						RestrictionsFactoryUtil.like(
-							"portletId", "%tasksportlet%"));
-				}
-
-			});
-
-		final AtomicInteger atomicInteger = new AtomicInteger(0);
-
-		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.
-				PerformActionMethod<PortletPreferences>() {
-
-				public void performAction(PortletPreferences portletPreferences)
-					throws PortalException {
-
-					_portletPreferencesLocalService.deletePersistedModel(
-						portletPreferences);
-
-					atomicInteger.incrementAndGet();
-				}
-
-			});
-
-		actionableDynamicQuery.performActions();
+		int portletPreferencesCount = _removeTasksPortletPreferences();
 
 		System.out.printf(
-			"[socialOffice:removeTasksPortlet] %d Tasks portlet " +
-				"preferences deleted.%n",
-			atomicInteger.get());
+			"[socialOffice:removeTasksPortlet] %d Tasks portlet preferences " +
+				"deleted.%n",
+			portletPreferencesCount);
+
+		int layoutsCount = _removeTasksPortletLayoutTypeSettings();
+
+		System.out.printf(
+			"[socialOffice:removeTasksPortlet] Removed tasks portlet from %d " +
+				"layouts.%n",
+			layoutsCount);
 	}
 
 	public void updateEventsDisplay() throws PortalException {
@@ -158,8 +138,7 @@ public class SocialOfficeUpgradeOSGiCommands {
 		final AtomicInteger atomicInteger = new AtomicInteger(0);
 
 		actionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.
-				PerformActionMethod<Layout>() {
+			new ActionableDynamicQuery.PerformActionMethod<Layout>() {
 
 				public void performAction(Layout layout)
 					throws PortalException {
@@ -173,6 +152,26 @@ public class SocialOfficeUpgradeOSGiCommands {
 					_updatePortletPreferences(layout, newPortletId);
 
 					atomicInteger.incrementAndGet();
+				}
+
+				private void _addPreference(
+					Element rootElement, String name, String value) {
+
+					Element nameElement = SAXReaderUtil.createElement("name");
+
+					nameElement.setText(name);
+
+					Element valueElement = SAXReaderUtil.createElement("value");
+
+					valueElement.setText(value);
+
+					Element preferenceElement = SAXReaderUtil.createElement(
+						"preference");
+
+					preferenceElement.add(nameElement);
+					preferenceElement.add(valueElement);
+
+					rootElement.add(preferenceElement);
 				}
 
 				private void _addPreferences(
@@ -207,26 +206,6 @@ public class SocialOfficeUpgradeOSGiCommands {
 
 					portletPreferences.setPreferences(
 						preferencesElement.asXML());
-				}
-
-				private void _addPreference(
-					Element rootElement, String name, String value) {
-
-					Element nameElement = SAXReaderUtil.createElement("name");
-
-					nameElement.setText(name);
-
-					Element valueElement = SAXReaderUtil.createElement("value");
-
-					valueElement.setText(value);
-
-					Element preferenceElement = SAXReaderUtil.createElement(
-						"preference");
-
-					preferenceElement.add(nameElement);
-					preferenceElement.add(valueElement);
-
-					rootElement.add(preferenceElement);
 				}
 
 				private void _updateLayout(Layout layout, String newPortletId) {
@@ -300,6 +279,111 @@ public class SocialOfficeUpgradeOSGiCommands {
 		PortletPreferencesLocalService portletPreferencesLocalService) {
 
 		_portletPreferencesLocalService = portletPreferencesLocalService;
+	}
+
+	private int _removeTasksPortletLayoutTypeSettings() throws PortalException {
+		ActionableDynamicQuery actionableDynamicQuery =
+			_layoutLocalService.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
+
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					dynamicQuery.add(
+						RestrictionsFactoryUtil.like(
+							"typeSettings", "%tasksportlet%"));
+				}
+
+			});
+
+		final AtomicInteger atomicInteger = new AtomicInteger(0);
+
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.PerformActionMethod<Layout>() {
+
+				@Override
+				public void performAction(Layout layout)
+					throws PortalException {
+
+					UnicodeProperties typeSettingsProperties =
+						layout.getTypeSettingsProperties();
+
+					Map<String, String> modifiedProperties = new HashMap<>();
+
+					for (Map.Entry<String, String> entry :
+							typeSettingsProperties.entrySet()) {
+
+						String value = entry.getValue();
+
+						if (value.contains("tasksportlet")) {
+							String[] portletIds = StringUtil.split(value);
+
+							List<String> newPortletIds = new ArrayList<>();
+
+							for (String portletId : portletIds) {
+								if (!portletId.contains("tasksportlet")) {
+									newPortletIds.add(portletId);
+								}
+							}
+
+							modifiedProperties.put(
+								entry.getKey(),
+								StringUtil.merge(newPortletIds));
+						}
+					}
+
+					typeSettingsProperties.putAll(modifiedProperties);
+
+					layout.setTypeSettingsProperties(typeSettingsProperties);
+
+					_layoutLocalService.updateLayout(layout);
+
+					atomicInteger.incrementAndGet();
+				}
+
+			});
+
+		actionableDynamicQuery.performActions();
+
+		return atomicInteger.get();
+	}
+
+	private int _removeTasksPortletPreferences() throws PortalException {
+		ActionableDynamicQuery actionableDynamicQuery =
+			_portletPreferencesLocalService.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
+
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					dynamicQuery.add(
+						RestrictionsFactoryUtil.like(
+							"portletId", "%tasksportlet%"));
+				}
+
+			});
+
+		final AtomicInteger atomicInteger = new AtomicInteger(0);
+
+		actionableDynamicQuery.setPerformActionMethod(
+			new ActionableDynamicQuery.
+				PerformActionMethod<PortletPreferences>() {
+
+				public void performAction(PortletPreferences portletPreferences)
+					throws PortalException {
+
+					_portletPreferencesLocalService.deletePersistedModel(
+						portletPreferences);
+
+					atomicInteger.incrementAndGet();
+				}
+
+			});
+
+		actionableDynamicQuery.performActions();
+
+		return atomicInteger.get();
 	}
 
 	private int _updateLayoutSetTheme() throws PortalException {

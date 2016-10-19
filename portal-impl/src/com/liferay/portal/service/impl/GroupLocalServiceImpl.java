@@ -227,7 +227,9 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		// Group
 
 		User user = userPersistence.findByPrimaryKey(userId);
+
 		className = GetterUtil.getString(className);
+
 		long classNameId = classNameLocalService.getClassNameId(className);
 
 		String groupKey = StringPool.BLANK;
@@ -975,6 +977,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		friendlyURL = getFriendlyURL(friendlyURL);
 
 		return groupPersistence.fetchByC_F(companyId, friendlyURL);
+	}
+
+	@Override
+	@ThreadLocalCachable
+	public Group fetchGroup(long groupId) {
+		return groupPersistence.fetchByPrimaryKey(groupId);
 	}
 
 	/**
@@ -1883,6 +1891,25 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isLiveGroupActive(Group group) {
+		if (group == null) {
+			return false;
+		}
+
+		if (!group.isStagingGroup()) {
+			return group.isActive();
+		}
+
+		Group liveGroup = group.getLiveGroup();
+
+		if (liveGroup == null) {
+			return false;
+		}
+
+		return liveGroup.isActive();
 	}
 
 	/**
@@ -3579,7 +3606,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			// Filter by active
 
 			if (active != null) {
-				if (active != group.isActive()) {
+				if (active != isLiveGroupActive(group)) {
 					iterator.remove();
 
 					continue;

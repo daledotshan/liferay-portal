@@ -25,7 +25,7 @@ long recordSetId = ddlFormDisplayContext.getRecordSetId();
 %>
 
 <c:choose>
-	<c:when test="<%= (recordSetId == 0) %>">
+	<c:when test="<%= recordSetId == 0 %>">
 		<div class="alert alert-info">
 			<liferay-ui:message key="select-an-existing-form-or-add-a-form-to-be-displayed-in-this-application" />
 		</div>
@@ -108,7 +108,7 @@ long recordSetId = ddlFormDisplayContext.getRecordSetId();
 								%>
 
 								<c:if test="<%= Validator.isNotNull(description) %>">
-									<h2 class="ddl-form-description"><%= description %></h2>
+									<h5 class="ddl-form-description"><%= description %></h5>
 								</c:if>
 							</div>
 						</div>
