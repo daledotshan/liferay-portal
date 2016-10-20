@@ -34,7 +34,7 @@
 				<setup-sdk />
 
 				<gradle-execute dir="${project.dir}/modules" task="clean">
-					<arg value="-Dportal.build=true" />
+					<arg value="-Dbuild.profile=${build.profile}" />
 				</gradle-execute>
 			</sequential>
 
@@ -42,6 +42,7 @@
 				<fileset dir="." includes="*.ear,*.jar,*.war,*.zip" />
 				<fileset dir="test-coverage" />
 				<fileset dir="test-results" />
+				<fileset dir="tmp" />
 				<fileset dir="${doc.dir}" />
 				<fileset dir="${app.server.bin.dir}" includes="*.log*" />
 				<fileset dir="${app.server.classes.portal.dir}" includes="portal-*.properties,system-*.properties" />
@@ -115,8 +116,10 @@
 
 		<delete file="javac.output.txt" />
 
-		<gradle-execute dir="modules/core/registry-api" task="classes">
+		<gradle-execute dir="modules" task="deploy">
 			<arg value="--parallel" />
+			<arg value="-Dbuild.profile=portal-pre" />
+			<arg value="-Pforced.deploy.dir=${project.dir}/tmp/lib-pre" />
 		</gradle-execute>
 
 		<ant dir="portal-kernel" inheritAll="false" target="compile" />
@@ -244,8 +247,9 @@
 		<if>
 			<equals arg1="${build.marketplace.apps.enabled}" arg2="true" />
 			<then>
-				<gradle-execute dir="${project.dir}/modules/core/registry-api" task="deploy">
+				<gradle-execute dir="${project.dir}/modules" task="deploy">
 					<arg value="--parallel" />
+					<arg value="-Dbuild.profile=portal-pre" />
 				</gradle-execute>
 
 				<if>
@@ -257,19 +261,19 @@
 								<gradle-execute dir="${project.dir}/modules" task="compileJSP">
 									<arg value="deploy" />
 									<arg value="--parallel" />
-									<arg value="-Dportal.build=true" />
+									<arg value="-Dbuild.profile=${build.profile}" />
 									<env key="WAS_HOME" value="${app.server.websphere.dir}" />
 								</gradle-execute>
 							</then>
 							<else>
 								<gradle-execute dir="${project.dir}/modules" task="deploy">
 									<arg value="--parallel" />
-									<arg value="-Dportal.build=true" />
+									<arg value="-Dbuild.profile=${build.profile}" />
 									<env key="WAS_HOME" value="${app.server.websphere.dir}" />
 								</gradle-execute>
 
 								<gradle-execute dir="${project.dir}/modules" task="compileJSP">
-									<arg value="-Dportal.build=true" />
+									<arg value="-Dbuild.profile=${build.profile}" />
 								</gradle-execute>
 							</else>
 						</if>
@@ -277,7 +281,7 @@
 					<else>
 						<gradle-execute dir="${project.dir}/modules" task="deploy">
 							<arg value="--parallel" />
-							<arg value="-Dportal.build=true" />
+							<arg value="-Dbuild.profile=${build.profile}" />
 							<env key="WAS_HOME" value="${app.server.websphere.dir}" />
 						</gradle-execute>
 					</else>
@@ -286,7 +290,7 @@
 			<else>
 				<gradle-execute dir="${project.dir}/modules/core" task="deploy">
 					<arg value="--parallel" />
-					<arg value="-Dportal.build=true" />
+					<arg value="-Dbuild.profile=${build.profile}" />
 				</gradle-execute>
 
 				<pathconvert property="build.app.server.lib.marker.files" setonempty="false">
@@ -298,7 +302,7 @@
 					<then>
 						<gradle-execute dir="${project.dir}/modules" task="deployTool">
 							<arg value="--parallel" />
-							<arg value="-Dportal.build=true" />
+							<arg value="-Dbuild.profile=${build.profile}" />
 							<arg value="deployAppServerLib" />
 							<arg value="deployConfigs" />
 						</gradle-execute>
@@ -306,7 +310,7 @@
 					<else>
 						<gradle-execute dir="${project.dir}/modules" task="deployTool">
 							<arg value="--parallel" />
-							<arg value="-Dportal.build=true" />
+							<arg value="-Dbuild.profile=${build.profile}" />
 							<arg value="deployConfigs" />
 						</gradle-execute>
 					</else>
@@ -320,12 +324,12 @@
 							<then>
 								<gradle-execute dir="${project.dir}/modules" task="compileJSP">
 									<arg value="--parallel" />
-									<arg value="-Dportal.build=true" />
+									<arg value="-Dbuild.profile=${build.profile}" />
 								</gradle-execute>
 							</then>
 							<else>
 								<gradle-execute dir="${project.dir}/modules" task="compileJSP">
-									<arg value="-Dportal.build=true" />
+									<arg value="-Dbuild.profile=${build.profile}" />
 								</gradle-execute>
 							</else>
 						</if>
@@ -613,6 +617,7 @@
 			maxmemory="2048m"
 			noqualifier="java.*"
 			overview="${module.dir}/src/overview.html"
+			stylesheetfile="${project.dir}/tools/styles/javadoc.css"
 			useexternalfile="yes"
 			use="yes"
 			windowtitle="Liferay ${lp.version} ${module.dir} API"
@@ -642,6 +647,7 @@
 			maxmemory="2048m"
 			noqualifier="java.*"
 			overview="${module.dir}/src/overview.html"
+			stylesheetfile="${project.dir}/tools/styles/javadoc.css"
 			useexternalfile="yes"
 			use="yes"
 			windowtitle="Liferay ${lp.version} ${module.dir} API"
@@ -935,10 +941,6 @@ print AdminControl.invoke(appManager, 'startApplication', 'liferay-portal')
 		<setup-sdk />
 
 		<gradle-execute dir="modules" forcedcacheenabled="false" task="clean">
-			<arg value="-Dmaven.local.ignore=true" />
-		</gradle-execute>
-
-		<gradle-execute dir="modules/core/registry-api" forcedcacheenabled="false" task="deploy">
 			<arg value="-Dmaven.local.ignore=true" />
 		</gradle-execute>
 

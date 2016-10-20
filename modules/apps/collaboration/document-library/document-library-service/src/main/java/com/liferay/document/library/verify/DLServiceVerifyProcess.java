@@ -409,14 +409,21 @@ public class DLServiceVerifyProcess extends VerifyProcess {
 							catch (Exception e) {
 								if (_log.isWarnEnabled()) {
 									_log.warn(
-										"Unable to rename duplicate title for" +
-											" file entry " +
+										"Unable to rename duplicate title " +
+											"for file entry " +
 												dlFileEntry.getFileEntryId(),
 										e);
 								}
 							}
 						}
 						catch (PortalException pe) {
+
+							// LPS-52675
+
+							if (_log.isDebugEnabled()) {
+								_log.debug(pe, pe);
+							}
+
 							return;
 						}
 					}
@@ -586,6 +593,12 @@ public class DLServiceVerifyProcess extends VerifyProcess {
 				return renameTitle(dlFileEntry, newTitle);
 			}
 			catch (DuplicateFileEntryException dfee) {
+
+				// LPS-52675
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(dfee, dfee);
+				}
 			}
 		}
 	}
