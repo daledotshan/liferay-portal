@@ -24,6 +24,8 @@ import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -31,7 +33,6 @@ import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.model.adapter.ModelAdapterUtil;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -100,14 +101,10 @@ public class StagedLayoutSetStagedModelRepository
 		List<Layout> layouts = _layoutLocalService.getLayouts(
 			stagedLayoutSet.getGroupId(), stagedLayoutSet.isPrivateLayout());
 
-		long[] layoutIds = portletDataContext.getLayoutIds();
-
 		Stream<Layout> layoutsStream = layouts.stream();
 
-		layoutsStream = layoutsStream.filter(
-			(layout) -> ArrayUtil.contains(layoutIds, layout.getLayoutId()));
-
-		return layoutsStream.collect(Collectors.toList());
+		return layoutsStream.map((layout) -> (StagedModel)layout).collect(
+			Collectors.toList());
 	}
 
 	public List<StagedModel> fetchDependencyStagedModels(
@@ -123,6 +120,12 @@ public class StagedLayoutSetStagedModelRepository
 				ModelAdapterUtil.adapt(group, Group.class, StagedGroup.class));
 		}
 		catch (PortalException pe) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
 		}
 
 		return dependencyStagedModels;
@@ -141,6 +144,12 @@ public class StagedLayoutSetStagedModelRepository
 				layoutSet, LayoutSet.class, StagedLayoutSet.class);
 		}
 		catch (PortalException pe) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
 		}
 
 		return Optional.ofNullable(stagedLayoutSet);
@@ -159,6 +168,13 @@ public class StagedLayoutSetStagedModelRepository
 				layoutSet, LayoutSet.class, StagedLayoutSet.class);
 		}
 		catch (PortalException pe) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
+
 			return null;
 		}
 	}
@@ -212,21 +228,28 @@ public class StagedLayoutSetStagedModelRepository
 			StagedLayoutSet stagedLayoutSet)
 		throws PortalException {
 
+		LayoutSet existingLayoutSet = _layoutSetLocalService.fetchLayoutSet(
+			stagedLayoutSet.getLayoutSetId());
+
 		// Layout set prototype settings
 
+		boolean layoutSetPrototypeLinkEnabled = MapUtil.getBoolean(
+			portletDataContext.getParameterMap(),
+			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_LINK_ENABLED);
 		boolean layoutSetPrototypeSettings = MapUtil.getBoolean(
 			portletDataContext.getParameterMap(),
 			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_SETTINGS);
 
-		LayoutSet layoutSet = null;
+		if (layoutSetPrototypeSettings ||
+			Validator.isNotNull(stagedLayoutSet.getLayoutSetPrototypeUuid())) {
 
-		if (!layoutSetPrototypeSettings ||
-			Validator.isNull(stagedLayoutSet.getLayoutSetPrototypeUuid())) {
+			existingLayoutSet.setLayoutSetPrototypeUuid(
+				stagedLayoutSet.getLayoutSetPrototypeUuid());
+			existingLayoutSet.setLayoutSetPrototypeLinkEnabled(
+				layoutSetPrototypeLinkEnabled);
 
-			stagedLayoutSet.setLayoutSetPrototypeUuid(null);
-			stagedLayoutSet.setLayoutSetPrototypeLinkEnabled(false);
-
-			layoutSet = _layoutSetLocalService.updateLayoutSet(stagedLayoutSet);
+			existingLayoutSet = _layoutSetLocalService.updateLayoutSet(
+				existingLayoutSet);
 		}
 
 		// Layout set settings
@@ -236,15 +259,18 @@ public class StagedLayoutSetStagedModelRepository
 			PortletDataHandlerKeys.LAYOUT_SET_SETTINGS);
 
 		if (layoutSetSettings) {
-			layoutSet = _layoutSetLocalService.updateSettings(
-				portletDataContext.getGroupId(),
-				portletDataContext.isPrivateLayout(),
+			existingLayoutSet = _layoutSetLocalService.updateSettings(
+				existingLayoutSet.getGroupId(),
+				existingLayoutSet.isPrivateLayout(),
 				stagedLayoutSet.getSettings());
 		}
 
 		return ModelAdapterUtil.adapt(
-			layoutSet, LayoutSet.class, StagedLayoutSet.class);
+			existingLayoutSet, LayoutSet.class, StagedLayoutSet.class);
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		StagedLayoutSetStagedModelRepository.class);
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

@@ -128,7 +128,7 @@ public interface KBArticleService extends BaseService {
 		java.lang.String[] sections, int status);
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getKBArticlesCount(long,
+	* @deprecated As of 1.1.0, replaced by {@link #getKBArticlesCount(long,
 	long, int)}
 	*/
 	@java.lang.Deprecated
@@ -159,6 +159,17 @@ public interface KBArticleService extends BaseService {
 		java.lang.String tempFolderName) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<KBArticle> getAllDescendantKBArticles(long groupId,
+		long resourcePrimKey, int status,
+		OrderByComparator<KBArticle> orderByComparator)
+		throws PortalException;
+
+	/**
+	* @deprecated As of 1.1.0, replaced by {@link #getAllDescendantKBArticles(
+	long, long, int, OrderByComparator)}
+	*/
+	@java.lang.Deprecated
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<KBArticle> getAllDescendantKBArticles(long resourcePrimKey,
 		int status, OrderByComparator<KBArticle> orderByComparator)
 		throws PortalException;
@@ -174,7 +185,7 @@ public interface KBArticleService extends BaseService {
 		throws PortalException;
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of 1.1.0, replaced by {@link
 	#getKBArticleAndAllDescendantKBArticles(long, int,
 	OrderByComparator)}
 	*/
@@ -209,7 +220,7 @@ public interface KBArticleService extends BaseService {
 		OrderByComparator<KBArticle> orderByComparator);
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getKBArticles(long, long,
+	* @deprecated As of 1.1.0, replaced by {@link #getKBArticles(long, long,
 	int, int, int,
 	OrderByComparator)}
 	*/
