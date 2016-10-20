@@ -231,6 +231,7 @@ public class PoshiRunnerValidation {
 
 		validatePossibleAttributeNames(
 			element, possibleAttributeNames, filePath);
+
 		validateRequiredAttributeNames(
 			element, Arrays.asList("name"), filePath);
 
@@ -402,6 +403,7 @@ public class PoshiRunnerValidation {
 
 			validatePossibleAttributeNames(
 				element, possibleAttributeNames, filePath);
+
 			validateRequiredAttributeNames(
 				element, Arrays.asList("default"), filePath);
 		}
@@ -415,6 +417,7 @@ public class PoshiRunnerValidation {
 
 			validatePossibleAttributeNames(
 				element, possibleAttributeNames, filePath);
+
 			validateRequiredAttributeNames(
 				element, Arrays.asList("component-name"), filePath);
 		}
@@ -808,7 +811,7 @@ public class PoshiRunnerValidation {
 			}
 		}
 
-		if (attributeNames.size() < 1) {
+		if (attributeNames.isEmpty()) {
 			_exceptions.add(
 				new Exception(
 					"Invalid or missing attribute\n" + filePath + ":" +
