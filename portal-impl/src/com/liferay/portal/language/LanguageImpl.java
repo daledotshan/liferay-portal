@@ -1596,6 +1596,7 @@ public class LanguageImpl implements Language, Serializable {
 			String value = get(resourceBundle, key);
 
 			sb.append(HtmlUtil.escapeJS(value));
+
 			sb.append(StringPool.APOSTROPHE);
 
 			x = matcher.end(0);
@@ -1888,6 +1889,13 @@ public class LanguageImpl implements Language, Serializable {
 						PropsValues.LOCALES_ENABLED);
 				}
 				catch (SystemException se) {
+
+					// LPS-52675
+
+					if (_log.isDebugEnabled()) {
+						_log.debug(se, se);
+					}
+
 					languageIds = PropsValues.LOCALES_ENABLED;
 				}
 			}
