@@ -24,6 +24,8 @@ import com.liferay.mobile.device.rules.web.internal.constants.MDRWebKeys;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.util.ParamUtil;
 
@@ -61,15 +63,12 @@ public class EditActionMVCRenderCommand implements MVCRenderCommand {
 			String type = BeanPropertiesUtil.getString(action, "type");
 
 			renderRequest.setAttribute(
-				MDRWebKeys.
-					MOBILE_DEVICE_RULES_RULE_GROUP_ACTION_TYPE,
-				type);
+				MDRWebKeys.MOBILE_DEVICE_RULES_RULE_GROUP_ACTION_TYPE, type);
 
 			String editorJSP = ActionUtil.getActionEditorJSP(type);
 
 			renderRequest.setAttribute(
-				MDRWebKeys.
-					MOBILE_DEVICE_RULES_RULE_GROUP_ACTION_EDITOR_JSP,
+				MDRWebKeys.MOBILE_DEVICE_RULES_RULE_GROUP_ACTION_EDITOR_JSP,
 				editorJSP);
 
 			long ruleGroupInstanceId = BeanParamUtil.getLong(
@@ -80,8 +79,7 @@ public class EditActionMVCRenderCommand implements MVCRenderCommand {
 					ruleGroupInstanceId);
 
 			renderRequest.setAttribute(
-				MDRWebKeys.
-					MOBILE_DEVICE_RULES_RULE_GROUP_INSTANCE,
+				MDRWebKeys.MOBILE_DEVICE_RULES_RULE_GROUP_INSTANCE,
 				ruleGroupInstance);
 
 			MDRRuleGroup ruleGroup = ruleGroupInstance.getRuleGroup();
@@ -92,6 +90,13 @@ public class EditActionMVCRenderCommand implements MVCRenderCommand {
 			return "/edit_action.jsp";
 		}
 		catch (PortalException pe) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
+
 			return "/error.jsp";
 		}
 	}
@@ -107,6 +112,9 @@ public class EditActionMVCRenderCommand implements MVCRenderCommand {
 
 		_mdrRuleGroupInstanceLocalService = mdrRuleGroupInstanceLocalService;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		EditActionMVCRenderCommand.class);
 
 	private MDRActionService _mdrActionService;
 	private MDRRuleGroupInstanceLocalService _mdrRuleGroupInstanceLocalService;

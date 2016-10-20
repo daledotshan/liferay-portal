@@ -15,6 +15,8 @@
 package com.liferay.portlet.blogs;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.capabilities.TemporaryFileEntriesCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -23,7 +25,10 @@ import com.liferay.portal.kernel.util.FileUtil;
 
 /**
  * @author Roberto Díaz
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.blogs.util.BlogsEntryImageSelectorHelper}
  */
+@Deprecated
 public class BlogsEntryImageSelectorHelper {
 
 	public BlogsEntryImageSelectorHelper(
@@ -81,6 +86,13 @@ public class BlogsEntryImageSelectorHelper {
 							TemporaryFileEntriesCapability.class);
 				}
 				catch (PortalException pe) {
+
+					// LPS-52675
+
+					if (_log.isDebugEnabled()) {
+						_log.debug(pe, pe);
+					}
+
 					return false;
 				}
 			}
@@ -88,6 +100,9 @@ public class BlogsEntryImageSelectorHelper {
 
 		return _fileEntryTempFile;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		BlogsEntryImageSelectorHelper.class);
 
 	private Boolean _fileEntryTempFile;
 	private final String _imageCropRegion;

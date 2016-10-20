@@ -17,9 +17,11 @@ package com.liferay.knowledge.base.service.impl;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.knowledge.base.constants.KBActionKeys;
+import com.liferay.knowledge.base.constants.KBFolderConstants;
 import com.liferay.knowledge.base.constants.KBPortletKeys;
 import com.liferay.knowledge.base.model.KBArticle;
 import com.liferay.knowledge.base.model.KBArticleSearchDisplay;
+import com.liferay.knowledge.base.model.KBFolder;
 import com.liferay.knowledge.base.model.impl.KBArticleSearchDisplayImpl;
 import com.liferay.knowledge.base.service.base.KBArticleServiceBaseImpl;
 import com.liferay.knowledge.base.service.permission.AdminPermission;
@@ -32,7 +34,11 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -176,6 +182,11 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		return kbArticle;
 	}
 
+	/**
+	 * @deprecated As of 1.1.0, replaced by {@link #getAllDescendantKBArticles(
+	 *             long, long, int, OrderByComparator)}
+	 */
+	@Deprecated
 	@Override
 	public List<KBArticle> getAllDescendantKBArticles(
 			long resourcePrimKey, int status,
@@ -183,7 +194,20 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		throws PortalException {
 
 		return getAllDescendantKBArticles(
-			resourcePrimKey, status, orderByComparator, false);
+			GroupConstants.DEFAULT_PARENT_GROUP_ID, resourcePrimKey, status,
+			orderByComparator);
+	}
+
+	@Override
+	public List<KBArticle> getAllDescendantKBArticles(
+			long groupId, long resourcePrimKey, int status,
+			OrderByComparator<KBArticle> orderByComparator)
+		throws PortalException {
+
+		groupId = checkGroupId(groupId, resourcePrimKey);
+
+		return getAllDescendantKBArticles(
+			groupId, resourcePrimKey, status, orderByComparator, false);
 	}
 
 	@Override
@@ -262,7 +286,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link
+	 * @deprecated As of 1.1.0, replaced by {@link
 	 *             #getKBArticleAndAllDescendantKBArticles(long, int,
 	 *             OrderByComparator)}
 	 */
@@ -277,6 +301,13 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 				resourcePrimKey, status, orderByComparator);
 		}
 		catch (PortalException pe) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
+
 			return Collections.emptyList();
 		}
 	}
@@ -476,6 +507,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 			}
 
 			start = start + _INTERVAL;
+
 			end = start + _INTERVAL;
 		}
 
@@ -576,7 +608,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getKBArticles(long, long,
+	 * @deprecated As of 1.1.0, replaced by {@link #getKBArticles(long, long,
 	 *             int, int, int,
 	 *             OrderByComparator)}
 	 */
@@ -592,7 +624,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #getKBArticlesCount(long,
+	 * @deprecated As of 1.1.0, replaced by {@link #getKBArticlesCount(long,
 	 *             long, int)}
 	 */
 	@Deprecated
@@ -722,6 +754,54 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 			resourcePrimKeyToPriorityMap);
 	}
 
+	protected long checkGroupId(long groupId, long resourcePrimKey)
+		throws PortalException {
+
+		if (groupId == GroupConstants.DEFAULT_PARENT_GROUP_ID) {
+			if (resourcePrimKey == KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+				throw new PrincipalException();
+			}
+
+			KBArticle kbArticle = fetchLatestKBArticle(
+				resourcePrimKey, WorkflowConstants.STATUS_ANY);
+
+			if (kbArticle != null) {
+				return kbArticle.getGroupId();
+			}
+
+			KBFolder kbFolder = kbFolderService.fetchKBFolder(resourcePrimKey);
+
+			if (kbFolder == null) {
+				throw new PrincipalException();
+			}
+
+			return kbFolder.getGroupId();
+		}
+
+		if (resourcePrimKey == KBFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			return groupId;
+		}
+
+		KBArticle kbArticle = fetchLatestKBArticle(
+			resourcePrimKey, WorkflowConstants.STATUS_ANY);
+
+		if (kbArticle != null) {
+			if (kbArticle.getGroupId() != groupId) {
+				throw new PrincipalException();
+			}
+
+			return kbArticle.getGroupId();
+		}
+
+		KBFolder kbFolder = kbFolderService.fetchKBFolder(resourcePrimKey);
+
+		if ((kbFolder == null) || (kbFolder.getGroupId() != groupId)) {
+			throw new PrincipalException();
+		}
+
+		return kbFolder.getGroupId();
+	}
+
 	protected String exportToRSS(
 		String rssDisplayStyle, String rssFormat, String name,
 		String description, String feedURL, List<KBArticle> kbArticles,
@@ -778,6 +858,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 				kbArticle.getStatus(), themeDisplay.getPortalURL(), false);
 
 			syndEntry.setLink(link);
+
 			syndEntry.setPublishedDate(kbArticle.getCreateDate());
 			syndEntry.setTitle(kbArticle.getTitle());
 			syndEntry.setUpdatedDate(kbArticle.getModifiedDate());
@@ -815,16 +896,27 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		}
 	}
 
+	/**
+	 * @deprecated As of 1.1.0, replaced by {@link #getAllDescendantKBArticles(
+	 *             long, long, int, OrderByComparator, boolean)}
+	 */
+	@Deprecated
 	protected List<KBArticle> getAllDescendantKBArticles(
 			long resourcePrimKey, int status,
 			OrderByComparator<KBArticle> orderByComparator,
 			boolean includeParentArticle)
 		throws PortalException {
 
-		KBArticle kbArticle = getLatestKBArticle(
-			resourcePrimKey, WorkflowConstants.STATUS_ANY);
+		return getAllDescendantKBArticles(
+			GroupConstants.DEFAULT_PARENT_GROUP_ID, resourcePrimKey, status,
+			orderByComparator, includeParentArticle);
+	}
 
-		long groupId = kbArticle.getGroupId();
+	protected List<KBArticle> getAllDescendantKBArticles(
+			long groupId, long resourcePrimKey, int status,
+			OrderByComparator<KBArticle> orderByComparator,
+			boolean includeParentArticle)
+		throws PortalException {
 
 		List<KBArticle> kbArticles = null;
 
@@ -898,5 +990,8 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	private static final int _INTERVAL = 200;
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		KBArticleServiceImpl.class);
 
 }
