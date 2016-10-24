@@ -16,6 +16,7 @@ package com.liferay.document.library.internal.exportimport.data.handler;
 
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.kernel.service.DLFolderLocalServiceUtil;
 import com.liferay.document.library.kernel.service.persistence.DLFolderUtil;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
@@ -31,7 +32,7 @@ public class FolderUtil {
 	public static Folder fetchByR_P_N(
 		long groupId, long parentFolderId, String name) {
 
-		DLFolder dlFolder = DLFolderUtil.fetchByG_P_N(
+		DLFolder dlFolder = DLFolderLocalServiceUtil.fetchFolder(
 			groupId, parentFolderId, name);
 
 		if (dlFolder == null) {
@@ -42,7 +43,8 @@ public class FolderUtil {
 	}
 
 	public static Folder fetchByUUID_R(String uuid, long repositoryId) {
-		DLFolder dlFolder = DLFolderUtil.fetchByUUID_G(uuid, repositoryId);
+		DLFolder dlFolder = DLFolderLocalServiceUtil.fetchFolder(
+			uuid, repositoryId);
 
 		if (dlFolder == null) {
 			return null;
@@ -54,13 +56,13 @@ public class FolderUtil {
 	public static Folder findByPrimaryKey(long folderId)
 		throws NoSuchFolderException {
 
-		DLFolder dlFolder = DLFolderUtil.findByPrimaryKey(folderId);
+		DLFolder dlFolder = DLFolderLocalServiceUtil.fetchFolder(folderId);
 
 		return new LiferayFolder(dlFolder);
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of 1.1.0, with no direct replacement
 	 */
 	@Deprecated
 	public static List<Folder> findByR_P(
@@ -73,7 +75,7 @@ public class FolderUtil {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, with no direct replacement
+	 * @deprecated As of 1.1.0, with no direct replacement
 	 */
 	@Deprecated
 	public static List<Folder> findByRepositoryId(long repositoryId) {
