@@ -14,6 +14,8 @@
 
 package com.liferay.exportimport.content.processor.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
@@ -26,9 +28,11 @@ import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
@@ -54,6 +58,7 @@ import java.util.Map;
 /**
  * @author Mate Thurzo
  */
+@ProviderType
 public abstract class BaseDocumentLibraryExportImportContentProcessor
 	<S extends StagedModel> implements ExportImportContentProcessor<S, String> {
 
@@ -494,11 +499,31 @@ public abstract class BaseDocumentLibraryExportImportContentProcessor
 			portalURL.concat("/image/image_gallery?")
 		};
 
+		long[] companyIds = PortalUtil.getCompanyIds();
+
+		String[] completePatterns =
+			new String[patterns.length * companyIds.length];
+
+		int i = 0;
+
+		for (long companyId : companyIds) {
+			Company company = CompanyLocalServiceUtil.getCompany(companyId);
+
+			String webId = company.getWebId();
+
+			for (String pattern : patterns) {
+				completePatterns[i] = webId.concat(pattern);
+
+				i++;
+			}
+		}
+
 		int beginPos = -1;
 		int endPos = content.length();
 
 		while (true) {
-			beginPos = StringUtil.lastIndexOfAny(content, patterns, endPos);
+			beginPos = StringUtil.lastIndexOfAny(
+				content, completePatterns, endPos);
 
 			if (beginPos == -1) {
 				break;
@@ -511,7 +536,9 @@ public abstract class BaseDocumentLibraryExportImportContentProcessor
 			FileEntry fileEntry = getFileEntry(dlReferenceParameters);
 
 			if (fileEntry == null) {
-				throw new NoSuchFileEntryException();
+				throw new NoSuchFileEntryException(
+					"File entry reference parameters: " +
+						MapUtil.toString(dlReferenceParameters));
 			}
 
 			endPos = beginPos - 1;

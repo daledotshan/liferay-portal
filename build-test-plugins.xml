@@ -48,7 +48,7 @@
 				<else>
 					<pathconvert pathsep="," property="plugin.build.path" setonempty="false">
 						<path>
-							<fileset dir="${project.dir}/modules" includes="**/@{plugin}/build.xml" />
+							<fileset dir="${project.dir}/modules" includes="**/@{plugin}/build.gradle,**/@{plugin}/build.xml" />
 						</path>
 					</pathconvert>
 
@@ -195,6 +195,15 @@ app.server.tomcat.dir=${app.server.parent.dir}/tomcat-7.0.42</echo>
 							</else>
 						</if>
 
+						<get-testcase-property property.name="solr.enabled" />
+
+						<if>
+							<equals arg1="${solr.enabled}" arg2="true" />
+							<then>
+								<echo file="${plugin.path}/WEB-INF/classes/solr-ext.properties">server.http.url=http://localhost:8983/solr</echo>
+							</then>
+						</if>
+
 						<if>
 							<equals arg1="@{plugin}" arg2="so-portlet" />
 							<then>
@@ -247,6 +256,18 @@ app.server.tomcat.dir=${app.server.parent.dir}/tomcat-7.0.42</echo>
 
 								<ant dir="${plugin.path}" inheritAll="false" target="deploy" />
 							</else>
+						</if>
+
+						<if>
+							<equals arg1="@{plugin}" arg2="cas-web" />
+							<then>
+								<move todir="${app.server.dir}/webapps">
+								  <fileset dir="${app.server.dir}/webapps">
+								    <include name="cas-web-*.war" />
+								  </fileset>
+								  <mapper from="*" to="cas-web.war" type="glob" />
+								</move>
+							</then>
 						</if>
 					</else>
 				</if>
