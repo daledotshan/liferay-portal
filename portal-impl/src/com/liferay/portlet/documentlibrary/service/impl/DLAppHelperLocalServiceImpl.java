@@ -857,6 +857,8 @@ public class DLAppHelperLocalServiceImpl
 
 		AssetEntry assetEntry = null;
 
+		FileVersion latestFileVesion = fileEntry.getLatestFileVersion();
+
 		boolean visible = false;
 
 		boolean addDraftAssetEntry = false;
@@ -864,11 +866,13 @@ public class DLAppHelperLocalServiceImpl
 		if (fileEntry instanceof LiferayFileEntry) {
 			DLFileVersion dlFileVersion = (DLFileVersion)fileVersion.getModel();
 
-			if (dlFileVersion.isApproved()) {
-				visible = true;
+			if (dlFileVersion.isApproved() &&
+				(latestFileVesion.getStatus() !=
+					WorkflowConstants.STATUS_DRAFT)) {
+						visible = true;
 			}
 			else {
-				String version = dlFileVersion.getVersion();
+				String version = latestFileVesion.getVersion();
 
 				if (!version.equals(DLFileEntryConstants.VERSION_DEFAULT)) {
 					addDraftAssetEntry = true;
@@ -909,14 +913,15 @@ public class DLAppHelperLocalServiceImpl
 			}
 
 			assetEntry = assetEntryLocalService.updateEntry(
-				userId, fileEntry.getGroupId(), fileEntry.getCreateDate(),
-				fileEntry.getModifiedDate(),
+				userId, fileEntry.getGroupId(),
+				latestFileVesion.getCreateDate(),
+				latestFileVesion.getModifiedDate(),
 				DLFileEntryConstants.getClassName(),
-				fileVersion.getFileVersionId(), fileEntry.getUuid(),
+				latestFileVesion.getFileVersionId(), fileEntry.getUuid(),
 				fileEntryTypeId, assetCategoryIds, assetTagNames, true, false,
-				null, null, null, null, fileEntry.getMimeType(),
-				fileEntry.getTitle(), fileEntry.getDescription(), null, null,
-				null, 0, 0, null);
+				null, null, null, null, latestFileVesion.getMimeType(),
+				latestFileVesion.getTitle(), latestFileVesion.getDescription(),
+				null, null, null, 0, 0, null);
 		}
 		else {
 			Date publishDate = null;
