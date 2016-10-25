@@ -1,10 +1,9 @@
 ;
-; Do not manually edit this file. See
-; https://github.com/git-commands/git-subrepo#readme for more information.
+; Do not manually edit this file.
 ;
 [subrepo]
 	cmdver = liferay
-	commit = 0153e2ef869ac57ab588fa122605f3cf78222883
+	commit = e656d61ae8be02362ccbf835c2792548c4def36f
 	mode = push
-	parent = b9a8a0caea01c45b9b1469bb6a46e36efd016e7b
+	parent = f3d7986ac5b8605f63fdf6ceb8d291f16438246c
 	remote = git@github.com:liferay/com-liferay-ip-geocoder.git

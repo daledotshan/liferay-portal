@@ -133,7 +133,7 @@
 				ResourcePermission ON
 					(ResourcePermission.companyId = JournalArticle.companyId) AND
 					(ResourcePermission.name = 'com.liferay.journal.model.JournalArticle') AND
-					(ResourcePermission.primKey = CAST_TEXT(JournalArticle.resourcePrimKey)) AND
+					(ResourcePermission.primKeyId = JournalArticle.resourcePrimKey) AND
 					(ResourcePermission.scope = ?)
 			WHERE
 				ResourcePermission.primKey IS NULL
@@ -383,7 +383,7 @@
 						(JournalArticleLocalization.languageId = ?)
 		]]>
 	</sql>
-	<sql id="com.liferay.journal.service.persistence.JournalFolderFinder.findByF_ByNoAssets">
+	<sql id="com.liferay.journal.service.persistence.JournalFolderFinder.findF_ByNoAssets">
 		<![CDATA[
 			SELECT
 				{JournalFolder.*}

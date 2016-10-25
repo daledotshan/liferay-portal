@@ -309,6 +309,7 @@ public class WebDriverHelper {
 			Document document = connection.get();
 
 			sb.append(document.text());
+
 			sb.append("\n");
 		}
 
@@ -324,6 +325,7 @@ public class WebDriverHelper {
 
 		if (titleAttribute.contains("Rich Text Editor,")) {
 			int x = titleAttribute.indexOf(",");
+
 			int y = titleAttribute.indexOf(",", x + 1);
 
 			if (y == -1) {
@@ -337,6 +339,7 @@ public class WebDriverHelper {
 
 		if (idAttribute.contains("cke__")) {
 			int x = idAttribute.indexOf("cke__");
+
 			int y = idAttribute.indexOf("cke__", x + 1);
 
 			if (y == -1) {
@@ -700,6 +703,18 @@ public class WebDriverHelper {
 		return text.contains(value);
 	}
 
+	public static boolean isPartialTextAceEditor(
+		WebDriver webDriver, String locator, String value) {
+
+		WebElement webElement = getWebElement(webDriver, locator, "1");
+
+		String text = webElement.getText();
+
+		text = text.replace("\n", "");
+
+		return text.contains(value);
+	}
+
 	public static boolean isSelectedLabel(
 		WebDriver webDriver, String selectLocator, String pattern) {
 
@@ -972,6 +987,7 @@ public class WebDriverHelper {
 		String titleAttribute = getAttribute(webDriver, locator + "@title");
 
 		int x = titleAttribute.indexOf(",");
+
 		int y = titleAttribute.indexOf(",", x + 1);
 
 		if (y == -1) {
@@ -988,23 +1004,36 @@ public class WebDriverHelper {
 	}
 
 	public static void typeEditor(
-		WebDriver webDriver, String locator, String value) {
+			WebDriver webDriver, String locator, String value)
+		throws Exception {
 
-		WrapsDriver wrapsDriver = (WrapsDriver)getWebElement(
-			webDriver, locator);
+		WebElement webElement = getWebElement(webDriver, locator);
+
+		if (webElement == null) {
+			throw new Exception(
+				"Element is not present at \"" + locator + "\"");
+		}
+
+		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
 
 		JavascriptExecutor javascriptExecutor =
 			(JavascriptExecutor)wrapsDriver.getWrappedDriver();
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("CKEDITOR.instances[\"");
-		sb.append(getEditorName(webDriver, locator));
-		sb.append("\"].setData(\"");
-		sb.append(HtmlUtil.escapeJS(value.replace("\\", "\\\\")));
-		sb.append("\");");
+		if (locator.contains("cke")) {
+			sb.append("var element = arguments[0].contentWindow.document;");
+			sb.append("element.body.textContent = '");
+		}
+		else {
+			sb.append("var element = arguments[0];");
+			sb.append("element.textContent = '");
+		}
 
-		javascriptExecutor.executeScript(sb.toString());
+		sb.append(value);
+		sb.append("';");
+
+		javascriptExecutor.executeScript(sb.toString(), webElement);
 	}
 
 	public static void uncheck(WebDriver webdDriver, String locator) {

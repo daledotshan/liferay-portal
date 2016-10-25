@@ -100,6 +100,8 @@ AUI.add(
 									textMode: false
 								}
 							).render();
+
+							instance._alloyEditor.getNativeEditor().on('actionPerformed', A.bind(instance._onActionPerformed, instance));
 						}
 
 						return instance;
@@ -115,6 +117,12 @@ AUI.add(
 						}
 					},
 
+					_onActionPerformed: function() {
+						var instance = this;
+
+						instance._onChangeEditor(instance.getValue());
+					},
+
 					_onChangeEditor: function(value) {
 						var instance = this;
 
@@ -123,13 +131,7 @@ AUI.add(
 						if (inputNode && !Util.compare(value, inputNode.val())) {
 							inputNode.val(value);
 
-							instance.fire(
-								'valueChanged',
-								{
-									field: instance,
-									value: value
-								}
-							);
+							instance.set('value', value);
 						}
 					}
 				}
