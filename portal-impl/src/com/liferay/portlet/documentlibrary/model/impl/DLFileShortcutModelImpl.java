@@ -731,9 +731,6 @@ public class DLFileShortcutModelImpl extends BaseModelImpl<DLFileShortcut>
 
 	@Override
 	public TrashEntry getTrashEntry() throws PortalException {
-		if (!isInTrash()) {
-			return null;
-		}
 
 		TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(),
 				getTrashEntryClassPK());
