@@ -484,15 +484,36 @@ dependency to version 2.0.4.
 version 2.0.2.
 
 ### Removed
-- [LPS-66906]: It is no longer possible to set the `removeShrinkwrappedUrls`
-property of `NpmInstallTask` via the `nodejs.npm.remove.shrinkwrapped.urls`
-project property.
+- [LPS-66906]: The `removeShrinkwrappedUrls` property of `NpmInstallTask` can no
+longer be set via the `nodejs.npm.remove.shrinkwrapped.urls` project property.
 
 ## 3.0.23 - 2016-10-24
 
 ### Changed
 - [LPS-68917]: Update the [Liferay Gradle Plugins JS Transpiler] dependency to
 version 2.1.0.
+
+## 3.0.24 - 2016-10-24
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.38.
+- [LPS-66853]: Update the [Liferay Source Formatter] dependency to version
+1.0.304.
+
+## 3.0.25 - 2016-10-24
+
+### Changed
+- [LPS-52675]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.40.
+- [LPS-52675]: Update the [Liferay Source Formatter] dependency to version
+1.0.305.
+
+## 3.0.26 - 2016-10-26
+
+### Changed
+- [LPS-68917]: Update the [Liferay Gradle Plugins JS Transpiler] dependency to
+version 2.1.1.
 
 [Gradle Bundle Plugin]: https://github.com/TomDmitriev/gradle-bundle-plugin
 [Liferay Ant BND]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/ant-bnd
@@ -511,6 +532,7 @@ version 2.1.0.
 [Liferay Source Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/source-formatter
 [Liferay TLD Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/tld-formatter
 [Liferay XML Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/xml-formatter
+[LPS-52675]: https://issues.liferay.com/browse/LPS-52675
 [LPS-58672]: https://issues.liferay.com/browse/LPS-58672
 [LPS-61099]: https://issues.liferay.com/browse/LPS-61099
 [LPS-66396]: https://issues.liferay.com/browse/LPS-66396
