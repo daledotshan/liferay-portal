@@ -82,6 +82,7 @@
 
 					<copy
 						file="portal-impl/src/portal-ext.properties"
+						overwrite="true"
 						tofile="${tstamp.value}/WEB-INF/classes/portal-ext.properties"
 					/>
 
@@ -102,6 +103,7 @@ module.framework.properties.osgi.console=11312</echo>
 				<else>
 					<copy
 						file="portal-impl/src/portal-ext.properties"
+						overwrite="true"
 						tofile="${app.server.classes.portal.dir}/portal-ext.properties"
 					/>
 
@@ -3729,6 +3731,12 @@ create database lportal${database.index} character set utf8;</echo>
 							<replacetoken>drop database lportal;</replacetoken>
 							<replacevalue></replacevalue>
 						</replace>
+						<replace file="create.sql">
+							<replacetoken>connect to lportal;</replacetoken>
+							<replacevalue>update db cfg for lportal using logprimary 2;
+update db cfg for lportal using logsecond 254;
+connect to lportal;</replacevalue>
+						</replace>
 					</then>
 					<elseif>
 						<equals arg1="${database.type}" arg2="oracle" />
@@ -3859,6 +3867,7 @@ go]]></replacevalue>
 					<property name="testray.component.names" value="${testray.component.names}" />
 					<property name="testray.main.component.name" value="${testray.main.component.name}" />
 					<property name="testray.team.name" value="${testray.team.name}" />
+					<property name="testray.case.type.name" value="Automated Functional Test" />
 					<property name="testray.testcase.description" value="${testray.testcase.description}" />
 					<property name="testray.testcase.name" value="${testray.testcase.name}" />
 					<property name="testray.testcase.priority" value="${testray.testcase.priority}" />
@@ -3895,6 +3904,7 @@ go]]></replacevalue>
 					<property name="java.jdk.version" value="${java.jdk.version}" />
 					<property name="operating.system.type" value="${operating.system.type}" />
 					<property name="operating.system.version" value="${operating.system.version}" />
+					<property name="test.type" value="Automated Functional Test" />
 					<property name="testray.build.name" value="${testray.build.name}" />
 					<property name="testray.build.time" value="${testray.build.time}" />
 					<property name="testray.build.type" value="${testray.build.type}" />
@@ -4129,8 +4139,6 @@ go]]></replacevalue>
 
 							for (Integer propertyLocation : propertyLocations) {
 								String testrayTestcaseName = testcasePropertyLocations.get(propertyLocation);
-
-								lines.add(propertyLocation, "<property name=\"testray.case.type.name\" value=\"Automated Functional Test\" />");
 
 								if (testcaseFailures.contains(testrayTestcaseName)) {
 									lines.add(propertyLocation, "<property name=\"testray.testcase.status\" value=\"failed\" />");
@@ -5159,6 +5167,68 @@ go]]></replacevalue>
 				<copy file="${jenkins.results.xml.suite.file}" tofile="${env.WORKSPACE}/TEST-ConsolidatedResults.xml" />
 			</then>
 		</if>
+
+		<beanshell>
+			<![CDATA[
+				import java.io.BufferedReader;
+				import java.io.File;
+				import java.io.IOException;
+
+				BufferedReader bufferedReader = null;
+
+				try {
+					File jenkinsResultsXMLSuiteFile = new File(project.getProperty("jenkins.results.xml.suite.file"));
+
+					bufferedReader = new BufferedReader(new FileReader(jenkinsResultsXMLSuiteFile));
+
+					List lines = new ArrayList();
+
+					int failCount = 0;
+					int lineNumber = 0;
+					int summaryLocation = 0;
+					int totalCount = 0;
+
+					for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
+						lineNumber++;
+
+						lines.add(line);
+
+						if (line.contains("<failure")) {
+							failCount++;
+						}
+						else if (line.contains("<testcase")) {
+							totalCount++;
+						}
+						else if (line.contains("<testsuite")) {
+							summaryLocation = lineNumber;
+						}
+					}
+
+					bufferedReader.close();
+
+					int passCount = totalCount - failCount;
+
+					lines.add(summaryLocation, "\t</summary>");
+					lines.add(summaryLocation, "\t\t<property name=\"FAILED\" value=\"" + Integer.toString(failCount) + "\" />");
+					lines.add(summaryLocation, "\t\t<property name=\"PASSED\" value=\"" + Integer.toString(passCount) + "\" />");
+					lines.add(summaryLocation, "\t<summary>");
+
+					FileWriter fileWriter = new FileWriter(jenkinsResultsXMLSuiteFile);
+
+					BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+					for (String line : lines) {
+						bufferedWriter.write(line);
+						bufferedWriter.write('\n');
+					}
+
+					bufferedWriter.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			]]>
+		</beanshell>
 
 		<if>
 			<isset property="jenkins.testray.results.dir" />
@@ -8444,6 +8514,15 @@ jdbc.default.password=${database.mysql.password}</echo>
 			</then>
 		</if>
 
+		<get-testcase-property property.name="openam.enabled" />
+
+		<if>
+			<equals arg1="${openam.enabled}" arg2="true" />
+			<then>
+				<ant antfile="build-test-authentication.xml" target="setup-openam" />
+			</then>
+		</if>
+
 		<get-testcase-property property.name="remote.elasticsearch.enabled" />
 
 		<if>
@@ -8535,12 +8614,12 @@ jdbc.default.password=${database.mysql.password}</echo>
 				<get-testcase-property property.name="themes.delayed.deployment" />
 
 				<if>
-					<equals arg1="${themes.delayed.deployment}" arg2="true" />
+					<isset property="themes.delayed.deployment" />
 					<then>
 						<mkdir dir="${liferay.home}/tmp" />
 
 						<move todir="${liferay.home}/tmp">
-							<fileset dir="${liferay.home}/deploy" includes="*-theme.war" />
+							<fileset dir="${liferay.home}/deploy" includes="${themes.delayed.deployment}" />
 						</move>
 					</then>
 				</if>
@@ -8586,10 +8665,10 @@ jdbc.default.password=${database.mysql.password}</echo>
 				</if>
 
 				<if>
-					<equals arg1="${themes.delayed.deployment}" arg2="true" />
+					<isset property="themes.delayed.deployment" />
 					<then>
 						<move todir="${liferay.home}/deploy">
-							<fileset dir="${liferay.home}/tmp" includes="*-theme.war" />
+							<fileset dir="${liferay.home}/tmp" includes="${themes.delayed.deployment}" />
 						</move>
 
 						<delete dir="${liferay.home}/tmp" failonerror="false" />
@@ -8675,6 +8754,15 @@ jdbc.default.password=${database.mysql.password}</echo>
 				<print-file file.name="${elastic.kibana.dir}/bin/kibana.log" />
 
 				<ant antfile="build-test-elasticsearch.xml" target="stop-kibana" />
+			</then>
+		</if>
+
+		<get-testcase-property property.name="openam.enabled" />
+
+		<if>
+			<equals arg1="${openam.enabled}" arg2="true" />
+			<then>
+				<ant antfile="build-test-authentication.xml" target="delete-openam-config" />
 			</then>
 		</if>
 

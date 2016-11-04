@@ -484,15 +484,104 @@ dependency to version 2.0.4.
 version 2.0.2.
 
 ### Removed
-- [LPS-66906]: It is no longer possible to set the `removeShrinkwrappedUrls`
-property of `NpmInstallTask` via the `nodejs.npm.remove.shrinkwrapped.urls`
-project property.
+- [LPS-66906]: The `removeShrinkwrappedUrls` property of `NpmInstallTask` can no
+longer be set via the `nodejs.npm.remove.shrinkwrapped.urls` project property.
 
 ## 3.0.23 - 2016-10-24
 
 ### Changed
 - [LPS-68917]: Update the [Liferay Gradle Plugins JS Transpiler] dependency to
 version 2.1.0.
+
+## 3.0.24 - 2016-10-24
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.38.
+- [LPS-66853]: Update the [Liferay Source Formatter] dependency to version
+1.0.304.
+
+## 3.0.25 - 2016-10-25
+
+### Changed
+- [LPS-52675]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.40.
+- [LPS-52675]: Update the [Liferay Source Formatter] dependency to version
+1.0.305.
+
+## 3.0.26 - 2016-10-26
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.41.
+- [LPS-66853]: Update the [Liferay Source Formatter] dependency to version
+1.0.306.
+- [LPS-68917]: Update the [Liferay Gradle Plugins JS Transpiler] dependency to
+version 2.1.1.
+
+## 3.0.27 - 2016-10-27
+
+### Changed
+- [LPS-68980]: Update the [Liferay Gradle Plugins Service Builder] dependency to
+version 1.0.19.
+- [LPS-68980]: Update the [Liferay Portal Tools Service Builder] dependency to
+version 1.0.134.
+
+## 3.0.28 - 2016-10-28
+
+### Changed
+- [LPS-66222]: Update the [Liferay Gradle Plugins Upgrade Table Builder]
+dependency to version 2.0.0.
+- [LPS-68979]: Update the [Liferay Gradle Plugins JS Transpiler] dependency to
+version 2.2.0.
+- [LPS-68995]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.42.
+- [LPS-68995]: Update the [Liferay Source Formatter] dependency to version
+1.0.308.
+
+## 3.0.29 - 2016-10-31
+
+### Changed
+- [LPS-68848]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.43.
+- [LPS-68848]: Update the [Liferay Source Formatter] dependency to version
+1.0.309.
+- [LPS-69013]: Update the [Liferay Jasper JSPC] dependency to version 1.0.8.
+
+## 3.0.30 - 2016-10-31
+
+### Changed
+- [LPS-69013]: Update the [Liferay Jasper JSPC] dependency to version 1.0.9.
+
+## 3.0.31 - 2016-11-01
+
+### Changed
+- [LPS-68923]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.44.
+- [LPS-68923]: Update the [Liferay Source Formatter] dependency to version
+1.0.310.
+
+## 3.0.32 - 2016-11-01
+
+### Changed
+- [LPS-69026]: Update the [Liferay Gradle Plugins JS Transpiler] dependency to
+version 2.2.1.
+
+## 3.0.33 - 2016-11-02
+
+### Changed
+- [LPS-68923]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.45.
+- [LPS-68923]: Update the [Liferay Source Formatter] dependency to version
+1.0.311.
+
+## 3.0.34 - 2016-11-03
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins Source Formatter] dependency
+to version 1.0.46.
+- [LPS-66853]: Update the [Liferay Source Formatter] dependency to version
+1.0.312.
 
 [Gradle Bundle Plugin]: https://github.com/TomDmitriev/gradle-bundle-plugin
 [Liferay Ant BND]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/ant-bnd
@@ -503,16 +592,20 @@ version 2.1.0.
 [Liferay Gradle Plugins Service Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-service-builder
 [Liferay Gradle Plugins Source Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-source-formatter
 [Liferay Gradle Plugins Theme Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-theme-builder
+[Liferay Gradle Plugins Upgrade Table Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-upgrade-table-builder
+[Liferay Jasper JSPC]: https://github.com/liferay/liferay-portal/tree/master/modules/util/jasper-jspc
 [Liferay Javadoc Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/javadoc-formatter
 [Liferay Lang Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/lang-builder
 [Liferay Portal Tools Service Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-service-builder
 [Liferay Portal Tools Upgrade Table Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-upgrade-table-builder
-[Liferay Portal Tools WSDD Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-wsd-builder
+[Liferay Portal Tools WSDD Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/util/portal-tools-wsdd-builder
 [Liferay Source Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/source-formatter
 [Liferay TLD Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/tld-formatter
 [Liferay XML Formatter]: https://github.com/liferay/liferay-portal/tree/master/modules/util/xml-formatter
+[LPS-52675]: https://issues.liferay.com/browse/LPS-52675
 [LPS-58672]: https://issues.liferay.com/browse/LPS-58672
 [LPS-61099]: https://issues.liferay.com/browse/LPS-61099
+[LPS-66222]: https://issues.liferay.com/browse/LPS-66222
 [LPS-66396]: https://issues.liferay.com/browse/LPS-66396
 [LPS-66853]: https://issues.liferay.com/browse/LPS-66853
 [LPS-66906]: https://issues.liferay.com/browse/LPS-66906
@@ -541,5 +634,12 @@ version 2.1.0.
 [LPS-68779]: https://issues.liferay.com/browse/LPS-68779
 [LPS-68838]: https://issues.liferay.com/browse/LPS-68838
 [LPS-68839]: https://issues.liferay.com/browse/LPS-68839
+[LPS-68848]: https://issues.liferay.com/browse/LPS-68848
 [LPS-68917]: https://issues.liferay.com/browse/LPS-68917
+[LPS-68923]: https://issues.liferay.com/browse/LPS-68923
+[LPS-68979]: https://issues.liferay.com/browse/LPS-68979
+[LPS-68980]: https://issues.liferay.com/browse/LPS-68980
+[LPS-68995]: https://issues.liferay.com/browse/LPS-68995
+[LPS-69013]: https://issues.liferay.com/browse/LPS-69013
+[LPS-69026]: https://issues.liferay.com/browse/LPS-69026
 [LRDOCS-3023]: https://issues.liferay.com/browse/LRDOCS-3023

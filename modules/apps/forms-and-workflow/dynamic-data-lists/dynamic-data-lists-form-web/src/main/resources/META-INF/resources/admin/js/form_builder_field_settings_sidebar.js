@@ -48,14 +48,11 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
-						var eventHandlers;
-
-						eventHandlers = [
+						instance._eventHandlers = [
+							A.getDoc().on('click', A.bind(instance._onClickDocument, instance)),
 							instance.after('open', instance._afterSidebarOpen),
 							instance.after('open:start', instance._afterOpenStart)
 						];
-
-						instance._eventHandlers = eventHandlers;
 					},
 
 					destructor: function() {
@@ -85,9 +82,7 @@ AUI.add(
 
 						var settingsForm = instance.settingsForm;
 
-						var settings = field.getSettings(settingsForm);
-
-						return settings;
+						return field.getSettings(settingsForm);
 					},
 
 					getPreviousContext: function() {
@@ -129,12 +124,6 @@ AUI.add(
 
 						var toolbar = instance.get('toolbar');
 
-						if (instance.settingsForm) {
-							instance._hideSettingsForm();
-						}
-
-						instance._showLoading();
-
 						var fieldType = FieldTypes.get(field.get('type'));
 
 						instance.set('description', fieldType.get('label'));
@@ -143,6 +132,21 @@ AUI.add(
 						instance._loadFieldSettingsForm(field);
 
 						toolbar.set('field', field);
+					},
+
+					_bindSettingsFormEvents: function() {
+						var instance = this;
+
+						var settingsForm = instance.settingsForm;
+
+						var labelField = settingsForm.getField('label');
+
+						labelField.after(
+							'valueChange',
+							function() {
+								instance.set('title', labelField.getValue());
+							}
+						);
 					},
 
 					_configureSideBar: function() {
@@ -161,18 +165,17 @@ AUI.add(
 							}
 						);
 
-						var evaluator = settingsForm.get('evaluator');
-
-						evaluator.after(
-							'evaluationStarted',
-							function() {
-								instance.set('title', settingsForm.getField('label').getValue());
-							}
-						);
+						instance._bindSettingsFormEvents();
 
 						settingsForm.render();
 
 						settingsForm.getFirstPageField().focus();
+					},
+
+					_containsNode: function(node) {
+						var instance = this;
+
+						return instance.get('boundingBox').contains(node);
 					},
 
 					_createToolbar: function() {
@@ -187,14 +190,6 @@ AUI.add(
 						return toolbar;
 					},
 
-					_hideSettingsForm: function() {
-						var instance = this;
-
-						var container = instance.settingsForm.get('container');
-
-						container.addClass('invisible');
-					},
-
 					_loadFieldSettingsForm: function(field) {
 						var instance = this;
 
@@ -206,7 +201,6 @@ AUI.add(
 
 								settingsForm.evaluate(
 									function() {
-										instance._showSettingsForm();
 										instance._removeLoading();
 									}
 								);
@@ -226,12 +220,24 @@ AUI.add(
 						);
 					},
 
+					_onClickDocument: function(event) {
+						var instance = this;
+
+						var settingsForm = instance.settingsForm;
+
+						var target = event.target;
+
+						if (instance.get('open') && !instance._containsNode(target) && !settingsForm.hasFocus()) {
+							instance.close();
+						}
+					},
+
 					_removeLoading: function() {
 						var instance = this;
 
 						var boundingBox = instance.get('boundingBox');
 
-						boundingBox.one('.loading-icon').remove();
+						boundingBox.removeClass('loading-data');
 					},
 
 					_saveCurrentContext: function() {
@@ -261,19 +267,14 @@ AUI.add(
 					_showLoading: function() {
 						var instance = this;
 
+						var boundingBox = instance.get('boundingBox');
 						var contentBox = instance.get('contentBox');
 
 						if (!contentBox.one('.loading-icon')) {
 							contentBox.append(TPL_LOADING);
 						}
-					},
 
-					_showSettingsForm: function() {
-						var instance = this;
-
-						var container = instance.settingsForm.get('container');
-
-						container.removeClass('invisible');
+						boundingBox.addClass('loading-data');
 					}
 				}
 			}

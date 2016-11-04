@@ -47,6 +47,10 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 		</aui:nav>
 	</aui:nav-bar>
 
+	<div class="autosave-bar management-bar management-bar-default">
+		<span class="autosave-feedback management-bar-text" id="<portlet:namespace />autosaveMessage"></span>
+	</div>
+
 	<aui:form action="<%= saveRecordSetURL %>" cssClass="ddl-form-builder-form" method="post" name="editForm">
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="recordSetId" type="hidden" value="<%= recordSetId %>" />
@@ -226,6 +230,7 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 									'formPortlet',
 									new Liferay.DDL.Portlet(
 										{
+											autosaveInterval: '<%= ddlFormAdminDisplayContext.getAutosaveInterval() %>',
 											autosaveURL: '<%= saveRecordSetURL.toString() %>',
 											definition: <%= ddlFormAdminDisplayContext.getSerializedDDMForm() %>,
 											description: '<%= HtmlUtil.escapeJS(description) %>',
