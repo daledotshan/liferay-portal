@@ -126,6 +126,22 @@ public class PACLAggregateTest extends AutoBalanceTestCase {
 
 		arguments.add("-Dliferay.mode=test");
 
+		String aspectjAgent = System.getProperty("aspectj.agent");
+
+		if (aspectjAgent != null) {
+			arguments.add(aspectjAgent);
+			arguments.add("-Daspectj.agent=" + aspectjAgent);
+
+			String aspectjConfiguration = System.getProperty(
+				"org.aspectj.weaver.loadtime.configuration");
+
+			if (aspectjConfiguration != null) {
+				arguments.add(
+					"-Dorg.aspectj.weaver.loadtime.configuration=" +
+						aspectjConfiguration);
+			}
+		}
+
 		boolean junitDebug = Boolean.getBoolean("jvm.debug");
 
 		if (junitDebug) {
