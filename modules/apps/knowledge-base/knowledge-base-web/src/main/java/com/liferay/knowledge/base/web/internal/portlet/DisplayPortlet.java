@@ -34,6 +34,7 @@ import com.liferay.knowledge.base.web.internal.selector.KBArticleSelectorFactory
 import com.liferay.portal.kernel.exception.NoSuchSubscriptionException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Release;
+import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
@@ -46,6 +47,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.IOException;
@@ -81,6 +83,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.header-portlet-css=/display/css/main.css",
 		"com.liferay.portlet.icon=/icons/display.png",
 		"com.liferay.portlet.scopeable=true",
+		"com.liferay.portlet.struts-path=knowledge_base",
 		"javax.portlet.display-name=Knowledge Base Display",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.always-send-redirect=true",
@@ -242,6 +245,36 @@ public class DisplayPortlet extends BaseKBPortlet {
 		}
 
 		super.addSuccessMessage(actionRequest, actionResponse);
+	}
+
+	@Override
+	protected void deleteKBArticle(
+			ActionRequest actionRequest, ActionResponse actionResponse,
+			long resourcePrimKey)
+		throws Exception {
+
+		KBArticle kbArticle = kbArticleService.getLatestKBArticle(
+			resourcePrimKey, WorkflowConstants.STATUS_ANY);
+
+		long kbFolderId = kbArticle.getKbFolderId();
+
+		long parentResourcePrimKey = kbArticle.getParentResourcePrimKey();
+
+		super.deleteKBArticle(actionRequest, actionResponse, resourcePrimKey);
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		LiferayPortletURL liferayPortletURL = PortletURLFactoryUtil.create(
+			actionRequest, PortalUtil.getPortletId(actionRequest),
+			themeDisplay.getPlid(), PortletRequest.RENDER_PHASE);
+
+		if (parentResourcePrimKey != kbFolderId) {
+			liferayPortletURL.setParameter(
+				"resourcePrimKey", String.valueOf(parentResourcePrimKey));
+		}
+
+		actionResponse.sendRedirect(liferayPortletURL.toString());
 	}
 
 	@Override
