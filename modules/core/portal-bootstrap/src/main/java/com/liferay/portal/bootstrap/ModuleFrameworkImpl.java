@@ -1001,11 +1001,15 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		if (_log.isDebugEnabled()) {
 			_log.debug("Register application context");
 		}
-
+		
+		System.out.println("---------------- reigster application context ---------------------");
+		
 		List<ServiceRegistration<?>> serviceRegistrations = new ArrayList<>();
 
 		for (String beanName : applicationContext.getBeanDefinitionNames()) {
 			Object bean = null;
+			
+			System.out.println("######################### the bean name is " + beanName);
 
 			try {
 				bean = applicationContext.getBean(beanName);
