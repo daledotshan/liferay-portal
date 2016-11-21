@@ -75,13 +75,11 @@
 
 					<mkdir dir="${tstamp.value}" />
 
-					<unzip
-						dest="${tstamp.value}"
-						src="${test.build.liferay.portal.zip.file.name}"
-					/>
+					<unzip dest="${tstamp.value}" src="${test.build.liferay.portal.zip.file.name}" />
 
 					<copy
 						file="portal-impl/src/portal-ext.properties"
+						overwrite="true"
 						tofile="${tstamp.value}/WEB-INF/classes/portal-ext.properties"
 					/>
 
@@ -91,17 +89,18 @@ module.framework.properties.osgi.console=11312</echo>
 
 					<print-file file.name="${tstamp.value}/WEB-INF/classes/portal-ext.properties" />
 
-					<zip
-						basedir="${tstamp.value}"
-						destfile="${test.build.liferay.portal.zip.file.name}"
-						update="yes"
-					/>
+					<delete file="${test.build.liferay.portal.zip.file.name}" />
+
+					<zip basedir="${tstamp.value}" destfile="${test.build.liferay.portal.zip.file.name}" />
 
 					<delete dir="${tstamp.value}" />
+
+					<var name="tstamp.value" unset="true" />
 				</then>
 				<else>
 					<copy
 						file="portal-impl/src/portal-ext.properties"
+						overwrite="true"
 						tofile="${app.server.classes.portal.dir}/portal-ext.properties"
 					/>
 
@@ -232,6 +231,16 @@ jdbc.counter.maxIdle=0
 jdbc.counter.minIdle=0
 
 counter.jdbc.prefix=jdbc.counter.]]></echo>
+
+			<if>
+				<equals arg1="${database.type}" arg2="oracle" />
+				<then>
+					<echo append="true" file="@{properties.file}"><![CDATA[
+jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_TIMEOUT=0
+
+jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_TIMEOUT=0]]></echo>
+				</then>
+			</if>
 
 			<post-action />
 		</sequential>
@@ -2361,6 +2370,8 @@ ${tomcat-gc-log}
 								"modules/apps/static/portal-lpkg-deployer/portal-lpkg-deployer-test/src/testIntegration/java/com/liferay/portal/lpkg/override/test/LPKGOverrideVerifyTest.java",
 								"modules/apps/static/portal-lpkg-deployer/portal-lpkg-deployer-test/src/testIntegration/java/com/liferay/portal/lpkg/override/test/LPKGRevertOverrideVerifyTest.java",
 								"modules/apps/web-experience/export-import/export-import-resources-importer-test/src/testIntegration/java/com/liferay/exportimport/resources/importer/test/ResourcesImporterTest.java",
+								"modules/private/apps/osb-lcs/**",
+								"modules/private/apps/saml/**",
 								"portal-impl/test/integration/com/liferay/portlet/asset/service/AssetTagStatsServiceTest.java",
 								"portal-impl/test/integration/com/liferay/portlet/documentlibrary/service/persistence/DLFileEntryFinderTest.java",
 								"portal-kernel/test/unit/com/liferay/portal/log/assertor/PortalLogAssertorTest.java",
@@ -2711,6 +2722,8 @@ go</echo>
 		<sequential>
 			<setup-testable-tomcat-logging />
 
+			<setup-testable-tomcat-aspectj-agent />
+
 			<setup-testable-tomcat-jmx />
 
 			<setup-testable-tomcat-jpda-address />
@@ -2718,6 +2731,23 @@ go</echo>
 			<setup-testable-tomcat-manager />
 
 			<setup-testable-tomcat-osgi-modules />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="setup-testable-tomcat-aspectj-agent">
+		<sequential>
+			<if>
+				<not>
+					<resourcecontains resource="${app.server.tomcat.dir}/bin/setenv.sh" substring="${aspectj.agent}" />
+				</not>
+				<then>
+					<echo append="true" file="${app.server.tomcat.dir}/bin/setenv.sh">
+						<![CDATA[
+							CATALINA_OPTS="${CATALINA_OPTS} ${aspectj.agent} -Dorg.aspectj.weaver.loadtime.configuration=${aspectj.configuration}"
+						]]>
+					</echo>
+				</then>
+			</if>
 		</sequential>
 	</macrodef>
 
@@ -2749,7 +2779,7 @@ go</echo>
 						<![CDATA[
 							JMX_OPTS="${testable.tomcat.jmx.opts}"
 
-							CATALINA_OPTS="${CATALINA_OPTS} ${JMX_OPTS}"
+							CATALINA_OPTS="${CATALINA_OPTS} ${JMX_OPTS} -Dsun.zip.disableMemoryMapping=true"
 						]]>
 					</echo>
 				</then>
@@ -3729,6 +3759,12 @@ create database lportal${database.index} character set utf8;</echo>
 							<replacetoken>drop database lportal;</replacetoken>
 							<replacevalue></replacevalue>
 						</replace>
+						<replace file="create.sql">
+							<replacetoken>connect to lportal;</replacetoken>
+							<replacevalue>update db cfg for lportal using logprimary 2;
+update db cfg for lportal using logsecond 254;
+connect to lportal;</replacevalue>
+						</replace>
 					</then>
 					<elseif>
 						<equals arg1="${database.type}" arg2="oracle" />
@@ -3859,6 +3895,7 @@ go]]></replacevalue>
 					<property name="testray.component.names" value="${testray.component.names}" />
 					<property name="testray.main.component.name" value="${testray.main.component.name}" />
 					<property name="testray.team.name" value="${testray.team.name}" />
+					<property name="testray.case.type.name" value="Automated Functional Test" />
 					<property name="testray.testcase.description" value="${testray.testcase.description}" />
 					<property name="testray.testcase.name" value="${testray.testcase.name}" />
 					<property name="testray.testcase.priority" value="${testray.testcase.priority}" />
@@ -3895,6 +3932,7 @@ go]]></replacevalue>
 					<property name="java.jdk.version" value="${java.jdk.version}" />
 					<property name="operating.system.type" value="${operating.system.type}" />
 					<property name="operating.system.version" value="${operating.system.version}" />
+					<property name="test.type" value="Automated Functional Test" />
 					<property name="testray.build.name" value="${testray.build.name}" />
 					<property name="testray.build.time" value="${testray.build.time}" />
 					<property name="testray.build.type" value="${testray.build.type}" />
@@ -4129,8 +4167,6 @@ go]]></replacevalue>
 
 							for (Integer propertyLocation : propertyLocations) {
 								String testrayTestcaseName = testcasePropertyLocations.get(propertyLocation);
-
-								lines.add(propertyLocation, "<property name=\"testray.case.type.name\" value=\"Automated Functional Test\" />");
 
 								if (testcaseFailures.contains(testrayTestcaseName)) {
 									lines.add(propertyLocation, "<property name=\"testray.testcase.status\" value=\"failed\" />");
@@ -4597,6 +4633,52 @@ go]]></replacevalue>
 				/>
 			</then>
 		</if>
+	</target>
+
+	<target name="deploy-osgi-module-configurations">
+		<var name="osgi.module.configurations.index" value="1" />
+
+		<get-testcase-property property.name="osgi.module.configurations" />
+
+		<for list="${osgi.module.configurations}" param="configuration">
+			<sequential>
+				<echo file="${liferay.home}/osgi/configs/${osgi.module.configurations.index}">@{configuration}</echo>
+
+				<math
+					datatype="int"
+					operand1="${osgi.module.configurations.index}"
+					operand2="1"
+					operation="+"
+					result="osgi.module.configurations.index"
+				/>
+			</sequential>
+		</for>
+
+		<var name="osgi.module.configuration.file.names.index" value="1" />
+
+		<get-testcase-property property.name="osgi.module.configuration.file.names" />
+
+		<for list="${osgi.module.configuration.file.names}" param="file.names">
+			<sequential>
+				<if>
+					<available file="${liferay.home}/osgi/configs/${osgi.module.configuration.file.names.index}" />
+					<then>
+							<move
+								file="${liferay.home}/osgi/configs/${osgi.module.configuration.file.names.index}"
+								tofile="${liferay.home}/osgi/configs/@{file.names}"
+							/>
+
+							<math
+								datatype="int"
+								operand1="${osgi.module.configuration.file.names.index}"
+								operand2="1"
+								operation="+"
+								result="osgi.module.configuration.file.names.index"
+							/>
+					</then>
+				</if>
+			</sequential>
+		</for>
 	</target>
 
 	<target name="deploy-osgi-modules">
@@ -5160,6 +5242,68 @@ go]]></replacevalue>
 			</then>
 		</if>
 
+		<beanshell>
+			<![CDATA[
+				import java.io.BufferedReader;
+				import java.io.File;
+				import java.io.IOException;
+
+				BufferedReader bufferedReader = null;
+
+				try {
+					File jenkinsResultsXMLSuiteFile = new File(project.getProperty("jenkins.results.xml.suite.file"));
+
+					bufferedReader = new BufferedReader(new FileReader(jenkinsResultsXMLSuiteFile));
+
+					List lines = new ArrayList();
+
+					int failCount = 0;
+					int lineNumber = 0;
+					int summaryLocation = 0;
+					int totalCount = 0;
+
+					for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
+						lineNumber++;
+
+						lines.add(line);
+
+						if (line.contains("<failure")) {
+							failCount++;
+						}
+						else if (line.contains("<testcase")) {
+							totalCount++;
+						}
+						else if (line.contains("<testsuite")) {
+							summaryLocation = lineNumber;
+						}
+					}
+
+					bufferedReader.close();
+
+					int passCount = totalCount - failCount;
+
+					lines.add(summaryLocation, "\t</summary>");
+					lines.add(summaryLocation, "\t\t<property name=\"FAILED\" value=\"" + Integer.toString(failCount) + "\" />");
+					lines.add(summaryLocation, "\t\t<property name=\"PASSED\" value=\"" + Integer.toString(passCount) + "\" />");
+					lines.add(summaryLocation, "\t<summary>");
+
+					FileWriter fileWriter = new FileWriter(jenkinsResultsXMLSuiteFile);
+
+					BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+					for (String line : lines) {
+						bufferedWriter.write(line);
+						bufferedWriter.write('\n');
+					}
+
+					bufferedWriter.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			]]>
+		</beanshell>
+
 		<if>
 			<isset property="jenkins.testray.results.dir" />
 			<then>
@@ -5494,6 +5638,14 @@ axis.servlet.hosts.allowed=
 
 tunnel.servlet.hosts.allowed=</echo>
 
+		<if>
+			<equals arg1="${database.type}" arg2="oracle" />
+			<then>
+				<echo append="true" file="portal-impl/src/portal-ext.properties"><![CDATA[
+jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_TIMEOUT=0]]></echo>
+			</then>
+		</if>
+
 		<get-testcase-property property.name="captcha.max.challenges" />
 
 		<if>
@@ -5616,6 +5768,43 @@ portal.security.manager.strategy=liferay</echo>
 javascript.fast.load=false</echo>
 			</then>
 		</if>
+
+		<get-testcase-property property.name="blacklist.portal.profile.names.remove" />
+
+		<if>
+			<isset property="blacklist.portal.profile.names.remove" />
+			<then>
+				<beanshell>
+					<![CDATA[
+						StringBuilder sb = new StringBuilder();
+
+						String blacklistPortalProfileNamesString = project.getProperty("blacklist.portal.profile.names");
+
+						List blacklistPortalProfileNames = new ArrayList(Arrays.asList(blacklistPortalProfileNamesString.split(",")));
+
+						String blacklistPortalProfileNamesRemoveString = project.getProperty("blacklist.portal.profile.names.remove");
+
+						List blacklistPortalProfileNamesRemove = new ArrayList(Arrays.asList(blacklistPortalProfileNamesRemoveString.split(",")));
+
+						blacklistPortalProfileNames.removeAll(blacklistPortalProfileNamesRemove);
+
+						for (int i = 0; i < blacklistPortalProfileNames.size(); i++) {
+							sb.append(blacklistPortalProfileNames.get(i));
+
+							if ((i + 1) < blacklistPortalProfileNames.size()) {
+								sb.append(",");
+							}
+						}
+
+						project.setProperty("blacklist.portal.profile.names", sb.toString());
+					]]>
+				</beanshell>
+			</then>
+		</if>
+
+		<echo append="true" file="portal-impl/src/portal-ext.properties">
+
+module.framework.properties.blacklist.portal.profile.names=${blacklist.portal.profile.names}</echo>
 
 		<get-testcase-property property.name="portal.version" />
 
@@ -6051,7 +6240,9 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		<antcall target="prepare-selenium-browser" />
 		<antcall target="prepare-selenium-database-properties" />
 		<antcall target="prepare-selenium-email-properties" />
+		<antcall target="prepare-selenium-facebook-properties" />
 		<antcall target="prepare-selenium-google-properties" />
+		<antcall target="prepare-selenium-openid-properties" />
 		<antcall target="prepare-selenium-required-properties" />
 		<antcall target="prepare-selenium-testcase-properties" />
 
@@ -6823,6 +7014,44 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		</if>
 	</target>
 
+	<target name="prepare-selenium-facebook-properties">
+		<if>
+			<isset property="facebook.application.id" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					facebook.application.id=${facebook.application.id}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="facebook.application.secret" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					facebook.application.secret=${facebook.application.secret}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="facebook.email" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					facebook.email=${facebook.email}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="facebook.password" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					facebook.password=${facebook.password}
+				</echo>
+			</then>
+		</if>
+	</target>
+
 	<target name="prepare-selenium-google-properties">
 		<if>
 			<isset property="google.api.key" />
@@ -6847,6 +7076,26 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
 					google.client.secret=${google.client.secret}
+				</echo>
+			</then>
+		</if>
+	</target>
+
+	<target name="prepare-selenium-openid-properties">
+		<if>
+			<isset property="openid.password" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.password=${openid.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="openid.username" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					openid.username=${openid.username}
 				</echo>
 			</then>
 		</if>
@@ -8374,13 +8623,13 @@ jdbc.default.password=${database.mysql.password}</echo>
 					<then>
 						<exec executable="/bin/bash" os="${os.unix}" outputproperty="cmis.repository.vm.host.name">
 							<arg value="-c" />
-							<arg value="curl &quot;http://it.liferay.com/osb-ici-controller-web/vm/allocation/borrow?leaseTime=600000&amp;resourceType=qa%2E${cmis.repository.type}&quot;" />
+							<arg value="curl &quot;http://it.liferay.com/osb-ici-controller-web/vm/allocation/borrow?leaseTime=900000&amp;resourceType=qa%2E${cmis.repository.type}&quot;" />
 						</exec>
 					</then>
 					<else>
 						<exec executable="cmd" outputproperty="cmis.repository.vm.host.name">
 							<arg value="/c" />
-							<arg value="curl &quot;http://it.liferay.com/osb-ici-controller-web/vm/allocation/borrow?leaseTime=600000&amp;resourceType=qa%2E${cmis.repository.type}&quot;" />
+							<arg value="curl &quot;http://it.liferay.com/osb-ici-controller-web/vm/allocation/borrow?leaseTime=900000&amp;resourceType=qa%2E${cmis.repository.type}&quot;" />
 						</exec>
 					</else>
 				</if>
@@ -8444,6 +8693,15 @@ jdbc.default.password=${database.mysql.password}</echo>
 			</then>
 		</if>
 
+		<get-testcase-property property.name="openam.enabled" />
+
+		<if>
+			<equals arg1="${openam.enabled}" arg2="true" />
+			<then>
+				<ant antfile="build-test-authentication.xml" target="setup-openam" />
+			</then>
+		</if>
+
 		<get-testcase-property property.name="remote.elasticsearch.enabled" />
 
 		<if>
@@ -8487,6 +8745,19 @@ jdbc.default.password=${database.mysql.password}</echo>
 		</antcall>
 
 		<antcall target="deploy-extra-apps" />
+
+		<get-testcase-property property.name="osgi.module.configuration.file.names" />
+		<get-testcase-property property.name="osgi.module.configurations" />
+
+		<if>
+			<and>
+				<isset property="osgi.module.configuration.file.names" />
+				<isset property="osgi.module.configurations" />
+			</and>
+			<then>
+				<antcall target="deploy-osgi-module-configurations" />
+			</then>
+		</if>
 
 		<get-testcase-property property.name="app.server.bundles.size" />
 
@@ -8535,12 +8806,12 @@ jdbc.default.password=${database.mysql.password}</echo>
 				<get-testcase-property property.name="themes.delayed.deployment" />
 
 				<if>
-					<equals arg1="${themes.delayed.deployment}" arg2="true" />
+					<isset property="themes.delayed.deployment" />
 					<then>
 						<mkdir dir="${liferay.home}/tmp" />
 
 						<move todir="${liferay.home}/tmp">
-							<fileset dir="${liferay.home}/deploy" includes="*-theme.war" />
+							<fileset dir="${liferay.home}/deploy" includes="${themes.delayed.deployment}" />
 						</move>
 					</then>
 				</if>
@@ -8586,10 +8857,10 @@ jdbc.default.password=${database.mysql.password}</echo>
 				</if>
 
 				<if>
-					<equals arg1="${themes.delayed.deployment}" arg2="true" />
+					<isset property="themes.delayed.deployment" />
 					<then>
 						<move todir="${liferay.home}/deploy">
-							<fileset dir="${liferay.home}/tmp" includes="*-theme.war" />
+							<fileset dir="${liferay.home}/tmp" includes="${themes.delayed.deployment}" />
 						</move>
 
 						<delete dir="${liferay.home}/tmp" failonerror="false" />
@@ -8678,12 +8949,28 @@ jdbc.default.password=${database.mysql.password}</echo>
 			</then>
 		</if>
 
+		<get-testcase-property property.name="openam.enabled" />
+
+		<if>
+			<equals arg1="${openam.enabled}" arg2="true" />
+			<then>
+				<ant antfile="build-test-authentication.xml" target="delete-openam-config" />
+			</then>
+		</if>
+
 		<get-testcase-property property.name="remote.elasticsearch.enabled" />
 
 		<if>
 			<equals arg1="${remote.elasticsearch.enabled}" arg2="true" />
 			<then>
 				<print-file file.name="${elasticsearch.dir}/logs/LiferayElasticsearchCluster.log" />
+
+				<get
+					dest="${elasticsearch.dir}/logs/LiferayElasticsearchClusterMappings.log"
+					src="http://localhost:9200/_all/_mapping?pretty"
+				/>
+
+				<print-file file.name="${elasticsearch.dir}/logs/LiferayElasticsearchClusterMappings.log" />
 
 				<ant antfile="build-test-elasticsearch.xml" target="stop-elasticsearch" />
 			</then>

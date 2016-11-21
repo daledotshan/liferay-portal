@@ -16,6 +16,7 @@ package com.liferay.jenkins.results.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Peter Yoo
@@ -43,11 +44,12 @@ public class ModulesIntegrationBatchBuild extends BatchBuild {
 	public void update() {
 		super.update();
 
-		if (badBuildNumbers.size() > 0) {
+		if (_notificationSent) {
 			return;
 		}
 
-		Build arquillianErrorAxisBuild = null;
+		Build reinvokeErrorAxisBuild = null;
+		String reinvokeErrorMarker = null;
 
 		for (Build axisBuild : getDownstreamBuilds("completed")) {
 			if (verifiedAxisBuilds.contains(axisBuild)) {
@@ -64,33 +66,89 @@ public class ModulesIntegrationBatchBuild extends BatchBuild {
 
 			String axisBuildConsoleText = axisBuild.getConsoleText();
 
-			if (axisBuildConsoleText.contains(_ARQUILLIAN_ERROR_MARKER)) {
-				arquillianErrorAxisBuild = axisBuild;
+			for (int i = 1; hasReinvokeErrorMarker(i); i++) {
+				if (axisBuildConsoleText.contains(getReinvokeErrorMarker(i))) {
+					reinvokeErrorAxisBuild = axisBuild;
+					reinvokeErrorMarker = getReinvokeErrorMarker(i);
 
-				break;
+					break;
+				}
 			}
 
-			verifiedAxisBuilds.add(axisBuild);
+			if (reinvokeErrorAxisBuild == null) {
+				verifiedAxisBuilds.add(axisBuild);
+			}
 		}
 
-		if (arquillianErrorAxisBuild != null) {
+		if (reinvokeErrorAxisBuild != null) {
 			StringBuilder sb = new StringBuilder();
+			String subject = "Arquillian broken connection failure";
 
-			sb.append("Arquillian broken connection failure ");
-			sb.append("detected at ");
-			sb.append(arquillianErrorAxisBuild.getBuildURL());
-			sb.append(". This batch will be reinvoked.");
+			if (badBuildNumbers.size() == 0) {
+				sb.append("Arquillian broken connection failure ");
+				sb.append("detected at ");
+				sb.append(reinvokeErrorAxisBuild.getBuildURL());
+				sb.append(". This batch will be reinvoked.");
+				sb.append("\n\nError marker:\n");
+				sb.append(reinvokeErrorMarker);
 
-			System.out.println(sb);
+				System.out.println(sb);
 
-			reinvoke();
+				reinvoke();
+			}
+			else {
+				subject = "Second " + subject;
+
+				List<String> badBuildURLs = getBadBuildURLs();
+
+				sb.append("Second Arquillian broken connection failure ");
+				sb.append("detected at ");
+				sb.append(reinvokeErrorAxisBuild.getBuildURL());
+				sb.append(". Previous failure was at ");
+				sb.append(badBuildURLs.get(0));
+				sb.append("\n\nError marker:\n");
+				sb.append(reinvokeErrorMarker);
+
+				System.out.println(sb);
+			}
+
+			try {
+				JenkinsResultsParserUtil.sendEmail(
+					sb.toString(),
+					"root@" + JenkinsResultsParserUtil.getHostName("UNKNOWN"),
+					subject, "peter.yoo@liferay.com, shuyang.zhou@liferay.com");
+
+				_notificationSent = true;
+			}
+			catch (Exception e) {
+				System.out.println(
+					"Unable to send email notification: " + e.getMessage());
+			}
 		}
 	}
 
+	protected String getReinvokedErrorMarkerPropertyName(int index) {
+		return _REINVOKE_ERROR_MARKER_TEMPLATE.replace(
+			"?", Integer.toString(index));
+	}
+
+	protected String getReinvokeErrorMarker(int index) {
+		return buildProperties.getProperty(
+			getReinvokedErrorMarkerPropertyName(index));
+	}
+
+	protected boolean hasReinvokeErrorMarker(int index) {
+		return buildProperties.containsKey(
+			getReinvokedErrorMarkerPropertyName(index));
+	}
+
+	protected Properties buildProperties =
+		JenkinsResultsParserUtil.getBuildProperties();
 	protected List<Build> verifiedAxisBuilds = new ArrayList<>();
 
-	private static final String _ARQUILLIAN_ERROR_MARKER =
-		"org.jboss.arquillian.protocol.jmx.JMXMethodExecutor.invoke(" +
-			"JMXMethodExecutor.java";
+	private static final String _REINVOKE_ERROR_MARKER_TEMPLATE =
+		"reinvoke.error.marker[modules-integration-?]";
+
+	private boolean _notificationSent;
 
 }

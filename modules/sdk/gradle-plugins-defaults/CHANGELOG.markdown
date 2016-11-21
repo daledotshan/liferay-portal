@@ -576,19 +576,100 @@ version, update the `npm-shrinkwrap.json` and `package.json` files accordingly.
 ### Changed
 - [LPS-68917]: Update the [Liferay Gradle Plugins] dependency to version 3.0.23.
 
+## 1.2.73 - 2016-10-25
+
+### Changed
+- [LPS-52675]: Update the [Liferay Gradle Plugins] dependency to version 3.0.25.
+
+## 1.2.74 - 2016-10-25
+
+### Added
+- [LPS-68935]: Set the Maven description to the project description when
+publishing.
+
+## 1.2.75 - 2016-10-26
+
+### Changed
+- [LPS-68917]: Update the [Liferay Gradle Plugins] dependency to version 3.0.26.
+
+## 1.2.76 - 2016-10-27
+
+### Changed
+- [LPS-68980]: Update the [Liferay Gradle Plugins] dependency to version 3.0.27.
+
+## 1.2.77 - 2016-10-28
+
+*No changes.*
+
+## 1.2.78 - 2016-10-31
+
+### Changed
+- [LPS-69013]: Update the [Liferay Gradle Plugins] dependency to version 3.0.29.
+
+## 1.2.79 - 2016-10-31
+
+### Changed
+- [LPS-69013]: Update the [Liferay Gradle Plugins] dependency to version 3.0.30.
+
+## 1.2.80 - 2016-11-01
+
+### Changed
+- [LPS-68293]: Update the [Liferay Gradle Plugins] dependency to version 3.0.31.
+
+## 1.2.81 - 2016-11-01
+
+### Changed
+- [LPS-69026]: Update the [Liferay Gradle Plugins] dependency to version 3.0.32.
+
+## 1.2.82 - 2016-11-02
+
+### Changed
+- [LPS-68293]: Update the [Liferay Gradle Plugins] dependency to version 3.0.33.
+
+## 1.2.83 - 2016-11-03
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins] dependency to version 3.0.34.
+
+## 1.2.84 - 2016-11-03
+
+### Changed
+- [LPS-68298]: Update the [Liferay Gradle Plugins] dependency to version 3.0.35.
+
+## 1.2.85 - 2016-11-04
+
+### Changed
+- [LPS-68298]: Update the [Liferay Gradle Plugins] dependency to version 3.0.36.
+
+## 2.0.0 - 2016-11-17
+
+### Changed
+- [LPS-66762]: Apply [Liferay Gradle Plugins Baseline].
+- [LPS-67573]: Make most methods private in order to reduce API surface.
+- [LPS-69223]: Update the [Liferay Gradle Plugins] dependency to version 3.0.37.
+
+### Removed
+- [LPS-66762]: The `BaselineTask` class is no longer available. Use the class in
+[Liferay Gradle Plugins Baseline] instead.
+- [LPS-67573]: Remove all deprecated methods.
+
 [Liferay CDN]: https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public
 [Liferay Gradle Plugins]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins
 [Liferay Gradle Plugins App Javadoc Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-app-javadoc-builder
+[Liferay Gradle Plugins Baseline]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-baseline
 [Liferay Gradle Plugins Node]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-node
+[LPS-52675]: https://issues.liferay.com/browse/LPS-52675
 [LPS-58672]: https://issues.liferay.com/browse/LPS-58672
 [LPS-61099]: https://issues.liferay.com/browse/LPS-61099
 [LPS-66396]: https://issues.liferay.com/browse/LPS-66396
 [LPS-66396]: https://issues.liferay.com/browse/LPS-66396
+[LPS-66762]: https://issues.liferay.com/browse/LPS-66762
 [LPS-66853]: https://issues.liferay.com/browse/LPS-66853
 [LPS-66906]: https://issues.liferay.com/browse/LPS-66906
 [LPS-67023]: https://issues.liferay.com/browse/LPS-67023
 [LPS-67352]: https://issues.liferay.com/browse/LPS-67352
 [LPS-67434]: https://issues.liferay.com/browse/LPS-67434
+[LPS-67573]: https://issues.liferay.com/browse/LPS-67573
 [LPS-67658]: https://issues.liferay.com/browse/LPS-67658
 [LPS-67694]: https://issues.liferay.com/browse/LPS-67694
 [LPS-67766]: https://issues.liferay.com/browse/LPS-67766
@@ -600,7 +681,9 @@ version, update the `npm-shrinkwrap.json` and `package.json` files accordingly.
 [LPS-68014]: https://issues.liferay.com/browse/LPS-68014
 [LPS-68131]: https://issues.liferay.com/browse/LPS-68131
 [LPS-68230]: https://issues.liferay.com/browse/LPS-68230
+[LPS-68293]: https://issues.liferay.com/browse/LPS-68293
 [LPS-68297]: https://issues.liferay.com/browse/LPS-68297
+[LPS-68298]: https://issues.liferay.com/browse/LPS-68298
 [LPS-68305]: https://issues.liferay.com/browse/LPS-68305
 [LPS-68306]: https://issues.liferay.com/browse/LPS-68306
 [LPS-68334]: https://issues.liferay.com/browse/LPS-68334
@@ -623,6 +706,11 @@ version, update the `npm-shrinkwrap.json` and `package.json` files accordingly.
 [LPS-68838]: https://issues.liferay.com/browse/LPS-68838
 [LPS-68839]: https://issues.liferay.com/browse/LPS-68839
 [LPS-68917]: https://issues.liferay.com/browse/LPS-68917
+[LPS-68935]: https://issues.liferay.com/browse/LPS-68935
+[LPS-68980]: https://issues.liferay.com/browse/LPS-68980
+[LPS-69013]: https://issues.liferay.com/browse/LPS-69013
+[LPS-69026]: https://issues.liferay.com/browse/LPS-69026
+[LPS-69223]: https://issues.liferay.com/browse/LPS-69223
 [LRDOCS-2594]: https://issues.liferay.com/browse/LRDOCS-2594
 [LRDOCS-2841]: https://issues.liferay.com/browse/LRDOCS-2841
 [LRDOCS-2981]: https://issues.liferay.com/browse/LRDOCS-2981
