@@ -28,7 +28,9 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.tools.ToolsUtil;
 import com.liferay.source.formatter.util.FileUtil;
 
+import com.liferay.source.formatter.util.ThreadSafeClassLibrary;
 import com.thoughtworks.qdox.JavaDocBuilder;
+import com.thoughtworks.qdox.model.DefaultDocletTagFactory;
 import com.thoughtworks.qdox.model.JavaMethod;
 
 import java.io.File;
@@ -327,7 +329,8 @@ public class JavaClass {
 			return;
 		}
 
-		JavaDocBuilder javaDocBuilder = new JavaDocBuilder();
+		JavaDocBuilder javaDocBuilder = new JavaDocBuilder(
+			new DefaultDocletTagFactory(), new ThreadSafeClassLibrary());
 
 		javaDocBuilder.addSource(_file);
 
@@ -349,6 +352,7 @@ public class JavaClass {
 	}
 
 	protected void checkConstructorParameterOrder(JavaTerm javaTerm) {
+		String previousParameterName = null;
 		int previousPos = -1;
 
 		for (String parameterName : javaTerm.getParameterNames()) {
@@ -370,16 +374,32 @@ public class JavaClass {
 
 			int pos = matcher.start(2);
 
-			if (previousPos > pos) {
-				_javaSourceProcessor.processMessage(
-					_fileName,
-					"Follow constructor parameter order '" + parameterName +
-						"'");
+			if (previousPos < pos) {
+				previousParameterName = parameterName;
+				previousPos = pos;
 
-				return;
+				continue;
 			}
 
-			previousPos = pos;
+			StringBundler sb = new StringBundler(9);
+
+			sb.append("'_");
+			sb.append(previousParameterName);
+			sb.append(" = ");
+			sb.append(previousParameterName);
+			sb.append(";' should come before '_");
+			sb.append(parameterName);
+			sb.append(" = ");
+			sb.append(parameterName);
+			sb.append(";' to match order of constructor parameters");
+
+			_javaSourceProcessor.processMessage(
+				_fileName, sb.toString(),
+				javaTerm.getLineCount() - 1 +
+					_javaSourceProcessor.getLineCount(
+						javaTerm.getContent(), matcher.start(2)));
+
+			return;
 		}
 	}
 

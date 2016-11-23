@@ -1,6 +1,6 @@
 Bundle-Name: Liferay Portal Tools Service Builder
 Bundle-SymbolicName: com.liferay.portal.tools.service.builder
-Bundle-Version: 1.0.134
+Bundle-Version: 1.0.136
 Import-Package:\
 	!javax.portlet.*,\
 	\
@@ -11,7 +11,6 @@ Import-Package:\
 	*
 Main-Class: com.liferay.portal.tools.service.builder.ServiceBuilder
 -includeresource:\
-	com/liferay/blogs/service.xml=../../../modules/apps/collaboration/blogs/blogs-service/service.xml,\
 	com/liferay/dynamic/data/lists/service.xml=../../../modules/apps/forms-and-workflow/dynamic-data-lists/dynamic-data-lists-service/service.xml,\
 	com/liferay/dynamic/data/mapping/service.xml=../../../modules/apps/forms-and-workflow/dynamic-data-mapping/dynamic-data-mapping-service/service.xml,\
 	com/liferay/journal/service.xml=../../../modules/apps/web-experience/journal/journal-service/service.xml,\
@@ -30,9 +29,6 @@ Main-Class: com.liferay.portal.tools.service.builder.ServiceBuilder
 	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/tools/ImportsFormatter.class,\
 	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/tools/JavaImportsFormatter.class,\
 	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/tools/ToolsUtil.class,\
-	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/tools/sourceformatter/ImportPackage.class,\
-	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/tools/sourceformatter/ImportsFormatter.class,\
-	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/tools/sourceformatter/JavaImportsFormatter.class,\
 	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/util/EntityResolver.class,\
 	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portal/xml/SAXReaderFactory.class,\
 	@com.liferay.portal.impl-[0-9]*.jar!/com/liferay/portlet/announcements/service.xml,\

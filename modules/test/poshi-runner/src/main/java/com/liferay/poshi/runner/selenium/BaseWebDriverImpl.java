@@ -1714,6 +1714,12 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
+	public void javaScriptClick(String locator) {
+		WebDriverHelper.executeJavaScriptEvent(
+			this, locator, "MouseEvent", "click");
+	}
+
+	@Override
 	public void javaScriptMouseDown(String locator) {
 		WebDriverHelper.executeJavaScriptEvent(
 			this, locator, "MouseEvent", "mousedown");
@@ -2832,7 +2838,7 @@ public abstract class BaseWebDriverImpl implements LiferaySelenium, WebDriver {
 	}
 
 	@Override
-	public void typeEditor(String locator, String value) throws Exception {
+	public void typeEditor(String locator, String value) {
 		WebDriverHelper.typeEditor(this, locator, value);
 	}
 
