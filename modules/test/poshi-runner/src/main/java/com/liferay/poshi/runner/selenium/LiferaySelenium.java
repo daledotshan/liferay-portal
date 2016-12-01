@@ -395,6 +395,8 @@ public interface LiferaySelenium {
 
 	public boolean isVisible(String locator);
 
+	public void javaScriptClick(String locator);
+
 	public void javaScriptMouseDown(String locator);
 
 	public void javaScriptMouseUp(String locator);
@@ -609,7 +611,7 @@ public interface LiferaySelenium {
 
 	public void typeCKEditor(String locator, String value);
 
-	public void typeEditor(String locator, String value) throws Exception;
+	public void typeEditor(String locator, String value);
 
 	public void typeKeys(String locator, String value);
 
