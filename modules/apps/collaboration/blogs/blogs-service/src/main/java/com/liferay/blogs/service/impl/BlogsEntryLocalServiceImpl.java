@@ -112,6 +112,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -295,7 +296,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		// Entry
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 		long groupId = serviceContext.getScopeGroupId();
 		int status = WorkflowConstants.STATUS_DRAFT;
 
@@ -430,7 +431,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 
 		Date displayDate = PortalUtil.getDate(
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
@@ -720,7 +721,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public BlogsEntry fetchEntry(long groupId, String urlTitle) {
-		Group group = groupPersistence.fetchByPrimaryKey(groupId);
+		Group group = groupLocalService.fetchGroup(groupId);
 
 		FriendlyURL friendlyURL = friendlyURLLocalService.fetchFriendlyURL(
 			group.getCompanyId(), groupId, BlogsEntry.class, urlTitle);
@@ -803,7 +804,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public BlogsEntry getEntry(long groupId, String urlTitle)
 		throws PortalException {
 
-		Group group = groupPersistence.fetchByPrimaryKey(groupId);
+		Group group = groupLocalService.fetchGroup(groupId);
 
 		FriendlyURL friendlyURL = friendlyURLLocalService.fetchFriendlyURL(
 			group.getCompanyId(), groupId, BlogsEntry.class, urlTitle);
@@ -1387,7 +1388,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 
 		Date displayDate = PortalUtil.getDate(
 			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
@@ -1449,7 +1450,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		// Entry
 
-		User user = userPersistence.findByPrimaryKey(userId);
+		User user = userLocalService.getUser(userId);
 		Date now = new Date();
 
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
@@ -1791,6 +1792,23 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		return portletURL.toString();
 	}
 
+	protected String getLayoutFullURL(
+			ThemeDisplay themeDisplay, ServiceContext serviceContext)
+		throws PortalException {
+
+		String layoutFullURL = null;
+
+		if (themeDisplay != null) {
+			layoutFullURL = PortalUtil.getLayoutFullURL(themeDisplay);
+		}
+
+		if (Validator.isNull(layoutFullURL)) {
+			layoutFullURL = serviceContext.getLayoutFullURL();
+		}
+
+		return layoutFullURL;
+	}
+
 	/**
 	 * @deprecated As of 1.1.0, with no direct replacement
 	 */
@@ -1836,7 +1854,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return;
 		}
 
-		Group group = groupPersistence.findByPrimaryKey(entry.getGroupId());
+		Group group = groupLocalService.getGroup(entry.getGroupId());
 
 		String entryTitle = entry.getTitle();
 
@@ -1874,8 +1892,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			"[$BLOGS_ENTRY_CREATE_DATE$]",
 			Time.getSimpleDate(entry.getCreateDate(), "yyyy/MM/dd"),
 			"[$BLOGS_ENTRY_DESCRIPTION$]", entry.getDescription(),
-			"[$BLOGS_ENTRY_SITE_NAME$]",
-			group.getDescriptiveName(serviceContext.getLocale()),
 			"[$BLOGS_ENTRY_STATUS_BY_USER_NAME$]", entry.getStatusByUserName(),
 			"[$BLOGS_ENTRY_TITLE$]", entryTitle,
 			"[$BLOGS_ENTRY_UPDATE_COMMENT$]",
@@ -1899,6 +1915,10 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			subscriptionSender.setLocalizedBodyMap(
 				LocalizationUtil.getMap(bodyLocalizedValuesMap));
 		}
+
+		subscriptionSender.setLocalizedContextAttribute(
+			"[$BLOGS_ENTRY_SITE_NAME$]",
+			locale -> _getGroupDescriptiveName(group, locale));
 
 		if (subjectLocalizedValuesMap != null) {
 			subscriptionSender.setLocalizedSubjectMap(
@@ -1972,7 +1992,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return;
 		}
 
-		Group group = groupPersistence.findByPrimaryKey(entry.getGroupId());
+		Group group = groupLocalService.getGroup(entry.getGroupId());
 
 		StringBundler sb = new StringBundler(6);
 
@@ -2023,7 +2043,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		String layoutFullURL = PortalUtil.getLayoutFullURL(themeDisplay);
+		String layoutFullURL = getLayoutFullURL(themeDisplay, serviceContext);
 
 		if (Validator.isNull(layoutFullURL)) {
 			return;
@@ -2071,7 +2091,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		String layoutFullURL = PortalUtil.getLayoutFullURL(themeDisplay);
+		String layoutFullURL = getLayoutFullURL(themeDisplay, serviceContext);
 
 		if (Validator.isNull(layoutFullURL)) {
 			return;
@@ -2086,10 +2106,10 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			layoutFullURL + Portal.FRIENDLY_URL_SEPARATOR + "blogs/" +
 				entry.getUrlTitle();
 
-		parts.put("title", entry.getTitle());
-		parts.put("excerpt", excerpt);
-		parts.put("url", url);
 		parts.put("blog_name", entry.getUserName());
+		parts.put("excerpt", excerpt);
+		parts.put("title", entry.getTitle());
+		parts.put("url", url);
 
 		Set<String> trackbacksSet = null;
 
@@ -2155,7 +2175,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		String userURL = StringPool.BLANK;
 
 		if (serviceContext.getThemeDisplay() != null) {
-			User user = userPersistence.findByPrimaryKey(userId);
+			User user = userLocalService.getUser(userId);
 
 			userPortraitURL = user.getPortraitURL(
 				serviceContext.getThemeDisplay());
@@ -2261,6 +2281,20 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@ServiceReference(type = FriendlyURLLocalService.class)
 	protected FriendlyURLLocalService friendlyURLLocalService;
+
+	private String _getGroupDescriptiveName(Group group, Locale locale) {
+		try {
+			return group.getDescriptiveName(locale);
+		}
+		catch (PortalException pe) {
+			_log.error(
+				"Unable to get descriptive name for group " +
+					group.getGroupId(),
+				pe);
+		}
+
+		return StringPool.BLANK;
+	}
 
 	private String _getUniqueUrlTitle(BlogsEntry entry) throws PortalException {
 		String urlTitle = BlogsUtil.getUrlTitle(

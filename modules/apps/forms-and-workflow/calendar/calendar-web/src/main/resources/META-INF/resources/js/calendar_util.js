@@ -56,31 +56,6 @@ AUI.add(
 		var CalendarUtil = {
 			NOTIFICATION_DEFAULT_TYPE: 'email',
 
-			adjustSchedulerEventDisplayTime: function(schedulerEvent) {
-				var instance = this;
-
-				var allDay = schedulerEvent.get('allDay');
-
-				var timeAdjuster = instance.toLocalTime;
-
-				if (allDay) {
-					timeAdjuster = instance.toLocalTimeWithoutUserTimeZone;
-				}
-
-				var endDate = schedulerEvent.get('endDate');
-				var startDate = schedulerEvent.get('startDate');
-
-				schedulerEvent.setAttrs(
-					{
-						endDate: timeAdjuster.call(instance, endDate),
-						startDate: timeAdjuster.call(instance, startDate)
-					},
-					{
-						silent: true
-					}
-				);
-			},
-
 			createSchedulerEvent: function(calendarBooking) {
 				var instance = this;
 
@@ -236,13 +211,13 @@ AUI.add(
 				A.each(
 					schedulerEvents,
 					function(schedulerEvent) {
-						if (calendarBooking.status === CalendarWorkflow.STATUS_DENIED) {
+						if (schedulerEvent.isRecurring()) {
 							var scheduler = schedulerEvent.get('scheduler');
 
-							var eventRecorder = scheduler.get('eventRecorder');
+							scheduler.load();
+						}
 
-							eventRecorder.hidePopover();
-
+						if (calendarBooking.status === CalendarWorkflow.STATUS_DENIED) {
 							CalendarUtil.destroyEvent(schedulerEvent);
 						}
 						else {

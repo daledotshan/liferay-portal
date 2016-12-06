@@ -14,11 +14,10 @@
 
 package com.liferay.portal.verify.model;
 
-import com.liferay.blogs.kernel.model.BlogsEntry;
 import com.liferay.portal.kernel.verify.model.VerifiableResourcedModel;
 
 /**
- * @author Brian Wing Shun Chan
+ * @author     Brian Wing Shun Chan
  * @deprecated As of 7.0.0, replaced by {@link
  *             com.liferay.blogs.internal.verify.model.BlogsEntryVerifiableModel}
  */
@@ -27,7 +26,7 @@ public class BlogsEntryVerifiableModel implements VerifiableResourcedModel {
 
 	@Override
 	public String getModelName() {
-		return BlogsEntry.class.getName();
+		return "com.liferay.blogs.kernel.model.BlogsEntry";
 	}
 
 	@Override

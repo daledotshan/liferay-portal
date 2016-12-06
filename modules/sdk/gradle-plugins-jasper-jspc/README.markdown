@@ -7,6 +7,8 @@ can be useful to
 - check for errors in the JSP files.
 - pre-compile the JSP files for better performance.
 
+The plugin has been successfully tested with Gradle 2.5 up to 3.2.1.
+
 ## Usage
 
 To use the plugin, include it in your build script:
@@ -117,7 +119,7 @@ manually adding a dependency to the `jspCTool` configuration:
 
 ```gradle
 dependencies {
-	jspCTool group: "com.liferay", name: "com.liferay.jasper.jspc", version: "1.0.7"
+	jspCTool group: "com.liferay", name: "com.liferay.jasper.jspc", version: "1.0.9"
 	jspCTool group: "org.apache.ant", name: "ant", version: "1.9.4"
 }
 ```

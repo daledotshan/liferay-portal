@@ -71,11 +71,22 @@ AUI.add(
 
 					content: {
 						getter: function(val) {
+							var content = val;
+
 							if (val) {
-								val = LString.escapeHTML(val);
+								content = LString.escapeHTML(val);
 							}
 
-							return val;
+							return content;
+						},
+						setter: function(val) {
+							var content = val;
+
+							if (val) {
+								content = LString.unescapeHTML(val);
+							}
+
+							return content;
 						}
 					},
 
@@ -411,7 +422,7 @@ AUI.add(
 
 							var remoteServices = scheduler.get('remoteServices');
 
-							remoteServices.updateCalendarColor(calendarId, parseInt(color.substr(1), 16));
+							remoteServices.updateCalendarColor(calendarId, color);
 						}
 						else {
 							Liferay.Store('com.liferay.calendar.web_calendar' + calendarId + 'Color', color);
