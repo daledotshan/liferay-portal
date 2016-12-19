@@ -44,12 +44,24 @@ value.
 ## 1.4.0 - 2016-11-29
 
 ### Added
-- [LPS-69445]: Add property `useGradleExec` to all tasks that extend
+- [LPS-69445]: Add the `useGradleExec` property to all tasks that extend
 `ExecuteNodeTask`. If `true`, Node.js is invoked via [`project.exec`](https://docs.gradle.org/current/dsl/org.gradle.api.Project.html#org.gradle.api.Project:exec(org.gradle.api.Action)),
 which can solve hanging problems with the Gradle Daemon.
+
+## 1.4.1 - 2016-12-08
+
+### Fixed
+- [LPS-69618]: Disable the up-to-date check for the `npmInstall` task.
+
+## 1.4.2 - 2016-12-14
+
+### Fixed
+- [LPS-69677]: Fix problem with `ExecuteNpmTask` when `node.download = false`.
 
 [LPS-66906]: https://issues.liferay.com/browse/LPS-66906
 [LPS-67023]: https://issues.liferay.com/browse/LPS-67023
 [LPS-67573]: https://issues.liferay.com/browse/LPS-67573
 [LPS-68564]: https://issues.liferay.com/browse/LPS-68564
 [LPS-69445]: https://issues.liferay.com/browse/LPS-69445
+[LPS-69618]: https://issues.liferay.com/browse/LPS-69618
+[LPS-69677]: https://issues.liferay.com/browse/LPS-69677
