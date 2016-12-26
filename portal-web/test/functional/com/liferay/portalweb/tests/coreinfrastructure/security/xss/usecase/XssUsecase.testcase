@@ -1,5 +1,6 @@
 <definition component-name="portal-security">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="XSS" />
 
 	<set-up>
@@ -321,7 +322,7 @@
 	</command>
 
 	<command name="ViewWikiNoXSS" priority="5">
-		<property name="portal.acceptance" value="quarantine" />
+		<property name="portal.acceptance" value="true" />
 
 		<execute macro="Page#gotoMyAccount">
 			<var name="portletName" value="Account Settings" />

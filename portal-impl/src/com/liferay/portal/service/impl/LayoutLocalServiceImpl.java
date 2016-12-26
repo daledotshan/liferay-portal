@@ -341,7 +341,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			userId, layout, serviceContext.getAssetCategoryIds(),
 			serviceContext.getAssetTagNames());
 
-		return layout;
+		return layoutLocalService.getLayout(layout.getPlid());
 	}
 
 	/**
@@ -982,6 +982,14 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 
 		return layoutPersistence.fetchByG_P_F(
 			groupId, privateLayout, friendlyURL);
+	}
+
+	@Override
+	public Layout fetchLayoutByIconImageId(
+			boolean privateLayout, long iconImageId)
+		throws PortalException {
+
+		return layoutPersistence.fetchByP_I(privateLayout, iconImageId);
 	}
 
 	/**
