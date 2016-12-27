@@ -32,7 +32,7 @@
 			<type>boolean</type>
 		</attribute>
 		<attribute>
-			<name>templateKey</name>
+			<name>ddmTemplateKey</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
