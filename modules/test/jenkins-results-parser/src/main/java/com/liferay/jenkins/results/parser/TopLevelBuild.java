@@ -17,6 +17,8 @@ package com.liferay.jenkins.results.parser;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.json.JSONObject;
+
 /**
  * @author Kevin Yen
  */
@@ -40,6 +42,11 @@ public class TopLevelBuild extends BaseBuild {
 	}
 
 	@Override
+	public JSONObject getTestReportJSONObject() {
+		return null;
+	}
+
+	@Override
 	public void update() {
 		long start = System.currentTimeMillis();
 
@@ -48,19 +55,38 @@ public class TopLevelBuild extends BaseBuild {
 		_updateDuration = System.currentTimeMillis() - start;
 	}
 
-	protected TopLevelBuild(String url) throws Exception {
+	protected TopLevelBuild(String url) {
 		this(url, null);
 	}
 
-	protected TopLevelBuild(String url, TopLevelBuild topLevelBuild)
-		throws Exception {
-
+	protected TopLevelBuild(String url, TopLevelBuild topLevelBuild) {
 		super(url, topLevelBuild);
 	}
 
 	@Override
 	protected ExecutorService getExecutorService() {
 		return Executors.newFixedThreadPool(20);
+	}
+
+	@Override
+	protected String getStopPropertiesTempMapURL() {
+		if (fromArchive) {
+			return getBuildURL() + "/stop-properties.json";
+		}
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(
+			"http://cloud-10-0-0-31.lax.liferay.com/osb-jenkins-web/map/");
+		sb.append(getMaster());
+		sb.append("/");
+		sb.append(getJobName());
+		sb.append("/");
+		sb.append(getBuildNumber());
+		sb.append("/");
+		sb.append("stop.properties");
+
+		return sb.toString();
 	}
 
 	private long _updateDuration;
