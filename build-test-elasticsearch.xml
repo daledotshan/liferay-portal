@@ -184,7 +184,8 @@ subjectKeyIdentifier = hash</echo>
 				<arg value="liferay" />
 			</exec>
 
-			<echo file="${elasticsearch.dir}/config/elasticsearch.yml" append="true">shield.authc:
+			<echo append="true" file="${elasticsearch.dir}/config/elasticsearch.yml">
+shield.authc:
   realms:
       esusers:
           type: esusers
@@ -519,7 +520,8 @@ shield.transport.ssl: true</echo>
 	</macrodef>
 
 	<target name="configure-elasticsearch-osgi-bundle-properties">
-		<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch.configuration.ElasticsearchConfiguration.cfg">operationMode=REMOTE</echo>
+		<echo file="${liferay.home}/osgi/configs/com.liferay.portal.search.elasticsearch.configuration.ElasticsearchConfiguration.cfg">operationMode=REMOTE
+logExceptionsOnly=false</echo>
 	</target>
 
 	<target name="configure-shield-osgi-bundle-properties">
@@ -548,6 +550,8 @@ username=liferay</echo>
 			<replacetoken><![CDATA[# cluster.name: my-application]]></replacetoken>
 			<replacevalue><![CDATA[cluster.name: LiferayElasticsearchCluster]]></replacevalue>
 		</replace>
+
+		<echo append="true" file="${elasticsearch.dir}/config/elasticsearch.yml">action.auto_create_index: .marvel-*,.security</echo>
 
 		<antcall target="configure-elasticsearch-osgi-bundle-properties" />
 
