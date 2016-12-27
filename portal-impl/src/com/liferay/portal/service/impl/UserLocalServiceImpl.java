@@ -422,12 +422,17 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param userId the primary key of the user
 	 */
 	@Override
-	public void addGroupUser(long groupId, long userId) throws PortalException {
+	public void addGroupUser(long groupId, long userId) {
 		groupPersistence.addUser(groupId, userId);
 
-		reindex(userId);
+		try {
+			reindex(userId);
 
-		addDefaultRolesAndTeams(groupId, new long[] {userId});
+			addDefaultRolesAndTeams(groupId, new long[] {userId});
+		}
+		catch (PortalException pe) {
+			throw new SystemException(pe);
+		}
 	}
 
 	/**
@@ -437,7 +442,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param user the user
 	 */
 	@Override
-	public void addGroupUser(long groupId, User user) throws PortalException {
+	public void addGroupUser(long groupId, User user) {
 		addGroupUser(groupId, user.getUserId());
 	}
 
@@ -446,6 +451,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 *
 	 * @param groupId the primary key of the group
 	 * @param users the users
+	 * @throws PortalException
 	 */
 	@Override
 	public void addGroupUsers(long groupId, List<User> users)
@@ -484,12 +490,15 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param userId the primary key of the user
 	 */
 	@Override
-	public void addOrganizationUser(long organizationId, long userId)
-		throws PortalException {
-
+	public void addOrganizationUser(long organizationId, long userId) {
 		organizationPersistence.addUser(organizationId, userId);
 
-		reindex(userId);
+		try {
+			reindex(userId);
+		}
+		catch (SearchException se) {
+			throw new SystemException(se);
+		}
 	}
 
 	/**
@@ -499,12 +508,15 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param user the user
 	 */
 	@Override
-	public void addOrganizationUser(long organizationId, User user)
-		throws PortalException {
-
+	public void addOrganizationUser(long organizationId, User user) {
 		organizationPersistence.addUser(organizationId, user);
 
-		reindex(user);
+		try {
+			reindex(user);
+		}
+		catch (SearchException se) {
+			throw new SystemException(se);
+		}
 	}
 
 	/**
@@ -557,10 +569,15 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param userId the primary key of the user
 	 */
 	@Override
-	public void addRoleUser(long roleId, long userId) throws PortalException {
+	public void addRoleUser(long roleId, long userId) {
 		rolePersistence.addUser(roleId, userId);
 
-		reindex(userId);
+		try {
+			reindex(userId);
+		}
+		catch (SearchException se) {
+			throw new SystemException(se);
+		}
 	}
 
 	/**
@@ -570,10 +587,15 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param user the user
 	 */
 	@Override
-	public void addRoleUser(long roleId, User user) throws PortalException {
+	public void addRoleUser(long roleId, User user) {
 		rolePersistence.addUser(roleId, user);
 
-		reindex(user);
+		try {
+			reindex(user);
+		}
+		catch (SearchException se) {
+			throw new SystemException(se);
+		}
 	}
 
 	/**
@@ -581,6 +603,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 *
 	 * @param roleId the primary key of the role
 	 * @param users the users
+	 * @throws PortalException
 	 */
 	@Override
 	public void addRoleUsers(long roleId, List<User> users)
@@ -613,10 +636,15 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param userId the primary key of the user
 	 */
 	@Override
-	public void addTeamUser(long teamId, long userId) throws PortalException {
+	public void addTeamUser(long teamId, long userId) {
 		teamPersistence.addUser(teamId, userId);
 
-		reindex(userId);
+		try {
+			reindex(userId);
+		}
+		catch (SearchException se) {
+			throw new SystemException(se);
+		}
 	}
 
 	/**
@@ -626,10 +654,15 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 * @param user the user
 	 */
 	@Override
-	public void addTeamUser(long teamId, User user) throws PortalException {
+	public void addTeamUser(long teamId, User user) {
 		teamPersistence.addUser(teamId, user);
 
-		reindex(user);
+		try {
+			reindex(user);
+		}
+		catch (SearchException se) {
+			throw new SystemException(se);
+		}
 	}
 
 	/**
@@ -637,6 +670,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 *
 	 * @param teamId the primary key of the team
 	 * @param users the users
+	 * @throws PortalException
 	 */
 	@Override
 	public void addTeamUsers(long teamId, List<User> users)
@@ -757,16 +791,19 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 */
 	@Override
 	@SuppressWarnings("deprecation")
-	public void addUserGroupUser(long userGroupId, long userId)
-		throws PortalException {
+	public void addUserGroupUser(long userGroupId, long userId) {
+		try {
+			if (PropsValues.USER_GROUPS_COPY_LAYOUTS_TO_USER_PERSONAL_SITE) {
+				userGroupLocalService.copyUserGroupLayouts(userGroupId, userId);
+			}
 
-		if (PropsValues.USER_GROUPS_COPY_LAYOUTS_TO_USER_PERSONAL_SITE) {
-			userGroupLocalService.copyUserGroupLayouts(userGroupId, userId);
+			userGroupPersistence.addUser(userGroupId, userId);
+
+			reindex(userId);
 		}
-
-		userGroupPersistence.addUser(userGroupId, userId);
-
-		reindex(userId);
+		catch (PortalException pe) {
+			throw new SystemException(pe);
+		}
 	}
 
 	/**
@@ -777,9 +814,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	 */
 	@Override
 	@SuppressWarnings("deprecation")
-	public void addUserGroupUser(long userGroupId, User user)
-		throws PortalException {
-
+	public void addUserGroupUser(long userGroupId, User user) {
 		addUserGroupUser(userGroupId, user.getUserId());
 	}
 
@@ -799,7 +834,12 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			userIds.add(user.getUserId());
 		}
 
-		addUserGroupUsers(userGroupId, ArrayUtil.toLongArray(userIds));
+		try {
+			addUserGroupUsers(userGroupId, ArrayUtil.toLongArray(userIds));
+		}
+		catch (PortalException pe) {
+			throw new SystemException(pe);
+		}
 	}
 
 	/**
@@ -6172,7 +6212,12 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		Indexer<User> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			User.class);
 
-		indexer.reindex(users);
+		try {
+			indexer.reindex(users);
+		}
+		catch (SearchException se) {
+			throw new SystemException(se);
+		}
 	}
 
 	protected void reindex(long userId) throws SearchException {
