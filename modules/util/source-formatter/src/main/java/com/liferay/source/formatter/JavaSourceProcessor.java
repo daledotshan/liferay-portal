@@ -193,31 +193,30 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	}
 
 	protected void checkBndInheritAnnotationOption() {
-		for (Map.Entry<String, Tuple> entry :
-				_bndInheritRequiredTupleMap.entrySet()) {
+		Map<String, BNDSettings> bndSettingsMap = getBNDSettingsMap();
 
-			String bndFileLocation = entry.getKey();
+		for (Map.Entry<String, BNDSettings> entry : bndSettingsMap.entrySet()) {
+			BNDSettings bndSettings = entry.getValue();
 
-			Tuple bndInheritTuple = entry.getValue();
+			String content = bndSettings.getContent();
+			String fileLocation = bndSettings.getFileLocation();
+			boolean inheritRequired = bndSettings.isInheritRequired();
 
-			String bndContent = (String)bndInheritTuple.getObject(0);
-			boolean bndInheritRequired = (Boolean)bndInheritTuple.getObject(1);
-
-			if (bndContent.contains("-dsannotations-options: inherit")) {
+			if (content.contains("-dsannotations-options: inherit")) {
 				/*
-				if (!bndInheritRequired) {
+				if (!inheritRequired) {
 					printError(
-						bndFileLocation,
+						fileLocation,
 						"Redundant '-dsannotations-options: inherit': " +
-							bndFileLocation + "bnd.bnd");
+							fileLocation + "bnd.bnd");
 				}
 				*/
 			}
-			else if (bndInheritRequired) {
+			else if (inheritRequired) {
 				printError(
-					bndFileLocation,
-					"Add '-dsannotations-options: inherit': " +
-						bndFileLocation + "bnd.bnd");
+					fileLocation,
+					"Add '-dsannotations-options: inherit': " + fileLocation +
+						"bnd.bnd");
 			}
 		}
 	}
@@ -269,7 +268,42 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
-	protected void checkIndentationAndLineBreaks(
+	protected void checkInternalImports(
+		String fileName, String absolutePath, String content) {
+
+		if (absolutePath.contains("/modules/core/") ||
+			absolutePath.contains("/modules/util/") ||
+			fileName.contains("/test/") ||
+			fileName.contains("/testIntegration/")) {
+
+			return;
+		}
+
+		Matcher matcher = _internalImportPattern.matcher(content);
+
+		int pos = -1;
+
+		while (matcher.find()) {
+			if (pos == -1) {
+				pos = absolutePath.lastIndexOf("/com/liferay/");
+			}
+
+			String expectedImportFileLocation =
+				absolutePath.substring(0, pos + 13) +
+					StringUtil.replace(matcher.group(1), ".", "/") + ".java";
+
+			File file = new File(expectedImportFileLocation);
+
+			if (!file.exists()) {
+				processMessage(
+					fileName,
+					"Do not import internal class from another module",
+					getLineCount(content, matcher.start(1)));
+			}
+		}
+	}
+
+	protected void checkLineBreaks(
 		String line, String previousLine, String fileName, int lineCount) {
 
 		String trimmedLine = StringUtil.trimLeading(line);
@@ -298,48 +332,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				lineCount - 1);
 		}
 
-		if ((lineLeadingTabCount == previousLineLeadingTabCount) &&
-			(previousLine.endsWith(StringPool.EQUAL) ||
-			 previousLine.endsWith(StringPool.OPEN_PARENTHESIS))) {
-
-			processMessage(fileName, "Line should be indented", lineCount);
-		}
-
-		if (Validator.isNotNull(previousLine) &&
-			!previousLine.matches(
-				".*\t(abstract|else|extends|for|if|implements|private|" +
-					"protected|public|try|while) .*") &&
-			(previousLineLeadingTabCount <= (lineLeadingTabCount - 2))) {
-
-			processMessage(fileName, "Incorrect indent", lineCount);
-		}
-
-		if (Validator.isNotNull(trimmedLine)) {
-			int expectedTabCount = -1;
-
-			if (previousLine.endsWith(StringPool.OPEN_CURLY_BRACE) &&
-				!trimmedLine.startsWith(StringPool.CLOSE_CURLY_BRACE)) {
-
-				expectedTabCount = previousLineLeadingTabCount + 1;
-			}
-			else if (previousLine.matches(".*\t(for|if|try) .*[(:]")) {
-				expectedTabCount = previousLineLeadingTabCount + 2;
-			}
-			else if (previousLine.matches(".*\t(else if|while) .*[(:]")) {
-				expectedTabCount = previousLineLeadingTabCount + 3;
-			}
-
-			if ((expectedTabCount != -1) &&
-				(lineLeadingTabCount != expectedTabCount)) {
-
-				processMessage(
-					fileName,
-					"Line starts with " + lineLeadingTabCount +
-						" tabs, but should be " + expectedTabCount,
-					lineCount);
-			}
-		}
-
 		if (previousLine.endsWith(StringPool.PERIOD)) {
 			int x = trimmedLine.indexOf(CharPool.OPEN_PARENTHESIS);
 
@@ -350,15 +342,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 				processMessage(fileName, "Incorrect line break", lineCount);
 			}
-		}
-
-		int diff = lineLeadingTabCount - previousLineLeadingTabCount;
-
-		if ((previousLine.contains("\tthrows ") && (diff == 0)) ||
-			(trimmedLine.startsWith("throws ") &&
-			 ((diff == 0) || (diff > 1)))) {
-
-			processMessage(fileName, "incorrect indent", lineCount);
 		}
 
 		String strippedQuotesLine = stripQuotes(trimmedLine);
@@ -521,41 +504,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
-	protected void checkInternalImports(
-		String fileName, String absolutePath, String content) {
-
-		if (absolutePath.contains("/modules/core/") ||
-			absolutePath.contains("/modules/util/") ||
-			fileName.contains("/test/") ||
-			fileName.contains("/testIntegration/")) {
-
-			return;
-		}
-
-		Matcher matcher = _internalImportPattern.matcher(content);
-
-		int pos = -1;
-
-		while (matcher.find()) {
-			if (pos == -1) {
-				pos = absolutePath.lastIndexOf("/com/liferay/");
-			}
-
-			String expectedImportFileLocation =
-				absolutePath.substring(0, pos + 13) +
-					StringUtil.replace(matcher.group(1), ".", "/") + ".java";
-
-			File file = new File(expectedImportFileLocation);
-
-			if (!file.exists()) {
-				processMessage(
-					fileName,
-					"Do not import internal class from another module",
-					getLineCount(content, matcher.start(1)));
-			}
-		}
-	}
-
 	protected void checkLogLevel(String content, String fileName) {
 		if (fileName.contains("Log")) {
 			return;
@@ -618,7 +566,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	protected void checkSystemEventAnnotations(String content, String fileName)
 		throws Exception {
 
-		if (!portalSource || !fileName.endsWith("PortletDataHandler.java")) {
+		if ((!portalSource && !subrepository) ||
+			!fileName.endsWith("PortletDataHandler.java")) {
+
 			return;
 		}
 
@@ -718,7 +668,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		// LPS-34911
 
-		if (portalSource &&
+		if ((portalSource ||subrepository) &&
 			!isExcludedPath(_UPGRADE_SERVICE_UTIL_EXCLUDES, absolutePath) &&
 			fileName.contains("/portal/upgrade/") &&
 			!fileName.contains("/test/") &&
@@ -992,7 +942,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			processMessage(fileName, "package");
 		}
 
-		if (portalSource && !_allowUseServiceUtilInServiceImpl &&
+		if ((portalSource ||subrepository) &&
+			!_allowUseServiceUtilInServiceImpl &&
 			!fileName.contains("/wsrp/internal/bind/") &&
 			!className.equals("BaseServiceImpl") &&
 			className.endsWith("ServiceImpl") &&
@@ -1121,7 +1072,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		// LPS-47648
 
-		if (portalSource &&
+		if ((portalSource || subrepository) &&
 			(fileName.contains("/test/integration/") ||
 			 fileName.contains("/testIntegration/java"))) {
 
@@ -1181,7 +1132,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					"LPS-55690");
 		}
 
-		if (portalSource && isModulesFile(absolutePath) &&
+		if ((portalSource || subrepository) && isModulesFile(absolutePath) &&
 			packagePath.startsWith("com.liferay")) {
 
 			newContent = formatModulesFile(
@@ -1243,7 +1194,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		// LPS-65213
 
-		if (portalSource) {
+		if (portalSource || subrepository) {
 			checkVerifyUpgradeConnection(fileName, className, newContent);
 		}
 
@@ -1351,7 +1302,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	protected List<String> doGetFileNames() throws Exception {
 		Collection<String> fileNames = null;
 
-		if (portalSource) {
+		if (portalSource || subrepository) {
 			fileNames = getPortalJavaFiles();
 
 			_checkRegistryInTestClasses = GetterUtil.getBoolean(
@@ -2435,6 +2386,11 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 				String trimmedLine = StringUtil.trimLeading(line);
 
+				if (trimmedLine.startsWith(StringPool.SEMICOLON)) {
+					processMessage(
+						fileName, "Line should not start with ';'", lineCount);
+				}
+
 				if (!trimmedLine.startsWith(StringPool.DOUBLE_SLASH) &&
 					!trimmedLine.startsWith(StringPool.STAR)) {
 
@@ -2660,7 +2616,12 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 					ifClause = ifClause + line + StringPool.NEW_LINE;
 
-					if (line.endsWith(") {")) {
+					String trimmedIfClause = StringUtil.trim(ifClause);
+
+					if (line.endsWith(") {") ||
+						(line.endsWith(StringPool.SEMICOLON) &&
+						 trimmedIfClause.startsWith("while "))) {
+
 						String newIfClause = formatIfClause(
 							ifClause, fileName, lineCount);
 
@@ -2674,11 +2635,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 						ifClause = StringPool.BLANK;
 					}
 					else if (line.endsWith(StringPool.SEMICOLON)) {
-						String trimmedIfClause = StringUtil.trim(ifClause);
-
-						if (!trimmedIfClause.startsWith("while ") &&
-							!trimmedIfClause.contains("{\t")) {
-
+						if (!trimmedIfClause.contains("{\t")) {
 							processMessage(
 								fileName, "Incorrect if statement", lineCount);
 						}
@@ -2723,7 +2680,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 						}
 					}
 					else {
-						checkIndentationAndLineBreaks(
+						checkLineBreaks(
 							line, previousLine, fileName, lineCount);
 
 						if (!trimmedLine.startsWith("//") &&
@@ -3299,6 +3256,13 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 						if (Validator.isNull(nextLine) ||
 							nextLine.endsWith(") {")) {
 
+							if (trimmedPreviousLine.startsWith("try (") &&
+								trimmedLine.startsWith("new ") &&
+								(getLevel(nextLine) == -1)) {
+
+								return null;
+							}
+
 							processMessage(
 								fileName,
 								"'" + trimmedLine + "' should be added to " +
@@ -3335,16 +3299,25 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			}
 		}
 
-		if (((trimmedLine.length() + previousLineLength) <= _maxLineLength) &&
-			((previousLine.endsWith(StringPool.PERIOD) &&
-			  !line.endsWith(StringPool.OPEN_PARENTHESIS)) ||
-			 ((previousLine.endsWith(StringPool.OPEN_BRACKET) ||
-			   previousLine.endsWith(StringPool.OPEN_PARENTHESIS)) &&
-			  line.endsWith(StringPool.SEMICOLON)))) {
+		if ((trimmedLine.length() + previousLineLength) <= _maxLineLength) {
+			if (previousLine.endsWith(StringPool.OPEN_PARENTHESIS) &&
+				line.endsWith(") {") && (getLevel(line) < 0)) {
 
-			return getCombinedLinesContent(
-				content, fileName, line, trimmedLine, lineLength, lineCount,
-				previousLine, null, false, false, 0);
+				return getCombinedLinesContent(
+					content, fileName, line, trimmedLine, lineLength, lineCount,
+					previousLine, null, false, false, 0);
+			}
+
+			if ((previousLine.endsWith(StringPool.PERIOD) &&
+				 !line.endsWith(StringPool.OPEN_PARENTHESIS)) ||
+				((previousLine.endsWith(StringPool.OPEN_BRACKET) ||
+				  previousLine.endsWith(StringPool.OPEN_PARENTHESIS)) &&
+				 line.endsWith(StringPool.SEMICOLON))) {
+
+				return getCombinedLinesContent(
+					content, fileName, line, trimmedLine, lineLength, lineCount,
+					previousLine, null, false, false, 0);
+			}
 		}
 
 		if (previousLine.endsWith(StringPool.EQUAL) &&
@@ -4168,8 +4141,12 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		// Find suppressions file in portal-impl/src/
 
 		if (portalSource) {
-			suppressionsFiles.add(
-				getFile("portal-impl/src/" + fileName, PORTAL_MAX_DIR_LEVEL));
+			File suppressionsFile = getFile(
+				"portal-impl/src/" + fileName, PORTAL_MAX_DIR_LEVEL);
+
+			if (suppressionsFile != null) {
+				suppressionsFiles.add(suppressionsFile);
+			}
 		}
 
 		// Find suppressions files in any parent directory
@@ -4177,7 +4154,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		int maxDirLevel = PLUGINS_MAX_DIR_LEVEL;
 		String parentDirName = sourceFormatterArgs.getBaseDirName();
 
-		if (portalSource) {
+		if (portalSource || subrepository) {
 			maxDirLevel = PORTAL_MAX_DIR_LEVEL - 1;
 			parentDirName += "../";
 		}
@@ -4192,7 +4169,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			parentDirName += "../";
 		}
 
-		if (!portalSource) {
+		if (!portalSource && !subrepository) {
 			return suppressionsFiles;
 		}
 
@@ -4498,22 +4475,17 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			String fileName, boolean bndInheritRequired)
 		throws Exception {
 
-		Tuple bndFileLocationAndContentTuple =
-			getBNDFileLocationAndContentTuple(fileName);
+		BNDSettings bndSettings = getBNDSettings(fileName);
 
-		String bndFileLocation =
-			(String)bndFileLocationAndContentTuple.getObject(0);
-
-		Tuple bndInheritTuple = _bndInheritRequiredTupleMap.get(
-			bndFileLocation);
-
-		if ((bndInheritTuple == null) || bndInheritRequired) {
-			String bndContent =
-				(String)bndFileLocationAndContentTuple.getObject(1);
-
-			_bndInheritRequiredTupleMap.put(
-				bndFileLocation, new Tuple(bndContent, bndInheritRequired));
+		if (bndSettings == null) {
+			return;
 		}
+
+		if (bndInheritRequired) {
+			bndSettings.setInheritRequired(bndInheritRequired);
+		}
+
+		putBNDSettings(bndSettings);
 	}
 
 	protected String sortExceptions(String content) {
@@ -4614,8 +4586,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		"(\n\t*.* =) (new \\w*\\[\\] \\{)\n(\t*)(.+)\n\t*(\\};)\n");
 	private final Pattern _assertEqualsPattern = Pattern.compile(
 		"Assert\\.assertEquals\\((.*?)\\);\n", Pattern.DOTALL);
-	private final Map<String, Tuple> _bndInheritRequiredTupleMap =
-		new ConcurrentHashMap<>();
 	private final Pattern _catchExceptionPattern = Pattern.compile(
 		"\n(\t+)catch \\((.+Exception) (.+)\\) \\{\n");
 	private boolean _checkRegistryInTestClasses;

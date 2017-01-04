@@ -52,9 +52,6 @@ AUI.add(
 						valueFn: '_valueFormBuilder'
 					},
 
-					formURL: {
-					},
-
 					getFieldTypeSettingFormContextURL: {
 						value: ''
 					},
@@ -75,12 +72,18 @@ AUI.add(
 						value: 0
 					},
 
+					restrictedFormURL: {
+					},
+
 					ruleBuilder: {
 						valueFn: '_valueRuleBuilder'
 					},
 
 					rules: {
 						value: []
+					},
+
+					sharedFormURL: {
 					}
 				},
 
@@ -89,20 +92,6 @@ AUI.add(
 				EXTENDS: A.Base,
 
 				NAME: 'liferay-ddl-portlet',
-
-				openDDMDataProvider: function(dataProviderURL) {
-					Liferay.Util.openWindow(
-						{
-							dialog: {
-								cssClass: 'dynamic-data-mapping-data-providers-modal',
-								destroyOnHide: true
-							},
-							id: 'ddmDataProvider',
-							title: Liferay.Language.get('data-providers'),
-							uri: dataProviderURL
-						}
-					);
-				},
 
 				prototype: {
 					initializer: function() {
@@ -154,12 +143,13 @@ AUI.add(
 							instance.after('autosave', instance._afterAutosave),
 							formBuilder._layoutBuilder.after('layout-builder:moveEnd', A.bind(instance._afterFormBuilderLayoutBuilderMoveEnd, instance)),
 							formBuilder._layoutBuilder.after('layout-builder:moveStart', A.bind(instance._afterFormBuilderLayoutBuilderMoveStart, instance)),
-							instance.one('.btn-cancel').on('click', A.bind('_onCancel', instance)),
+							instance.one('.back-url-link').on('click', A.bind('_onBack', instance)),
 							instance.one('#preview').on('click', A.bind('_onPreviewButtonClick', instance)),
 							instance.one('#publish').on('click', A.bind('_onPublishButtonClick', instance)),
 							instance.one('#save').on('click', A.bind('_onSaveButtonClick', instance)),
 							instance.one('#showRules').on('click', A.bind('_onRulesButtonClick', instance)),
 							instance.one('#showForm').on('click', A.bind('_onFormButtonClick', instance)),
+							instance.one('#requireAuthenticationCheckbox').on('change', A.bind('_onRequireAuthenticationCheckboxChanged', instance)),
 							Liferay.on('destroyPortlet', A.bind('_onDestroyPortlet', instance))
 						];
 
@@ -254,9 +244,9 @@ AUI.add(
 
 						return {
 							definition: definition,
-							description: instance.get('description'),
+							description: instance.get('description').trim(),
 							layout: layout,
-							name: instance.get('name'),
+							name: instance.get('name').trim(),
 							rules: rules
 						};
 					},
@@ -279,7 +269,7 @@ AUI.add(
 						var dialog = Liferay.Util.Window.getWindow(
 							{
 								dialog: {
-									bodyContent: Liferay.Language.get('are-you-sure-you-want-to-cancel'),
+									bodyContent: Liferay.Language.get('any-unsaved-changes-will-be-lost-are-you-sure-you-want-to-leave'),
 									destroyOnHide: true,
 									height: 200,
 									resizable: false,
@@ -287,7 +277,7 @@ AUI.add(
 										footer: [
 											{
 												cssClass: 'btn-lg btn-primary',
-												label: Liferay.Language.get('yes-cancel'),
+												label: Liferay.Language.get('leave'),
 												on: {
 													click: function() {
 														confirm.call(instance, dialog);
@@ -296,7 +286,7 @@ AUI.add(
 											},
 											{
 												cssClass: 'btn-lg btn-link',
-												label: Liferay.Language.get('no-continue'),
+												label: Liferay.Language.get('stay'),
 												on: {
 													click: function() {
 														cancel.call(instance, dialog);
@@ -305,9 +295,9 @@ AUI.add(
 											}
 										]
 									},
-									width: 500
+									width: 600
 								},
-								title: Liferay.Language.get('confirm')
+								title: Liferay.Language.get('leave-form')
 							}
 						);
 
@@ -321,11 +311,15 @@ AUI.add(
 
 						publishCheckbox.setData('previousValue', publishCheckbox.attr('checked'));
 
+						var requireAuthenticationCheckbox = instance.one('#requireAuthenticationCheckbox');
+
+						requireAuthenticationCheckbox.setData('previousValue', requireAuthenticationCheckbox.attr('checked'));
+
 						Liferay.Util.openWindow(
 							{
 								dialog: {
 									cssClass: 'publish-modal-container',
-									height: 400,
+									height: 430,
 									resizable: false,
 									'toolbars.footer': [
 										{
@@ -386,6 +380,12 @@ AUI.add(
 						var publishedField = settingsDDMForm.getField('published');
 
 						publishedField.setValue(publishCheckbox.attr('checked'));
+
+						var requireAuthenticationCheckbox = instance.one('#requireAuthenticationCheckbox');
+
+						var requireAuthenticationField = settingsDDMForm.getField('requireAuthentication');
+
+						requireAuthenticationField.setValue(requireAuthenticationCheckbox.attr('checked'));
 
 						var settings = settingsDDMForm.toJSON();
 
@@ -487,14 +487,31 @@ AUI.add(
 						}
 					},
 
-					_createPreviewURL: function() {
+					_createFormURL: function() {
 						var instance = this;
 
-						var formURL = instance.get('formURL');
+						var formURL;
+
+						var requireAuthenticationCheckbox = instance.one('#requireAuthenticationCheckbox');
+
+						if (requireAuthenticationCheckbox.attr('checked')) {
+							formURL = instance.get('restrictedFormURL');
+						}
+						else {
+							formURL = instance.get('sharedFormURL');
+						}
 
 						var recordSetId = instance.byId('recordSetId').val();
 
-						return formURL + recordSetId + '/preview';
+						return formURL + recordSetId;
+					},
+
+					_createPreviewURL: function() {
+						var instance = this;
+
+						var formURL = instance._createFormURL();
+
+						return formURL   + '/preview';
 					},
 
 					_defineIds: function(response) {
@@ -551,7 +568,7 @@ AUI.add(
 						);
 					},
 
-					_onCancel: function(event) {
+					_onBack: function(event) {
 						var instance = this;
 
 						if (!instance._isSameState(instance.getState(), instance.initialState)) {
@@ -577,6 +594,10 @@ AUI.add(
 						var publishCheckbox = instance.one('#publishCheckbox');
 
 						publishCheckbox.attr('checked', publishCheckbox.getData('previousValue'));
+
+						var requireAuthenticationCheckbox = instance.one('#requireAuthenticationCheckbox');
+
+						requireAuthenticationCheckbox.attr('checked', requireAuthenticationCheckbox.getData('previousValue'));
 
 						Liferay.Util.getWindow(instance.ns('publishModalContainer')).hide();
 					},
@@ -637,6 +658,14 @@ AUI.add(
 						saveAndPublish.set('value', 'true');
 
 						instance.submitForm();
+					},
+
+					_onRequireAuthenticationCheckboxChanged: function() {
+						var instance = this;
+
+						var clipboardInput = instance.one('#clipboard');
+
+						clipboardInput.set('value', instance._createFormURL());
 					},
 
 					_onRulesButtonClick: function() {
