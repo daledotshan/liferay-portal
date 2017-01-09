@@ -424,6 +424,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>LEAVE</td>
+	<td>//button[contains(.,'Leave')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MERGE</td>
 	<td>//button[contains(.,'Merge')]</td>
 	<td></td>
@@ -509,6 +514,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PREVIOUS</td>
+	<td>//button[contains(.,'Previous')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PUBLISH</td>
 	<td>//button[span[contains(.,'Publish')]]</td>
 	<td></td>
@@ -521,11 +531,6 @@
 <tr>
 	<td>PUBLISH_TO_LIVE</td>
 	<td>//button[contains(.,'Publish to Live')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>PUBLISH_REPLY</td>
-	<td>//div[@class='card list-group-card panel']//button[span[contains(.,'Publish')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -701,6 +706,11 @@
 <tr>
 	<td>SOURCE</td>
 	<td>//a[@role='button' and (@title='Source')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>STAY</td>
+	<td>//button[contains(.,'Stay')]</td>
 	<td></td>
 </tr>
 <tr>

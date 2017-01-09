@@ -817,11 +817,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 					else {
 						bundle.uninstall();
 
-						FrameworkWiring frameworkWiring = _framework.adapt(
-							FrameworkWiring.class);
-
-						frameworkWiring.refreshBundles(
-							Collections.singletonList(bundle));
+						_refreshBundles(Collections.singletonList(bundle));
 
 						return null;
 					}
@@ -916,6 +912,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		}
 
 		FileUtil.mkdirs(PropsValues.MODULE_FRAMEWORK_BASE_DIR + "/static");
+		FileUtil.mkdirs(
+			PropsValues.MODULE_FRAMEWORK_MARKETPLACE_DIR + "/override");
 	}
 
 	private Bundle _installInitialBundle(
@@ -993,6 +991,36 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		}
 
 		return false;
+	}
+
+	private void _refreshBundles(List<Bundle> refreshBundles) {
+		FrameworkWiring frameworkWiring = _framework.adapt(
+			FrameworkWiring.class);
+
+		final DefaultNoticeableFuture<FrameworkEvent> defaultNoticeableFuture =
+			new DefaultNoticeableFuture<>();
+
+		frameworkWiring.refreshBundles(
+			refreshBundles,
+			new FrameworkListener() {
+
+				@Override
+				public void frameworkEvent(FrameworkEvent frameworkEvent) {
+					defaultNoticeableFuture.set(frameworkEvent);
+				}
+
+			});
+
+		try {
+			FrameworkEvent frameworkEvent = defaultNoticeableFuture.get();
+
+			if (frameworkEvent.getType() != FrameworkEvent.PACKAGES_REFRESHED) {
+				throw frameworkEvent.getThrowable();
+			}
+		}
+		catch (Throwable t) {
+			ReflectionUtil.throwException(t);
+		}
 	}
 
 	private void _registerApplicationContext(
@@ -1167,10 +1195,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			}
 		}
 
-		FrameworkWiring frameworkWiring = _framework.adapt(
-			FrameworkWiring.class);
-
-		frameworkWiring.refreshBundles(refreshBundles);
+		_refreshBundles(refreshBundles);
 
 		refreshBundles.clear();
 
@@ -1354,15 +1379,6 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		List<String> hostBundleSymbolicNames = new ArrayList<>();
 
 		for (Bundle bundle : installedBundles) {
-			BundleStartLevel bundleStartLevel = bundle.adapt(
-				BundleStartLevel.class);
-
-			if (bundleStartLevel.getStartLevel() !=
-					PropsValues.MODULE_FRAMEWORK_DYNAMIC_INSTALL_START_LEVEL) {
-
-				continue;
-			}
-
 			Dictionary<String, String> headers = bundle.getHeaders();
 
 			String fragmentHost = headers.get(Constants.FRAGMENT_HOST);
@@ -1386,7 +1402,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			}
 		}
 
-		frameworkWiring.refreshBundles(refreshBundles);
+		_refreshBundles(refreshBundles);
 
 		return new HashSet<>(Arrays.asList(initialBundles));
 	}

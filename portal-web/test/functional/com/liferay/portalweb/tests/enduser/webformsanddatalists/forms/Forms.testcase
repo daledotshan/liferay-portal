@@ -1,5 +1,6 @@
 <definition component-name="portal-web-forms-and-data-lists">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Forms" />
 
 	<set-up>
@@ -431,7 +432,7 @@
 		</execute>
 
 		<execute macro="FormFields#viewTextLabel">
-			<var name="fieldLabel" value="Autosave interval" />
+			<var name="fieldLabel" value="Autosave Interval" />
 			<var name="fieldName" value="autosaveInterval" />
 		</execute>
 
@@ -462,7 +463,7 @@
 
 		<execute function="Pause" locator1="60000" />
 
-		<execute macro="Navigator#gotoBack" />
+		<execute macro="FormsAdminNavigator#gotoBack" />
 
 		<execute macro="FormsAdmin#viewNoForms" />
 
@@ -482,7 +483,7 @@
 
 		<execute function="Pause" locator1="120000" />
 
-		<execute macro="Navigator#gotoBack" />
+		<execute macro="FormsAdminNavigator#gotoBack" />
 
 		<execute macro="FormsAdminNavigator#gotoEdit" />
 	</command>
@@ -589,6 +590,179 @@
 			<var name="fieldLabel" value="Data Provider Select Field" />
 			<var name="fieldValue" value="united-states" />
 		</execute>
+	</command>
+
+	<command name="ConfigureJumpToPageRule" priority="5">
+		<description message="This is a use case for LPS-69372." />
+		<property name="portal.acceptance" value="pending" />
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#editName" />
+
+		<execute macro="Form#editPageTitle">
+			<var name="formPageName" value="Page 1" />
+		</execute>
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Single Selection" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Choose Your Destiny" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Destiny1" />
+			<var name="optionValue" value="Destiny 1" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Destiny2" />
+			<var name="optionValue" value="Destiny 2" />
+			<var name="rowNumber" value="2" />
+		</execute>
+
+		<execute macro="FormFields#editOptionsRow">
+			<var name="optionName" value="Destiny3" />
+			<var name="optionValue" value="Destiny 3" />
+			<var name="rowNumber" value="3" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<for list="1,2,3" param="option">
+			<execute macro="Form#addPage" />
+
+			<var method="MathUtil#sum('${option}','1')" name="pageNumber" />
+
+			<execute macro="Form#editPageTitle">
+				<var name="formPageName" value="Page ${pageNumber}" />
+			</execute>
+
+			<execute macro="Form#gotoAddField">
+				<var name="fieldType" value="Text Field" />
+			</execute>
+
+			<execute macro="Form#editFieldLabel">
+				<var name="fieldValue" value="Destiny ${option}" />
+			</execute>
+
+			<execute macro="Form#closeSidebar" />
+		</for>
+
+		<execute macro="FormsAdminNavigator#gotoRules" />
+
+		<execute macro="FormRules#addRule" />
+
+		<execute macro="FormRules#configureConditionOptions">
+			<var name="conditionField" value="Choose Your Destiny" />=
+			<var name="conditionOperator" value="Is equal to" />
+			<var name="conditionRowNumber" value="1" />
+			<var name="conditionValueField" value="Destiny 2" />
+			<var name="conditionValueType" value="Value" />
+		</execute>
+
+		<execute macro="FormRules#configureActionOptions">
+			<var name="action" value="Jump To Page" />
+			<var name="actionRowNumber" value="1" />
+			<var name="actionTarget" value="1" />
+			<var name="actionTarget2" value="3" />
+		</execute>
+
+		<execute macro="FormRules#save" />
+
+		<execute macro="FormRules#addRule" />
+
+		<execute macro="FormRules#configureConditionOptions">
+			<var name="conditionField" value="Choose Your Destiny" />=
+			<var name="conditionOperator" value="Is equal to" />
+			<var name="conditionRowNumber" value="1" />
+			<var name="conditionValueField" value="Destiny 3" />
+			<var name="conditionValueType" value="Value" />
+		</execute>
+
+		<execute macro="FormRules#configureActionOptions">
+			<var name="action" value="Jump To Page" />
+			<var name="actionRowNumber" value="1" />
+			<var name="actionTarget" value="1" />
+			<var name="actionTarget2" value="4" />
+		</execute>
+
+		<execute macro="FormRules#save" />
+
+		<execute macro="FormsAdminNavigator#gotoFormBuilder" />
+
+		<execute macro="FormsAdminNavigator#gotoPublish" />
+
+		<execute macro="Form#clickPublishSwitcher" />
+
+		<execute macro="Form#getPublishedFormPublicURL">
+			<return from="publicURL" name="publicURL" />
+			<var name="publicURL" value="${publicURL}" />
+		</execute>
+
+		<execute macro="Button#clickConfirm" />
+
+		<execute macro="Navigator#openSpecificURL">
+			<var name="url" value="${publicURL}" />
+		</execute>
+
+		<for list="1,2,3" param="option">
+			<execute macro="FormFields#selectRadioOption">
+				<var name="fieldName" value="ChooseYourDestiny" />
+				<var name="radioOption" value="Destiny ${option}" />
+			</execute>
+
+			<var method="MathUtil#sum('${option}','1')" name="pageNumber" />
+
+			<execute macro="FormPortlet#nextPage">
+				<var name="formPageCurrent" value="Page 1" />
+				<var name="formPageNext" value="Page ${pageNumber}" />
+			</execute>
+
+			<execute macro="FormFields#viewTextField">
+				<var name="fieldLabel" value="Destiny ${option}" />
+				<var name="fieldName" value="Destiny${option}" />
+			</execute>
+
+			<execute macro="FormPortlet#previousPage" />
+		</for>
+
+		<execute macro="FormFields#selectRadioOption">
+			<var name="fieldName" value="ChooseYourDestiny" />
+			<var name="radioOption" value="Destiny 2" />
+		</execute>
+
+		<execute macro="FormPortlet#nextPage">
+			<var name="formPageCurrent" value="Page 1" />
+			<var name="formPageNext" value="Page 3" />
+		</execute>
+
+		<execute macro="FormFields#editText">
+			<var name="fieldName" value="Destiny2" />
+			<var name="fieldValue" value="After skipping to page 3" />
+		</execute>
+
+		<execute macro="FormPortlet#nextPage">
+			<var name="formPageCurrent" value="Page 3" />
+			<var name="formPageNext" value="Page 4" />
+		</execute>
+
+		<execute macro="FormFields#editText">
+			<var name="fieldName" value="Destiny3" />
+			<var name="fieldValue" value="Also fill out page 4" />
+		</execute>
+
+		<execute macro="FormPortlet#submitSuccessfully" />
 	</command>
 
 	<command name="ConfigureRequireRule" priority="5">
@@ -1562,7 +1736,7 @@
 			<var name="formName" value="Text" />
 		</execute>
 
-		<execute macro="Navigator#gotoBack" />
+		<execute macro="FormsAdminNavigator#gotoBack" />
 
 		<execute macro="FormsAdminNavigator#gotoAddForm" />
 
@@ -1592,7 +1766,7 @@
 			<var name="formName" value="Checkbox" />
 		</execute>
 
-		<execute macro="Navigator#gotoBack" />
+		<execute macro="FormsAdminNavigator#gotoBack" />
 
 		<execute macro="FormsAdminNavigator#gotoEditFormByName">
 			<var name="formName" value="Text" />
@@ -1740,7 +1914,7 @@
 			<var name="fieldType" value="Multiple Selection" />
 		</execute>
 
-		<for list="1,2,3" param="number">
+		<for list="1,2,3,4" param="number">
 			<execute macro="FormFields#editOptionsRow">
 				<var name="optionName" value="Checkbox${number}" />
 				<var name="optionValue" value="Checkbox ${number}" />
@@ -1773,23 +1947,33 @@
 			<var name="rowNumber" value="3" />
 		</execute>
 
+		<execute macro="FormFields#viewOptionsRowFieldValue">
+			<var name="fieldValue" value="Checkbox 4" />
+			<var name="rowNumber" value="4" />
+		</execute>
+
 		<execute macro="FormFields#deleteOptionsRow">
 			<var name="rowNumber" value="2" />
 		</execute>
 
 		<execute macro="FormFields#moveOptionsRow">
-			<var name="rowNumberEnd" value="1" />
-			<var name="rowNumberStart" value="2" />
-		</execute>
-
-		<execute macro="FormFields#viewOptionsRowFieldValue">
-			<var name="fieldValue" value="Checkbox 2" />
-			<var name="rowNumber" value="1" />
+			<var name="rowNumberEnd" value="2" />
+			<var name="rowNumberStart" value="3" />
 		</execute>
 
 		<execute macro="FormFields#viewOptionsRowFieldValue">
 			<var name="fieldValue" value="Checkbox 3" />
+			<var name="rowNumber" value="1" />
+		</execute>
+
+		<execute macro="FormFields#viewOptionsRowFieldValue">
+			<var name="fieldValue" value="Checkbox 4" />
 			<var name="rowNumber" value="2" />
+		</execute>
+
+		<execute macro="FormFields#viewOptionsRowFieldValue">
+			<var name="fieldValue" value="Checkbox 2" />
+			<var name="rowNumber" value="3" />
 		</execute>
 	</command>
 
@@ -4318,6 +4502,40 @@
 		<execute macro="Form#save" />
 	</command>
 
+	<command name="ViewConfirmationWhenLeavingFormWithoutSaving" priority="3">
+		<description message="This is a use case for LPS-69214." />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#gotoAddField">
+			<var name="fieldType" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field" />
+		</execute>
+
+		<execute macro="Form#closeSidebar" />
+
+		<execute macro="Navigator#gotoBack" />
+
+		<execute function="AssertElementPresent" locator1="Button#LEAVE" />
+
+		<execute function="Click" locator1="Button#STAY" />
+
+		<execute macro="Form#save" />
+
+		<execute macro="Navigator#gotoBack" />
+
+		<execute macro="FormsAdminNavigator#gotoEdit">
+			<var name="formName" value="Untitled Form" />
+		</execute>
+	</command>
+
 	<command name="ViewDefaultFieldNamesWithPunctuationCharacters" priority="4">
 		<description message="This is a use case for LPS-64305." />
 
@@ -4594,7 +4812,7 @@
 
 		<execute macro="Form#viewSaveNotification" />
 
-		<execute macro="Navigator#gotoBack" />
+		<execute macro="FormsAdminNavigator#gotoBack" />
 
 		<execute macro="FormsAdminNavigator#gotoEdit" />
 	</command>

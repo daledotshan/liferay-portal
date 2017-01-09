@@ -253,8 +253,6 @@ mariadb.executable=${mariadb.executable}]]></echo>
 
 			<database-test-action database.type="@{database.type}">
 				<action>
-					<set-portal-impl-portal-ext-properties />
-
 					<set-portal-impl-portal-test-ext-properties />
 
 					<set-portal-impl-system-ext-properties />
@@ -588,7 +586,10 @@ app.server.type=@{app.server.type}]]></echo>
 		<attribute default="" name="test.license.xml.url" />
 		<attribute default="" name="test.plugin.zip.url" />
 		<attribute default="" name="test.plugins.war.zip.url" />
+		<attribute default="" name="test.portal.bundle.dependencies.zip.url" />
+		<attribute default="" name="test.portal.bundle.osgi.zip.url" />
 		<attribute default="" name="test.portal.bundle.version" />
+		<attribute default="" name="test.portal.bundle.war.url" />
 		<attribute default="" name="test.portal.bundle.zip.url" />
 		<attribute default="" name="test.portal.lpkg.name" />
 		<attribute default="" name="test.sql.zip.url" />
@@ -640,7 +641,10 @@ app.server.type=@{app.server.type}]]></echo>
 				<test-set-up>
 					<if>
 						<and>
-							<matches pattern="https?://" string="@{test.portal.bundle.zip.url}" />
+							<or>
+								<matches pattern="https?://" string="@{test.portal.bundle.war.url}" />
+								<matches pattern="https?://" string="@{test.portal.bundle.zip.url}" />
+							</or>
 							<matches pattern="https?://" string="@{test.sql.zip.url}" />
 						</and>
 						<then>
@@ -651,11 +655,19 @@ app.server.type=@{app.server.type}]]></echo>
 								<param name="test.app.server.bin.dir" value="${test.app.server.bin.dir}" />
 								<param name="test.build.bundle.zip.url" value="@{test.portal.bundle.zip.url}" />
 								<param name="test.build.fix.pack.zip.url" value="@{test.build.fix.pack.zip.url}" />
+								<param name="test.build.portal.dependencies.zip.url" value="@{test.portal.bundle.dependencies.zip.url}" />
+								<param name="test.build.portal.osgi.zip.url" value="@{test.portal.bundle.osgi.zip.url}" />
+								<param name="test.build.portal.war.url" value="@{test.portal.bundle.war.url}" />
 								<param name="test.fix.pack.base.url" value="@{test.fix.pack.base.url}" />
 							</antcall>
 
 							<if>
-								<matches pattern="https?://" string="@{test.license.xml.url}" />
+								<and>
+									<matches pattern="https?://" string="@{test.license.xml.url}" />
+									<not>
+										<equals arg1="${test.deploy.license}" arg2="false" />
+									</not>
+								</and>
 								<then>
 									<antcall target="deploy-license-xml">
 										<param name="test.build.license.xml.zip.url" value="@{test.license.xml.url}" />
@@ -671,10 +683,11 @@ app.server.type=@{app.server.type}]]></echo>
 										src="@{test.plugins.war.zip.url}"
 									/>
 
-									<unzip
-										dest="."
-										src="plugins.war.zip"
-									/>
+									<unzip dest="." src="plugins.war.zip">
+										<mapper>
+											<globmapper from="plugins/*" to="plugins/marketplace/*" />
+										</mapper>
+									</unzip>
 
 									<delete file="plugins.war.zip" />
 								</then>
@@ -745,13 +758,6 @@ app.server.type=@{app.server.type}]]></echo>
 								dest="${liferay.home}/deploy"
 								src="@{test.plugin.zip.url}"
 							/>
-						</then>
-					</if>
-
-					<if>
-						<available file="${project.dir}/plugins/@{test.portal.lpkg.name}" />
-						<then>
-							<copy file="${project.dir}/plugins/@{test.portal.lpkg.name}" todir="${liferay.home}/osgi/marketplace" />
 						</then>
 					</if>
 
@@ -1322,12 +1328,6 @@ app.server.type=@{app.server.type}]]></echo>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="run-source-formatter">
-		<sequential>
-			<gradle-execute dir="modules/util/source-formatter" task="test" />
-		</sequential>
-	</macrodef>
-
 	<macrodef name="setup-lpkg-test">
 		<attribute name="database.type" />
 
@@ -1393,16 +1393,34 @@ app.server.type=@{app.server.type}]]></echo>
 		/>
 	</target>
 
-	<target name="functional-bundle-markerplaceapp-smoke-jboss-mysql56-jdk8">
+	<target name="functional-bundle-marketplaceapp-smoke-jboss-mysql56-jdk8">
 		<antcall target="functional-bundle-jboss-mysql56-jdk8" />
 	</target>
 
-	<target name="functional-bundle-markerplaceapp-smoke-tomcat-mysql56-jdk8">
+	<target name="functional-bundle-marketplaceapp-smoke-tomcat-mysql56-jdk8">
 		<antcall target="functional-bundle-tomcat-mysql56-jdk8" />
 	</target>
 
-	<target name="functional-bundle-markerplaceapp-smoke-wildfly-mysql56-jdk8">
+	<target name="functional-bundle-marketplaceapp-smoke-wildfly-mysql56-jdk8">
 		<antcall target="functional-bundle-wildfly-mysql56-jdk8" />
+	</target>
+
+	<target name="functional-bundle-tomcat-mariadb100-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="mariadb"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
 	</target>
 
 	<target name="functional-bundle-tomcat-mysql56-jdk7">
@@ -1441,11 +1459,81 @@ app.server.type=@{app.server.type}]]></echo>
 		/>
 	</target>
 
+	<target name="functional-bundle-tomcat-oracle121-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="oracle"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-bundle-tomcat-postgresql94-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="postgresql"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-bundle-tomcat-sybase160-jdk8">
+		<set-tomcat-version-number liferay.portal.bundle="${test.portal.bundle.version}" />
+
+		<run-functional-test
+			app.server.type="tomcat"
+			database.type="sybase"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.version="${test.portal.bundle.version}"
+			test.portal.bundle.zip.url="${test.portal.bundle.zip.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
+	<target name="functional-bundle-weblogic-mysql56-jdk8">
+		<run-functional-test
+			app.server.type="weblogic"
+			database.type="mysql"
+			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
+			test.fix.pack.base.url="${test.fix.pack.base.url}"
+			test.license.xml.url="${test.license.xml.url}"
+			test.plugin.zip.url="${test.plugin.zip.url}"
+			test.plugins.war.zip.url="${test.plugins.war.zip.url}"
+			test.portal.bundle.dependencies.zip.url="${test.portal.bundle.dependencies.zip.url}"
+			test.portal.bundle.osgi.zip.url="${test.portal.bundle.osgi.zip.url}"
+			test.portal.bundle.war.url="${test.portal.bundle.war.url}"
+			test.portal.lpkg.name="${test.portal.lpkg.name}"
+			test.sql.zip.url="${test.sql.zip.url}"
+		/>
+	</target>
+
 	<target name="functional-bundle-wildfly-mysql56-jdk8">
 		<run-functional-test
 			app.server.type="wildfly"
 			database.type="mysql"
-			database.version="5.6"
 			test.build.fix.pack.zip.url="${test.build.fix.pack.zip.url}"
 			test.fix.pack.base.url="${test.fix.pack.base.url}"
 			test.license.xml.url="${test.license.xml.url}"
@@ -1455,6 +1543,10 @@ app.server.type=@{app.server.type}]]></echo>
 			test.portal.lpkg.name="${test.portal.lpkg.name}"
 			test.sql.zip.url="${test.sql.zip.url}"
 		/>
+	</target>
+
+	<target name="functional-smoke-bundle-tomcat-mysql56-jdk8">
+		<antcall target="functional-bundle-tomcat-mysql56-jdk8" />
 	</target>
 
 	<target name="functional-smoke-jboss70-mysql56-jdk8">
@@ -1517,6 +1609,10 @@ app.server.type=@{app.server.type}]]></echo>
 		<antcall target="functional-tomcat80-mysql56-jdk8" />
 	</target>
 
+	<target name="functional-upgrade-jboss70-mysql56-jdk8">
+		<run-functional-test app.server.type="jboss" database.type="mysql" />
+	</target>
+
 	<target name="functional-upgrade-tomcat80-mariadb100-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="mariadb" />
 	</target>
@@ -1539,6 +1635,14 @@ app.server.type=@{app.server.type}]]></echo>
 
 	<target name="functional-upgrade-tomcat80-sybase160-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="sybase" />
+	</target>
+
+	<target name="functional-upgrade-weblogic121-mysql56-jdk8">
+		<run-functional-test app.server.type="weblogic" database.type="mysql" />
+	</target>
+
+	<target name="functional-upgrade-wildfly100-mariadb100-jdk8">
+		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
 	</target>
 
 	<target name="integration-db2105-jdk8">
@@ -1849,13 +1953,6 @@ ${output.content}</echo>
 						<ant dir="portal-web" target="compile-tomcat" />
 
 						<run-poshi-validation />
-
-						<if>
-							<equals arg1="${env.TEST_PORTAL_WEB}" arg2="true" />
-							<then>
-								<run-source-formatter />
-							</then>
-						</if>
 					</test-action>
 				</database-test-run-test>
 			</test-action>
@@ -2147,6 +2244,53 @@ information. Make sure to commit in all build services results.
 		</run-batch-test>
 	</target>
 
+	<target name="source-format-jdk8">
+		<run-batch-test>
+			<test-action>
+				<if>
+					<contains string="${liferay.releng.branch}" substring="master" />
+					<then>
+						<gradle-execute dir="modules/util/source-formatter" task="deploy">
+							<arg value="clean" />
+						</gradle-execute>
+					</then>
+				</if>
+
+				<local name="source.formatter.excludes" />
+
+				<if>
+					<not>
+						<resourcecontains resource="${project.dir}/portal-kernel/src/com/liferay/portal/kernel/util/ReleaseInfo.java" substring=" DXP " />
+					</not>
+					<then>
+						<property name="source.formatter.excludes" value="modules/private/**" />
+					</then>
+				</if>
+
+				<ant dir="portal-impl" target="format-source">
+					<property name="source.auto.fix" value="false" />
+					<property name="source.fail.on.error" value="true" />
+					<property name="source.formatter.excludes" value="${source.formatter.excludes}" />
+					<property name="source.print.errors" value="true" />
+					<property name="source.throw.exception" value="true" />
+					<property name="source.use.properties" value="false" />
+				</ant>
+			</test-action>
+
+			<test-set-up>
+				<if>
+					<isset property="env.DIST_PATH" />
+					<then>
+						<prepare-test-environment />
+					</then>
+					<else>
+						<prepare-test-build />
+					</else>
+				</if>
+			</test-set-up>
+		</run-batch-test>
+	</target>
+
 	<target name="subrepository-compile-jdk8">
 		<fail message="Please set the property ${subrepository.name}." unless="subrepository.name" />
 
@@ -2269,7 +2413,10 @@ information. Make sure to commit in all build services results.
 			<try>
 				<move file="${module.base.dir}/settings.gradle" tofile="${module.base.dir}/settings.gradle.temp" />
 
-				<gradle-execute dir="${module.base.dir}" task="checkSourceFormatting" />
+				<gradle-execute dir="${module.base.dir}" task="checkSourceFormatting">
+					<arg value="-Pcom.liferay.source.formatter.ignore.local=true" />
+					<arg value="-PdependencyCheckerIgnoreFailures=false" />
+				</gradle-execute>
 			</try>
 			<catch>
 				<fail message="${failure.property}" />
@@ -2321,6 +2468,8 @@ go
 drop database lportal
 go
 exec sp_configure 'lock scheme', 0, datarows
+go
+exec sp_configure 'procedure cache size', 28000
 go
 create database lportal on master = "250m"
 go
