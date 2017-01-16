@@ -16,6 +16,7 @@ package com.liferay.document.library.kernel.service;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
@@ -61,7 +62,7 @@ public interface DLAppService extends BaseService {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link DLAppServiceUtil} to access the d l app remote service. Add custom service methods to {@link com.liferay.portlet.documentlibrary.service.impl.DLAppServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify or reference this interface directly. Always use {@link DLAppServiceUtil} to access the dl app remote service. Add custom service methods to {@link com.liferay.portlet.documentlibrary.service.impl.DLAppServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
 
 	/**
@@ -740,6 +741,13 @@ public interface DLAppService extends BaseService {
 	public int getFoldersAndFileEntriesAndFileShortcutsCount(
 		long repositoryId, long folderId, int status,
 		java.lang.String[] mimeTypes, boolean includeMountFolders)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getFoldersAndFileEntriesAndFileShortcutsCount(
+		long repositoryId, long folderId, java.lang.String[] mimeTypes,
+		boolean includeMountFolders,
+		QueryDefinition<java.lang.Object> queryDefinition)
 		throws PortalException;
 
 	/**

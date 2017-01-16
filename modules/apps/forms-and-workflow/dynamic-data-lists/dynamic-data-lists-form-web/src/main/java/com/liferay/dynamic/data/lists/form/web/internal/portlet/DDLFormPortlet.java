@@ -16,6 +16,8 @@ package com.liferay.dynamic.data.lists.form.web.internal.portlet;
 
 import com.liferay.dynamic.data.lists.form.web.constants.DDLFormPortletKeys;
 import com.liferay.dynamic.data.lists.form.web.internal.display.context.DDLFormDisplayContext;
+import com.liferay.dynamic.data.lists.model.DDLRecordSet;
+import com.liferay.dynamic.data.lists.model.DDLRecordSetSettings;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetService;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
@@ -26,11 +28,12 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
@@ -88,7 +91,7 @@ public class DDLFormPortlet extends MVCPortlet {
 			super.processAction(actionRequest, actionResponse);
 		}
 		catch (Exception e) {
-			PortalUtil.copyRequestParameters(actionRequest, actionResponse);
+			_portal.copyRequestParameters(actionRequest, actionResponse);
 
 			Throwable cause = getRootCause(e);
 
@@ -124,6 +127,13 @@ public class DDLFormPortlet extends MVCPortlet {
 
 		try {
 			setRenderRequestAttributes(renderRequest, renderResponse);
+
+			DDLFormDisplayContext ddlFormPortletDisplayContext =
+				(DDLFormDisplayContext)renderRequest.getAttribute(
+					WebKeys.PORTLET_DISPLAY_CONTEXT);
+
+			checkFormIsNotRestricted(
+				renderRequest, renderResponse, ddlFormPortletDisplayContext);
 		}
 		catch (Exception e) {
 			if (isSessionErrorException(e)) {
@@ -141,6 +151,32 @@ public class DDLFormPortlet extends MVCPortlet {
 		}
 
 		super.render(renderRequest, renderResponse);
+	}
+
+	protected void checkFormIsNotRestricted(
+			RenderRequest renderRequest, RenderResponse renderResponse,
+			DDLFormDisplayContext ddlFormDisplayContext)
+		throws PortalException {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		DDLRecordSet recordSet = ddlFormDisplayContext.getRecordSet();
+
+		if (recordSet == null) {
+			return;
+		}
+
+		DDLRecordSetSettings recordSetSettings = recordSet.getSettingsModel();
+
+		Layout layout = themeDisplay.getLayout();
+
+		if (recordSetSettings.requireAuthentication() &&
+			!layout.isPrivateLayout()) {
+
+			throw new PrincipalException.MustBeAuthenticated(
+				themeDisplay.getUserId());
+		}
 	}
 
 	protected Throwable getRootCause(Throwable throwable) {
@@ -174,7 +210,7 @@ public class DDLFormPortlet extends MVCPortlet {
 			PortletSession portletSession = actionRequest.getPortletSession();
 
 			portletSession.setAttribute("recordSetId", recordSetId);
-			portletSession.setAttribute("shared", true);
+			portletSession.setAttribute("shared", Boolean.TRUE);
 		}
 	}
 
@@ -201,6 +237,9 @@ public class DDLFormPortlet extends MVCPortlet {
 
 	@Reference
 	private DDMFormValuesFactory _ddmFormValuesFactory;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private WorkflowDefinitionLinkLocalService

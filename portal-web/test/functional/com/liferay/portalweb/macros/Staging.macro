@@ -123,7 +123,7 @@
 		<execute function="Type" locator1="StagingPublishToLive#DATE_SCHEDULE_TITLE_FIELD" value1="${scheduleTitleName}" />
 		<execute function="Check" locator1="StagingPublishToLive#DATE_SCHEDULE_END_DATE_NO_END_DATE_RADIO" />
 		<execute function="Check" locator1="StagingPublishToLive#DATE_SCHEDULE_REPEAT_DAILY_RADIO" />
-		<execute function="Check" locator1="StagingPublishToLive#CONTENT_ALL_CONTENT" />
+		<execute function="Check" locator1="Select#CONTENT_ALL_CONTENT" />
 
 		<execute function="AssertClick" locator1="StagingPublishToLive#ADD_EVENT_BUTTON" value1="Add Event" />
 
@@ -312,29 +312,29 @@
 		<if>
 			<equals arg1="${contentDateRange}" arg2="All" />
 			<then>
-				<execute function="Click" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT" />
+				<execute function="Click" locator1="Select#CONTENT_CHOOSE_CONTENT" />
 
-				<execute function="Click" locator1="StagingPublishToLive#CHOOSE_CONTENT_DATE_RANGE_CHANGE" />
+				<execute function="Click" locator1="Radio#CHOOSE_CONTENT_DATE_RANGE_CHANGE" />
 
 				<execute function="Check" locator1="Radio#RANGE_ALL" />
 
-				<execute function="Click" locator1="StagingPublishToLive#REFRESH_COUNTS" />
+				<execute function="Click" locator1="Link#REFRESH_COUNTS" />
 			</then>
 		</if>
 
 		<if>
 			<equals arg1="${contentDateRange}" arg2="Date Range" />
 			<then>
-				<execute function="Click" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT" />
+				<execute function="Click" locator1="Select#CONTENT_CHOOSE_CONTENT" />
 
-				<execute function="Click" locator1="StagingPublishToLive#CHOOSE_CONTENT_DATE_RANGE_CHANGE" />
+				<execute function="Click" locator1="Radio#CHOOSE_CONTENT_DATE_RANGE_CHANGE" />
 
 				<var name="key_contentDateRange" value="${contentDateRange}" />
 
-				<execute function="Type" locator1="StagingPublishToLive#DATE_RANGE_START_DATE" value1="${dateRangeStartDate}" />
-				<execute function="Type" locator1="StagingPublishToLive#DATE_RANGE_END_DATE" value1="${dateRangeEndDate}" />
+				<execute function="Type" locator1="Select#DATE_RANGE_START_DATE" value1="${dateRangeStartDate}" />
+				<execute function="Type" locator1="Select#DATE_RANGE_END_DATE" value1="${dateRangeEndDate}" />
 
-				<execute function="Click" locator1="StagingPublishToLive#REFRESH_COUNTS" />
+				<execute function="Click" locator1="Link#REFRESH_COUNTS" />
 			</then>
 		</if>
 
@@ -350,14 +350,14 @@
 		<if>
 			<equals arg1="${checkAllContent}" arg2="true" />
 			<then>
-				<execute function="Check" locator1="StagingPublishToLive#CONTENT_ALL_CONTENT" />
+				<execute function="Check" locator1="Select#CONTENT_ALL_CONTENT" />
 			</then>
 		</if>
 
 		<if>
 			<isset var="checkContentNameList" />
 			<then>
-				<execute function="Check" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT" />
+				<execute function="Check" locator1="Select#CONTENT_CHOOSE_CONTENT" />
 
 				<for list="${checkContentNameList}" param="contentName">
 					<var name="key_contentName" value="${contentName}" />
@@ -370,7 +370,7 @@
 		<if>
 			<isset var="uncheckContentNameList" />
 			<then>
-				<execute function="Check" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT" />
+				<execute function="Check" locator1="Select#CONTENT_CHOOSE_CONTENT" />
 
 				<for list="${uncheckContentNameList}" param="contentName">
 					<var name="key_contentName" value="${contentName}" />
@@ -383,7 +383,7 @@
 		<if>
 			<isset var="uncheckSubContent" />
 			<then>
-				<execute function="Click" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT" />
+				<execute function="Click" locator1="Select#CONTENT_CHOOSE_CONTENT" />
 
 				<var name="key_uncheckContent" value="${uncheckSubContent}" />
 
@@ -398,7 +398,7 @@
 		<if>
 			<isset var="uncheckSubSubContent" />
 			<then>
-				<execute function="Click" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT" />
+				<execute function="Click" locator1="Select#CONTENT_CHOOSE_CONTENT" />
 
 				<var name="key_contentName" value="${contentName}" />
 
@@ -427,7 +427,7 @@
 				</not>
 			</and>
 			<then>
-				<execute function="Check" locator1="StagingPublishToLive#CONTENT_ALL_CONTENT" />
+				<execute function="Check" locator1="Select#CONTENT_ALL_CONTENT" />
 			</then>
 		</if>
 	</command>
@@ -453,6 +453,18 @@
 		<execute function="AssertElementNotPresent#assertNotVisible" locator1="SiteSettingsStaging#ENABLED_ON_PUBLIC_PAGES_CHECKBOX" />
 	</command>
 
+	<command name="deletePublishTemplate">
+		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
+
+		<execute function="AssertClick" locator1="MenuItem#PUBLISH_TEPMLATES" value1="Publish Templates" />
+
+		<var name="key_rowEntry" value="${publishTemplateName}" />
+
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
+
+		<execute function="Click" locator1="MenuItem#DELETE" />
+	</command>
+
 	<command name="editPublishTemplate">
 		<execute function="Click" locator1="Icon#BODY_VERTICAL_ELLIPSIS" />
 
@@ -469,11 +481,7 @@
 	</command>
 
 	<command name="editSitePageVariationPG">
-		<execute function="Click" locator1="Icon#STAGING_BAR_VERTICAL_ELLIPSIS" />
-
-		<execute function="Click" locator1="Staging#MANAGE_VARIATIONS" />
-
-		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
+		<execute macro="Staging#navigateToSitePageVariation" />
 
 		<var name="key_sitePagesVariationName" value="${sitePagesVariationName}" />
 
@@ -485,13 +493,7 @@
 
 		<execute function="AssertClick" locator1="StagingManageVariations#UPDATE_BUTTON" value1="Update" />
 
-		<execute function="SelectFrameTop" value1="relative=top" />
-
-		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
-
-		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
-
-		<execute function="SelectFrameTop" value1="relative=top" />
+		<execute macro="Staging#viewVariationSuccessMessage" />
 	</command>
 
 	<command name="editStagingConfiguration">
@@ -578,11 +580,7 @@
 	</command>
 
 	<command name="mergeSitePagesVariation">
-		<execute function="Click" locator1="Icon#STAGING_BAR_VERTICAL_ELLIPSIS" />
-
-		<execute function="Click" locator1="Staging#MANAGE_VARIATIONS" />
-
-		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
+		<execute macro="Staging#navigateToSitePageVariation" />
 
 		<var name="key_rowEntry" value="${sitePagesVariationName}" />
 
@@ -598,11 +596,7 @@
 
 		<execute function="Confirm" value1="Are you sure you want to merge changes from ${sitePagesVariationMergeName}?" />
 
-		<execute function="SelectFrameTop" value1="relative=top" />
-
-		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
-
-		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
+		<execute macro="Staging#viewVariationSuccessMessage" />
 	</command>
 
 	<command name="moveToTheRecycleBinPublishTemplate">
@@ -617,6 +611,22 @@
 		<execute function="Click" locator1="MenuItem#MOVE_TO_THE_RECYCLE_BIN" />
 
 		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
+	</command>
+
+	<command name="navigateToSitePageVariation">
+		<execute function="Click" locator1="Icon#STAGING_BAR_VERTICAL_ELLIPSIS" />
+
+		<execute function="Click" locator1="Staging#MANAGE_VARIATIONS" />
+
+		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
+	</command>
+
+	<command name="navigateToStagingMenuItem">
+		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
+
+		<execute function="Click" locator1="MenuItem#STAGING" />
+
+		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION_DIALOG" />
 	</command>
 
 	<command name="publishCustomPublication">
@@ -659,11 +669,7 @@
 	</command>
 
 	<command name="publishToLiveNowViaPortletCP">
-		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
-
-		<execute function="Click" locator1="MenuItem#STAGING" />
-
-		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION_DIALOG" />
+		<execute macro="Staging#navigateToStagingMenuItem" />
 
 		<execute function="AssertClickNoError" locator1="Button#PUBLISH_TO_LIVE" value1="Publish to Live" />
 
@@ -850,16 +856,16 @@
 
 		<execute function="AssertClick#assertPartialTextClickAt" locator1="StagingPublishToLive#SWITCH_TO_ADVANCED_PUBLICATION" value1="Switch to Advanced Publication" />
 
-		<execute function="Check" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT" />
+		<execute function="Check" locator1="Select#CONTENT_CHOOSE_CONTENT" />
 
-		<execute function="Click" locator1="StagingPublishToLive#CHOOSE_CONTENT_DATE_RANGE_CHANGE" />
+		<execute function="Click" locator1="Radio#CHOOSE_CONTENT_DATE_RANGE_CHANGE" />
 
 		<var name="key_contentDateRange" value="DateRange" />
 
-		<execute function="Type" locator1="StagingPublishToLive#DATE_RANGE_START_DATE" value1="${dateRangeStartDate}" />
-		<execute function="Type" locator1="StagingPublishToLive#DATE_RANGE_END_DATE" value1="${dateRangeEndDate}" />
+		<execute function="Type" locator1="Select#DATE_RANGE_START_DATE" value1="${dateRangeStartDate}" />
+		<execute function="Type" locator1="Select#DATE_RANGE_END_DATE" value1="${dateRangeEndDate}" />
 
-		<execute function="Click" locator1="StagingPublishToLive#REFRESH_COUNTS" />
+		<execute function="Click" locator1="Link#REFRESH_COUNTS" />
 	</command>
 
 	<command name="setHistoryVersionPG">
@@ -907,7 +913,7 @@
 
 	<command name="viewHistoryVersionPG">
 		<if>
-			<condition function="IsElementPresent#isVisible" locator1="Icon#HISTORY_VERTICAL_ELLIPSIS" />
+			<condition function="IsElementPresent" locator1="Icon#HISTORY_VERTICAL_ELLIPSIS" />
 			<then>
 				<execute function="Click" locator1="Icon#HISTORY_VERTICAL_ELLIPSIS" />
 
@@ -947,11 +953,7 @@
 	</command>
 
 	<command name="viewNoPublishContentCountViaPortletStagingCP">
-		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
-
-		<execute function="Click" locator1="MenuItem#STAGING" />
-
-		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION_DIALOG" />
+		<execute macro="Staging#navigateToStagingMenuItem" />
 
 		<execute function="AssertElementNotPresent" locator1="Staging#STAGING_CONTENT_COUNT" />
 		<execute function="AssertElementNotPresent" locator1="Staging#STAGING_CONTENT_INFO" />
@@ -968,11 +970,7 @@
 	</command>
 
 	<command name="viewPublishContentCountViaPortletStagingCP">
-		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
-
-		<execute function="Click" locator1="MenuItem#STAGING" />
-
-		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION_DIALOG" />
+		<execute macro="Staging#navigateToStagingMenuItem" />
 
 		<execute function="AssertTextEquals" locator1="Staging#STAGING_CONTENT_COUNT" value1="${contentCount}" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Staging#STAGING_CONTENT_INFO" value1="${contentInformation}" />
@@ -1034,5 +1032,15 @@
 		<execute function="SelectFrameTop" />
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR" value1="${validateErrorMessage}" />
+	</command>
+
+	<command name="viewVariationSuccessMessage">
+		<execute function="SelectFrameTop" value1="relative=top" />
+
+		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
+
+		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
+
+		<execute function="SelectFrameTop" value1="relative=top" />
 	</command>
 </definition>

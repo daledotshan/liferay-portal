@@ -19,6 +19,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
+taglib uri="http://liferay.com/tld/comment" prefix="liferay-comment" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
@@ -70,6 +71,7 @@ page import="com.liferay.portal.kernel.webserver.WebServerServletTokenUtil" %><%
 page import="com.liferay.portal.service.*" %><%@
 page import="com.liferay.portal.util.PrefsPropsUtil" %><%@
 page import="com.liferay.portal.util.PropsValues" %><%@
+page import="com.liferay.shopping.configuration.ShoppingFileUploadsConfiguration" %><%@
 page import="com.liferay.shopping.configuration.ShoppingGroupServiceOverriddenConfiguration" %><%@
 page import="com.liferay.shopping.constants.ShoppingConstants" %><%@
 page import="com.liferay.shopping.exception.BillingCityException" %><%@

@@ -1,5 +1,6 @@
 <definition component-name="portal-staging">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Export/Import Framework" />
 
 	<set-up>
@@ -17,10 +18,7 @@
 				<execute macro="PortalInstances#tearDownCP" />
 			</then>
 			<else>
-				<execute macro="User#logoutAndLoginPG">
-					<var name="userLoginEmailAddress" value="test@liferay.com" />
-					<var name="userLoginFullName" value="Test Test" />
-				</execute>
+				<execute macro="Site#tearDownCP" />
 			</else>
 		</if>
 	</tear-down>

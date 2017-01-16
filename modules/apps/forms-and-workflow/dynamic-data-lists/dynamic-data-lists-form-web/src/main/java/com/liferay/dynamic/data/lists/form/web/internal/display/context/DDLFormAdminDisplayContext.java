@@ -236,28 +236,28 @@ public class DDLFormAdminDisplayContext {
 	}
 
 	public String getFormURL() throws PortalException {
-		StringBundler sb = new StringBundler(4);
+		DDLRecordSet recordSet = getRecordSet();
 
-		ThemeDisplay themeDisplay =
-			_ddlFormAdminRequestHelper.getThemeDisplay();
+		DDLRecordSetSettings recordSetSettings = recordSet.getSettingsModel();
 
-		Group group = themeDisplay.getSiteGroup();
+		String formURL = null;
 
-		sb.append(themeDisplay.getPortalURL());
-		sb.append(group.getPathFriendlyURL(false, themeDisplay));
+		if (recordSetSettings.requireAuthentication()) {
+			formURL = getRestrictedFormURL();
+		}
+		else {
+			formURL = getSharedFormURL();
+		}
 
-		sb.append("/forms/shared/-/form/");
-
-		return sb.toString();
+		return formURL;
 	}
 
 	public String getOrderByCol() {
-		return ParamUtil.getString(
-			_renderRequest, "orderByCol", "modified-date");
+		return ParamUtil.getString(_renderRequest, "orderByCol", "create-date");
 	}
 
 	public String getOrderByType() {
-		return ParamUtil.getString(_renderRequest, "orderByType", "asc");
+		return ParamUtil.getString(_renderRequest, "orderByType", "desc");
 	}
 
 	public PortletURL getPortletURL() {
@@ -351,6 +351,10 @@ public class DDLFormAdminDisplayContext {
 		return record.getLatestRecordVersion();
 	}
 
+	public String getRestrictedFormURL() {
+		return getFormLayoutURL(true);
+	}
+
 	public String getSerializedDDMForm() throws PortalException {
 		String definition = ParamUtil.getString(_renderRequest, "definition");
 
@@ -402,6 +406,22 @@ public class DDLFormAdminDisplayContext {
 		return jsonSerializer.serializeDeep(ddlFormRules);
 	}
 
+	public String getSharedFormURL() {
+		return getFormLayoutURL(false);
+	}
+
+	public boolean isAuthenticationRequired() throws PortalException {
+		DDLRecordSet recordSet = getRecordSet();
+
+		if (recordSet == null) {
+			return false;
+		}
+
+		DDLRecordSetSettings recordSetSettings = recordSet.getSettingsModel();
+
+		return recordSetSettings.requireAuthentication();
+	}
+
 	public boolean isDDLRecordWorkflowHandlerDeployed() {
 		if (!_workflowEngineManager.isDeployed()) {
 			return false;
@@ -435,6 +455,10 @@ public class DDLFormAdminDisplayContext {
 			_ddlFormAdminRequestHelper.getPermissionChecker(),
 			_ddlFormAdminRequestHelper.getScopeGroupId(),
 			DDLActionKeys.ADD_RECORD_SET);
+	}
+
+	public boolean isShowCopyRecordSetButton() {
+		return isShowAddRecordSetButton();
 	}
 
 	public boolean isShowDeleteRecordSetIcon(DDLRecordSet recordSet) {
@@ -564,6 +588,22 @@ public class DDLFormAdminDisplayContext {
 		}
 
 		return displayStyle;
+	}
+
+	protected String getFormLayoutURL(boolean privateLayout) {
+		StringBundler sb = new StringBundler(4);
+
+		ThemeDisplay themeDisplay =
+			_ddlFormAdminRequestHelper.getThemeDisplay();
+
+		Group group = themeDisplay.getSiteGroup();
+
+		sb.append(themeDisplay.getPortalURL());
+		sb.append(group.getPathFriendlyURL(privateLayout, themeDisplay));
+
+		sb.append("/forms/shared/-/form/");
+
+		return sb.toString();
 	}
 
 	protected String getKeywords() {

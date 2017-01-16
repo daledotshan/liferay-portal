@@ -304,14 +304,14 @@ if (portletTitleBasedNavigation) {
 
 						<%@ include file="/wiki/view_page_content.jspf" %>
 
-						<liferay-ui:custom-attributes-available className="<%= WikiPage.class.getName() %>">
-							<liferay-ui:custom-attribute-list
+						<liferay-expando:custom-attributes-available className="<%= WikiPage.class.getName() %>">
+							<liferay-expando:custom-attribute-list
 								className="<%= WikiPage.class.getName() %>"
 								classPK="<%= (wikiPage != null) ? wikiPage.getPrimaryKey() : 0 %>"
 								editable="<%= false %>"
 								label="<%= true %>"
 							/>
-						</liferay-ui:custom-attributes-available>
+						</liferay-expando:custom-attributes-available>
 
 						<c:if test="<%= (wikiPage != null) && Validator.isNotNull(formattedContent) && (followRedirect || (redirectPage == null)) %>">
 							<div class="page-actions">
@@ -411,7 +411,7 @@ if (portletTitleBasedNavigation) {
 							<c:if test="<%= wikiPortletInstanceSettingsHelper.isEnableComments() %>">
 								<liferay-ui:panel-container extended="<%= false %>" markupView="lexicon" persistState="<%= true %>">
 									<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id='<%= liferayPortletResponse.getNamespace() + "wikiCommentsPanel" %>' markupView="lexicon" persistState="<%= true %>" title="comments">
-										<liferay-ui:discussion
+										<liferay-comment:discussion
 											className="<%= WikiPage.class.getName() %>"
 											classPK="<%= wikiPage.getResourcePrimKey() %>"
 											formName="fm2"

@@ -1317,8 +1317,16 @@ public interface PropsKeys {
 
 	public static final String MESSAGE_BOARDS_USER_RANKS = "message.boards.user.ranks";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String MICROSOFT_TRANSLATOR_CLIENT_ID = "microsoft.translator.client.id";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String MICROSOFT_TRANSLATOR_CLIENT_SECRET = "microsoft.translator.client.secret";
 
 	public static final String MIME_TYPES_CONTENT_DISPOSITION_INLINE = "mime.types.content.disposition.inline";
@@ -1909,6 +1917,8 @@ public interface PropsKeys {
 
 	public static final String SESSION_TIMEOUT_AUTO_EXTEND = "session.timeout.auto.extend";
 
+	public static final String SESSION_TIMEOUT_AUTO_EXTEND_OFFSET = "session.timeout.auto.extend.offset";
+
 	public static final String SESSION_TIMEOUT_REDIRECT_ON_EXPIRE = "session.timeout.redirect.on.expire";
 
 	public static final String SESSION_TIMEOUT_WARNING = "session.timeout.warning";
@@ -1971,12 +1981,28 @@ public interface PropsKeys {
 
 	public static final String SHOPPING_EMAIL_ORDER_SHIPPING_SUBJECT = "shopping.email.order.shipping.subject";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String SHOPPING_IMAGE_EXTENSIONS = "shopping.image.extensions";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String SHOPPING_IMAGE_LARGE_MAX_SIZE = "shopping.image.large.max.size";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String SHOPPING_IMAGE_MEDIUM_MAX_SIZE = "shopping.image.medium.max.size";
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public static final String SHOPPING_IMAGE_SMALL_MAX_SIZE = "shopping.image.small.max.size";
 
 	public static final String SHOPPING_INSURANCE = "shopping.insurance";

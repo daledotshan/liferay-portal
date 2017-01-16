@@ -53,6 +53,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.systemevent.SystemEventHierarchyEntry;
 import com.liferay.portal.kernel.systemevent.SystemEventHierarchyEntryThreadLocal;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.AutoResetThreadLocal;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -341,7 +342,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			userId, layout, serviceContext.getAssetCategoryIds(),
 			serviceContext.getAssetTagNames());
 
-		return layout;
+		return layoutLocalService.getLayout(layout.getPlid());
 	}
 
 	/**
@@ -481,11 +482,6 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 
 		portletPreferencesLocalService.deletePortletPreferencesByPlid(
 			layout.getPlid());
-
-		// Subscriptions
-
-		subscriptionLocalService.deleteSubscriptions(
-			layout.getCompanyId(), Layout.class.getName(), layout.getPlid());
 
 		// Asset
 
@@ -984,6 +980,14 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			groupId, privateLayout, friendlyURL);
 	}
 
+	@Override
+	public Layout fetchLayoutByIconImageId(
+			boolean privateLayout, long iconImageId)
+		throws PortalException {
+
+		return layoutPersistence.fetchByP_I(privateLayout, iconImageId);
+	}
+
 	/**
 	 * Returns the primary key of the default layout for the group
 	 *
@@ -1432,6 +1436,10 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	@Override
 	public int getLayoutsCount(
 		Group group, boolean privateLayout, long[] layoutIds) {
+
+		if (ArrayUtil.isEmpty(layoutIds)) {
+			return 0;
+		}
 
 		DynamicQuery dynamicQuery = dynamicQuery();
 

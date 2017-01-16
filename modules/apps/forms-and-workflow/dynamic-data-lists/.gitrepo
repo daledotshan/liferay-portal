@@ -3,7 +3,7 @@
 ;
 [subrepo]
 	cmdver = liferay
-	commit = 6c9e139cdc2bfa0c02274b8691b4df0695a8da43
+	commit = 7bdea127f508a5a55b46e5aec3f1c99366213113
 	mode = push
-	parent = 927ea7705b495dc901c20fd1ab69d10f1c5eac52
+	parent = 6c248a814214d0dba367a2c17c4fcaaa91fe3419
 	remote = git@github.com:liferay/com-liferay-dynamic-data-lists.git
