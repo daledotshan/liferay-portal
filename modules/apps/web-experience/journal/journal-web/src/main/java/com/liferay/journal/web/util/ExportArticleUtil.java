@@ -56,7 +56,7 @@ import org.osgi.service.component.annotations.Reference;
 public class ExportArticleUtil {
 
 	/**
-	 * @deprecated As of 2.0.0, replaced by {@link #sendFile(String,
+	 * @deprecated As of 1.5.0, replaced by {@link #sendFile(String,
 	 *             PortletRequest, PortletResponse)}
 	 */
 	@Deprecated
@@ -145,7 +145,7 @@ public class ExportArticleUtil {
 		String fileName = title.concat(StringPool.PERIOD).concat(
 			sourceExtension);
 
-		String contentType = MimeTypesUtil.getContentType(fileName);
+		String contentType = ContentTypes.TEXT_HTML;
 
 		String id = DLUtil.getTempFileId(
 			articleDisplay.getId(), String.valueOf(articleDisplay.getVersion()),
@@ -155,7 +155,11 @@ public class ExportArticleUtil {
 			id, is, sourceExtension, targetExtension);
 
 		if (convertedFile != null) {
+			targetExtension = StringUtil.toLowerCase(targetExtension);
+
 			fileName = title.concat(StringPool.PERIOD).concat(targetExtension);
+
+			contentType = MimeTypesUtil.getContentType(fileName);
 
 			is = new FileInputStream(convertedFile);
 		}

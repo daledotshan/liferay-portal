@@ -34,13 +34,13 @@ import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.security.auth.AuthException;
-import com.liferay.portal.kernel.security.auth.session.AuthenticatedSessionManagerUtil;
+import com.liferay.portal.kernel.security.auth.session.AuthenticatedSessionManager;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.util.PropsValues;
@@ -57,6 +57,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Brian Wing Shun Chan
@@ -145,7 +146,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			else {
 				_log.error(e, e);
 
-				PortalUtil.sendError(e, actionRequest, actionResponse);
+				_portal.sendError(e, actionRequest, actionResponse);
 
 				return;
 			}
@@ -168,10 +169,10 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			!PropsValues.SESSION_ENABLE_PHISHING_PROTECTION &&
 			(httpsInitial != null) && !httpsInitial.booleanValue()) {
 
-			portalURL = PortalUtil.getPortalURL(request, false);
+			portalURL = _portal.getPortalURL(request, false);
 		}
 		else {
-			portalURL = PortalUtil.getPortalURL(request);
+			portalURL = _portal.getPortalURL(request);
 		}
 
 		return portalURL.concat(redirect);
@@ -182,9 +183,9 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 			ActionResponse actionResponse)
 		throws Exception {
 
-		HttpServletRequest request = PortalUtil.getOriginalServletRequest(
-			PortalUtil.getHttpServletRequest(actionRequest));
-		HttpServletResponse response = PortalUtil.getHttpServletResponse(
+		HttpServletRequest request = _portal.getOriginalServletRequest(
+			_portal.getHttpServletRequest(actionRequest));
+		HttpServletResponse response = _portal.getHttpServletResponse(
 			actionResponse);
 
 		String login = ParamUtil.getString(actionRequest, "login");
@@ -192,7 +193,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 		boolean rememberMe = ParamUtil.getBoolean(actionRequest, "rememberMe");
 
 		if (!themeDisplay.isSignedIn()) {
-			String portletId = PortalUtil.getPortletId(actionRequest);
+			String portletId = _portal.getPortletId(actionRequest);
 
 			PortletPreferences portletPreferences =
 				PortletPreferencesFactoryUtil.getStrictPortletSetup(
@@ -200,14 +201,14 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 
 			String authType = portletPreferences.getValue("authType", null);
 
-			AuthenticatedSessionManagerUtil.login(
+			_authenticatedSessionManager.login(
 				request, response, login, password, rememberMe, authType);
 		}
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
 		if (Validator.isNotNull(redirect)) {
-			redirect = PortalUtil.escapeRedirect(redirect);
+			redirect = _portal.escapeRedirect(redirect);
 
 			if (Validator.isNotNull(redirect) &&
 				!redirect.startsWith(Http.HTTP)) {
@@ -253,7 +254,7 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 		throws Exception {
 
 		LiferayPortletRequest liferayPortletRequest =
-			PortalUtil.getLiferayPortletRequest(actionRequest);
+			_portal.getLiferayPortletRequest(actionRequest);
 
 		String portletName = liferayPortletRequest.getPortletName();
 
@@ -288,5 +289,11 @@ public class LoginMVCActionCommand extends BaseMVCActionCommand {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LoginMVCActionCommand.class);
+
+	@Reference
+	private AuthenticatedSessionManager _authenticatedSessionManager;
+
+	@Reference
+	private Portal _portal;
 
 }

@@ -27,6 +27,8 @@ import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -38,7 +40,7 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
@@ -197,9 +199,9 @@ public class AssetPublisherPortlet extends MVCPortlet {
 		boolean enableRss = GetterUtil.getBoolean(
 			portletPreferences.getValue("enableRss", null));
 
-		if (!PortalUtil.isRSSFeedsEnabled() || !enableRss) {
+		if (!portal.isRSSFeedsEnabled() || !enableRss) {
 			try {
-				PortalUtil.sendRSSFeedsDisabledError(
+				portal.sendRSSFeedsDisabledError(
 					resourceRequest, resourceResponse);
 			}
 			catch (ServletException se) {
@@ -213,12 +215,24 @@ public class AssetPublisherPortlet extends MVCPortlet {
 		try (OutputStream outputStream =
 				resourceResponse.getPortletOutputStream()) {
 
+			String rootPortletId = PortletConstants.getRootPortletId(
+				portal.getPortletId(resourceRequest));
+
+			AssetPublisherCustomizer assetPublisherCustomizer =
+				assetPublisherCustomizerRegistry.getAssetPublisherCustomizer(
+					rootPortletId);
+
+			resourceRequest.setAttribute(
+				AssetPublisherWebKeys.ASSET_PUBLISHER_CUSTOMIZER,
+				assetPublisherCustomizer);
+
 			byte[] bytes = AssetRSSUtil.getRSS(
 				resourceRequest, resourceResponse);
 
 			outputStream.write(bytes);
 		}
 		catch (Exception e) {
+			_log.error("Unable to get RSS feed", e);
 		}
 	}
 
@@ -272,17 +286,21 @@ public class AssetPublisherPortlet extends MVCPortlet {
 
 		try {
 			String rootPortletId = PortletConstants.getRootPortletId(
-				PortalUtil.getPortletId(renderRequest));
+				portal.getPortletId(renderRequest));
 
-				AssetPublisherCustomizer assetPublisherCustomizer =
-					assetPublisherCustomizerRegistry.
-						getAssetPublisherCustomizer(rootPortletId);
+			AssetPublisherCustomizer assetPublisherCustomizer =
+				assetPublisherCustomizerRegistry.getAssetPublisherCustomizer(
+					rootPortletId);
 
-				renderRequest.setAttribute(
-					AssetPublisherWebKeys.ASSET_PUBLISHER_CUSTOMIZER,
-					assetPublisherCustomizer);
+			renderRequest.setAttribute(
+				AssetPublisherWebKeys.ASSET_PUBLISHER_CUSTOMIZER,
+				assetPublisherCustomizer);
+
+			renderRequest.setAttribute(
+				WebKeys.SINGLE_PAGE_APPLICATION_CLEAR_CACHE, Boolean.TRUE);
 		}
 		catch (Exception e) {
+			_log.error("Unable to get asset publisher customizer", e);
 		}
 
 		if (SessionErrors.contains(
@@ -310,5 +328,11 @@ public class AssetPublisherPortlet extends MVCPortlet {
 
 	@Reference
 	protected AssetPublisherCustomizerRegistry assetPublisherCustomizerRegistry;
+
+	@Reference
+	protected Portal portal;
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		AssetPublisherPortlet.class);
 
 }

@@ -20,13 +20,13 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.web.internal.exportimport.content.processor.DDMTemplateExportImportContentProcessor;
-import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
+import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -39,7 +39,7 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -161,7 +161,7 @@ public class DDMTemplateStagedModelDataHandler
 
 		groupId = MapUtil.getLong(groupIds, groupId);
 
-		long classNameId = PortalUtil.getClassNameId(
+		long classNameId = _portal.getClassNameId(
 			referenceElement.attributeValue("referenced-class-name"));
 		String templateKey = referenceElement.attributeValue("template-key");
 		boolean preloaded = GetterUtil.getBoolean(
@@ -261,7 +261,7 @@ public class DDMTemplateStagedModelDataHandler
 		if (template.getResourceClassNameId() > 0) {
 			templateElement.addAttribute(
 				"resource-class-name",
-				PortalUtil.getClassName(template.getResourceClassNameId()));
+				_portal.getClassName(template.getResourceClassNameId()));
 		}
 
 		portletDataContext.addClassedModel(
@@ -287,7 +287,7 @@ public class DDMTemplateStagedModelDataHandler
 
 		groupId = MapUtil.getLong(groupIds, groupId);
 
-		long classNameId = PortalUtil.getClassNameId(
+		long classNameId = _portal.getClassNameId(
 			referenceElement.attributeValue("referenced-class-name"));
 		String templateKey = referenceElement.attributeValue("template-key");
 		boolean preloaded = GetterUtil.getBoolean(
@@ -377,7 +377,7 @@ public class DDMTemplateStagedModelDataHandler
 					"resource-class-name");
 
 				if (Validator.isNotNull(resourceClassName)) {
-					resourceClassNameId = PortalUtil.getClassNameId(
+					resourceClassNameId = _portal.getClassNameId(
 						resourceClassName);
 				}
 			}
@@ -515,6 +515,10 @@ public class DDMTemplateStagedModelDataHandler
 		_ddmTemplateExportImportContentProcessor;
 	private DDMTemplateLocalService _ddmTemplateLocalService;
 	private ImageLocalService _imageLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private UserLocalService _userLocalService;
 
 }

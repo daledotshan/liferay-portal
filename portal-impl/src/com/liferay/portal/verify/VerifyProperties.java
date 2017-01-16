@@ -274,6 +274,10 @@ public class VerifyProperties extends VerifyProcess {
 		new String[] {
 			"http.header.secure.x.xss.protection",
 			"http.header.secure.x.xss.protection"
+		},
+		new String[] {"session.id.delimiter", "session.id.delimiter"},
+		new String[] {
+			"session.id.weblogic.delimiter", "session.id.weblogic.delimiter"
 		}
 	};
 
@@ -1488,22 +1492,6 @@ public class VerifyProperties extends VerifyProcess {
 			"com.liferay.shopping.service"
 		},
 		new String[] {
-			"shopping.image.extensions", "image.extensions",
-			"com.liferay.shopping.service"
-		},
-		new String[] {
-			"shopping.image.large.max.size", "image.large.max.size",
-			"com.liferay.shopping.service"
-		},
-		new String[] {
-			"shopping.image.medium.max.size", "image.medium.max.size",
-			"com.liferay.shopping.service"
-		},
-		new String[] {
-			"shopping.image.small.max.size", "image.small.max.size",
-			"com.liferay.shopping.service"
-		},
-		new String[] {
 			"shopping.insurance", "insurance", "com.liferay.shopping.service"
 		},
 		new String[] {
@@ -1825,6 +1813,7 @@ public class VerifyProperties extends VerifyProcess {
 		"message.boards.thread.locking.enabled",
 		"message.boards.thread.previous.and.next.navigation.enabled",
 		"message.boards.thread.views", "message.boards.thread.views.default",
+		"microsoft.translator.client.id", "microsoft.translator.client.secret",
 		"mobile.device.styling.wap.enabled", "module.framework.initial.bundles",
 		"msn.login", "msn.password", "multicast.group.address[\"hibernate\"]",
 		"multicast.group.port[\"hibernate\"]",
@@ -1847,7 +1836,9 @@ public class VerifyProperties extends VerifyProcess {
 		"sc.product.comments.enabled", "scheduler.classes",
 		"schema.run.minimal", "search.container.page.iterator.page.values",
 		"service.builder.service.read.only.prefixes", "shard.available.names",
-		"shard.default.name", "shard.selector", "siteminder.auth.enabled",
+		"shard.default.name", "shard.selector", "shopping.image.extensions",
+		"shopping.image.large.max.size", "shopping.image.medium.max.size",
+		"shopping.image.small.max.size", "siteminder.auth.enabled",
 		"siteminder.import.from.ldap", "siteminder.user.header",
 		"sites.form.add.advanced", "sites.form.add.main",
 		"sites.form.add.miscellaneous", "sites.form.add.seo",

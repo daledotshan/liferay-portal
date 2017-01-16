@@ -40,7 +40,7 @@ import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -154,7 +154,7 @@ public class FolderStagedModelDataHandler
 			portletDataContext.addClassedModel(
 				folderElement, folderPath, folder);
 
-			long portletRepositoryClassNameId = PortalUtil.getClassNameId(
+			long portletRepositoryClassNameId = _portal.getClassNameId(
 				PortletRepository.class.getName());
 
 			if (repository.getClassNameId() != portletRepositoryClassNameId) {
@@ -404,9 +404,9 @@ public class FolderStagedModelDataHandler
 				folder, DLFileEntryType.class);
 
 		for (Element referenceElement : referenceElements) {
-			long referenceDlFileEntryTypeId = GetterUtil.getLong(
+			long referenceDLFileEntryTypeId = GetterUtil.getLong(
 				referenceElement.attributeValue("class-pk"));
-			String referenceDlFileEntryTypeUuid =
+			String referenceDLFileEntryTypeUuid =
 				referenceElement.attributeValue("uuid");
 
 			Map<Long, Long> dlFileEntryTypeIds =
@@ -414,8 +414,8 @@ public class FolderStagedModelDataHandler
 					DLFileEntryType.class);
 
 			long dlFileEntryTypeId = MapUtil.getLong(
-				dlFileEntryTypeIds, referenceDlFileEntryTypeId,
-				referenceDlFileEntryTypeId);
+				dlFileEntryTypeIds, referenceDLFileEntryTypeId,
+				referenceDLFileEntryTypeId);
 
 			DLFileEntryType existingDLFileEntryType =
 				_dlFileEntryTypeLocalService.fetchDLFileEntryType(
@@ -428,7 +428,7 @@ public class FolderStagedModelDataHandler
 			currentFolderFileEntryTypeIds.add(
 				existingDLFileEntryType.getFileEntryTypeId());
 
-			if (defaultFileEntryTypeUuid.equals(referenceDlFileEntryTypeUuid)) {
+			if (defaultFileEntryTypeUuid.equals(referenceDLFileEntryTypeUuid)) {
 				defaultFileEntryTypeId =
 					existingDLFileEntryType.getFileEntryTypeId();
 			}
@@ -518,6 +518,10 @@ public class FolderStagedModelDataHandler
 	private DLAppLocalService _dlAppLocalService;
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 	private DLFolderLocalService _dlFolderLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private RepositoryLocalService _repositoryLocalService;
 
 }
