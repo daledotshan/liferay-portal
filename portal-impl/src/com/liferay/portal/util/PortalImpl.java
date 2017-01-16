@@ -1936,18 +1936,6 @@ public class PortalImpl implements Portal {
 				currentURL = currentURL.substring(
 					currentURL.indexOf(CharPool.SLASH));
 			}
-
-			if (Validator.isNotNull(currentURL) &&
-				FacebookUtil.isFacebook(currentURL)) {
-
-				String[] facebookData = FacebookUtil.getFacebookData(request);
-
-				if (facebookData != null) {
-					currentURL =
-						FacebookUtil.FACEBOOK_APPS_URL + facebookData[0] +
-							facebookData[2];
-				}
-			}
 		}
 
 		if (Validator.isNull(currentURL)) {
@@ -2338,6 +2326,10 @@ public class PortalImpl implements Portal {
 			(HttpServletRequest)uploadPortletRequest, name, type, displayType);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public String getFacebookURL(
 			Portlet portlet, String facebookCanvasPageURL,
@@ -2773,10 +2765,8 @@ public class PortalImpl implements Portal {
 			layoutActualURL = layoutActualURL.concat(queryString);
 		}
 		else if (params.isEmpty()) {
-			LayoutType layoutType = layout.getLayoutType();
-
 			UnicodeProperties typeSettingsProperties =
-				layoutType.getTypeSettingsProperties();
+				layout.getTypeSettingsProperties();
 
 			queryString = typeSettingsProperties.getProperty("query-string");
 
@@ -2795,9 +2785,11 @@ public class PortalImpl implements Portal {
 	public String getLayoutFriendlyURL(Layout layout, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		LayoutType layoutType = layout.getLayoutType();
+		LayoutTypeController layoutTypeController =
+			LayoutTypeControllerTracker.getLayoutTypeController(
+				layout.getType());
 
-		if (!layoutType.isURLFriendliable()) {
+		if (!layoutTypeController.isURLFriendliable()) {
 			return null;
 		}
 
@@ -3502,9 +3494,8 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getLocalizedFriendlyURL(
-			HttpServletRequest request, Layout layout, Locale locale,
-			Locale originalLocale)
-		throws Exception {
+		HttpServletRequest request, Layout layout, Locale locale,
+		Locale originalLocale) {
 
 		String contextPath = getPathContext();
 
@@ -6678,8 +6669,8 @@ public class PortalImpl implements Portal {
 			}
 		}
 		else if ((e instanceof PortalException) && _log.isDebugEnabled()) {
-			if ((e instanceof NoSuchLayoutException) ||
-				(e instanceof PrincipalException)) {
+			if (e instanceof NoSuchLayoutException ||
+				e instanceof PrincipalException) {
 
 				String msg = e.getMessage();
 
@@ -7501,9 +7492,11 @@ public class PortalImpl implements Portal {
 	}
 
 	protected Layout getBrowsableLayout(Layout layout) {
-		LayoutType layoutType = layout.getLayoutType();
+		LayoutTypeController layoutTypeController =
+			LayoutTypeControllerTracker.getLayoutTypeController(
+				layout.getType());
 
-		if (layoutType.isBrowsable()) {
+		if (layoutTypeController.isBrowsable()) {
 			return layout;
 		}
 
@@ -7512,9 +7505,11 @@ public class PortalImpl implements Portal {
 		List<Layout> childLayouts = layout.getAllChildren();
 
 		for (Layout childLayout : childLayouts) {
-			LayoutType childLayoutType = childLayout.getLayoutType();
+			LayoutTypeController childLayoutTypeController =
+				LayoutTypeControllerTracker.getLayoutTypeController(
+					childLayout.getType());
 
-			if (childLayoutType.isBrowsable()) {
+			if (childLayoutTypeController.isBrowsable()) {
 				browsableChildLayout = childLayout;
 
 				break;
@@ -7579,8 +7574,7 @@ public class PortalImpl implements Portal {
 			portletCategory.equals(PortletCategoryKeys.CONTROL_PANEL_SITES) ||
 			portletCategory.equals(PortletCategoryKeys.CONTROL_PANEL_SYSTEM) ||
 			portletCategory.equals(PortletCategoryKeys.CONTROL_PANEL_USERS) ||
-			portletCategory.equals(
-				PortletCategoryKeys.USER_MY_ACCOUNT)) {
+			portletCategory.equals(PortletCategoryKeys.USER_MY_ACCOUNT)) {
 
 			return GroupLocalServiceUtil.fetchGroup(
 				companyId, GroupConstants.CONTROL_PANEL);
@@ -7722,14 +7716,14 @@ public class PortalImpl implements Portal {
 				(canonicalURL ||
 				 !StringUtil.equalsIgnoreCase(virtualHostname, _LOCALHOST))) {
 
-				virtualHostname = getCanonicalDomain(
+				String canonicalDomain = getCanonicalDomain(
 					virtualHostname, portalDomain);
 
 				virtualHostname = getPortalURL(
-					virtualHostname, themeDisplay.getServerPort(),
+					canonicalDomain, themeDisplay.getServerPort(),
 					themeDisplay.isSecure());
 
-				if (canonicalURL || virtualHostname.contains(portalDomain)) {
+				if (canonicalURL || canonicalDomain.startsWith(portalDomain)) {
 					String path = StringPool.BLANK;
 
 					if (themeDisplay.isWidget()) {

@@ -21,6 +21,7 @@
 <%@ taglib uri="http://liferay.com/tld/asset" prefix="liferay-asset" %><%@
 taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/ddm" prefix="liferay-ddm" %><%@
+taglib uri="http://liferay.com/tld/expando" prefix="liferay-expando" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/security" prefix="liferay-security" %><%@
@@ -58,6 +59,7 @@ page import="com.liferay.frontend.taglib.servlet.taglib.util.AddMenuKeys" %><%@
 page import="com.liferay.item.selector.ItemSelector" %><%@
 page import="com.liferay.item.selector.ItemSelectorReturnType" %><%@
 page import="com.liferay.item.selector.criteria.UUIDItemSelectorReturnType" %><%@
+page import="com.liferay.journal.configuration.JournalFileUploadsConfiguration" %><%@
 page import="com.liferay.journal.configuration.JournalGroupServiceConfiguration" %><%@
 page import="com.liferay.journal.constants.JournalConstants" %><%@
 page import="com.liferay.journal.constants.JournalPortletKeys" %><%@

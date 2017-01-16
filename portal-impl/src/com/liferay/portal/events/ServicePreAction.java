@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTemplate;
-import com.liferay.portal.kernel.model.LayoutType;
 import com.liferay.portal.kernel.model.LayoutTypeAccessPolicy;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
@@ -96,6 +95,7 @@ import com.liferay.portal.kernel.webserver.WebServerServletTokenUtil;
 import com.liferay.portal.theme.ThemeDisplayFactory;
 import com.liferay.portal.util.LayoutClone;
 import com.liferay.portal.util.LayoutCloneFactory;
+import com.liferay.portal.util.LayoutTypeAccessPolicyTracker;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
@@ -498,10 +498,8 @@ public class ServicePreAction extends Action {
 			request, "customized_view", true);
 
 		if (layout != null) {
-			LayoutType layoutType = layout.getLayoutType();
-
 			LayoutTypeAccessPolicy layoutTypeAccessPolicy =
-				layoutType.getLayoutTypeAccessPolicy();
+				LayoutTypeAccessPolicyTracker.getLayoutTypeAccessPolicy(layout);
 
 			hasCustomizeLayoutPermission =
 				layoutTypeAccessPolicy.isCustomizeLayoutAllowed(
@@ -714,9 +712,6 @@ public class ServicePreAction extends Action {
 
 		boolean isolated = ParamUtil.getBoolean(request, "p_p_isolated");
 
-		String facebookCanvasPageURL = (String)request.getAttribute(
-			WebKeys.FACEBOOK_CANVAS_PAGE_URL);
-
 		boolean widget = false;
 
 		Boolean widgetObj = (Boolean)request.getAttribute(WebKeys.WIDGET);
@@ -739,7 +734,6 @@ public class ServicePreAction extends Action {
 
 		themeDisplay.setCDNHost(cdnHost);
 		themeDisplay.setCDNDynamicResourcesHost(dynamicResourcesCDNHost);
-		themeDisplay.setFacebookCanvasPageURL(facebookCanvasPageURL);
 		themeDisplay.setPortalDomain(_getPortalDomain(portalURL));
 		themeDisplay.setPortalURL(portalURL);
 		themeDisplay.setRefererPlid(refererPlid);

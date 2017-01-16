@@ -57,7 +57,6 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.maven.MavenDeployer;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaBasePlugin;
@@ -68,7 +67,6 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.Upload;
-import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.util.GUtil;
 
 /**
@@ -80,6 +78,9 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 	public static final String PRINT_ARTIFACT_PUBLISH_COMMANDS =
 		"printArtifactPublishCommands";
+
+	public static final String PRINT_DEPENDENT_ARTIFACT_TASK_NAME =
+		"printDependentArtifact";
 
 	public static final String PRINT_STALE_ARTIFACT_TASK_NAME =
 		"printStaleArtifact";
@@ -121,6 +122,8 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 		_addTaskPrintArtifactPublishCommands(project, recordArtifactTask);
 		_addTaskPrintStaleArtifact(project, recordArtifactTask);
+
+		_addTaskPrintDependentArtifact(project);
 
 		_configureTaskBuildChangeLog(buildChangeLogTask, relengDir);
 		_configureTaskUploadArchives(project, recordArtifactTask);
@@ -171,7 +174,20 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 		if (projectPath.startsWith(":apps:") ||
 			projectPath.startsWith(":private:apps:")) {
 
-			_configureTaskEnabledIfLeaf(printArtifactPublishCommandsTask);
+			printArtifactPublishCommandsTask.onlyIf(
+				new Spec<Task>() {
+
+					@Override
+					public boolean isSatisfiedBy(Task task) {
+						if (_hasProjectDependencies(task.getProject())) {
+							return false;
+						}
+
+						return true;
+					}
+
+				});
+
 			_configureTaskEnabledIfDependenciesArePublished(
 				printArtifactPublishCommandsTask);
 		}
@@ -232,14 +248,53 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 								LiferayThemeDefaultsPlugin.
 									WRITE_PARENT_THEMES_DIGEST_TASK_NAME);
 
-						printArtifactPublishCommandsTask.prepNextFiles(
-							writeDigestTask.getDigestFile());
+						printArtifactPublishCommandsTask.prepNextCommitFile(
+							"digest", writeDigestTask.getDigestFile());
 					}
 				}
 
 			});
 
 		return printArtifactPublishCommandsTask;
+	}
+
+	private Task _addTaskPrintDependentArtifact(Project project) {
+		Task task = project.task(PRINT_DEPENDENT_ARTIFACT_TASK_NAME);
+
+		task.doLast(
+			new Action<Task>() {
+
+				@Override
+				public void execute(Task task) {
+					Project project = task.getProject();
+
+					File projectDir = project.getProjectDir();
+
+					System.out.println(projectDir.getAbsolutePath());
+				}
+
+			});
+
+		task.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					if (_hasProjectDependencies(task.getProject())) {
+						return true;
+					}
+
+					return false;
+				}
+
+			});
+
+		task.setDescription(
+			"Prints the project directory if this project contains " +
+				"dependencies to other projects.");
+		task.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
+
+		return task;
 	}
 
 	private Task _addTaskPrintStaleArtifact(
@@ -316,40 +371,31 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 
 			@Override
 			public void execute(final PublishArtifact publishArtifact) {
-				String key = publishArtifact.getClassifier();
-
-				if (Validator.isNull(key)) {
-					key = "artifact.url";
-				}
-				else {
-					key = "artifact." + key + ".url";
-				}
-
 				writePropertiesTask.property(
-					key,
 					new Callable<String>() {
 
 						@Override
 						public String call() throws Exception {
-							if (publishArtifact instanceof
-									ArchivePublishArtifact) {
+							String key = publishArtifact.getClassifier();
 
-								ArchivePublishArtifact archivePublishArtifact =
-									(ArchivePublishArtifact)publishArtifact;
-
-								return _getArtifactRemoteURL(
-									archivePublishArtifact.getArchiveTask(),
-									false);
+							if (Validator.isNull(key)) {
+								key = "artifact.url";
 							}
 							else {
-								Project project =
-									writePropertiesTask.getProject();
-
-								return _getArtifactRemoteURL(
-									project, publishArtifact.getName(),
-									String.valueOf(project.getVersion()),
-									publishArtifact.getExtension(), false);
+								key = "artifact." + key + ".url";
 							}
+
+							return key;
+						}
+
+					},
+					new Callable<String>() {
+
+						@Override
+						public String call() throws Exception {
+							return _getArtifactRemoteURL(
+								writePropertiesTask.getProject(),
+								publishArtifact, false);
 						}
 
 					});
@@ -390,42 +436,6 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 					catch (IOException ioe) {
 						throw new UncheckedIOException(ioe);
 					}
-				}
-
-			});
-	}
-
-	private void _configureTaskEnabledIfLeaf(Task task) {
-		task.onlyIf(
-			new Spec<Task>() {
-
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					Project project = task.getProject();
-
-					for (Configuration configuration :
-							project.getConfigurations()) {
-
-						if (_hasProjectDependencies(configuration)) {
-							return false;
-						}
-					}
-
-					return true;
-				}
-
-				private boolean _hasProjectDependencies(
-					Configuration configuration) {
-
-					for (Dependency dependency :
-							configuration.getDependencies()) {
-
-						if (dependency instanceof ProjectDependency) {
-							return true;
-						}
-					}
-
-					return false;
 				}
 
 			});
@@ -601,39 +611,45 @@ public class LiferayRelengPlugin implements Plugin<Project> {
 	}
 
 	private String _getArtifactRemoteURL(
-			AbstractArchiveTask abstractArchiveTask, boolean cdn)
-		throws Exception {
-
-		StringBuilder sb = _getArtifactRemoteBaseURL(
-			abstractArchiveTask.getProject(), cdn);
-
-		sb.append(abstractArchiveTask.getBaseName());
-		sb.append('/');
-		sb.append(abstractArchiveTask.getVersion());
-		sb.append('/');
-		sb.append(abstractArchiveTask.getArchiveName());
-
-		return sb.toString();
-	}
-
-	private String _getArtifactRemoteURL(
-			Project project, String name, String version, String extension,
-			boolean cdn)
+			Project project, PublishArtifact publishArtifact, boolean cdn)
 		throws Exception {
 
 		StringBuilder sb = _getArtifactRemoteBaseURL(project, cdn);
 
+		String name = GradleUtil.getArchivesBaseName(project);
+
 		sb.append(name);
+
 		sb.append('/');
-		sb.append(version);
+		sb.append(project.getVersion());
 		sb.append('/');
 		sb.append(name);
 		sb.append('-');
-		sb.append(version);
+		sb.append(project.getVersion());
+
+		String classifier = publishArtifact.getClassifier();
+
+		if (Validator.isNotNull(classifier)) {
+			sb.append('-');
+			sb.append(classifier);
+		}
+
 		sb.append('.');
-		sb.append(extension);
+		sb.append(publishArtifact.getExtension());
 
 		return sb.toString();
+	}
+
+	private boolean _hasProjectDependencies(Project project) {
+		for (Configuration configuration : project.getConfigurations()) {
+			for (Dependency dependency : configuration.getDependencies()) {
+				if (dependency instanceof ProjectDependency) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private boolean _isStale(

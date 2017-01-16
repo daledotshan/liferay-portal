@@ -92,12 +92,6 @@
 	<listener>
 		<listener-class>com.liferay.portal.spring.context.PortalContextLoaderListener</listener-class>
 	</listener>
-	<listener>
-		<listener-class>com.liferay.portal.servlet.PortalSessionListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>com.liferay.portal.kernel.servlet.PortletSessionListenerManager</listener-class>
-	</listener>
 	<servlet>
 		<servlet-name>Main Servlet</servlet-name>
 		<servlet-class>com.liferay.portal.servlet.MainServlet</servlet-class>
@@ -138,11 +132,6 @@
 	<servlet>
 		<servlet-name>Dynamic Resource Servlet</servlet-name>
 		<servlet-class>com.liferay.portal.webserver.DynamicResourceServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet>
-		<servlet-name>Facebook Servlet</servlet-name>
-		<servlet-class>com.liferay.portal.facebook.FacebookServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet>
@@ -308,10 +297,6 @@
 	<servlet-mapping>
 		<servlet-name>Dynamic Resource Servlet</servlet-name>
 		<url-pattern>/sprite/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>Facebook Servlet</servlet-name>
-		<url-pattern>/facebook/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>Friendly URL Servlet - Private Group</servlet-name>
