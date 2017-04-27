@@ -38,6 +38,10 @@
 		}
 	}
 
+	.wiki-page-editor .alloy-editor-container .alloy-editor-wrapper {
+		padding-left: 45px;
+	}
+
 	a.createpage {
 		color: #F00;
 	}
@@ -351,13 +355,5 @@
 		.syntax-help h4 {
 			margin-bottom: 0.3em;
 		}
-	}
-}
-
-/* ---------- Skin ---------- */
-
-.portlet-wiki {
-	.list-group-item a {
-		color: #29353D;
 	}
 }

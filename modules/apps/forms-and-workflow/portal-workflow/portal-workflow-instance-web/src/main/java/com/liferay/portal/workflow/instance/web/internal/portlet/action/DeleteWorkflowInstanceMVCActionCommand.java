@@ -22,7 +22,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -132,13 +132,6 @@ public class DeleteWorkflowInstanceMVCActionCommand
 			themeDisplay.getCompanyId(), workflowInstanceId);
 	}
 
-	@Reference(unbind = "-")
-	protected void setWorkflowInstanceLinkLocalService(
-		WorkflowInstanceLinkLocalService workflowInstanceLinkLocalService) {
-
-		_workflowInstanceLinkLocalService = workflowInstanceLinkLocalService;
-	}
-
 	protected void updateEntryStatus(Map<String, Serializable> workflowContext)
 		throws Exception {
 
@@ -160,12 +153,16 @@ public class DeleteWorkflowInstanceMVCActionCommand
 		long userId = GetterUtil.getLong(
 			workflowContext.get(WorkflowConstants.CONTEXT_USER_ID));
 
-		long validUserId = PortalUtil.getValidUserId(companyId, userId);
+		long validUserId = _portal.getValidUserId(companyId, userId);
 
 		workflowContext.put(
 			WorkflowConstants.CONTEXT_USER_ID, String.valueOf(validUserId));
 	}
 
+	@Reference
+	private Portal _portal;
+
+	@Reference
 	private WorkflowInstanceLinkLocalService _workflowInstanceLinkLocalService;
 
 }

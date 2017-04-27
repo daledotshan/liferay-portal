@@ -1,5 +1,6 @@
 <definition component-name="portal-workflow">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Workflow" />
 
 	<var name="portletName" value="Page Comments" />
@@ -174,8 +175,9 @@
 		<execute macro="Workflow#viewDefaultMySubmissionsCP" />
 	</command>
 
-	<command name="EditCommentAssignedToMe" priority="4">
+	<command name="EditCommentAssignedToMe" priority="5">
 		<description message="This is a use case for LPS-68780." />
+		<property name="portal.acceptance" value="true" />
 
 		<execute macro="Navigator#gotoPage">
 			<var name="pageName" value="Page Comments Page" />
@@ -204,9 +206,8 @@
 
 		<execute macro="Workflow#gotoPreviewEdit" />
 
-		<execute macro="FormFields#editTextMultiline">
-			<var name="fieldName" value="CommentPortlet" />
-			<var name="fieldValue" value="EDIT Comment" />
+		<execute macro="PageComment#editCommentField">
+			<var name="commentBody" value="EDIT Comment" />
 		</execute>
 
 		<execute macro="Button#clickSave" />

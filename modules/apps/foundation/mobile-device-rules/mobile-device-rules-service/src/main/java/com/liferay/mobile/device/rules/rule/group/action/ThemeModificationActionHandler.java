@@ -16,14 +16,13 @@ package com.liferay.mobile.device.rules.rule.group.action;
 
 import com.liferay.mobile.device.rules.action.ActionHandler;
 import com.liferay.mobile.device.rules.model.MDRAction;
-import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.model.ColorScheme;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.service.ThemeLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -35,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Edward Han
@@ -51,7 +51,7 @@ public class ThemeModificationActionHandler implements ActionHandler {
 		MDRAction mdrAction, HttpServletRequest request,
 		HttpServletResponse response) {
 
-		long companyId = PortalUtil.getCompanyId(request);
+		long companyId = _portal.getCompanyId(request);
 
 		UnicodeProperties typeSettingsProperties =
 			mdrAction.getTypeSettingsProperties();
@@ -103,7 +103,10 @@ public class ThemeModificationActionHandler implements ActionHandler {
 		Collections.unmodifiableCollection(
 			Arrays.asList("colorSchemeId", "themeId"));
 
-	@BeanReference(type = ThemeLocalService.class)
+	@Reference
+	private Portal _portal;
+
+	@Reference
 	private ThemeLocalService _themeLocalService;
 
 }

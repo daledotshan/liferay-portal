@@ -91,6 +91,10 @@ AUI.add(
 						writeOnce: true
 					},
 
+					successPage: {
+						value: {}
+					},
+
 					visitor: {
 						getter: '_getVisitor',
 						valueFn: '_valueVisitor'
@@ -294,6 +298,20 @@ AUI.add(
 						return instance._sidebar;
 					},
 
+					getPagesTitle: function() {
+						var instance = this;
+
+						return instance._getPageManagerInstance().get('titles');
+					},
+
+					getSuccessPageDefinition: function() {
+						var instance = this;
+
+						var pageManager = instance._getPageManagerInstance();
+
+						return pageManager.getSuccessPageDefinition();
+					},
+
 					openConfirmCancelFieldChangesDiolog: function(confirmFn) {
 						var instance = this;
 
@@ -331,13 +349,30 @@ AUI.add(
 						);
 					},
 
-					_afterActivePageNumberChange: function() {
+					_afterActivePageNumberChange: function(event) {
 						var instance = this;
 
-						FormBuilder.superclass._afterActivePageNumberChange.apply(instance, arguments);
+						if (event.newVal > instance.get('layouts').length) {
+							instance.fire(
+								'successPageVisibility',
+								{
+									visible: true
+								}
+							);
+						}
+						else {
+							instance.fire(
+								'successPageVisibility',
+								{
+									visible: false
+								}
+							);
 
-						instance._syncRequiredFieldsWarning();
-						instance._syncRowsLastColumnUI();
+							FormBuilder.superclass._afterActivePageNumberChange.apply(instance, arguments);
+
+							instance._syncRequiredFieldsWarning();
+							instance._syncRowsLastColumnUI();
+						}
 					},
 
 					_afterFieldClick: function(event) {
@@ -446,6 +481,8 @@ AUI.add(
 									config
 								)
 							);
+
+							instance._pageManager.setSuccessPage(instance.get('definition').successPage);
 						}
 
 						return instance._pageManager;

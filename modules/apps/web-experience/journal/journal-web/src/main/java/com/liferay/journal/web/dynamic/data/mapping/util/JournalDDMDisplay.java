@@ -33,7 +33,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
@@ -44,6 +44,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eduardo Garcia
@@ -62,8 +63,7 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 	public String getConfirmSelectStructureMessage(Locale locale) {
 		return LanguageUtil.get(
 			getResourceBundle(locale),
-			"selecting-a-new-structure-changes-the-available-input-fields-" +
-				"and-available-templates");
+			"selecting-a-new-structure-deletes-all-unsaved-content");
 	}
 
 	public String getConfirmSelectTemplateMessage(Locale locale) {
@@ -79,7 +79,7 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 			DDMStructure structure, String redirectURL)
 		throws Exception {
 
-		PortletURL portletURL = PortalUtil.getControlPanelPortletURL(
+		PortletURL portletURL = portal.getControlPanelPortletURL(
 			liferayPortletRequest, JournalPortletKeys.JOURNAL,
 			PortletRequest.RENDER_PHASE);
 
@@ -89,7 +89,7 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 			"groupId", String.valueOf(structure.getGroupId()));
 		portletURL.setParameter(
 			"classNameId",
-			String.valueOf(PortalUtil.getClassNameId(DDMStructure.class)));
+			String.valueOf(portal.getClassNameId(DDMStructure.class)));
 		portletURL.setParameter(
 			"classPK", String.valueOf(structure.getStructureId()));
 		portletURL.setParameter("ddmStructureKey", structure.getStructureKey());
@@ -166,7 +166,7 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 	public long getTemplateHandlerClassNameId(
 		DDMTemplate template, long classNameId) {
 
-		return PortalUtil.getClassNameId(JournalArticle.class);
+		return portal.getClassNameId(JournalArticle.class);
 	}
 
 	@Override
@@ -227,6 +227,9 @@ public class JournalDDMDisplay extends BaseDDMDisplay {
 	public boolean isShowStructureSelector() {
 		return true;
 	}
+
+	@Reference
+	protected Portal portal;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalDDMDisplay.class);

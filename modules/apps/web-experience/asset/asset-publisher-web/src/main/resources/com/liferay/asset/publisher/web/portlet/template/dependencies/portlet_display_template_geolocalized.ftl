@@ -9,7 +9,7 @@
 	companyPortletPreferences = prefsPropsUtil.getPreferences(companyId)
 />
 
-<#if mapsAPIProvider = "">
+<#if validator.isNull(mapsAPIProvider)>
 	<#assign mapsAPIProvider = companyPortletPreferences.getValue("mapsAPIProvider", "Google") />
 </#if>
 
@@ -65,7 +65,7 @@
 
 		<@liferay.silently propertiesJSONObject.put("abstract", entryAbstract) />
 
-		<#if mapsAPIProvider = "Google">
+		<#if stringUtil.equals(mapsAPIProvider, "Google")>
 			<#assign
 				images = {
 					"com.liferay.document.library.kernel.model.DLFileEntry": "${themeDisplay.getProtocol()}://maps.google.com/mapfiles/ms/icons/green-dot.png",
@@ -175,7 +175,7 @@
 			</div>
 		</#if>
 
-		<#assign assetURL = assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, asset) />
+		<#assign assetURL = assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, assetRenderer, asset, false) />
 
 		<div class="asset-entry-abstract-content">
 			<h3><a href="${assetURL}">${assetRenderer.getTitle(locale)}</a></h3>

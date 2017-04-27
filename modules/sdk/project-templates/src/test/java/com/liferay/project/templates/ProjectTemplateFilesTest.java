@@ -34,7 +34,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,12 +110,53 @@ public class ProjectTemplateFilesTest {
 			Path projectTemplateDirPath, String gitIgnoreTemplate)
 		throws IOException {
 
+		Path bndBndPath = projectTemplateDirPath.resolve("bnd.bnd");
+
+		Properties properties = FileUtil.readProperties(bndBndPath);
+
+		String bundleDescription = properties.getProperty("Bundle-Description");
+
+		Assert.assertTrue(
+			"Missing 'Bundle-Description' header in " + bndBndPath,
+			Validator.isNotNull(bundleDescription));
+
+		Matcher matcher = _bundleDescriptionPattern.matcher(bundleDescription);
+
+		Assert.assertTrue(
+			"Header 'Bundle-Description' in " + bndBndPath +
+				" must match pattern '" + _bundleDescriptionPattern.pattern() +
+					"'",
+			matcher.matches());
+
+		String projectTemplateDirName = String.valueOf(
+			projectTemplateDirPath.getFileName());
+
 		Path archetypeMetadataXmlPath = projectTemplateDirPath.resolve(
 			"src/main/resources/META-INF/maven/archetype-metadata.xml");
 
 		Assert.assertTrue(
 			"Missing " + archetypeMetadataXmlPath,
 			Files.exists(archetypeMetadataXmlPath));
+
+		String archetypeDescriptorName = projectTemplateDirName.substring(
+			FileTestUtil.PROJECT_TEMPLATE_DIR_PREFIX.length());
+
+		if (archetypeDescriptorName.equals(WorkspaceUtil.WORKSPACE)) {
+			archetypeDescriptorName = "liferay-" + archetypeDescriptorName;
+		}
+		else {
+			archetypeDescriptorName =
+				"liferay-module-" + archetypeDescriptorName;
+		}
+
+		String archetypeMetadataXml = FileUtil.read(archetypeMetadataXmlPath);
+
+		Assert.assertTrue(
+			"Incorrect archetype descriptor name in " +
+				archetypeMetadataXmlPath,
+			archetypeMetadataXml.startsWith(
+				"<?xml version=\"1.0\"?>\n\n<archetype-descriptor name=\"" +
+					archetypeDescriptorName + "\">"));
 
 		Path archetypeResourcesDirPath = projectTemplateDirPath.resolve(
 			"src/main/resources/archetype-resources");
@@ -139,10 +182,6 @@ public class ProjectTemplateFilesTest {
 		Assert.assertTrue(
 			"Missing " + gitIgnorePath, Files.exists(gitIgnorePath));
 
-		Path projectTemplateDirNamePath = projectTemplateDirPath.getFileName();
-
-		String projectTemplateDirName = projectTemplateDirNamePath.toString();
-
 		if (!projectTemplateDirName.equals(
 				FileTestUtil.PROJECT_TEMPLATE_DIR_PREFIX +
 					WorkspaceUtil.WORKSPACE)) {
@@ -153,12 +192,24 @@ public class ProjectTemplateFilesTest {
 		}
 
 		Assert.assertFalse(
-			"Forbidden Gradle wrapper in " + archetypeResourcesDirPath,
+			"Forbidden Gradle Wrapper in " + archetypeResourcesDirPath,
 			Files.exists(archetypeResourcesDirPath.resolve("gradlew")));
+
+		Assert.assertFalse(
+			"Forbidden Maven Wrapper in " + archetypeResourcesDirPath,
+			Files.exists(archetypeResourcesDirPath.resolve("mvnw")));
 
 		Path pomXmlPath = archetypeResourcesDirPath.resolve("pom.xml");
 
 		Assert.assertTrue("Missing " + pomXmlPath, Files.exists(pomXmlPath));
+
+		String pomXml = FileUtil.read(pomXmlPath);
+
+		Assert.assertFalse(
+			"Packaging \"jar\" is implicit in " + pomXmlPath,
+			pomXml.contains("<packaging>jar</packaging>"));
+
+		final AtomicBoolean hasJavaFiles = new AtomicBoolean();
 
 		Files.walkFileTree(
 			archetypeResourcesDirPath,
@@ -190,14 +241,18 @@ public class ProjectTemplateFilesTest {
 						Path path, BasicFileAttributes basicFileAttributes)
 					throws IOException {
 
-					Path fileNamePath = path.getFileName();
-
-					String fileName = fileNamePath.toString();
+					String fileName = String.valueOf(path.getFileName());
 
 					String extension = FileTestUtil.getExtension(fileName);
 
+					boolean javaFile = extension.equals("java");
+
+					if (javaFile) {
+						hasJavaFiles.set(true);
+					}
+
 					if (!fileName.equals(".gitkeep") &&
-						(_isInJavaSrcDir(path) != extension.equals("java"))) {
+						(_isInJavaSrcDir(path) != javaFile)) {
 
 						Assert.fail("Wrong source directory " + path);
 					}
@@ -210,6 +265,22 @@ public class ProjectTemplateFilesTest {
 				}
 
 			});
+
+		boolean hasArchetypeMetadataAuthorProperty =
+			archetypeMetadataXml.contains("<requiredProperty key=\"author\">");
+
+		if (hasJavaFiles.get()) {
+			Assert.assertTrue(
+				"Missing \"author\" required property in " +
+					archetypeMetadataXmlPath,
+				hasArchetypeMetadataAuthorProperty);
+		}
+		else {
+			Assert.assertFalse(
+				"Forbidden \"author\" required property in " +
+					archetypeMetadataXmlPath,
+				hasArchetypeMetadataAuthorProperty);
+		}
 	}
 
 	private void _testTextFile(Path path, String fileName, String extension)
@@ -219,13 +290,11 @@ public class ProjectTemplateFilesTest {
 
 		boolean trailingEmptyLine = false;
 
-		if ((text.length() > 0) && text.charAt(text.length() - 1) == '\n') {
+		if ((text.length() > 0) && (text.charAt(text.length() - 1) == '\n')) {
 			trailingEmptyLine = true;
 		}
 
 		Assert.assertFalse("Trailing empty line in " + path, trailingEmptyLine);
-
-		boolean firstEmptyLine = false;
 
 		try (BufferedReader bufferedReader = new BufferedReader(
 				new StringReader(text))) {
@@ -233,20 +302,10 @@ public class ProjectTemplateFilesTest {
 			String line = null;
 
 			while ((line = bufferedReader.readLine()) != null) {
-				if (line.isEmpty()) {
-					Assert.assertFalse(
-						"Forbidden empty line in " + path,
-						firstEmptyLine && extension.equals("xml") &&
-							!fileName.equals("service.xml"));
-
-					firstEmptyLine = true;
-
-					continue;
-				}
-
 				Assert.assertFalse(
 					"Forbidden whitespace trailing character in " + path,
-					Character.isWhitespace(line.charAt(line.length() - 1)));
+					!line.isEmpty() &&
+						Character.isWhitespace(line.charAt(line.length() - 1)));
 			}
 		}
 
@@ -260,7 +319,16 @@ public class ProjectTemplateFilesTest {
 				"#if (" + condition.trim() + ")", matcher.group());
 		}
 
-		if (extension.equals("xml") && Validator.isNotNull(text)) {
+		if (extension.equals("java")) {
+			Assert.assertTrue(
+				"Missing @author tag in " + path,
+				text.contains("* @author ${author}"));
+		}
+
+		if (extension.equals("xml") &&
+			!fileName.equals("liferay-layout-templates.xml") &&
+			Validator.isNotNull(text)) {
+
 			String xmlDeclaration = _XML_DECLARATION;
 
 			if (fileName.equals("service.xml")) {
@@ -282,6 +350,8 @@ public class ProjectTemplateFilesTest {
 	private static final String _XML_DECLARATION =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n";
 
+	private static final Pattern _bundleDescriptionPattern = Pattern.compile(
+		"Creates a .+\\.");
 	private static final Set<String> _textFileExtensions = new HashSet<>(
 		Arrays.asList(
 			"bnd", "gradle", "java", "jsp", "jspf", "properties", "xml"));

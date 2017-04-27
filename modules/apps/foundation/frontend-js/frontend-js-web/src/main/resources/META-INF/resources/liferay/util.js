@@ -30,8 +30,8 @@
 
 	var STR_RIGHT_SQUARE_BRACKET = ']';
 
-	var TPL_LEXICON_ICON = '<svg class="lexicon-icon lexicon-icon-{0} {1}" role="image">' +
-			'<use xlink:href="' + themeDisplay.getPathThemeImages() + '/lexicon/icons.svg#{0}" />' +
+	var TPL_LEXICON_ICON = '<svg class="lexicon-icon lexicon-icon-{0} {1}" focusable="false" role="image">' +
+			'<use data-href="' + themeDisplay.getPathThemeImages() + '/lexicon/icons.svg#{0}" />' +
 		'</svg>';
 
 	var Window = {
@@ -1170,6 +1170,8 @@
 				Util.submitForm(form);
 
 				form.attr('target', '');
+
+				Util._submitLocked = null;
 			}
 		},
 
@@ -1279,6 +1281,8 @@
 			}
 
 			iframeBody.addClass(dialog.iframeConfig.bodyCssClass);
+
+			event.win.focus();
 
 			var detachEventHandles = function() {
 				AArray.invoke(eventHandles, 'detach');
@@ -1869,7 +1873,7 @@
 		DROP_POSITION: 450,
 		MENU: 5000,
 		OVERLAY: 1000,
-		POPOVER: 1060,
+		POPOVER: 1600,
 		TOOLTIP: 10000,
 		WINDOW: 1200
 	};

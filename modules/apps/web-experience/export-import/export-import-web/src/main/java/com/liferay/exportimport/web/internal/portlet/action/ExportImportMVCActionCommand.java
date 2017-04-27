@@ -49,7 +49,7 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -103,7 +103,7 @@ public class ExportImportMVCActionCommand extends BaseMVCActionCommand {
 		if (Validator.isNull(cmd)) {
 			SessionMessages.add(
 				actionRequest,
-				PortalUtil.getPortletId(actionRequest) +
+				_portal.getPortletId(actionRequest) +
 					SessionMessages.KEY_SUFFIX_FORCE_SEND_REDIRECT);
 
 			hideDefaultSuccessMessage(actionRequest);
@@ -150,7 +150,7 @@ public class ExportImportMVCActionCommand extends BaseMVCActionCommand {
 
 				SessionMessages.add(
 					actionRequest,
-					PortalUtil.getPortletId(actionRequest) +
+					_portal.getPortletId(actionRequest) +
 						SessionMessages.KEY_SUFFIX_CLOSE_REFRESH_PORTLET,
 					portlet.getPortletId());
 
@@ -170,15 +170,15 @@ public class ExportImportMVCActionCommand extends BaseMVCActionCommand {
 					e);
 			}
 			else {
-				if ((e instanceof LARFileException) ||
-					(e instanceof LARFileNameException) ||
-					(e instanceof LARFileSizeException) ||
-					(e instanceof LARTypeException) ||
-					(e instanceof LocaleException) ||
-					(e instanceof NoSuchLayoutException) ||
-					(e instanceof PortletIdException) ||
-					(e instanceof PrincipalException) ||
-					(e instanceof StructureDuplicateStructureKeyException)) {
+				if (e instanceof LARFileException ||
+					e instanceof LARFileNameException ||
+					e instanceof LARFileSizeException ||
+					e instanceof LARTypeException ||
+					e instanceof LocaleException ||
+					e instanceof NoSuchLayoutException ||
+					e instanceof PortletIdException ||
+					e instanceof PrincipalException ||
+					e instanceof StructureDuplicateStructureKeyException) {
 
 					SessionErrors.add(actionRequest, e.getClass());
 				}
@@ -409,5 +409,8 @@ public class ExportImportMVCActionCommand extends BaseMVCActionCommand {
 		_exportImportConfigurationLocalService;
 	private ExportImportService _exportImportService;
 	private ImportLayoutsMVCActionCommand _importLayoutsMVCActionCommand;
+
+	@Reference
+	private Portal _portal;
 
 }

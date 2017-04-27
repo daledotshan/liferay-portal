@@ -17,11 +17,11 @@ package com.liferay.portal.workflow.task.web.internal.portlet.action;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowTaskDueDateException;
-import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
+import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +30,7 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Leonardo Barros
@@ -70,13 +71,19 @@ public class UpdateTaskMVCActionCommand
 			dueDateHour += 12;
 		}
 
-		Date dueDate = PortalUtil.getDate(
+		Date dueDate = _portal.getDate(
 			dueDateMonth, dueDateDay, dueDateYear, dueDateHour, dueDateMinute,
 			WorkflowTaskDueDateException.class);
 
-		WorkflowTaskManagerUtil.updateDueDate(
+		workflowTaskManager.updateDueDate(
 			themeDisplay.getCompanyId(), themeDisplay.getUserId(),
 			workflowTaskId, comment, dueDate);
 	}
+
+	@Reference
+	protected WorkflowTaskManager workflowTaskManager;
+
+	@Reference
+	private Portal _portal;
 
 }

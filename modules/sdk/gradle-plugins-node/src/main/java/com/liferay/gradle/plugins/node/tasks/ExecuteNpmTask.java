@@ -62,6 +62,36 @@ public class ExecuteNpmTask extends ExecuteNodeScriptTask {
 
 			});
 
+		setLogLevel(
+			new Callable<String>() {
+
+				@Override
+				public String call() throws Exception {
+					String logLevel = null;
+
+					Logger logger = getLogger();
+
+					if (logger.isTraceEnabled()) {
+						logLevel = "silly";
+					}
+					else if (logger.isDebugEnabled()) {
+						logLevel = "verbose";
+					}
+					else if (logger.isInfoEnabled()) {
+						logLevel = "info";
+					}
+					else if (logger.isWarnEnabled()) {
+						logLevel = "warn";
+					}
+					else if (logger.isErrorEnabled()) {
+						logLevel = "error";
+					}
+
+					return logLevel;
+				}
+
+			});
+
 		setScriptFile(
 			new Callable<File>() {
 
@@ -84,7 +114,11 @@ public class ExecuteNpmTask extends ExecuteNodeScriptTask {
 	public void executeNode() throws Exception {
 		Project project = getProject();
 
-		if (FileUtil.isChild(getCacheDir(), project.getProjectDir())) {
+		File cacheDir = getCacheDir();
+
+		if ((cacheDir != null) &&
+			FileUtil.isChild(cacheDir, project.getProjectDir())) {
+
 			super.executeNode();
 		}
 		else {
@@ -98,6 +132,10 @@ public class ExecuteNpmTask extends ExecuteNodeScriptTask {
 		return GradleUtil.toFile(getProject(), _cacheDir);
 	}
 
+	public String getLogLevel() {
+		return GradleUtil.toString(_logLevel);
+	}
+
 	public String getRegistry() {
 		return GradleUtil.toString(_registry);
 	}
@@ -108,6 +146,10 @@ public class ExecuteNpmTask extends ExecuteNodeScriptTask {
 
 	public void setCacheDir(Object cacheDir) {
 		_cacheDir = cacheDir;
+	}
+
+	public void setLogLevel(Object logLevel) {
+		_logLevel = logLevel;
 	}
 
 	public void setProgress(boolean progress) {
@@ -129,27 +171,9 @@ public class ExecuteNpmTask extends ExecuteNodeScriptTask {
 			completeArgs.add(FileUtil.getAbsolutePath(cacheDir));
 		}
 
-		String logLevel = null;
+		String logLevel = getLogLevel();
 
-		Logger logger = getLogger();
-
-		if (logger.isTraceEnabled()) {
-			logLevel = "silly";
-		}
-		else if (logger.isDebugEnabled()) {
-			logLevel = "verbose";
-		}
-		else if (logger.isInfoEnabled()) {
-			logLevel = "info";
-		}
-		else if (logger.isWarnEnabled()) {
-			logLevel = "warn";
-		}
-		else if (logger.isErrorEnabled()) {
-			logLevel = "error";
-		}
-
-		if (logLevel != null) {
+		if (Validator.isNotNull(logLevel)) {
 			completeArgs.add("--loglevel");
 			completeArgs.add(logLevel);
 		}
@@ -168,6 +192,7 @@ public class ExecuteNpmTask extends ExecuteNodeScriptTask {
 	}
 
 	private Object _cacheDir;
+	private Object _logLevel;
 	private boolean _progress = true;
 	private Object _registry;
 

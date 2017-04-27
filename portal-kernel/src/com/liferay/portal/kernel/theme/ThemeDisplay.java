@@ -30,35 +30,43 @@ import com.liferay.portal.kernel.model.ColorScheme;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.ThemeSetting;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.VirtualLayoutConstants;
+import com.liferay.portal.kernel.model.impl.VirtualLayout;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.Mergeable;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TimeZoneThreadLocal;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
@@ -116,6 +124,15 @@ public class ThemeDisplay
 	}
 
 	public Account getAccount() {
+		if ((_account == null) && (_company != null)) {
+			try {
+				_account = _company.getAccount();
+			}
+			catch (PortalException pe) {
+				ReflectionUtil.throwException(pe);
+			}
+		}
+
 		return _account;
 	}
 
@@ -258,7 +275,45 @@ public class ThemeDisplay
 	}
 
 	public Contact getContact() {
+		if (_contact == null) {
+			if (_user == null) {
+				return null;
+			}
+
+			try {
+				_contact = _user.getContact();
+			}
+			catch (PortalException pe) {
+				ReflectionUtil.throwException(pe);
+			}
+		}
+
 		return _contact;
+	}
+
+	public Group getControlPanelGroup() {
+		if (_controlPanelGroup == null) {
+			try {
+				_controlPanelGroup = GroupLocalServiceUtil.getGroup(
+					_company.getCompanyId(), GroupConstants.CONTROL_PANEL);
+			}
+			catch (PortalException pe) {
+				ReflectionUtil.throwException(pe);
+			}
+		}
+
+		return _controlPanelGroup;
+	}
+
+	public Layout getControlPanelLayout() {
+		if (_controlPanelLayout == null) {
+			Group controlPanelGroup = getControlPanelGroup();
+
+			_controlPanelLayout = LayoutLocalServiceUtil.fetchDefaultLayout(
+				controlPanelGroup.getGroupId(), true);
+		}
+
+		return _controlPanelLayout;
 	}
 
 	/**
@@ -313,6 +368,10 @@ public class ThemeDisplay
 		return _doAsUserLanguageId;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public String getFacebookCanvasPageURL() {
 		return _facebookCanvasPageURL;
 	}
@@ -378,6 +437,21 @@ public class ThemeDisplay
 	 */
 	public Layout getLayout() {
 		return _layout;
+	}
+
+	public String getLayoutFriendlyURL(Layout layout) {
+		if (layout instanceof VirtualLayout) {
+			VirtualLayout virtualLayout = (VirtualLayout)layout;
+
+			layout = virtualLayout.getSourceLayout();
+
+			Group group = layout.getGroup();
+
+			return VirtualLayoutConstants.CANONICAL_URL_SEPARATOR.concat(
+				group.getFriendlyURL()).concat(_getFriendlyURL(layout));
+		}
+
+		return _getFriendlyURL(layout);
 	}
 
 	/**
@@ -819,6 +893,32 @@ public class ThemeDisplay
 		return _siteGroup.getDescriptiveName();
 	}
 
+	public PortletPreferences getStrictLayoutPortletSetup(
+		Layout layout, String portletId) {
+
+		PortletPreferences portletPreferences = null;
+
+		if ((_layout.getPlid() == layout.getPlid()) &&
+			(_layout.getMvccVersion() == layout.getMvccVersion()) &&
+			(_layoutTypePortlet != null)) {
+
+			if (_layoutPortletPreferences == null) {
+				_layoutPortletPreferences =
+					PortletPreferencesLocalServiceUtil.getStrictPreferences(
+						_layout, _layoutTypePortlet.getAllPortlets());
+			}
+
+			portletPreferences = _layoutPortletPreferences.get(portletId);
+		}
+
+		if (portletPreferences == null) {
+			return PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(
+				layout, portletId);
+		}
+
+		return portletPreferences;
+	}
+
 	public Theme getTheme() {
 		return _theme;
 	}
@@ -1016,8 +1116,12 @@ public class ThemeDisplay
 		return _ajax;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public boolean isFacebook() {
-		return _facebook;
+		return false;
 	}
 
 	public boolean isFreeformLayout() {
@@ -1223,8 +1327,6 @@ public class ThemeDisplay
 	public void setCompany(Company company) throws PortalException {
 		_company = company;
 		_companyGroupId = company.getGroupId();
-
-		setAccount(company.getAccount());
 	}
 
 	public void setCompanyLogo(String companyLogo) {
@@ -1259,12 +1361,12 @@ public class ThemeDisplay
 		_doAsUserLanguageId = doAsUserLanguageId;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public void setFacebookCanvasPageURL(String facebookCanvasPageURL) {
 		_facebookCanvasPageURL = facebookCanvasPageURL;
-
-		if (Validator.isNotNull(facebookCanvasPageURL)) {
-			_facebook = true;
-		}
 	}
 
 	public void setFreeformLayout(boolean freeformLayout) {
@@ -1447,12 +1549,6 @@ public class ThemeDisplay
 	}
 
 	public void setPathImage(String pathImage) {
-		if (isFacebook() && !pathImage.startsWith(Http.HTTP_WITH_SLASH) &&
-			!pathImage.startsWith(Http.HTTPS_WITH_SLASH)) {
-
-			pathImage = getPortalURL() + pathImage;
-		}
-
 		_pathImage = pathImage;
 	}
 
@@ -1777,10 +1873,8 @@ public class ThemeDisplay
 		_urlUpdateManager = urlUpdateManager;
 	}
 
-	public void setUser(User user) throws PortalException {
+	public void setUser(User user) {
 		_user = user;
-
-		setContact(user.getContact());
 	}
 
 	public void setWidget(boolean widget) {
@@ -1805,6 +1899,29 @@ public class ThemeDisplay
 		return LanguageUtil.format(getLocale(), pattern, arguments);
 	}
 
+	private String _getFriendlyURL(Layout layout) {
+		if (_layoutFriendlyURLs == null) {
+			if (_layouts == null) {
+				_layoutFriendlyURLs = new HashMap<>();
+			}
+			else {
+				_layoutFriendlyURLs =
+					LayoutFriendlyURLLocalServiceUtil.getLayoutFriendlyURLs(
+						_siteGroup, _layouts, _languageId);
+			}
+		}
+
+		String layoutFriendlyURL = _layoutFriendlyURLs.get(layout.getPlid());
+
+		if (layoutFriendlyURL == null) {
+			layoutFriendlyURL = layout.getFriendlyURL(_locale);
+
+			_layoutFriendlyURLs.put(layout.getPlid(), layoutFriendlyURL);
+		}
+
+		return layoutFriendlyURL;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(ThemeDisplay.class);
 
 	private Account _account;
@@ -1820,13 +1937,20 @@ public class ThemeDisplay
 	private int _companyLogoHeight;
 	private int _companyLogoWidth;
 	private Contact _contact;
+	private Group _controlPanelGroup;
+	private Layout _controlPanelLayout;
 	private User _defaultUser;
 	private Device _device;
 	private long _doAsGroupId;
 	private String _doAsUserId = StringPool.BLANK;
 	private String _doAsUserLanguageId = StringPool.BLANK;
-	private boolean _facebook;
+
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	private String _facebookCanvasPageURL;
+
 	private boolean _freeformLayout;
 	private boolean _i18n;
 	private String _i18nLanguageId;
@@ -1835,6 +1959,8 @@ public class ThemeDisplay
 	private boolean _isolated;
 	private String _languageId;
 	private Layout _layout;
+	private transient Map<Long, String> _layoutFriendlyURLs;
+	private transient Map<String, PortletPreferences> _layoutPortletPreferences;
 	private List<Layout> _layouts;
 	private LayoutSet _layoutSet;
 	private String _layoutSetLogo = StringPool.BLANK;

@@ -135,7 +135,8 @@ public class DLFileEntryTypeStagedModelDataHandlerTest
 		List<StagedModel> dependentStagedModels = dependentStagedModelsMap.get(
 			ddmStructureClass.getSimpleName());
 
-		Assert.assertEquals(1, dependentStagedModels.size());
+		Assert.assertEquals(
+			dependentStagedModels.toString(), 1, dependentStagedModels.size());
 
 		DDMStructure ddmStructure = (DDMStructure)dependentStagedModels.get(0);
 
@@ -151,14 +152,14 @@ public class DLFileEntryTypeStagedModelDataHandlerTest
 		super.validateImportedStagedModel(stagedModel, importedStagedModel);
 
 		DLFileEntryType dlFileEntryType = (DLFileEntryType)stagedModel;
-		DLFileEntryType importedDlFileEntryType =
+		DLFileEntryType importedDLFileEntryType =
 			(DLFileEntryType)importedStagedModel;
 
 		Assert.assertEquals(
-			dlFileEntryType.getName(), importedDlFileEntryType.getName());
+			dlFileEntryType.getName(), importedDLFileEntryType.getName());
 		Assert.assertEquals(
 			dlFileEntryType.getDescription(),
-			importedDlFileEntryType.getDescription());
+			importedDLFileEntryType.getDescription());
 	}
 
 }

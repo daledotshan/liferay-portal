@@ -1,5 +1,6 @@
 <definition component-name="portal-deployment-mysql">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="setup.wizard.enabled" value="true" />
 	<property name="testray.main.component.name" value="Setup Wizard" />
 
@@ -113,6 +114,8 @@
 	</command>
 
 	<command name="MySQLtoMySQLSampleDataDisabled" priority="4">
+		<property name="test.name.skip.portal.instance" value="SetupWizardMySQL#MySQLtoMySQLSampleDataDisabled" />
+
 		<execute macro="SetupWizard#configureDefaultPG">
 			<var name="addSampleData" value="false" />
 		</execute>

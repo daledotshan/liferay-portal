@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -47,6 +48,8 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
+
+import java.lang.reflect.Field;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,7 +63,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The persistence implementation for the k b comment service.
+ * The persistence implementation for the kb comment service.
  *
  * <p>
  * Caching information and settings can be found in <code>portal.properties</code>
@@ -77,7 +80,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this class directly. Always use {@link KBCommentUtil} to access the k b comment persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
+	 * Never modify or reference this class directly. Always use {@link KBCommentUtil} to access the kb comment persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static final String FINDER_CLASS_NAME_ENTITY = KBCommentImpl.class.getName();
 	public static final String FINDER_CLASS_NAME_LIST_WITH_PAGINATION = FINDER_CLASS_NAME_ENTITY +
@@ -114,10 +117,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			new String[] { String.class.getName() });
 
 	/**
-	 * Returns all the k b comments where uuid = &#63;.
+	 * Returns all the kb comments where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the matching k b comments
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid(String uuid) {
@@ -125,16 +128,16 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where uuid = &#63;.
+	 * Returns a range of all the kb comments where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid(String uuid, int start, int end) {
@@ -142,17 +145,17 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where uuid = &#63;.
+	 * Returns an ordered range of all the kb comments where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid(String uuid, int start, int end,
@@ -161,18 +164,18 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where uuid = &#63;.
+	 * Returns an ordered range of all the kb comments where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid(String uuid, int start, int end,
@@ -292,12 +295,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where uuid = &#63;.
+	 * Returns the first kb comment in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByUuid_First(String uuid,
@@ -322,11 +325,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where uuid = &#63;.
+	 * Returns the first kb comment in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByUuid_First(String uuid,
@@ -341,12 +344,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where uuid = &#63;.
+	 * Returns the last kb comment in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByUuid_Last(String uuid,
@@ -371,11 +374,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where uuid = &#63;.
+	 * Returns the last kb comment in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByUuid_Last(String uuid,
@@ -397,13 +400,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where uuid = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where uuid = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByUuid_PrevAndNext(long kbCommentId, String uuid,
@@ -557,7 +560,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where uuid = &#63; from the database.
+	 * Removes all the kb comments where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 */
@@ -570,10 +573,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where uuid = &#63;.
+	 * Returns the number of kb comments where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByUuid(String uuid) {
@@ -649,12 +652,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the k b comment where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchCommentException} if it could not be found.
+	 * Returns the kb comment where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchCommentException} if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByUUID_G(String uuid, long groupId)
@@ -685,11 +688,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comment where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the kb comment where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByUUID_G(String uuid, long groupId) {
@@ -697,12 +700,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comment where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the kb comment where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByUUID_G(String uuid, long groupId,
@@ -803,11 +806,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes the k b comment where uuid = &#63; and groupId = &#63; from the database.
+	 * Removes the kb comment where uuid = &#63; and groupId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the k b comment that was removed
+	 * @return the kb comment that was removed
 	 */
 	@Override
 	public KBComment removeByUUID_G(String uuid, long groupId)
@@ -818,11 +821,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where uuid = &#63; and groupId = &#63;.
+	 * Returns the number of kb comments where uuid = &#63; and groupId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
@@ -914,11 +917,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns all the k b comments where uuid = &#63; and companyId = &#63;.
+	 * Returns all the kb comments where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the matching k b comments
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid_C(String uuid, long companyId) {
@@ -927,7 +930,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where uuid = &#63; and companyId = &#63;.
+	 * Returns a range of all the kb comments where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -935,9 +938,9 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid_C(String uuid, long companyId, int start,
@@ -946,7 +949,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the kb comments where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -954,10 +957,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid_C(String uuid, long companyId, int start,
@@ -966,7 +969,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the kb comments where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -974,11 +977,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByUuid_C(String uuid, long companyId, int start,
@@ -1107,13 +1110,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first kb comment in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByUuid_C_First(String uuid, long companyId,
@@ -1142,12 +1145,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first kb comment in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByUuid_C_First(String uuid, long companyId,
@@ -1163,13 +1166,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last kb comment in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByUuid_C_Last(String uuid, long companyId,
@@ -1198,12 +1201,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last kb comment in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByUuid_C_Last(String uuid, long companyId,
@@ -1225,14 +1228,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByUuid_C_PrevAndNext(long kbCommentId, String uuid,
@@ -1390,7 +1393,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where uuid = &#63; and companyId = &#63; from the database.
+	 * Removes all the kb comments where uuid = &#63; and companyId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
@@ -1404,11 +1407,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where uuid = &#63; and companyId = &#63;.
+	 * Returns the number of kb comments where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByUuid_C(String uuid, long companyId) {
@@ -1499,10 +1502,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			new String[] { Long.class.getName() });
 
 	/**
-	 * Returns all the k b comments where groupId = &#63;.
+	 * Returns all the kb comments where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the matching k b comments
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByGroupId(long groupId) {
@@ -1510,16 +1513,16 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where groupId = &#63;.
+	 * Returns a range of all the kb comments where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByGroupId(long groupId, int start, int end) {
@@ -1527,17 +1530,17 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where groupId = &#63;.
+	 * Returns an ordered range of all the kb comments where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByGroupId(long groupId, int start, int end,
@@ -1546,18 +1549,18 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where groupId = &#63;.
+	 * Returns an ordered range of all the kb comments where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByGroupId(long groupId, int start, int end,
@@ -1663,12 +1666,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where groupId = &#63;.
+	 * Returns the first kb comment in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByGroupId_First(long groupId,
@@ -1693,11 +1696,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where groupId = &#63;.
+	 * Returns the first kb comment in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByGroupId_First(long groupId,
@@ -1712,12 +1715,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where groupId = &#63;.
+	 * Returns the last kb comment in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByGroupId_Last(long groupId,
@@ -1742,11 +1745,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where groupId = &#63;.
+	 * Returns the last kb comment in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByGroupId_Last(long groupId,
@@ -1768,13 +1771,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where groupId = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where groupId = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByGroupId_PrevAndNext(long kbCommentId,
@@ -1914,7 +1917,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where groupId = &#63; from the database.
+	 * Removes all the kb comments where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
 	 */
@@ -1927,10 +1930,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where groupId = &#63;.
+	 * Returns the number of kb comments where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByGroupId(long groupId) {
@@ -2000,11 +2003,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns all the k b comments where groupId = &#63; and classNameId = &#63;.
+	 * Returns all the kb comments where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @return the matching k b comments
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_C(long groupId, long classNameId) {
@@ -2013,7 +2016,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where groupId = &#63; and classNameId = &#63;.
+	 * Returns a range of all the kb comments where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -2021,9 +2024,9 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_C(long groupId, long classNameId, int start,
@@ -2032,7 +2035,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where groupId = &#63; and classNameId = &#63;.
+	 * Returns an ordered range of all the kb comments where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -2040,10 +2043,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_C(long groupId, long classNameId, int start,
@@ -2053,7 +2056,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where groupId = &#63; and classNameId = &#63;.
+	 * Returns an ordered range of all the kb comments where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -2061,11 +2064,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_C(long groupId, long classNameId, int start,
@@ -2180,13 +2183,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where groupId = &#63; and classNameId = &#63;.
+	 * Returns the first kb comment in the ordered set where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByG_C_First(long groupId, long classNameId,
@@ -2215,12 +2218,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where groupId = &#63; and classNameId = &#63;.
+	 * Returns the first kb comment in the ordered set where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByG_C_First(long groupId, long classNameId,
@@ -2236,13 +2239,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where groupId = &#63; and classNameId = &#63;.
+	 * Returns the last kb comment in the ordered set where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByG_C_Last(long groupId, long classNameId,
@@ -2271,12 +2274,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where groupId = &#63; and classNameId = &#63;.
+	 * Returns the last kb comment in the ordered set where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByG_C_Last(long groupId, long classNameId,
@@ -2298,14 +2301,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where groupId = &#63; and classNameId = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where groupId = &#63; and classNameId = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByG_C_PrevAndNext(long kbCommentId, long groupId,
@@ -2449,7 +2452,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where groupId = &#63; and classNameId = &#63; from the database.
+	 * Removes all the kb comments where groupId = &#63; and classNameId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
@@ -2463,11 +2466,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where groupId = &#63; and classNameId = &#63;.
+	 * Returns the number of kb comments where groupId = &#63; and classNameId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByG_C(long groupId, long classNameId) {
@@ -2542,11 +2545,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			new String[] { Long.class.getName(), Integer.class.getName() });
 
 	/**
-	 * Returns all the k b comments where groupId = &#63; and status = &#63;.
+	 * Returns all the kb comments where groupId = &#63; and status = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
-	 * @return the matching k b comments
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_S(long groupId, int status) {
@@ -2555,7 +2558,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where groupId = &#63; and status = &#63;.
+	 * Returns a range of all the kb comments where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -2563,9 +2566,9 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_S(long groupId, int status, int start,
@@ -2574,7 +2577,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where groupId = &#63; and status = &#63;.
+	 * Returns an ordered range of all the kb comments where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -2582,10 +2585,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_S(long groupId, int status, int start,
@@ -2594,7 +2597,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where groupId = &#63; and status = &#63;.
+	 * Returns an ordered range of all the kb comments where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -2602,11 +2605,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByG_S(long groupId, int status, int start,
@@ -2721,13 +2724,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	 * Returns the first kb comment in the ordered set where groupId = &#63; and status = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByG_S_First(long groupId, int status,
@@ -2756,12 +2759,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	 * Returns the first kb comment in the ordered set where groupId = &#63; and status = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByG_S_First(long groupId, int status,
@@ -2777,13 +2780,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	 * Returns the last kb comment in the ordered set where groupId = &#63; and status = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByG_S_Last(long groupId, int status,
@@ -2811,12 +2814,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	 * Returns the last kb comment in the ordered set where groupId = &#63; and status = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByG_S_Last(long groupId, int status,
@@ -2838,14 +2841,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where groupId = &#63; and status = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByG_S_PrevAndNext(long kbCommentId, long groupId,
@@ -2989,7 +2992,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where groupId = &#63; and status = &#63; from the database.
+	 * Removes all the kb comments where groupId = &#63; and status = &#63; from the database.
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
@@ -3003,11 +3006,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where groupId = &#63; and status = &#63;.
+	 * Returns the number of kb comments where groupId = &#63; and status = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByG_S(long groupId, int status) {
@@ -3082,11 +3085,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns all the k b comments where classNameId = &#63; and classPK = &#63;.
+	 * Returns all the kb comments where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the matching k b comments
+	 * @param classPK the class pk
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C(long classNameId, long classPK) {
@@ -3095,17 +3098,17 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where classNameId = &#63; and classPK = &#63;.
+	 * Returns a range of all the kb comments where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C(long classNameId, long classPK, int start,
@@ -3114,18 +3117,18 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the kb comments where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C(long classNameId, long classPK, int start,
@@ -3135,19 +3138,19 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the kb comments where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C(long classNameId, long classPK, int start,
@@ -3262,13 +3265,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the first kb comment in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByC_C_First(long classNameId, long classPK,
@@ -3297,12 +3300,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the first kb comment in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByC_C_First(long classNameId, long classPK,
@@ -3318,13 +3321,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the last kb comment in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByC_C_Last(long classNameId, long classPK,
@@ -3353,12 +3356,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the last kb comment in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByC_C_Last(long classNameId, long classPK,
@@ -3380,14 +3383,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByC_C_PrevAndNext(long kbCommentId,
@@ -3532,10 +3535,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where classNameId = &#63; and classPK = &#63; from the database.
+	 * Removes all the kb comments where classNameId = &#63; and classPK = &#63; from the database.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 */
 	@Override
 	public void removeByC_C(long classNameId, long classPK) {
@@ -3546,11 +3549,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where classNameId = &#63; and classPK = &#63;.
+	 * Returns the number of kb comments where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the number of matching k b comments
+	 * @param classPK the class pk
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByC_C(long classNameId, long classPK) {
@@ -3630,12 +3633,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			});
 
 	/**
-	 * Returns all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns all the kb comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the matching k b comments
+	 * @param classPK the class pk
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByU_C_C(long userId, long classNameId,
@@ -3645,7 +3648,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns a range of all the kb comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3653,10 +3656,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByU_C_C(long userId, long classNameId,
@@ -3665,7 +3668,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the kb comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3673,11 +3676,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByU_C_C(long userId, long classNameId,
@@ -3688,7 +3691,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the kb comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3696,12 +3699,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByU_C_C(long userId, long classNameId,
@@ -3822,14 +3825,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the first kb comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByU_C_C_First(long userId, long classNameId,
@@ -3861,13 +3864,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the first kb comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByU_C_C_First(long userId, long classNameId,
@@ -3883,14 +3886,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the last kb comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByU_C_C_Last(long userId, long classNameId,
@@ -3922,13 +3925,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the last kb comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByU_C_C_Last(long userId, long classNameId,
@@ -3950,15 +3953,15 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByU_C_C_PrevAndNext(long kbCommentId, long userId,
@@ -4107,11 +4110,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63; from the database.
+	 * Removes all the kb comments where userId = &#63; and classNameId = &#63; and classPK = &#63; from the database.
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 */
 	@Override
 	public void removeByU_C_C(long userId, long classNameId, long classPK) {
@@ -4122,12 +4125,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the number of kb comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param userId the user ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the number of matching k b comments
+	 * @param classPK the class pk
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByU_C_C(long userId, long classNameId, long classPK) {
@@ -4222,12 +4225,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 			});
 
 	/**
-	 * Returns all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns all the kb comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
-	 * @return the matching k b comments
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4237,18 +4240,18 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns a range of all the kb comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4257,19 +4260,19 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns an ordered range of all the kb comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4280,20 +4283,20 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns an ordered range of all the kb comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4414,14 +4417,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns the first kb comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the first matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByC_C_S_First(long classNameId, long classPK,
@@ -4453,13 +4456,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the first k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns the first kb comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the first matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByC_C_S_First(long classNameId, long classPK,
@@ -4475,14 +4478,14 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns the last kb comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment
-	 * @throws NoSuchCommentException if a matching k b comment could not be found
+	 * @return the last matching kb comment
+	 * @throws NoSuchCommentException if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment findByC_C_S_Last(long classNameId, long classPK,
@@ -4514,13 +4517,13 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the last k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns the last kb comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	 * @return the last matching kb comment, or <code>null</code> if a matching kb comment could not be found
 	 */
 	@Override
 	public KBComment fetchByC_C_S_Last(long classNameId, long classPK,
@@ -4542,15 +4545,15 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comments before and after the current k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns the kb comments before and after the current kb comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
-	 * @param kbCommentId the primary key of the current k b comment
+	 * @param kbCommentId the primary key of the current kb comment
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @return the previous, current, and next kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment[] findByC_C_S_PrevAndNext(long kbCommentId,
@@ -4699,16 +4702,16 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns all the k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	 * Returns all the kb comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param statuses the statuses
-	 * @return the matching k b comments
+	 * @return the matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4718,18 +4721,18 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	 * Returns a range of all the kb comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param statuses the statuses
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of matching k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4738,19 +4741,19 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	 * Returns an ordered range of all the kb comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param statuses the statuses
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4761,20 +4764,20 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;, optionally using the finder cache.
+	 * Returns an ordered range of all the kb comments where classNameId = &#63; and classPK = &#63; and status = &#63;, optionally using the finder cache.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching k b comments
+	 * @return the ordered range of matching kb comments
 	 */
 	@Override
 	public List<KBComment> findByC_C_S(long classNameId, long classPK,
@@ -4913,10 +4916,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63; from the database.
+	 * Removes all the kb comments where classNameId = &#63; and classPK = &#63; and status = &#63; from the database.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
 	 */
 	@Override
@@ -4928,12 +4931,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	 * Returns the number of kb comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param status the status
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByC_C_S(long classNameId, long classPK, int status) {
@@ -4989,12 +4992,12 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	 * Returns the number of kb comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param statuses the statuses
-	 * @return the number of matching k b comments
+	 * @return the number of matching kb comments
 	 */
 	@Override
 	public int countByC_C_S(long classNameId, long classPK, int[] statuses) {
@@ -5079,12 +5082,28 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 
 	public KBCommentPersistenceImpl() {
 		setModelClass(KBComment.class);
+
+		try {
+			Field field = ReflectionUtil.getDeclaredField(BasePersistenceImpl.class,
+					"_dbColumnNames");
+
+			Map<String, String> dbColumnNames = new HashMap<String, String>();
+
+			dbColumnNames.put("uuid", "uuid_");
+
+			field.set(this, dbColumnNames);
+		}
+		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
+		}
 	}
 
 	/**
-	 * Caches the k b comment in the entity cache if it is enabled.
+	 * Caches the kb comment in the entity cache if it is enabled.
 	 *
-	 * @param kbComment the k b comment
+	 * @param kbComment the kb comment
 	 */
 	@Override
 	public void cacheResult(KBComment kbComment) {
@@ -5099,9 +5118,9 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Caches the k b comments in the entity cache if it is enabled.
+	 * Caches the kb comments in the entity cache if it is enabled.
 	 *
-	 * @param kbComments the k b comments
+	 * @param kbComments the kb comments
 	 */
 	@Override
 	public void cacheResult(List<KBComment> kbComments) {
@@ -5117,7 +5136,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Clears the cache for all k b comments.
+	 * Clears the cache for all kb comments.
 	 *
 	 * <p>
 	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
@@ -5133,7 +5152,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Clears the cache for the k b comment.
+	 * Clears the cache for the kb comment.
 	 *
 	 * <p>
 	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
@@ -5200,10 +5219,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Creates a new k b comment with the primary key. Does not add the k b comment to the database.
+	 * Creates a new kb comment with the primary key. Does not add the kb comment to the database.
 	 *
-	 * @param kbCommentId the primary key for the new k b comment
-	 * @return the new k b comment
+	 * @param kbCommentId the primary key for the new kb comment
+	 * @return the new kb comment
 	 */
 	@Override
 	public KBComment create(long kbCommentId) {
@@ -5222,11 +5241,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes the k b comment with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the kb comment with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param kbCommentId the primary key of the k b comment
-	 * @return the k b comment that was removed
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @param kbCommentId the primary key of the kb comment
+	 * @return the kb comment that was removed
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment remove(long kbCommentId) throws NoSuchCommentException {
@@ -5234,11 +5253,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes the k b comment with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the kb comment with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param primaryKey the primary key of the k b comment
-	 * @return the k b comment that was removed
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @param primaryKey the primary key of the kb comment
+	 * @return the kb comment that was removed
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment remove(Serializable primaryKey)
@@ -5364,8 +5383,82 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (isNew || !KBCommentModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!KBCommentModelImpl.COLUMN_BITMASK_ENABLED) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+		else
+		 if (isNew) {
+			Object[] args = new Object[] { kbCommentModelImpl.getUuid() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				args);
+
+			args = new Object[] {
+					kbCommentModelImpl.getUuid(),
+					kbCommentModelImpl.getCompanyId()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				args);
+
+			args = new Object[] { kbCommentModelImpl.getGroupId() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+				args);
+
+			args = new Object[] {
+					kbCommentModelImpl.getGroupId(),
+					kbCommentModelImpl.getClassNameId()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_G_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_C,
+				args);
+
+			args = new Object[] {
+					kbCommentModelImpl.getGroupId(),
+					kbCommentModelImpl.getStatus()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
+				args);
+
+			args = new Object[] {
+					kbCommentModelImpl.getClassNameId(),
+					kbCommentModelImpl.getClassPK()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_C,
+				args);
+
+			args = new Object[] {
+					kbCommentModelImpl.getUserId(),
+					kbCommentModelImpl.getClassNameId(),
+					kbCommentModelImpl.getClassPK()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_U_C_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_C_C,
+				args);
+
+			args = new Object[] {
+					kbCommentModelImpl.getClassNameId(),
+					kbCommentModelImpl.getClassPK(),
+					kbCommentModelImpl.getStatus()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_C_S, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_C_S,
+				args);
+
+			finderCache.removeResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL,
+				FINDER_ARGS_EMPTY);
 		}
 
 		else {
@@ -5574,11 +5667,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comment with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
+	 * Returns the kb comment with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the k b comment
-	 * @return the k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @param primaryKey the primary key of the kb comment
+	 * @return the kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment findByPrimaryKey(Serializable primaryKey)
@@ -5598,11 +5691,11 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comment with the primary key or throws a {@link NoSuchCommentException} if it could not be found.
+	 * Returns the kb comment with the primary key or throws a {@link NoSuchCommentException} if it could not be found.
 	 *
-	 * @param kbCommentId the primary key of the k b comment
-	 * @return the k b comment
-	 * @throws NoSuchCommentException if a k b comment with the primary key could not be found
+	 * @param kbCommentId the primary key of the kb comment
+	 * @return the kb comment
+	 * @throws NoSuchCommentException if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment findByPrimaryKey(long kbCommentId)
@@ -5611,10 +5704,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comment with the primary key or returns <code>null</code> if it could not be found.
+	 * Returns the kb comment with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the k b comment
-	 * @return the k b comment, or <code>null</code> if a k b comment with the primary key could not be found
+	 * @param primaryKey the primary key of the kb comment
+	 * @return the kb comment, or <code>null</code> if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment fetchByPrimaryKey(Serializable primaryKey) {
@@ -5659,10 +5752,10 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the k b comment with the primary key or returns <code>null</code> if it could not be found.
+	 * Returns the kb comment with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param kbCommentId the primary key of the k b comment
-	 * @return the k b comment, or <code>null</code> if a k b comment with the primary key could not be found
+	 * @param kbCommentId the primary key of the kb comment
+	 * @return the kb comment, or <code>null</code> if a kb comment with the primary key could not be found
 	 */
 	@Override
 	public KBComment fetchByPrimaryKey(long kbCommentId) {
@@ -5722,7 +5815,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 		query.append(_SQL_SELECT_KBCOMMENT_WHERE_PKS_IN);
 
 		for (Serializable primaryKey : uncachedPrimaryKeys) {
-			query.append(String.valueOf(primaryKey));
+			query.append((long)primaryKey);
 
 			query.append(StringPool.COMMA);
 		}
@@ -5764,9 +5857,9 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns all the k b comments.
+	 * Returns all the kb comments.
 	 *
-	 * @return the k b comments
+	 * @return the kb comments
 	 */
 	@Override
 	public List<KBComment> findAll() {
@@ -5774,15 +5867,15 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns a range of all the k b comments.
+	 * Returns a range of all the kb comments.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
-	 * @return the range of k b comments
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
+	 * @return the range of kb comments
 	 */
 	@Override
 	public List<KBComment> findAll(int start, int end) {
@@ -5790,16 +5883,16 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments.
+	 * Returns an ordered range of all the kb comments.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of k b comments
+	 * @return the ordered range of kb comments
 	 */
 	@Override
 	public List<KBComment> findAll(int start, int end,
@@ -5808,17 +5901,17 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns an ordered range of all the k b comments.
+	 * Returns an ordered range of all the kb comments.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of k b comments
-	 * @param end the upper bound of the range of k b comments (not inclusive)
+	 * @param start the lower bound of the range of kb comments
+	 * @param end the upper bound of the range of kb comments (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of k b comments
+	 * @return the ordered range of kb comments
 	 */
 	@Override
 	public List<KBComment> findAll(int start, int end,
@@ -5907,7 +6000,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Removes all the k b comments from the database.
+	 * Removes all the kb comments from the database.
 	 *
 	 */
 	@Override
@@ -5918,9 +6011,9 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Returns the number of k b comments.
+	 * Returns the number of kb comments.
 	 *
-	 * @return the number of k b comments
+	 * @return the number of kb comments
 	 */
 	@Override
 	public int countAll() {
@@ -5965,7 +6058,7 @@ public class KBCommentPersistenceImpl extends BasePersistenceImpl<KBComment>
 	}
 
 	/**
-	 * Initializes the k b comment persistence.
+	 * Initializes the kb comment persistence.
 	 */
 	public void afterPropertiesSet() {
 	}

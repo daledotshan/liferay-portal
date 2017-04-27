@@ -121,6 +121,7 @@ public class DataSourceFactoryImplTest {
 	@Before
 	public void setUp() {
 		_properties.setProperty("driverClassName", JDBCDriver.class.getName());
+		_properties.setProperty("initializationFailFast", "false");
 		_properties.setProperty("maximumPoolSize", "10");
 		_properties.setProperty("password", "");
 		_properties.setProperty("poolName", "TestJDBCPool");
@@ -172,7 +173,8 @@ public class DataSourceFactoryImplTest {
 			List<LoggingEvent> loggingEvents =
 				captureAppender.getLoggingEvents();
 
-			Assert.assertEquals(4, loggingEvents.size());
+			Assert.assertEquals(
+				loggingEvents.toString(), 4, loggingEvents.size());
 
 			LoggingEvent loggingEvent = loggingEvents.get(0);
 

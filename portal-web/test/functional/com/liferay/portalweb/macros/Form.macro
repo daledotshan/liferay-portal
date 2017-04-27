@@ -19,6 +19,12 @@
 		<execute function="AssertClick" locator1="Form#PAGE_CONTROLS_ADD_NEW_PAGE" value1="Add New Page" />
 	</command>
 
+	<command name="addSuccessPage">
+		<execute function="Click" locator1="Form#PAGE_CONTROLS_ELLIPSIS_ICON" />
+
+		<execute function="AssertClick" locator1="Form#PAGE_CONTROLS_ADD_SUCCESS_PAGE" value1="Add Success Page" />
+	</command>
+
 	<command name="clickPublishSwitcher">
 		<execute function="Click" locator1="Form#PUBLISH_FORM_SWITCHER" />
 	</command>
@@ -74,9 +80,25 @@
 	</command>
 
 	<command name="configureWorkflow">
-		<execute function="Select" locator1="AssetWorkflow#ALL_STRUCTURES_WORKFLOW_SELECT" value1="${workflowDefinition}" />
+		<execute function="Click" locator1="Form#SETTINGS_TAB_WORKFLOW_CONFIGURATION_FIELD" />
+
+		<var name="key_workflowDefinition" value="${workflowDefinition}" />
+
+		<execute function="AssertClick" locator1="Form#SETTINGS_TAB_WORKFLOW_CONFIGURATION" value1="${workflowDefinition}" />
 
 		<execute macro="Button#clickDone" />
+	</command>
+
+	<command name="deleteCurrentPage">
+		<var name="key_formPageName" value="${formPageName}" />
+
+		<execute function="AssertElementPresent" locator1="FormPortlet#FORM_PAGE_ACTIVE" />
+
+		<execute function="Click" locator1="Form#PAGE_CONTROLS_ELLIPSIS_ICON" />
+
+		<execute function="AssertClick" locator1="Form#PAGE_CONTROLS_DELETE_CURRENT_PAGE" value1="Delete Current Page" />
+
+		<execute function="AssertElementNotPresent" locator1="FormPortlet#FORM_PAGE" />
 	</command>
 
 	<command name="editDescription">
@@ -92,6 +114,11 @@
 		<execute macro="FormFields#selectSelectOption">
 			<var name="fieldName" value="ddmDataProviderInstanceId" />
 			<var name="selectOption" value="${dataProvider}" />
+		</execute>
+
+		<execute macro="FormFields#selectSelectOption">
+			<var name="fieldName" value="ddmDataProviderInstanceOutput" />
+			<var name="selectOption" value="${dataProviderOutput}" />
 		</execute>
 	</command>
 
@@ -126,11 +153,23 @@
 		<execute function="AssertVisible" locator1="Form#NAME_FIELD" />
 		<execute function="AssertVisible" locator1="Form#DESCRIPTION_FIELD" />
 
-		<execute function="Pause" locator1="5000" />
-
 		<execute function="Click" locator1="Form#NAME_FIELD" />
 
 		<execute function="Type#typeEditor" locator1="AlloyEditor#NAME_FIELD" value1="${formName}" />
+	</command>
+
+	<command name="editNameLocalized">
+		<var name="key_columnSize" value="${columnSize}" />
+
+		<execute function="AssertVisible" locator1="Form#ADD_FIELD" />
+		<execute function="AssertVisible" locator1="Form#NAME_FIELD" />
+		<execute function="AssertVisible" locator1="Form#DESCRIPTION_FIELD" />
+
+		<execute function="Click" locator1="Form#NAME_FIELD" />
+
+		<var name="key_localizedText" value="${localizedText}" />
+
+		<execute function="Type#typeEditor" locator1="AlloyEditor#NAME_FIELD_LOCALIZED" value1="${formName}" />
 	</command>
 
 	<command name="editPageDescription">
@@ -139,6 +178,11 @@
 
 	<command name="editPageTitle">
 		<execute function="Type" locator1="Form#PAGE_TITLE_FIELD" value1="${formPageName}" />
+	</command>
+
+	<command name="editSuccessPage">
+		<execute function="Type" locator1="Form#SUCCESS_PAGE_TITLE_FIELD" value1="${successPageTitle}" />
+		<execute function="Type" locator1="Form#SUCCESS_PAGE_DESCRIPTION_FIELD" value1="${successPageDescription}" />
 	</command>
 
 	<command name="getPublishedFormPublicURL" returns="publicURL">
@@ -169,6 +213,18 @@
 
 	<command name="gotoBasicTab">
 		<execute function="AssertClick" locator1="Form#SIDEBAR_BASIC_TAB" value1="Basic" />
+	</command>
+
+	<command name="gotoFormPage">
+		<var name="key_formPageName" value="${formPageName}" />
+
+		<execute function="Click" locator1="Form#FORM_PAGE" />
+	</command>
+
+	<command name="gotoPageAltPagination">
+		<var name="key_page" value="${page}" />
+
+		<execute function="Click" locator1="Form#ALT_PAGINATION_PAGE" />
 	</command>
 
 	<command name="previewForm">
@@ -212,6 +268,14 @@
 		<execute macro="Alert#viewSuccessMessage" />
 	</command>
 
+	<command name="saveLocalized">
+		<var name="key_saveButton" value="${saveButton}" />
+
+		<execute function="AssertClick" locator1="Form#SAVE_FORM_BUTTON_LOCALIZED" value1="${saveButton}" />
+
+		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
 	<command name="submitFormPublish">
 		<execute macro="Form#viewFormPublish">
 			<var name="fieldLabel" value="${fieldLabel}" />
@@ -227,6 +291,22 @@
 		<execute function="AssertClick" locator1="Button#SUBMIT" value1="Submit" />
 
 		<execute macro="Alert#viewSuccessMessage" />
+	</command>
+
+	<command name="switchPaginationMode">
+		<execute function="Click" locator1="Form#PAGE_CONTROLS_ELLIPSIS_ICON" />
+
+		<execute function="AssertClick" locator1="Form#PAGE_CONTROLS_SWITCH_PAGINATION_MODE" value1="Switch Pagination Mode" />
+	</command>
+
+	<command name="viewAltPagePagination">
+		<var name="key_page" value="${page}" />
+
+		<execute function="AssertElementPresent" locator1="Form#ALT_PAGINATION_PAGE" />
+	</command>
+
+	<command name="viewAltSuccessPagePagination">
+		<execute function="AssertElementPresent" locator1="Form#ALT_PAGINATION_SUCCESS_PAGE" />
 	</command>
 
 	<command name="viewFormName">
@@ -253,7 +333,7 @@
 	</command>
 
 	<command name="viewSaveNotification">
-		<execute function="AssertTextEquals#assertPartialText" locator1="Form#SAVE_NOTIFICATION" value1="Draft saved at" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Form#SAVE_NOTIFICATION" value1="Draft saved on" />
 	</command>
 
 	<command name="viewSidebarTitle">

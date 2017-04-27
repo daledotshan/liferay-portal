@@ -51,7 +51,7 @@ import com.liferay.portal.search.elasticsearch.facet.FacetProcessor;
 import com.liferay.portal.search.elasticsearch.groupby.GroupByTranslator;
 import com.liferay.portal.search.elasticsearch.index.IndexNameBuilder;
 import com.liferay.portal.search.elasticsearch.internal.facet.CompositeFacetProcessor;
-import com.liferay.portal.search.elasticsearch.internal.facet.ElasticsearchFacetFieldCollector;
+import com.liferay.portal.search.elasticsearch.internal.facet.FacetCollectorFactory;
 import com.liferay.portal.search.elasticsearch.internal.util.DocumentTypes;
 import com.liferay.portal.search.elasticsearch.stats.StatsTranslator;
 
@@ -259,6 +259,10 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 
 	protected void addHighlights(
 		SearchRequestBuilder searchRequestBuilder, QueryConfig queryConfig) {
+
+		if (!queryConfig.isHighlightEnabled()) {
+			return;
+		}
 
 		for (String highlightFieldName : queryConfig.getHighlightFieldNames()) {
 			addHighlightedField(
@@ -626,10 +630,12 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 				continue;
 			}
 
-			Aggregation aggregation = aggregationsMap.get(facet.getFieldName());
+			FacetCollectorFactory facetCollectorFactory =
+				new FacetCollectorFactory();
 
 			FacetCollector facetCollector =
-				new ElasticsearchFacetFieldCollector(aggregation);
+				facetCollectorFactory.getFacetCollector(
+					aggregationsMap.get(facet.getFieldName()));
 
 			facet.setFacetCollector(facetCollector);
 		}

@@ -28,6 +28,7 @@ import com.liferay.journal.model.JournalFolderConstants;
 import com.liferay.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.journal.service.JournalArticleResourceLocalServiceUtil;
 import com.liferay.journal.service.JournalFolderLocalServiceUtil;
+import com.liferay.journal.transformer.JournalTransformerListenerRegistryUtil;
 import com.liferay.journal.transformer.LocaleTransformerListener;
 import com.liferay.journal.util.impl.JournalUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -59,8 +60,10 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -84,10 +87,13 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 		Document document, String languageId, Map<String, String> tokens) {
 
 		TransformerListener transformerListener =
-			new LocaleTransformerListener();
+			JournalTransformerListenerRegistryUtil.getTransformerListener(
+				LocaleTransformerListener.class.getName());
 
-		document = transformerListener.onXml(
-			document.clone(), languageId, tokens);
+		if (transformerListener != null) {
+			document = transformerListener.onXml(
+				document.clone(), languageId, tokens);
+		}
 
 		return document.asXML();
 	}
@@ -341,6 +347,15 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	}
 
 	@Override
+	public Date getDisplayDate() {
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			return null;
+		}
+
+		return super.getDisplayDate();
+	}
+
+	@Override
 	public Document getDocument() {
 		if (_document == null) {
 			try {
@@ -354,6 +369,15 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 		}
 
 		return _document;
+	}
+
+	@Override
+	public Date getExpirationDate() {
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			return null;
+		}
+
+		return super.getExpirationDate();
 	}
 
 	@Override
@@ -461,6 +485,15 @@ public class JournalArticleImpl extends JournalArticleBaseImpl {
 	@Deprecated
 	public String getLegacyTitle() {
 		return _title;
+	}
+
+	@Override
+	public Date getReviewDate() {
+		if (!PropsValues.SCHEDULER_ENABLED) {
+			return null;
+		}
+
+		return super.getReviewDate();
 	}
 
 	@Override

@@ -24,8 +24,6 @@ import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
-import com.liferay.portal.kernel.trash.TrashHandler;
-import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
@@ -38,8 +36,6 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.trash.kernel.model.TrashEntry;
-import com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil;
 
 import java.io.Serializable;
 
@@ -184,7 +180,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 	}
 
 	<#list entity.regularColList as column>
-		<#if column.name == "classNameId">
+		<#if stringUtil.equals(column.name, "classNameId")>
 			@Override
 			public String getClassName() {
 				if (getClassNameId() <= 0) {
@@ -335,7 +331,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 			}
 		</#if>
 
-		<#if (column.name == "resourcePrimKey") && entity.isResourcedModel()>
+		<#if stringUtil.equals(column.name, "resourcePrimKey") && entity.isResourcedModel()>
 			@Override
 			public boolean isResourceMain() {
 				return _resourceMain;
@@ -366,7 +362,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 	</#list>
 
 	<#list methods as method>
-		<#if !method.isConstructor() && !method.isStatic() && method.isPublic() && !(entity.isResourcedModel() && (method.name == "isResourceMain") && (method.parameters?size == 0))>
+		<#if !method.isConstructor() && !method.isStatic() && method.isPublic() && !(entity.isResourcedModel() && stringUtil.equals(method.name, "isResourceMain") && (method.parameters?size == 0))>
 			@Override
 			public ${serviceBuilder.getTypeGenericsName(method.returns)} ${method.name} (
 
@@ -439,7 +435,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 		<#assign hasParentContainerModelId = entity.hasColumn("parentContainerModelId") />
 
 		<#list entity.columnList as column>
-			<#if column.isContainerModel() && (column.name != "containerModelId")>
+			<#if column.isContainerModel() && !stringUtil.equals(column.name, "containerModelId")>
 				public long getContainerModelId() {
 					return get${column.methodName}();
 				}
@@ -449,7 +445,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 				}
 			</#if>
 
-			<#if column.isParentContainerModel() && (column.name != "parentContainerModelId")>
+			<#if column.isParentContainerModel() && !stringUtil.equals(column.name, "parentContainerModelId")>
 				<#assign hasParentContainerModelId = true />
 
 				public long getParentContainerModelId() {
@@ -500,18 +496,18 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 		</#if>
 
 		@Override
-		public TrashEntry getTrashEntry() throws PortalException {
+		public com.liferay.trash.kernel.model.TrashEntry getTrashEntry() throws PortalException {
 			if (!isInTrash()) {
 				return null;
 			}
 
-			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+			com.liferay.trash.kernel.model.TrashEntry trashEntry = com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
 
 			if (trashEntry != null) {
 				return trashEntry;
 			}
 
-			TrashHandler trashHandler = getTrashHandler();
+			com.liferay.portal.kernel.trash.TrashHandler trashHandler = getTrashHandler();
 
 			if (!Validator.isNull(trashHandler.getContainerModelClassName())) {
 				ContainerModel containerModel = null;
@@ -530,7 +526,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 						return trashedModel.getTrashEntry();
 					}
 
-					trashHandler = TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName());
+					trashHandler = com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil.getTrashHandler(trashHandler.getContainerModelClassName());
 
 					if (trashHandler == null) {
 						return null;
@@ -548,9 +544,13 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 			return getPrimaryKey();
 		}
 
+		/**
+		* @deprecated As of 7.0.0, with no direct replacement
+		*/
+		@Deprecated
 		@Override
-		public TrashHandler getTrashHandler() {
-			return TrashHandlerRegistryUtil.getTrashHandler(getModelClassName());
+		public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
+			return com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil.getTrashHandler(getModelClassName());
 		}
 
 		@Override
@@ -565,7 +565,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 
 		@Override
 		public boolean isInTrashContainer() {
-			TrashHandler trashHandler = getTrashHandler();
+			com.liferay.portal.kernel.trash.TrashHandler trashHandler = getTrashHandler();
 
 			if ((trashHandler == null) || Validator.isNull(trashHandler.getContainerModelClassName())) {
 				return false;
@@ -594,7 +594,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 				return false;
 			}
 
-			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+			com.liferay.trash.kernel.model.TrashEntry trashEntry = com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
 
 			if (trashEntry != null) {
 				return true;
@@ -609,7 +609,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 				return false;
 			}
 
-			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+			com.liferay.trash.kernel.model.TrashEntry trashEntry = com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
 
 			if (trashEntry != null) {
 				return false;
@@ -894,7 +894,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 
 			<#list entity.order.columns as column>
 				<#if column.isPrimitiveType()>
-					<#if column.type == "boolean">
+					<#if stringUtil.equals(column.type, "boolean")>
 						<#assign
 							ltComparator = "=="
 							gtComparator = "!="
@@ -915,7 +915,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 						value = 0;
 					}
 				<#else>
-					<#if column.type == "Date">
+					<#if stringUtil.equals(column.type, "Date")>
 						value = DateUtil.compareTo(get${column.methodName}(), ${entity.varName}.get${column.methodName}());
 					<#else>
 						<#if column.isCaseSensitive()>
@@ -989,7 +989,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 	@Override
 	public int hashCode() {
 		<#if entity.hasPrimitivePK(false)>
-			<#if entity.PKClassName == "int">
+			<#if stringUtil.equals(entity.PKClassName, "int")>
 				return getPrimaryKey();
 			<#else>
 				return (int)getPrimaryKey();
@@ -1056,7 +1056,7 @@ public class ${entity.name}Clp extends BaseModelImpl<${entity.name}> implements 
 			private String _${column.name}CurrentLanguageId;
 		</#if>
 
-		<#if (column.name == "resourcePrimKey") && entity.isResourcedModel()>
+		<#if stringUtil.equals(column.name, "resourcePrimKey") && entity.isResourcedModel()>
 			private boolean _resourceMain;
 		</#if>
 	</#list>

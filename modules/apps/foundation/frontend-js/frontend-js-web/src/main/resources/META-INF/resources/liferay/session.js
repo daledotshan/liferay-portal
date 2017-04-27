@@ -222,7 +222,7 @@ AUI.add(
 					_getLengthInMillis: function(value) {
 						var instance = this;
 
-						return value * 60000;
+						return value * 1000;
 					},
 
 					_getTimestamp: function(value) {
@@ -327,48 +327,46 @@ AUI.add(
 
 									elapsed = timeOffset;
 								}
+								else {
+									timestamp = 'expired';
+								}
 
-								var extend = false;
+								var extend = instance.get('autoExtend');
 
-								var expirationMoment = elapsed == sessionLength;
-								var warningMoment = elapsed == warningTime;
+								var expirationMoment = false;
+								var warningMoment = false;
 
 								var hasExpired = elapsed >= sessionLength;
 								var hasWarned = elapsed >= warningTime;
 
-								var updateSessionState = true;
-
 								if (hasWarned) {
-									if (warningMoment || expirationMoment) {
-										if (timestamp == 'expired') {
-											expirationMoment = true;
-											hasExpired = true;
-										}
-										else if (instance.get('autoExtend')) {
+									if (timestamp == 'expired') {
+										expirationMoment = true;
+										extend = false;
+										hasExpired = true;
+									}
+
+									var sessionState = instance.get('sessionState');
+
+									if (hasExpired && sessionState != 'expired') {
+										if (extend) {
 											expirationMoment = false;
-											extend = true;
 											hasExpired = false;
 											hasWarned = false;
 											warningMoment = false;
-										}
-										else if (timeOffset < warningTime) {
-											hasWarned = false;
-											updateSessionState = false;
-										}
-									}
 
-									if (updateSessionState) {
-										var sessionState = instance.get('sessionState');
-
-										if (hasExpired && sessionState != 'expired') {
-											instance.expire();
-										}
-										else if (hasWarned && !hasExpired && sessionState != 'warned') {
-											instance.warn();
-										}
-										else if (extend) {
 											instance.extend();
 										}
+										else {
+											instance.expire();
+
+											expirationMoment = true;
+										}
+									}
+									else if (hasWarned && !hasExpired && !extend && sessionState != 'warned') {
+										instance.warn();
+
+										warningMoment = true;
 									}
 								}
 
@@ -417,9 +415,9 @@ AUI.add(
 								show: Liferay.Language.get('show')
 							};
 
-							instance._expiredText = Liferay.Language.get('warning-your-session-has-expired');
+							instance._expiredText = Liferay.Language.get('due-to-inactivity-your-session-has-expired');
 
-							instance._warningText = Liferay.Language.get('warning-your-session-will-expire');
+							instance._warningText = Liferay.Language.get('due-to-inactivity-your-session-will-expire');
 							instance._warningText = Lang.sub(
 								instance._warningText,
 								[

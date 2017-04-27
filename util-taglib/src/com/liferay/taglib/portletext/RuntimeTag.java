@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.PortletInstance;
+import com.liferay.portal.kernel.model.PortletWrapper;
 import com.liferay.portal.kernel.portlet.PortletContainerUtil;
 import com.liferay.portal.kernel.portlet.PortletJSONUtil;
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
@@ -45,6 +46,7 @@ import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.taglib.DirectTag;
 import com.liferay.taglib.servlet.PipingServletResponse;
 import com.liferay.taglib.util.PortalIncludeUtil;
 
@@ -61,7 +63,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 /**
  * @author Brian Wing Shun Chan
  */
-public class RuntimeTag extends TagSupport {
+public class RuntimeTag extends TagSupport implements DirectTag {
 
 	public static void doTag(
 			String portletName, PageContext pageContext,
@@ -154,8 +156,14 @@ public class RuntimeTag extends TagSupport {
 		throws Exception {
 
 		if (pageContext != null) {
-			response = new PipingServletResponse(
-				response, pageContext.getOut());
+			if (response == pageContext.getResponse()) {
+				response = PipingServletResponse.createPipingServletResponse(
+					pageContext);
+			}
+			else {
+				response = new PipingServletResponse(
+					response, pageContext.getOut());
+			}
 		}
 
 		PortletInstance portletInstance =
@@ -237,7 +245,7 @@ public class RuntimeTag extends TagSupport {
 
 			JSONObject jsonObject = null;
 
-			boolean writeJSONObject = false;
+			boolean writeObject = false;
 
 			LayoutTypePortlet layoutTypePortlet =
 				themeDisplay.getLayoutTypePortlet();
@@ -252,7 +260,7 @@ public class RuntimeTag extends TagSupport {
 					portletInstance.getPortletInstanceKey(),
 					defaultPreferences);
 
-				writeJSONObject = true;
+				writeObject = true;
 			}
 
 			if (PortletPreferencesLocalServiceUtil.getPortletPreferencesCount(
@@ -275,10 +283,10 @@ public class RuntimeTag extends TagSupport {
 						themeDisplay.getPlid());
 				}
 
-				writeJSONObject = true;
+				writeObject = true;
 			}
 
-			if (writeJSONObject) {
+			if (writeObject) {
 				jsonObject = JSONFactoryUtil.createJSONObject();
 
 				PortletJSONUtil.populatePortletJSONObject(
@@ -391,7 +399,26 @@ public class RuntimeTag extends TagSupport {
 		// non-instanceable portlets
 
 		if (!portlet.isInstanceable()) {
-			portlet = (Portlet)portlet.clone();
+			portlet = new PortletWrapper(portlet) {
+
+				@Override
+				public boolean getStatic() {
+					return _staticPortlet;
+				}
+
+				@Override
+				public boolean isStatic() {
+					return _staticPortlet;
+				}
+
+				@Override
+				public void setStatic(boolean staticPortlet) {
+					_staticPortlet = staticPortlet;
+				}
+
+				private boolean _staticPortlet;
+
+			};
 		}
 
 		portlet.setStatic(true);

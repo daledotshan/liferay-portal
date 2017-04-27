@@ -18,7 +18,11 @@ import com.liferay.dynamic.data.lists.internal.upgrade.v1_0_0.UpgradeKernelPacka
 import com.liferay.dynamic.data.lists.internal.upgrade.v1_0_0.UpgradeLastPublishDate;
 import com.liferay.dynamic.data.lists.internal.upgrade.v1_0_0.UpgradeSchema;
 import com.liferay.dynamic.data.lists.internal.upgrade.v1_0_1.UpgradeRecordGroup;
+import com.liferay.dynamic.data.lists.internal.upgrade.v1_0_2.UpgradeDDLRecordSetSettings;
+import com.liferay.dynamic.data.lists.internal.upgrade.v1_0_4.UpgradeDDLRecord;
+import com.liferay.dynamic.data.lists.internal.upgrade.v1_0_4.UpgradeDDLRecordVersion;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
 import org.osgi.service.component.annotations.Component;
@@ -27,7 +31,10 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Marcellus Tavares
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(
+	immediate = true,
+	service = {DDLServiceUpgrade.class, UpgradeStepRegistrator.class}
+)
 public class DDLServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Override
@@ -47,11 +54,27 @@ public class DDLServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"com.liferay.dynamic.data.lists.service", "1.0.0", "1.0.1",
 			new UpgradeRecordGroup());
+
+		registry.register(
+			"com.liferay.dynamic.data.lists.service", "1.0.1", "1.0.2",
+			new UpgradeDDLRecordSetSettings(_jsonFactory));
+
+		registry.register(
+			"com.liferay.dynamic.data.lists.service", "1.0.2", "1.0.3",
+			new com.liferay.dynamic.data.lists.internal.upgrade.v1_0_3.
+				UpgradeSchema());
+
+		registry.register(
+			"com.liferay.dynamic.data.lists.service", "1.0.3", "1.0.4",
+			new UpgradeDDLRecord(), new UpgradeDDLRecordVersion());
 	}
 
 	@Reference(unbind = "-")
 	protected void setDDMStructureLocalService(
 		DDMStructureLocalService ddmStructureLocalService) {
 	}
+
+	@Reference
+	private JSONFactory _jsonFactory;
 
 }

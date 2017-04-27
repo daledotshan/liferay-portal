@@ -38,9 +38,6 @@ import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputDirectory;
 
 /**
  * @author Andrea Di Giorgi
@@ -76,11 +73,11 @@ public class NpmInstallTask extends ExecuteNpmTask {
 
 					JsonSlurper jsonSlurper = new JsonSlurper();
 
-					Map<String, Object> packageJson =
+					Map<String, Object> packageJsonMap =
 						(Map<String, Object>)jsonSlurper.parse(packageJsonFile);
 
-					if (packageJson.containsKey("dependencies") ||
-						packageJson.containsKey("devDependencies")) {
+					if (packageJsonMap.containsKey("dependencies") ||
+						packageJsonMap.containsKey("devDependencies")) {
 
 						return true;
 					}
@@ -100,22 +97,18 @@ public class NpmInstallTask extends ExecuteNpmTask {
 		return GradleUtil.toFile(getProject(), _nodeModulesCacheDir);
 	}
 
-	@OutputDirectory
 	public File getNodeModulesDir() {
 		Project project = getProject();
 
 		return project.file("node_modules");
 	}
 
-	@InputFile
 	public File getPackageJsonFile() {
 		Project project = getProject();
 
 		return project.file("package.json");
 	}
 
-	@InputFile
-	@Optional
 	public File getShrinkwrapJsonFile() {
 		Project project = getProject();
 
@@ -324,13 +317,31 @@ public class NpmInstallTask extends ExecuteNpmTask {
 	}
 
 	private void _npmInstall(boolean reset) throws Exception {
-		if (reset) {
-			Project project = getProject();
+		Logger logger = getLogger();
+		int npmInstallRetries = getNpmInstallRetries();
+		Project project = getProject();
 
-			project.delete(getNodeModulesDir());
+		for (int i = 0; i < (npmInstallRetries + 1); i++) {
+			if (reset || (i > 0)) {
+				project.delete(getNodeModulesDir());
+			}
+
+			try {
+				super.executeNode();
+
+				break;
+			}
+			catch (IOException ioe) {
+				if (i == npmInstallRetries) {
+					throw ioe;
+				}
+
+				if (logger.isWarnEnabled()) {
+					logger.warn(
+						ioe.getMessage() + ". Running \"npm install\" again");
+				}
+			}
 		}
-
-		super.executeNode();
 	}
 
 	private void _removeShrinkwrappedUrls() throws IOException {

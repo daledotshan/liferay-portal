@@ -21,14 +21,9 @@ WikiEngineRenderer wikiEngineRenderer = (WikiEngineRenderer)request.getAttribute
 WikiNode node = (WikiNode)request.getAttribute(WikiWebKeys.WIKI_NODE);
 WikiPage wikiPage = (WikiPage)request.getAttribute(WikiWebKeys.WIKI_PAGE);
 
-List<FileEntry> attachmentsFileEntries = null;
+List<FileEntry> attachmentsFileEntries = wikiPage.getAttachmentsFileEntries();
 
-if (wikiPage != null) {
-	attachmentsFileEntries = wikiPage.getAttachmentsFileEntries();
-}
-
-int numOfVersions = WikiPageLocalServiceUtil.getPagesCount(wikiPage.getNodeId(), wikiPage.getTitle());
-WikiPage initialPage = (WikiPage)WikiPageLocalServiceUtil.getPages(wikiPage.getNodeId(), wikiPage.getTitle(), numOfVersions - 1, numOfVersions).get(0);
+WikiPage initialPage = WikiPageLocalServiceUtil.getPage(wikiPage.getNodeId(), wikiPage.getTitle(), WikiPageConstants.VERSION_DEFAULT);
 
 PortletURL viewPageURL = renderResponse.createRenderURL();
 
@@ -87,7 +82,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "details
 			<liferay-ui:message key="created-by" />
 		</th>
 		<td class="table-cell">
-			<%= HtmlUtil.escape(initialPage.getUserName()) %> (<%= dateFormatDateTime.format(initialPage.getCreateDate()) %>)
+			<%= HtmlUtil.escape(Validator.isNotNull(initialPage.getUserName()) ? initialPage.getUserName() : "Liferay") %> (<%= dateFormatDateTime.format(initialPage.getCreateDate()) %>)
 		</td>
 	</tr>
 	<tr>
@@ -95,7 +90,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "details
 			<liferay-ui:message key="last-changed-by" />
 		</th>
 		<td class="table-cell">
-			<%= HtmlUtil.escape(wikiPage.getUserName()) %> (<%= dateFormatDateTime.format(wikiPage.getCreateDate()) %>)
+			<%= HtmlUtil.escape(wikiPage.getUserName()) %> (<%= dateFormatDateTime.format(wikiPage.getModifiedDate()) %>)
 		</td>
 	</tr>
 	<tr>
@@ -302,7 +297,6 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "details
 						PortletURL copyPageURL = PortletURLUtil.clone(viewPageURL, renderResponse);
 
 						copyPageURL.setParameter("mvcRenderCommandName", "/wiki/edit_page");
-						copyPageURL.setParameter("redirect", viewPageURL.toString());
 						copyPageURL.setParameter("nodeId", String.valueOf(wikiPage.getNodeId()));
 						copyPageURL.setParameter("title", StringPool.BLANK);
 						copyPageURL.setParameter("editTitle", "1");

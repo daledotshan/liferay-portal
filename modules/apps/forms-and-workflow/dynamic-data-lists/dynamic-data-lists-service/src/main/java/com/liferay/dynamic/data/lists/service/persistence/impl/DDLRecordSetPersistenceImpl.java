@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -49,6 +50,8 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
+
+import java.lang.reflect.Field;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,7 +65,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The persistence implementation for the d d l record set service.
+ * The persistence implementation for the ddl record set service.
  *
  * <p>
  * Caching information and settings can be found in <code>portal.properties</code>
@@ -79,7 +82,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this class directly. Always use {@link DDLRecordSetUtil} to access the d d l record set persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
+	 * Never modify or reference this class directly. Always use {@link DDLRecordSetUtil} to access the ddl record set persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static final String FINDER_CLASS_NAME_ENTITY = DDLRecordSetImpl.class.getName();
 	public static final String FINDER_CLASS_NAME_LIST_WITH_PAGINATION = FINDER_CLASS_NAME_ENTITY +
@@ -115,10 +118,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 			new String[] { String.class.getName() });
 
 	/**
-	 * Returns all the d d l record sets where uuid = &#63;.
+	 * Returns all the ddl record sets where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the matching d d l record sets
+	 * @return the matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid(String uuid) {
@@ -126,16 +129,16 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns a range of all the d d l record sets where uuid = &#63;.
+	 * Returns a range of all the ddl record sets where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
-	 * @return the range of matching d d l record sets
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
+	 * @return the range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid(String uuid, int start, int end) {
@@ -143,17 +146,17 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where uuid = &#63;.
+	 * Returns an ordered range of all the ddl record sets where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid(String uuid, int start, int end,
@@ -162,18 +165,18 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where uuid = &#63;.
+	 * Returns an ordered range of all the ddl record sets where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid(String uuid, int start, int end,
@@ -293,12 +296,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the first d d l record set in the ordered set where uuid = &#63;.
+	 * Returns the first ddl record set in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the first matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByUuid_First(String uuid,
@@ -323,11 +326,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the first d d l record set in the ordered set where uuid = &#63;.
+	 * Returns the first ddl record set in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the first matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByUuid_First(String uuid,
@@ -342,12 +345,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the last d d l record set in the ordered set where uuid = &#63;.
+	 * Returns the last ddl record set in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the last matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByUuid_Last(String uuid,
@@ -372,11 +375,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the last d d l record set in the ordered set where uuid = &#63;.
+	 * Returns the last ddl record set in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the last matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByUuid_Last(String uuid,
@@ -398,13 +401,13 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record sets before and after the current d d l record set in the ordered set where uuid = &#63;.
+	 * Returns the ddl record sets before and after the current ddl record set in the ordered set where uuid = &#63;.
 	 *
-	 * @param recordSetId the primary key of the current d d l record set
+	 * @param recordSetId the primary key of the current ddl record set
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next d d l record set
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @return the previous, current, and next ddl record set
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet[] findByUuid_PrevAndNext(long recordSetId, String uuid,
@@ -558,7 +561,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes all the d d l record sets where uuid = &#63; from the database.
+	 * Removes all the ddl record sets where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 */
@@ -571,10 +574,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets where uuid = &#63;.
+	 * Returns the number of ddl record sets where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the number of matching d d l record sets
+	 * @return the number of matching ddl record sets
 	 */
 	@Override
 	public int countByUuid(String uuid) {
@@ -650,12 +653,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the d d l record set where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchRecordSetException} if it could not be found.
+	 * Returns the ddl record set where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchRecordSetException} if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByUUID_G(String uuid, long groupId)
@@ -686,11 +689,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the ddl record set where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByUUID_G(String uuid, long groupId) {
@@ -698,12 +701,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the ddl record set where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByUUID_G(String uuid, long groupId,
@@ -804,11 +807,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes the d d l record set where uuid = &#63; and groupId = &#63; from the database.
+	 * Removes the ddl record set where uuid = &#63; and groupId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the d d l record set that was removed
+	 * @return the ddl record set that was removed
 	 */
 	@Override
 	public DDLRecordSet removeByUUID_G(String uuid, long groupId)
@@ -819,11 +822,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets where uuid = &#63; and groupId = &#63;.
+	 * Returns the number of ddl record sets where uuid = &#63; and groupId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the number of matching d d l record sets
+	 * @return the number of matching ddl record sets
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
@@ -914,11 +917,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns all the d d l record sets where uuid = &#63; and companyId = &#63;.
+	 * Returns all the ddl record sets where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the matching d d l record sets
+	 * @return the matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid_C(String uuid, long companyId) {
@@ -927,7 +930,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns a range of all the d d l record sets where uuid = &#63; and companyId = &#63;.
+	 * Returns a range of all the ddl record sets where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -935,9 +938,9 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
-	 * @return the range of matching d d l record sets
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
+	 * @return the range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid_C(String uuid, long companyId,
@@ -946,7 +949,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the ddl record sets where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -954,10 +957,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid_C(String uuid, long companyId,
@@ -966,7 +969,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the ddl record sets where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -974,11 +977,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByUuid_C(String uuid, long companyId,
@@ -1107,13 +1110,13 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the first d d l record set in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first ddl record set in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the first matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByUuid_C_First(String uuid, long companyId,
@@ -1142,12 +1145,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the first d d l record set in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first ddl record set in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the first matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByUuid_C_First(String uuid, long companyId,
@@ -1163,13 +1166,13 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the last d d l record set in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last ddl record set in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the last matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByUuid_C_Last(String uuid, long companyId,
@@ -1198,12 +1201,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the last d d l record set in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last ddl record set in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the last matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByUuid_C_Last(String uuid, long companyId,
@@ -1225,14 +1228,14 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record sets before and after the current d d l record set in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the ddl record sets before and after the current ddl record set in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
-	 * @param recordSetId the primary key of the current d d l record set
+	 * @param recordSetId the primary key of the current ddl record set
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next d d l record set
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @return the previous, current, and next ddl record set
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet[] findByUuid_C_PrevAndNext(long recordSetId,
@@ -1391,7 +1394,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes all the d d l record sets where uuid = &#63; and companyId = &#63; from the database.
+	 * Removes all the ddl record sets where uuid = &#63; and companyId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
@@ -1405,11 +1408,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets where uuid = &#63; and companyId = &#63;.
+	 * Returns the number of ddl record sets where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the number of matching d d l record sets
+	 * @return the number of matching ddl record sets
 	 */
 	@Override
 	public int countByUuid_C(String uuid, long companyId) {
@@ -1503,10 +1506,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 			new String[] { Long.class.getName() });
 
 	/**
-	 * Returns all the d d l record sets where groupId = &#63;.
+	 * Returns all the ddl record sets where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the matching d d l record sets
+	 * @return the matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long groupId) {
@@ -1514,16 +1517,16 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns a range of all the d d l record sets where groupId = &#63;.
+	 * Returns a range of all the ddl record sets where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
-	 * @return the range of matching d d l record sets
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
+	 * @return the range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long groupId, int start, int end) {
@@ -1531,17 +1534,17 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where groupId = &#63;.
+	 * Returns an ordered range of all the ddl record sets where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long groupId, int start, int end,
@@ -1550,18 +1553,18 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where groupId = &#63;.
+	 * Returns an ordered range of all the ddl record sets where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long groupId, int start, int end,
@@ -1667,12 +1670,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the first d d l record set in the ordered set where groupId = &#63;.
+	 * Returns the first ddl record set in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the first matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByGroupId_First(long groupId,
@@ -1698,11 +1701,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the first d d l record set in the ordered set where groupId = &#63;.
+	 * Returns the first ddl record set in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the first matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByGroupId_First(long groupId,
@@ -1717,12 +1720,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the last d d l record set in the ordered set where groupId = &#63;.
+	 * Returns the last ddl record set in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the last matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByGroupId_Last(long groupId,
@@ -1748,11 +1751,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the last d d l record set in the ordered set where groupId = &#63;.
+	 * Returns the last ddl record set in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the last matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByGroupId_Last(long groupId,
@@ -1774,13 +1777,13 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record sets before and after the current d d l record set in the ordered set where groupId = &#63;.
+	 * Returns the ddl record sets before and after the current ddl record set in the ordered set where groupId = &#63;.
 	 *
-	 * @param recordSetId the primary key of the current d d l record set
+	 * @param recordSetId the primary key of the current ddl record set
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next d d l record set
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @return the previous, current, and next ddl record set
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet[] findByGroupId_PrevAndNext(long recordSetId,
@@ -1920,10 +1923,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns all the d d l record sets that the user has permission to view where groupId = &#63;.
+	 * Returns all the ddl record sets that the user has permission to view where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the matching d d l record sets that the user has permission to view
+	 * @return the matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public List<DDLRecordSet> filterFindByGroupId(long groupId) {
@@ -1932,16 +1935,16 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns a range of all the d d l record sets that the user has permission to view where groupId = &#63;.
+	 * Returns a range of all the ddl record sets that the user has permission to view where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
-	 * @return the range of matching d d l record sets that the user has permission to view
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
+	 * @return the range of matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public List<DDLRecordSet> filterFindByGroupId(long groupId, int start,
@@ -1950,17 +1953,17 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets that the user has permissions to view where groupId = &#63;.
+	 * Returns an ordered range of all the ddl record sets that the user has permissions to view where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching d d l record sets that the user has permission to view
+	 * @return the ordered range of matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public List<DDLRecordSet> filterFindByGroupId(long groupId, int start,
@@ -2045,13 +2048,13 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record sets before and after the current d d l record set in the ordered set of d d l record sets that the user has permission to view where groupId = &#63;.
+	 * Returns the ddl record sets before and after the current ddl record set in the ordered set of ddl record sets that the user has permission to view where groupId = &#63;.
 	 *
-	 * @param recordSetId the primary key of the current d d l record set
+	 * @param recordSetId the primary key of the current ddl record set
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next d d l record set
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @return the previous, current, and next ddl record set
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet[] filterFindByGroupId_PrevAndNext(long recordSetId,
@@ -2231,10 +2234,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns all the d d l record sets that the user has permission to view where groupId = any &#63;.
+	 * Returns all the ddl record sets that the user has permission to view where groupId = any &#63;.
 	 *
 	 * @param groupIds the group IDs
-	 * @return the matching d d l record sets that the user has permission to view
+	 * @return the matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public List<DDLRecordSet> filterFindByGroupId(long[] groupIds) {
@@ -2243,16 +2246,16 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns a range of all the d d l record sets that the user has permission to view where groupId = any &#63;.
+	 * Returns a range of all the ddl record sets that the user has permission to view where groupId = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupIds the group IDs
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
-	 * @return the range of matching d d l record sets that the user has permission to view
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
+	 * @return the range of matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public List<DDLRecordSet> filterFindByGroupId(long[] groupIds, int start,
@@ -2261,17 +2264,17 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets that the user has permission to view where groupId = any &#63;.
+	 * Returns an ordered range of all the ddl record sets that the user has permission to view where groupId = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupIds the group IDs
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching d d l record sets that the user has permission to view
+	 * @return the ordered range of matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public List<DDLRecordSet> filterFindByGroupId(long[] groupIds, int start,
@@ -2366,14 +2369,14 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns all the d d l record sets where groupId = any &#63;.
+	 * Returns all the ddl record sets where groupId = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupIds the group IDs
-	 * @return the matching d d l record sets
+	 * @return the matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long[] groupIds) {
@@ -2382,16 +2385,16 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns a range of all the d d l record sets where groupId = any &#63;.
+	 * Returns a range of all the ddl record sets where groupId = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupIds the group IDs
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
-	 * @return the range of matching d d l record sets
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
+	 * @return the range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long[] groupIds, int start, int end) {
@@ -2399,17 +2402,17 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where groupId = any &#63;.
+	 * Returns an ordered range of all the ddl record sets where groupId = any &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupIds the group IDs
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long[] groupIds, int start,
@@ -2418,18 +2421,18 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets where groupId = &#63;, optionally using the finder cache.
+	 * Returns an ordered range of all the ddl record sets where groupId = &#63;, optionally using the finder cache.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching d d l record sets
+	 * @return the ordered range of matching ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findByGroupId(long[] groupIds, int start,
@@ -2552,7 +2555,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes all the d d l record sets where groupId = &#63; from the database.
+	 * Removes all the ddl record sets where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
 	 */
@@ -2565,10 +2568,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets where groupId = &#63;.
+	 * Returns the number of ddl record sets where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the number of matching d d l record sets
+	 * @return the number of matching ddl record sets
 	 */
 	@Override
 	public int countByGroupId(long groupId) {
@@ -2616,10 +2619,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets where groupId = any &#63;.
+	 * Returns the number of ddl record sets where groupId = any &#63;.
 	 *
 	 * @param groupIds the group IDs
-	 * @return the number of matching d d l record sets
+	 * @return the number of matching ddl record sets
 	 */
 	@Override
 	public int countByGroupId(long[] groupIds) {
@@ -2686,10 +2689,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets that the user has permission to view where groupId = &#63;.
+	 * Returns the number of ddl record sets that the user has permission to view where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the number of matching d d l record sets that the user has permission to view
+	 * @return the number of matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public int filterCountByGroupId(long groupId) {
@@ -2734,10 +2737,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets that the user has permission to view where groupId = any &#63;.
+	 * Returns the number of ddl record sets that the user has permission to view where groupId = any &#63;.
 	 *
 	 * @param groupIds the group IDs
-	 * @return the number of matching d d l record sets that the user has permission to view
+	 * @return the number of matching ddl record sets that the user has permission to view
 	 */
 	@Override
 	public int filterCountByGroupId(long[] groupIds) {
@@ -2813,12 +2816,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 			new String[] { Long.class.getName(), String.class.getName() });
 
 	/**
-	 * Returns the d d l record set where groupId = &#63; and recordSetKey = &#63; or throws a {@link NoSuchRecordSetException} if it could not be found.
+	 * Returns the ddl record set where groupId = &#63; and recordSetKey = &#63; or throws a {@link NoSuchRecordSetException} if it could not be found.
 	 *
 	 * @param groupId the group ID
 	 * @param recordSetKey the record set key
-	 * @return the matching d d l record set
-	 * @throws NoSuchRecordSetException if a matching d d l record set could not be found
+	 * @return the matching ddl record set
+	 * @throws NoSuchRecordSetException if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet findByG_R(long groupId, String recordSetKey)
@@ -2849,11 +2852,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set where groupId = &#63; and recordSetKey = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the ddl record set where groupId = &#63; and recordSetKey = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param groupId the group ID
 	 * @param recordSetKey the record set key
-	 * @return the matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByG_R(long groupId, String recordSetKey) {
@@ -2861,12 +2864,12 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set where groupId = &#63; and recordSetKey = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the ddl record set where groupId = &#63; and recordSetKey = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param groupId the group ID
 	 * @param recordSetKey the record set key
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the matching d d l record set, or <code>null</code> if a matching d d l record set could not be found
+	 * @return the matching ddl record set, or <code>null</code> if a matching ddl record set could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByG_R(long groupId, String recordSetKey,
@@ -2967,11 +2970,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes the d d l record set where groupId = &#63; and recordSetKey = &#63; from the database.
+	 * Removes the ddl record set where groupId = &#63; and recordSetKey = &#63; from the database.
 	 *
 	 * @param groupId the group ID
 	 * @param recordSetKey the record set key
-	 * @return the d d l record set that was removed
+	 * @return the ddl record set that was removed
 	 */
 	@Override
 	public DDLRecordSet removeByG_R(long groupId, String recordSetKey)
@@ -2982,11 +2985,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets where groupId = &#63; and recordSetKey = &#63;.
+	 * Returns the number of ddl record sets where groupId = &#63; and recordSetKey = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param recordSetKey the record set key
-	 * @return the number of matching d d l record sets
+	 * @return the number of matching ddl record sets
 	 */
 	@Override
 	public int countByG_R(long groupId, String recordSetKey) {
@@ -3058,12 +3061,29 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 
 	public DDLRecordSetPersistenceImpl() {
 		setModelClass(DDLRecordSet.class);
+
+		try {
+			Field field = ReflectionUtil.getDeclaredField(BasePersistenceImpl.class,
+					"_dbColumnNames");
+
+			Map<String, String> dbColumnNames = new HashMap<String, String>();
+
+			dbColumnNames.put("uuid", "uuid_");
+			dbColumnNames.put("settings", "settings_");
+
+			field.set(this, dbColumnNames);
+		}
+		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
+		}
 	}
 
 	/**
-	 * Caches the d d l record set in the entity cache if it is enabled.
+	 * Caches the ddl record set in the entity cache if it is enabled.
 	 *
-	 * @param ddlRecordSet the d d l record set
+	 * @param ddlRecordSet the ddl record set
 	 */
 	@Override
 	public void cacheResult(DDLRecordSet ddlRecordSet) {
@@ -3083,9 +3103,9 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Caches the d d l record sets in the entity cache if it is enabled.
+	 * Caches the ddl record sets in the entity cache if it is enabled.
 	 *
-	 * @param ddlRecordSets the d d l record sets
+	 * @param ddlRecordSets the ddl record sets
 	 */
 	@Override
 	public void cacheResult(List<DDLRecordSet> ddlRecordSets) {
@@ -3102,7 +3122,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Clears the cache for all d d l record sets.
+	 * Clears the cache for all ddl record sets.
 	 *
 	 * <p>
 	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
@@ -3118,7 +3138,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Clears the cache for the d d l record set.
+	 * Clears the cache for the ddl record set.
 	 *
 	 * <p>
 	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
@@ -3217,10 +3237,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Creates a new d d l record set with the primary key. Does not add the d d l record set to the database.
+	 * Creates a new ddl record set with the primary key. Does not add the ddl record set to the database.
 	 *
-	 * @param recordSetId the primary key for the new d d l record set
-	 * @return the new d d l record set
+	 * @param recordSetId the primary key for the new ddl record set
+	 * @return the new ddl record set
 	 */
 	@Override
 	public DDLRecordSet create(long recordSetId) {
@@ -3239,11 +3259,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes the d d l record set with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the ddl record set with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param recordSetId the primary key of the d d l record set
-	 * @return the d d l record set that was removed
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @param recordSetId the primary key of the ddl record set
+	 * @return the ddl record set that was removed
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet remove(long recordSetId)
@@ -3252,11 +3272,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes the d d l record set with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the ddl record set with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param primaryKey the primary key of the d d l record set
-	 * @return the d d l record set that was removed
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @param primaryKey the primary key of the ddl record set
+	 * @return the ddl record set that was removed
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet remove(Serializable primaryKey)
@@ -3382,8 +3402,35 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (isNew || !DDLRecordSetModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!DDLRecordSetModelImpl.COLUMN_BITMASK_ENABLED) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+		else
+		 if (isNew) {
+			Object[] args = new Object[] { ddlRecordSetModelImpl.getUuid() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				args);
+
+			args = new Object[] {
+					ddlRecordSetModelImpl.getUuid(),
+					ddlRecordSetModelImpl.getCompanyId()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				args);
+
+			args = new Object[] { ddlRecordSetModelImpl.getGroupId() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+				args);
+
+			finderCache.removeResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL,
+				FINDER_ARGS_EMPTY);
 		}
 
 		else {
@@ -3471,10 +3518,13 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 		ddlRecordSetImpl.setCompanyId(ddlRecordSet.getCompanyId());
 		ddlRecordSetImpl.setUserId(ddlRecordSet.getUserId());
 		ddlRecordSetImpl.setUserName(ddlRecordSet.getUserName());
+		ddlRecordSetImpl.setVersionUserId(ddlRecordSet.getVersionUserId());
+		ddlRecordSetImpl.setVersionUserName(ddlRecordSet.getVersionUserName());
 		ddlRecordSetImpl.setCreateDate(ddlRecordSet.getCreateDate());
 		ddlRecordSetImpl.setModifiedDate(ddlRecordSet.getModifiedDate());
 		ddlRecordSetImpl.setDDMStructureId(ddlRecordSet.getDDMStructureId());
 		ddlRecordSetImpl.setRecordSetKey(ddlRecordSet.getRecordSetKey());
+		ddlRecordSetImpl.setVersion(ddlRecordSet.getVersion());
 		ddlRecordSetImpl.setName(ddlRecordSet.getName());
 		ddlRecordSetImpl.setDescription(ddlRecordSet.getDescription());
 		ddlRecordSetImpl.setMinDisplayRows(ddlRecordSet.getMinDisplayRows());
@@ -3486,11 +3536,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
+	 * Returns the ddl record set with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the d d l record set
-	 * @return the d d l record set
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @param primaryKey the primary key of the ddl record set
+	 * @return the ddl record set
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet findByPrimaryKey(Serializable primaryKey)
@@ -3510,11 +3560,11 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set with the primary key or throws a {@link NoSuchRecordSetException} if it could not be found.
+	 * Returns the ddl record set with the primary key or throws a {@link NoSuchRecordSetException} if it could not be found.
 	 *
-	 * @param recordSetId the primary key of the d d l record set
-	 * @return the d d l record set
-	 * @throws NoSuchRecordSetException if a d d l record set with the primary key could not be found
+	 * @param recordSetId the primary key of the ddl record set
+	 * @return the ddl record set
+	 * @throws NoSuchRecordSetException if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet findByPrimaryKey(long recordSetId)
@@ -3523,10 +3573,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set with the primary key or returns <code>null</code> if it could not be found.
+	 * Returns the ddl record set with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the d d l record set
-	 * @return the d d l record set, or <code>null</code> if a d d l record set with the primary key could not be found
+	 * @param primaryKey the primary key of the ddl record set
+	 * @return the ddl record set, or <code>null</code> if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByPrimaryKey(Serializable primaryKey) {
@@ -3571,10 +3621,10 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the d d l record set with the primary key or returns <code>null</code> if it could not be found.
+	 * Returns the ddl record set with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param recordSetId the primary key of the d d l record set
-	 * @return the d d l record set, or <code>null</code> if a d d l record set with the primary key could not be found
+	 * @param recordSetId the primary key of the ddl record set
+	 * @return the ddl record set, or <code>null</code> if a ddl record set with the primary key could not be found
 	 */
 	@Override
 	public DDLRecordSet fetchByPrimaryKey(long recordSetId) {
@@ -3634,7 +3684,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 		query.append(_SQL_SELECT_DDLRECORDSET_WHERE_PKS_IN);
 
 		for (Serializable primaryKey : uncachedPrimaryKeys) {
-			query.append(String.valueOf(primaryKey));
+			query.append((long)primaryKey);
 
 			query.append(StringPool.COMMA);
 		}
@@ -3676,9 +3726,9 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns all the d d l record sets.
+	 * Returns all the ddl record sets.
 	 *
-	 * @return the d d l record sets
+	 * @return the ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findAll() {
@@ -3686,15 +3736,15 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns a range of all the d d l record sets.
+	 * Returns a range of all the ddl record sets.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
-	 * @return the range of d d l record sets
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
+	 * @return the range of ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findAll(int start, int end) {
@@ -3702,16 +3752,16 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets.
+	 * Returns an ordered range of all the ddl record sets.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of d d l record sets
+	 * @return the ordered range of ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findAll(int start, int end,
@@ -3720,17 +3770,17 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns an ordered range of all the d d l record sets.
+	 * Returns an ordered range of all the ddl record sets.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link DDLRecordSetModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of d d l record sets
-	 * @param end the upper bound of the range of d d l record sets (not inclusive)
+	 * @param start the lower bound of the range of ddl record sets
+	 * @param end the upper bound of the range of ddl record sets (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of d d l record sets
+	 * @return the ordered range of ddl record sets
 	 */
 	@Override
 	public List<DDLRecordSet> findAll(int start, int end,
@@ -3819,7 +3869,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Removes all the d d l record sets from the database.
+	 * Removes all the ddl record sets from the database.
 	 *
 	 */
 	@Override
@@ -3830,9 +3880,9 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Returns the number of d d l record sets.
+	 * Returns the number of ddl record sets.
 	 *
-	 * @return the number of d d l record sets
+	 * @return the number of ddl record sets
 	 */
 	@Override
 	public int countAll() {
@@ -3877,7 +3927,7 @@ public class DDLRecordSetPersistenceImpl extends BasePersistenceImpl<DDLRecordSe
 	}
 
 	/**
-	 * Initializes the d d l record set persistence.
+	 * Initializes the ddl record set persistence.
 	 */
 	public void afterPropertiesSet() {
 	}

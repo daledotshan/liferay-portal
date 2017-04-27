@@ -1,5 +1,6 @@
 <definition component-name="portal-business-productivity-ee">
 	<property name="portal.release" value="false" />
+	<property name="portal.upstream" value="true" />
 	<property name="test.run.environment" value="EE" />
 	<property name="testray.main.component.name" value="Reports" />
 
@@ -41,7 +42,9 @@
 
 		<execute macro="LexiconEntry#gotoAdd" />
 
-		<execute function="Type" locator1="TextInput#NAME" value1="Reports Definition Name" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="Reports Definition Name" />
+		</execute>
 
 		<execute macro="Button#clickSave" />
 
@@ -126,6 +129,8 @@
 
 	<command name="ViewReportEmailNewConfiguration" priority="4">
 		<description message="This is a use case for LPS-51009." />
+
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
 
 		<property name="test.smtp.server.enabled" value="true" />
 
@@ -212,7 +217,7 @@ Thanks,<br/>
 			<var name="subject" value="reports_admin_template_source_sample_class_name.pdf" />
 		</execute>
 
-		<execute function="Open" locator1="http://localhost:8080" />
+		<execute function="Open" locator1="${portalURL}" />
 
 		<execute macro="Navigator#openURL" />
 

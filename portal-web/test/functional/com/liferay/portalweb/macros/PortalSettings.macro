@@ -10,8 +10,6 @@
 
 		<execute function="Click" locator1="PortalSettingsAuthentication#LDAP_SERVER_DEFAULT_VALUES_APACHE_DIRECTORY_SERVER_RADIO" />
 
-		<execute function="AssertClick" locator1="PortalSettingsAuthentication#LDAP_SERVER_RESET_VALUES_BUTTON" value1="Reset Values" />
-
 		<execute macro="Button#clickSave" />
 	</command>
 
@@ -140,8 +138,8 @@
 	</command>
 
 	<command name="configureCurrentLanguagesCP">
-		<execute macro="Navigator#gotoTab">
-			<var name="tab" value="Miscellaneous" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Miscellaneous" />
 		</execute>
 
 		<if>
@@ -201,13 +199,19 @@
 	</command>
 
 	<command name="configureTimeZone">
-		<execute macro="Navigator#gotoTab">
-			<var name="tab" value="Miscellaneous" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Miscellaneous" />
 		</execute>
 
 		<execute function="Select" locator1="Select#TIME_ZONE" value1="${timeZone}" />
 
 		<execute macro="PortalSettings#_saveDisplaySettings" />
+	</command>
+
+	<command name="configureWikiService">
+		<var name="key_counter" value="${counter}" />
+
+		<execute function="Type" locator1="TextArea#CONFIGURATION" value1="${editor}" />
 	</command>
 
 	<command name="disableLDAPCP">
@@ -645,8 +649,6 @@
 
 		<execute function="Click" locator1="PortalSettingsAuthentication#LDAP_SERVER_DEFAULT_VALUES_MICROSOFT_ACTIVE_DIRECTORY_SERVER_RADIO" />
 
-		<execute function="AssertClick" locator1="PortalSettingsAuthentication#LDAP_SERVER_RESET_VALUES_BUTTON" value1="Reset Values" />
-
 		<execute function="AssertTextEquals#assertPartialText" locator1="PortalSettingsAuthentication#LDAP_SERVER_CONNECTION_BASE_PROVIDER_URL_HEADER" value1="Base Provider URL" />
 		<execute function="AssertTextEquals" locator1="PortalSettingsAuthentication#LDAP_SERVER_CONNECTION_BASE_PROVIDER_URL_FIELD" value1="ldap://localhost:389" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="PortalSettingsAuthentication#LDAP_SERVER_CONNECTION_BASE_DN_HEADER" value1="Base DN" />
@@ -755,16 +757,16 @@
 	</command>
 
 	<command name="viewCurrentDefaultPortalLanguageCP">
-		<execute macro="Navigator#gotoTab">
-			<var name="tab" value="Miscellaneous" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Miscellaneous" />
 		</execute>
 
 		<execute function="AssertSelectedLabel" locator1="PortalSettingsDisplaySettings#DEFAULT_LANGUAGE_SELECT" value1="${defaultPortalLanguage}" />
 	</command>
 
 	<command name="viewDefaultLanguageCP">
-		<execute macro="Navigator#gotoTab">
-			<var name="tab" value="Miscellaneous" />
+		<execute macro="Navigator#gotoNavTab">
+			<var name="navTab" value="Miscellaneous" />
 		</execute>
 
 		<execute function="AssertSelectedLabel" locator1="PortalSettingsDisplaySettings#DEFAULT_LANGUAGE_SELECT" value1="${defaultPortalLanguage}" />

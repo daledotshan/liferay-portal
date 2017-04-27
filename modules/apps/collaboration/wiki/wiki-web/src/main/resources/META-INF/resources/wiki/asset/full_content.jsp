@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/wiki/init.jsp" %>
+<%@ include file="/init.jsp" %>
 
 <%
 WikiPage wikiPage = (WikiPage)request.getAttribute(WikiWebKeys.WIKI_PAGE);
@@ -34,18 +34,27 @@ editPageURL.setParameter("nodeId", String.valueOf(wikiPage.getNodeId()));
 editPageURL.setPortletMode(PortletMode.VIEW);
 editPageURL.setWindowState(WindowState.MAXIMIZED);
 
-String attachmentURLPrefix = themeDisplay.getPathMain() + "/wiki/get_page_attachment?p_l_id=" + themeDisplay.getPlid() + "&nodeId=" + wikiPage.getNodeId() + "&title=" + HttpUtil.encodeURL(wikiPage.getTitle()) + "&fileName=";
+StringBundler sb = new StringBundler(8);
 
-WikiPageDisplay pageDisplay = WikiPageLocalServiceUtil.getPageDisplay(wikiPage, viewPageURL, editPageURL, attachmentURLPrefix, ServiceContextFactory.getInstance(request));
+sb.append(themeDisplay.getPathMain());
+sb.append("/wiki/get_page_attachment?p_l_id=");
+sb.append(themeDisplay.getPlid());
+sb.append("&nodeId=");
+sb.append(wikiPage.getNodeId());
+sb.append("&title=");
+sb.append(URLCodec.encodeURL(wikiPage.getTitle()));
+sb.append("&fileName=");
+
+WikiPageDisplay pageDisplay = WikiPageLocalServiceUtil.getPageDisplay(wikiPage, viewPageURL, editPageURL, sb.toString(), ServiceContextFactory.getInstance(request));
 %>
 
 <%= pageDisplay.getFormattedContent() %>
 
-<liferay-ui:custom-attributes-available className="<%= WikiPage.class.getName() %>">
-	<liferay-ui:custom-attribute-list
+<liferay-expando:custom-attributes-available className="<%= WikiPage.class.getName() %>">
+	<liferay-expando:custom-attribute-list
 		className="<%= WikiPage.class.getName() %>"
-		classPK="<%= (wikiPage != null) ? wikiPage.getPrimaryKey() : 0 %>"
+		classPK="<%= wikiPage.getPrimaryKey() %>"
 		editable="<%= false %>"
 		label="<%= true %>"
 	/>
-</liferay-ui:custom-attributes-available>
+</liferay-expando:custom-attributes-available>

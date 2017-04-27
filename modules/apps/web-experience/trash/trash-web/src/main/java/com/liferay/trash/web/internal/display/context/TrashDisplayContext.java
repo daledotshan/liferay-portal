@@ -37,6 +37,9 @@ import javax.portlet.PortletURL;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * Provides utility methods moved from the Recycle Bin portlet's JSP files to
+ * reduce the complexity of the views.
+ *
  * @author Jürgen Kappler
  */
 public class TrashDisplayContext {
@@ -136,6 +139,16 @@ public class TrashDisplayContext {
 		return _displayStyle;
 	}
 
+	public String getNavigation() {
+		if (_navigation != null) {
+			return _navigation;
+		}
+
+		_navigation = ParamUtil.getString(_request, "navigation", "all");
+
+		return _navigation;
+	}
+
 	public String getOrderByCol() {
 		if (Validator.isNotNull(_orderByCol)) {
 			return _orderByCol;
@@ -178,6 +191,12 @@ public class TrashDisplayContext {
 
 		if (Validator.isNotNull(keywords)) {
 			portletURL.setParameter("keywords", keywords);
+		}
+
+		String navigation = getNavigation();
+
+		if (Validator.isNotNull(navigation)) {
+			portletURL.setParameter("navigation", navigation);
 		}
 
 		return portletURL;
@@ -304,6 +323,7 @@ public class TrashDisplayContext {
 	private String _containerModelRedirectURL;
 	private String _displayStyle;
 	private final LiferayPortletResponse _liferayPortletResponse;
+	private String _navigation;
 	private String _orderByCol;
 	private String _orderByType;
 	private final HttpServletRequest _request;

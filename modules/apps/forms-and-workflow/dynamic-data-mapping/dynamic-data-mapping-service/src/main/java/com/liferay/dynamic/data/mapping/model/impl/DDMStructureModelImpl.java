@@ -76,7 +76,7 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this class directly. All methods that expect a d d m structure model instance should use the {@link DDMStructure} interface instead.
+	 * Never modify or reference this class directly. All methods that expect a ddm structure model instance should use the {@link DDMStructure} interface instead.
 	 */
 	public static final String TABLE_NAME = "DDMStructure";
 	public static final Object[][] TABLE_COLUMNS = {
@@ -94,7 +94,7 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 			{ "classNameId", Types.BIGINT },
 			{ "structureKey", Types.VARCHAR },
 			{ "version", Types.VARCHAR },
-			{ "name", Types.CLOB },
+			{ "name", Types.VARCHAR },
 			{ "description", Types.CLOB },
 			{ "definition", Types.CLOB },
 			{ "storageType", Types.VARCHAR },
@@ -118,7 +118,7 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		TABLE_COLUMNS_MAP.put("classNameId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("structureKey", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("version", Types.VARCHAR);
-		TABLE_COLUMNS_MAP.put("name", Types.CLOB);
+		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("description", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("definition", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("storageType", Types.VARCHAR);
@@ -126,7 +126,7 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		TABLE_COLUMNS_MAP.put("lastPublishDate", Types.TIMESTAMP);
 	}
 
-	public static final String TABLE_SQL_CREATE = "create table DDMStructure (uuid_ VARCHAR(75) null,structureId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,versionUserId LONG,versionUserName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentStructureId LONG,classNameId LONG,structureKey VARCHAR(75) null,version VARCHAR(75) null,name TEXT null,description TEXT null,definition TEXT null,storageType VARCHAR(75) null,type_ INTEGER,lastPublishDate DATE null)";
+	public static final String TABLE_SQL_CREATE = "create table DDMStructure (uuid_ VARCHAR(75) null,structureId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,versionUserId LONG,versionUserName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentStructureId LONG,classNameId LONG,structureKey VARCHAR(75) null,version VARCHAR(75) null,name STRING null,description TEXT null,definition TEXT null,storageType VARCHAR(75) null,type_ INTEGER,lastPublishDate DATE null)";
 	public static final String TABLE_SQL_DROP = "drop table DDMStructure";
 	public static final String ORDER_BY_JPQL = " ORDER BY ddmStructure.structureId ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY DDMStructure.structureId ASC";
@@ -617,26 +617,6 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		return _originalParentStructureId;
 	}
 
-	@Override
-	public String getClassName() {
-		if (getClassNameId() <= 0) {
-			return StringPool.BLANK;
-		}
-
-		return PortalUtil.getClassName(getClassNameId());
-	}
-
-	@Override
-	public void setClassName(String className) {
-		long classNameId = 0;
-
-		if (Validator.isNotNull(className)) {
-			classNameId = PortalUtil.getClassNameId(className);
-		}
-
-		setClassNameId(classNameId);
-	}
-
 	@JSON
 	@Override
 	public long getClassNameId() {
@@ -978,6 +958,13 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		_lastPublishDate = lastPublishDate;
 	}
 
+	public java.lang.String getClassName() {
+		return null;
+	}
+
+	public void setClassName(java.lang.String className) {
+	}
+
 	public com.liferay.dynamic.data.mapping.model.DDMForm getDDMForm() {
 		return null;
 	}
@@ -1213,6 +1200,8 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 
 		ddmStructureModelImpl._originalDescription = ddmStructureModelImpl._description;
 
+		setClassName(null);
+
 		setDDMForm(null);
 
 		ddmStructureModelImpl._columnBitmask = 0;
@@ -1336,6 +1325,8 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		else {
 			ddmStructureCacheModel.lastPublishDate = Long.MIN_VALUE;
 		}
+
+		ddmStructureCacheModel._className = getClassName();
 
 		ddmStructureCacheModel._ddmForm = getDDMForm();
 

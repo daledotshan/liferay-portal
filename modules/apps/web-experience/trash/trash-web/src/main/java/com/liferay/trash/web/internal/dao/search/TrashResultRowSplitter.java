@@ -17,15 +17,24 @@ package com.liferay.trash.web.internal.dao.search;
 import com.liferay.portal.kernel.dao.search.ResultRow;
 import com.liferay.portal.kernel.dao.search.ResultRowSplitter;
 import com.liferay.portal.kernel.dao.search.ResultRowSplitterEntry;
+import com.liferay.portal.kernel.model.ClassedModel;
+import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
-import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Provides an implementation of <code>ResultRowSplitter</code> (in
+ * <code>com.liferay.portal.kernel</code>) for the {@link
+ * com.liferay.trash.web.internal.portlet.TrashPortlet}. This class renders
+ * search results in the <code>SearchIteratorTag</code> (in
+ * <code>com.liferay.util.taglib</code>) using the <code>TrashHandler</code> (in
+ * <code>com.liferay.portal.kernel</code>) corresponding to each Recycle Bin
+ * entry.
+ *
  * @author Eudaldo Alonso
  */
 public class TrashResultRowSplitter implements ResultRowSplitter {
@@ -42,11 +51,13 @@ public class TrashResultRowSplitter implements ResultRowSplitter {
 		String containedModelName = null;
 
 		for (ResultRow resultRow : resultRows) {
-			TrashRenderer trashRenderer = (TrashRenderer)resultRow.getObject();
+			TrashedModel trashedModel = (TrashedModel)resultRow.getObject();
+
+			ClassedModel classedModel = (ClassedModel)trashedModel;
 
 			TrashHandler trashHandler =
 				TrashHandlerRegistryUtil.getTrashHandler(
-					trashRenderer.getClassName());
+					classedModel.getModelClassName());
 
 			if (Validator.isNull(containerModelName) &&
 				Validator.isNull(containedModelName)) {

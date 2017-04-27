@@ -36,12 +36,9 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.search.web.constants.SearchPortletParameterNames;
 import com.liferay.portlet.portletconfiguration.util.ConfigurationRenderRequest;
 
-import javax.portlet.MimeResponse;
 import javax.portlet.PortletPreferences;
-import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -72,21 +69,14 @@ public class SearchDisplayContextTest {
 
 	@Test
 	public void testConfigurationKeywordsEmptySkipsSearch() throws Exception {
-		SearchDisplayContext searchDisplayContext = createSearchDisplayContext(
+		assertSearchSkippedAndNullResults(
 			null,
 			new ConfigurationRenderRequest(renderRequest, portletPreferences));
-
-		Assert.assertNull(searchDisplayContext.getHits());
-		Assert.assertNull(searchDisplayContext.getKeywords());
-		Assert.assertNull(searchDisplayContext.getSearchContainer());
-		Assert.assertNull(searchDisplayContext.getSearchContext());
-
-		Mockito.verifyZeroInteractions(facetedSearcher);
 	}
 
 	@Test
 	public void testSearchKeywordsBlank() throws Exception {
-		assertSearchKeywords(StringPool.BLANK, StringPool.BLANK);
+		assertSearchSkipped(StringPool.BLANK, StringPool.BLANK);
 	}
 
 	@Test
@@ -96,14 +86,12 @@ public class SearchDisplayContextTest {
 
 	@Test
 	public void testSearchKeywordsSpaces() throws Exception {
-		assertSearchKeywords(StringPool.DOUBLE_SPACE, StringPool.BLANK);
+		assertSearchSkipped(StringPool.DOUBLE_SPACE, StringPool.BLANK);
 	}
 
 	protected void assertSearchKeywords(
 			String requestKeywords, String searchDisplayContextKeywords)
 		throws Exception {
-
-		setUpRequestKeywords(requestKeywords);
 
 		SearchDisplayContext searchDisplayContext = createSearchDisplayContext(
 			requestKeywords, renderRequest);
@@ -113,10 +101,46 @@ public class SearchDisplayContextTest {
 
 		SearchContext searchContext = searchDisplayContext.getSearchContext();
 
-		Mockito.verify(facetedSearcher).search(searchContext);
+		Mockito.verify(
+			facetedSearcher
+		).search(
+			searchContext
+		);
 
 		Assert.assertEquals(
 			searchDisplayContextKeywords, searchContext.getKeywords());
+	}
+
+	protected void assertSearchSkipped(
+			String requestKeywords, String searchDisplayContextKeywords)
+		throws Exception {
+
+		SearchDisplayContext searchDisplayContext = createSearchDisplayContext(
+			requestKeywords, renderRequest);
+
+		Assert.assertEquals(
+			searchDisplayContextKeywords, searchDisplayContext.getKeywords());
+
+		Assert.assertNotNull(searchDisplayContext.getHits());
+		Assert.assertNotNull(searchDisplayContext.getSearchContainer());
+		Assert.assertNotNull(searchDisplayContext.getSearchContext());
+
+		Mockito.verifyZeroInteractions(facetedSearcher);
+	}
+
+	protected void assertSearchSkippedAndNullResults(
+			String requestKeywords, RenderRequest renderRequest)
+		throws Exception {
+
+		SearchDisplayContext searchDisplayContext = createSearchDisplayContext(
+			requestKeywords, renderRequest);
+
+		Assert.assertNull(searchDisplayContext.getHits());
+		Assert.assertNull(searchDisplayContext.getKeywords());
+		Assert.assertNull(searchDisplayContext.getSearchContainer());
+		Assert.assertNull(searchDisplayContext.getSearchContext());
+
+		Mockito.verifyZeroInteractions(facetedSearcher);
 	}
 
 	protected JSONArray createJSONArray() {
@@ -194,6 +218,8 @@ public class SearchDisplayContextTest {
 			String keywords, RenderRequest renderRequest)
 		throws Exception {
 
+		setUpRequestKeywords(keywords);
+
 		PropsUtil.setProps(Mockito.mock(Props.class));
 
 		JSONFactoryUtil jsonFactoryUtil = new JSONFactoryUtil();
@@ -201,11 +227,10 @@ public class SearchDisplayContextTest {
 		jsonFactoryUtil.setJSONFactory(createJSONFactory());
 
 		return new SearchDisplayContext(
-			renderRequest, Mockito.mock(RenderResponse.class),
-			portletPreferences, createPortal(themeDisplay, renderRequest),
-			Mockito.mock(Html.class), Mockito.mock(Language.class),
-			facetedSearcherManager, Mockito.mock(IndexSearchPropsValues.class),
-			portletURLFactory);
+			renderRequest, portletPreferences,
+			createPortal(themeDisplay, renderRequest), Mockito.mock(Html.class),
+			Mockito.mock(Language.class), facetedSearcherManager,
+			Mockito.mock(IndexSearchPropsValues.class), portletURLFactory);
 	}
 
 	protected ThemeDisplay createThemeDisplay() throws Exception {
@@ -248,8 +273,7 @@ public class SearchDisplayContextTest {
 			Mockito.mock(PortletURL.class)
 		).when(
 			portletURLFactory
-		).getPortletURL(
-			Mockito.<PortletRequest>any(), Mockito.<MimeResponse>any());
+		).getPortletURL();
 	}
 
 	protected void setUpRenderRequest() throws Exception {

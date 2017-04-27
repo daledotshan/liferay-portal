@@ -14,6 +14,8 @@
 
 package com.liferay.asset.kernel.model;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -33,6 +35,7 @@ import javax.portlet.WindowState;
  * @author Jorge Ferrer
  * @author Juan Fernández
  */
+@ProviderType
 public interface AssetRenderer<T> extends Renderer {
 
 	public static final String TEMPLATE_ABSTRACT = "abstract";
@@ -118,6 +121,8 @@ public interface AssetRenderer<T> extends Renderer {
 
 	public String getUrlTitle();
 
+	public String getUrlTitle(Locale locale);
+
 	public String getURLView(
 			LiferayPortletResponse liferayPortletResponse,
 			WindowState windowState)
@@ -147,6 +152,10 @@ public interface AssetRenderer<T> extends Renderer {
 
 	public boolean hasViewPermission(PermissionChecker permissionChecker)
 		throws PortalException;
+
+	public default boolean isCategorizable(long groupId) {
+		return true;
+	}
 
 	public boolean isCommentable();
 

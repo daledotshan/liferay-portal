@@ -46,7 +46,7 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.liveusers.LiveUsers;
 import com.liferay.site.memberships.web.internal.constants.SiteMembershipsPortletKeys;
 import com.liferay.site.memberships.web.internal.display.context.SiteMembershipsDisplayContext;
@@ -274,7 +274,7 @@ public class SiteMembershipsPortlet extends MVCPortlet {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		User user = PortalUtil.getSelectedUser(actionRequest, false);
+		User user = _portal.getSelectedUser(actionRequest, false);
 
 		if (user == null) {
 			return;
@@ -334,6 +334,30 @@ public class SiteMembershipsPortlet extends MVCPortlet {
 			_userGroupRoleService.addUserGroupRoles(
 				userIds, group.getGroupId(), roleId);
 		}
+	}
+
+	public void removeUserGroupSiteRole(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		long[] userIds = ParamUtil.getLongValues(actionRequest, "rowIds");
+		Group group = _getGroup(actionRequest, actionResponse);
+		long roleId = ParamUtil.getLong(actionRequest, "roleId");
+
+		_userGroupGroupRoleService.deleteUserGroupGroupRoles(
+			userIds, group.getGroupId(), roleId);
+	}
+
+	public void removeUserSiteRole(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		long[] userIds = ParamUtil.getLongValues(actionRequest, "rowIds");
+		Group group = _getGroup(actionRequest, actionResponse);
+		long roleId = ParamUtil.getLong(actionRequest, "roleId");
+
+		_userGroupRoleService.deleteUserGroupRoles(
+			userIds, group.getGroupId(), roleId);
 	}
 
 	public void replyMembershipRequest(
@@ -495,11 +519,11 @@ public class SiteMembershipsPortlet extends MVCPortlet {
 			PortletRequest portletRequest, PortletResponse portletResponse)
 		throws PortalException {
 
-		HttpServletRequest request = PortalUtil.getHttpServletRequest(
+		HttpServletRequest request = _portal.getHttpServletRequest(
 			portletRequest);
 
 		LiferayPortletResponse liferayPortletResponse =
-			PortalUtil.getLiferayPortletResponse(portletResponse);
+			_portal.getLiferayPortletResponse(portletResponse);
 
 		SiteMembershipsDisplayContext siteMembershipsDisplayContext =
 			new SiteMembershipsDisplayContext(request, liferayPortletResponse);
@@ -509,6 +533,10 @@ public class SiteMembershipsPortlet extends MVCPortlet {
 
 	private MembershipRequestService _membershipRequestService;
 	private OrganizationService _organizationService;
+
+	@Reference
+	private Portal _portal;
+
 	private UserGroupGroupRoleLocalService _userGroupGroupRoleLocalService;
 	private UserGroupGroupRoleService _userGroupGroupRoleService;
 	private UserGroupRoleLocalService _userGroupRoleLocalService;

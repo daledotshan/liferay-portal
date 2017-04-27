@@ -101,15 +101,9 @@ public class UserPermissionImpl
 			if (userId != ResourceConstants.PRIMKEY_DNE) {
 				user = UserLocalServiceUtil.getUserById(userId);
 
-				if ((actionId.equals(ActionKeys.DELETE) ||
-					 actionId.equals(ActionKeys.IMPERSONATE) ||
-					 actionId.equals(ActionKeys.PERMISSIONS) ||
-					 actionId.equals(ActionKeys.UPDATE) ||
-					 actionId.equals(ActionKeys.VIEW)) &&
+				if (!actionId.equals(ActionKeys.VIEW) &&
 					!permissionChecker.isOmniadmin() &&
-					(PortalUtil.isOmniadmin(user) ||
-					 (!permissionChecker.isCompanyAdmin() &&
-					  PortalUtil.isCompanyAdmin(user)))) {
+					PortalUtil.isOmniadmin(user)) {
 
 					return false;
 				}
@@ -125,14 +119,14 @@ public class UserPermissionImpl
 				}
 
 				if (permissionChecker.hasPermission(
-						0, User.class.getName(), userId, actionId)) {
+						null, User.class.getName(), userId, actionId)) {
 
 					return true;
 				}
 			}
 			else {
 				if (permissionChecker.hasPermission(
-						0, User.class.getName(), User.class.getName(),
+						null, User.class.getName(), User.class.getName(),
 						actionId)) {
 
 					return true;

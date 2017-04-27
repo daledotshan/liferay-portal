@@ -14,7 +14,7 @@
 
 package com.liferay.frontend.js.loader.modules.extender.internal;
 
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +56,14 @@ import org.osgi.service.metatype.annotations.Designate;
 @Designate(ocd = Details.class)
 public class JSLoaderModulesServlet extends HttpServlet {
 
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+
+		_componentContext.enableComponent(
+			JSLoaderModulesPortalWebResources.class.getName());
+	}
+
 	@Activate
 	@Modified
 	protected void activate(ComponentContext componentContext, Details details)
@@ -62,6 +72,8 @@ public class JSLoaderModulesServlet extends HttpServlet {
 		_details = details;
 
 		_logger = new Logger(componentContext.getBundleContext());
+
+		_componentContext = componentContext;
 	}
 
 	protected JSLoaderModulesTracker getJSLoaderModulesTracker() {
@@ -95,7 +107,7 @@ public class JSLoaderModulesServlet extends HttpServlet {
 			printWriter.write('@');
 			printWriter.write(jsLoaderModule.getVersion());
 			printWriter.write("': '");
-			printWriter.write(PortalUtil.getPathProxy());
+			printWriter.write(_portal.getPathProxy());
 			printWriter.write(jsLoaderModule.getContextPath());
 			printWriter.write("'");
 
@@ -106,7 +118,7 @@ public class JSLoaderModulesServlet extends HttpServlet {
 				printWriter.write("'");
 				printWriter.write(jsLoaderModule.getName());
 				printWriter.write("': '");
-				printWriter.write(PortalUtil.getPathProxy());
+				printWriter.write(_portal.getPathProxy());
 				printWriter.write(jsLoaderModule.getContextPath());
 				printWriter.write("'");
 			}
@@ -202,8 +214,12 @@ public class JSLoaderModulesServlet extends HttpServlet {
 		_jsLoaderModulesTracker = jsLoaderModulesTracker;
 	}
 
+	private ComponentContext _componentContext;
 	private volatile Details _details;
 	private JSLoaderModulesTracker _jsLoaderModulesTracker;
 	private Logger _logger;
+
+	@Reference
+	private Portal _portal;
 
 }

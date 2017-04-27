@@ -22,6 +22,7 @@ import com.liferay.document.library.kernel.exception.ImageSizeException;
 import com.liferay.document.library.kernel.exception.InvalidFileEntryTypeException;
 import com.liferay.document.library.kernel.exception.InvalidFileVersionException;
 import com.liferay.document.library.kernel.exception.NoSuchFileEntryException;
+import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
@@ -416,8 +417,8 @@ public class DLFileEntryLocalServiceImpl
 				}
 			}
 			catch (PortalException pe) {
-				if ((pe instanceof ExpiredLockException) ||
-					(pe instanceof NoSuchLockException)) {
+				if (pe instanceof ExpiredLockException ||
+					pe instanceof NoSuchLockException) {
 				}
 				else {
 					throw pe;
@@ -611,7 +612,7 @@ public class DLFileEntryLocalServiceImpl
 			dlFileEntry.getCompanyId(), dlFileEntry.getDataRepositoryId(),
 			dlFileEntry.getName());
 
-		DLFileEntry newDlFileEntry = addFileEntry(
+		DLFileEntry newDLFileEntry = addFileEntry(
 			userId, groupId, repositoryId, destFolderId, sourceFileName,
 			dlFileEntry.getMimeType(), dlFileEntry.getTitle(),
 			dlFileEntry.getDescription(), null,
@@ -620,18 +621,18 @@ public class DLFileEntryLocalServiceImpl
 
 		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
 
-		DLFileVersion newDlFileVersion = newDlFileEntry.getFileVersion();
+		DLFileVersion newDLFileVersion = newDLFileEntry.getFileVersion();
 
 		ExpandoBridgeUtil.copyExpandoBridgeAttributes(
 			dlFileVersion.getExpandoBridge(),
-			newDlFileVersion.getExpandoBridge());
+			newDLFileVersion.getExpandoBridge());
 
 		copyFileEntryMetadata(
 			dlFileVersion.getCompanyId(), dlFileVersion.getFileEntryTypeId(),
 			fileEntryId, dlFileVersion.getFileVersionId(),
-			newDlFileVersion.getFileVersionId(), serviceContext);
+			newDLFileVersion.getFileVersionId(), serviceContext);
 
-		return newDlFileEntry;
+		return newDLFileEntry;
 	}
 
 	@Override
@@ -1720,13 +1721,13 @@ public class DLFileEntryLocalServiceImpl
 			description, changeLog, majorVersion, extraSettings,
 			fileEntryTypeId, ddmFormValuesMap, null, is, size, serviceContext);
 
-		DLFileVersion newDlFileVersion =
+		DLFileVersion newDLFileVersion =
 			dlFileVersionLocalService.getLatestFileVersion(fileEntryId, false);
 
 		copyFileEntryMetadata(
 			dlFileVersion.getCompanyId(), dlFileVersion.getFileEntryTypeId(),
 			fileEntryId, dlFileVersion.getFileVersionId(),
-			newDlFileVersion.getFileVersionId(), serviceContext);
+			newDLFileVersion.getFileVersionId(), serviceContext);
 	}
 
 	@Override
@@ -2066,6 +2067,15 @@ public class DLFileEntryLocalServiceImpl
 			String title)
 		throws PortalException {
 
+		if (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			DLFolder parentDLFolder = dlFolderPersistence.findByPrimaryKey(
+				folderId);
+
+			if (groupId != parentDLFolder.getGroupId()) {
+				throw new NoSuchFolderException();
+			}
+		}
+
 		DLFolder dlFolder = dlFolderPersistence.fetchByG_P_N(
 			groupId, folderId, title);
 
@@ -2121,8 +2131,8 @@ public class DLFileEntryLocalServiceImpl
 			}
 		}
 		catch (PortalException pe) {
-			if ((pe instanceof ExpiredLockException) ||
-				(pe instanceof NoSuchLockException)) {
+			if (pe instanceof ExpiredLockException ||
+				pe instanceof NoSuchLockException) {
 
 				DLFileEntry dlFileEntry = dlFileEntryLocalService.getFileEntry(
 					fileEntryId);

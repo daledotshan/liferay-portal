@@ -533,7 +533,7 @@ public class ServiceBuilder {
 		_tplBadTableNames = _getTplProperty(
 			"bad_table_names", _tplBadTableNames);
 		_tplBlobModel = _getTplProperty("blob_model", _tplBlobModel);
-		_tplEjbPk = _getTplProperty("ejb_pk", _tplEjbPk);
+		_tplEjbPK = _getTplProperty("ejb_pk", _tplEjbPK);
 		_tplException = _getTplProperty("exception", _tplException);
 		_tplExtendedModel = _getTplProperty(
 			"extended_model", _tplExtendedModel);
@@ -729,6 +729,8 @@ public class ServiceBuilder {
 			}
 
 			if (build) {
+				Collections.sort(_ejbList);
+
 				for (int x = 0; x < _ejbList.size(); x++) {
 					Entity entity = _ejbList.get(x);
 
@@ -1288,10 +1290,11 @@ public class ServiceBuilder {
 		return sb.toString();
 	}
 
-	public List<EntityColumn> getMappingEntities(String mappingTable)
+	public Map<String, List<EntityColumn>> getMappingEntities(
+			String mappingTable)
 		throws Exception {
 
-		List<EntityColumn> mappingEntitiesPKList = new ArrayList<>();
+		Map<String, List<EntityColumn>> mappingEntities = new LinkedHashMap<>();
 
 		EntityMapping entityMapping = _entityMappings.get(mappingTable);
 
@@ -1302,10 +1305,10 @@ public class ServiceBuilder {
 				return null;
 			}
 
-			mappingEntitiesPKList.addAll(entity.getPKList());
+			mappingEntities.put(entity.getName(), entity.getPKList());
 		}
 
-		return mappingEntitiesPKList;
+		return mappingEntities;
 	}
 
 	public int getMaxLength(String model, String field) {
@@ -1508,6 +1511,9 @@ public class ServiceBuilder {
 		}
 		else if (type.equals("Date")) {
 			return "TIMESTAMP";
+		}
+		else if (type.equals("String")) {
+			return "VARCHAR";
 		}
 		else {
 			return null;
@@ -1777,11 +1783,13 @@ public class ServiceBuilder {
 
 		if (returnTypeGenericsName.contains(
 				"com.liferay.portal.kernel.search.") ||
-			returnTypeGenericsName.contains("com.liferay.portal.kernel.model.Theme") ||
+			returnTypeGenericsName.contains(
+				"com.liferay.portal.kernel.model.Theme") ||
 			returnTypeGenericsName.contains(
 				"com.liferay.social.kernel.model.SocialActivityDefinition") ||
 			returnTypeGenericsName.equals("java.util.List<java.lang.Object>") ||
-			returnValueName.equals("com.liferay.portal.kernel.lock.model.Lock") ||
+			returnValueName.equals(
+				"com.liferay.portal.kernel.lock.model.Lock") ||
 			returnValueName.equals(
 				"com.liferay.message.boards.kernel.model.MBMessageDisplay") ||
 			returnValueName.startsWith("java.io") ||
@@ -2007,7 +2015,7 @@ public class ServiceBuilder {
 
 		// Content
 
-		String content = _processTemplate(_tplEjbPk, context);
+		String content = _processTemplate(_tplEjbPK, context);
 
 		// Write file
 
@@ -2704,8 +2712,21 @@ public class ServiceBuilder {
 
 		Map<String, Object> context = _getContext();
 
+		boolean hasClassNameCacheField = false;
+
+		JavaField[] cacheFields = _getCacheFields(modelImplJavaClass);
+
+		for (JavaField javaField : cacheFields) {
+			if ("_className".equals(javaField.getName())) {
+				hasClassNameCacheField = true;
+
+				break;
+			}
+		}
+
 		context.put("cacheFields", _getCacheFields(modelImplJavaClass));
 		context.put("entity", entity);
+		context.put("hasClassNameCacheField", hasClassNameCacheField);
 
 		context = _putDeprecatedKeys(context, modelImplJavaClass);
 
@@ -5079,7 +5100,9 @@ public class ServiceBuilder {
 		List<EntityColumn> blobList = new ArrayList<>();
 		List<EntityColumn> collectionList = new ArrayList<>();
 		List<EntityColumn> columnList = new ArrayList<>();
+		List<LocalizationColumn> localizationColumns = new ArrayList<>();
 
+		boolean hasLocalizationTable = false;
 		boolean permissionedModel = false;
 
 		List<Element> columnElements = entityElement.elements("column");
@@ -5149,7 +5172,7 @@ public class ServiceBuilder {
 				columnElement.attributeValue("convert-null"), true);
 			boolean lazy = GetterUtil.getBoolean(
 				columnElement.attributeValue("lazy"), true);
-			boolean localized = GetterUtil.getBoolean(
+			String localized = GetterUtil.getString(
 				columnElement.attributeValue("localized"));
 			boolean colJsonEnabled = GetterUtil.getBoolean(
 				columnElement.attributeValue("json-enabled"), jsonEnabled);
@@ -5158,11 +5181,20 @@ public class ServiceBuilder {
 			boolean parentContainerModel = GetterUtil.getBoolean(
 				columnElement.attributeValue("parent-container-model"));
 
+			if (StringUtil.equalsIgnoreCase(localized, "extra-table")) {
+				localizationColumns.add(
+					new LocalizationColumn(columnName, columnDBName));
+
+				hasLocalizationTable = true;
+
+				continue;
+			}
+
 			EntityColumn col = new EntityColumn(
 				columnName, columnDBName, columnType, primary, accessor,
 				filterPrimary, collectionEntity, mappingTable, idType, idParam,
-				convertNull, lazy, localized, colJsonEnabled, containerModel,
-				parentContainerModel);
+				convertNull, lazy, GetterUtil.getBoolean(localized),
+				colJsonEnabled, containerModel, parentContainerModel);
 
 			if (primary) {
 				pkList.add(col);
@@ -5190,6 +5222,19 @@ public class ServiceBuilder {
 				if (!_entityMappings.containsKey(mappingTable)) {
 					_entityMappings.put(mappingTable, entityMapping);
 				}
+			}
+		}
+
+		if (hasLocalizationTable) {
+			int index = columnList.indexOf(
+				new EntityColumn("defaultLanguageId"));
+
+			if (index < 0) {
+				LocalizationColumn localizationColumn = new LocalizationColumn(
+					"defaultLanguageId", "defaultLanguageId");
+
+				regularColList.add(localizationColumn);
+				columnList.add(localizationColumn);
 			}
 		}
 
@@ -5230,7 +5275,14 @@ public class ServiceBuilder {
 					orderColByAscending = false;
 				}
 
-				EntityColumn col = Entity.getColumn(orderColName, columnList);
+				int index = columnList.indexOf(new EntityColumn(orderColName));
+
+				if (index < 0) {
+					throw new IllegalArgumentException(
+						"Invalid order by column " + orderColName);
+				}
+
+				EntityColumn col = columnList.get(index);
 
 				col.setOrderColumn(true);
 
@@ -5441,16 +5493,21 @@ public class ServiceBuilder {
 		boolean resourceActionModel = _resourceActionModels.contains(
 			_apiPackagePath + ".model." + ejbName);
 
-		_ejbList.add(
-			new Entity(
-				_packagePath, _apiPackagePath, _portletName, _portletShortName,
-				ejbName, humanName, table, alias, uuid, uuidAccessor,
-				localService, remoteService, persistenceClass, finderClass,
-				dataSource, sessionFactory, txManager, cacheEnabled,
-				dynamicUpdateEnabled, jsonEnabled, mvccEnabled, trashEnabled,
-				deprecated, pkList, regularColList, blobList, collectionList,
-				columnList, order, finderList, referenceList,
-				unresolvedReferenceList, txRequiredList, resourceActionModel));
+		Entity entity = new Entity(
+			_packagePath, _apiPackagePath, _portletName, _portletShortName,
+			ejbName, humanName, table, alias, uuid, uuidAccessor, localService,
+			remoteService, persistenceClass, finderClass, dataSource,
+			sessionFactory, txManager, cacheEnabled, dynamicUpdateEnabled,
+			jsonEnabled, mvccEnabled, trashEnabled, deprecated, pkList,
+			regularColList, blobList, collectionList, columnList,
+			localizationColumns, order, finderList, referenceList,
+			unresolvedReferenceList, txRequiredList, resourceActionModel);
+
+		_ejbList.add(entity);
+
+		if (entity.hasLocalizationColumns()) {
+			_ejbList.add(entity.toLocalizationEntity());
+		}
 	}
 
 	private String _processTemplate(String name, Map<String, Object> context)
@@ -5808,7 +5865,7 @@ public class ServiceBuilder {
 	private String _tplBadColumnNames = _TPL_ROOT + "bad_column_names.txt";
 	private String _tplBadTableNames = _TPL_ROOT + "bad_table_names.txt";
 	private String _tplBlobModel = _TPL_ROOT + "blob_model.ftl";
-	private String _tplEjbPk = _TPL_ROOT + "ejb_pk.ftl";
+	private String _tplEjbPK = _TPL_ROOT + "ejb_pk.ftl";
 	private String _tplException = _TPL_ROOT + "exception.ftl";
 	private String _tplExtendedModel = _TPL_ROOT + "extended_model.ftl";
 	private String _tplExtendedModelBaseImpl =

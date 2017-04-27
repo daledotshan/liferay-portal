@@ -38,14 +38,20 @@ if (!themeDisplay.isSignedIn() && layout.isPublicLayout()) {
 	Set<Locale> availableLocales = LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId());
 
 	if (availableLocales.size() > 1) {
-		for (Locale availableLocale : availableLocales) {
+		Map<Locale, String> alternateURLs = PortalUtil.getAlternateURLs(canonicalURL, themeDisplay, layout);
+
+		Locale defaultLocale = LocaleUtil.getDefault();
+
+		for (Map.Entry<Locale, String> entry : alternateURLs.entrySet()) {
+			Locale availableLocale = entry.getKey();
+			String alternateURL = entry.getValue();
 	%>
 
-			<c:if test="<%= availableLocale.equals(LocaleUtil.getDefault()) %>">
+			<c:if test="<%= availableLocale.equals(defaultLocale) %>">
 				<link data-senna-track="temporary" href="<%= HtmlUtil.escapeAttribute(canonicalURL) %>" hreflang="x-default" rel="alternate" />
 			</c:if>
 
-			<link data-senna-track="temporary" href="<%= HtmlUtil.escapeAttribute(PortalUtil.getAlternateURL(canonicalURL, themeDisplay, availableLocale, layout)) %>" hreflang="<%= LocaleUtil.toW3cLanguageId(availableLocale) %>" rel="alternate" />
+			<link data-senna-track="temporary" href="<%= HtmlUtil.escapeAttribute(alternateURL) %>" hreflang="<%= LocaleUtil.toW3cLanguageId(availableLocale) %>" rel="alternate" />
 
 	<%
 		}
@@ -69,12 +75,14 @@ long cssLastModifiedTime = PortalWebResourcesUtil.getLastModified(PortalWebResou
 <%
 List<Portlet> portlets = null;
 
+if (layoutTypePortlet != null) {
+	portlets = layoutTypePortlet.getAllPortlets();
+}
+
 if (layout != null) {
 	String ppid = ParamUtil.getString(request, "p_p_id");
 
 	if (layout.isTypeEmbedded() || layout.isTypePortlet()) {
-		portlets = layoutTypePortlet.getAllPortlets();
-
 		if (themeDisplay.isStateMaximized() || themeDisplay.isStatePopUp()) {
 			if (Validator.isNotNull(ppid)) {
 				Portlet portlet = PortletLocalServiceUtil.getPortletById(company.getCompanyId(), ppid);
@@ -171,7 +179,7 @@ StringBundler pageTopSB = OutputTag.getData(request, WebKeys.PAGE_TOP);
 
 		<%
 		for (Portlet portlet : portlets) {
-			PortletPreferences portletSetup = PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(layout, portlet.getPortletId());
+			PortletPreferences portletSetup = themeDisplay.getStrictLayoutPortletSetup(layout, portlet.getPortletId());
 
 			String portletSetupCss = portletSetup.getValue("portletSetupCss", StringPool.BLANK);
 		%>

@@ -213,6 +213,11 @@ public class KaleoTaskInstanceTokenWrapper implements KaleoTaskInstanceToken,
 	}
 
 	@Override
+	public KaleoTaskAssignmentInstance getFirstKaleoTaskAssignmentInstance() {
+		return _kaleoTaskInstanceToken.getFirstKaleoTaskAssignmentInstance();
+	}
+
+	@Override
 	public KaleoTaskInstanceToken toEscapedModel() {
 		return new KaleoTaskInstanceTokenWrapper(_kaleoTaskInstanceToken.toEscapedModel());
 	}
@@ -403,9 +408,9 @@ public class KaleoTaskInstanceTokenWrapper implements KaleoTaskInstanceToken,
 	}
 
 	/**
-	* Returns the class p k of this kaleo task instance token.
+	* Returns the class pk of this kaleo task instance token.
 	*
-	* @return the class p k of this kaleo task instance token
+	* @return the class pk of this kaleo task instance token
 	*/
 	@Override
 	public long getClassPK() {
@@ -533,9 +538,9 @@ public class KaleoTaskInstanceTokenWrapper implements KaleoTaskInstanceToken,
 	}
 
 	/**
-	* Sets the class p k of this kaleo task instance token.
+	* Sets the class pk of this kaleo task instance token.
 	*
-	* @param classPK the class p k of this kaleo task instance token
+	* @param classPK the class pk of this kaleo task instance token
 	*/
 	@Override
 	public void setClassPK(long classPK) {

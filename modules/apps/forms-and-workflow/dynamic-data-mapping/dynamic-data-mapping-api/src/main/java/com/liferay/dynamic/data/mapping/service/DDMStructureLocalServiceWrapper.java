@@ -41,10 +41,10 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Adds the d d m structure to the database. Also notifies the appropriate model listeners.
+	* Adds the ddm structure to the database. Also notifies the appropriate model listeners.
 	*
-	* @param ddmStructure the d d m structure
-	* @return the d d m structure that was added
+	* @param ddmStructure the ddm structure
+	* @return the ddm structure that was added
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure addDDMStructure(
@@ -256,10 +256,10 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Creates a new d d m structure with the primary key. Does not add the d d m structure to the database.
+	* Creates a new ddm structure with the primary key. Does not add the ddm structure to the database.
 	*
-	* @param structureId the primary key for the new d d m structure
-	* @return the new d d m structure
+	* @param structureId the primary key for the new ddm structure
+	* @return the new ddm structure
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure createDDMStructure(
@@ -268,10 +268,10 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Deletes the d d m structure from the database. Also notifies the appropriate model listeners.
+	* Deletes the ddm structure from the database. Also notifies the appropriate model listeners.
 	*
-	* @param ddmStructure the d d m structure
-	* @return the d d m structure that was removed
+	* @param ddmStructure the ddm structure
+	* @return the ddm structure that was removed
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure deleteDDMStructure(
@@ -280,11 +280,11 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Deletes the d d m structure with the primary key from the database. Also notifies the appropriate model listeners.
+	* Deletes the ddm structure with the primary key from the database. Also notifies the appropriate model listeners.
 	*
-	* @param structureId the primary key of the d d m structure
-	* @return the d d m structure that was removed
-	* @throws PortalException if a d d m structure with the primary key could not be found
+	* @param structureId the primary key of the ddm structure
+	* @return the ddm structure that was removed
+	* @throws PortalException if a ddm structure with the primary key could not be found
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure deleteDDMStructure(
@@ -300,11 +300,11 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns the d d m structure matching the UUID and group.
+	* Returns the ddm structure matching the UUID and group.
 	*
-	* @param uuid the d d m structure's UUID
+	* @param uuid the ddm structure's UUID
 	* @param groupId the primary key of the group
-	* @return the matching d d m structure, or <code>null</code> if a matching d d m structure could not be found
+	* @return the matching ddm structure, or <code>null</code> if a matching ddm structure could not be found
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure fetchDDMStructureByUuidAndGroupId(
@@ -356,8 +356,7 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure fetchStructure(
 		long groupId, long classNameId, java.lang.String structureKey,
-		boolean includeAncestorStructures)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		boolean includeAncestorStructures) {
 		return _ddmStructureLocalService.fetchStructure(groupId, classNameId,
 			structureKey, includeAncestorStructures);
 	}
@@ -376,11 +375,11 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns the d d m structure with the primary key.
+	* Returns the ddm structure with the primary key.
 	*
-	* @param structureId the primary key of the d d m structure
-	* @return the d d m structure
-	* @throws PortalException if a d d m structure with the primary key could not be found
+	* @param structureId the primary key of the ddm structure
+	* @return the ddm structure
+	* @throws PortalException if a ddm structure with the primary key could not be found
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure getDDMStructure(
@@ -390,12 +389,12 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns the d d m structure matching the UUID and group.
+	* Returns the ddm structure matching the UUID and group.
 	*
-	* @param uuid the d d m structure's UUID
+	* @param uuid the ddm structure's UUID
 	* @param groupId the primary key of the group
-	* @return the matching d d m structure
-	* @throws PortalException if a matching d d m structure could not be found
+	* @return the matching ddm structure
+	* @throws PortalException if a matching ddm structure could not be found
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure getDDMStructureByUuidAndGroupId(
@@ -467,10 +466,10 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Updates the d d m structure in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	* Updates the ddm structure in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
-	* @param ddmStructure the d d m structure
-	* @return the d d m structure that was updated
+	* @param ddmStructure the ddm structure
+	* @return the ddm structure that was updated
 	*/
 	@Override
 	public com.liferay.dynamic.data.mapping.model.DDMStructure updateDDMStructure(
@@ -645,9 +644,9 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns the number of d d m structures.
+	* Returns the number of ddm structures.
 	*
-	* @return the number of d d m structures
+	* @return the number of ddm structures
 	*/
 	@Override
 	public int getDDMStructuresCount() {
@@ -736,6 +735,14 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 		return _ddmStructureLocalService.searchCount(companyId, groupIds,
 			classNameId, name, description, storageType, type, status,
 			andOperator);
+	}
+
+	@Override
+	public int searchCount(long companyId, long[] groupIds, long classNameId,
+		long classPK, java.lang.String keywords)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _ddmStructureLocalService.searchCount(companyId, groupIds,
+			classNameId, classPK, keywords);
 	}
 
 	/**
@@ -877,15 +884,15 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns a range of all the d d m structures.
+	* Returns a range of all the ddm structures.
 	*
 	* <p>
 	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.dynamic.data.mapping.model.impl.DDMStructureModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	* </p>
 	*
-	* @param start the lower bound of the range of d d m structures
-	* @param end the upper bound of the range of d d m structures (not inclusive)
-	* @return the range of d d m structures
+	* @param start the lower bound of the range of ddm structures
+	* @param end the upper bound of the range of ddm structures (not inclusive)
+	* @return the range of ddm structures
 	*/
 	@Override
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure> getDDMStructures(
@@ -894,11 +901,11 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns all the d d m structures matching the UUID and company.
+	* Returns all the ddm structures matching the UUID and company.
 	*
-	* @param uuid the UUID of the d d m structures
+	* @param uuid the UUID of the ddm structures
 	* @param companyId the primary key of the company
-	* @return the matching d d m structures, or an empty list if no matches were found
+	* @return the matching ddm structures, or an empty list if no matches were found
 	*/
 	@Override
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure> getDDMStructuresByUuidAndCompanyId(
@@ -908,14 +915,14 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
-	* Returns a range of d d m structures matching the UUID and company.
+	* Returns a range of ddm structures matching the UUID and company.
 	*
-	* @param uuid the UUID of the d d m structures
+	* @param uuid the UUID of the ddm structures
 	* @param companyId the primary key of the company
-	* @param start the lower bound of the range of d d m structures
-	* @param end the upper bound of the range of d d m structures (not inclusive)
+	* @param start the lower bound of the range of ddm structures
+	* @param end the upper bound of the range of ddm structures (not inclusive)
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	* @return the range of matching d d m structures, or an empty list if no matches were found
+	* @return the range of matching ddm structures, or an empty list if no matches were found
 	*/
 	@Override
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure> getDDMStructuresByUuidAndCompanyId(
@@ -1121,6 +1128,40 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 	}
 
 	/**
+	* Returns an ordered range of all the structures matching the group,
+	* class name ID, name, and description.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end -
+	* start</code> instances. <code>start</code> and <code>end</code> are not
+	* primary keys, they are indexes in the result set. Thus, <code>0</code>
+	* refers to the first result in the set. Setting both <code>start</code>
+	* and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full
+	* result set.
+	* </p>
+	*
+	* @param groupIds the primary keys of the groups
+	* @param classNameId the primary key of the class name for the structure's
+	related model
+	* @param name the name keywords
+	* @param description the description keywords
+	* @param start the lower bound of the range of structures to return
+	* @param end the upper bound of the range of structures to return (not
+	inclusive)
+	* @param orderByComparator the comparator to order the structures
+	(optionally <code>null</code>)
+	* @return the range of matching structures ordered by the comparator
+	*/
+	@Override
+	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure> getStructures(
+		long[] groupIds, long classNameId, java.lang.String name,
+		java.lang.String description, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.dynamic.data.mapping.model.DDMStructure> orderByComparator) {
+		return _ddmStructureLocalService.getStructures(groupIds, classNameId,
+			name, description, start, end, orderByComparator);
+	}
+
+	/**
 	* Returns an ordered range of all the structures matching the groups and
 	* class name IDs, and matching the keywords in the structure names and
 	* descriptions.
@@ -1198,6 +1239,16 @@ public class DDMStructureLocalServiceWrapper implements DDMStructureLocalService
 		return _ddmStructureLocalService.search(companyId, groupIds,
 			classNameId, name, description, storageType, type, status,
 			andOperator, start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure> search(
+		long companyId, long[] groupIds, long classNameId, long classPK,
+		java.lang.String keywords, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.dynamic.data.mapping.model.DDMStructure> orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _ddmStructureLocalService.search(companyId, groupIds,
+			classNameId, classPK, keywords, start, end, orderByComparator);
 	}
 
 	/**

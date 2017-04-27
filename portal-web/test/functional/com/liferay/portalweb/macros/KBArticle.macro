@@ -262,6 +262,25 @@
 		</if>
 	</command>
 
+	<command name="addCPWithBooleanCustomField">
+		<execute function="Click" locator1="Button#PLUS" />
+
+		<execute function="AssertClick" locator1="MenuItem#BASIC_ARTICLE" value1="Basic Article" />
+
+		<execute macro="AlloyEditor#addTitleAndContent">
+			<var name="content" value="${kbArticleContent}" />
+			<var name="title" value="${kbArticleTitle}" />
+		</execute>
+
+		<execute macro="Panel#expandPanel">
+			<var name="panelHeading" value="Custom Fields" />
+		</execute>
+
+		<execute function="Select" locator1="KnowledgeBaseArticle#CUSTOM_FIELD_BOOLEAN" value1="${selectBoolean}" />
+
+		<execute macro="PortletEntry#publish" />
+	</command>
+
 	<command name="addCPWithInvalidAttachmentSize">
 		<execute function="Click" locator1="Button#PLUS" />
 
@@ -295,6 +314,19 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_REQUEST_FAILED_TO_COMPLETE" value1="Your request failed to complete." />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_ENTER_A_VALID_TITLE" value1="Please enter a valid title." />
+	</command>
+
+	<command name="addPGViaAP">
+		<execute macro="AssetPublisherPortlet#addAsset">
+			<var name="assetType" value="Knowledge Base Article" />
+		</execute>
+
+		<execute macro="AlloyEditor#addTitleAndContent">
+			<var name="content" value="${kbArticleContent}" />
+			<var name="title" value="${kbArticleTitle}" />
+		</execute>
+
+		<execute function="AssertClick" locator1="Button#PUBLISH" value1="Publish" />
 	</command>
 
 	<command name="addSections">
@@ -684,6 +716,17 @@
 				<execute macro="KBArticle#selectAttachmentCP">
 					<var name="kbArticleAttachment" value="${kbArticleAttachment}" />
 				</execute>
+			</then>
+		</if>
+
+		<if>
+			<isset var="selectBoolean" />
+			<then>
+				<execute macro="Panel#expandPanel">
+					<var name="panelHeading" value="Custom Fields" />
+				</execute>
+
+				<execute function="Select" locator1="KnowledgeBaseArticle#CUSTOM_FIELD_BOOLEAN" value1="${selectBoolean}" />
 			</then>
 		</if>
 
@@ -1630,6 +1673,22 @@
 	<command name="viewPG">
 		<execute function="AssertTextEquals#assertPartialText" locator1="KnowledgeBase#DISPLAY_TITLE" value1="${kbArticleTitle}" />
 		<execute function="AssertTextEquals" locator1="KnowledgeBase#DISPLAY_CONTENT" value1="${kbArticleContent}" />
+
+		<if>
+			<isset var="customFieldName" />
+			<then>
+				<execute function="AssertTextEquals" locator1="KnowledgeBaseArticle#CUSTOM_FIELD_NAME" value1="${customFieldName}" />
+				<execute function="AssertTextEquals" locator1="KnowledgeBaseArticle#CUSTOM_FIELD_VALUE" value1="${customFieldValue}" />
+			</then>
+		</if>
+	</command>
+
+	<command name="viewPGViaAP">
+		<var name="key_assetContent" value="${kbArticleContent}" />
+		<var name="key_assetTitle" value="${kbArticleTitle}" />
+
+		<execute function="AssertTextEquals" locator1="AP#ASSET_ABSTRACT_TITLE" value1="${kbArticleTitle}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="AP#ASSET_ABSTRACT_DESCRIPTION" value1="${kbArticleContent}" />
 	</command>
 
 	<command name="viewSearchResultsPG">

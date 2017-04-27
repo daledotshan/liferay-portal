@@ -159,188 +159,126 @@ public abstract class BaseSelectTag extends com.liferay.taglib.BaseValidatorTagS
 
 	public void setBean(java.lang.Object bean) {
 		_bean = bean;
-
-		setScopedAttribute("bean", bean);
 	}
 
 	public void setChangesContext(boolean changesContext) {
 		_changesContext = changesContext;
-
-		setScopedAttribute("changesContext", changesContext);
 	}
 
 	public void setCssClass(java.lang.String cssClass) {
 		_cssClass = cssClass;
-
-		setScopedAttribute("cssClass", cssClass);
 	}
 
 	public void setData(java.util.Map<java.lang.String, java.lang.Object> data) {
 		_data = data;
-
-		setScopedAttribute("data", data);
 	}
 
 	public void setDisabled(boolean disabled) {
 		_disabled = disabled;
-
-		setScopedAttribute("disabled", disabled);
 	}
 
 	public void setField(java.lang.String field) {
 		_field = field;
-
-		setScopedAttribute("field", field);
 	}
 
 	public void setFirst(boolean first) {
 		_first = first;
-
-		setScopedAttribute("first", first);
 	}
 
 	public void setHelpMessage(java.lang.String helpMessage) {
 		_helpMessage = helpMessage;
-
-		setScopedAttribute("helpMessage", helpMessage);
 	}
 
 	public void setId(java.lang.String id) {
 		_id = id;
-
-		setScopedAttribute("id", id);
 	}
 
 	public void setIgnoreRequestValue(boolean ignoreRequestValue) {
 		_ignoreRequestValue = ignoreRequestValue;
-
-		setScopedAttribute("ignoreRequestValue", ignoreRequestValue);
 	}
 
 	public void setInlineField(boolean inlineField) {
 		_inlineField = inlineField;
-
-		setScopedAttribute("inlineField", inlineField);
 	}
 
 	public void setInlineLabel(java.lang.String inlineLabel) {
 		_inlineLabel = inlineLabel;
-
-		setScopedAttribute("inlineLabel", inlineLabel);
 	}
 
 	public void setLabel(java.lang.String label) {
 		_label = label;
-
-		setScopedAttribute("label", label);
 	}
 
 	public void setLast(boolean last) {
 		_last = last;
-
-		setScopedAttribute("last", last);
 	}
 
 	public void setListType(java.lang.String listType) {
 		_listType = listType;
-
-		setScopedAttribute("listType", listType);
 	}
 
 	public void setListTypeFieldName(java.lang.String listTypeFieldName) {
 		_listTypeFieldName = listTypeFieldName;
-
-		setScopedAttribute("listTypeFieldName", listTypeFieldName);
 	}
 
 	public void setLocalizeLabel(boolean localizeLabel) {
 		_localizeLabel = localizeLabel;
-
-		setScopedAttribute("localizeLabel", localizeLabel);
 	}
 
 	public void setModel(java.lang.Class<?> model) {
 		_model = model;
-
-		setScopedAttribute("model", model);
 	}
 
 	public void setMultiple(boolean multiple) {
 		_multiple = multiple;
-
-		setScopedAttribute("multiple", multiple);
 	}
 
 	public void setName(java.lang.String name) {
 		_name = name;
-
-		setScopedAttribute("name", name);
 	}
 
 	public void setOnChange(java.lang.String onChange) {
 		_onChange = onChange;
-
-		setScopedAttribute("onChange", onChange);
 	}
 
 	public void setOnClick(java.lang.String onClick) {
 		_onClick = onClick;
-
-		setScopedAttribute("onClick", onClick);
 	}
 
 	public void setPrefix(java.lang.String prefix) {
 		_prefix = prefix;
-
-		setScopedAttribute("prefix", prefix);
 	}
 
 	public void setRequired(boolean required) {
 		_required = required;
-
-		setScopedAttribute("required", required);
 	}
 
 	public void setShowEmptyOption(boolean showEmptyOption) {
 		_showEmptyOption = showEmptyOption;
-
-		setScopedAttribute("showEmptyOption", showEmptyOption);
 	}
 
 	public void setShowRequiredLabel(boolean showRequiredLabel) {
 		_showRequiredLabel = showRequiredLabel;
-
-		setScopedAttribute("showRequiredLabel", showRequiredLabel);
 	}
 
 	public void setSuffix(java.lang.String suffix) {
 		_suffix = suffix;
-
-		setScopedAttribute("suffix", suffix);
 	}
 
 	public void setTitle(java.lang.String title) {
 		_title = title;
-
-		setScopedAttribute("title", title);
 	}
 
 	public void setUseNamespace(boolean useNamespace) {
 		_useNamespace = useNamespace;
-
-		setScopedAttribute("useNamespace", useNamespace);
 	}
 
 	public void setValue(java.lang.Object value) {
 		_value = value;
-
-		setScopedAttribute("value", value);
 	}
 
 	public void setWrapperCssClass(java.lang.String wrapperCssClass) {
 		_wrapperCssClass = wrapperCssClass;
-
-		setScopedAttribute("wrapperCssClass", wrapperCssClass);
 	}
 
 	@Override
@@ -392,37 +330,37 @@ public abstract class BaseSelectTag extends com.liferay.taglib.BaseValidatorTagS
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "bean", _bean);
-		setNamespacedAttribute(request, "changesContext", _changesContext);
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "data", _data);
-		setNamespacedAttribute(request, "disabled", _disabled);
-		setNamespacedAttribute(request, "field", _field);
-		setNamespacedAttribute(request, "first", _first);
-		setNamespacedAttribute(request, "helpMessage", _helpMessage);
-		setNamespacedAttribute(request, "id", _id);
-		setNamespacedAttribute(request, "ignoreRequestValue", _ignoreRequestValue);
-		setNamespacedAttribute(request, "inlineField", _inlineField);
-		setNamespacedAttribute(request, "inlineLabel", _inlineLabel);
-		setNamespacedAttribute(request, "label", _label);
-		setNamespacedAttribute(request, "last", _last);
-		setNamespacedAttribute(request, "listType", _listType);
-		setNamespacedAttribute(request, "listTypeFieldName", _listTypeFieldName);
-		setNamespacedAttribute(request, "localizeLabel", _localizeLabel);
-		setNamespacedAttribute(request, "model", _model);
-		setNamespacedAttribute(request, "multiple", _multiple);
-		setNamespacedAttribute(request, "name", _name);
-		setNamespacedAttribute(request, "onChange", _onChange);
-		setNamespacedAttribute(request, "onClick", _onClick);
-		setNamespacedAttribute(request, "prefix", _prefix);
-		setNamespacedAttribute(request, "required", _required);
-		setNamespacedAttribute(request, "showEmptyOption", _showEmptyOption);
-		setNamespacedAttribute(request, "showRequiredLabel", _showRequiredLabel);
-		setNamespacedAttribute(request, "suffix", _suffix);
-		setNamespacedAttribute(request, "title", _title);
-		setNamespacedAttribute(request, "useNamespace", _useNamespace);
-		setNamespacedAttribute(request, "value", _value);
-		setNamespacedAttribute(request, "wrapperCssClass", _wrapperCssClass);
+		request.setAttribute("aui:select:bean", _bean);
+		request.setAttribute("aui:select:changesContext", String.valueOf(_changesContext));
+		request.setAttribute("aui:select:cssClass", _cssClass);
+		request.setAttribute("aui:select:data", _data);
+		request.setAttribute("aui:select:disabled", String.valueOf(_disabled));
+		request.setAttribute("aui:select:field", _field);
+		request.setAttribute("aui:select:first", String.valueOf(_first));
+		request.setAttribute("aui:select:helpMessage", _helpMessage);
+		request.setAttribute("aui:select:id", _id);
+		request.setAttribute("aui:select:ignoreRequestValue", String.valueOf(_ignoreRequestValue));
+		request.setAttribute("aui:select:inlineField", String.valueOf(_inlineField));
+		request.setAttribute("aui:select:inlineLabel", _inlineLabel);
+		request.setAttribute("aui:select:label", _label);
+		request.setAttribute("aui:select:last", String.valueOf(_last));
+		request.setAttribute("aui:select:listType", _listType);
+		request.setAttribute("aui:select:listTypeFieldName", _listTypeFieldName);
+		request.setAttribute("aui:select:localizeLabel", String.valueOf(_localizeLabel));
+		request.setAttribute("aui:select:model", _model);
+		request.setAttribute("aui:select:multiple", String.valueOf(_multiple));
+		request.setAttribute("aui:select:name", _name);
+		request.setAttribute("aui:select:onChange", _onChange);
+		request.setAttribute("aui:select:onClick", _onClick);
+		request.setAttribute("aui:select:prefix", _prefix);
+		request.setAttribute("aui:select:required", String.valueOf(_required));
+		request.setAttribute("aui:select:showEmptyOption", String.valueOf(_showEmptyOption));
+		request.setAttribute("aui:select:showRequiredLabel", String.valueOf(_showRequiredLabel));
+		request.setAttribute("aui:select:suffix", _suffix);
+		request.setAttribute("aui:select:title", _title);
+		request.setAttribute("aui:select:useNamespace", String.valueOf(_useNamespace));
+		request.setAttribute("aui:select:value", _value);
+		request.setAttribute("aui:select:wrapperCssClass", _wrapperCssClass);
 	}
 
 	protected static final String _ATTRIBUTE_NAMESPACE = "aui:select:";

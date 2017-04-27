@@ -2229,7 +2229,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * Returns all the kaleo instances where className = &#63; and classPK = &#63;.
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @return the matching kaleo instances
 	 */
 	@Override
@@ -2246,7 +2246,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * </p>
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param start the lower bound of the range of kaleo instances
 	 * @param end the upper bound of the range of kaleo instances (not inclusive)
 	 * @return the range of matching kaleo instances
@@ -2265,7 +2265,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * </p>
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param start the lower bound of the range of kaleo instances
 	 * @param end the upper bound of the range of kaleo instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
@@ -2286,7 +2286,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * </p>
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param start the lower bound of the range of kaleo instances
 	 * @param end the upper bound of the range of kaleo instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
@@ -2423,7 +2423,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * Returns the first kaleo instance in the ordered set where className = &#63; and classPK = &#63;.
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching kaleo instance
 	 * @throws NoSuchInstanceException if a matching kaleo instance could not be found
@@ -2458,7 +2458,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * Returns the first kaleo instance in the ordered set where className = &#63; and classPK = &#63;.
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching kaleo instance, or <code>null</code> if a matching kaleo instance could not be found
 	 */
@@ -2479,7 +2479,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * Returns the last kaleo instance in the ordered set where className = &#63; and classPK = &#63;.
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching kaleo instance
 	 * @throws NoSuchInstanceException if a matching kaleo instance could not be found
@@ -2514,7 +2514,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * Returns the last kaleo instance in the ordered set where className = &#63; and classPK = &#63;.
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching kaleo instance, or <code>null</code> if a matching kaleo instance could not be found
 	 */
@@ -2542,7 +2542,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 *
 	 * @param kaleoInstanceId the primary key of the current kaleo instance
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next kaleo instance
 	 * @throws NoSuchInstanceException if a kaleo instance with the primary key could not be found
@@ -2707,7 +2707,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * Removes all the kaleo instances where className = &#63; and classPK = &#63; from the database.
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 */
 	@Override
 	public void removeByCN_CPK(String className, long classPK) {
@@ -2721,7 +2721,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 	 * Returns the number of kaleo instances where className = &#63; and classPK = &#63;.
 	 *
 	 * @param className the class name
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @return the number of matching kaleo instances
 	 */
 	@Override
@@ -3765,8 +3765,65 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (isNew || !KaleoInstanceModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!KaleoInstanceModelImpl.COLUMN_BITMASK_ENABLED) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+		else
+		 if (isNew) {
+			Object[] args = new Object[] { kaleoInstanceModelImpl.getCompanyId() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_COMPANYID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+				args);
+
+			args = new Object[] { kaleoInstanceModelImpl.getKaleoDefinitionId() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
+				args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID,
+				args);
+
+			args = new Object[] {
+					kaleoInstanceModelImpl.getCompanyId(),
+					kaleoInstanceModelImpl.getUserId()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_U, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_U,
+				args);
+
+			args = new Object[] {
+					kaleoInstanceModelImpl.getKaleoDefinitionId(),
+					kaleoInstanceModelImpl.getCompleted()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_KDI_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KDI_C,
+				args);
+
+			args = new Object[] {
+					kaleoInstanceModelImpl.getClassName(),
+					kaleoInstanceModelImpl.getClassPK()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_CN_CPK, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CN_CPK,
+				args);
+
+			args = new Object[] {
+					kaleoInstanceModelImpl.getCompanyId(),
+					kaleoInstanceModelImpl.getKaleoDefinitionName(),
+					kaleoInstanceModelImpl.getKaleoDefinitionVersion(),
+					kaleoInstanceModelImpl.getCompletionDate()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_KDN_KDV_CD, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDN_KDV_CD,
+				args);
+
+			finderCache.removeResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL,
+				FINDER_ARGS_EMPTY);
 		}
 
 		else {
@@ -4085,7 +4142,7 @@ public class KaleoInstancePersistenceImpl extends BasePersistenceImpl<KaleoInsta
 		query.append(_SQL_SELECT_KALEOINSTANCE_WHERE_PKS_IN);
 
 		for (Serializable primaryKey : uncachedPrimaryKeys) {
-			query.append(String.valueOf(primaryKey));
+			query.append((long)primaryKey);
 
 			query.append(StringPool.COMMA);
 		}

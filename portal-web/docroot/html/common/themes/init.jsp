@@ -18,12 +18,14 @@
 
 <%@ page import="com.liferay.portal.kernel.model.Portlet" %><%@
 page import="com.liferay.portal.kernel.portlet.JavaScriptPortletResourcePredicateFilter" %><%@
-page import="com.liferay.portal.kernel.security.ldap.LDAPSettingsUtil" %><%@
+page import="com.liferay.portal.kernel.servlet.BrowserMetadata" %><%@
 page import="com.liferay.portal.kernel.util.PredicateFilter" %><%@
 page import="com.liferay.portal.servlet.ComboServletStaticURLGenerator" %><%@
 page import="com.liferay.portlet.PortletResourceAccessor" %><%@
 page import="com.liferay.portlet.PortletResourceStaticURLGenerator" %><%@
 page import="com.liferay.taglib.aui.ScriptTag" %>
+
+<%@ page import="java.util.concurrent.ConcurrentHashMap" %>
 
 <%@ page import="org.apache.struts.tiles.ComponentContext" %><%@
 page import="org.apache.struts.tiles.taglib.ComponentConstants" %>

@@ -71,56 +71,38 @@ public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag
 
 	public void setCollapsed(boolean collapsed) {
 		_collapsed = collapsed;
-
-		setScopedAttribute("collapsed", collapsed);
 	}
 
 	public void setCollapsible(boolean collapsible) {
 		_collapsible = collapsible;
-
-		setScopedAttribute("collapsible", collapsible);
 	}
 
 	public void setColumn(boolean column) {
 		_column = column;
-
-		setScopedAttribute("column", column);
 	}
 
 	public void setCssClass(java.lang.String cssClass) {
 		_cssClass = cssClass;
-
-		setScopedAttribute("cssClass", cssClass);
 	}
 
 	public void setHelpMessage(java.lang.String helpMessage) {
 		_helpMessage = helpMessage;
-
-		setScopedAttribute("helpMessage", helpMessage);
 	}
 
 	public void setId(java.lang.String id) {
 		_id = id;
-
-		setScopedAttribute("id", id);
 	}
 
 	public void setLabel(java.lang.String label) {
 		_label = label;
-
-		setScopedAttribute("label", label);
 	}
 
 	public void setLocalizeLabel(boolean localizeLabel) {
 		_localizeLabel = localizeLabel;
-
-		setScopedAttribute("localizeLabel", localizeLabel);
 	}
 
 	public void setMarkupView(java.lang.String markupView) {
 		_markupView = markupView;
-
-		setScopedAttribute("markupView", markupView);
 	}
 
 	@Override
@@ -150,15 +132,15 @@ public abstract class BaseFieldsetTag extends com.liferay.taglib.util.IncludeTag
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "collapsed", _collapsed);
-		setNamespacedAttribute(request, "collapsible", _collapsible);
-		setNamespacedAttribute(request, "column", _column);
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "helpMessage", _helpMessage);
-		setNamespacedAttribute(request, "id", _id);
-		setNamespacedAttribute(request, "label", _label);
-		setNamespacedAttribute(request, "localizeLabel", _localizeLabel);
-		setNamespacedAttribute(request, "markupView", _markupView);
+		request.setAttribute("aui:fieldset:collapsed", String.valueOf(_collapsed));
+		request.setAttribute("aui:fieldset:collapsible", String.valueOf(_collapsible));
+		request.setAttribute("aui:fieldset:column", String.valueOf(_column));
+		request.setAttribute("aui:fieldset:cssClass", _cssClass);
+		request.setAttribute("aui:fieldset:helpMessage", _helpMessage);
+		request.setAttribute("aui:fieldset:id", _id);
+		request.setAttribute("aui:fieldset:label", _label);
+		request.setAttribute("aui:fieldset:localizeLabel", String.valueOf(_localizeLabel));
+		request.setAttribute("aui:fieldset:markupView", _markupView);
 	}
 
 	protected static final String _ATTRIBUTE_NAMESPACE = "aui:fieldset:";

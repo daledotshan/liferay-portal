@@ -14,16 +14,12 @@
 
 package com.liferay.source.formatter;
 
-import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
-import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
-import com.liferay.portal.kernel.util.CharPool;
-import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
+import com.liferay.source.formatter.checks.SQLEmptyLinesCheck;
+import com.liferay.source.formatter.checks.SQLStylingCheck;
+import com.liferay.source.formatter.checks.SourceCheck;
+import com.liferay.source.formatter.checks.WhitespaceCheck;
 
-import java.io.File;
-
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,70 +28,26 @@ import java.util.List;
 public class SQLSourceProcessor extends BaseSourceProcessor {
 
 	@Override
-	public String[] getIncludes() {
+	protected List<String> doGetFileNames() throws Exception {
+		return getFileNames(
+			new String[0], filterIncludes(new String[] {"**/sql/*.sql"}));
+	}
+
+	@Override
+	protected String[] doGetIncludes() {
 		return _INCLUDES;
 	}
 
 	@Override
-	protected String doFormat(
-			File file, String fileName, String absolutePath, String content)
-		throws Exception {
+	protected List<SourceCheck> getSourceChecks() {
+		List<SourceCheck> sourceChecks = new ArrayList<>();
 
-		StringBundler sb = new StringBundler();
+		sourceChecks.add(new WhitespaceCheck());
 
-		try (UnsyncBufferedReader unsyncBufferedReader =
-				new UnsyncBufferedReader(new UnsyncStringReader(content))) {
+		sourceChecks.add(new SQLEmptyLinesCheck());
+		sourceChecks.add(new SQLStylingCheck());
 
-			String line = null;
-
-			String previousLineSqlCommand = StringPool.BLANK;
-
-			while ((line = unsyncBufferedReader.readLine()) != null) {
-				line = trimLine(line, false);
-
-				if (Validator.isNotNull(line) &&
-					!line.startsWith(StringPool.TAB)) {
-
-					String sqlCommand = StringUtil.split(
-						line, CharPool.SPACE)[0];
-
-					if (Validator.isNotNull(previousLineSqlCommand) &&
-						!previousLineSqlCommand.equals(sqlCommand)) {
-
-						sb.append("\n");
-					}
-
-					previousLineSqlCommand = sqlCommand;
-				}
-				else {
-					previousLineSqlCommand = StringPool.BLANK;
-				}
-
-				String strippedQuotesLine = stripQuotes(
-					line, CharPool.APOSTROPHE);
-
-				if (strippedQuotesLine.contains(StringPool.QUOTE)) {
-					line = StringUtil.replace(
-						line, CharPool.QUOTE, CharPool.APOSTROPHE);
-				}
-
-				sb.append(line);
-				sb.append("\n");
-			}
-		}
-
-		content = sb.toString();
-
-		if (content.endsWith("\n")) {
-			content = content.substring(0, content.length() - 1);
-		}
-
-		return content;
-	}
-
-	@Override
-	protected List<String> doGetFileNames() throws Exception {
-		return getFileNames(new String[0], new String[] {"**/sql/*.sql"});
+		return sourceChecks;
 	}
 
 	private static final String[] _INCLUDES = new String[] {"**/*.sql"};

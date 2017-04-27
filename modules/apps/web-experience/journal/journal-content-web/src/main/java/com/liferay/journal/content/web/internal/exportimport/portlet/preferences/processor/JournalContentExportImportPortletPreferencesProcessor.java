@@ -17,6 +17,7 @@ package com.liferay.journal.content.web.internal.exportimport.portlet.preference
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
@@ -25,6 +26,7 @@ import com.liferay.exportimport.kernel.staging.MergeLayoutPrototypesThreadLocal;
 import com.liferay.exportimport.portlet.preferences.processor.Capability;
 import com.liferay.exportimport.portlet.preferences.processor.ExportImportPortletPreferencesProcessor;
 import com.liferay.exportimport.portlet.preferences.processor.capability.ReferencedStagedModelImporterCapability;
+import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.content.web.constants.JournalContentPortletKeys;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.service.JournalArticleLocalService;
@@ -35,11 +37,12 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -118,6 +121,19 @@ public class JournalContentExportImportPortletPreferencesProcessor
 			return portletPreferences;
 		}
 
+		Group group = _groupLocalService.fetchGroup(articleGroupId);
+
+		if (ExportImportThreadLocal.isStagingInProcess() &&
+			!group.isStagedPortlet(JournalPortletKeys.JOURNAL)) {
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Web content is not staged in the site " + group.getName());
+			}
+
+			return portletPreferences;
+		}
+
 		long previousScopeGroupId = portletDataContext.getScopeGroupId();
 
 		if (articleGroupId != previousScopeGroupId) {
@@ -171,13 +187,13 @@ public class JournalContentExportImportPortletPreferencesProcessor
 				DDMTemplate ddmTemplate =
 					_ddmTemplateLocalService.fetchTemplate(
 						article.getGroupId(),
-						PortalUtil.getClassNameId(DDMStructure.class),
+						_portal.getClassNameId(DDMStructure.class),
 						preferenceDDMTemplateKey, true);
 
 				if (ddmTemplate == null) {
 					ddmTemplate = _ddmTemplateLocalService.getTemplate(
 						article.getGroupId(),
-						PortalUtil.getClassNameId(DDMStructure.class),
+						_portal.getClassNameId(DDMStructure.class),
 						defaultDDMTemplateKey, true);
 
 					portletPreferences.setValue(
@@ -238,30 +254,35 @@ public class JournalContentExportImportPortletPreferencesProcessor
 
 		try {
 			if (Validator.isNotNull(articleId)) {
-				Map<String, String> articleIds =
-					(Map<String, String>)
-						portletDataContext.getNewPrimaryKeysMap(
-							JournalArticle.class + ".articleId");
+				Group importedArticleGroup = _groupLocalService.getGroup(
+					groupId);
 
-				articleId = MapUtil.getString(articleIds, articleId, articleId);
+				if (importedArticleGroup.isStagedPortlet(
+						JournalPortletKeys.JOURNAL)) {
 
-				portletPreferences.setValue("articleId", articleId);
+					Map<String, String> articleIds =
+						(Map<String, String>)
+							portletDataContext.getNewPrimaryKeysMap(
+								JournalArticle.class + ".articleId");
 
-				portletPreferences.setValue("groupId", String.valueOf(groupId));
+					articleId = MapUtil.getString(
+						articleIds, articleId, articleId);
 
-				if (portletDataContext.getPlid() > 0) {
-					Layout layout = _layoutLocalService.fetchLayout(
-						portletDataContext.getPlid());
+					portletPreferences.setValue("articleId", articleId);
 
-					_journalContentSearchLocalService.updateContentSearch(
-						layout.getGroupId(), layout.isPrivateLayout(),
-						layout.getLayoutId(), portletDataContext.getPortletId(),
-						articleId, true);
+					portletPreferences.setValue(
+						"groupId", String.valueOf(groupId));
+
+					if (portletDataContext.getPlid() > 0) {
+						Layout layout = _layoutLocalService.fetchLayout(
+							portletDataContext.getPlid());
+
+						_journalContentSearchLocalService.updateContentSearch(
+							layout.getGroupId(), layout.isPrivateLayout(),
+							layout.getLayoutId(),
+							portletDataContext.getPortletId(), articleId, true);
+					}
 				}
-			}
-			else {
-				portletPreferences.setValue("groupId", StringPool.BLANK);
-				portletPreferences.setValue("articleId", StringPool.BLANK);
 			}
 
 			String ddmTemplateKey = portletPreferences.getValue(
@@ -277,9 +298,6 @@ public class JournalContentExportImportPortletPreferencesProcessor
 					ddmTemplateKeys, ddmTemplateKey, ddmTemplateKey);
 
 				portletPreferences.setValue("ddmTemplateKey", ddmTemplateKey);
-			}
-			else {
-				portletPreferences.setValue("ddmTemplateKey", StringPool.BLANK);
 			}
 		}
 		catch (PortalException pe) {
@@ -303,6 +321,11 @@ public class JournalContentExportImportPortletPreferencesProcessor
 		DDMTemplateLocalService ddmTemplateLocalService) {
 
 		_ddmTemplateLocalService = ddmTemplateLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setGroupLocalService(GroupLocalService groupLocalService) {
+		_groupLocalService = groupLocalService;
 	}
 
 	@Reference(unbind = "-")
@@ -339,9 +362,14 @@ public class JournalContentExportImportPortletPreferencesProcessor
 		JournalContentExportImportPortletPreferencesProcessor.class);
 
 	private DDMTemplateLocalService _ddmTemplateLocalService;
+	private GroupLocalService _groupLocalService;
 	private JournalArticleLocalService _journalArticleLocalService;
 	private JournalContentSearchLocalService _journalContentSearchLocalService;
 	private LayoutLocalService _layoutLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private ReferencedStagedModelImporterCapability
 		_referencedStagedModelImporterCapability;
 

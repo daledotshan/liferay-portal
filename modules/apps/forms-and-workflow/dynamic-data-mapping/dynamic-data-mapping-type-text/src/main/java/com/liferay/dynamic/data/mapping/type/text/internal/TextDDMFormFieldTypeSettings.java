@@ -20,14 +20,25 @@ import com.liferay.dynamic.data.mapping.annotations.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.annotations.DDMFormRule;
 import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
+import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 
 /**
  * @author Lino Alves
  */
-@DDMForm
+@DDMForm(
+	rules = {
+		@DDMFormRule(
+			actions = {
+				"call('getDataProviderInstanceOutputParameters', 'dataProviderInstanceId=ddmDataProviderInstanceId', 'ddmDataProviderInstanceOutput=outputParameterNames')"
+			},
+			condition = "not(equals(getValue('ddmDataProviderInstanceId'), 0))"
+		)
+	}
+)
 @DDMFormLayout(
 	paginationMode = com.liferay.dynamic.data.mapping.model.DDMFormLayout.TABBED_MODE,
 	value = {
@@ -53,7 +64,8 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 							size = 12,
 							value = {
 								"predefinedValue", "dataSourceType",
-								"ddmDataProviderInstanceId", "options",
+								"ddmDataProviderInstanceId",
+								"ddmDataProviderInstanceOutput", "options",
 								"placeholder", "visibilityExpression",
 								"validation", "fieldNamespace", "indexType",
 								"localizable", "readOnly", "dataType", "type",
@@ -85,6 +97,16 @@ public interface TextDDMFormFieldTypeSettings
 	public long ddmDataProviderInstanceId();
 
 	@DDMFormField(
+		label = "%choose-an-output-parameter",
+		properties = {
+			"tooltip=%choose-an-output-parameter-for-a-data-provider-previously-created"
+		},
+		type = "select",
+		visibilityExpression = "equals(dataSourceType, \"data-provider\")"
+	)
+	public String ddmDataProviderInstanceOutput();
+
+	@DDMFormField(
 		label = "%my-text-field-has",
 		optionLabels = {"%a-single-line", "%multiple-lines"},
 		optionValues = {"singleline", "multiline"},
@@ -95,7 +117,8 @@ public interface TextDDMFormFieldTypeSettings
 
 	@DDMFormField(
 		dataType = "ddm-options", label = "%options",
-		properties = {"showLabel=false"}, required = false, type = "options",
+		properties = {"showLabel=false", "allowEmptyOptions=true"},
+		required = false, type = "options",
 		visibilityExpression = "equals(dataSourceType, \"manual\")"
 	)
 	public DDMFormFieldOptions options();
@@ -112,5 +135,11 @@ public interface TextDDMFormFieldTypeSettings
 
 	@DDMFormField(visibilityExpression = "FALSE")
 	public LocalizedValue tooltip();
+
+	@DDMFormField(
+		dataType = "string", label = "%validation", type = "validation"
+	)
+	@Override
+	public DDMFormFieldValidation validation();
 
 }

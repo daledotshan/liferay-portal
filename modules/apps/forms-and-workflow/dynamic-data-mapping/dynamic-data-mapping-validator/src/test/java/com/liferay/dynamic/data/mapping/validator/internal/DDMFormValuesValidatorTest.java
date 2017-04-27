@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.validator.internal;
 
 import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
@@ -43,13 +44,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Marcellus Tavares
  */
 @RunWith(PowerMockRunner.class)
-public class DDMFormValuesValidatorTest {
+public class DDMFormValuesValidatorTest extends PowerMockito {
 
 	@Before
 	public void setUp() throws Exception {
@@ -360,46 +362,6 @@ public class DDMFormValuesValidatorTest {
 		_ddmFormValuesValidatorImpl.validate(ddmFormValues);
 	}
 
-	@Test(expected = MustSetValidValue.class)
-	public void testValidationWithNonrequiredSelectAndInvalidLocalizedValue()
-		throws Exception {
-
-		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
-
-		DDMFormField ddmFormField = new DDMFormField("option", "select");
-
-		ddmFormField.setDataType("string");
-		ddmFormField.setRequired(false);
-
-		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions();
-
-		ddmFormFieldOptions.addOptionLabel("A", LocaleUtil.US, "Option A");
-		ddmFormFieldOptions.addOptionLabel("B", LocaleUtil.US, "Option B");
-
-		ddmFormField.setDDMFormFieldOptions(ddmFormFieldOptions);
-
-		ddmFormField.setLocalizable(true);
-
-		ddmForm.addDDMFormField(ddmFormField);
-
-		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
-			ddmForm);
-
-		ddmFormValues.addAvailableLocale(LocaleUtil.BRAZIL);
-
-		String instanceId = StringUtil.randomString();
-
-		LocalizedValue localizedValue =
-			DDMFormValuesTestUtil.createLocalizedValue(
-				"[\"\"]", "[\"C\"]", LocaleUtil.US);
-
-		ddmFormValues.addDDMFormFieldValue(
-			DDMFormValuesTestUtil.createDDMFormFieldValue(
-				instanceId, "option", localizedValue));
-
-		_ddmFormValuesValidatorImpl.validate(ddmFormValues);
-	}
-
 	@Test(expected = NullPointerException.class)
 	public void testValidationWithoutDDMFormReference() throws Exception {
 		DDMFormValues ddmFormValues = new DDMFormValues(null);
@@ -552,40 +514,6 @@ public class DDMFormValuesValidatorTest {
 		_ddmFormValuesValidatorImpl.validate(ddmFormValues);
 	}
 
-	@Test(expected = MustSetValidValue.class)
-	public void testValidationWithRequiredSelectAndEmptyDefaultLocaleValue()
-		throws Exception {
-
-		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
-
-		DDMFormField ddmFormField = new DDMFormField("option", "select");
-
-		ddmFormField.setDataType("string");
-		ddmFormField.setRequired(true);
-
-		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions();
-
-		ddmFormFieldOptions.addOptionLabel("A", LocaleUtil.US, "Option A");
-		ddmFormFieldOptions.addOptionLabel("B", LocaleUtil.US, "Option B");
-
-		ddmFormField.setDDMFormFieldOptions(ddmFormFieldOptions);
-
-		ddmFormField.setLocalizable(false);
-
-		ddmForm.addDDMFormField(ddmFormField);
-
-		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
-			ddmForm);
-
-		String instanceId = StringUtil.randomString();
-
-		ddmFormValues.addDDMFormFieldValue(
-			DDMFormValuesTestUtil.createDDMFormFieldValue(
-				instanceId, "option", new UnlocalizedValue("[\"\"]")));
-
-		_ddmFormValuesValidatorImpl.validate(ddmFormValues);
-	}
-
 	@Test(expected = MustNotSetValue.class)
 	public void testValidationWithSeparatorField() throws Exception {
 		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
@@ -734,37 +662,6 @@ public class DDMFormValuesValidatorTest {
 		_ddmFormValuesValidatorImpl.validate(ddmFormValues);
 	}
 
-	@Test(expected = MustSetValidValue.class)
-	public void testValidationWithWrongValueSetForSelect() throws Exception {
-		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
-
-		DDMFormField ddmFormField = new DDMFormField("option", "select");
-
-		ddmFormField.setDataType("string");
-
-		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions();
-
-		ddmFormFieldOptions.addOptionLabel("A", LocaleUtil.US, "Option A");
-		ddmFormFieldOptions.addOptionLabel("B", LocaleUtil.US, "Option B");
-
-		ddmFormField.setDDMFormFieldOptions(ddmFormFieldOptions);
-
-		ddmFormField.setLocalizable(false);
-
-		ddmForm.addDDMFormField(ddmFormField);
-
-		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
-			ddmForm);
-
-		String instanceId = StringUtil.randomString();
-
-		ddmFormValues.addDDMFormFieldValue(
-			DDMFormValuesTestUtil.createDDMFormFieldValue(
-				instanceId, "option", new UnlocalizedValue("[\"Invalid\"]")));
-
-		_ddmFormValuesValidatorImpl.validate(ddmFormValues);
-	}
-
 	@Test(expected = MustSetValidValuesSize.class)
 	public void testValidationWithWrongValuesForNonRepeatableField()
 		throws Exception {
@@ -809,6 +706,13 @@ public class DDMFormValuesValidatorTest {
 			new DDMExpressionFactoryImpl());
 
 		_ddmFormValuesValidatorImpl.setJSONFactory(new JSONFactoryImpl());
+
+		field(
+			DDMFormValuesValidatorImpl.class, "_ddmFormFieldTypeServicesTracker"
+		).set(
+			_ddmFormValuesValidatorImpl,
+			mock(DDMFormFieldTypeServicesTracker.class)
+		);
 	}
 
 	private final DDMFormValuesValidatorImpl _ddmFormValuesValidatorImpl =

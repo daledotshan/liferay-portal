@@ -55,8 +55,8 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.RepositoryLocalService;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.repository.liferayrepository.LiferayRepositoryDefiner;
@@ -446,13 +446,13 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 					fileVersionDynamicQuery.add(
 						RestrictionsFactoryUtil.eqProperty(
-							"dlFileVersion.fileEntryId", "fileEntryId"));
+							"dlFileVersion.fileEntryId", "this.fileEntryId"));
 					fileVersionDynamicQuery.add(
 						RestrictionsFactoryUtil.eqProperty(
-							"dlFileVersion.version", "version"));
+							"dlFileVersion.version", "this.version"));
 
-					Property statusProperty = PropertyFactoryUtil.forName(
-						"status");
+					Property fileVersionStatusProperty =
+						PropertyFactoryUtil.forName("dlFileVersion.status");
 
 					StagedModelDataHandler<?> stagedModelDataHandler =
 						StagedModelDataHandlerRegistryUtil.
@@ -460,22 +460,28 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 								DLFileEntry.class.getName());
 
 					fileVersionDynamicQuery.add(
-						statusProperty.in(
+						fileVersionStatusProperty.in(
 							stagedModelDataHandler.getExportableStatuses()));
 
+					Criterion fileVersionModifiedDateCriterion =
+						portletDataContext.getDateRangeCriteria(
+							"dlFileVersion.modifiedDate");
+					Criterion fileVersionStatusDateCriterion =
+						portletDataContext.getDateRangeCriteria(
+							"dlFileVersion.statusDate");
 					Criterion modifiedDateCriterion =
-						portletDataContext.getDateRangeCriteria("modifiedDate");
-					Criterion statusDateCriterion =
-						portletDataContext.getDateRangeCriteria("statusDate");
+						portletDataContext.getDateRangeCriteria(
+							"this.modifiedDate");
 
-					if ((modifiedDateCriterion != null) &&
-						(statusDateCriterion != null)) {
+					if ((fileVersionStatusDateCriterion != null) &&
+						(modifiedDateCriterion != null)) {
 
 						Disjunction disjunction =
 							RestrictionsFactoryUtil.disjunction();
 
+						disjunction.add(fileVersionModifiedDateCriterion);
+						disjunction.add(fileVersionStatusDateCriterion);
 						disjunction.add(modifiedDateCriterion);
-						disjunction.add(statusDateCriterion);
 
 						fileVersionDynamicQuery.add(disjunction);
 					}
@@ -592,16 +598,14 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 					Property classNameIdProperty = PropertyFactoryUtil.forName(
 						"classNameId");
 
-					long liferayRepositoryClassNameId =
-						PortalUtil.getClassNameId(
-							LiferayRepositoryDefiner.CLASS_NAME);
+					long liferayRepositoryClassNameId = _portal.getClassNameId(
+						LiferayRepositoryDefiner.CLASS_NAME);
 
 					conjunction.add(
 						classNameIdProperty.ne(liferayRepositoryClassNameId));
 
-					long tempFileRepositoryClassNameId =
-						PortalUtil.getClassNameId(
-							TemporaryFileEntryRepositoryDefiner.CLASS_NAME);
+					long tempFileRepositoryClassNameId = _portal.getClassNameId(
+						TemporaryFileEntryRepositoryDefiner.CLASS_NAME);
 
 					conjunction.add(
 						classNameIdProperty.ne(tempFileRepositoryClassNameId));
@@ -624,7 +628,7 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 
 		exportActionableDynamicQuery.setStagedModelType(
 			new StagedModelType(
-				PortalUtil.getClassNameId(Repository.class.getName()),
+				_portal.getClassNameId(Repository.class.getName()),
 				StagedModelType.REFERRER_CLASS_NAME_ID_ALL));
 
 		return exportActionableDynamicQuery;
@@ -675,6 +679,10 @@ public class DLPortletDataHandler extends BasePortletDataHandler {
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 	private DLFileShortcutLocalService _dlFileShortcutLocalService;
 	private DLFolderLocalService _dlFolderLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private RepositoryLocalService _repositoryLocalService;
 
 }

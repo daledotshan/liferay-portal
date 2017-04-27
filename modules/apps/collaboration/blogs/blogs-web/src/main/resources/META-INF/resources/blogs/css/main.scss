@@ -67,7 +67,7 @@
 
 	.lfr-blogs-small-image-selector {
 		float: left;
-		margin-right: 20px;
+		margin-top: 15px;
 		width: 200px;
 
 		.taglib-image-selector {
@@ -148,6 +148,12 @@
 	}
 
 	.edit-entry {
+		.alloy-editor-placeholder:before {
+			display: block;
+			text-align: inherit;
+			width: 100%;
+		}
+
 		.entry-title h1 p {
 			line-height: 80px;
 		}
@@ -256,6 +262,14 @@
 			ul {
 				margin-top: 6px;
 			}
+		}
+	}
+
+	.info-bar-container.affix + .entry-body {
+		margin-top: 47px;
+
+		@include sm() {
+			margin-top: 59px;
 		}
 	}
 

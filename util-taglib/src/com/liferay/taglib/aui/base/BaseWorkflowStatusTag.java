@@ -79,68 +79,46 @@ public abstract class BaseWorkflowStatusTag extends com.liferay.taglib.util.Incl
 
 	public void setBean(java.lang.Object bean) {
 		_bean = bean;
-
-		setScopedAttribute("bean", bean);
 	}
 
 	public void setHelpMessage(java.lang.String helpMessage) {
 		_helpMessage = helpMessage;
-
-		setScopedAttribute("helpMessage", helpMessage);
 	}
 
 	public void setId(java.lang.String id) {
 		_id = id;
-
-		setScopedAttribute("id", id);
 	}
 
 	public void setMarkupView(java.lang.String markupView) {
 		_markupView = markupView;
-
-		setScopedAttribute("markupView", markupView);
 	}
 
 	public void setModel(java.lang.Class<?> model) {
 		_model = model;
-
-		setScopedAttribute("model", model);
 	}
 
 	public void setShowHelpMessage(boolean showHelpMessage) {
 		_showHelpMessage = showHelpMessage;
-
-		setScopedAttribute("showHelpMessage", showHelpMessage);
 	}
 
 	public void setShowIcon(boolean showIcon) {
 		_showIcon = showIcon;
-
-		setScopedAttribute("showIcon", showIcon);
 	}
 
 	public void setShowLabel(boolean showLabel) {
 		_showLabel = showLabel;
-
-		setScopedAttribute("showLabel", showLabel);
 	}
 
 	public void setStatus(java.lang.Integer status) {
 		_status = status;
-
-		setScopedAttribute("status", status);
 	}
 
 	public void setStatusMessage(java.lang.String statusMessage) {
 		_statusMessage = statusMessage;
-
-		setScopedAttribute("statusMessage", statusMessage);
 	}
 
 	public void setVersion(java.lang.String version) {
 		_version = version;
-
-		setScopedAttribute("version", version);
 	}
 
 	@Override
@@ -167,17 +145,17 @@ public abstract class BaseWorkflowStatusTag extends com.liferay.taglib.util.Incl
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "bean", _bean);
-		setNamespacedAttribute(request, "helpMessage", _helpMessage);
-		setNamespacedAttribute(request, "id", _id);
-		setNamespacedAttribute(request, "markupView", _markupView);
-		setNamespacedAttribute(request, "model", _model);
-		setNamespacedAttribute(request, "showHelpMessage", _showHelpMessage);
-		setNamespacedAttribute(request, "showIcon", _showIcon);
-		setNamespacedAttribute(request, "showLabel", _showLabel);
-		setNamespacedAttribute(request, "status", _status);
-		setNamespacedAttribute(request, "statusMessage", _statusMessage);
-		setNamespacedAttribute(request, "version", _version);
+		request.setAttribute("aui:workflow-status:bean", _bean);
+		request.setAttribute("aui:workflow-status:helpMessage", _helpMessage);
+		request.setAttribute("aui:workflow-status:id", _id);
+		request.setAttribute("aui:workflow-status:markupView", _markupView);
+		request.setAttribute("aui:workflow-status:model", _model);
+		request.setAttribute("aui:workflow-status:showHelpMessage", String.valueOf(_showHelpMessage));
+		request.setAttribute("aui:workflow-status:showIcon", String.valueOf(_showIcon));
+		request.setAttribute("aui:workflow-status:showLabel", String.valueOf(_showLabel));
+		request.setAttribute("aui:workflow-status:status", _status);
+		request.setAttribute("aui:workflow-status:statusMessage", _statusMessage);
+		request.setAttribute("aui:workflow-status:version", _version);
 	}
 
 	protected static final String _ATTRIBUTE_NAMESPACE = "aui:workflow-status:";

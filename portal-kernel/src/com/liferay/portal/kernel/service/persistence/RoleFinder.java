@@ -22,6 +22,11 @@ import aQute.bnd.annotation.ProviderType;
  */
 @ProviderType
 public interface RoleFinder {
+	public int countByGroupRoleAndTeamRole(long companyId,
+		java.lang.String keywords,
+		java.util.List<java.lang.String> excludedNames, int[] types,
+		long excludedTeamRoleId, long teamGroupId);
+
 	public int countByKeywords(long companyId, java.lang.String keywords,
 		java.lang.Integer[] types);
 
@@ -45,6 +50,11 @@ public interface RoleFinder {
 		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
 		boolean andOperator);
 
+	public int filterCountByGroupRoleAndTeamRole(long companyId,
+		java.lang.String keywords,
+		java.util.List<java.lang.String> excludedNames, int[] types,
+		long excludedTeamRoleId, long teamGroupId);
+
 	public int filterCountByKeywords(long companyId, java.lang.String keywords,
 		java.lang.Integer[] types,
 		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params);
@@ -58,6 +68,11 @@ public interface RoleFinder {
 		java.lang.String[] descriptions, java.lang.Integer[] types,
 		java.util.LinkedHashMap<java.lang.String, java.lang.Object> params,
 		boolean andOperator);
+
+	public java.util.List<com.liferay.portal.kernel.model.Role> filterFindByGroupRoleAndTeamRole(
+		long companyId, java.lang.String keywords,
+		java.util.List<java.lang.String> excludedNames, int[] types,
+		long excludedTeamRoleId, long teamGroupId, int start, int end);
 
 	public java.util.List<com.liferay.portal.kernel.model.Role> filterFindByKeywords(
 		long companyId, java.lang.String keywords, java.lang.Integer[] types,
@@ -79,6 +94,11 @@ public interface RoleFinder {
 		boolean andOperator, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portal.kernel.model.Role> obc);
 
+	public java.util.List<com.liferay.portal.kernel.model.Role> findByGroupRoleAndTeamRole(
+		long companyId, java.lang.String keywords,
+		java.util.List<java.lang.String> excludedNames, int[] types,
+		long excludedTeamRoleId, long teamGroupId, int start, int end);
+
 	public java.util.List<com.liferay.portal.kernel.model.Role> findByKeywords(
 		long companyId, java.lang.String keywords, java.lang.Integer[] types,
 		int start, int end,
@@ -92,6 +112,9 @@ public interface RoleFinder {
 
 	public java.util.List<com.liferay.portal.kernel.model.Role> findBySystem(
 		long companyId);
+
+	public java.util.List<com.liferay.portal.kernel.model.Role> findByTeamsUser(
+		long userId, long groupId);
 
 	public java.util.List<com.liferay.portal.kernel.model.Role> findByUserGroupGroupRole(
 		long userId, long groupId);

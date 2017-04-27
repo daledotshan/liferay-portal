@@ -26,7 +26,7 @@ import com.liferay.portal.kernel.notifications.UserNotificationHandler;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -65,15 +65,14 @@ public class MicroblogsUserNotificationHandler
 
 		ResourceBundle resourceBundle =
 			_resourceBundleLoader.loadResourceBundle(
-				serviceContext.getLanguageId());
+				serviceContext.getLocale());
 
 		MicroblogsEntry microblogsEntry =
 			_microblogsEntryLocalService.fetchMicroblogsEntry(
 				assetRenderer.getClassPK());
 
 		String userFullName = HtmlUtil.escape(
-			PortalUtil.getUserName(
-				microblogsEntry.getUserId(), StringPool.BLANK));
+			_portal.getUserName(microblogsEntry.getUserId(), StringPool.BLANK));
 
 		int notificationType = jsonObject.getInt("notificationType");
 
@@ -140,6 +139,10 @@ public class MicroblogsUserNotificationHandler
 	}
 
 	private MicroblogsEntryLocalService _microblogsEntryLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private ResourceBundleLoader _resourceBundleLoader;
 	private UserLocalService _userLocalService;
 

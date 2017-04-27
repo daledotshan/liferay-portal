@@ -97,8 +97,10 @@ StringBuilder friendlyURLBase = new StringBuilder();
 				<div class="form-group">
 					<label for="<portlet:namespace />friendlyURL"><liferay-ui:message key="friendly-url" /> <liferay-ui:icon-help message='<%= LanguageUtil.format(request, "for-example-x", "<em>/news</em>", false) %>' /></label>
 
-					<div class="input-group">
-						<span class="input-group-addon" id="<portlet:namespace />urlBase"><liferay-ui:message key="<%= StringUtil.shorten(friendlyURLBase.toString(), 40) %>" /></span>
+					<div class="input-group lfr-friendly-url-input-group">
+						<span class="input-group-addon" id="<portlet:namespace />urlBase">
+							<span class="input-group-constrain"><liferay-ui:message key="<%= StringUtil.shorten(friendlyURLBase.toString(), 40) %>" /></span>
+						</span>
 
 						<liferay-ui:input-localized defaultLanguageId="<%= LocaleUtil.toLanguageId(themeDisplay.getSiteDefaultLocale()) %>" name="friendlyURL" xml="<%= HttpUtil.decodeURL(selLayout.getFriendlyURLsXML()) %>" />
 					</div>
@@ -158,10 +160,6 @@ StringBuilder friendlyURLBase = new StringBuilder();
 
 		<%
 		for (String type : types) {
-			if (type.equals("article") && (group.isLayoutPrototype() || group.isLayoutSetPrototype())) {
-				continue;
-			}
-
 			LayoutTypeController layoutTypeController = LayoutTypeControllerTracker.getLayoutTypeController(type);
 
 			if (!layoutTypeController.isInstanceable()) {
@@ -169,6 +167,10 @@ StringBuilder friendlyURLBase = new StringBuilder();
 			}
 
 			ResourceBundle layoutTypeResourceBundle = ResourceBundleUtil.getBundle("content.Language", locale, layoutTypeController.getClass());
+
+			Map<String, Object> data = new HashMap<String, Object>();
+
+			data.put("id", type);
 		%>
 
 			<aui:option disabled="<%= selLayout.isFirstParent() && !layoutTypeController.isFirstPageable() %>" label='<%= LanguageUtil.get(request, layoutTypeResourceBundle, "layout.types." + type) %>' selected="<%= selLayout.getType().equals(type) %>" value="<%= type %>" />
@@ -180,35 +182,10 @@ StringBuilder friendlyURLBase = new StringBuilder();
 	</aui:select>
 
 	<div id="<portlet:namespace />layoutTypeForm">
-
-		<%
-		for (String type : types) {
-			if (type.equals("article") && (group.isLayoutPrototype() || group.isLayoutSetPrototype())) {
-				continue;
-			}
-
-			LayoutTypeController layoutTypeController = LayoutTypeControllerTracker.getLayoutTypeController(type);
-
-			if (!layoutTypeController.isInstanceable()) {
-				continue;
-			}
-		%>
-
-			<div class="layout-type-form layout-type-form-<%= type %> <%= selLayout.getType().equals(type) ? StringPool.BLANK : "hide" %>">
-
-				<%
-				request.setAttribute(WebKeys.SEL_LAYOUT, selLayout);
-
-				DynamicServletRequest dynamicServletRequest = new DynamicServletRequest(request, Collections.singletonMap("idPrefix", new String[] {"details"}));
-				%>
-
-				<%= layoutTypeController.includeEditContent(dynamicServletRequest, response, selLayout) %>
-			</div>
-
-		<%
-		}
-		%>
-
+		<liferay-util:include page="/layout_type_resources.jsp" servletContext="<%= application %>">
+			<liferay-util:param name="id" value="<%= selLayout.getType() %>" />
+			<liferay-util:param name="type" value="<%= selLayout.getType() %>" />
+		</liferay-util:include>
 	</div>
 </div>
 
@@ -218,40 +195,6 @@ StringBuilder friendlyURLBase = new StringBuilder();
 </aui:script>
 
 <aui:script sandbox="<%= true %>">
-	function toggleLayoutTypeFields(type) {
-		var currentType = 'layout-type-form-' + type;
-
-		$('#<portlet:namespace />layoutTypeForm').find('.layout-type-form').each(
-			function(index, item) {
-				item = $(item);
-
-				var visible = item.hasClass(currentType);
-
-				item.toggleClass('hide', !visible);
-
-				item.find('input, select, textarea').prop('disabled', !visible);
-			}
-		);
-	}
-
-	toggleLayoutTypeFields('<%= HtmlUtil.escapeJS(selLayout.getType()) %>');
-
-	$('#<portlet:namespace />type').on(
-		'change',
-		function(event) {
-			var type = $(event.currentTarget).val();
-
-			toggleLayoutTypeFields(type);
-
-			Liferay.fire(
-				'<portlet:namespace />toggleLayoutTypeFields',
-				{
-					type: type
-				}
-			);
-		}
-	);
-
 	var friendlyURLBase = '<%= friendlyURLBase.toString() %>';
 
 	if (friendlyURLBase.length > 40) {
@@ -274,6 +217,52 @@ StringBuilder friendlyURLBase = new StringBuilder();
 
 			propagatableFields.prop('disabled', layoutPrototypeLinkChecked);
 			propagatableFields.toggleClass('disabled', layoutPrototypeLinkChecked);
+		}
+	);
+</aui:script>
+
+<aui:script use="aui-io-request,aui-parse-content">
+	var layoutTypeForm = A.one('#<portlet:namespace />layoutTypeForm');
+
+	layoutTypeForm.plug(A.Plugin.ParseContent);
+
+	A.one('#<portlet:namespace />type').on(
+		'change',
+		function(event) {
+			var currentTarget = event.currentTarget;
+
+			var type = currentTarget.val();
+
+			var index = currentTarget.get('selectedIndex');
+
+			var selectedOption = currentTarget.get('options').item(index);
+
+			var id = selectedOption.attr('data-id');
+
+			var data = Liferay.Util.ns(
+				'<portlet:namespace />',
+				{
+					id: id,
+					type: type
+				}
+			);
+
+			A.io.request(
+				'<liferay-portlet:resourceURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="mvcPath" value="/layout_type_resources.jsp" /></liferay-portlet:resourceURL>',
+				{
+					data: data,
+					on: {
+						failure: function() {
+							layoutTypeForm.html('<div class="alert alert-danger"><liferay-ui:message key="an-unexpected-error-occurred" /></div>');
+						},
+						success: function(event, id, obj) {
+							var responseData = this.get('responseData');
+
+							layoutTypeForm.setContent(responseData);
+						}
+					}
+				}
+			);
 		}
 	);
 </aui:script>

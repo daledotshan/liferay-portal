@@ -1,5 +1,6 @@
 <definition component-name="portal-permissions">
 	<property name="portal.release" value="true" />
+	<property name="portal.upstream" value="true" />
 	<property name="testray.main.component.name" value="Permissions" />
 
 	<set-up>
@@ -632,7 +633,7 @@
 	</command>
 
 	<command name="DeleteBlogsEntryOrgRoleDefaultPermission" priority="5">
-		<property name="portal.acceptance" value="true" />
+		<property name="portal.acceptance" value="quarantine" />
 
 		<execute macro="Permissions#setUpOrgRoleLoginUserPG">
 			<var name="orgName" value="Organization Name" />

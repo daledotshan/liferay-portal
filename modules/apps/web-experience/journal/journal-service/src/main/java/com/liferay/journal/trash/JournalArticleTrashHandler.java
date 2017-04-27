@@ -37,9 +37,8 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.trash.TrashActionKeys;
-import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashRenderer;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.trash.kernel.exception.RestoreEntryException;
 import com.liferay.trash.kernel.model.TrashEntry;
@@ -49,7 +48,6 @@ import java.util.List;
 
 import javax.portlet.PortletRequest;
 
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -58,11 +56,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Levente Hudák
  * @author Sergio González
  * @author Zsolt Berentey
+ * @deprecated As of 4.0.0, moved to {@link
+ *             com.liferay.journal.internal.trash.JournalArticleTrashHandler}
  */
-@Component(
-	property = {"model.class.name=com.liferay.journal.model.JournalArticle"},
-	service = TrashHandler.class
-)
+@Deprecated
 public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 
 	@Override
@@ -339,8 +336,8 @@ public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 			classPK);
 
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
-			PortalUtil.getSiteGroupId(article.getGroupId()),
-			PortalUtil.getClassNameId(JournalArticle.class),
+			_portal.getSiteGroupId(article.getGroupId()),
+			_portal.getClassNameId(JournalArticle.class),
 			article.getDDMStructureKey(), true);
 
 		if (containerModelId == TrashEntryConstants.DEFAULT_CONTAINER_ID) {
@@ -351,8 +348,7 @@ public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 
 		List<DDMStructure> folderDDMStructures =
 			_journalFolderLocalService.getDDMStructures(
-				PortalUtil.getCurrentAndAncestorSiteGroupIds(
-					article.getGroupId()),
+				_portal.getCurrentAndAncestorSiteGroupIds(article.getGroupId()),
 				containerModelId, restrictionType);
 
 		for (DDMStructure folderDDMStructure : folderDDMStructures) {
@@ -418,5 +414,8 @@ public class JournalArticleTrashHandler extends JournalBaseTrashHandler {
 	private JournalArticleResourceLocalService
 		_journalArticleResourceLocalService;
 	private JournalFolderLocalService _journalFolderLocalService;
+
+	@Reference
+	private Portal _portal;
 
 }

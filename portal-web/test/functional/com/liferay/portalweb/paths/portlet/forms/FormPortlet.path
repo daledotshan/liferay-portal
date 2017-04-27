@@ -38,6 +38,22 @@
 	<td>//ul[contains(@class,'multi-step-progress-bar')]/li[not(contains(@class,'active')) and contains(.,'${key_formPageName}')]/div[@class='progress-bar-title']</td>
 	<td></td>
 </tr>
+<tr>
+	<td>PORTLET_CONTENT</td>
+	<td>//div[contains(@class,'portlet-content-editable')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SUCCESS_PAGE_TITLE</td>
+	<td>//div[contains(@class,'basic-info')]//h1[contains(.,'${key_successPageTitle}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SUCCESS_PAGE_DESCRIPTION</td>
+	<td>//div[contains(@class,'basic-info')]//h5[contains(.,'${key_successPageDescription}')]</td>
+	<td></td>
+</tr>
+
 </tbody>
 </table>
 </body>

@@ -89,7 +89,6 @@ public class SourceFormatterPlugin implements Plugin<Project> {
 		formatSourceTask.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);
 		formatSourceTask.setPrintErrors(true);
 		formatSourceTask.setThrowException(true);
-		formatSourceTask.setUseProperties(false);
 
 		return formatSourceTask;
 	}
@@ -100,6 +99,7 @@ public class SourceFormatterPlugin implements Plugin<Project> {
 
 		formatSourceTask.setDescription(
 			"Runs Liferay Source Formatter to format the project files.");
+		formatSourceTask.setGroup("formatting");
 
 		return formatSourceTask;
 	}

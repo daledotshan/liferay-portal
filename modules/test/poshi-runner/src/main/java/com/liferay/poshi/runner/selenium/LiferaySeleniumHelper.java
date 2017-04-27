@@ -148,20 +148,6 @@ public class LiferaySeleniumHelper {
 		}
 	}
 
-	public static void assertConsoleTextNotPresent(String text)
-		throws Exception {
-
-		if (isConsoleTextPresent(text)) {
-			throw new Exception("\"" + text + "\" is present in console");
-		}
-	}
-
-	public static void assertConsoleTextPresent(String text) throws Exception {
-		if (!isConsoleTextPresent(text)) {
-			throw new Exception("\"" + text + "\" is not present in console");
-		}
-	}
-
 	public static void assertLocation(
 			LiferaySelenium liferaySelenium, String pattern)
 		throws Exception {
@@ -397,6 +383,10 @@ public class LiferaySeleniumHelper {
 		if (Validator.isNotNull(PropsValues.TEST_INCLUDE_DIR_NAMES)) {
 			baseDirNames.addAll(
 				Arrays.asList(PropsValues.TEST_INCLUDE_DIR_NAMES));
+		}
+
+		if (Validator.isNotNull(PropsValues.TEST_SUBREPO_DIRS)) {
+			baseDirNames.addAll(Arrays.asList(PropsValues.TEST_SUBREPO_DIRS));
 		}
 
 		for (String baseDirName : baseDirNames) {

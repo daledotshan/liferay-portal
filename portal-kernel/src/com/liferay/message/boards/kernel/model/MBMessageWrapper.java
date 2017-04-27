@@ -495,7 +495,9 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	* Returns the trash handler for this message-boards message.
 	*
 	* @return the trash handler for this message-boards message
+	* @deprecated As of 7.0.0, with no direct replacement
 	*/
+	@Deprecated
 	@Override
 	public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
 		return _mbMessage.getTrashHandler();
@@ -772,9 +774,9 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	/**
-	* Returns the class p k of this message-boards message.
+	* Returns the class pk of this message-boards message.
 	*
-	* @return the class p k of this message-boards message
+	* @return the class pk of this message-boards message
 	*/
 	@Override
 	public long getClassPK() {
@@ -968,9 +970,9 @@ public class MBMessageWrapper implements MBMessage, ModelWrapper<MBMessage> {
 	}
 
 	/**
-	* Sets the class p k of this message-boards message.
+	* Sets the class pk of this message-boards message.
 	*
-	* @param classPK the class p k of this message-boards message
+	* @param classPK the class pk of this message-boards message
 	*/
 	@Override
 	public void setClassPK(long classPK) {

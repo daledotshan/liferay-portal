@@ -72,6 +72,66 @@ JavaScript dependencies for the `transpileJS` task.
 - [LPS-69445]: Update the [Liferay Gradle Plugins Node] dependency to version
 1.4.0.
 
+## 2.3.2 - 2016-12-08
+
+### Changed
+- [LPS-69618]: Update the [Liferay Gradle Plugins Node] dependency to version
+1.4.1.
+
+## 2.3.3 - 2016-12-14
+
+### Changed
+- [LPS-69677]: Update the [Liferay Gradle Plugins Node] dependency to version
+1.4.2.
+
+## 2.3.4 - 2016-12-21
+
+### Changed
+- [LPS-69802]: Update the [Liferay Gradle Plugins Node] dependency to version
+1.5.0.
+
+## 2.3.5 - 2016-12-29
+
+### Changed
+- [LPS-69920]: Update the [Liferay Gradle Plugins Node] dependency to version
+1.5.1.
+
+## 2.3.6 - 2017-02-09
+
+### Changed
+- [LPS-69920]: Update the [Liferay Gradle Plugins Node] dependency to version
+1.5.2.
+
+## 2.3.7 - 2017-02-23
+
+### Changed
+- [LPS-70870]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.0.0.
+
+## 2.3.8 - 2017-03-09
+
+### Changed
+- [LPS-70634]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.0.1.
+
+## 2.3.9 - 2017-03-13
+
+### Changed
+- [LPS-71222]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.0.2.
+
+## 2.3.10 - 2017-04-11
+
+### Changed
+- [LPS-71826]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.1.0.
+
+## 2.3.11 - 2016-04-24
+
+### Changed
+- [LPS-72152]: Update the [Liferay Gradle Plugins Node] dependency to version
+2.2.0.
+
 [Liferay Gradle Plugins Node]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-node
 [LPS-66906]: https://issues.liferay.com/browse/LPS-66906
 [LPS-67023]: https://issues.liferay.com/browse/LPS-67023
@@ -82,3 +142,12 @@ JavaScript dependencies for the `transpileJS` task.
 [LPS-69026]: https://issues.liferay.com/browse/LPS-69026
 [LPS-69248]: https://issues.liferay.com/browse/LPS-69248
 [LPS-69445]: https://issues.liferay.com/browse/LPS-69445
+[LPS-69618]: https://issues.liferay.com/browse/LPS-69618
+[LPS-69677]: https://issues.liferay.com/browse/LPS-69677
+[LPS-69802]: https://issues.liferay.com/browse/LPS-69802
+[LPS-69920]: https://issues.liferay.com/browse/LPS-69920
+[LPS-70634]: https://issues.liferay.com/browse/LPS-70634
+[LPS-70870]: https://issues.liferay.com/browse/LPS-70870
+[LPS-71222]: https://issues.liferay.com/browse/LPS-71222
+[LPS-71826]: https://issues.liferay.com/browse/LPS-71826
+[LPS-72152]: https://issues.liferay.com/browse/LPS-72152

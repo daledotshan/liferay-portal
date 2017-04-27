@@ -382,6 +382,20 @@
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
 
+	<command name="addPGViaAP">
+		<execute macro="AssetPublisherPortlet#addAsset">
+			<var name="assetType" value="Calendar Event" />
+		</execute>
+
+		<execute macro="CalendarEvent#_viewNewEventIframe" />
+
+		<execute macro="CalendarEvent#editTitle">
+			<var name="eventTitle" value="${eventTitle}" />
+		</execute>
+
+		<execute macro="CalendarEvent#publish" />
+	</command>
+
 	<command name="addRegular">
 		<execute macro="CalendarEvent#editTitle">
 			<var name="eventTitle" value="${eventTitle}" />
@@ -596,6 +610,13 @@
 		<execute function="Pause" value1="3000" />
 
 		<if>
+			<condition function="IsElementPresent" locator1="CalendarEditEvent#ENTIRE_SERIES_BUTTON" />
+			<then>
+				<execute function="AssertClick" locator1="CalendarEditEvent#ENTIRE_SERIES_BUTTON" value1="Entire Series"  />
+			</then>
+		</if>
+
+		<if>
 			<equals arg1="${rsvp}" arg2="No" />
 			<then>
 				<execute macro="CalendarScheduler#viewSpecificEventNotPresent">
@@ -620,7 +641,9 @@
 
 		<execute macro="CalendarEvent#selectEventIframe" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${eventTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${eventTitle}" />
+		</execute>
 
 		<execute macro="CalendarEvent#_viewNewEventIframe" />
 
@@ -982,6 +1005,19 @@
 			</else>
 		</if>
 
+		<var method="selenium#getCurrentDayName()" name="currentDay" />
+		<var method="selenium#getCurrentHour()" name="currentHour" />
+
+		<if>
+			<and>
+				<equals arg1="${currentDay}" arg2="Saturday" />
+				<equals arg1="${currentHour}" arg2="22" />
+			</and>
+			<then>
+				<execute function="Refresh" />
+			</then>
+		</if>
+
 		<execute macro="CalendarScheduler#viewSpecificEventNotPresent">
 			<var name="eventTitle" value="${eventTitle}" />
 		</execute>
@@ -1050,7 +1086,9 @@
 
 				<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${eventTitle}" />
 
-				<execute function="Type" locator1="TextInput#TITLE" value1="${eventTitleEdit}" />
+				<execute macro="PortletEntry#inputTitle">
+					<var name="title" value="${eventTitleEdit}" />
+				</execute>
 
 				<execute function="AssertElementPresent" locator1="CalendarEditEvent#START_DATE" />
 				<execute function="AssertElementPresent" locator1="CalendarEditEvent#END_DATE" />
@@ -1070,7 +1108,9 @@
 				<then>
 					<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${eventTitle}" />
 
-					<execute function="Type" locator1="TextInput#TITLE" value1="${eventTitleEdit}" />
+					<execute macro="PortletEntry#inputTitle">
+						<var name="title" value="${eventTitleEdit}" />
+					</execute>
 
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#START_DATE" />
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#START_DATE_TIME" />
@@ -1106,7 +1146,9 @@
 				<then>
 					<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${eventTitle}" />
 
-					<execute function="Type" locator1="TextInput#TITLE" value1="${eventTitleEdit}" />
+					<execute macro="PortletEntry#inputTitle">
+						<var name="title" value="${eventTitleEdit}" />
+					</execute>
 
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#START_DATE" />
 					<execute function="AssertElementPresent" locator1="CalendarEditEvent#START_DATE_TIME" />
@@ -1212,7 +1254,9 @@
 	</command>
 
 	<command name="editTitle">
-		<execute function="Type" locator1="TextInput#TITLE" value1="${eventTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${eventTitle}" />
+		</execute>
 	</command>
 
 	<command name="editViaAgendaView">
@@ -1254,7 +1298,9 @@
 
 		<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${eventTitle}" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${eventTitleEdit}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${eventTitleEdit}" />
+		</execute>
 
 		<execute function="AssertElementPresent" locator1="CalendarEditEvent#START_DATE" />
 		<execute function="AssertElementPresent" locator1="CalendarEditEvent#START_DATE_TIME" />
@@ -1979,6 +2025,10 @@
 		<execute function="AssertNotChecked" locator1="CalendarEditEvent#REPEAT_CHECKBOX" />
 	</command>
 
+	<command name="viewNotPresentViaAgendaView">
+		<execute function="AssertElementNotPresent" locator1="xpath=(//div[contains(@class,'scheduler-view-agenda-event') and contains(@data-clientid,'scheduler-event')])[${eventNumber}]" />
+	</command>
+
 	<command name="viewNoUserInviteWithUnapprovedWorkflow">
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
@@ -2179,6 +2229,10 @@
 		<execute function="AssertElementNotPresent" locator1="Calendar#SCHEDULER_EVENT_ATTENDING_ROW_OPTIONS" />
 	</command>
 
+	<command name="viewStatusViaDetails">
+		<execute function="AssertTextEquals#assertPartialText" locator1="CalendarViewEventDetails#STATUS" value1="${status}" />
+	</command>
+
 	<command name="viewTimes">
 		<execute function="AssertTextEquals#assertValue" locator1="CalendarEditEvent#START_DATE_TIME" value1="${startDateTime}" />
 		<execute function="AssertTextEquals#assertValue" locator1="CalendarEditEvent#END_DATE_TIME" value1="${endDateTime}" />
@@ -2233,6 +2287,10 @@
 			<var name="user" value="${user}" />
 			<var name="usersList" value="${usersList}" />
 		</execute>
+	</command>
+
+	<command name="viewViaAgendaView">
+		<execute function="AssertElementPresent" locator1="xpath=(//div[contains(@class,'scheduler-view-agenda-event') and contains(@data-clientid,'scheduler-event')])[${eventNumber}]" />
 	</command>
 
 	<command name="viewViaAssetPublisher">

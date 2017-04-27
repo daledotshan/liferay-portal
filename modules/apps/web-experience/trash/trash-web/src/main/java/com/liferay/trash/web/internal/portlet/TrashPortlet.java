@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.taglib.util.TrashUndoUtil;
 import com.liferay.trash.kernel.exception.RestoreEntryException;
 import com.liferay.trash.kernel.model.TrashEntry;
 import com.liferay.trash.kernel.model.TrashEntryConstants;
@@ -38,6 +37,7 @@ import com.liferay.trash.kernel.service.TrashEntryLocalService;
 import com.liferay.trash.kernel.service.TrashEntryService;
 import com.liferay.trash.kernel.util.TrashUtil;
 import com.liferay.trash.web.internal.constants.TrashPortletKeys;
+import com.liferay.trash.web.internal.util.TrashUndoUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +51,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
+ * Provides the Recycle Bin implementation of the <code>Portlet</code> interface
+ * (in <code>javax.portlet</code>). If the Recycle Bin is enabled, this portlet
+ * moves assets into the Recycle Bin instead of deleting them directly. The site
+ * administrator is able to browse the list of removed asset entries, restore
+ * selected entries, and empty the Recycle Bin.
+ *
  * @author Eudaldo Alonso
  */
 @Component(

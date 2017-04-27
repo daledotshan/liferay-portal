@@ -20,6 +20,8 @@
 List<MicroblogsEntry> microblogsEntries = (List<MicroblogsEntry>)request.getAttribute(WebKeys.MICROBLOGS_ENTRIES);
 
 PortletURL microblogsEntriesURL = (PortletURL)request.getAttribute(WebKeys.MICROBLOGS_ENTRIES_URL);
+
+boolean comment = GetterUtil.getBoolean((String)request.getAttribute("view_comments.jsp-comment"));
 %>
 
 <c:if test="<%= microblogsEntries.isEmpty() %>">
@@ -57,7 +59,7 @@ if (microblogsEntries != null) {
 		<div class="microblogs-entry" id="<portlet:namespace />microblogsEntry<%= microblogsEntry.getMicroblogsEntryId() %>">
 			<span class="thumbnail">
 				<liferay-ui:user-portrait
-					imageCssClass="user-icon-lg"
+					cssClass='<%= comment ? "user-icon-xs" : "" %>'
 					userId="<%= microblogsEntry.getUserId() %>"
 				/>
 			</span>
@@ -94,10 +96,11 @@ if (microblogsEntries != null) {
 				<div class="edit-container"><!-- --></div>
 
 				<div class="footer">
-					<span class="modified-date">
+					<div class="modified-date">
 						<%= dateFormatDateTime.format(microblogsEntry.getModifiedDate()) %>
-					</span>
-					<span class="action-container">
+					</div>
+
+					<div class="action-container">
 						<c:if test="<%= microblogsEntry.getType() != MicroblogsEntryConstants.TYPE_REPLY %>">
 
 							<%
@@ -152,7 +155,7 @@ if (microblogsEntries != null) {
 								<a href="<%= deleteURL %>"><liferay-ui:message key="delete" /></a>
 							</span>
 						</c:if>
-					</span>
+					</div>
 				</div>
 			</div>
 

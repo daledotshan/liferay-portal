@@ -117,12 +117,20 @@ public class FormatSourceTask extends JavaExec {
 		return _sourceFormatterArgs.isPrintErrors();
 	}
 
+	public boolean isShowDocumentation() {
+		return _sourceFormatterArgs.isShowDocumentation();
+	}
+
 	public boolean isThrowException() {
 		return _sourceFormatterArgs.isThrowException();
 	}
 
+	/**
+	 * @deprecated As of 1.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public boolean isUseProperties() {
-		return _sourceFormatterArgs.isUseProperties();
+		return false;
 	}
 
 	public void setAutoFix(boolean autoFix) {
@@ -178,12 +186,19 @@ public class FormatSourceTask extends JavaExec {
 		_sourceFormatterArgs.setProcessorThreadCount(processorThreadCount);
 	}
 
+	public void setShowDocumentation(boolean showDocumentation) {
+		_sourceFormatterArgs.setShowDocumentation(showDocumentation);
+	}
+
 	public void setThrowException(boolean throwException) {
 		_sourceFormatterArgs.setThrowException(throwException);
 	}
 
+	/**
+	 * @deprecated As of 1.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public void setUseProperties(boolean useProperties) {
-		_sourceFormatterArgs.setUseProperties(useProperties);
 	}
 
 	protected List<String> getCompleteArgs() {
@@ -196,13 +211,13 @@ public class FormatSourceTask extends JavaExec {
 		args.add("include.subrepositories=" + isIncludeSubrepositories());
 		args.add("max.line.length=" + getMaxLineLength());
 		args.add("processor.thread.count=" + getProcessorThreadCount());
+		args.add("show.documentation=" + isShowDocumentation());
 		args.add("source.auto.fix=" + isAutoFix());
 		args.add(
 			"source.copyright.file=" +
 				FileUtil.relativize(getCopyrightFile(), getWorkingDir()));
 		args.add("source.print.errors=" + isPrintErrors());
 		args.add("source.throw.exception=" + isThrowException());
-		args.add("source.use.properties=" + isUseProperties());
 
 		FileCollection fileCollection = getFiles();
 

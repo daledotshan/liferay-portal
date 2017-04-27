@@ -17,10 +17,10 @@ package com.liferay.portal.util;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.Html;
-import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.HashMap;
@@ -222,26 +222,29 @@ public class HtmlImpl implements Html {
 			prefix = "\\x";
 		}
 		else if (mode == ESCAPE_MODE_URL) {
-			return HttpUtil.encodeURL(text, true);
+			return URLCodec.encodeURL(text, true);
 		}
 		else {
 			return escape(text);
 		}
 
-		StringBuilder sb = new StringBuilder(text.length());
-
+		StringBuilder sb = null;
 		char[] hexBuffer = new char[4];
-
-		boolean modified = false;
+		int lastReplacementIndex = 0;
 
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);
 
 			if (c < _VALID_CHARS.length) {
-				if (_VALID_CHARS[c]) {
-					sb.append(c);
-				}
-				else {
+				if (!_VALID_CHARS[c]) {
+					if (sb == null) {
+						sb = new StringBuilder(text.length() + 64);
+					}
+
+					if (i > lastReplacementIndex) {
+						sb.append(text, lastReplacementIndex, i);
+					}
+
 					sb.append(prefix);
 
 					_appendHexChars(sb, hexBuffer, c);
@@ -260,27 +263,36 @@ public class HtmlImpl implements Html {
 						}
 					}
 
-					modified = true;
+					lastReplacementIndex = i + 1;
 				}
 			}
 			else if ((mode == ESCAPE_MODE_ATTRIBUTE) &&
 					 (!_isValidXmlCharacter(c) ||
 					  _isUnicodeCompatibilityCharacter(c))) {
 
+				if (sb == null) {
+					sb = new StringBuilder(text.length() + 64);
+				}
+
+				if (i > lastReplacementIndex) {
+					sb.append(text, lastReplacementIndex, i);
+				}
+
 				sb.append(CharPool.SPACE);
 
-				modified = true;
-			}
-			else {
-				sb.append(c);
+				lastReplacementIndex = i + 1;
 			}
 		}
 
-		if (modified) {
-			return sb.toString();
+		if (sb == null) {
+			return text;
 		}
 
-		return text;
+		if (lastReplacementIndex < text.length()) {
+			sb.append(text, lastReplacementIndex, text.length());
+		}
+
+		return sb.toString();
 	}
 
 	/**
@@ -468,7 +480,8 @@ public class HtmlImpl implements Html {
 
 	@Override
 	public String fromInputSafe(String text) {
-		return StringUtil.replace(text, "&amp;", "&");
+		return StringUtil.replace(
+			text, new String[] {"&amp;", "&quot;"}, new String[] {"&", "\""});
 	}
 
 	@Override

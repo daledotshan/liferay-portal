@@ -31,7 +31,7 @@ import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.trash.kernel.exception.RestoreEntryException;
@@ -57,19 +57,17 @@ import java.util.List;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * Implements trash handling for the wiki page entity.
  *
- * @author Eudaldo Alonso
- * @author Roberto Díaz
+ * @author     Eudaldo Alonso
+ * @author     Roberto Díaz
+ * @deprecated As of 1.1.0, moved to {@link
+ *             com.liferay.wiki.internal.trash.WikiPageTrashHandler}
  */
-@Component(
-	property = {"model.class.name=com.liferay.wiki.model.WikiPage"},
-	service = TrashHandler.class
-)
+@Deprecated
 public class WikiPageTrashHandler extends BaseWikiTrashHandler {
 
 	@Override
@@ -464,11 +462,11 @@ public class WikiPageTrashHandler extends BaseWikiTrashHandler {
 		WikiPage page = _wikiPageLocalService.getLatestPage(
 			classPK, WorkflowConstants.STATUS_ANY, false);
 
-		long plid = PortalUtil.getPlidFromPortletId(
+		long plid = _portal.getPlidFromPortletId(
 			page.getGroupId(), WikiPortletKeys.WIKI);
 
 		if (plid == LayoutConstants.DEFAULT_PLID) {
-			portletURL = PortalUtil.getControlPanelPortletURL(
+			portletURL = _portal.getControlPanelPortletURL(
 				portletRequest, WikiPortletKeys.WIKI_ADMIN,
 				PortletRequest.RENDER_PHASE);
 		}
@@ -522,6 +520,9 @@ public class WikiPageTrashHandler extends BaseWikiTrashHandler {
 	protected void setWikiPageService(WikiPageService wikiPageService) {
 		_wikiPageService = wikiPageService;
 	}
+
+	@Reference
+	private Portal _portal;
 
 	private WikiEngineRenderer _wikiEngineRenderer;
 	private WikiPageLocalService _wikiPageLocalService;

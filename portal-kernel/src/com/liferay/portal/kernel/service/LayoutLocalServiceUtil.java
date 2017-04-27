@@ -500,6 +500,11 @@ public class LayoutLocalServiceUtil {
 		return getService().deleteLayout(plid);
 	}
 
+	public static com.liferay.portal.kernel.model.Layout fetchDefaultLayout(
+		long groupId, boolean privateLayout) {
+		return getService().fetchDefaultLayout(groupId, privateLayout);
+	}
+
 	public static com.liferay.portal.kernel.model.Layout fetchFirstLayout(
 		long groupId, boolean privateLayout, long parentLayoutId) {
 		return getService()
@@ -524,6 +529,12 @@ public class LayoutLocalServiceUtil {
 		long groupId, boolean privateLayout, java.lang.String friendlyURL) {
 		return getService()
 				   .fetchLayoutByFriendlyURL(groupId, privateLayout, friendlyURL);
+	}
+
+	public static com.liferay.portal.kernel.model.Layout fetchLayoutByIconImageId(
+		boolean privateLayout, long iconImageId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().fetchLayoutByIconImageId(privateLayout, iconImageId);
 	}
 
 	/**
@@ -1353,6 +1364,12 @@ public class LayoutLocalServiceUtil {
 		long parentGroupId, boolean privateLayout)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getScopeGroupLayouts(parentGroupId, privateLayout);
+	}
+
+	public static java.util.Map<java.lang.Long, java.util.List<com.liferay.portal.kernel.model.Layout>> getLayoutChildLayouts(
+		com.liferay.portal.kernel.model.LayoutSet layoutSet,
+		java.util.List<com.liferay.portal.kernel.model.Layout> parentLayouts) {
+		return getService().getLayoutChildLayouts(layoutSet, parentLayouts);
 	}
 
 	/**

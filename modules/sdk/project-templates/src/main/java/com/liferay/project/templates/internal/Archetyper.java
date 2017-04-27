@@ -47,6 +47,7 @@ import org.apache.maven.archetype.DefaultArchetypeManager;
 import org.apache.maven.archetype.common.ArchetypeArtifactManager;
 import org.apache.maven.archetype.common.DefaultArchetypeArtifactManager;
 import org.apache.maven.archetype.common.DefaultArchetypeFilesResolver;
+import org.apache.maven.archetype.common.DefaultPomManager;
 import org.apache.maven.archetype.exception.UnknownArchetype;
 import org.apache.maven.archetype.generator.ArchetypeGenerator;
 import org.apache.maven.archetype.generator.DefaultArchetypeGenerator;
@@ -72,6 +73,7 @@ public class Archetyper {
 		throws Exception {
 
 		String artifactId = projectTemplatesArgs.getName();
+		String author = projectTemplatesArgs.getAuthor();
 		String className = projectTemplatesArgs.getClassName();
 		String contributorType = projectTemplatesArgs.getContributorType();
 		String hostBundleSymbolicName =
@@ -133,6 +135,7 @@ public class Archetyper {
 			_setProperty(properties, "apiPath", apiPath);
 		}
 
+		_setProperty(properties, "author", author);
 		_setProperty(properties, "buildType", "gradle");
 		_setProperty(properties, "className", className);
 		_setProperty(properties, "contributorType", contributorType);
@@ -210,6 +213,9 @@ public class Archetyper {
 		ReflectionUtil.setFieldValue(
 			DefaultFilesetArchetypeGenerator.class, "archetypeFilesResolver",
 			filesetArchetypeGenerator, new DefaultArchetypeFilesResolver());
+		ReflectionUtil.setFieldValue(
+			DefaultFilesetArchetypeGenerator.class, "pomManager",
+			filesetArchetypeGenerator, new DefaultPomManager());
 		ReflectionUtil.setFieldValue(
 			DefaultFilesetArchetypeGenerator.class, "velocity",
 			filesetArchetypeGenerator, _createVelocityComponent());

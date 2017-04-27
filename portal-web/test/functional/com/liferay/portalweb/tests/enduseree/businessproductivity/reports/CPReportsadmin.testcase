@@ -1,5 +1,6 @@
 <definition component-name="portal-business-productivity-ee">
 	<property name="portal.release" value="false" />
+	<property name="portal.upstream" value="true" />
 	<property name="test.run.environment" value="EE" />
 	<property name="testray.main.component.name" value="Reports" />
 
@@ -218,6 +219,8 @@
 		<property name="test.assert.javascript.errors" value="false" />
 		<property name="test.smtp.server.enabled" value="true" />
 
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesConfiguration">
@@ -265,7 +268,7 @@
 			<var name="subject" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
 		</execute>
 
-		<execute function="Open" locator1="http://localhost:8080" />
+		<execute function="Open" locator1="${portalURL}" />
 	</command>
 
 	<command name="DownloadReportCSV" priority="4">
@@ -580,6 +583,8 @@
 	<command name="ViewEmailNotificationDelivery" priority="4">
 		<property name="test.assert.javascript.errors" value="false" />
 
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
 		<execute macro="TestCase#getSiteName">
 			<return from="siteName" name="siteName" />
 			<var name="siteName" value="${siteName}" />
@@ -610,9 +615,10 @@
 		</execute>
 
 		<execute macro="ReportsAdmin#addReportEntry">
-			<var method="TestPropsUtil#get('email.address.2')" name="emailRecipientAddress" />
+			<var method="TestPropsUtil#get('email.address.2')" name="emailNotificationsAddress" />
 			<var name="emailRecipientAddress" value="test@liferay.com" />
 			<var name="reportFormat" value="pdf" />
+			<var name="reportName" value="Custom Report Name" />
 			<var name="reportsDefinitionName" value="Reports Definition Name" />
 		</execute>
 
@@ -627,37 +633,40 @@
 
 		<execute macro="Gmail#viewMail">
 			<var name="emailFromUserName" value="Joe Bloggs" />
-			<var name="gmailAssetType" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
+			<var name="gmailAssetType" value="New Report: Custom Report Name.pdf" />
 			<var name="gmailMessageBody" value="You have a new report." />
-			<var name="gmailMessageTitle" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
+			<var name="gmailMessageTitle" value="New Report: Custom Report Name.pdf" />
 		</execute>
 
-		<var name="key_gmailAssetType" value="New Report: reports_admin_template_source_sample_class_name.pdf" />
+		<var name="key_gmailAssetType" value="New Report: Custom Report Name.pdf" />
 		<var name="key_pageNameURL" value="report" />
 
 		<execute function="AssertClick#assertPartialTextClickAt" locator1="Gmail#GMAIL_HTML_MODE_MESSAGE_BODY_LINK" value1="report" />
 
 		<execute function="Pause" locator1="30000" />
 
-		<execute function="SelectWindow" locator1="title=Reports Admin - ${siteName}" />
+		<execute function="SelectWindow" locator1="title=Reports Definition Name - ${siteName}" />
 
 		<execute macro="ReportsAdmin#viewReportEntryFields">
 			<var name="dataSource" value="portal" />
 			<var name="reportsDefinitionDescription" value="Reports Definition Description" />
 			<var name="reportsDefinitionName" value="Reports Definition Name" />
-			<var name="reportsFileName" value="reports_admin_template_source_sample_class_name.pdf" />
+			<var name="reportsFileName" value="Custom Report Name.pdf" />
 			<var name="userName" value="Test Test" />
 		</execute>
 
-		<execute macro="Gmail#tearDown">
-			<var method="TestPropsUtil#get('email.address.2')" name="userEmailAddress" />
-			<var method="TestPropsUtil#get('email.password.2')" name="userPassword" />
+		<execute macro="Gmail#gotoHtmlMode" />
+
+		<execute macro="Gmail#deleteSpecificMail">
+			<var name="gmailMessageTitleList" value="New Report: Custom Report Name.pdf,Your New Account,Your New Password" />
 		</execute>
 
-		<execute function="Open" locator1="http://localhost:8080" />
+		<execute function="Open" locator1="${portalURL}" />
 	</command>
 
-	<command name="ViewEmailRecipientDelivery" priority="4">
+	<command ignore="true" name="ViewEmailRecipientDelivery" priority="4">
+		<var method="TestPropsUtil#get('portal.url')" name="portalURL" />
+
 		<property name="test.assert.javascript.errors" value="false" />
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
@@ -713,12 +722,13 @@
 
 		<execute function="AssertElementNotPresent" locator1="Gmail#GMAIL_HTML_MODE_MESSAGE_BODY_LINK" />
 
-		<execute macro="Gmail#tearDown">
-			<var method="TestPropsUtil#get('email.address.4')" name="userEmailAddress" />
-			<var method="TestPropsUtil#get('email.password.4')" name="userPassword" />
+		<execute macro="Gmail#gotoHtmlMode" />
+
+		<execute macro="Gmail#deleteSpecificMail">
+			<var name="gmailMessageTitleList" value="New Report: reports_admin_template_source_sample_class_name.pdf,Your New Account,Your New Password" />
 		</execute>
 
-		<execute function="Open" locator1="http://localhost:8080" />
+		<execute function="Open" locator1="${portalURL}" />
 	</command>
 
 	<command name="ViewReportDefinitionParametersFields" priority="3">

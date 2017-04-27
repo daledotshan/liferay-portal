@@ -417,7 +417,9 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	* Returns the trash handler for this document library file entry.
 	*
 	* @return the trash handler for this document library file entry
+	* @deprecated As of 7.0.0, with no direct replacement
 	*/
+	@Deprecated
 	@Override
 	public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
 		return _dlFileEntry.getTrashHandler();
@@ -715,9 +717,9 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	}
 
 	/**
-	* Returns the class p k of this document library file entry.
+	* Returns the class pk of this document library file entry.
 	*
-	* @return the class p k of this document library file entry
+	* @return the class pk of this document library file entry
 	*/
 	@Override
 	public long getClassPK() {
@@ -895,9 +897,9 @@ public class DLFileEntryWrapper implements DLFileEntry,
 	}
 
 	/**
-	* Sets the class p k of this document library file entry.
+	* Sets the class pk of this document library file entry.
 	*
-	* @param classPK the class p k of this document library file entry
+	* @param classPK the class pk of this document library file entry
 	*/
 	@Override
 	public void setClassPK(long classPK) {

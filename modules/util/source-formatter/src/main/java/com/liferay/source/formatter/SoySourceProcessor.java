@@ -14,8 +14,10 @@
 
 package com.liferay.source.formatter;
 
-import java.io.File;
+import com.liferay.source.formatter.checks.SourceCheck;
+import com.liferay.source.formatter.checks.WhitespaceCheck;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,21 +26,22 @@ import java.util.List;
 public class SoySourceProcessor extends BaseSourceProcessor {
 
 	@Override
-	public String[] getIncludes() {
+	protected List<String> doGetFileNames() throws Exception {
+		return getFileNames(new String[0], getIncludes());
+	}
+
+	@Override
+	protected String[] doGetIncludes() {
 		return _INCLUDES;
 	}
 
 	@Override
-	protected String doFormat(
-			File file, String fileName, String absolutePath, String content)
-		throws Exception {
+	protected List<SourceCheck> getSourceChecks() {
+		List<SourceCheck> sourceChecks = new ArrayList<>();
 
-		return trimContent(content, false);
-	}
+		sourceChecks.add(new WhitespaceCheck());
 
-	@Override
-	protected List<String> doGetFileNames() throws Exception {
-		return getFileNames(new String[0], getIncludes());
+		return sourceChecks;
 	}
 
 	private static final String[] _INCLUDES = new String[] {"**/*.soy"};

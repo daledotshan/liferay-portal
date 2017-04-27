@@ -1,8 +1,6 @@
 AUI.add(
 	'liferay-ddm-form-field-options',
 	function(A) {
-		var AArray = A.Array;
-
 		var Renderer = Liferay.DDM.Renderer;
 
 		var Util = Renderer.Util;
@@ -18,6 +16,11 @@ AUI.add(
 		var OptionsField = A.Component.create(
 			{
 				ATTRS: {
+
+					allowEmptyOptions: {
+						value: false
+					},
+
 					sortableList: {
 						valueFn: '_valueSortableList'
 					},
@@ -33,6 +36,8 @@ AUI.add(
 					},
 
 					value: {
+						setter: '_setValue',
+						validator: Array.isArray,
 						value: []
 					}
 				},
@@ -50,6 +55,7 @@ AUI.add(
 						instance._eventHandlers.push(
 							instance.on('liferay-ddm-form-field-key-value:destroy', instance._onDestroyOption),
 							instance.after('liferay-ddm-form-field-key-value:render', instance._afterRenderOption),
+							instance.after('liferay-ddm-form-field-key-value:blur', instance._afterBlur),
 							instance.after('liferay-ddm-form-field-key-value:valueChange', instance._afterOptionValueChange),
 							sortableList.after('drag:end', A.bind('_afterSortableListDragEnd', instance)),
 							sortableList.after('drag:start', A.bind('_afterSortableListDragStart', instance))
@@ -92,9 +98,7 @@ AUI.add(
 					eachOption: function(fn) {
 						var instance = this;
 
-						var mainOption = instance._mainOption;
-
-						mainOption.getRepeatedSiblings().forEach(fn, instance);
+						instance.getOptions().forEach(fn, instance);
 					},
 
 					empty: function() {
@@ -102,7 +106,7 @@ AUI.add(
 
 						var mainOption = instance._mainOption;
 
-						var options = mainOption.getRepeatedSiblings();
+						var options = instance.getOptions();
 
 						while (options.length > 1) {
 							var option = options[options.length - 1];
@@ -118,9 +122,23 @@ AUI.add(
 					getLastOption: function() {
 						var instance = this;
 
-						var repetitions = instance._mainOption.getRepeatedSiblings();
+						var options = instance.getOptions();
 
-						return repetitions[repetitions.length - 1];
+						return instance.getOption(options.length - 1);
+					},
+
+					getOption: function(index) {
+						var instance = this;
+
+						var options = instance.getOptions();
+
+						return options[index];
+					},
+
+					getOptions: function() {
+						var instance = this;
+
+						return instance._mainOption.getRepeatedSiblings();
 					},
 
 					getValue: function() {
@@ -135,7 +153,7 @@ AUI.add(
 								if (key) {
 									values.push(
 										{
-											label: item.getValue(),
+											label: item.get('value'),
 											value: key
 										}
 									);
@@ -174,20 +192,14 @@ AUI.add(
 						);
 					},
 
-					moveOption: function(option, oldIndex, newIndex) {
+					moveOption: function(oldIndex, newIndex) {
 						var instance = this;
 
-						var repetitions = option.getRepeatedSiblings();
+						var value = instance.getValue();
 
-						var value = instance.get('value');
+						value.splice(newIndex, 0, value.splice(oldIndex, 1)[0]);
 
-						instance._reorderOptions(repetitions, newIndex, oldIndex);
-
-						repetitions.forEach(A.bind('_syncRepeatableField', option));
-
-						instance._reorderOptions(value, newIndex, oldIndex);
-
-						instance.set('value', value);
+						instance.setValue(value);
 					},
 
 					processEvaluationContext: function(context) {
@@ -196,11 +208,32 @@ AUI.add(
 						var value = instance.getValue();
 
 						if (value.length === 0 && instance.get('required')) {
-							context.valid = false;
 							context.errorMessage = Liferay.Language.get('please-add-at-least-one-option');
+							context.valid = false;
 						}
 
 						return context;
+					},
+
+					removeOption: function(option) {
+						var instance = this;
+
+						var options = instance.getOptions();
+
+						var index = options.indexOf(option);
+
+						var value = instance.getValue();
+
+						value.splice(index, 1);
+
+						instance.setValue(value);
+
+						if (index > 0 && value.length > 0) {
+							options[index - 1].focus();
+						}
+						else {
+							instance.getLastOption().focus();
+						}
 					},
 
 					render: function() {
@@ -218,7 +251,7 @@ AUI.add(
 
 						if (!Util.compare(value, instance.get('value'))) {
 							instance.set('value', value);
-							instance._renderOptions(value);
+							instance._renderOptions(instance.get('value'));
 						}
 					},
 
@@ -242,6 +275,18 @@ AUI.add(
 						);
 					},
 
+					_afterBlur: function(event) {
+						var instance = this;
+
+						var value = instance.getValue();
+
+						if (value.length === 0 || value.length === 1 && value[0].label === '') {
+							value = [];
+						}
+
+						instance.set('value', value);
+					},
+
 					_afterErrorMessageChange: function(event) {
 						var instance = this;
 
@@ -250,14 +295,45 @@ AUI.add(
 						mainOption.set('errorMessage', event.newVal);
 					},
 
+					_afterOptionNormalizeKey: function(key, option) {
+						var instance = this;
+
+						var name = A.Do.originalRetVal;
+
+						if (name) {
+							var valueInItem = function(value, item) {
+								return item.value === value && item.value !== option.get('key');
+							};
+
+							var optionsValues = instance.getValue();
+
+							var hasOptionWithName = function() {
+								return optionsValues.filter(A.bind(valueInItem, null, name)).length > 0;
+							};
+
+							var counter = 0;
+
+							do {
+								if (counter > 0) {
+									name = A.Do.originalRetVal + counter;
+								}
+
+								counter++;
+							}
+							while (hasOptionWithName());
+						}
+
+						return new A.Do.AlterReturn(null, name);
+					},
+
 					_afterOptionValueChange: function(event) {
 						var instance = this;
 
-						var option = event.target;
+						if (instance._skipOptionValueChange) {
+							return;
+						}
 
-						var repetitions = option.getRepeatedSiblings();
-
-						if (option.get('repeatedIndex') === repetitions.length - 1) {
+						if (event.target === instance.getLastOption()) {
 							instance.addOption();
 						}
 
@@ -267,8 +343,6 @@ AUI.add(
 							instance.set('errorMessage', '');
 							instance.set('valid', true);
 						}
-
-						instance.set('value', value);
 					},
 
 					_afterRenderOption: function(event) {
@@ -283,23 +357,16 @@ AUI.add(
 					_afterSortableListDragEnd: function(event) {
 						var instance = this;
 
-						var dragNode = event.target.get('node');
-
-						var dragEndIndex = instance._getNodeIndex(dragNode);
+						var dragEndIndex = instance._getNodeIndex(event.target.get('node'));
 
 						var dragStartIndex = instance._dragStartIndex;
 
 						if (dragEndIndex !== dragStartIndex) {
-							var mainOption = instance._mainOption;
 
-							var option = AArray.find(
-								mainOption.getRepeatedSiblings(),
-								function(item) {
-									return item.get('container') === dragNode;
-								}
-							);
+							// Drag doesn't like that we are removing the node right after
+							// drag:end. So we postpone it to the next clock cycle.
 
-							instance.moveOption(option, dragStartIndex, dragEndIndex);
+							A.later(0, instance, instance.moveOption, [dragStartIndex, dragEndIndex]);
 						}
 					},
 
@@ -337,6 +404,8 @@ AUI.add(
 
 					_bindOptionUI: function(option) {
 						var instance = this;
+
+						option.after(A.rbind('_afterOptionNormalizeKey', instance, option), option, 'normalizeKey');
 
 						option.bindContainerEvent('click', A.bind('_onOptionClickClose', instance, option), '.close');
 					},
@@ -411,17 +480,7 @@ AUI.add(
 					_onOptionClickClose: function(option) {
 						var instance = this;
 
-						if (option === instance._mainOption) {
-							var repetitions = option.getRepeatedSiblings();
-
-							var index = repetitions.indexOf(option);
-
-							instance._mainOption = repetitions[index + 1];
-						}
-
-						option.remove();
-
-						instance.set('value', instance.getValue());
+						instance.removeOption(option);
 					},
 
 					_renderOptions: function(optionsValues) {
@@ -450,7 +509,7 @@ AUI.add(
 							}
 						);
 
-						if (optionsValues.length) {
+						if (optionsValues.length && optionsValues[optionsValues.length - 1].value) {
 							instance.addOption();
 						}
 					},
@@ -463,13 +522,37 @@ AUI.add(
 						container.append(TPL_DRAG_HANDLE + TPL_REMOVE_BUTTON);
 					},
 
-					_reorderOptions: function(options, newIndex, oldIndex) {
-						options.splice(newIndex, 0, options.splice(oldIndex, 1)[0]);
+					_restoreOption: function(option, contextValue) {
+						var instance = this;
+
+						instance._skipOptionValueChange = true;
+						option.set('value', contextValue.label);
+						option.set('key', contextValue.value);
+						option.setValue(contextValue.label);
+
+						if (contextValue.value && option.normalizeKey(contextValue.label) !== contextValue.value) {
+							option.set('generationLocked', true);
+						}
+						else {
+							option.set('generationLocked', false);
+						}
+
+						instance._skipOptionValueChange = false;
 					},
 
-					_restoreOption: function(option, contextValue) {
-						option.setValue(contextValue.label);
-						option.set('key', contextValue.value);
+					_setValue: function(val) {
+						var instance = this;
+
+						if (!instance.get('allowEmptyOptions') && val.length === 0) {
+							return [
+								{
+									label: 'Option',
+									value: 'Option'
+								}
+							];
+						}
+
+						return val;
 					},
 
 					_syncOptionUI: function(option) {

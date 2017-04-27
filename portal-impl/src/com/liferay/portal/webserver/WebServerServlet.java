@@ -39,6 +39,8 @@ import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.model.ImageConstants;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
@@ -61,7 +63,11 @@ import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ImageLocalServiceUtil;
 import com.liferay.portal.kernel.service.ImageServiceUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
+import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.InactiveRequestHandler;
@@ -103,6 +109,7 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.documentlibrary.util.DocumentConversionUtil;
 import com.liferay.trash.kernel.model.TrashEntry;
 import com.liferay.trash.kernel.util.TrashUtil;
+import com.liferay.users.admin.kernel.file.uploads.UserFileUploadsSettings;
 
 import java.awt.image.RenderedImage;
 
@@ -174,7 +181,12 @@ public class WebServerServlet extends HttpServlet {
 				}
 			}
 			else {
-				long groupId = _getGroupId(user.getCompanyId(), pathArray[0]);
+				Group group = _getGroup(user.getCompanyId(), pathArray[0]);
+
+				_checkDirectoryIndexingEnabled(group);
+
+				long groupId = group.getGroupId();
+
 				long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 
 				for (int i = 1; i < pathArray.length; i++) {
@@ -434,7 +446,7 @@ public class WebServerServlet extends HttpServlet {
 	}
 
 	protected Image getImage(HttpServletRequest request, boolean getDefault)
-		throws PortalException {
+		throws Exception {
 
 		Image image = null;
 
@@ -445,9 +457,65 @@ public class WebServerServlet extends HttpServlet {
 
 			String path = GetterUtil.getString(request.getPathInfo());
 
-			if (path.startsWith("/user_female_portrait") ||
-				path.startsWith("/user_male_portrait") ||
-				path.startsWith("/user_portrait")) {
+			if (path.startsWith("/layout_icon") || path.startsWith("/logo")) {
+				Layout layout = LayoutLocalServiceUtil.fetchLayoutByIconImageId(
+					true, imageId);
+
+				if (layout != null) {
+					User user = PortalUtil.getUser(request);
+
+					if (user == null) {
+						long companyId = PortalUtil.getCompanyId(request);
+
+						user = UserLocalServiceUtil.getDefaultUser(companyId);
+					}
+
+					PermissionChecker permissionChecker =
+						PermissionCheckerFactoryUtil.create(user);
+
+					if (!LayoutPermissionUtil.contains(
+							permissionChecker, layout, ActionKeys.VIEW)) {
+
+						throw new PrincipalException.MustHavePermission(
+							permissionChecker, Layout.class.getName(),
+							layout.getPlid(), ActionKeys.VIEW);
+					}
+				}
+			}
+			else if (path.startsWith("/layout_set_logo")) {
+				LayoutSet layoutSet =
+					LayoutSetLocalServiceUtil.fetchLayoutSetByLogoId(
+						true, imageId);
+
+				if (layoutSet != null) {
+					User user = PortalUtil.getUser(request);
+
+					if (user == null) {
+						long companyId = PortalUtil.getCompanyId(request);
+
+						user = UserLocalServiceUtil.getDefaultUser(companyId);
+					}
+
+					PermissionChecker permissionChecker =
+						PermissionCheckerFactoryUtil.create(user);
+
+					Group group = layoutSet.getGroup();
+
+					if (!group.isShowSite(
+							permissionChecker, layoutSet.isPrivateLayout()) &&
+						!GroupPermissionUtil.contains(
+							permissionChecker, layoutSet.getGroupId(),
+							ActionKeys.VIEW)) {
+
+						throw new PrincipalException.MustHavePermission(
+							permissionChecker, LayoutSet.class.getName(),
+							layoutSet.getLayoutSetId(), ActionKeys.VIEW);
+					}
+				}
+			}
+			else if (path.startsWith("/user_female_portrait") ||
+					 path.startsWith("/user_male_portrait") ||
+					 path.startsWith("/user_portrait")) {
 
 				image = getUserPortraitImageResized(image, imageId);
 			}
@@ -566,7 +634,7 @@ public class WebServerServlet extends HttpServlet {
 			}
 		}
 
-		if (PropsValues.USERS_IMAGE_CHECK_TOKEN && (imageId > 0)) {
+		if (_userFileUploadsSettings.isImageCheckToken() && (imageId > 0)) {
 			String imageIdToken = ParamUtil.getString(request, "img_id_token");
 
 			if (user == null) {
@@ -657,10 +725,13 @@ public class WebServerServlet extends HttpServlet {
 			return null;
 		}
 
-		if (((PropsValues.USERS_IMAGE_MAX_HEIGHT > 0) &&
-			 (image.getHeight() > PropsValues.USERS_IMAGE_MAX_HEIGHT)) ||
-			((PropsValues.USERS_IMAGE_MAX_WIDTH > 0) &&
-			 (image.getWidth() > PropsValues.USERS_IMAGE_MAX_WIDTH))) {
+		int usersImageMaxHeight = _userFileUploadsSettings.getImageMaxHeight();
+		int usersImageMaxWidth = _userFileUploadsSettings.getImageMaxWidth();
+
+		if (((usersImageMaxHeight > 0) &&
+			 (image.getHeight() > usersImageMaxHeight)) ||
+			((usersImageMaxWidth > 0) &&
+			 (image.getWidth() > usersImageMaxWidth))) {
 
 			User user = UserLocalServiceUtil.getUserByPortraitId(imageId);
 
@@ -773,20 +844,11 @@ public class WebServerServlet extends HttpServlet {
 			String path, String[] pathArray)
 		throws Exception {
 
-		long groupId = _getGroupId(user.getCompanyId(), pathArray[0]);
+		Group group = _getGroup(user.getCompanyId(), pathArray[0]);
 
-		Group group = GroupLocalServiceUtil.getGroup(groupId);
+		_checkDirectoryIndexingEnabled(group);
 
-		UnicodeProperties typeSettingsProperties =
-			group.getTypeSettingsProperties();
-
-		boolean directoryIndexingEnabled = GetterUtil.getBoolean(
-			typeSettingsProperties.getProperty("directoryIndexingEnabled"),
-			PropsValues.WEB_SERVER_SERVLET_DIRECTORY_INDEXING_ENABLED);
-
-		if (!directoryIndexingEnabled) {
-			throw new NoSuchFolderException();
-		}
+		long groupId = group.getGroupId();
 
 		long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 
@@ -818,8 +880,8 @@ public class WebServerServlet extends HttpServlet {
 			return;
 		}
 		catch (Exception e) {
-			if ((e instanceof NoSuchFileEntryException) ||
-				(e instanceof PrincipalException)) {
+			if (e instanceof NoSuchFileEntryException ||
+				e instanceof PrincipalException) {
 
 				try {
 					sendFile(response, user, groupId, folderId, "index.htm");
@@ -1149,13 +1211,15 @@ public class WebServerServlet extends HttpServlet {
 		List<Group> groups = WebDAVUtil.getGroups(user);
 
 		for (Group group : groups) {
-			String name = HttpUtil.fixPath(group.getFriendlyURL());
+			if (_isDirectoryIndexingEnabled(group)) {
+				String name = HttpUtil.fixPath(group.getFriendlyURL());
 
-			WebServerEntry webServerEntry = new WebServerEntry(
-				path, name + StringPool.SLASH, null, null,
-				group.getDescription(), 0);
+				WebServerEntry webServerEntry = new WebServerEntry(
+					path, name + StringPool.SLASH, null, null,
+					group.getDescription(), 0);
 
-			webServerEntries.add(webServerEntry);
+				webServerEntries.add(webServerEntry);
+			}
 		}
 
 		sendHTML(response, path, webServerEntries);
@@ -1277,6 +1341,20 @@ public class WebServerServlet extends HttpServlet {
 		}
 	}
 
+	private static void _checkDirectoryIndexingEnabled(Group group)
+		throws Exception {
+
+		if (!_isDirectoryIndexingEnabled(group)) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Directory indexing is not enabled for group " +
+						group.getGroupId());
+			}
+
+			throw new NoSuchFolderException();
+		}
+	}
+
 	private static void _checkFileEntry(String[] pathArray) throws Exception {
 		if (pathArray.length == 1) {
 			long fileShortcutId = GetterUtil.getLong(pathArray[0]);
@@ -1328,21 +1406,21 @@ public class WebServerServlet extends HttpServlet {
 		}
 	}
 
-	private static long _getGroupId(long companyId, String name)
+	private static Group _getGroup(long companyId, String name)
 		throws Exception {
 
 		Group group = GroupLocalServiceUtil.fetchFriendlyURLGroup(
 			companyId, StringPool.SLASH + name);
 
 		if (group != null) {
-			return group.getGroupId();
+			return group;
 		}
 
 		User user = UserLocalServiceUtil.getUserByScreenName(companyId, name);
 
 		group = user.getGroup();
 
-		return group.getGroupId();
+		return group;
 	}
 
 	private static User _getUser(HttpServletRequest request) throws Exception {
@@ -1375,6 +1453,15 @@ public class WebServerServlet extends HttpServlet {
 		}
 
 		return user;
+	}
+
+	private static boolean _isDirectoryIndexingEnabled(Group group) {
+		UnicodeProperties typeSettingsProperties =
+			group.getTypeSettingsProperties();
+
+		return GetterUtil.getBoolean(
+			typeSettingsProperties.getProperty("directoryIndexingEnabled"),
+			PropsValues.WEB_SERVER_SERVLET_DIRECTORY_INDEXING_ENABLED);
 	}
 
 	private Callable<Void> _createFileServingCallable(
@@ -1414,14 +1501,14 @@ public class WebServerServlet extends HttpServlet {
 
 						Image image = getImage(request, true);
 
-						if ((image.getCompanyId() != user.getCompanyId()) &&
-							_processCompanyInactiveRequest(
-								request, response, image.getCompanyId())) {
-
-							return null;
-						}
-
 						if (image != null) {
+							if ((image.getCompanyId() != user.getCompanyId()) &&
+								_processCompanyInactiveRequest(
+									request, response, image.getCompanyId())) {
+
+								return null;
+							}
+
 							writeImage(image, request, response);
 						}
 						else {
@@ -1480,6 +1567,10 @@ public class WebServerServlet extends HttpServlet {
 		ServiceProxyFactory.newServiceTrackedInstance(
 			InactiveRequestHandler.class, WebServerServlet.class,
 			"_inactiveRequesthandler", false);
+	private static volatile UserFileUploadsSettings _userFileUploadsSettings =
+		ServiceProxyFactory.newServiceTrackedInstance(
+			UserFileUploadsSettings.class, WebServerServlet.class,
+			"_userFileUploadsSettings", false);
 
 	private final Format _dateFormat =
 		FastDateFormatFactoryUtil.getSimpleDateFormat("d MMM yyyy HH:mm z");

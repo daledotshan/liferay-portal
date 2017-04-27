@@ -51,26 +51,18 @@ public abstract class BaseNavBarSearchTag extends com.liferay.taglib.util.Includ
 
 	public void setCssClass(java.lang.String cssClass) {
 		_cssClass = cssClass;
-
-		setScopedAttribute("cssClass", cssClass);
 	}
 
 	public void setFile(java.lang.String file) {
 		_file = file;
-
-		setScopedAttribute("file", file);
 	}
 
 	public void setId(java.lang.String id) {
 		_id = id;
-
-		setScopedAttribute("id", id);
 	}
 
 	public void setSearchContainer(com.liferay.portal.kernel.dao.search.SearchContainer<?> searchContainer) {
 		_searchContainer = searchContainer;
-
-		setScopedAttribute("searchContainer", searchContainer);
 	}
 
 	@Override
@@ -95,10 +87,10 @@ public abstract class BaseNavBarSearchTag extends com.liferay.taglib.util.Includ
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "file", _file);
-		setNamespacedAttribute(request, "id", _id);
-		setNamespacedAttribute(request, "searchContainer", _searchContainer);
+		request.setAttribute("aui:nav-bar-search:cssClass", _cssClass);
+		request.setAttribute("aui:nav-bar-search:file", _file);
+		request.setAttribute("aui:nav-bar-search:id", _id);
+		request.setAttribute("aui:nav-bar-search:searchContainer", _searchContainer);
 	}
 
 	protected static final String _ATTRIBUTE_NAMESPACE = "aui:nav-bar-search:";

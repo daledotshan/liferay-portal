@@ -71,6 +71,7 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("DDMStorageId", getDDMStorageId());
 		attributes.put("recordSetId", getRecordSetId());
+		attributes.put("recordSetVersion", getRecordSetVersion());
 		attributes.put("version", getVersion());
 		attributes.put("displayIndex", getDisplayIndex());
 		attributes.put("lastPublishDate", getLastPublishDate());
@@ -150,6 +151,12 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 
 		if (recordSetId != null) {
 			setRecordSetId(recordSetId);
+		}
+
+		String recordSetVersion = (String)attributes.get("recordSetVersion");
+
+		if (recordSetVersion != null) {
+			setRecordSetVersion(recordSetVersion);
 		}
 
 		String version = (String)attributes.get("version");
@@ -242,9 +249,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the display index of this d d l record.
+	* Returns the display index of this ddl record.
 	*
-	* @return the display index of this d d l record
+	* @return the display index of this ddl record
 	*/
 	@Override
 	public int getDisplayIndex() {
@@ -285,9 +292,19 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the user name of this d d l record.
+	* Returns the record set version of this ddl record.
 	*
-	* @return the user name of this d d l record
+	* @return the record set version of this ddl record
+	*/
+	@Override
+	public java.lang.String getRecordSetVersion() {
+		return _ddlRecord.getRecordSetVersion();
+	}
+
+	/**
+	* Returns the user name of this ddl record.
+	*
+	* @return the user name of this ddl record
 	*/
 	@Override
 	public java.lang.String getUserName() {
@@ -295,9 +312,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the user uuid of this d d l record.
+	* Returns the user uuid of this ddl record.
 	*
-	* @return the user uuid of this d d l record
+	* @return the user uuid of this ddl record
 	*/
 	@Override
 	public java.lang.String getUserUuid() {
@@ -305,9 +322,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the uuid of this d d l record.
+	* Returns the uuid of this ddl record.
 	*
-	* @return the uuid of this d d l record
+	* @return the uuid of this ddl record
 	*/
 	@Override
 	public java.lang.String getUuid() {
@@ -315,9 +332,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the version of this d d l record.
+	* Returns the version of this ddl record.
 	*
-	* @return the version of this d d l record
+	* @return the version of this ddl record
 	*/
 	@Override
 	public java.lang.String getVersion() {
@@ -325,9 +342,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the version user name of this d d l record.
+	* Returns the version user name of this ddl record.
 	*
-	* @return the version user name of this d d l record
+	* @return the version user name of this ddl record
 	*/
 	@Override
 	public java.lang.String getVersionUserName() {
@@ -335,9 +352,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the version user uuid of this d d l record.
+	* Returns the version user uuid of this ddl record.
 	*
-	* @return the version user uuid of this d d l record
+	* @return the version user uuid of this ddl record
 	*/
 	@Override
 	public java.lang.String getVersionUserUuid() {
@@ -355,9 +372,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the create date of this d d l record.
+	* Returns the create date of this ddl record.
 	*
-	* @return the create date of this d d l record
+	* @return the create date of this ddl record
 	*/
 	@Override
 	public Date getCreateDate() {
@@ -365,9 +382,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the last publish date of this d d l record.
+	* Returns the last publish date of this ddl record.
 	*
-	* @return the last publish date of this d d l record
+	* @return the last publish date of this ddl record
 	*/
 	@Override
 	public Date getLastPublishDate() {
@@ -375,9 +392,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the modified date of this d d l record.
+	* Returns the modified date of this ddl record.
 	*
-	* @return the modified date of this d d l record
+	* @return the modified date of this ddl record
 	*/
 	@Override
 	public Date getModifiedDate() {
@@ -392,9 +409,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the company ID of this d d l record.
+	* Returns the company ID of this ddl record.
 	*
-	* @return the company ID of this d d l record
+	* @return the company ID of this ddl record
 	*/
 	@Override
 	public long getCompanyId() {
@@ -402,9 +419,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the d d m storage ID of this d d l record.
+	* Returns the ddm storage ID of this ddl record.
 	*
-	* @return the d d m storage ID of this d d l record
+	* @return the ddm storage ID of this ddl record
 	*/
 	@Override
 	public long getDDMStorageId() {
@@ -412,9 +429,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the group ID of this d d l record.
+	* Returns the group ID of this ddl record.
 	*
-	* @return the group ID of this d d l record
+	* @return the group ID of this ddl record
 	*/
 	@Override
 	public long getGroupId() {
@@ -422,9 +439,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the primary key of this d d l record.
+	* Returns the primary key of this ddl record.
 	*
-	* @return the primary key of this d d l record
+	* @return the primary key of this ddl record
 	*/
 	@Override
 	public long getPrimaryKey() {
@@ -432,9 +449,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the record ID of this d d l record.
+	* Returns the record ID of this ddl record.
 	*
-	* @return the record ID of this d d l record
+	* @return the record ID of this ddl record
 	*/
 	@Override
 	public long getRecordId() {
@@ -442,9 +459,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the record set ID of this d d l record.
+	* Returns the record set ID of this ddl record.
 	*
-	* @return the record set ID of this d d l record
+	* @return the record set ID of this ddl record
 	*/
 	@Override
 	public long getRecordSetId() {
@@ -452,9 +469,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the user ID of this d d l record.
+	* Returns the user ID of this ddl record.
 	*
-	* @return the user ID of this d d l record
+	* @return the user ID of this ddl record
 	*/
 	@Override
 	public long getUserId() {
@@ -462,9 +479,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Returns the version user ID of this d d l record.
+	* Returns the version user ID of this ddl record.
 	*
-	* @return the version user ID of this d d l record
+	* @return the version user ID of this ddl record
 	*/
 	@Override
 	public long getVersionUserId() {
@@ -482,9 +499,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the company ID of this d d l record.
+	* Sets the company ID of this ddl record.
 	*
-	* @param companyId the company ID of this d d l record
+	* @param companyId the company ID of this ddl record
 	*/
 	@Override
 	public void setCompanyId(long companyId) {
@@ -492,9 +509,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the create date of this d d l record.
+	* Sets the create date of this ddl record.
 	*
-	* @param createDate the create date of this d d l record
+	* @param createDate the create date of this ddl record
 	*/
 	@Override
 	public void setCreateDate(Date createDate) {
@@ -502,9 +519,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the d d m storage ID of this d d l record.
+	* Sets the ddm storage ID of this ddl record.
 	*
-	* @param DDMStorageId the d d m storage ID of this d d l record
+	* @param DDMStorageId the ddm storage ID of this ddl record
 	*/
 	@Override
 	public void setDDMStorageId(long DDMStorageId) {
@@ -512,9 +529,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the display index of this d d l record.
+	* Sets the display index of this ddl record.
 	*
-	* @param displayIndex the display index of this d d l record
+	* @param displayIndex the display index of this ddl record
 	*/
 	@Override
 	public void setDisplayIndex(int displayIndex) {
@@ -538,9 +555,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the group ID of this d d l record.
+	* Sets the group ID of this ddl record.
 	*
-	* @param groupId the group ID of this d d l record
+	* @param groupId the group ID of this ddl record
 	*/
 	@Override
 	public void setGroupId(long groupId) {
@@ -548,9 +565,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the last publish date of this d d l record.
+	* Sets the last publish date of this ddl record.
 	*
-	* @param lastPublishDate the last publish date of this d d l record
+	* @param lastPublishDate the last publish date of this ddl record
 	*/
 	@Override
 	public void setLastPublishDate(Date lastPublishDate) {
@@ -558,9 +575,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the modified date of this d d l record.
+	* Sets the modified date of this ddl record.
 	*
-	* @param modifiedDate the modified date of this d d l record
+	* @param modifiedDate the modified date of this ddl record
 	*/
 	@Override
 	public void setModifiedDate(Date modifiedDate) {
@@ -573,9 +590,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the primary key of this d d l record.
+	* Sets the primary key of this ddl record.
 	*
-	* @param primaryKey the primary key of this d d l record
+	* @param primaryKey the primary key of this ddl record
 	*/
 	@Override
 	public void setPrimaryKey(long primaryKey) {
@@ -588,9 +605,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the record ID of this d d l record.
+	* Sets the record ID of this ddl record.
 	*
-	* @param recordId the record ID of this d d l record
+	* @param recordId the record ID of this ddl record
 	*/
 	@Override
 	public void setRecordId(long recordId) {
@@ -598,9 +615,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the record set ID of this d d l record.
+	* Sets the record set ID of this ddl record.
 	*
-	* @param recordSetId the record set ID of this d d l record
+	* @param recordSetId the record set ID of this ddl record
 	*/
 	@Override
 	public void setRecordSetId(long recordSetId) {
@@ -608,9 +625,19 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the user ID of this d d l record.
+	* Sets the record set version of this ddl record.
 	*
-	* @param userId the user ID of this d d l record
+	* @param recordSetVersion the record set version of this ddl record
+	*/
+	@Override
+	public void setRecordSetVersion(java.lang.String recordSetVersion) {
+		_ddlRecord.setRecordSetVersion(recordSetVersion);
+	}
+
+	/**
+	* Sets the user ID of this ddl record.
+	*
+	* @param userId the user ID of this ddl record
 	*/
 	@Override
 	public void setUserId(long userId) {
@@ -618,9 +645,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the user name of this d d l record.
+	* Sets the user name of this ddl record.
 	*
-	* @param userName the user name of this d d l record
+	* @param userName the user name of this ddl record
 	*/
 	@Override
 	public void setUserName(java.lang.String userName) {
@@ -628,9 +655,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the user uuid of this d d l record.
+	* Sets the user uuid of this ddl record.
 	*
-	* @param userUuid the user uuid of this d d l record
+	* @param userUuid the user uuid of this ddl record
 	*/
 	@Override
 	public void setUserUuid(java.lang.String userUuid) {
@@ -638,9 +665,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the uuid of this d d l record.
+	* Sets the uuid of this ddl record.
 	*
-	* @param uuid the uuid of this d d l record
+	* @param uuid the uuid of this ddl record
 	*/
 	@Override
 	public void setUuid(java.lang.String uuid) {
@@ -648,9 +675,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the version of this d d l record.
+	* Sets the version of this ddl record.
 	*
-	* @param version the version of this d d l record
+	* @param version the version of this ddl record
 	*/
 	@Override
 	public void setVersion(java.lang.String version) {
@@ -658,9 +685,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the version user ID of this d d l record.
+	* Sets the version user ID of this ddl record.
 	*
-	* @param versionUserId the version user ID of this d d l record
+	* @param versionUserId the version user ID of this ddl record
 	*/
 	@Override
 	public void setVersionUserId(long versionUserId) {
@@ -668,9 +695,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the version user name of this d d l record.
+	* Sets the version user name of this ddl record.
 	*
-	* @param versionUserName the version user name of this d d l record
+	* @param versionUserName the version user name of this ddl record
 	*/
 	@Override
 	public void setVersionUserName(java.lang.String versionUserName) {
@@ -678,9 +705,9 @@ public class DDLRecordWrapper implements DDLRecord, ModelWrapper<DDLRecord> {
 	}
 
 	/**
-	* Sets the version user uuid of this d d l record.
+	* Sets the version user uuid of this ddl record.
 	*
-	* @param versionUserUuid the version user uuid of this d d l record
+	* @param versionUserUuid the version user uuid of this ddl record
 	*/
 	@Override
 	public void setVersionUserUuid(java.lang.String versionUserUuid) {

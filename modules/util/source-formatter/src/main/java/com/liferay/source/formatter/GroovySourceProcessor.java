@@ -14,7 +14,8 @@
 
 package com.liferay.source.formatter;
 
-import java.io.IOException;
+import com.liferay.source.formatter.checks.SourceCheck;
+import com.liferay.source.formatter.checks.WhitespaceCheck;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,26 +23,11 @@ import java.util.List;
 /**
  * @author Hugo Huijser
  */
-public class GroovySourceProcessor extends JavaSourceProcessor {
-
-	@Override
-	public String[] getIncludes() {
-		return _INCLUDES;
-	}
-
-	@Override
-	protected void checkInefficientStringMethods(
-		String line, String fileName, String absolutePath, int lineCount,
-		boolean javaSource) {
-	}
-
-	@Override
-	protected void checkPackagePath(String fileName, String packagePath) {
-	}
+public class GroovySourceProcessor extends BaseSourceProcessor {
 
 	@Override
 	protected List<String> doGetFileNames() throws Exception {
-		if (!portalSource) {
+		if (!portalSource && !subrepository) {
 			return new ArrayList<>();
 		}
 
@@ -49,21 +35,17 @@ public class GroovySourceProcessor extends JavaSourceProcessor {
 	}
 
 	@Override
-	protected String fixCopyright(
-			String content, String absolutePath, String fileName,
-			String className)
-		throws IOException {
-
-		if (Character.isUpperCase(className.charAt(0))) {
-			return super.fixCopyright(
-				content, absolutePath, fileName, className);
-		}
-
-		return content;
+	protected String[] doGetIncludes() {
+		return _INCLUDES;
 	}
 
 	@Override
-	protected void postFormat() throws Exception {
+	protected List<SourceCheck> getSourceChecks() {
+		List<SourceCheck> sourceChecks = new ArrayList<>();
+
+		sourceChecks.add(new WhitespaceCheck());
+
+		return sourceChecks;
 	}
 
 	private static final String[] _INCLUDES = new String[] {"**/*.groovy"};

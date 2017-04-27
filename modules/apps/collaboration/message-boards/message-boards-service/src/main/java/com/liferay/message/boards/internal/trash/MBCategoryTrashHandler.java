@@ -21,6 +21,7 @@ import com.liferay.message.boards.kernel.service.MBThreadLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ContainerModel;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
@@ -33,11 +34,11 @@ import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.trash.TrashRendererFactory;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portlet.messageboards.service.permission.MBCategoryPermission;
 import com.liferay.portlet.messageboards.util.MBUtil;
-import com.liferay.trash.kernel.model.TrashEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -213,33 +214,6 @@ public class MBCategoryTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
-	public List<TrashRenderer> getTrashContainedModelTrashRenderers(
-			long classPK, int start, int end)
-		throws PortalException {
-
-		List<TrashRenderer> trashRenderers = new ArrayList<>();
-
-		MBCategory category = _mbCategoryLocalService.getCategory(classPK);
-
-		List<MBThread> threads = _mbThreadLocalService.getThreads(
-			category.getGroupId(), classPK, WorkflowConstants.STATUS_IN_TRASH,
-			start, end);
-
-		for (MBThread thread : threads) {
-			TrashHandler trashHandler =
-				TrashHandlerRegistryUtil.getTrashHandler(
-					MBThread.class.getName());
-
-			TrashRenderer trashRenderer = trashHandler.getTrashRenderer(
-				thread.getPrimaryKey());
-
-			trashRenderers.add(trashRenderer);
-		}
-
-		return trashRenderers;
-	}
-
-	@Override
 	public String getTrashContainerModelName() {
 		return "categories";
 	}
@@ -282,10 +256,52 @@ public class MBCategoryTrashHandler extends BaseTrashHandler {
 	}
 
 	@Override
-	public TrashEntry getTrashEntry(long classPK) throws PortalException {
+	public TrashedModel getTrashedModel(long classPK) {
+		return _mbCategoryLocalService.fetchMBCategory(classPK);
+	}
+
+	@Override
+	public int getTrashModelsCount(long classPK) throws PortalException {
 		MBCategory category = _mbCategoryLocalService.getCategory(classPK);
 
-		return category.getTrashEntry();
+		return _mbCategoryLocalService.getCategoriesAndThreadsCount(
+			category.getGroupId(), classPK, WorkflowConstants.STATUS_IN_TRASH);
+	}
+
+	@Override
+	public List<TrashedModel> getTrashModelTrashedModels(
+			long classPK, int start, int end, OrderByComparator<?> obc)
+		throws PortalException {
+
+		MBCategory category = _mbCategoryLocalService.getCategory(classPK);
+
+		List<Object> categoriesAndThreads =
+			_mbCategoryLocalService.getCategoriesAndThreads(
+				category.getGroupId(), classPK,
+				WorkflowConstants.STATUS_IN_TRASH, start, end);
+
+		List<TrashedModel> trashedModels = new ArrayList<>(
+			categoriesAndThreads.size());
+
+		for (Object categoryOrThread : categoriesAndThreads) {
+			if (categoryOrThread instanceof MBThread) {
+				MBThread mbThread = (MBThread)categoryOrThread;
+
+				trashedModels.add(mbThread);
+			}
+			else if (categoryOrThread instanceof MBCategory) {
+				MBCategory mbCategory = (MBCategory)categoryOrThread;
+
+				trashedModels.add(mbCategory);
+			}
+			else {
+				throw new IllegalStateException(
+					"Expected MBThread or MBCategory, received " +
+						categoryOrThread.getClass());
+			}
+		}
+
+		return trashedModels;
 	}
 
 	@Override
@@ -311,20 +327,6 @@ public class MBCategoryTrashHandler extends BaseTrashHandler {
 	@Override
 	public boolean isContainerModel() {
 		return true;
-	}
-
-	@Override
-	public boolean isInTrash(long classPK) throws PortalException {
-		MBCategory category = _mbCategoryLocalService.getCategory(classPK);
-
-		return category.isInTrash();
-	}
-
-	@Override
-	public boolean isInTrashContainer(long classPK) throws PortalException {
-		MBCategory category = _mbCategoryLocalService.getCategory(classPK);
-
-		return category.isInTrashContainer();
 	}
 
 	@Override
@@ -391,14 +393,14 @@ public class MBCategoryTrashHandler extends BaseTrashHandler {
 		String portletId = PortletProviderUtil.getPortletId(
 			MBCategory.class.getName(), PortletProvider.Action.EDIT);
 
-		long plid = PortalUtil.getPlidFromPortletId(
+		long plid = _portal.getPlidFromPortletId(
 			category.getGroupId(), portletId);
 
 		if (plid == LayoutConstants.DEFAULT_PLID) {
 			portletId = PortletProviderUtil.getPortletId(
 				MBCategory.class.getName(), PortletProvider.Action.MANAGE);
 
-			portletURL = PortalUtil.getControlPanelPortletURL(
+			portletURL = _portal.getControlPanelPortletURL(
 				portletRequest, portletId, PortletRequest.RENDER_PHASE);
 		}
 		else {
@@ -449,6 +451,10 @@ public class MBCategoryTrashHandler extends BaseTrashHandler {
 
 	private MBCategoryLocalService _mbCategoryLocalService;
 	private MBThreadLocalService _mbThreadLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private TrashRendererFactory _trashRendererFactory;
 
 }

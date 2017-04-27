@@ -14,7 +14,8 @@
 
 package com.liferay.journal.web.internal.upload;
 
-import com.liferay.document.library.kernel.exception.FileSizeException;
+import com.liferay.document.library.kernel.util.DLValidator;
+import com.liferay.journal.configuration.JournalFileUploadsConfiguration;
 import com.liferay.journal.service.permission.JournalPermission;
 import com.liferay.portal.kernel.exception.ImageTypeException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -31,10 +32,8 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.servlet.ServletResponseConstants;
 import com.liferay.portal.kernel.upload.BaseUploadHandler;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
-import com.liferay.portal.util.PrefsPropsUtil;
 
 import java.io.InputStream;
 
@@ -46,23 +45,25 @@ import javax.portlet.PortletResponse;
  */
 public class ImageJournalUploadHandler extends BaseUploadHandler {
 
+	public ImageJournalUploadHandler(
+		DLValidator dlValidator,
+		JournalFileUploadsConfiguration journalFileUploadsConfiguration) {
+
+		_dlValidator = dlValidator;
+		_journalFileUploadsConfiguration = journalFileUploadsConfiguration;
+	}
+
 	@Override
 	public void validateFile(String fileName, String contentType, long size)
 		throws PortalException {
 
-		long maxSize = PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE);
-
-		if ((maxSize > 0) && (size > maxSize)) {
-			throw new FileSizeException(
-				size + " exceeds its maximum permitted size of " + maxSize);
-		}
+		_dlValidator.validateFileSize(fileName, size);
 
 		String extension = FileUtil.getExtension(fileName);
 
-		String[] imageExtensions = PrefsPropsUtil.getStringArray(
-			PropsKeys.JOURNAL_IMAGE_EXTENSIONS, StringPool.COMMA);
+		for (String imageExtension :
+				_journalFileUploadsConfiguration.imageExtensions()) {
 
-		for (String imageExtension : imageExtensions) {
 			if (StringPool.STAR.equals(imageExtension) ||
 				imageExtension.equals(StringPool.PERIOD + extension)) {
 
@@ -159,5 +160,9 @@ public class ImageJournalUploadHandler extends BaseUploadHandler {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ImageJournalUploadHandler.class);
+
+	private final DLValidator _dlValidator;
+	private final JournalFileUploadsConfiguration
+		_journalFileUploadsConfiguration;
 
 }

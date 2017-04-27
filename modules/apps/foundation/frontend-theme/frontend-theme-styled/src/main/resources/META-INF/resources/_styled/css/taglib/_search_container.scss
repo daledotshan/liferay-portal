@@ -12,7 +12,7 @@
 	white-space: nowrap;
 }
 
-.lfr-description-column {
+.lfr-description-column, .lfr-role-column {
 	max-width: 375px;
 	min-width: 375px;
 }
@@ -20,6 +20,23 @@
 .lfr-email-address-column, .lfr-name-column, .lfr-parent-organization-column, .lfr-screen-name-column, .lfr-title-column, .lfr-url-column, .lfr-wiki-column {
 	max-width: 200px;
 	min-width: 200px;
+}
+
+.lfr-email-column, .lfr-website-column {
+	min-width: 100px;
+
+	@include sm {
+		min-width: 115px;
+	}
+
+	.checkbox-container .form-group {
+		margin-bottom: 0;
+	}
+}
+
+.lfr-role-column {
+	word-break: break-all \9;
+	word-wrap: break-word;
 }
 
 .user-info .user-details {

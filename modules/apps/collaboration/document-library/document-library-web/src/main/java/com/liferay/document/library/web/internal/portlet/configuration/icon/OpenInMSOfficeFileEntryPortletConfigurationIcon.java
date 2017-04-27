@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.theme.PortletDisplay;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -61,8 +61,7 @@ public class OpenInMSOfficeFileEntryPortletConfigurationIcon
 			WebKeys.THEME_DISPLAY);
 
 		ResourceBundle resourceBundle =
-			_resourceBundleLoader.loadResourceBundle(
-				themeDisplay.getLanguageId());
+			_resourceBundleLoader.loadResourceBundle(themeDisplay.getLocale());
 
 		return LanguageUtil.get(resourceBundle, "open-in-ms-office");
 	}
@@ -113,7 +112,7 @@ public class OpenInMSOfficeFileEntryPortletConfigurationIcon
 	@Override
 	public boolean isShow(PortletRequest portletRequest) {
 		try {
-			HttpServletRequest request = PortalUtil.getHttpServletRequest(
+			HttpServletRequest request = _portal.getHttpServletRequest(
 				portletRequest);
 
 			FileEntry fileEntry = ActionUtil.getFileEntry(portletRequest);
@@ -127,7 +126,7 @@ public class OpenInMSOfficeFileEntryPortletConfigurationIcon
 
 			ResourceBundle resourceBundle =
 				_resourceBundleLoader.loadResourceBundle(
-					themeDisplay.getLanguageId());
+					themeDisplay.getLocale());
 
 			UIItemsBuilder uiItemsBuilder = new UIItemsBuilder(
 				request, fileVersion, resourceBundle);
@@ -159,6 +158,9 @@ public class OpenInMSOfficeFileEntryPortletConfigurationIcon
 
 		_resourceBundleLoader = resourceBundleLoader;
 	}
+
+	@Reference
+	private Portal _portal;
 
 	private ResourceBundleLoader _resourceBundleLoader;
 

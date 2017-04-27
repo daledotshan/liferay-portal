@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluator;
-import com.liferay.dynamic.data.mapping.form.evaluator.impl.internal.DDMFormEvaluatorImpl;
+import com.liferay.dynamic.data.mapping.form.evaluator.internal.DDMFormEvaluatorImpl;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
@@ -27,35 +27,160 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormTestUtil;
+import com.liferay.dynamic.data.mapping.test.util.DDMFormValuesTestUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.mockito.Matchers;
+
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Marcellus Tavares
  */
+@PrepareForTest(ResourceBundleLoaderUtil.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor(
+	"com.liferay.portal.kernel.util.ResourceBundleLoaderUtil"
+)
 public class DDMFormPagesTemplateContextFactoryTest {
 
 	@Before
 	public void setUp() {
+		setUpResourceBundleLoaderUtil();
 		setUpLanguageUtil();
+	}
+
+	@Test
+	public void testDisablePages() {
+
+		// Dynamic data mapping form
+
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm();
+
+		ddmForm.addDDMFormRule(
+			new DDMFormRule("TRUE", Arrays.asList("jumpPage(0, 2)")));
+
+		ddmForm.addDDMFormField(
+			DDMFormTestUtil.createDDMFormField(
+				"Field1", "Field1", "text", "string", false, false, true));
+
+		ddmForm.addDDMFormField(
+			DDMFormTestUtil.createDDMFormField(
+				"Field2", "Field2", "text", "string", false, false, false));
+
+		ddmForm.addDDMFormField(
+			DDMFormTestUtil.createDDMFormField(
+				"Field3", "Field3", "text", "string", false, false, false));
+
+		// Dynamic data mapping form layout
+
+		DDMFormLayout ddmFormLayout = new DDMFormLayout();
+
+		DDMFormLayoutPage ddmFormLayoutPage1 = createDDMFormLayoutPage(
+			"Page 1", "Page 1 Description");
+
+		DDMFormLayoutRow ddmFormLayoutRow = new DDMFormLayoutRow();
+
+		ddmFormLayoutRow.setDDMFormLayoutColumns(
+			createDDMFormLayoutColumns("Field1"));
+
+		ddmFormLayoutPage1.addDDMFormLayoutRow(ddmFormLayoutRow);
+
+		ddmFormLayout.addDDMFormLayoutPage(ddmFormLayoutPage1);
+
+		DDMFormLayoutPage ddmFormLayoutPage2 = createDDMFormLayoutPage(
+			"Page 2", "Page 2 Description");
+
+		ddmFormLayoutRow = new DDMFormLayoutRow();
+
+		ddmFormLayoutRow.setDDMFormLayoutColumns(
+			createDDMFormLayoutColumns("Field2"));
+
+		ddmFormLayoutPage2.addDDMFormLayoutRow(ddmFormLayoutRow);
+
+		ddmFormLayout.addDDMFormLayoutPage(ddmFormLayoutPage2);
+
+		DDMFormLayoutPage ddmFormLayoutPage3 = createDDMFormLayoutPage(
+			"Page 3", "Page 3 Description");
+
+		ddmFormLayoutRow = new DDMFormLayoutRow();
+
+		ddmFormLayoutRow.setDDMFormLayoutColumns(
+			createDDMFormLayoutColumns("Field3"));
+
+		ddmFormLayoutPage3.addDDMFormLayoutRow(ddmFormLayoutRow);
+
+		ddmFormLayout.addDDMFormLayoutPage(ddmFormLayoutPage3);
+
+		// Dynamic data mapping form values
+
+		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
+			ddmForm);
+
+		ddmFormValues.addDDMFormFieldValue(
+			DDMFormValuesTestUtil.createUnlocalizedDDMFormFieldValue(
+				"Field1", "A"));
+
+		ddmFormValues.addDDMFormFieldValue(
+			DDMFormValuesTestUtil.createUnlocalizedDDMFormFieldValue(
+				"Field2", ""));
+
+		ddmFormValues.addDDMFormFieldValue(
+			DDMFormValuesTestUtil.createUnlocalizedDDMFormFieldValue(
+				"Field3", ""));
+
+		// Template context
+
+		DDMFormPagesTemplateContextFactory ddmFormPagesTemplateContextFactory =
+			createDDMFormPagesTemplateContextFactory(
+				ddmForm, ddmFormLayout, ddmFormValues, false, false);
+
+		List<Object> pagesTemplateContext =
+			ddmFormPagesTemplateContextFactory.create();
+
+		Assert.assertEquals(
+			pagesTemplateContext.toString(), 3, pagesTemplateContext.size());
+
+		Map<String, Object> page1TemplateContext =
+			(Map<String, Object>)pagesTemplateContext.get(0);
+
+		Assert.assertTrue(MapUtil.getBoolean(page1TemplateContext, "enabled"));
+
+		Map<String, Object> page2TemplateContext =
+			(Map<String, Object>)pagesTemplateContext.get(1);
+
+		Assert.assertFalse(MapUtil.getBoolean(page2TemplateContext, "enabled"));
+
+		Map<String, Object> page3TemplateContext =
+			(Map<String, Object>)pagesTemplateContext.get(2);
+
+		Assert.assertTrue(MapUtil.getBoolean(page3TemplateContext, "enabled"));
 	}
 
 	@Test
@@ -104,7 +229,7 @@ public class DDMFormPagesTemplateContextFactoryTest {
 
 		List<Object> pages = ddmFormPagesTemplateContextFactory.create();
 
-		Assert.assertEquals(1, pages.size());
+		Assert.assertEquals(pages.toString(), 1, pages.size());
 
 		Map<String, Object> page1 = (Map<String, Object>)pages.get(0);
 
@@ -113,13 +238,13 @@ public class DDMFormPagesTemplateContextFactoryTest {
 
 		List<Object> rows = (List<Object>)page1.get("rows");
 
-		Assert.assertEquals(3, rows.size());
+		Assert.assertEquals(rows.toString(), 3, rows.size());
 
 		Map<String, Object> row1 = (Map<String, Object>)rows.get(0);
 
 		List<Object> columnsRow1 = (List<Object>)row1.get("columns");
 
-		Assert.assertEquals(2, columnsRow1.size());
+		Assert.assertEquals(columnsRow1.toString(), 2, columnsRow1.size());
 
 		assertColumnSize(6, (Map<String, Object>)columnsRow1.get(0));
 		assertColumnSize(6, (Map<String, Object>)columnsRow1.get(1));
@@ -128,7 +253,7 @@ public class DDMFormPagesTemplateContextFactoryTest {
 
 		List<Object> columnsRow2 = (List<Object>)row2.get("columns");
 
-		Assert.assertEquals(1, columnsRow2.size());
+		Assert.assertEquals(columnsRow2.toString(), 1, columnsRow2.size());
 
 		assertColumnSize(12, (Map<String, Object>)columnsRow2.get(0));
 
@@ -136,7 +261,7 @@ public class DDMFormPagesTemplateContextFactoryTest {
 
 		List<Object> columnsRow3 = (List<Object>)row3.get("columns");
 
-		Assert.assertEquals(1, columnsRow3.size());
+		Assert.assertEquals(columnsRow3.toString(), 1, columnsRow3.size());
 
 		assertColumnSize(12, (Map<String, Object>)columnsRow3.get(0));
 	}
@@ -197,7 +322,8 @@ public class DDMFormPagesTemplateContextFactoryTest {
 		List<Object> pagesTemplateContext =
 			ddmFormPagesTemplateContextFactory.create();
 
-		Assert.assertEquals(2, pagesTemplateContext.size());
+		Assert.assertEquals(
+			pagesTemplateContext.toString(), 2, pagesTemplateContext.size());
 
 		Map<String, Object> page1TemplateContext =
 			(Map<String, Object>)pagesTemplateContext.get(0);
@@ -270,7 +396,8 @@ public class DDMFormPagesTemplateContextFactoryTest {
 		List<Object> pagesTemplateContext =
 			ddmFormPagesTemplateContextFactory.create();
 
-		Assert.assertEquals(2, pagesTemplateContext.size());
+		Assert.assertEquals(
+			pagesTemplateContext.toString(), 2, pagesTemplateContext.size());
 
 		Map<String, Object> page1TemplateContext =
 			(Map<String, Object>)pagesTemplateContext.get(0);
@@ -396,11 +523,24 @@ public class DDMFormPagesTemplateContextFactoryTest {
 		languageUtil.setLanguage(language);
 	}
 
+	protected void setUpResourceBundleLoaderUtil() {
+		PowerMockito.mockStatic(ResourceBundleLoaderUtil.class);
+
+		ResourceBundleLoader portalResourceBundleLoader = mock(
+			ResourceBundleLoader.class);
+
+		when(
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader()
+		).thenReturn(
+			portalResourceBundleLoader
+		);
+	}
+
 	protected void whenLanguageGet(
 		Language language, Locale locale, String key, String returnValue) {
 
 		when(
-			language.get(Matchers.eq(locale), Matchers.eq(key))
+			language.get(Matchers.any(ResourceBundle.class), Matchers.eq(key))
 		).thenReturn(
 			returnValue
 		);

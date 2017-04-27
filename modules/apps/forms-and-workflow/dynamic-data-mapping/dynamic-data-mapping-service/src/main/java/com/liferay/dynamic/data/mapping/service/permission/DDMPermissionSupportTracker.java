@@ -21,12 +21,13 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerCustomizer
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marcellus Tavares
@@ -38,7 +39,13 @@ public class DDMPermissionSupportTracker {
 			getDDMStructurePermissionSupportServiceWrapper(long classNameId)
 		throws PortalException {
 
-		String className = PortalUtil.getClassName(classNameId);
+		return getDDMStructurePermissionSupportServiceWrapper(
+			_portal.getClassName(classNameId));
+	}
+
+	public ServiceWrapper<DDMStructurePermissionSupport>
+			getDDMStructurePermissionSupportServiceWrapper(String className)
+		throws PortalException {
 
 		ServiceWrapper<DDMStructurePermissionSupport>
 			ddmStructurePermissionSupportServiceWrapper =
@@ -59,17 +66,24 @@ public class DDMPermissionSupportTracker {
 				long resourceClassNameId)
 		throws PortalException {
 
-		String className = PortalUtil.getClassName(resourceClassNameId);
+		return getDDMTemplatePermissionSupportServiceWrapper(
+			_portal.getClassName(resourceClassNameId));
+	}
+
+	public ServiceWrapper<DDMTemplatePermissionSupport>
+			getDDMTemplatePermissionSupportServiceWrapper(
+				String resourceClassName)
+		throws PortalException {
 
 		ServiceWrapper<DDMTemplatePermissionSupport>
 			ddmTemplatePermissionSupportServiceWrapper =
 				_ddmTemplatePermissionSupportServiceTrackerMap.getService(
-					className);
+					resourceClassName);
 
 		if (ddmTemplatePermissionSupportServiceWrapper == null) {
 			throw new PortalException(
 				"The model does not support DDMTemplate permission checking " +
-					className);
+					resourceClassName);
 		}
 
 		return ddmTemplatePermissionSupportServiceWrapper;
@@ -107,5 +121,8 @@ public class DDMPermissionSupportTracker {
 	private ServiceTrackerMap
 		<String, ServiceWrapper<DDMTemplatePermissionSupport>>
 			_ddmTemplatePermissionSupportServiceTrackerMap;
+
+	@Reference
+	private Portal _portal;
 
 }

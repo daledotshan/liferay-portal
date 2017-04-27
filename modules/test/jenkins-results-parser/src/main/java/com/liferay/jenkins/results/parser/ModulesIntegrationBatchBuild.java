@@ -14,6 +14,8 @@
 
 package com.liferay.jenkins.results.parser;
 
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -23,12 +25,12 @@ import java.util.Properties;
  */
 public class ModulesIntegrationBatchBuild extends BatchBuild {
 
-	public ModulesIntegrationBatchBuild(String url) throws Exception {
+	public ModulesIntegrationBatchBuild(String url) {
 		super(url);
 	}
 
-	public ModulesIntegrationBatchBuild(String url, TopLevelBuild topLevelBuild)
-		throws Exception {
+	public ModulesIntegrationBatchBuild(
+		String url, TopLevelBuild topLevelBuild) {
 
 		super(url, topLevelBuild);
 	}
@@ -46,6 +48,10 @@ public class ModulesIntegrationBatchBuild extends BatchBuild {
 
 		if (_notificationsComplete) {
 			return;
+		}
+
+		if (verifiedAxisBuilds == null) {
+			verifiedAxisBuilds = new ArrayList<>();
 		}
 
 		Build reinvokeErrorAxisBuild = null;
@@ -81,18 +87,17 @@ public class ModulesIntegrationBatchBuild extends BatchBuild {
 		}
 
 		if (reinvokeErrorAxisBuild != null) {
-			StringBuilder sb = new StringBuilder();
+			String body;
 			String subject = "Arquillian broken connection failure";
 
 			if (badBuildNumbers.size() == 0) {
-				sb.append("Arquillian broken connection failure ");
-				sb.append("detected at ");
-				sb.append(reinvokeErrorAxisBuild.getBuildURL());
-				sb.append(". This batch will be reinvoked.");
-				sb.append("\n\nError marker:\n");
-				sb.append(reinvokeErrorMarker);
+				body = JenkinsResultsParserUtil.combine(
+					"Arquillian broken connection failure detected at ",
+					reinvokeErrorAxisBuild.getBuildURL(),
+					". This batch will be reinvoked.\n\nError marker:\n",
+					reinvokeErrorMarker);
 
-				System.out.println(sb);
+				System.out.println(body);
 
 				reinvoke();
 			}
@@ -101,29 +106,27 @@ public class ModulesIntegrationBatchBuild extends BatchBuild {
 
 				List<String> badBuildURLs = getBadBuildURLs();
 
-				sb.append("Second Arquillian broken connection failure ");
-				sb.append("detected at ");
-				sb.append(reinvokeErrorAxisBuild.getBuildURL());
-				sb.append(". Previous failure was at ");
-				sb.append(badBuildURLs.get(0));
-				sb.append("\n\nError marker:\n");
-				sb.append(reinvokeErrorMarker);
+				body = JenkinsResultsParserUtil.combine(
+					"Second Arquillian broken connection failure detected at ",
+					reinvokeErrorAxisBuild.getBuildURL(),
+					". Previous failure was at ", badBuildURLs.get(0),
+					"\n\nError marker:\n", reinvokeErrorMarker);
 
-				System.out.println(sb);
+				System.out.println(body);
 
 				_notificationsComplete = true;
 			}
 
-			try {
+			/*try {
 				JenkinsResultsParserUtil.sendEmail(
-					sb.toString(),
+					body,
 					"root@" + JenkinsResultsParserUtil.getHostName("UNKNOWN"),
 					subject, "peter.yoo@liferay.com, shuyang.zhou@liferay.com");
 			}
 			catch (Exception e) {
 				System.out.println(
 					"Unable to send email notification: " + e.getMessage());
-			}
+			}*/
 		}
 	}
 
@@ -133,18 +136,34 @@ public class ModulesIntegrationBatchBuild extends BatchBuild {
 	}
 
 	protected String getReinvokeErrorMarker(int index) {
+		if (buildProperties == null) {
+			loadBuildProperties();
+		}
+
 		return buildProperties.getProperty(
 			getReinvokedErrorMarkerPropertyName(index));
 	}
 
 	protected boolean hasReinvokeErrorMarker(int index) {
+		if (buildProperties == null) {
+			loadBuildProperties();
+		}
+
 		return buildProperties.containsKey(
 			getReinvokedErrorMarkerPropertyName(index));
 	}
 
-	protected Properties buildProperties =
-		JenkinsResultsParserUtil.getBuildProperties();
-	protected List<Build> verifiedAxisBuilds = new ArrayList<>();
+	protected void loadBuildProperties() {
+		try {
+			buildProperties = JenkinsResultsParserUtil.getBuildProperties();
+		}
+		catch (IOException ioe) {
+			throw new RuntimeException("Unable to get build.properties.", ioe);
+		}
+	}
+
+	protected Properties buildProperties;
+	protected List<Build> verifiedAxisBuilds;
 
 	private static final String _REINVOKE_ERROR_MARKER_TEMPLATE =
 		"reinvoke.error.marker[modules-integration-?]";

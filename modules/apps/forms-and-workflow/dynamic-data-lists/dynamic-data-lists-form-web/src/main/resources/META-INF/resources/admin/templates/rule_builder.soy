@@ -25,9 +25,9 @@
 /**
  * Prints the DDL form card rule.
  *
+ * @param kebab
  * @param rules
  * @param strings
- * @param kebab
  */
 {template .rule_list  autoescape="deprecated-contextual"}
 	{if length($rules) > 0}
@@ -45,14 +45,16 @@
 
 							<b class="text-lowercase"><em> {$strings[$condition.operator]} </em></b>
 
-							{call .condition}
-								{param operandType: $condition.operands[1].type /}
-								{param operandValue: isNonnull($condition.operands[1].label) ? $condition.operands[1].label : $condition.operands[1].value /}
-							{/call}
+							{if $condition.operands[1]}
+								{call .condition}
+									{param operandType: $condition.operands[1].type /}
+									{param operandValue: isNonnull($condition.operands[1].label) ? $condition.operands[1].label : $condition.operands[1].value /}
+								{/call}
+							{/if}
 
 							{if not isLast($condition)}
-							, <br />
-							<b> and </b>
+								<br />
+								<b> {$rule.logicOperator} </b>
 							{/if}
 						{/foreach}
 
@@ -147,7 +149,10 @@
  * @param operandValue
  */
 {template .condition autoescape="deprecated-contextual"}
-	<span>{$operandType} </span>
+	{if $operandType != 'user' and $operandType != 'list'}
+		<span>{$operandType} </span>
+	{/if}
+
 	{call .badge}
 		{param content: $operandValue /}
 	{/call}
@@ -159,5 +164,5 @@
  * @param action
  */
 {template .action autoescape="deprecated-contextual"}
-	<b>{$action.action}</b> {call .badge} {param content: isNonnull($action.label) ? $action.label : $action.target /} {/call}
+	<b>{$action|noAutoescape}</b>
 {/template}

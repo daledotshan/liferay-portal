@@ -3,7 +3,7 @@
 The Node Gradle plugin lets you run [Node.js](https://nodejs.org/) and
 [NPM](https://www.npmjs.com/) as part of your build.
 
-The plugin has been successfully tested with Gradle 2.5 up to 3.2.1.
+The plugin has been successfully tested with Gradle 2.5 up to 3.3.
 
 ## Usage
 
@@ -12,7 +12,7 @@ To use the plugin, include it in your build script:
 ```gradle
 buildscript {
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.node", version: "1.4.0"
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.node", version: "2.2.0"
 	}
 
 	repositories {
@@ -39,6 +39,8 @@ Property Name | Type | Default Value | Description
 `nodeUrl` | `String` | `"http://nodejs.org/dist/v${node.nodeVersion}/node-v${node.nodeVersion}-${platform}-x${bitMode}.tar.gz"` | The URL of the Node.js distribution to download. If `download` is `false`, this property has no effect.
 `nodeVersion` | `String` | `"5.5.0"` | The version of the Node.js distribution to use. If `download` is `false`, this property has no effect.
 `npmArgs` | `List<String>` | `[]` | The arguments added automatically to every task of type [`ExecuteNpmTask`](#executenpmtask).
+`npmUrl` | `String` | `"https://registry.npmjs.org/npm/-/npm-${node.npmVersion}.tgz"` | The URL of the NPM version to download. If `download` is `false`, this property has no effect.
+`npmVersion` | `String` | `null` | The version of NPM to use. If `null`, the version of NPM embedded inside the Node.js distribution is used. If `download` is `false`, this property has no effect.
 
 It is possible to override the default value of the `download` property by
 setting the `nodeDownload` project property. For example, this can be done via
@@ -61,12 +63,14 @@ to defer evaluation until execution.
 
 ## Tasks
 
-The plugin adds two tasks to your project:
+The plugin adds four tasks to your project:
 
 Name | Depends On | Type | Description
 ---- | ---------- | ---- | -----------
+`cleanNPM` | \- | [`Delete`](https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Delete.html) | Deletes the `node_modules` directory and the `npm-shrinkwrap.json` file from the project, if present.
 <a name="downloadnode"></a>`downloadNode` | \- | [`DownloadNodeTask`](#downloadnodetask) | Downloads and unpacks the local Node.js distribution for the project. If `node.download` is `false`, this task is disabled.
-`npmInstall` | `downloadNode` | [`NpmInstallTask`](#npminstalltask) | Runs `npm install` to install the dependencies declared in the project's `package.json` file, if present.
+`npmInstall` | `downloadNode` | [`NpmInstallTask`](#npminstalltask) | Runs `npm install` to install the dependencies declared in the project's `package.json` file, if present. By default, the task is [configured](#npminstallretries) to run `npm install` 2 more times if it fails.
+`npmShrinkwrap` | `cleanNPM`, `npmInstall` | [`NpmShrinkwrapTask`](#npmshrinkwraptask) | Locks down the versions of a package's dependencies in order to control which dependency versions are used.
 
 ### DownloadNodeTask
 
@@ -79,6 +83,7 @@ Property Name | Type | Default Value | Description
 `nodeDir` | `File` | `null` | The directory where the Node.js distribution is unpacked.
 `nodeExeUrl` | `String` | `null` | The URL of `node.exe` to download when on Windows.
 `nodeUrl` | `String` | `null` | The URL of the Node.js distribution to download.
+`npmUrl` | `String` | `null` | The URL of the NPM version to download.
 
 The properties of type `File` support any type that can be resolved by [`project.file`](https://docs.gradle.org/current/dsl/org.gradle.api.Project.html#org.gradle.api.Project:file(java.css.Object)).
 Moreover, it is possible to use Closures and Callables as values for the
@@ -93,11 +98,11 @@ This is the base task to run Node.js in a Gradle build. All tasks of type
 
 Property Name | Type | Default Value | Description
 ------------- | ---- | ------------- | -----------
-`args` | `List<String>` | `[]` | The arguments for the Node.js invocation.
+`args` | `List<Object>` | `[]` | The arguments for the Node.js invocation.
 `command` | `String` | `"node"` | The file name of the executable to invoke.
 `inheritProxy` | `boolean` | `true` | Whether to set the `http_proxy`, `https_proxy`, and `no_proxy` environment variables in the Node.js invocation based on the values of the system properties `https.proxyHost`, `https.proxyPort`, `https.proxyUser`, `https.proxyPassword`, `https.nonProxyHosts`, `https.proxyHost`, `https.proxyPort`, `https.proxyUser`, `https.proxyPassword`, and `https.nonProxyHosts`. If these environment variables are already set, their values will not be overwritten.
 `nodeDir` | `File` | <p>**If [`node.download`](#download) is `true`:** [`node.nodeDir`](#nodedir)</p><p>**Otherwise:** `null`</p> | The directory that contains the executable to invoke. If `null`, the executable must be available in the system `PATH`.
-`npmInstallRetries` | `int` | `0` | The number of times the `node_modules` is deleted and `npm install` is retried in case the Node.js invocation defined by this task fails. This can help solving corrupted `node_modules` directories by re-downloading the project's dependencies.
+<a name="npminstallretries"></a>`npmInstallRetries` | `int` | `0` | The number of times the `node_modules` is deleted and `npm install` is retried in case the Node.js invocation defined by this task fails. This can help solving corrupted `node_modules` directories by re-downloading the project's dependencies.
 `useGradleExec` | `boolean` | <p>**If running in a [Gradle Daemon](https://docs.gradle.org/current/userguide/gradle_daemon.html):** `true`</p><p>**Otherwise:** `false`</p> | Whether to invoke Node.js using [`project.exec`](https://docs.gradle.org/current/dsl/org.gradle.api.Project.html#org.gradle.api.Project:exec(org.gradle.api.Action)), which can solve hanging problems with the Gradle Daemon.
 `workingDir` | `File` | `project.projectDir` | The working directory to use in the Node.js invocation.
 
@@ -143,6 +148,7 @@ Property Name | Default Value
 Property Name | Type | Default Value | Description
 ------------- | ---- | ------------- | -----------
 `cacheDir` | `File` | <p>**If `nodeDir` is `null`:** `null`</p><p>**Otherwise:** `"${nodeDir}/.cache"` | The location of NPM's cache directory. It sets the [`--cache`](https://docs.npmjs.com/misc/config#cache) argument. Leave the property `null` to keep the default value.
+`logLevel` | `String` | Value to mirror the log level set in the task's [`logger`](https://docs.gradle.org/current/dsl/org.gradle.api.Task.html#org.gradle.api.Task:logger) object. | The NPM log level. It sets the [--loglevel](https://docs.npmjs.com/misc/config#loglevel) argument.
 `progress` | `boolean` | `true` | Whether to show a progress bar during the NPM invocation. It sets the [`--progress`](https://docs.npmjs.com/misc/config#progress) argument.
 <a name="registry"></a>`registry` | `String` | `null` | The base URL of the NPM package registry. It sets the [`--registry`](https://docs.npmjs.com/misc/config#registry) argument. Leave the property `null` or empty to keep the default value.
 
@@ -156,7 +162,7 @@ The purpose of this task is to download a Node.js package. The packages are
 downloaded in the `${workingDir}/node_modules` directory, which is equal, by
 default, to the `node_modules` directory of the project. Tasks of type
 `DownloadNodeModuleTask` extend [`ExecuteNpmTask`](#executenpmtask) in order to
-execute the command `npm install ${moduleName}@${moduleVersion}`.
+execute the command [`npm install ${moduleName}@${moduleVersion}`](https://docs.npmjs.com/cli/install).
 
 `DownloadNodeModuleTask` instances are automatically disabled if the project's
 `package.json` file already lists a module with the same name in its
@@ -176,7 +182,7 @@ properties, to defer evaluation until task execution.
 
 Purpose of these tasks is to install the dependencies declared in a
 `package.json` file. Tasks of type `NpmInstallTask` extend
-[`ExecuteNpmTask`](#executenpmtask) in order to run the command `npm install`.
+[`ExecuteNpmTask`](#executenpmtask) in order to run the command [`npm install`](https://docs.npmjs.com/cli/install).
 
 `NpmInstallTask` instances are automatically disabled if the `package.json` file
 does not declare any dependency in the `dependency` or `devDependencies` object.
@@ -192,12 +198,40 @@ Property Name | Type | Default Value | Description
 
 The properties of type `File` support any type that can be resolved by [`project.file`](https://docs.gradle.org/current/dsl/org.gradle.api.Project.html#org.gradle.api.Project:file(java.css.Object)).
 
+### NpmShrinkwrapTask
+
+The purpose of this task is to lock down the versions of a package's
+dependencies so that you can control exactly which dependency versions are used
+when your package is installed. Tasks of type `NpmShrinkwrapTask` extend
+[`ExecuteNpmTask`](#executenpmtask) to execute the command
+[`npm shrinkwrap`](https://docs.npmjs.com/cli/shrinkwrap).
+
+The generated `npm-shrinkwrap.json` file is automatically sorted and formatted,
+so it's easier to see the changes with the previous version.
+
+#### Task Properties
+
+Property Name | Type | Default Value | Description
+------------- | ---- | ------------- | -----------
+`excludedDependencies` | `List<String>` | `[]` | The package names to exclude from the generated `npm-shrinkwrap.json` file.
+`includeDevDependencies` | `boolean` | `true` | Whether to include the package's `devDependencies`. It sets the [`--dev`](https://docs.npmjs.com/cli/shrinkwrap#other-notes) argument.
+
+It is possible to use Closures and Callables as values for the `String`
+properties to defer evaluation until task execution.
+
+#### Task Methods
+
+Method | Description
+------ | -----------
+`NpmShrinkwrapTask excludeDependencies(Iterable<?> excludedDependencies)` | Adds package names to exclude from the generated `npm-shrinkwrap.json` file.
+`NpmShrinkwrapTask excludeDependencies(Object... excludedDependencies)` | Adds package names to exclude from the generated `npm-shrinkwrap.json` file.
+
 ### PublishNodeModuleTask
 
 The purpose of this task is to publish a package to the
 [NPM registry](#https://www.npmjs.com/). Tasks of type `PublishNodeModuleTask`
 extend [`ExecuteNpmTask`](#executenpmtask) in order to execute the command
-`npm publish`.
+[`npm publish`](https://docs.npmjs.com/cli/publish).
 
 These tasks generate a new temporary `package.json` file in the root of the
 project directory, based on the values provided for the task properties. If the

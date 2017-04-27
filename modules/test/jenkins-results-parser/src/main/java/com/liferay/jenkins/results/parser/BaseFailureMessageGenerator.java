@@ -14,10 +14,12 @@
 
 package com.liferay.jenkins.results.parser;
 
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.tools.ant.Project;
+import org.dom4j.Element;
 
 /**
  * @author Peter Yoo
@@ -27,8 +29,40 @@ public abstract class BaseFailureMessageGenerator
 
 	@Override
 	public abstract String getMessage(
-			String buildURL, String consoleOutput, Project project)
-		throws Exception;
+		String buildURL, String consoleOutput, Hashtable<?, ?> properties);
+
+	@Override
+	public abstract Element getMessageElement(Build build);
+
+	protected Element getBaseBranchAnchorElement(TopLevelBuild topLevelBuild) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("https://github.com/");
+
+		String baseRepositoryName = topLevelBuild.getBaseRepositoryName();
+
+		Map<String, String> baseRepositoryGitDetailsTempMap =
+			topLevelBuild.getBaseGitRepositoryDetailsTempMap();
+
+		sb.append(baseRepositoryGitDetailsTempMap.get("github.origin.name"));
+
+		sb.append("/");
+		sb.append(baseRepositoryName);
+		sb.append("/tree/");
+		sb.append(
+			baseRepositoryGitDetailsTempMap.get("github.sender.branch.name"));
+
+		String url = sb.toString();
+
+		sb = new StringBuilder();
+
+		sb.append(baseRepositoryGitDetailsTempMap.get("github.origin.name"));
+		sb.append("/");
+		sb.append(
+			baseRepositoryGitDetailsTempMap.get("github.sender.branch.name"));
+
+		return Dom4JUtil.getNewAnchorElement(url, sb.toString());
+	}
 
 	protected String getConsoleOutputSnippet(
 		String consoleOutput, boolean truncateTop, int end) {
@@ -45,26 +79,57 @@ public abstract class BaseFailureMessageGenerator
 	protected String getConsoleOutputSnippet(
 		String consoleOutput, boolean truncateTop, int start, int end) {
 
-		if ((end - start) > 2500) {
-			if (truncateTop) {
-				start = end - 2500;
+		return "<pre><code>" +
+			_getConsoleOutputSnippet(consoleOutput, truncateTop, start, end) +
+				"</code></pre>";
+	}
 
-				start = consoleOutput.indexOf("\n", start);
-			}
-			else {
-				end = start + 2500;
+	protected Element getConsoleOutputSnippetElement(
+		String consoleOutput, boolean truncateTop, int end) {
 
-				end = consoleOutput.lastIndexOf("\n", end);
-			}
+		if (end == -1) {
+			end = consoleOutput.length();
 		}
 
-		consoleOutput = JenkinsResultsParserUtil.fixMarkdown(
-			consoleOutput.substring(start, end));
+		int start = getSnippetStart(consoleOutput, end);
 
-		consoleOutput = consoleOutput.replaceFirst("^\\s*\\n", "");
-		consoleOutput = consoleOutput.replaceFirst("\\n\\s*$", "");
+		return getConsoleOutputSnippetElement(
+			consoleOutput, truncateTop, start, end);
+	}
 
-		return "<pre><code>" + consoleOutput + "</code></pre>";
+	protected Element getConsoleOutputSnippetElement(
+		String consoleOutput, boolean truncateTop, int start, int end) {
+
+		return Dom4JUtil.toCodeSnippetElement(
+			_getConsoleOutputSnippet(consoleOutput, truncateTop, start, end));
+	}
+
+	protected Element getGitCommitPluginsAnchorElement(
+		TopLevelBuild topLevelBuild) {
+
+		String repositoryName = topLevelBuild.getBaseRepositoryName();
+
+		Map<String, String> portalRepositoryGitDetailsTempMap =
+			topLevelBuild.getBaseGitRepositoryDetailsTempMap();
+
+		Element gitCommitPluginsAnchorElement = Dom4JUtil.getNewElement("a");
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("https://github.com/");
+		sb.append(portalRepositoryGitDetailsTempMap.get("github.origin.name"));
+		sb.append("/");
+		sb.append(repositoryName);
+		sb.append("/blob/");
+		sb.append(
+			portalRepositoryGitDetailsTempMap.get("github.sender.branch.name"));
+		sb.append("/git-commit-plugins");
+
+		gitCommitPluginsAnchorElement.addAttribute("href", sb.toString());
+
+		gitCommitPluginsAnchorElement.addText("git-commit-plugins");
+
+		return gitCommitPluginsAnchorElement;
 	}
 
 	protected int getSnippetStart(String consoleOutput, int end) {
@@ -83,6 +148,30 @@ public abstract class BaseFailureMessageGenerator
 		}
 
 		return start;
+	}
+
+	private String _getConsoleOutputSnippet(
+		String consoleOutput, boolean truncateTop, int start, int end) {
+
+		if ((end - start) > 2500) {
+			if (truncateTop) {
+				start = end - 2500;
+
+				start = consoleOutput.indexOf("\n", start);
+			}
+			else {
+				end = start + 2500;
+
+				end = consoleOutput.lastIndexOf("\n", end);
+			}
+		}
+
+		consoleOutput = consoleOutput.substring(start, end);
+
+		consoleOutput = consoleOutput.replaceFirst("^\\s*\\n", "");
+		consoleOutput = consoleOutput.replaceFirst("\\n\\s*$", "");
+
+		return consoleOutput;
 	}
 
 	private static final Pattern _pattern = Pattern.compile(

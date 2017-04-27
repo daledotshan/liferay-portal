@@ -19,13 +19,11 @@ package com.liferay.jenkins.results.parser;
  */
 public class FunctionalBatchBuild extends BatchBuild {
 
-	public FunctionalBatchBuild(String url) throws Exception {
+	public FunctionalBatchBuild(String url) {
 		super(url);
 	}
 
-	public FunctionalBatchBuild(String url, TopLevelBuild topLevelBuild)
-		throws Exception {
-
+	public FunctionalBatchBuild(String url, TopLevelBuild topLevelBuild) {
 		super(url, topLevelBuild);
 	}
 
@@ -54,13 +52,11 @@ public class FunctionalBatchBuild extends BatchBuild {
 		}
 
 		if (failedAxisBuild != null) {
-			StringBuilder sb = new StringBuilder();
-
-			sb.append("Functional test failure detected at ");
-			sb.append(failedAxisBuild.getBuildURL());
-			sb.append(". This batch will be reinvoked.");
-
-			System.out.println(sb);
+			System.out.println(
+				JenkinsResultsParserUtil.combine(
+					"Functional test failure detected at ",
+					failedAxisBuild.getBuildURL(),
+					". This batch will be reinvoked."));
 
 			reinvoke();
 		}

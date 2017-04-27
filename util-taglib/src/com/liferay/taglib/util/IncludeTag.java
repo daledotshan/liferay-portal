@@ -14,7 +14,6 @@
 
 package com.liferay.taglib.util;
 
-import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.log.LogUtil;
@@ -23,7 +22,6 @@ import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
-import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
 import com.liferay.portal.kernel.servlet.TrackedServletRequest;
 import com.liferay.portal.kernel.servlet.taglib.TagDynamicIdFactory;
@@ -164,8 +162,6 @@ public class IncludeTag extends AttributesTagSupport {
 		setNamespacedAttribute(request, "bodyContent", getBodyContentWrapper());
 		setNamespacedAttribute(
 			request, "dynamicAttributes", getDynamicAttributes());
-		setNamespacedAttribute(
-			request, "scopedAttributes", getScopedAttributes());
 
 		setAttributes(request);
 	}
@@ -262,18 +258,10 @@ public class IncludeTag extends AttributesTagSupport {
 			return null;
 		}
 
-		Group group = null;
+		Group group = themeDisplay.getScopeGroup();
 
-		long scopeGroupId = themeDisplay.getScopeGroupId();
-
-		try {
-			group = StagingUtil.getLiveGroup(scopeGroupId);
-		}
-		catch (Exception e) {
-		}
-
-		if (group == null) {
-			group = GroupLocalServiceUtil.fetchGroup(scopeGroupId);
+		if (group.isStagingGroup() && !group.isStagedRemotely()) {
+			group = group.getLiveGroup();
 		}
 
 		UnicodeProperties typeSettingsProperties =
@@ -334,9 +322,8 @@ public class IncludeTag extends AttributesTagSupport {
 			TagDynamicIdFactoryRegistry.getTagDynamicIdFactory(tagClassName);
 
 		if (tagDynamicIdFactory != null) {
-			httpServletResponse = new PipingServletResponse(
-				(HttpServletResponse)pageContext.getResponse(),
-				pageContext.getOut());
+			httpServletResponse =
+				PipingServletResponse.createPipingServletResponse(pageContext);
 
 			tagDynamicId = tagDynamicIdFactory.getTagDynamicId(
 				request, httpServletResponse, this);
@@ -354,14 +341,19 @@ public class IncludeTag extends AttributesTagSupport {
 			}
 		}
 
-		request.setAttribute(
-			WebKeys.SERVLET_CONTEXT_INCLUDE_FILTER_STRICT, _strict);
+		if (_THEME_JSP_OVERRIDE_ENABLED) {
+			request.setAttribute(
+				WebKeys.SERVLET_CONTEXT_INCLUDE_FILTER_STRICT, _strict);
+		}
 
-		HttpServletResponse response = new PipingServletResponse(pageContext);
+		includePage(
+			page,
+			PipingServletResponse.createPipingServletResponse(pageContext));
 
-		includePage(page, response);
-
-		request.removeAttribute(WebKeys.SERVLET_CONTEXT_INCLUDE_FILTER_STRICT);
+		if (_THEME_JSP_OVERRIDE_ENABLED) {
+			request.removeAttribute(
+				WebKeys.SERVLET_CONTEXT_INCLUDE_FILTER_STRICT);
+		}
 
 		if (tagDynamicIdFactory != null) {
 			TagDynamicIncludeUtil.include(
@@ -400,7 +392,7 @@ public class IncludeTag extends AttributesTagSupport {
 	}
 
 	protected void logUnavailablePage(String page) {
-		if ((page == null) || !_log.isWarnEnabled()) {
+		if ((page == null) || !_log.isDebugEnabled()) {
 			return;
 		}
 
@@ -410,7 +402,8 @@ public class IncludeTag extends AttributesTagSupport {
 		sb.append(page);
 		sb.append(" in the context ");
 
-		String contextPath = servletContext.getContextPath();
+		String contextPath = PortalUtil.getPathContext(
+			servletContext.getContextPath());
 
 		if (contextPath.equals(StringPool.BLANK)) {
 			contextPath = StringPool.SLASH;
@@ -457,7 +450,7 @@ public class IncludeTag extends AttributesTagSupport {
 			}
 		}
 
-		_log.warn(sb.toString());
+		_log.debug(sb.toString());
 	}
 
 	protected int processEndTag() throws Exception {

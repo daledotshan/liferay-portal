@@ -204,23 +204,23 @@ if (portletTitleBasedNavigation) {
 					</aui:fieldset>
 				</div>
 
-				<c:if test="<%= (category == null) && PropsValues.CAPTCHA_CHECK_PORTLET_MESSAGE_BOARDS_EDIT_CATEGORY %>">
+				<c:if test="<%= (category == null) && captchaConfiguration.messageBoardsEditCategoryCaptchaEnabled() %>">
 					<portlet:resourceURL id="/message_boards/captcha" var="captchaURL" />
 
-					<liferay-ui:captcha url="<%= captchaURL %>" />
+					<liferay-captcha:captcha url="<%= captchaURL %>" />
 				</c:if>
 			</aui:fieldset>
 
-			<liferay-ui:custom-attributes-available className="<%= MBCategory.class.getName() %>">
+			<liferay-expando:custom-attributes-available className="<%= MBCategory.class.getName() %>">
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="custom-fields">
-					<liferay-ui:custom-attribute-list
+					<liferay-expando:custom-attribute-list
 						className="<%= MBCategory.class.getName() %>"
 						classPK="<%= (category != null) ? category.getCategoryId() : 0 %>"
 						editable="<%= true %>"
 						label="<%= true %>"
 					/>
 				</aui:fieldset>
-			</liferay-ui:custom-attributes-available>
+			</liferay-expando:custom-attributes-available>
 
 			<c:if test="<%= category == null %>">
 				<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" label="permissions">

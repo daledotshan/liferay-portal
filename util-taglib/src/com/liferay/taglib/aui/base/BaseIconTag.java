@@ -71,56 +71,38 @@ public abstract class BaseIconTag extends com.liferay.taglib.util.IncludeTag {
 
 	public void setCssClass(java.lang.String cssClass) {
 		_cssClass = cssClass;
-
-		setScopedAttribute("cssClass", cssClass);
 	}
 
 	public void setData(java.util.Map<java.lang.String, java.lang.Object> data) {
 		_data = data;
-
-		setScopedAttribute("data", data);
 	}
 
 	public void setId(java.lang.String id) {
 		_id = id;
-
-		setScopedAttribute("id", id);
 	}
 
 	public void setImage(java.lang.String image) {
 		_image = image;
-
-		setScopedAttribute("image", image);
 	}
 
 	public void setLabel(java.lang.String label) {
 		_label = label;
-
-		setScopedAttribute("label", label);
 	}
 
 	public void setMarkupView(java.lang.String markupView) {
 		_markupView = markupView;
-
-		setScopedAttribute("markupView", markupView);
 	}
 
 	public void setSrc(java.lang.String src) {
 		_src = src;
-
-		setScopedAttribute("src", src);
 	}
 
 	public void setTarget(java.lang.String target) {
 		_target = target;
-
-		setScopedAttribute("target", target);
 	}
 
 	public void setUrl(java.lang.String url) {
 		_url = url;
-
-		setScopedAttribute("url", url);
 	}
 
 	@Override
@@ -145,15 +127,15 @@ public abstract class BaseIconTag extends com.liferay.taglib.util.IncludeTag {
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
-		setNamespacedAttribute(request, "cssClass", _cssClass);
-		setNamespacedAttribute(request, "data", _data);
-		setNamespacedAttribute(request, "id", _id);
-		setNamespacedAttribute(request, "image", _image);
-		setNamespacedAttribute(request, "label", _label);
-		setNamespacedAttribute(request, "markupView", _markupView);
-		setNamespacedAttribute(request, "src", _src);
-		setNamespacedAttribute(request, "target", _target);
-		setNamespacedAttribute(request, "url", _url);
+		request.setAttribute("aui:icon:cssClass", _cssClass);
+		request.setAttribute("aui:icon:data", _data);
+		request.setAttribute("aui:icon:id", _id);
+		request.setAttribute("aui:icon:image", _image);
+		request.setAttribute("aui:icon:label", _label);
+		request.setAttribute("aui:icon:markupView", _markupView);
+		request.setAttribute("aui:icon:src", _src);
+		request.setAttribute("aui:icon:target", _target);
+		request.setAttribute("aui:icon:url", _url);
 	}
 
 	protected static final String _ATTRIBUTE_NAMESPACE = "aui:icon:";

@@ -206,6 +206,11 @@ public class DownloadFileHandler extends BaseHandler {
 			}
 			else {
 				if (exists && (boolean)getParameterValue("patch")) {
+					if (_logger.isDebugEnabled()) {
+						_logger.debug(
+							"Patching {}", syncFile.getFilePathName());
+					}
+
 					Files.copy(
 						filePath, tempFilePath,
 						StandardCopyOption.REPLACE_EXISTING);
@@ -338,8 +343,7 @@ public class DownloadFileHandler extends BaseHandler {
 		try {
 			HttpEntity httpEntity = httpResponse.getEntity();
 
-			inputStream = new CountingInputStream(
-				httpEntity.getContent()) {
+			inputStream = new CountingInputStream(httpEntity.getContent()) {
 
 				@Override
 				protected synchronized void afterRead(int n) {

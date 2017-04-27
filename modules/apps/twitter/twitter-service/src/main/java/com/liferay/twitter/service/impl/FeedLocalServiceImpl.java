@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -143,7 +144,8 @@ public class FeedLocalServiceImpl extends FeedLocalServiceBaseImpl {
 					throw new SystemException(pe);
 				}
 
-				long statusId = statusJSONObject.getLong("id");
+				long statusId = GetterUtil.getLong(
+					statusJSONObject.getString("id"));
 				String text = statusJSONObject.getString("text");
 
 				if (feed.getTwitterUserId() <= 0) {

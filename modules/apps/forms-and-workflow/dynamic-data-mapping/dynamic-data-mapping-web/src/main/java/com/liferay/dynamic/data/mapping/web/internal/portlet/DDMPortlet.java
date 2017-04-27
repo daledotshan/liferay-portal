@@ -51,7 +51,7 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -125,9 +125,9 @@ public class DDMPortlet extends MVCPortlet {
 		}
 		catch (Exception e) {
 			if (e instanceof NoSuchStructureException ||
+				e instanceof NoSuchTemplateException ||
 				e instanceof PortletPreferencesException ||
-				e instanceof PrincipalException ||
-				e instanceof NoSuchTemplateException) {
+				e instanceof PrincipalException) {
 
 				SessionErrors.add(actionRequest, e.getClass());
 
@@ -140,11 +140,11 @@ public class DDMPortlet extends MVCPortlet {
 					 e instanceof MustSetOptionsForField ||
 					 e instanceof MustSetValidCharactersForFieldName ||
 					 e instanceof RequiredStructureException ||
+					 e instanceof RequiredTemplateException ||
 					 e instanceof StructureDefinitionException ||
 					 e instanceof StructureDuplicateElementException ||
 					 e instanceof StructureNameException ||
 					 e instanceof TemplateNameException ||
-					 e instanceof RequiredTemplateException ||
 					 e instanceof TemplateNameException ||
 					 e instanceof TemplateScriptException ||
 					 e instanceof TemplateSmallImageNameException ||
@@ -155,7 +155,7 @@ public class DDMPortlet extends MVCPortlet {
 				if (e instanceof RequiredStructureException ||
 					e instanceof RequiredTemplateException) {
 
-					String redirect = PortalUtil.escapeRedirect(
+					String redirect = portal.escapeRedirect(
 						ParamUtil.getString(actionRequest, "redirect"));
 
 					if (Validator.isNotNull(redirect)) {
@@ -248,7 +248,7 @@ public class DDMPortlet extends MVCPortlet {
 		if ((classNameId > 0) && (classPK > 0)) {
 			DDMStructure structure = null;
 
-			long structureClassNameId = PortalUtil.getClassNameId(
+			long structureClassNameId = portal.getClassNameId(
 				DDMStructure.class);
 
 			if ((structureClassNameId == classNameId) && (classPK > 0)) {
@@ -296,6 +296,9 @@ public class DDMPortlet extends MVCPortlet {
 	protected volatile DDMStructureLocalService ddmStructureLocalService;
 	protected volatile DDMTemplateLocalService ddmTemplateLocalService;
 	protected volatile DDMWebConfiguration ddmWebConfiguration;
+
+	@Reference
+	protected Portal portal;
 
 	private static final Log _log = LogFactoryUtil.getLog(DDMPortlet.class);
 

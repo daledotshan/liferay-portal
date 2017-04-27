@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.service.persistence.CompanyProvider;
 import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -47,6 +48,8 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.io.Serializable;
+
+import java.lang.reflect.Field;
 
 import java.util.Collections;
 import java.util.Date;
@@ -59,7 +62,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The persistence implementation for the m d r rule group instance service.
+ * The persistence implementation for the mdr rule group instance service.
  *
  * <p>
  * Caching information and settings can be found in <code>portal.properties</code>
@@ -76,7 +79,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this class directly. Always use {@link MDRRuleGroupInstanceUtil} to access the m d r rule group instance persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
+	 * Never modify or reference this class directly. Always use {@link MDRRuleGroupInstanceUtil} to access the mdr rule group instance persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static final String FINDER_CLASS_NAME_ENTITY = MDRRuleGroupInstanceImpl.class.getName();
 	public static final String FINDER_CLASS_NAME_LIST_WITH_PAGINATION = FINDER_CLASS_NAME_ENTITY +
@@ -116,10 +119,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			new String[] { String.class.getName() });
 
 	/**
-	 * Returns all the m d r rule group instances where uuid = &#63;.
+	 * Returns all the mdr rule group instances where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the matching m d r rule group instances
+	 * @return the matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid(String uuid) {
@@ -127,16 +130,16 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances where uuid = &#63;.
+	 * Returns a range of all the mdr rule group instances where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid(String uuid, int start, int end) {
@@ -144,17 +147,17 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where uuid = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid(String uuid, int start,
@@ -163,18 +166,18 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where uuid = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where uuid = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid(String uuid, int start,
@@ -294,12 +297,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where uuid = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByUuid_First(String uuid,
@@ -325,11 +328,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where uuid = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByUuid_First(String uuid,
@@ -345,12 +348,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where uuid = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByUuid_Last(String uuid,
@@ -376,11 +379,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where uuid = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByUuid_Last(String uuid,
@@ -402,13 +405,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set where uuid = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set where uuid = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] findByUuid_PrevAndNext(
@@ -564,7 +567,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes all the m d r rule group instances where uuid = &#63; from the database.
+	 * Removes all the mdr rule group instances where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 */
@@ -577,10 +580,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where uuid = &#63;.
+	 * Returns the number of mdr rule group instances where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the number of matching m d r rule group instances
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByUuid(String uuid) {
@@ -657,12 +660,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the m d r rule group instance where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchRuleGroupInstanceException} if it could not be found.
+	 * Returns the mdr rule group instance where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchRuleGroupInstanceException} if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByUUID_G(String uuid, long groupId)
@@ -693,11 +696,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the mdr rule group instance where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByUUID_G(String uuid, long groupId) {
@@ -705,12 +708,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the mdr rule group instance where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByUUID_G(String uuid, long groupId,
@@ -811,11 +814,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes the m d r rule group instance where uuid = &#63; and groupId = &#63; from the database.
+	 * Removes the mdr rule group instance where uuid = &#63; and groupId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the m d r rule group instance that was removed
+	 * @return the mdr rule group instance that was removed
 	 */
 	@Override
 	public MDRRuleGroupInstance removeByUUID_G(String uuid, long groupId)
@@ -826,11 +829,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where uuid = &#63; and groupId = &#63;.
+	 * Returns the number of mdr rule group instances where uuid = &#63; and groupId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the number of matching m d r rule group instances
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
@@ -923,11 +926,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns all the m d r rule group instances where uuid = &#63; and companyId = &#63;.
+	 * Returns all the mdr rule group instances where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the matching m d r rule group instances
+	 * @return the matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid_C(String uuid, long companyId) {
@@ -936,7 +939,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances where uuid = &#63; and companyId = &#63;.
+	 * Returns a range of all the mdr rule group instances where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -944,9 +947,9 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid_C(String uuid, long companyId,
@@ -955,7 +958,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -963,10 +966,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid_C(String uuid, long companyId,
@@ -976,7 +979,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -984,11 +987,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByUuid_C(String uuid, long companyId,
@@ -1118,13 +1121,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByUuid_C_First(String uuid, long companyId,
@@ -1153,12 +1156,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByUuid_C_First(String uuid,
@@ -1175,13 +1178,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByUuid_C_Last(String uuid, long companyId,
@@ -1210,12 +1213,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByUuid_C_Last(String uuid, long companyId,
@@ -1237,14 +1240,14 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] findByUuid_C_PrevAndNext(
@@ -1404,7 +1407,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes all the m d r rule group instances where uuid = &#63; and companyId = &#63; from the database.
+	 * Removes all the mdr rule group instances where uuid = &#63; and companyId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
@@ -1418,11 +1421,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where uuid = &#63; and companyId = &#63;.
+	 * Returns the number of mdr rule group instances where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the number of matching m d r rule group instances
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByUuid_C(String uuid, long companyId) {
@@ -1514,10 +1517,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			new String[] { Long.class.getName() });
 
 	/**
-	 * Returns all the m d r rule group instances where groupId = &#63;.
+	 * Returns all the mdr rule group instances where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the matching m d r rule group instances
+	 * @return the matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByGroupId(long groupId) {
@@ -1525,16 +1528,16 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances where groupId = &#63;.
+	 * Returns a range of all the mdr rule group instances where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByGroupId(long groupId, int start,
@@ -1543,17 +1546,17 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where groupId = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByGroupId(long groupId, int start,
@@ -1562,18 +1565,18 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where groupId = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByGroupId(long groupId, int start,
@@ -1679,12 +1682,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where groupId = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByGroupId_First(long groupId,
@@ -1710,11 +1713,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where groupId = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByGroupId_First(long groupId,
@@ -1730,12 +1733,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where groupId = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByGroupId_Last(long groupId,
@@ -1761,11 +1764,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where groupId = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByGroupId_Last(long groupId,
@@ -1787,13 +1790,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set where groupId = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set where groupId = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] findByGroupId_PrevAndNext(
@@ -1935,10 +1938,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns all the m d r rule group instances that the user has permission to view where groupId = &#63;.
+	 * Returns all the mdr rule group instances that the user has permission to view where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the matching m d r rule group instances that the user has permission to view
+	 * @return the matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> filterFindByGroupId(long groupId) {
@@ -1947,16 +1950,16 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances that the user has permission to view where groupId = &#63;.
+	 * Returns a range of all the mdr rule group instances that the user has permission to view where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances that the user has permission to view
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> filterFindByGroupId(long groupId,
@@ -1965,17 +1968,17 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances that the user has permissions to view where groupId = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances that the user has permissions to view where groupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances that the user has permission to view
+	 * @return the ordered range of matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> filterFindByGroupId(long groupId,
@@ -2061,13 +2064,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set of m d r rule group instances that the user has permission to view where groupId = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set of mdr rule group instances that the user has permission to view where groupId = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] filterFindByGroupId_PrevAndNext(
@@ -2250,7 +2253,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes all the m d r rule group instances where groupId = &#63; from the database.
+	 * Removes all the mdr rule group instances where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
 	 */
@@ -2263,10 +2266,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where groupId = &#63;.
+	 * Returns the number of mdr rule group instances where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the number of matching m d r rule group instances
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByGroupId(long groupId) {
@@ -2314,10 +2317,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances that the user has permission to view where groupId = &#63;.
+	 * Returns the number of mdr rule group instances that the user has permission to view where groupId = &#63;.
 	 *
 	 * @param groupId the group ID
-	 * @return the number of matching m d r rule group instances that the user has permission to view
+	 * @return the number of matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public int filterCountByGroupId(long groupId) {
@@ -2386,10 +2389,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			new String[] { Long.class.getName() });
 
 	/**
-	 * Returns all the m d r rule group instances where ruleGroupId = &#63;.
+	 * Returns all the mdr rule group instances where ruleGroupId = &#63;.
 	 *
 	 * @param ruleGroupId the rule group ID
-	 * @return the matching m d r rule group instances
+	 * @return the matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByRuleGroupId(long ruleGroupId) {
@@ -2398,16 +2401,16 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances where ruleGroupId = &#63;.
+	 * Returns a range of all the mdr rule group instances where ruleGroupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param ruleGroupId the rule group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByRuleGroupId(long ruleGroupId,
@@ -2416,17 +2419,17 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where ruleGroupId = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where ruleGroupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param ruleGroupId the rule group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByRuleGroupId(long ruleGroupId,
@@ -2437,18 +2440,18 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where ruleGroupId = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where ruleGroupId = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param ruleGroupId the rule group ID
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByRuleGroupId(long ruleGroupId,
@@ -2555,12 +2558,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where ruleGroupId = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where ruleGroupId = &#63;.
 	 *
 	 * @param ruleGroupId the rule group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByRuleGroupId_First(long ruleGroupId,
@@ -2586,11 +2589,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where ruleGroupId = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where ruleGroupId = &#63;.
 	 *
 	 * @param ruleGroupId the rule group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByRuleGroupId_First(long ruleGroupId,
@@ -2606,12 +2609,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where ruleGroupId = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where ruleGroupId = &#63;.
 	 *
 	 * @param ruleGroupId the rule group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByRuleGroupId_Last(long ruleGroupId,
@@ -2637,11 +2640,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where ruleGroupId = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where ruleGroupId = &#63;.
 	 *
 	 * @param ruleGroupId the rule group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByRuleGroupId_Last(long ruleGroupId,
@@ -2663,13 +2666,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set where ruleGroupId = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set where ruleGroupId = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param ruleGroupId the rule group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] findByRuleGroupId_PrevAndNext(
@@ -2812,7 +2815,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes all the m d r rule group instances where ruleGroupId = &#63; from the database.
+	 * Removes all the mdr rule group instances where ruleGroupId = &#63; from the database.
 	 *
 	 * @param ruleGroupId the rule group ID
 	 */
@@ -2825,10 +2828,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where ruleGroupId = &#63;.
+	 * Returns the number of mdr rule group instances where ruleGroupId = &#63;.
 	 *
 	 * @param ruleGroupId the rule group ID
-	 * @return the number of matching m d r rule group instances
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByRuleGroupId(long ruleGroupId) {
@@ -2899,11 +2902,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns all the m d r rule group instances where classNameId = &#63; and classPK = &#63;.
+	 * Returns all the mdr rule group instances where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the matching m d r rule group instances
+	 * @param classPK the class pk
+	 * @return the matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByC_C(long classNameId, long classPK) {
@@ -2912,17 +2915,17 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances where classNameId = &#63; and classPK = &#63;.
+	 * Returns a range of all the mdr rule group instances where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByC_C(long classNameId, long classPK,
@@ -2931,18 +2934,18 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByC_C(long classNameId, long classPK,
@@ -2953,19 +2956,19 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByC_C(long classNameId, long classPK,
@@ -3081,13 +3084,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByC_C_First(long classNameId, long classPK,
@@ -3116,12 +3119,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByC_C_First(long classNameId,
@@ -3137,13 +3140,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByC_C_Last(long classNameId, long classPK,
@@ -3172,12 +3175,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByC_C_Last(long classNameId, long classPK,
@@ -3199,14 +3202,14 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set where classNameId = &#63; and classPK = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] findByC_C_PrevAndNext(
@@ -3353,10 +3356,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes all the m d r rule group instances where classNameId = &#63; and classPK = &#63; from the database.
+	 * Removes all the mdr rule group instances where classNameId = &#63; and classPK = &#63; from the database.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 */
 	@Override
 	public void removeByC_C(long classNameId, long classPK) {
@@ -3367,11 +3370,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where classNameId = &#63; and classPK = &#63;.
+	 * Returns the number of mdr rule group instances where classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the number of matching m d r rule group instances
+	 * @param classPK the class pk
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByC_C(long classNameId, long classPK) {
@@ -3452,12 +3455,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			});
 
 	/**
-	 * Returns all the m d r rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns all the mdr rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the matching m d r rule group instances
+	 * @param classPK the class pk
+	 * @return the matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByG_C_C(long groupId,
@@ -3467,7 +3470,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns a range of all the mdr rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3475,10 +3478,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByG_C_C(long groupId,
@@ -3487,7 +3490,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3495,11 +3498,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByG_C_C(long groupId,
@@ -3510,7 +3513,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3518,12 +3521,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of matching m d r rule group instances
+	 * @return the ordered range of matching mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findByG_C_C(long groupId,
@@ -3644,14 +3647,14 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByG_C_C_First(long groupId,
@@ -3684,13 +3687,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the first m d r rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the first mdr rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the first matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByG_C_C_First(long groupId,
@@ -3707,14 +3710,14 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByG_C_C_Last(long groupId,
@@ -3747,13 +3750,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the last m d r rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the last mdr rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the last matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByG_C_C_Last(long groupId,
@@ -3776,15 +3779,15 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] findByG_C_C_PrevAndNext(
@@ -3935,12 +3938,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns all the m d r rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns all the mdr rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the matching m d r rule group instances that the user has permission to view
+	 * @param classPK the class pk
+	 * @return the matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> filterFindByG_C_C(long groupId,
@@ -3950,7 +3953,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns a range of all the mdr rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3958,10 +3961,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of matching m d r rule group instances that the user has permission to view
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> filterFindByG_C_C(long groupId,
@@ -3970,7 +3973,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances that the user has permissions to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns an ordered range of all the mdr rule group instances that the user has permissions to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
@@ -3978,11 +3981,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param classPK the class pk
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching m d r rule group instances that the user has permission to view
+	 * @return the ordered range of matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> filterFindByG_C_C(long groupId,
@@ -4077,15 +4080,15 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instances before and after the current m d r rule group instance in the ordered set of m d r rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the mdr rule group instances before and after the current mdr rule group instance in the ordered set of mdr rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the current m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key of the current mdr rule group instance
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @return the previous, current, and next mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance[] filterFindByG_C_C_PrevAndNext(
@@ -4278,11 +4281,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes all the m d r rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63; from the database.
+	 * Removes all the mdr rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63; from the database.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 */
 	@Override
 	public void removeByG_C_C(long groupId, long classNameId, long classPK) {
@@ -4293,12 +4296,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the number of mdr rule group instances where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the number of matching m d r rule group instances
+	 * @param classPK the class pk
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByG_C_C(long groupId, long classNameId, long classPK) {
@@ -4354,12 +4357,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
+	 * Returns the number of mdr rule group instances that the user has permission to view where groupId = &#63; and classNameId = &#63; and classPK = &#63;.
 	 *
 	 * @param groupId the group ID
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
-	 * @return the number of matching m d r rule group instances that the user has permission to view
+	 * @param classPK the class pk
+	 * @return the number of matching mdr rule group instances that the user has permission to view
 	 */
 	@Override
 	public int filterCountByG_C_C(long groupId, long classNameId, long classPK) {
@@ -4432,13 +4435,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 			});
 
 	/**
-	 * Returns the m d r rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; or throws a {@link NoSuchRuleGroupInstanceException} if it could not be found.
+	 * Returns the mdr rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; or throws a {@link NoSuchRuleGroupInstanceException} if it could not be found.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param ruleGroupId the rule group ID
-	 * @return the matching m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a matching m d r rule group instance could not be found
+	 * @return the matching mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByC_C_R(long classNameId, long classPK,
@@ -4473,12 +4476,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the mdr rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param ruleGroupId the rule group ID
-	 * @return the matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByC_C_R(long classNameId, long classPK,
@@ -4487,13 +4490,13 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the mdr rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param ruleGroupId the rule group ID
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the matching m d r rule group instance, or <code>null</code> if a matching m d r rule group instance could not be found
+	 * @return the matching mdr rule group instance, or <code>null</code> if a matching mdr rule group instance could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByC_C_R(long classNameId, long classPK,
@@ -4585,12 +4588,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes the m d r rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; from the database.
+	 * Removes the mdr rule group instance where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63; from the database.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param ruleGroupId the rule group ID
-	 * @return the m d r rule group instance that was removed
+	 * @return the mdr rule group instance that was removed
 	 */
 	@Override
 	public MDRRuleGroupInstance removeByC_C_R(long classNameId, long classPK,
@@ -4602,12 +4605,12 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63;.
+	 * Returns the number of mdr rule group instances where classNameId = &#63; and classPK = &#63; and ruleGroupId = &#63;.
 	 *
 	 * @param classNameId the class name ID
-	 * @param classPK the class p k
+	 * @param classPK the class pk
 	 * @param ruleGroupId the rule group ID
-	 * @return the number of matching m d r rule group instances
+	 * @return the number of matching mdr rule group instances
 	 */
 	@Override
 	public int countByC_C_R(long classNameId, long classPK, long ruleGroupId) {
@@ -4668,12 +4671,28 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 
 	public MDRRuleGroupInstancePersistenceImpl() {
 		setModelClass(MDRRuleGroupInstance.class);
+
+		try {
+			Field field = ReflectionUtil.getDeclaredField(BasePersistenceImpl.class,
+					"_dbColumnNames");
+
+			Map<String, String> dbColumnNames = new HashMap<String, String>();
+
+			dbColumnNames.put("uuid", "uuid_");
+
+			field.set(this, dbColumnNames);
+		}
+		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
+		}
 	}
 
 	/**
-	 * Caches the m d r rule group instance in the entity cache if it is enabled.
+	 * Caches the mdr rule group instance in the entity cache if it is enabled.
 	 *
-	 * @param mdrRuleGroupInstance the m d r rule group instance
+	 * @param mdrRuleGroupInstance the mdr rule group instance
 	 */
 	@Override
 	public void cacheResult(MDRRuleGroupInstance mdrRuleGroupInstance) {
@@ -4698,9 +4717,9 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Caches the m d r rule group instances in the entity cache if it is enabled.
+	 * Caches the mdr rule group instances in the entity cache if it is enabled.
 	 *
-	 * @param mdrRuleGroupInstances the m d r rule group instances
+	 * @param mdrRuleGroupInstances the mdr rule group instances
 	 */
 	@Override
 	public void cacheResult(List<MDRRuleGroupInstance> mdrRuleGroupInstances) {
@@ -4718,7 +4737,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Clears the cache for all m d r rule group instances.
+	 * Clears the cache for all mdr rule group instances.
 	 *
 	 * <p>
 	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
@@ -4734,7 +4753,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Clears the cache for the m d r rule group instance.
+	 * Clears the cache for the mdr rule group instance.
 	 *
 	 * <p>
 	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
@@ -4840,10 +4859,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Creates a new m d r rule group instance with the primary key. Does not add the m d r rule group instance to the database.
+	 * Creates a new mdr rule group instance with the primary key. Does not add the mdr rule group instance to the database.
 	 *
-	 * @param ruleGroupInstanceId the primary key for the new m d r rule group instance
-	 * @return the new m d r rule group instance
+	 * @param ruleGroupInstanceId the primary key for the new mdr rule group instance
+	 * @return the new mdr rule group instance
 	 */
 	@Override
 	public MDRRuleGroupInstance create(long ruleGroupInstanceId) {
@@ -4862,11 +4881,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes the m d r rule group instance with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the mdr rule group instance with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the m d r rule group instance
-	 * @return the m d r rule group instance that was removed
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @param ruleGroupInstanceId the primary key of the mdr rule group instance
+	 * @return the mdr rule group instance that was removed
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance remove(long ruleGroupInstanceId)
@@ -4875,11 +4894,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes the m d r rule group instance with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the mdr rule group instance with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param primaryKey the primary key of the m d r rule group instance
-	 * @return the m d r rule group instance that was removed
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @param primaryKey the primary key of the mdr rule group instance
+	 * @return the mdr rule group instance that was removed
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance remove(Serializable primaryKey)
@@ -5009,8 +5028,60 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 
 		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
-		if (isNew || !MDRRuleGroupInstanceModelImpl.COLUMN_BITMASK_ENABLED) {
+		if (!MDRRuleGroupInstanceModelImpl.COLUMN_BITMASK_ENABLED) {
 			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+		else
+		 if (isNew) {
+			Object[] args = new Object[] { mdrRuleGroupInstanceModelImpl.getUuid() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				args);
+
+			args = new Object[] {
+					mdrRuleGroupInstanceModelImpl.getUuid(),
+					mdrRuleGroupInstanceModelImpl.getCompanyId()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				args);
+
+			args = new Object[] { mdrRuleGroupInstanceModelImpl.getGroupId() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+				args);
+
+			args = new Object[] { mdrRuleGroupInstanceModelImpl.getRuleGroupId() };
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_RULEGROUPID, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_RULEGROUPID,
+				args);
+
+			args = new Object[] {
+					mdrRuleGroupInstanceModelImpl.getClassNameId(),
+					mdrRuleGroupInstanceModelImpl.getClassPK()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_C_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_C,
+				args);
+
+			args = new Object[] {
+					mdrRuleGroupInstanceModelImpl.getGroupId(),
+					mdrRuleGroupInstanceModelImpl.getClassNameId(),
+					mdrRuleGroupInstanceModelImpl.getClassPK()
+				};
+
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_G_C_C, args);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_C_C,
+				args);
+
+			finderCache.removeResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY);
+			finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL,
+				FINDER_ARGS_EMPTY);
 		}
 
 		else {
@@ -5174,11 +5245,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
+	 * Returns the mdr rule group instance with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the m d r rule group instance
-	 * @return the m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @param primaryKey the primary key of the mdr rule group instance
+	 * @return the mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByPrimaryKey(Serializable primaryKey)
@@ -5198,11 +5269,11 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance with the primary key or throws a {@link NoSuchRuleGroupInstanceException} if it could not be found.
+	 * Returns the mdr rule group instance with the primary key or throws a {@link NoSuchRuleGroupInstanceException} if it could not be found.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the m d r rule group instance
-	 * @return the m d r rule group instance
-	 * @throws NoSuchRuleGroupInstanceException if a m d r rule group instance with the primary key could not be found
+	 * @param ruleGroupInstanceId the primary key of the mdr rule group instance
+	 * @return the mdr rule group instance
+	 * @throws NoSuchRuleGroupInstanceException if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance findByPrimaryKey(long ruleGroupInstanceId)
@@ -5211,10 +5282,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance with the primary key or returns <code>null</code> if it could not be found.
+	 * Returns the mdr rule group instance with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the m d r rule group instance
-	 * @return the m d r rule group instance, or <code>null</code> if a m d r rule group instance with the primary key could not be found
+	 * @param primaryKey the primary key of the mdr rule group instance
+	 * @return the mdr rule group instance, or <code>null</code> if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByPrimaryKey(Serializable primaryKey) {
@@ -5259,10 +5330,10 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the m d r rule group instance with the primary key or returns <code>null</code> if it could not be found.
+	 * Returns the mdr rule group instance with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param ruleGroupInstanceId the primary key of the m d r rule group instance
-	 * @return the m d r rule group instance, or <code>null</code> if a m d r rule group instance with the primary key could not be found
+	 * @param ruleGroupInstanceId the primary key of the mdr rule group instance
+	 * @return the mdr rule group instance, or <code>null</code> if a mdr rule group instance with the primary key could not be found
 	 */
 	@Override
 	public MDRRuleGroupInstance fetchByPrimaryKey(long ruleGroupInstanceId) {
@@ -5322,7 +5393,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 		query.append(_SQL_SELECT_MDRRULEGROUPINSTANCE_WHERE_PKS_IN);
 
 		for (Serializable primaryKey : uncachedPrimaryKeys) {
-			query.append(String.valueOf(primaryKey));
+			query.append((long)primaryKey);
 
 			query.append(StringPool.COMMA);
 		}
@@ -5365,9 +5436,9 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns all the m d r rule group instances.
+	 * Returns all the mdr rule group instances.
 	 *
-	 * @return the m d r rule group instances
+	 * @return the mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findAll() {
@@ -5375,15 +5446,15 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns a range of all the m d r rule group instances.
+	 * Returns a range of all the mdr rule group instances.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
-	 * @return the range of m d r rule group instances
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
+	 * @return the range of mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findAll(int start, int end) {
@@ -5391,16 +5462,16 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances.
+	 * Returns an ordered range of all the mdr rule group instances.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of m d r rule group instances
+	 * @return the ordered range of mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findAll(int start, int end,
@@ -5409,17 +5480,17 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns an ordered range of all the m d r rule group instances.
+	 * Returns an ordered range of all the mdr rule group instances.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link MDRRuleGroupInstanceModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of m d r rule group instances
-	 * @param end the upper bound of the range of m d r rule group instances (not inclusive)
+	 * @param start the lower bound of the range of mdr rule group instances
+	 * @param end the upper bound of the range of mdr rule group instances (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param retrieveFromCache whether to retrieve from the finder cache
-	 * @return the ordered range of m d r rule group instances
+	 * @return the ordered range of mdr rule group instances
 	 */
 	@Override
 	public List<MDRRuleGroupInstance> findAll(int start, int end,
@@ -5508,7 +5579,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Removes all the m d r rule group instances from the database.
+	 * Removes all the mdr rule group instances from the database.
 	 *
 	 */
 	@Override
@@ -5519,9 +5590,9 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Returns the number of m d r rule group instances.
+	 * Returns the number of mdr rule group instances.
 	 *
-	 * @return the number of m d r rule group instances
+	 * @return the number of mdr rule group instances
 	 */
 	@Override
 	public int countAll() {
@@ -5566,7 +5637,7 @@ public class MDRRuleGroupInstancePersistenceImpl extends BasePersistenceImpl<MDR
 	}
 
 	/**
-	 * Initializes the m d r rule group instance persistence.
+	 * Initializes the mdr rule group instance persistence.
 	 */
 	public void afterPropertiesSet() {
 	}

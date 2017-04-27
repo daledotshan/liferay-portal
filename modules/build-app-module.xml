@@ -26,7 +26,7 @@
 	<loadfile failonerror="false" property="artifact.deploy.dependencies" srcFile="build.gradle">
 		<filterchain>
 			<linecontains>
-				<contains value="task deployDependencies(type: Copy)" />
+				<contains value="deployDependencies {" />
 			</linecontains>
 		</filterchain>
 	</loadfile>
@@ -193,6 +193,20 @@
 
 	<target if="artifact.json" name="get-artifact-properties-json">
 		<basename file="${basedir}" property="app.dir.name" />
+
+		<loadfile property="artifact.name" srcfile="package.json">
+			<filterchain>
+				<linecontains>
+					<contains value="&quot;distName&quot;:" />
+				</linecontains>
+
+				<tokenfilter>
+					<replaceregex pattern="\s.*&quot;distName&quot;: &quot;([0-9a-z-]+)&quot;," replace="\1" />
+				</tokenfilter>
+
+				<striplinebreaks />
+			</filterchain>
+		</loadfile>
 
 		<loadfile property="artifact.name" srcfile="package.json">
 			<filterchain>

@@ -34,7 +34,9 @@
 			<div id="<portlet:namespace /><%= mapProvider.getKey() %>Options">
 
 				<%
-				mapProvider.includeConfiguration(request, new PipingServletResponse(pageContext));
+				request.setAttribute(MapProviderWebKeys.MAP_PROVIDER_CONFIGURATION_PREFIX, configurationPrefix);
+
+				mapProvider.includeConfiguration(request, PipingServletResponse.createPipingServletResponse(pageContext));
 				%>
 
 			</div>

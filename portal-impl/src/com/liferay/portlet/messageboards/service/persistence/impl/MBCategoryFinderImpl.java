@@ -15,10 +15,7 @@
 package com.liferay.portlet.messageboards.service.persistence.impl;
 
 import com.liferay.message.boards.kernel.model.MBCategory;
-import com.liferay.message.boards.kernel.model.MBCategoryConstants;
 import com.liferay.message.boards.kernel.model.MBMessage;
-import com.liferay.message.boards.kernel.service.MBMessageLocalServiceUtil;
-import com.liferay.message.boards.kernel.service.MBThreadLocalServiceUtil;
 import com.liferay.message.boards.kernel.service.persistence.MBCategoryFinder;
 import com.liferay.message.boards.kernel.service.persistence.MBCategoryUtil;
 import com.liferay.message.boards.kernel.service.persistence.MBThreadUtil;
@@ -29,23 +26,18 @@ import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.Type;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.Subscription;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
-import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
-import com.liferay.portal.kernel.service.SubscriptionLocalServiceUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portlet.messageboards.model.impl.MBCategoryImpl;
+import com.liferay.portlet.messageboards.model.impl.MBThreadImpl;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,32 +51,20 @@ public class MBCategoryFinderImpl
 	public static final String COUNT_C_BY_G_P =
 		MBCategoryFinder.class.getName() + ".countC_ByG_P";
 
-	public static final String COUNT_C_BY_G_P_S =
-		MBCategoryFinder.class.getName() + ".countC_ByG_P_S";
-
 	public static final String COUNT_C_BY_S_G_U_P =
 		MBCategoryFinder.class.getName() + ".countC_ByS_G_U_P";
 
 	public static final String COUNT_T_BY_G_C =
 		MBCategoryFinder.class.getName() + ".countT_ByG_C";
 
-	public static final String COUNT_T_BY_G_C_S =
-		MBCategoryFinder.class.getName() + ".countT_ByG_C_S";
-
 	public static final String FIND_C_BY_G_P =
 		MBCategoryFinder.class.getName() + ".findC_ByG_P";
-
-	public static final String FIND_C_BY_G_P_S =
-		MBCategoryFinder.class.getName() + ".findC_ByG_P_S";
 
 	public static final String FIND_C_BY_S_G_U_P =
 		MBCategoryFinder.class.getName() + ".findC_ByS_G_U_P";
 
 	public static final String FIND_T_BY_G_C =
 		MBCategoryFinder.class.getName() + ".findT_ByG_C";
-
-	public static final String FIND_T_BY_G_C_S =
-		MBCategoryFinder.class.getName() + ".findT_ByG_C_S";
 
 	@Override
 	public int countC_ByS_G_U_P(
@@ -209,17 +189,6 @@ public class MBCategoryFinderImpl
 				}
 			}
 
-			Group group = GroupLocalServiceUtil.getGroup(groupId);
-
-			Subscription subscription =
-				SubscriptionLocalServiceUtil.fetchSubscription(
-					group.getCompanyId(), userId, MBCategory.class.getName(),
-					groupId);
-
-			if (subscription != null) {
-				count++;
-			}
-
 			return count;
 		}
 		catch (Exception e) {
@@ -243,16 +212,8 @@ public class MBCategoryFinderImpl
 
 			sb.append(StringPool.OPEN_PARENTHESIS);
 
-			String sql = null;
-
-			if (queryDefinition.getStatus() == WorkflowConstants.STATUS_ANY) {
-				sql = CustomSQLUtil.get(COUNT_T_BY_G_C);
-			}
-			else {
-				sql = CustomSQLUtil.get(COUNT_T_BY_G_C_S);
-
-				sql = replaceExcludeStatus(sql, queryDefinition);
-			}
+			String sql = CustomSQLUtil.get(
+				COUNT_T_BY_G_C, queryDefinition, MBThreadImpl.TABLE_NAME);
 
 			if (inlineSQLHelper) {
 				sql = InlineSQLHelperUtil.replacePermissionCheck(
@@ -263,14 +224,8 @@ public class MBCategoryFinderImpl
 			sb.append(sql);
 			sb.append(") UNION ALL (");
 
-			if (queryDefinition.getStatus() == WorkflowConstants.STATUS_ANY) {
-				sql = CustomSQLUtil.get(COUNT_C_BY_G_P);
-			}
-			else {
-				sql = CustomSQLUtil.get(COUNT_C_BY_G_P_S);
-
-				sql = replaceExcludeStatus(sql, queryDefinition);
-			}
+			sql = CustomSQLUtil.get(
+				COUNT_C_BY_G_P, queryDefinition, MBCategoryImpl.TABLE_NAME);
 
 			if (inlineSQLHelper) {
 				sql = InlineSQLHelperUtil.replacePermissionCheck(
@@ -291,16 +246,26 @@ public class MBCategoryFinderImpl
 
 			qPos.add(groupId);
 			qPos.add(categoryId);
+			qPos.add(queryDefinition.getStatus());
 
-			if (queryDefinition.getStatus() != WorkflowConstants.STATUS_ANY) {
-				qPos.add(queryDefinition.getStatus());
+			if (queryDefinition.getOwnerUserId() > 0) {
+				qPos.add(queryDefinition.getOwnerUserId());
+
+				if (queryDefinition.isIncludeOwner()) {
+					qPos.add(WorkflowConstants.STATUS_IN_TRASH);
+				}
 			}
 
 			qPos.add(groupId);
 			qPos.add(categoryId);
+			qPos.add(queryDefinition.getStatus());
 
-			if (queryDefinition.getStatus() != WorkflowConstants.STATUS_ANY) {
-				qPos.add(queryDefinition.getStatus());
+			if (queryDefinition.getOwnerUserId() > 0) {
+				qPos.add(queryDefinition.getOwnerUserId());
+
+				if (queryDefinition.isIncludeOwner()) {
+					qPos.add(WorkflowConstants.STATUS_IN_TRASH);
+				}
 			}
 
 			int count = 0;
@@ -316,9 +281,6 @@ public class MBCategoryFinderImpl
 			}
 
 			return count;
-		}
-		catch (Exception e) {
-			throw new SystemException(e);
 		}
 		finally {
 			closeSession(session);
@@ -372,45 +334,9 @@ public class MBCategoryFinderImpl
 				qPos.add(queryDefinition.getStatus());
 			}
 
-			List<MBCategory> list = (List<MBCategory>)QueryUtil.list(
-				q, getDialect(), QueryUtil.ALL_POS, QueryUtil.ALL_POS, false);
-
-			Group group = GroupLocalServiceUtil.getGroup(groupId);
-
-			Subscription subscription =
-				SubscriptionLocalServiceUtil.fetchSubscription(
-					group.getCompanyId(), userId, MBCategory.class.getName(),
-					groupId);
-
-			if (subscription != null) {
-				int threadCount =
-					MBThreadLocalServiceUtil.getCategoryThreadsCount(
-						groupId, MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID,
-						WorkflowConstants.STATUS_APPROVED);
-				int messageCount =
-					MBMessageLocalServiceUtil.getCategoryMessagesCount(
-						groupId, MBCategoryConstants.DEFAULT_PARENT_CATEGORY_ID,
-						WorkflowConstants.STATUS_APPROVED);
-
-				MBCategory category = new MBCategoryImpl();
-
-				category.setGroupId(group.getGroupId());
-				category.setCompanyId(group.getCompanyId());
-				category.setName(group.getDescriptiveName());
-				category.setDescription(group.getDescription());
-				category.setThreadCount(threadCount);
-				category.setMessageCount(messageCount);
-
-				list.add(category);
-			}
-
-			return Collections.unmodifiableList(
-				ListUtil.subList(
-					list, queryDefinition.getStart(),
-					queryDefinition.getEnd()));
-		}
-		catch (Exception e) {
-			throw new SystemException(e);
+			return (List<MBCategory>)QueryUtil.list(
+				q, getDialect(), queryDefinition.getStart(),
+				queryDefinition.getEnd(), true);
 		}
 		finally {
 			closeSession(session);
@@ -430,16 +356,8 @@ public class MBCategoryFinderImpl
 
 			sb.append("SELECT * FROM (");
 
-			String sql = null;
-
-			if (queryDefinition.getStatus() == WorkflowConstants.STATUS_ANY) {
-				sql = CustomSQLUtil.get(FIND_T_BY_G_C);
-			}
-			else {
-				sql = CustomSQLUtil.get(FIND_T_BY_G_C_S);
-
-				sql = replaceExcludeStatus(sql, queryDefinition);
-			}
+			String sql = CustomSQLUtil.get(
+				FIND_T_BY_G_C, queryDefinition, MBThreadImpl.TABLE_NAME);
 
 			if (inlineSQLHelper) {
 				sql = InlineSQLHelperUtil.replacePermissionCheck(
@@ -450,14 +368,8 @@ public class MBCategoryFinderImpl
 			sb.append(sql);
 			sb.append(" UNION ALL ");
 
-			if (queryDefinition.getStatus() == WorkflowConstants.STATUS_ANY) {
-				sql = CustomSQLUtil.get(FIND_C_BY_G_P);
-			}
-			else {
-				sql = CustomSQLUtil.get(FIND_C_BY_G_P_S);
-
-				sql = replaceExcludeStatus(sql, queryDefinition);
-			}
+			sql = CustomSQLUtil.get(
+				FIND_C_BY_G_P, queryDefinition, MBCategoryImpl.TABLE_NAME);
 
 			if (inlineSQLHelper) {
 				sql = InlineSQLHelperUtil.replacePermissionCheck(
@@ -483,16 +395,26 @@ public class MBCategoryFinderImpl
 
 			qPos.add(groupId);
 			qPos.add(categoryId);
+			qPos.add(queryDefinition.getStatus());
 
-			if (queryDefinition.getStatus() != WorkflowConstants.STATUS_ANY) {
-				qPos.add(queryDefinition.getStatus());
+			if (queryDefinition.getOwnerUserId() > 0) {
+				qPos.add(queryDefinition.getOwnerUserId());
+
+				if (queryDefinition.isIncludeOwner()) {
+					qPos.add(WorkflowConstants.STATUS_IN_TRASH);
+				}
 			}
 
 			qPos.add(groupId);
 			qPos.add(categoryId);
+			qPos.add(queryDefinition.getStatus());
 
-			if (queryDefinition.getStatus() != WorkflowConstants.STATUS_ANY) {
-				qPos.add(queryDefinition.getStatus());
+			if (queryDefinition.getOwnerUserId() > 0) {
+				qPos.add(queryDefinition.getOwnerUserId());
+
+				if (queryDefinition.isIncludeOwner()) {
+					qPos.add(WorkflowConstants.STATUS_IN_TRASH);
+				}
 			}
 
 			List<Object> models = new ArrayList<>();
@@ -527,16 +449,6 @@ public class MBCategoryFinderImpl
 		finally {
 			closeSession(session);
 		}
-	}
-
-	protected String replaceExcludeStatus(
-		String sql, QueryDefinition<?> queryDefinition) {
-
-		if (queryDefinition.isExcludeStatus()) {
-			sql = StringUtil.replace(sql, ".status = ?)", ".status != ?)");
-		}
-
-		return sql;
 	}
 
 	protected String updateSQL(

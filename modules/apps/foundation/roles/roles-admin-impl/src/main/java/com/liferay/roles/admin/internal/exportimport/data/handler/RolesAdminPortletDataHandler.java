@@ -34,7 +34,6 @@ import com.liferay.portal.kernel.model.Team;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.roles.admin.constants.RolesAdminPortletKeys;
 
@@ -69,6 +68,11 @@ public class RolesAdminPortletDataHandler extends BasePortletDataHandler {
 		return SCHEMA_VERSION;
 	}
 
+	@Override
+	public boolean isSupportsDataStrategyCopyAsNew() {
+		return false;
+	}
+
 	@Activate
 	protected void activate() {
 		setDataLevel(DataLevel.PORTAL);
@@ -81,7 +85,6 @@ public class RolesAdminPortletDataHandler extends BasePortletDataHandler {
 						NAMESPACE, "system-roles", true, false)
 				},
 				Role.class.getName(), StagedModelType.REFERRER_CLASS_NAME_ALL));
-		setSupportsDataStrategyCopyAsNew(false);
 	}
 
 	@Override
@@ -177,7 +180,7 @@ public class RolesAdminPortletDataHandler extends BasePortletDataHandler {
 					portletDataContext.addDateRangeCriteria(
 						dynamicQuery, "modifiedDate");
 
-					long classNameId = PortalUtil.getClassNameId(Team.class);
+					long classNameId = _portal.getClassNameId(Team.class);
 
 					Property classNameIdProperty = PropertyFactoryUtil.forName(
 						"classNameId");
@@ -234,6 +237,9 @@ public class RolesAdminPortletDataHandler extends BasePortletDataHandler {
 	}
 
 	private final Set<String> _allSystemRoleNames = new HashSet<>();
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private RoleLocalService _roleLocalService;

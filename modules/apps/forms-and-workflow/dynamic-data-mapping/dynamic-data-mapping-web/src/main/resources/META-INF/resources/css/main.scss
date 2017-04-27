@@ -1,6 +1,10 @@
 @import "bourbon";
 @import "mixins";
 
+.color-cell-editor-hidden {
+	display: none;
+}
+
 .portlet-document-library, .portlet-dynamic-data-mapping {
 	.field-labels-inline {
 		clear: both;
@@ -18,6 +22,10 @@
 	}
 
 	.form-builder {
+		.field-checkbox {
+			margin-top: -7px;
+		}
+
 		.property-builder-drop-container, .tab-pane {
 			min-height: 500px;
 
@@ -30,6 +38,10 @@
 					width: auto;
 				}
 			}
+		}
+
+		.radio {
+			display: inline-block;
 		}
 	}
 

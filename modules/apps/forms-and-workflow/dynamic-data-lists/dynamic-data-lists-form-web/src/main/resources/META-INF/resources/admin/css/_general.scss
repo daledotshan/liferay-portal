@@ -206,8 +206,7 @@
 			content: attr(data-placeholder);
 		}
 
-		.alloy-editor.alloy-editor-placeholder,
-		.alloy-editor.alloy-editor-placeholder:empty:not(:focus),
+		.alloy-editor-container .alloy-editor.alloy-editor-placeholder.ae-placeholder:not(:focus):not(.form-control),
 		.ddl-form-name,
 		.ddl-form-description {
 			border-width: 0;
@@ -303,5 +302,24 @@
 
 	.lfr-ddm-form-page .required-warning {
 		margin-top: 0;
+	}
+}
+
+.form-builder-success-page {
+	padding: 35px;
+}
+
+.progress-bar-success-item {
+	margin-bottom: 42px !important;
+
+	&:before {
+		background-color: #CAD3DB;
+		content: '';
+		display: block;
+		height: 12px;
+		margin-top: -5px;
+		position: absolute;
+		right: 0;
+		width: 12px;
 	}
 }
